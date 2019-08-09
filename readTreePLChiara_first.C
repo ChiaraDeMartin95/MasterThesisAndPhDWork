@@ -15,25 +15,38 @@
 #include <TTree.h>
 #include <TLatex.h>
 #include <TFile.h>
-void readTreePLChiara_first( bool isMC = kFALSE,Int_t sysTrigger=0, Int_t sysV0=0,
+void readTreePLChiara_first( bool isMC = kFALSE,Bool_t isEfficiency=1,Int_t sysTrigger=0, Int_t sysV0=0,
 		       //TString PathIn ="./AnalysisResults2018d8_allrunswMult_MC.root", Int_t type=0 //type = 0 per K0short
-		       TString PathIn ="./AnalysisResults2016l_10runs_3rdtry.root", Int_t type=0 //type = 0 per K0short
+			     TString year="2018d8",  TString Path1 ="_15runs_6thtry", Int_t type=0 //type = 0 per K0short 
+			    
 		       )
 {
-  Int_t fP1 =1; Int_t fP2 =1; //(pair) 1 particle (K+,Lambda), -1 antiparticle (K-,antiLambda)
-  TFile *fin = new TFile(PathIn);
-  //  TString PathOut ="./histo/AngularCorrelation2018d8_allrunswMult";
-  TString PathOut =Form("./histo/AngularCorrelation2016l_10runs_3rdtry_MassDistr_SysT%i_SysV0%i",sysTrigger, sysV0);
-  //  PathOut+= pair;
-  if(isMC){
-    PathOut+="_MC";
+
+  TString PathIn="./AnalysisResults";
+  TString PathOut="./histo/AngularCorrelation";
+  PathIn+=year;
+  PathOut+=year;  
+  
+  if(isMC && isEfficiency){
+    PathIn+="_MCEff";
+    PathOut+="_MCEff";
   }
+  if(isMC && !isEfficiency){
+    PathIn+="_MCTruth";
+    PathOut+="_MCTruth";
+  }
+ 
+  PathIn+=Path1;
+  PathIn+=".root";
+  PathOut+=Path1;
+  PathOut +=Form("_MassDistr_SysT%i_SysV0%i",sysTrigger, sysV0); 
   PathOut+= ".root";
-  TFile *fileMassSigma;
+
+  TFile *fin = new TFile(PathIn);
   TDirectoryFile *d = (TDirectoryFile*)fin->Get("MyTask");
   TTree *tSign = (TTree *)d->Get("fSignalTree");
   TTree *tBkg  = (TTree *)d->Get("fBkgTree");
- Double_t massK0s = 0.497611;
+  Double_t massK0s = 0.497611;
   Double_t massLambda = 1.115683;
   Double_t ctauK0s = 2.6844;
 
@@ -104,9 +117,9 @@ void readTreePLChiara_first( bool isMC = kFALSE,Int_t sysTrigger=0, Int_t sysV0=
   TString tipo[numtipo]={"kK0s", "bo"};
 
 
-  TString Smolt[nummolt]={"0-5", "5-10", "10-30", "30-50", "50-100"};
+  TString Smolt[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "all"};
   Double_t Nmolt[nummolt+1]={0, 5, 10, 30, 50, 100};
-  TString Szeta[numzeta]={""};
+  //TString Szeta[numzeta]={""};
   //  Double_t Nzeta[numzeta+1]={};
   TString SPtV0[numPtV0]={"0-1", "1-2", "2-3", "3-4", "4-8"};
   Double_t NPtV0[numPtV0+1]={0,1,2,3,4,8};
@@ -204,29 +217,6 @@ void readTreePLChiara_first( bool isMC = kFALSE,Int_t sysTrigger=0, Int_t sysV0=
 
   Int_t EntriesSign = 0; 
   Int_t EntriesBkg  = 0; 
-  Int_t count00 = 0; Int_t count01 = 0; Int_t count10 = 0; Int_t count11 = 0;
-  
-  /*
-    TString pair;
-    for(Int_t i =0; i<2; i++){
-    for(Int_t j =0; j<2; j++){
-    if      (i==0 && j==0) {
-    pair ="_PpL";
-    fP1 =  1; fP2 =  1;  // K+ Lambda i=0, j=0
-    }
-    // else if (i==0 && j==1) {
-    // 	pair ="_KpaL"; 
-    // 	fP1 =  1; fP2 = -1; // K+ AntiLambda i=0, j=1
-    // }
-    // else if (i==1 && j==0) {
-    // 	pair ="_KmL"; 
-    // 	fP1 = -1; fP2 =  1; // K- Lambda i=1, j=0
-    // }
-    else if (i==1 && j==1) {
-    pair ="_PmaL";
-    fP1 = -1; fP2 = -1; // K- AntiLambda i=1, j=1
-    }
-  */  
   
   TFile *fout = new TFile(PathOut,"RECREATE");
   TDirectory  *dirSign= fout->mkdir("SE");
@@ -246,13 +236,13 @@ void readTreePLChiara_first( bool isMC = kFALSE,Int_t sysTrigger=0, Int_t sysV0=
 
 
   /*-----------------------DeltaEtaDeltaPhi in bin di molteplicita/ZVertex/pTV)/pTTrigger------------- */
-  TString nameSE[nummolt][numzeta][numPtV0][numPtTrigger];
-  TString namemassSE[nummolt][numzeta][numPtV0][numPtTrigger];
-  TH1D *hInvMassK0Short_SEbins[nummolt][numzeta][numPtV0][numPtTrigger];
-  TH2D *hMassvsPt_SEbins[nummolt][numzeta][numPtTrigger];
+  TString nameSE[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TString namemassSE[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH1D *hInvMassK0Short_SEbins[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH2D *hMassvsPt_SEbins[nummolt+1][numzeta][numPtTrigger];
 
   //Form("hMassvsPt_"+tipo[type]+"_%i",molt
-  for(Int_t m=0; m<nummolt; m++){
+  for(Int_t m=0; m<nummolt+1; m++){
     for(Int_t z=0; z<numzeta; z++){
       for(Int_t tr=0; tr<numPtTrigger; tr++){
 	hMassvsPt_SEbins[m][z][tr]= new TH2D(Form("SE_hMassvsPt_"+tipo[type]+"_%i", m),Form("SE_hMassvsPt_"+tipo[type]+"_%i", m), 100, 0.4, 0.6, 100, 0, 10);
@@ -268,11 +258,11 @@ void readTreePLChiara_first( bool isMC = kFALSE,Int_t sysTrigger=0, Int_t sysV0=
     }
   }
 
-  TString nameME[nummolt][numzeta][numPtV0][numPtTrigger];
-  TString namemassME[nummolt][numzeta][numPtV0][numPtTrigger];
-  TH1D *hInvMassK0Short_MEbins[nummolt][numzeta][numPtV0][numPtTrigger];
-     TH2D *hMassvsPt_MEbins[nummolt][numzeta][numPtTrigger];
-  for(Int_t m=0; m<nummolt; m++){
+  TString nameME[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TString namemassME[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH1D *hInvMassK0Short_MEbins[nummolt+1][numzeta][numPtV0][numPtTrigger];
+     TH2D *hMassvsPt_MEbins[nummolt+1][numzeta][numPtTrigger];
+  for(Int_t m=0; m<nummolt+1; m++){
     for(Int_t z=0; z<numzeta; z++){
       for(Int_t tr=0; tr<numPtTrigger; tr++){
 	hMassvsPt_MEbins[m][z][tr]= new TH2D(Form("ME_hMassvsPt_"+tipo[type]+"_%i", m),Form("ME_hMassvsPt_"+tipo[type]+"_%i", m),100, 0.4, 0.6,100, 0, 10);
@@ -289,12 +279,14 @@ void readTreePLChiara_first( bool isMC = kFALSE,Int_t sysTrigger=0, Int_t sysV0=
 
   EntriesSign =  tSign->GetEntries();
   EntriesBkg  =  tBkg ->GetEntries();
-     
+    
+ Bool_t MoltSel=kFALSE; 
 
   dirSign->cd();
   // cout << "  entries Sign: " << EntriesSign<<endl;
   for(Int_t k = 0; k<EntriesSign; k++){
     tSign->GetEntry(k);  
+    if(isMC==0 || (isMC==1 && isEfficiency==1)){
     if(sysTrigger==0){
     if(TMath::Abs(fSignTreeVariableDCAz)>1) continue;
     }
@@ -312,29 +304,43 @@ void readTreePLChiara_first( bool isMC = kFALSE,Int_t sysTrigger=0, Int_t sysV0=
     if(sysV0==2){   
       if(fSignTreeVariablectau >3*ctauK0s )continue;
     }
-    if(sysV0==3){   
-      if(fSignTreeVariableRapK0Short > 0.5)continue;
-    }
     if(sysV0==4){   
       if(TMath::Abs((fSignTreeVariableInvMassLambda - massLambda))< 0.010) continue;
       if(TMath::Abs((fSignTreeVariableInvMassAntiLambda - massLambda))< 0.010) continue;
     }
     if(sysV0==5){   
+      if(TMath::Abs((fSignTreeVariableInvMassLambda - massLambda))< 0.005) continue;
+      if(TMath::Abs((fSignTreeVariableInvMassAntiLambda - massLambda))< 0.005) continue;
+    }
+
+    if(sysV0==6){   
       if(fSignTreeVariableDcaV0ToPrimVertex>0.3 )continue;
     }
+    }
+  if(sysV0==3){   
+      if(fSignTreeVariableRapK0Short > 0.5)continue;
+    }
+  
     //**********************************************************************************************
 
     // if(TMath::Abs((fSignTreeVariableInvMassK0s - massK0s))> 0.01){
     //   hSign_PtTrigger->Fill(fSignTreeVariablePtTrigger);
     // }
-    for(Int_t m=0; m<nummolt; m++){
+   
+    //    cout << "*********************"<< endl;
+    for(Int_t m=0; m<nummolt+1; m++){
+      if (m < nummolt){
+	MoltSel = (fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1]);
+      }
+      else if(m==nummolt) MoltSel=kTRUE;
+      // cout << m << "  " << nummolt << "  " << MoltSel<< endl;
       for(Int_t z=0; z<numzeta; z++){
 	for(Int_t tr=0; tr<numPtTrigger; tr++){
-	  if(fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1]){
+	  if(MoltSel){
 	    hMassvsPt_SEbins[m][z][tr]->Fill(fSignTreeVariableInvMassK0s, fSignTreeVariablePtV0); 
 	  }
 	  for(Int_t v=0; v<numPtV0; v++){
-	    if(fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1] && fSignTreeVariablePtTrigger>=NPtTrigger[tr] && fSignTreeVariablePtTrigger<NPtTrigger[tr+1] && fSignTreeVariablePtV0>=NPtV0[v]&& fSignTreeVariablePtV0<NPtV0[v+1]){
+	    if(MoltSel && fSignTreeVariablePtTrigger>=NPtTrigger[tr] && fSignTreeVariablePtTrigger<NPtTrigger[tr+1] && fSignTreeVariablePtV0>=NPtV0[v]&& fSignTreeVariablePtV0<NPtV0[v+1]){
 	      hInvMassK0Short_SEbins[m][z][v][tr]->Fill(fSignTreeVariableInvMassK0s);
 	    }
 	  }
@@ -343,11 +349,12 @@ void readTreePLChiara_first( bool isMC = kFALSE,Int_t sysTrigger=0, Int_t sysV0=
     }
   }
 
-
+  cout << MoltSel<< endl;
   dirBkg->cd();
   for(Int_t k = 0; k<EntriesBkg; k++){
   // for(Int_t k = 0; k<1; k++){
     tBkg->GetEntry(k);
+    if(isMC==0 || (isMC==1 && isEfficiency==1)){
     if(sysTrigger==0){
     if(TMath::Abs(fBkgTreeVariableDCAz)>1) continue;
     }
@@ -365,28 +372,40 @@ void readTreePLChiara_first( bool isMC = kFALSE,Int_t sysTrigger=0, Int_t sysV0=
     if(sysV0==2){   
       if(fBkgTreeVariablectau >3*ctauK0s )continue;
     }
-    if(sysV0==3){   
-      if(fBkgTreeVariableRapK0Short > 0.5)continue;
-    }
     if(sysV0==4){   
       if(TMath::Abs((fBkgTreeVariableInvMassLambda - massLambda))< 0.010) continue;
       if(TMath::Abs((fBkgTreeVariableInvMassAntiLambda - massLambda))< 0.010) continue;
     }
     if(sysV0==5){   
+      if(TMath::Abs((fBkgTreeVariableInvMassLambda - massLambda))< 0.005) continue;
+      if(TMath::Abs((fBkgTreeVariableInvMassAntiLambda - massLambda))< 0.005) continue;
+    }
+    
+    if(sysV0==6){   
       if(fBkgTreeVariableDcaV0ToPrimVertex>0.3 )continue;
     }
+    }
+  if(sysV0==3){   
+      if(fBkgTreeVariableRapK0Short > 0.5)continue;
+    }
+  
     //**********************************************************************************************
     // if(TMath::Abs((fBkgTreeVariableInvMassK0s - massK0s))> 0.01){
     // hBkg_PtTrigger->Fill(fBkgTreeVariablePtTrigger);
     // }
-    for(Int_t m=0; m<nummolt; m++){
+    for(Int_t m=0; m<nummolt+1; m++){
+      if (m < nummolt){
+	MoltSel = (fBkgTreeVariableMultiplicity>=Nmolt[m] && fBkgTreeVariableMultiplicity<Nmolt[m+1]);
+      }
+      else  if(m==nummolt) MoltSel==kTRUE;
+  
       for(Int_t z=0; z<numzeta; z++){
 	for(Int_t tr=0; tr<numPtTrigger; tr++){
-	  if(fBkgTreeVariableMultiplicity>=Nmolt[m] && fBkgTreeVariableMultiplicity<Nmolt[m+1]){
+	  if(MoltSel){
 	    hMassvsPt_MEbins[m][z][tr]->Fill(fBkgTreeVariableInvMassK0s, fBkgTreeVariablePtV0);
 	  }
 	  for(Int_t v=0; v<numPtV0; v++){
-	    if(fBkgTreeVariableMultiplicity>=Nmolt[m] && fBkgTreeVariableMultiplicity<Nmolt[m+1] && fBkgTreeVariablePtTrigger>=NPtTrigger[tr] && fBkgTreeVariablePtTrigger<NPtTrigger[tr+1] && fBkgTreeVariablePtV0>=NPtV0[v]&& fBkgTreeVariablePtV0<NPtV0[v+1]){
+	    if(MoltSel && fBkgTreeVariablePtTrigger>=NPtTrigger[tr] && fBkgTreeVariablePtTrigger<NPtTrigger[tr+1] && fBkgTreeVariablePtV0>=NPtV0[v]&& fBkgTreeVariablePtV0<NPtV0[v+1]){
 	      hInvMassK0Short_MEbins[m][z][v][tr]->Fill(fBkgTreeVariableInvMassK0s);
 	    }
 	  }

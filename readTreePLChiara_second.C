@@ -15,30 +15,41 @@
 #include <TTree.h>
 #include <TLatex.h>
 #include <TFile.h>
-void readTreePLChiara_second( bool isMC = kFALSE, Double_t ptjmin=3, Double_t ptjmax =30, Bool_t type=0, Double_t nsigmamin=4, Double_t nsigmamax=10, Int_t sysTrigger=0, Int_t sysV0=0){
+void readTreePLChiara_second(bool isMC = kFALSE,Bool_t isEfficiency=1,Int_t sysTrigger=0, Int_t sysV0=0,
+			     TString year="2016l",  TString Path1 ="_15runs_6thtry", Int_t type=0,  Double_t ptjmin=3, Double_t ptjmax =30, Double_t nsigmamin=4, Double_t nsigmamax=10){
 
-
+  Double_t massK0s = 0.497611;
+  Double_t massLambda = 1.115683;
   const Float_t ctauK0s=2.6844;
-  TString PathIn;
-  TString PathOut;
-  TString PathInMass;
+
   TString file;
-const Int_t numtipo=2;  
-TString tipo[numtipo]={"kK0s", "bo"};
+  const Int_t numtipo=2;  
+  TString tipo[numtipo]={"kK0s", "bo"};
 
-  if(!isMC){
-    file="2016l_10runs_3rdtry";
-    PathIn ="./AnalysisResults" + file;
-    PathOut ="./histo/AngularCorrelation"+file;
+  TString PathIn="./AnalysisResults";
+  TString PathOut="./histo/AngularCorrelation";
+  TString PathInMass= "invmass_distribution_thesis/";
+  TString PathInMassDef;
+  PathIn+=year;
+  PathOut+=year;  
+  PathInMass+=year;
+  
+  if(isMC && isEfficiency){ 
+    PathIn+="_MCEff";
+    PathOut+="_MCEff";
+    PathInMass+="_MCEff";
   }
-  if(isMC){
-    PathIn ="./AnalysisResults2018d8_MC_1runNew";
-    PathOut="./histo/AngularCorrelation2018d8_1runNew_MC";
+  if(isMC && !isEfficiency){
+    PathIn+="_MCTruth";
+    PathOut+="_MCTruth";
   }
-  PathIn+= ".root";
+ 
+  PathIn+=Path1;
+  PathInMass+=Path1;
+  PathIn+=".root";
+  PathOut+=Path1;
+  PathOut +=Form("_SysT%i_SysV0%i",sysTrigger, sysV0); 
   PathOut+= ".root";
-
-
 
   TFile *fin = new TFile(PathIn);
   TFile *fileMassSigma;
@@ -51,9 +62,7 @@ TString tipo[numtipo]={"kK0s", "bo"};
   const Int_t numPtV0=5;
   const Int_t numPtTrigger=1;
   
-  const Float_t nsigma_SB=4;
-
-
+ 
   TString Smolt[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "_all"};
   Double_t Nmolt[nummolt+1]={0, 5, 10, 30, 50, 100};
   TString Szeta[numzeta]={""};
@@ -64,8 +73,6 @@ TString tipo[numtipo]={"kK0s", "bo"};
   Double_t NPtTrigger[numPtTrigger+1]={ptjmin,ptjmax};
 
 
-  Double_t massK0s = 0.497611;
-  Double_t massLambda = 1.115683;
   Double_t sigma[numtipo][nummolt+1][numPtV0];
   Double_t mass[numtipo][nummolt+1][numPtV0];
   Double_t meansigma;
@@ -73,10 +80,11 @@ TString tipo[numtipo]={"kK0s", "bo"};
   TH1F* histoSigma;
   TH1F* histoMean;
 
-  if(!isMC){
-    for(Int_t m=0; m<nummolt; m++){
-      PathInMass= "invmass_distribution_thesis/2016l_10runs_3rdtry/invmass_distribution_"+tipo[type]+Form("_molt%i_sysT%i_sysV0%i.root", m, sysTrigger, sysV0);
-      fileMassSigma= new TFile(PathInMass);
+
+  if(isMC==0 || (isMC==1 && isEfficiency==1)){
+    for(Int_t m=0; m<nummolt+1; m++){
+      PathInMassDef=PathInMass+"/invmass_distribution_"+tipo[type]+Form("_molt%i_sysT%i_sysV0%i.root", m, sysTrigger, sysV0);
+      fileMassSigma= new TFile(PathInMassDef);
       histoSigma=(TH1F*)fileMassSigma->Get("histo_sigma");
       histoMean=(TH1F*)fileMassSigma->Get("histo_mean");
       for(Int_t v=0; v<numPtV0; v++){
@@ -84,11 +92,6 @@ TString tipo[numtipo]={"kK0s", "bo"};
 	sigma[type][m][v]=histoSigma->GetBinContent(v+1);
 	cout <<"mult interval " <<  m << " PtV0 interval " << v << " mean " << mass[type][m][v] << " sigma "<< sigma[type][m][v] << endl;
       }
-    }
-    //*************************this must me modified! **************************
-    for(Int_t v=0; v<numPtV0; v++){
-      mass[type][nummolt][v]=massK0s;
-      sigma[type][nummolt][v]=0.004;
     }
   }
 
@@ -242,29 +245,7 @@ TString tipo[numtipo]={"kK0s", "bo"};
 
   Int_t EntriesSign = 0; 
   Int_t EntriesBkg  = 0; 
-  Int_t count00 = 0; Int_t count01 = 0; Int_t count10 = 0; Int_t count11 = 0;
-  
-  /*
-    TString pair;
-    for(Int_t i =0; i<2; i++){
-    for(Int_t j =0; j<2; j++){
-    if      (i==0 && j==0) {
-    pair ="_PpL";
-    fP1 =  1; fP2 =  1;  // K+ Lambda i=0, j=0
-    }
-    // else if (i==0 && j==1) {
-    // 	pair ="_KpaL"; 
-    // 	fP1 =  1; fP2 = -1; // K+ AntiLambda i=0, j=1
-    // }
-    // else if (i==1 && j==0) {
-    // 	pair ="_KmL"; 
-    // 	fP1 = -1; fP2 =  1; // K- Lambda i=1, j=0
-    // }
-    else if (i==1 && j==1) {
-    pair ="_PmaL";
-    fP1 = -1; fP2 = -1; // K- AntiLambda i=1, j=1
-    }
-  */  
+
   
   TFile *fout = new TFile(PathOut,"RECREATE");
   TDirectory  *dirSign= fout->mkdir("SE");
@@ -375,7 +356,8 @@ TString tipo[numtipo]={"kK0s", "bo"};
   dirSign->cd();
   for(Int_t k = 0; k<EntriesSign; k++){
     tSign->GetEntry(k);
- if(sysTrigger==0){
+    if(isMC==0 || (isMC==1 && isEfficiency==1)){
+    if(sysTrigger==0){
     if(TMath::Abs(fSignTreeVariableDCAz)>1) continue;
     }
     if(sysTrigger==1){
@@ -392,16 +374,22 @@ TString tipo[numtipo]={"kK0s", "bo"};
     if(sysV0==2){   
       if(fSignTreeVariablectau >3*ctauK0s )continue;
     }
-    if(sysV0==3){   
-      if(fSignTreeVariableRapK0Short > 0.5)continue;
-    }
     if(sysV0==4){   
       if(TMath::Abs((fSignTreeVariableInvMassLambda - massLambda))< 0.010) continue;
       if(TMath::Abs((fSignTreeVariableInvMassAntiLambda - massLambda))< 0.010) continue;
     }
     if(sysV0==5){   
+      if(TMath::Abs((fSignTreeVariableInvMassLambda - massLambda))< 0.005) continue;
+      if(TMath::Abs((fSignTreeVariableInvMassAntiLambda - massLambda))< 0.005) continue;
+    }
+    if(sysV0==6){   
       if(fSignTreeVariableDcaV0ToPrimVertex>0.3 )continue;
     }
+    }
+ if(sysV0==3){   
+      if(fSignTreeVariableRapK0Short > 0.5)continue;
+    }
+   
     //**********************************************************************************************
 
     if (fSignTreeVariableDeltaPhi >  (1.5*TMath::Pi())) fSignTreeVariableDeltaPhi -= 2.0*TMath::Pi();
@@ -412,7 +400,7 @@ TString tipo[numtipo]={"kK0s", "bo"};
       for(Int_t z=0; z<numzeta; z++){
 	for(Int_t tr=0; tr<numPtTrigger; tr++){
 	  for(Int_t v=0; v<numPtV0; v++){
-	    if(isMC) BoolMC = kTRUE;
+	    if(isMC && !isEfficiency) BoolMC = kTRUE;
 	    else BoolMC =TMath::Abs((fSignTreeVariableInvMassK0s - mass[type][m][v]))<3*sigma[type][m][v]; 
 	    if(BoolMC){
 	      hSign_PtTrigger[m][z]->Fill(fSignTreeVariablePtTrigger);
@@ -422,7 +410,7 @@ TString tipo[numtipo]={"kK0s", "bo"};
 	      if(BoolMC){
 		hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
 	      }
-	      if(!isMC && TMath::Abs((fSignTreeVariableInvMassK0s - mass[type][m][v]))>nsigmamin*sigma[type][m][v] && TMath::Abs((fSignTreeVariableInvMassK0s - mass[type][m][v]))<nsigmamax*sigma[type][m][v]){
+	      if((!isMC || (isMC &&isEfficiency))&& TMath::Abs((fSignTreeVariableInvMassK0s - mass[type][m][v]))>nsigmamin*sigma[type][m][v] && TMath::Abs((fSignTreeVariableInvMassK0s - mass[type][m][v]))<nsigmamax*sigma[type][m][v]){
 		hDeltaEtaDeltaPhi_SEbins_sidebands[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
 	      }
 
@@ -441,7 +429,7 @@ TString tipo[numtipo]={"kK0s", "bo"};
   dirBkg->cd();
   for(Int_t k = 0; k<EntriesBkg; k++){
     tBkg->GetEntry(k);
-
+    if(isMC==0 || (isMC==1 && isEfficiency==1)){
  if(sysTrigger==0){
     if(TMath::Abs(fBkgTreeVariableDCAz)>1) continue;
     }
@@ -459,16 +447,23 @@ TString tipo[numtipo]={"kK0s", "bo"};
     if(sysV0==2){   
       if(fBkgTreeVariablectau >3*ctauK0s )continue;
     }
-    if(sysV0==3){   
-      if(fBkgTreeVariableRapK0Short > 0.5)continue;
-    }
     if(sysV0==4){   
       if(TMath::Abs((fBkgTreeVariableInvMassLambda - massLambda))< 0.010) continue;
       if(TMath::Abs((fBkgTreeVariableInvMassAntiLambda - massLambda))< 0.010) continue;
     }
-    if(sysV0==5){   
+ if(sysV0==5){   
+      if(TMath::Abs((fBkgTreeVariableInvMassLambda - massLambda))< 0.005) continue;
+      if(TMath::Abs((fBkgTreeVariableInvMassAntiLambda - massLambda))< 0.005) continue;
+    }
+      
+ if(sysV0==6){   
       if(fBkgTreeVariableDcaV0ToPrimVertex>0.3 )continue;
     }
+    }
+    if(sysV0==3){   
+      if(fBkgTreeVariableRapK0Short > 0.5)continue;
+    }
+
     //**********************************************************************************************
 
     if (fBkgTreeVariableDeltaPhi >  (1.5*TMath::Pi())) fBkgTreeVariableDeltaPhi -= 2.0*TMath::Pi();
@@ -479,7 +474,7 @@ TString tipo[numtipo]={"kK0s", "bo"};
       for(Int_t z=0; z<numzeta; z++){
 	for(Int_t tr=0; tr<numPtTrigger; tr++){
 	  for(Int_t v=0; v<numPtV0; v++){
-	    if(isMC) BoolMC = kTRUE;
+	    if(isMC && !isEfficiency) BoolMC = kTRUE;
 	    else BoolMC =TMath::Abs((fBkgTreeVariableInvMassK0s - mass[type][m][v]))<3*sigma[type][m][v]; 
 	    if(BoolMC){
 	      hBkg_PtTrigger[m][z]->Fill(fBkgTreeVariablePtTrigger);
@@ -489,7 +484,7 @@ TString tipo[numtipo]={"kK0s", "bo"};
 	      if(BoolMC){
 		hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->Fill(fBkgTreeVariableDeltaEta, fBkgTreeVariableDeltaPhi);
 	      }
-	      if(!isMC && TMath::Abs((fBkgTreeVariableInvMassK0s - mass[type][m][v]))>nsigmamin*sigma[type][m][v] && TMath::Abs((fBkgTreeVariableInvMassK0s - mass[type][m][v]))<nsigmamax*sigma[type][m][v]){
+	      if((!isMC || (isMC &&isEfficiency)) && TMath::Abs((fBkgTreeVariableInvMassK0s - mass[type][m][v]))>nsigmamin*sigma[type][m][v] && TMath::Abs((fBkgTreeVariableInvMassK0s - mass[type][m][v]))<nsigmamax*sigma[type][m][v]){
 		hDeltaEtaDeltaPhi_MEbins_sidebands[m][z][v][tr]->Fill(fBkgTreeVariableDeltaEta, fBkgTreeVariableDeltaPhi);
 	      }
 	    }

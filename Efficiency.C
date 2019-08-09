@@ -27,18 +27,19 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
   //TString file = "AngularCorrelation2018d8_MC_try7_10runs";
   //TString file = "AngularCorrelation2017d20a2_extra_MCEffEvt_3runs";
   // TString file = "AngularCorrelation2018d8_MC_try2fullrun";
-  TString file = "AngularCorrelation2018d8_MCEff_10runs_3rdtry";
+  TString file = "AngularCorrelation2018d8_MCEff_15runs_6thtry";
   // TString PathInBis =  "AnalysisResults2018d8_allrunswMult_MC.root";
   // TString PathInBis =  "AnalysisResults2018d8_MC_runNew.root";
   // TString PathInBis =  "AnalysisResults2017d20a2_extra_MCEffEvt_3runs.root";
  // TString PathInBis =  "AnalysisResults2018d8_MC_try2fullrun.root";
-  TString PathInBis =  "AnalysisResults2018d8_MCEff_10runs_3rdtry.root";
+  TString PathInBis =  "AnalysisResults2018d8_MCEff_15runs_6thtry.root";
   //  TString PathInBis =  "AnalysisResults.root";
   TString PathOut2="histo/" + file + Form("_MC_Efficiency_SysT%i_SysV0%i.root", sysTrigger, sysV0);
 
   TFile *fileinbis = new TFile(PathInBis);
   TDirectoryFile *dir = (TDirectoryFile*)fileinbis->Get("MyTask");
   TList *list = (TList*)dir->Get("MyOutputContainer");
+  TList *list2 = (TList*)dir->Get("MyOutputContainer3");
 
   const Int_t nummolt=5;
   const Int_t numzeta=1;
@@ -50,7 +51,7 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
   const Int_t numSysTrigger = 3;
   const Int_t numSysV0 = 7;
   Int_t sysV0Gen=0;
-  if(sysV0==4 || sysV0==5) sysV0Gen=1;
+  if(sysV0==3) sysV0Gen=1;
 
   TString tipo[numtipo]={"kK0s", "bo"};
   
@@ -72,23 +73,23 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
   TCanvas *canvasRes=new TCanvas ("canvasRes", "canvasRes", 1500, 800);
   TCanvas *canvasCont=new TCanvas ("canvasCont", "canvasCont", 1000, 700);
   TCanvas *canvasUsed=new TCanvas ("canvasUsed", "canvasUsed", 1000, 700);
-  TCanvas *canvasSysTrigger=new TCanvas ("canvasSysTrigger", "canvasSysTrigger", 1000, 700);
+
   canvasEff->Divide(3,2);
   canvasRes->Divide(3,2);
   canvasCont->Divide(2,1);
   canvasUsed->Divide(2,2);
-  canvasSysTrigger->Divide(2,1);
+
 
   //***************istogrammi delle efficienze**********************************************************
-  TH3D*   fHistGeneratedTriggerPtPhi= (TH3D*)list->FindObject("fHistGeneratedTriggerPtPhi");
-  //  TH3D*   fHistGeneratedTriggerPtPhi= (TH3D*)list->FindObject(Form("fHistGeneratedTriggerPtPhi_%i",sysV0Gen));
-  TH3D*   fHistSelectedTriggerPtPhi=  (TH3D*)list->FindObject(Form("fHistSelectedTriggerPtPhi_%i", sysTrigger));
-  TH3D*   fHistGeneratedV0PtPhi=      (TH3D*)list->FindObject("fHistGeneratedV0PtPhi");
-  TH3D*   fHistSelectedV0PtPhi=       (TH3D*)list->FindObject(Form("fHistSelectedV0PtPhi_%i",sysV0));
-  TH3D*   fHistGeneratedTriggerPtEta= (TH3D*)list->FindObject("fHistGeneratedTriggerPtEta");
-  TH3D*   fHistSelectedTriggerPtEta=  (TH3D*)list->FindObject(Form("fHistSelectedTriggerPtEta_%i", sysTrigger));
-  TH3D*   fHistGeneratedV0PtEta=      (TH3D*)list->FindObject("fHistGeneratedV0PtEta");
-  TH3D*   fHistSelectedV0PtEta=       (TH3D*)list->FindObject(Form("fHistSelectedV0PtEta_%i", sysV0));
+  TH3D*   fHistGeneratedTriggerPtPhi= (TH3D*)list2->FindObject("fHistGeneratedTriggerPtPhi");
+  //  TH3D*   fHistGeneratedTriggerPtPhi= (TH3D*)list2->FindObject(Form("fHistGeneratedTriggerPtPhi_%i",sysV0Gen));
+  TH3D*   fHistSelectedTriggerPtPhi=  (TH3D*)list2->FindObject(Form("fHistSelectedTriggerPtPhi_%i", sysTrigger));
+  TH3D*   fHistGeneratedV0PtPhi=      (TH3D*)list2->FindObject(Form("fHistGeneratedV0PtPhi_%i", sysV0Gen));
+  TH3D*   fHistSelectedV0PtPhi=       (TH3D*)list2->FindObject(Form("fHistSelectedV0PtPhi_%i",sysV0));
+  TH3D*   fHistGeneratedTriggerPtEta= (TH3D*)list2->FindObject("fHistGeneratedTriggerPtEta");
+  TH3D*   fHistSelectedTriggerPtEta=  (TH3D*)list2->FindObject(Form("fHistSelectedTriggerPtEta_%i", sysTrigger));
+  TH3D*   fHistGeneratedV0PtEta=      (TH3D*)list2->FindObject(Form("fHistGeneratedV0PtEta_%i", sysV0Gen));
+  TH3D*   fHistSelectedV0PtEta=       (TH3D*)list2->FindObject(Form("fHistSelectedV0PtEta_%i", sysV0));
   TH3D*   fHistReconstructedV0PtMass= (TH3D*)list->FindObject("fHistReconstructedV0PtMass");
   TH3D*   fHistSelectedV0PtMass=      (TH3D*)list->FindObject("fHistSelectedV0PtMass");
 
@@ -440,13 +441,12 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
 
   cout << "V0 1D projection in Eta " << endl;
   fHistV0EfficiencyEta[molt]= new TH1D("fHistV0EfficiencyEta_"+ Smolt[molt] , "fHistV0EfficiencyEta_"+ Smolt[molt] ,    fHistGenerated_2D_V0PtEta[molt]->GetNbinsY(),   fHistGenerated_2D_V0PtEta[molt]->GetYaxis()->GetBinLowEdge(1),   fHistGenerated_2D_V0PtEta[molt]->GetYaxis()->GetBinUpEdge(  fHistGenerated_2D_V0PtEta[molt]->GetNbinsY()) );
-  fHistV0EfficiencyEta[molt]->GetXaxis()->SetTitle("#eta");      
+   fHistV0EfficiencyEta[molt]->GetXaxis()->SetTitle("#eta");      
   fHistV0EfficiencyEta[molt]->SetTitle( "fHistV0EfficiencyEta_"+ Smolt[molt] );
-  fHistSelected_1D_V0Eta[molt]=(TH1D*)fHistSelected_2D_V0PtEta[molt]->ProjectionY("fHistSelected_1D_V0Eta_"+ Smolt[molt]);
+   fHistSelected_1D_V0Eta[molt]=(TH1D*)fHistSelected_2D_V0PtEta[molt]->ProjectionY("fHistSelected_1D_V0Eta_"+ Smolt[molt]);
   fHistGenerated_1D_V0Eta[molt]=(TH1D*)fHistGenerated_2D_V0PtEta[molt]->ProjectionY("fHistGenerated_1D_V0Eta_"+ Smolt[molt]); 
   fHistV0EfficiencyEta[molt] ->Divide(  fHistSelected_1D_V0Eta[molt],  fHistGenerated_1D_V0Eta[molt]);
-
-  canvasEff->cd(6);
+   canvasEff->cd(6);
   fHistV0EfficiencyEta[molt]->GetYaxis()->SetRangeUser(0,1);
   fHistV0EfficiencyEta[molt]->SetMarkerStyle(Marker[molt]);
   fHistV0EfficiencyEta[molt]->SetLineColor(Color[molt]);
@@ -454,12 +454,13 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
   fHistV0EfficiencyEta[molt]->Draw("same");
   if(molt ==nummolt)     legend->Draw();
   
-
+ 
   //per efficienza selezioni V0
     if(molt < nummolt){
   fHistSelectedV0PtMass->GetZaxis()->SetRange(fHistSelectedV0PtMass->GetZaxis()->FindBin(Nmolt[molt]+0.001),fHistSelectedV0PtMass->GetZaxis()->FindBin(Nmolt[molt+1]-0.001) );
  fHistReconstructedV0PtMass->GetZaxis()->SetRange(fHistReconstructedV0PtMass->GetZaxis()->FindBin(Nmolt[molt]+0.001),fHistReconstructedV0PtMass->GetZaxis()->FindBin(Nmolt[molt+1]-0.001) );
     }
+ 
   fHistSelectedMass_2D[molt] = (TH2D*)fHistSelectedV0PtMass->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis
   fHistRecoMass_2D[molt] = (TH2D*)fHistReconstructedV0PtMass->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis
   fHistV0EfficiencyReco[molt]= new TH2D("fHistV0EfficiencyReco_"+ Smolt[molt],"fHistV0EfficiencyReco_"+ Smolt[molt],fHistSelectedV0PtMass->GetNbinsX(),fHistSelectedV0PtMass->GetXaxis()->GetXmin(), fHistSelectedV0PtMass->GetXaxis()->GetXmax(),fHistSelectedV0PtMass->GetNbinsY(),fHistSelectedV0PtMass->GetYaxis()->GetBinLowEdge(1), fHistSelectedV0PtMass->GetYaxis()->GetBinUpEdge(fHistSelectedV0PtMass->GetNbinsY()) );
@@ -467,11 +468,13 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
   fHistV0EfficiencyReco[molt]->GetYaxis()->SetTitle("p_{T}");      
   fHistV0EfficiencyReco[molt]->Divide(fHistSelectedMass_2D[molt], fHistRecoMass_2D[molt]);
 
+ 
   fHistV0EfficiencyRecoPt[molt]= new TH1D("fHistV0EfficiencyRecoPt_"+ Smolt[molt] , "fHistV0EfficiencyRecoPt_"+ Smolt[molt],  fHistV0EfficiencyReco[molt]->GetNbinsY(), fHistV0EfficiencyReco[molt]->GetYaxis()->GetBinLowEdge(1), fHistV0EfficiencyReco[molt]->GetYaxis()->GetBinUpEdge(fHistV0EfficiencyReco[molt]->GetNbinsY()));
   fHistSelectedMass_1D[molt]= (TH1D*)fHistSelectedMass_2D[molt]->ProjectionY("fHistSelectedMass_1D_"+ Smolt[molt]);
   fHistRecoMass_1D[molt]= (TH1D*)fHistRecoMass_2D[molt]->ProjectionY("fHistRecoMass_1D_"+ Smolt[molt]);  
   fHistV0EfficiencyRecoPt[molt] ->Divide(fHistSelectedMass_1D[molt], fHistRecoMass_1D[molt]);
 
+  cout << "resolution histos" << endl;
     //**********************resolution histograms*****************************
     for(Int_t m=0; m< 3; m++){
     for(Int_t t=0; t< 2; t++){
@@ -500,9 +503,9 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
 
     //***************contamination factor for trigger and V0 in multiplicity intervals***************
 
-    HistContTrigger[molt]=(TH2D*)list->FindObject(Form("fHistPrimaryTrigger_%i_cut%i", molt, sysTrigger)); //histo tipo di trigger (primario, secondario) vs pT trigger
+    HistContTrigger[molt]=(TH2D*)list2->FindObject(Form("fHistPrimaryTrigger_%i_cut%i", molt, sysTrigger)); //histo tipo di trigger (primario, secondario) vs pT trigger
     cout << "deficit " << endl;
-    HistContV0[molt]=(TH2D*)list->FindObject(Form("fHistPrimaryV0_%i", molt));//histo tipo di V0 (primario, secondario) vs pT V0
+    HistContV0[molt]=(TH2D*)list2->FindObject(Form("fHistPrimaryV0_%i_cut%i", molt, 0));//histo tipo di V0 (primario, secondario) vs pT V0
 
     HistInt[molt]=HistContTrigger[molt]->ProjectionX("", HistContTrigger[molt]->GetYaxis()->FindBin(ptjmin+0.00001),HistContTrigger[molt]->GetYaxis()->FindBin(ptjmax-0.0001));
     if((HistInt[molt]->GetBinContent(1) + HistInt[molt]->GetBinContent(2) + HistInt[molt]->GetBinContent(3)+ HistInt[molt]->GetBinContent(4)) != 0){
