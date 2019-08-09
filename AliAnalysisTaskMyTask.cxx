@@ -34,11 +34,11 @@
 #include "AliPIDResponse.h"
 #include "AliMultiplicity.h"
 //#include "AliMultSelectionBase.h"
-//#include "AliMultSelection.h"
+#include "AliMultSelection.h"
 #include "AliAODMCParticle.h"
 #include "AliAnalysisKPEventCollectionChiara.h"
 #include "AliAODVertex.h"
-//#include "AliEventCuts.h"
+#include "AliEventCuts.h"
 #include "AliAODTrack.h"
 #include "AliAODv0.h"
 #include "AliVVertex.h"
@@ -55,11 +55,12 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask() :AliAnalysisTaskSE(),
   fCollidingSystem("pp"), 
   fAOD(0), 
   fPIDResponse(0),
-//  fMultSelection(0),
-//fEventCuts(0), 			  			
+  fMultSelection(0),
+fEventCuts(0), 			  			
   fOutputList(0), 
   fSignalTree(0), 
   fBkgTree(0), 
+  fOutputList2(0), 
   fMCEvent(0), 
   fReadMCTruth(0),
   isEfficiency(0),
@@ -183,11 +184,12 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask(const char* name) : AliAnalysisTask
 								 fCollidingSystem("pp"), 
 								 fAOD(0), 
 								 fPIDResponse(0),
-								 //								 								 fMultSelection(0), 			  		
-								 //								 						 fEventCuts(0),								 
+								 								 fMultSelection(0), 			  		
+							 						 fEventCuts(0),								 
 								 fOutputList(0), 
 								 fSignalTree(0), 
 								 fBkgTree(0), 
+								 fOutputList2(0), 
 								 fMCEvent(0), 
 								 fReadMCTruth(0),
 								 isEfficiency(0),
@@ -314,7 +316,8 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask(const char* name) : AliAnalysisTask
   // make changes to your AddTask macro!
 
   DefineOutput(2, TTree::Class());  
-  DefineOutput(3, TTree::Class());  
+  DefineOutput(3, TTree::Class());
+  DefineOutput(4, TList::Class());  
 }
 //_____________________________________________________________________________
 AliAnalysisTaskMyTask::~AliAnalysisTaskMyTask()
@@ -328,6 +331,9 @@ AliAnalysisTaskMyTask::~AliAnalysisTaskMyTask()
   }
   if(fBkgTree) {
     delete fBkgTree;     // at the end of your task, it is deleted from memory by calling this function
+  }
+  if(fOutputList2) {
+    delete fOutputList2;     // at the end of your task, it is deleted from memory by calling this function
   }
   if (farrGT)
     delete[] farrGT;
@@ -470,10 +476,12 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
 
   // Store pointer to global tracks
   farrGT = new Int_t[fTrackBufferSize];
-  
+
   fOutputList = new TList();         
   fOutputList->SetOwner(kTRUE);     
-
+  fOutputList2 = new TList();         
+  fOutputList2->SetOwner(kTRUE);     
+  
   fSignalTree= new TTree("fSignalTree","fSignalTree");
   fSignalTree->Branch("fTreeVariablePtTrigger",          &fTreeVariablePtTrigger   , "fTreeVariablePtTrigger/D");
   fSignalTree->Branch("fTreeVariableChargeTrigger",      &fTreeVariableChargeTrigger, "fTreeVariableChargeTrigger/D");
@@ -534,9 +542,12 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
   fBkgTree->Branch("fTreeVariableZvertex",              &fTreeVariableZvertex  , "fTreeVariableZvertex/D");
   fBkgTree->Branch("fTreeVariablePDGCode",              &fTreeVariablePDGCode  , "fTreeVariablePDGCode/D");
 
+  
   fHistPt = new TH1F("fHistPt", "p_{T} distribution of selected charged tracks in events used for AC", 300, 0, 30); 
   fHistPt->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+ 
 
+ 
   fHistPtV0 = new TH1F("fHistPtV0", "p_{T} distribution of selected V0 in events used for AC", 300, 0, 30); 
   fHistPtV0->GetXaxis()->SetTitle("p_{T} (GeV/c)");
 
@@ -681,7 +692,7 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
   fHistMultvsTriggerBefAll->GetXaxis()->SetTitle("Number of Trigger particles");
   fHistMultvsTriggerBefAll->GetYaxis()->SetTitle("Centrality");
   
-
+ 
   fHistMultvsTriggerMCTruthBefAll=new TH2F("fHistMultvsTriggerMCTruthBefAll", "Centrality of events vs number of trigger particles, MC Truth", 20, -0.5, 19.5, 100, 0, 100);
   fHistMultvsTriggerMCTruthBefAll->GetXaxis()->SetTitle("Number of Trigger particles");
   fHistMultvsTriggerMCTruthBefAll->GetYaxis()->SetTitle("Centrality");
@@ -787,8 +798,8 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
   fHistGeneratedV0PtEta[j]->GetYaxis()->SetTitle("#eta");
  }
   
-  fHistSelectedV0PtEta=new TH3F*[6];
-  for(Int_t j=0; j<6; j++){
+  fHistSelectedV0PtEta=new TH3F*[7];
+  for(Int_t j=0; j<7; j++){
     fHistSelectedV0PtEta[j]=new TH3F(Form("fHistSelectedV0PtEta_%i",j), "p_{T} and #eta distribution of selected V0 particles (K0s, primary, events w T>0)", 300, 0, 30, 400,-1.2,1.2,  100, 0, 100 );
     fHistSelectedV0PtEta[j]->GetXaxis()->SetTitle("p_{T}");
     fHistSelectedV0PtEta[j]->GetYaxis()->SetTitle("#eta");
@@ -839,25 +850,29 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
     }
   }
 
-  fHistPrimaryV0= new TH2F*[6];
+
+  fHistPrimaryV0= new TH2F**[6];
   for(Int_t j=0; j<6; j++){
-    fHistPrimaryV0[j]=new TH2F(Form("fHistPrimaryV0_%i",j), "V0 MC (K0s, selected)", 4, 0.5, 4.5, 160, 0, 16);
-    fHistPrimaryV0[j]->GetXaxis()->SetBinLabel(1,"Primary selected V0s");
-    fHistPrimaryV0[j]->GetXaxis()->SetBinLabel(2,"Secondary from w-decay selected V0s"); 
-    fHistPrimaryV0[j]->GetXaxis()->SetBinLabel(3,"Secondary from material selected V0s"); 
-    fHistPrimaryV0[j]->GetYaxis()->SetTitle("p_{T}"); 
+    fHistPrimaryV0[j]=new TH2F*[7];
+    for(Int_t i=0; i<7; i++){
+      fHistPrimaryV0[j][i]=new TH2F(Form("fHistPrimaryV0_%i_cut%i",j,i), "V0 MC (K0s, selected)", 4, 0.5, 4.5, 160, 0, 16);
+      fHistPrimaryV0[j][i]->GetXaxis()->SetBinLabel(1,"Primary selected V0s");
+      fHistPrimaryV0[j][i]->GetXaxis()->SetBinLabel(2,"Secondary from w-decay selected V0s"); 
+      fHistPrimaryV0[j][i]->GetXaxis()->SetBinLabel(3,"Secondary from material selected V0s"); 
+      fHistPrimaryV0[j][i]->GetYaxis()->SetTitle("p_{T}");
+    } 
   }
 
   //  TString molteplicit[6]={"0-7","7-15","15-25","25-40","40-70",">70"};
   fHistMultiplicityOfMixedEvent=new TH1F("fHistMultiplicityOfMixedEvent", "Distribution of number of events used for the mixing", 20, 0.5, 20.5);
 
-  //  fEventCuts.AddQAplotsToList(fOutputList);
-
+  fEventCuts.AddQAplotsToList(fOutputList);
+  
   fOutputList->Add(fHistPDG);
   fOutputList->Add(fHistEventMult);
   fOutputList->Add(fHistEventV0);
   fOutputList->Add(fHistTrack); 
-
+  
   //istogrammi riempiti ad ogni evento selezionato (ossia utilizzato per AC) con una entry
   fOutputList->Add(fHistZvertex);
   fOutputList->Add(fHist_multiplicity); 
@@ -897,11 +912,17 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
   for(Int_t j=0; j < 6; j++){
     fOutputList->Add(fHistMassvsPt[j]);
     fOutputList->Add(fHistMassvsPt_tagli[j]);
-    for(Int_t i=0; i<3; i++){  
-      fOutputList->Add(fHistPrimaryTrigger[j][i]); 
+    
+ for(Int_t i=0; i<3; i++){  
+      fOutputList2->Add(fHistPrimaryTrigger[j][i]); 
     }
-    fOutputList->Add(fHistPrimaryV0[j]);      
+   
+    for(Int_t l=0; l<1; l++){
+    fOutputList2->Add(fHistPrimaryV0[j][l]);      
+    }
+    
   }
+  
   
   fOutputList->Add(fHistMass2Photon);
   fOutputList->Add(fHistMassPhoton);
@@ -910,23 +931,24 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
   fOutputList->Add(fHistPtArmvsAlphaAfterPhotonSelection);  
   fOutputList->Add(fHistPtArmvsAlphaAfterLambdaRejectionSelection);  
   fOutputList->Add(fHistMultiplicityOfMixedEvent);
-
-  fOutputList->Add(fHistGeneratedTriggerPtPhi);
-  fOutputList->Add(fHistGeneratedTriggerPtEta);
+  
+  fOutputList2->Add(fHistGeneratedTriggerPtPhi);
+  fOutputList2->Add(fHistGeneratedTriggerPtEta);
+  
   for(Int_t j=0; j < 4; j++){
-    fOutputList->Add(fHistSelectedTriggerPtPhi[j]);
-    fOutputList->Add(fHistSelectedTriggerPtEta[j]);
+    fOutputList2->Add(fHistSelectedTriggerPtPhi[j]);
+    fOutputList2->Add(fHistSelectedTriggerPtEta[j]);
   }
-  
+ 
   for(Int_t j=0; j < 2; j++){
-   fOutputList->Add(fHistGeneratedV0PtPhi[j]); 
-   fOutputList->Add(fHistGeneratedV0PtEta[j]); 
+   fOutputList2->Add(fHistGeneratedV0PtPhi[j]); 
+   fOutputList2->Add(fHistGeneratedV0PtEta[j]); 
   }
-  
   for(Int_t j=0; j < 7; j++){
-    fOutputList->Add(fHistSelectedV0PtPhi[j]);
-    fOutputList->Add(fHistSelectedV0PtEta[j]);
+    fOutputList2->Add(fHistSelectedV0PtPhi[j]);
+    fOutputList2->Add(fHistSelectedV0PtEta[j]);
   }
+ 
   fOutputList->Add(fHistReconstructedV0PtMass);
   fOutputList->Add(fHistSelectedV0PtMass);
   fOutputList->Add(fHistResolutionTriggerPt);
@@ -935,12 +957,13 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
   fOutputList->Add(fHistResolutionV0Pt);
   fOutputList->Add(fHistResolutionV0Phi);
   fOutputList->Add(fHistResolutionV0Eta);
-  
-  PostData(1, fOutputList);           // postdata will notify the analysis manager of changes / updates to the 
-  // fOutputList object. the manager will in the end take care of writing your output to file
-  // so it needs to know what's in the output
+ 
+ 
+  PostData(1, fOutputList);  
   PostData(2, fSignalTree);       
-  PostData(3, fBkgTree);       
+  PostData(3, fBkgTree); 
+  PostData(4, fOutputList2);     
+     
 }
 //_____________________________________________________________________________
 void AliAnalysisTaskMyTask::UserExec(Option_t *)
@@ -951,10 +974,10 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   // the manager will take care of reading the events from file, and with the static function InputEvent() you 
   // have access to the current event. 
   // once you return from the UserExec function, the manager will retrieve the next event from the chain
-
+  
   //  Float_t moltep[5]={0,7,15,25,40,70}; //valori associati a molteplicita'
   Float_t moltep[6]={0,5,10,30,50,100};  //valori associati a centralita'
-
+ 
   fHistEventMult->Fill(1);
 
   // AliMCEvent   *lMCevent  = 0x0;
@@ -965,19 +988,22 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   if(!fAOD) {
     AliWarning("Error: AOD event not available \n");
     PostData(1, fOutputList);       
+
     PostData(2, fSignalTree);       
-    PostData(3,fBkgTree); return;
+    PostData(3,fBkgTree); 
+    PostData(4, fOutputList2);  
+    return;
   }        
   
-  /*
+  
  /// Use the event cut class to apply the required selections
  if (!fEventCuts.AcceptEvent(fAOD)) {   
  PostData(1, fOutputList);
  PostData(2, fSignalTree );
  PostData(3,fBkgTree); return;
  }
-  */
-
+  
+  
   Int_t iTracks(fAOD->GetNumberOfTracks());         
   Int_t V0Tracks(fAOD->GetNumberOfV0s());           
   Evcounter++;  
@@ -993,7 +1019,8 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     AliWarning("No prim. vertex in AOD... return!");
     PostData(1, fOutputList);
     PostData(2, fSignalTree );
-    PostData(3,fBkgTree); return;
+    PostData(3,fBkgTree); 
+    PostData(4, fOutputList2);  return;
   }
   fHistEventMult->Fill(2);
   AliVVertex *vertexmain =0x0;
@@ -1005,19 +1032,11 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     PostData(1, fOutputList);
     PostData(2, fSignalTree );
     //c cout << "z vertex selection failed " << endl;
-    PostData(3,fBkgTree); return;
+    PostData(3,fBkgTree); 
+    PostData(4, fOutputList2);  return;
   }
   fHistEventMult->Fill(3);
 
-  /* ho implementato in modo diverso
-     if (fReadMCTruth) {
-     //      Printf("Reading MC truth!!! \n");
-     arrayMC = (TClonesArray*) fAOD->GetList()->FindObject(AliAODMCParticle::StdBranchName());
-    
-     if (!arrayMC) AliFatal("Error: MC particles branch not found!\n");
-    
-     }
-  */
 
   //PID: retrieve AliPIDResponse object from manager + connect our pointer to this object
   AliAnalysisManager *man = AliAnalysisManager::GetAnalysisManager();
@@ -1031,7 +1050,8 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     AliWarning("cannot get pid response");
     PostData(1, fOutputList);
     PostData(2, fSignalTree );
-    PostData(3,fBkgTree); return;
+    PostData(3,fBkgTree); 
+    PostData(4, fOutputList2);  return;
   }
   fHistEventMult->Fill(4);
 
@@ -1041,7 +1061,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   
   Float_t lPercentiles = 0;
   
-  /*
+ 
   //This will work for both ESDs and AODs
   AliMultSelection *MultSelection = (AliMultSelection*) fAOD -> FindListObject("MultSelection");
 
@@ -1051,7 +1071,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   }else{
   AliInfo("Didn't find MultSelection!"); 
   }
-  */
+ 
   //c cout << "centralita' dell evento " << lPercentiles << endl;
   //Embedded in framework:
   // ---> if lPercentiles are 200 or above: event didn't pass event selections
@@ -1063,27 +1083,15 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   //lPercentiles= fEventCuts.GetCentrality(0);
   //cout << "centralita' dell evento " << lPercentiles << endl;
   
-   
+    
   if ( lPercentiles > 199 ){
     PostData(1,fOutputList );
     PostData(2, fSignalTree );
     //c cout << "lPercentiles >= 200" << endl;
-    PostData(3,fBkgTree); return;   
+    PostData(3,fBkgTree); 
+    PostData(4, fOutputList2);  return;   
   }
 
-  /*da non utilizzare ora
-
-    Int_t lcentrality=((AliAODHeader*)fAOD->GetHeader())->GetRefMultiplicityComb08();//CONTROLLA!!
-    cout << "lcentrality  " << lcentrality << endl;
-    //fMultSelection =(AliMultSelection*)(fAOD->FindListObject("MultSelection"));
-    //if(fMultSelection) centrality = fMultSelection->GetMultiplicityPercentile("V0M");
-    if (lcentrality==-1){
-    PostData(1,fOutputList );
-    PostData(2, fSignalTree );
-    cout << "return: lcentrality= -1 " << endl;
-    PostData(3,fBkgTree); return;
-    }
-  */
   fHistEventMult->Fill(5);
 
   //event must not be tagged as pileup
@@ -1093,7 +1101,8 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     PostData(1,fOutputList );
     PostData(2, fSignalTree );
     //c cout << "return: event is pile up " << endl;
-    PostData(3,fBkgTree); return;
+    PostData(3,fBkgTree); 
+    PostData(4, fOutputList2);  return;
   }
   fHistEventMult->Fill(6);
 
@@ -1134,6 +1143,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     PostData(2, fSignalTree );
     //c cout << "event does not fulfil centrality selection criteria " << endl;     
     PostData(3,fBkgTree);
+    PostData(4, fOutputList2);  
     return;
   }
   
@@ -1176,48 +1186,12 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   } 
   //cout << " zbin " << zBin<<endl;
   //...and centrality
-  /*
-    if(lPercentiles < 0.01) centralityBin=19;  // changed <= with < to be consistent with histogram binning, except last bin 
-    else if(lPercentiles < 0.1) centralityBin=18;
-    else if(lPercentiles < 0.5) centralityBin=17;
-    else if(lPercentiles < 1.0) centralityBin=16;
-    else if(lPercentiles < 5.0) centralityBin=15;
-    else if(lPercentiles < 10.) centralityBin=14;
-    else if(lPercentiles < 20.) centralityBin=13;
-    else if(lPercentiles < 30.) centralityBin=12;
-    else if(lPercentiles < 40.) centralityBin=11;
-    else if(lPercentiles < 50.) centralityBin=10;
-    else if(lPercentiles < 70.) centralityBin=9; 
-    else if(lPercentiles <= 100.) centralityBin=8;
-  */  
   if(lPercentiles < 5.0) centralityBin=19;  // changed <= with < to be consistent with histogram binning, except last bin 
   else if(lPercentiles < 10.0) centralityBin=18;
   else if(lPercentiles < 30.0) centralityBin=17;
   else if(lPercentiles < 50.) centralityBin=16;
-  else if(lPercentiles < 100.) centralityBin=15;
+  else if(lPercentiles <= 100.) centralityBin=15;
 
-  /*
-    if(lPercentiles < 5.) centralityBin=19;  // changed <= with < to be consistent with histogram binning, except last bin 
-    else if(lPercentiles < 10.) centralityBin=18;
-    else if(lPercentiles < 15.) centralityBin=17;
-    else if(lPercentiles < 20.) centralityBin=16;
-    else if(lPercentiles < 25.) centralityBin=15;
-    else if(lPercentiles < 30.) centralityBin=14;
-    else if(lPercentiles < 35.) centralityBin=13;
-    else if(lPercentiles < 40.) centralityBin=12;
-    else if(lPercentiles < 45.) centralityBin=11;
-    else if(lPercentiles < 50.) centralityBin=10;
-    else if(lPercentiles < 55.) centralityBin=9; 
-    else if(lPercentiles < 60.) centralityBin=8;
-    else if(lPercentiles < 65.) centralityBin=7;
-    else if(lPercentiles < 70.) centralityBin=6;
-    else if(lPercentiles < 75.) centralityBin=5;
-    else if(lPercentiles < 80.) centralityBin=4;
-    else if(lPercentiles < 85.) centralityBin=3;
-    else if(lPercentiles < 90.) centralityBin=2;   
-    else if(lPercentiles < 95.) centralityBin=1;
-    else if(lPercentiles <= 100.) centralityBin=0;
-  */
   ////c cout << "6 " << endl;
   //c cout << "  " << zBin <<" centrbin " << centralityBin<< endl;
   if (((centralityBin+1) >fnMultBins) || ((zBin+1) > fzVertexBins)){ 
@@ -1259,6 +1233,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   //LOOP FOR FIRST PARTICLE
  
   Float_t ptTriggerMinimoDati=10000;
+  
   for(Int_t i=0; i < iTracks; i++) {
     track = static_cast<AliAODTrack*>(fAOD->GetTrack(i));        
     fHistTrack->Fill(1);
@@ -1393,6 +1368,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     PostData(2, fSignalTree );
     //c cout  << "event does not have Trigger particles " << endl;     
     PostData(3,fBkgTree);
+    PostData(4, fOutputList2);  
     return;
   }
  
@@ -1468,7 +1444,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
       ProcessMCParticles(Generated, track, labelPrimOrSec, lPercentiles, isV0);
     }
   }
-    
+  
   //c cout << "\n \n  here I start the loop on v0s " << endl;
   for(Int_t i(0); i < V0Tracks; i++) {       
     //c cout << "i "<< i << endl;
@@ -1626,16 +1602,6 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     
     //    if(v0->PtProng(pos0or1) < .15) continue;
     //if(v0->PtProng(neg0or1) < .15) continue;
-    /*
-    //load status for PID
-    statusPos=prongTrackPos->GetStatus();
-    if((statusPos&AliESDtrack::kTPCrefit)==0) continue;
-    prongTrackPos->SetAODEvent(fAOD);
-    statusNeg=prongTrackNeg->GetStatus();
-    if((statusNeg&AliESDtrack::kTPCrefit)==0) continue;
-    prongTrackNeg->SetAODEvent(fAOD);
-    */ //////////////////////////  fin qua commentato
- 
    
     //    cout << lPercentiles << endl;
     for (Int_t m =0; m<5;m++){
@@ -1730,18 +1696,6 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     }
     fHistMassvsPt_tagli[5]->Fill(v0->MassK0Short(),v0->Pt());      
 
-    /*
-    Bool_t skipV0DoubleCounted=kFALSE;
-
-    fEvt->fReconstructedSecond[NumberSecondParticle].sLabelPos = labelPos;
-    fEvt->fReconstructedSecond[NumberSecondParticle].sLabelNeg = labelNeg;
-     
-    for(Int_t j=0;j< NumberSecondParticle; j++){
-      if((	fEvt->fReconstructedSecond[NumberSecondParticle].sLabelPos == fEvt->fReconstructedSecond[j].sLabelPos)||(	fEvt->fReconstructedSecond[NumberSecondParticle].sLabelNeg == fEvt->fReconstructedSecond[j].sLabelNeg)) skipV0DoubleCounted=kTRUE;
-    }
-
-    if(skipV0DoubleCounted) continue;
-    */
     NumberSecondParticle++;
 
     if(fReadMCTruth){
@@ -1793,12 +1747,54 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 	  for (Int_t m =0; m<5;m++){
 	    if(lPercentiles>=moltep[m] && lPercentiles<moltep[m+1]){
 	      for(Int_t p=1; p<=4; p++){
-		if (labelPrimOrSecV0==p) fHistPrimaryV0[m]->Fill(p, v0->Pt());
+		if (labelPrimOrSecV0==p) {
+		  fHistPrimaryV0[m][0]->Fill(p, v0->Pt());
+		  if(v0->CosPointingAngle(lBestPrimaryVtxPos) > 0.997){
+		    fHistPrimaryV0[m][1]->Fill(p, v0->Pt());
+		  } 
+		  if(kctau[ParticleType]<3*kctauval[ParticleType]){
+		    fHistPrimaryV0[m][2]->Fill(p, v0->Pt());
+		  } 
+		  if(TMath::Abs(rapidityV0[0])<0.5){
+		    fHistPrimaryV0[m][3]->Fill(p, v0->Pt());
+		  } 
+		  if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.010 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.010) {
+		    fHistPrimaryV0[m][4]->Fill(p, v0->Pt());
+		  } 
+		  if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.005 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.005) {
+		    fHistPrimaryV0[m][5]->Fill(p, v0->Pt());
+		  } 
+		  if(v0Dca< 0.3){
+		    fHistPrimaryV0[m][6]->Fill(p, v0->Pt());
+		  } 
+		  
+		}
 	      }
 	    }
 	  }
 	  for(Int_t p=1; p<=4; p++){
-	    if (labelPrimOrSecV0==p) fHistPrimaryV0[5]->Fill(p, v0->Pt());
+	    if (labelPrimOrSecV0==p){
+	      fHistPrimaryV0[5][0]->Fill(p, v0->Pt());
+	      if(v0->CosPointingAngle(lBestPrimaryVtxPos) > 0.997){
+		fHistPrimaryV0[5][1]->Fill(p, v0->Pt());
+	      } 
+	      if(kctau[ParticleType]<3*kctauval[ParticleType]){
+		fHistPrimaryV0[5][2]->Fill(p, v0->Pt());
+	      } 
+	      if(TMath::Abs(rapidityV0[0])<0.5){
+		fHistPrimaryV0[5][3]->Fill(p, v0->Pt());
+	      } 
+	      if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.010 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.010) {
+		fHistPrimaryV0[5][4]->Fill(p, v0->Pt());
+	      } 
+	      if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.005 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.005) {
+		fHistPrimaryV0[5][5]->Fill(p, v0->Pt());
+	      } 
+	      if(v0Dca< 0.3){
+		fHistPrimaryV0[5][6]->Fill(p, v0->Pt());
+	      } 
+		  
+	    }
 	  }
 	}
       }
@@ -1927,6 +1923,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     PostData(2, fSignalTree );
     //c cout << "event has trigger particle but no V0 " << endl;
     PostData(3,fBkgTree);
+    PostData(4, fOutputList2);  
     return;
   }
 
@@ -1990,12 +1987,15 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     }
     }
   */
+  
   //--------------------------------------------------------------
   DoPairsh1h2((Int_t)lPercentiles, fieldsign, lBestPrimaryVtxPos[2]);  
      
   PostData(1, fOutputList);     
   PostData(2,fSignalTree);
   PostData(3,fBkgTree);
+  PostData(4, fOutputList2);  
+  
 }
 
 
