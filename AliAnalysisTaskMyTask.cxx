@@ -977,7 +977,9 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   
   //  Float_t moltep[5]={0,7,15,25,40,70}; //valori associati a molteplicita'
   Float_t moltep[6]={0,5,10,30,50,100};  //valori associati a centralita'
- 
+  Float_t LastzBin;
+  Float_t LastcentralityBin;
+
   fHistEventMult->Fill(1);
 
   // AliMCEvent   *lMCevent  = 0x0;
@@ -1199,13 +1201,19 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   }
   // //se decommento, ho seg viol
   
-  //try4 if(Evcounter==1) FifoShiftok=kTRUE;
-    
-  //try4  if (FifoShiftok==kTRUE)  fEventColl[zBin][centralityBin]->FifoShift();
-  fEventColl[zBin][centralityBin]->FifoShift();
+  //  if(Evcounter==1)  fEventColl[zBin][centralityBin]->FifoShift();
+//unuseful  if (Evcounter==1){
+//unuseful    LastzBin=zBin;
+//unuseful    LastcentralityBin=centralityBin;
+//unuseful  }
+//unuseful  if (FifoShiftok==kTRUE && LastzBin==zBin && LastcentralityBin==centralityBin)  fEventColl[zBin][centralityBin]->FifoShift();
+//unuseful  else  fEventColl[zBin][centralityBin]->FifoClear();
+//unuseful  //working  fEventColl[zBin][centralityBin]->FifoShift();
   //cout << "6 " << endl;
-  FifoShiftok=kFALSE;
+  //unuseful FifoShiftok=kFALSE;
   // // //se decommento, ho seg viol 
+
+  fEventColl[zBin][centralityBin]->FifoClear();
   fEvt = fEventColl[zBin][centralityBin]->fEvt;
   // // cout << "7 " << endl;
   //-----------------------------------LOOP OVER THE TRACKS
@@ -1716,7 +1724,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 	      fHistSelectedV0PtPhi[1]->Fill(v0->Pt(), v0->Phi(), lPercentiles);
 	      fHistSelectedV0PtEta[1]->Fill(v0->Pt(), v0->Eta(), lPercentiles);
 	    } 
-	    if(kctau[ParticleType]<3*kctauval[ParticleType]){
+	    if(kctau[ParticleType]<0.4*kctauval[ParticleType]){
 	      fHistSelectedV0PtPhi[2]->Fill(v0->Pt(), v0->Phi(), lPercentiles);
 	      fHistSelectedV0PtEta[2]->Fill(v0->Pt(), v0->Eta(), lPercentiles);
 	    } 
@@ -1752,7 +1760,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 		  if(v0->CosPointingAngle(lBestPrimaryVtxPos) > 0.997){
 		    fHistPrimaryV0[m][1]->Fill(p, v0->Pt());
 		  } 
-		  if(kctau[ParticleType]<3*kctauval[ParticleType]){
+		  if(kctau[ParticleType]<0.4*kctauval[ParticleType]){
 		    fHistPrimaryV0[m][2]->Fill(p, v0->Pt());
 		  } 
 		  if(TMath::Abs(rapidityV0[0])<0.5){
@@ -1778,7 +1786,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 	      if(v0->CosPointingAngle(lBestPrimaryVtxPos) > 0.997){
 		fHistPrimaryV0[5][1]->Fill(p, v0->Pt());
 	      } 
-	      if(kctau[ParticleType]<3*kctauval[ParticleType]){
+	      if(kctau[ParticleType]<0.4*kctauval[ParticleType]){
 		fHistPrimaryV0[5][2]->Fill(p, v0->Pt());
 	      } 
 	      if(TMath::Abs(rapidityV0[0])<0.5){
@@ -1927,13 +1935,19 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     return;
   }
 
+
+
+
   fHistSecondParticle->Fill(NumberSecondParticle, NumberSecondParticleMC);
   fHistSecondParticleTruth->Fill(NumberSecondParticleRecoTrue, NumberSecondParticleMC);
 
   fHistEventV0->AddBinContent(15, NumberSecondParticle);    
   fHistEventV0->AddBinContent(16, NumberSecondParticleRecoTrue);    
   fHistEventV0->AddBinContent(17, NumberSecondParticleMC);    
-  FifoShiftok=kTRUE;
+  // FifoShiftok=kTRUE;
+  // LastzBin=zBin;
+  // LastcentralityBin=centralityBin;
+  
   fHistEventMult->Fill(22);  
   if(!fReadMCTruth || (fReadMCTruth && isEfficiency)){
     fEvt->fNumberCandidateFirst = NumberFirstParticle;
@@ -1990,12 +2004,13 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   
   //--------------------------------------------------------------
   DoPairsh1h2((Int_t)lPercentiles, fieldsign, lBestPrimaryVtxPos[2]);  
-     
+
   PostData(1, fOutputList);     
   PostData(2,fSignalTree);
   PostData(3,fBkgTree);
   PostData(4, fOutputList2);  
-  
+
+  fEventColl[zBin][centralityBin]->FifoShift();       
 }
 
 

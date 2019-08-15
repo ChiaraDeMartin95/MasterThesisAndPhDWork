@@ -15,8 +15,8 @@
 #include <TTree.h>
 #include <TLatex.h>
 #include <TFile.h>
-void readTreePLChiara_second(bool isMC = kFALSE,Bool_t isEfficiency=1,Int_t sysTrigger=0, Int_t sysV0=0,
-			     TString year="2016l",  TString Path1 ="_15runs_6thtry", Int_t type=0,  Double_t ptjmin=3, Double_t ptjmax =30, Double_t nsigmamin=4, Double_t nsigmamax=10){
+void readTreePLChiara_second(bool isMC = kFALSE,Bool_t isEfficiency=1,Int_t sysTrigger=0, Int_t sysV0=5,
+			     TString year="2016lk",  TString Path1 ="", Int_t type=0,  Double_t ptjmin=3, Double_t ptjmax =30, Double_t nsigmamin=4, Double_t nsigmamax=10, Bool_t isSigma=kFALSE){
 
   Double_t massK0s = 0.497611;
   Double_t massLambda = 1.115683;
@@ -352,6 +352,7 @@ void readTreePLChiara_second(bool isMC = kFALSE,Bool_t isEfficiency=1,Int_t sysT
      
   Bool_t BoolVar=kFALSE;
   Bool_t BoolMC=kFALSE;
+  Bool_t MassLimit=kFALSE;
 
   dirSign->cd();
   for(Int_t k = 0; k<EntriesSign; k++){
@@ -395,22 +396,29 @@ void readTreePLChiara_second(bool isMC = kFALSE,Bool_t isEfficiency=1,Int_t sysT
     if (fSignTreeVariableDeltaPhi >  (1.5*TMath::Pi())) fSignTreeVariableDeltaPhi -= 2.0*TMath::Pi();
     if (fSignTreeVariableDeltaPhi < (-0.5*TMath::Pi())) fSignTreeVariableDeltaPhi += 2.0*TMath::Pi();
     for(Int_t m=0; m<nummolt+1; m++){
-      if(m< nummolt) BoolVar ==  fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1];
+      if(m< nummolt) BoolVar = fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1];
       else BoolVar=kTRUE;
       for(Int_t z=0; z<numzeta; z++){
 	for(Int_t tr=0; tr<numPtTrigger; tr++){
 	  for(Int_t v=0; v<numPtV0; v++){
-	    if(isMC && !isEfficiency) BoolMC = kTRUE;
-	    else BoolMC =TMath::Abs((fSignTreeVariableInvMassK0s - mass[type][m][v]))<3*sigma[type][m][v]; 
-	    if(BoolMC){
+	    if(isMC && !isEfficiency) {
+	      BoolMC = kTRUE;
+	      MassLimit=kTRUE;
+	    }
+	    else {
+	      BoolMC =TMath::Abs((fSignTreeVariableInvMassK0s - mass[type][m][v]))<3*sigma[type][m][v]; 
+	      if(isSigma) MassLimit=(TMath::Abs((fSignTreeVariableInvMassK0s - mass[type][m][v]))>nsigmamin*sigma[type][m][v] && TMath::Abs((fSignTreeVariableInvMassK0s - mass[type][m][v]))<nsigmamax*sigma[type][m][v]);
+	      if(!isSigma)MassLimit=(TMath::Abs((fSignTreeVariableInvMassK0s - mass[type][m][v]))>nsigmamin*sigma[type][m][v] && fSignTreeVariableInvMassK0s>0.45 && fSignTreeVariableInvMassK0s<0.55);
+	    }	    
+	    if(BoolMC && BoolVar && fSignTreeVariablePtV0>=NPtV0[v]&& fSignTreeVariablePtV0<NPtV0[v+1]){
 	      hSign_PtTrigger[m][z]->Fill(fSignTreeVariablePtTrigger);
 	      hSign_PtV0[m][z]->Fill(fSignTreeVariablePtV0);
 	    }	  
-	    if(BoolVar && fSignTreeVariablePtTrigger>=NPtTrigger[tr] && fSignTreeVariablePtTrigger<NPtTrigger[tr+1] && fSignTreeVariablePtV0>=NPtV0[v]&& fSignTreeVariablePtV0>=NPtV0[v]){
+	    if(BoolVar && fSignTreeVariablePtTrigger>=NPtTrigger[tr] && fSignTreeVariablePtTrigger<NPtTrigger[tr+1] && fSignTreeVariablePtV0>=NPtV0[v]&& fSignTreeVariablePtV0<NPtV0[v+1]){
 	      if(BoolMC){
 		hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
 	      }
-	      if((!isMC || (isMC &&isEfficiency))&& TMath::Abs((fSignTreeVariableInvMassK0s - mass[type][m][v]))>nsigmamin*sigma[type][m][v] && TMath::Abs((fSignTreeVariableInvMassK0s - mass[type][m][v]))<nsigmamax*sigma[type][m][v]){
+	      if((!isMC || (isMC &&isEfficiency))&& MassLimit){
 		hDeltaEtaDeltaPhi_SEbins_sidebands[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
 	      }
 
@@ -424,7 +432,8 @@ void readTreePLChiara_second(bool isMC = kFALSE,Bool_t isEfficiency=1,Int_t sysT
 
   BoolVar=kFALSE;
   BoolMC=kFALSE;
- 
+  MassLimit=kFALSE;
+
   cout << "ciao " << endl;
   dirBkg->cd();
   for(Int_t k = 0; k<EntriesBkg; k++){
@@ -469,22 +478,31 @@ void readTreePLChiara_second(bool isMC = kFALSE,Bool_t isEfficiency=1,Int_t sysT
     if (fBkgTreeVariableDeltaPhi >  (1.5*TMath::Pi())) fBkgTreeVariableDeltaPhi -= 2.0*TMath::Pi();
     if (fBkgTreeVariableDeltaPhi < (-0.5*TMath::Pi())) fBkgTreeVariableDeltaPhi += 2.0*TMath::Pi();
     for(Int_t m=0; m<nummolt+1; m++){
-      if(m< nummolt) BoolVar ==  fBkgTreeVariableMultiplicity>=Nmolt[m] && fBkgTreeVariableMultiplicity<Nmolt[m+1];
+      if(m< nummolt) BoolVar =  fBkgTreeVariableMultiplicity>=Nmolt[m] && fBkgTreeVariableMultiplicity<Nmolt[m+1];
       else BoolVar=kTRUE;
       for(Int_t z=0; z<numzeta; z++){
 	for(Int_t tr=0; tr<numPtTrigger; tr++){
 	  for(Int_t v=0; v<numPtV0; v++){
-	    if(isMC && !isEfficiency) BoolMC = kTRUE;
-	    else BoolMC =TMath::Abs((fBkgTreeVariableInvMassK0s - mass[type][m][v]))<3*sigma[type][m][v]; 
-	    if(BoolMC){
+
+	    if(isMC && !isEfficiency) {
+	      BoolMC = kTRUE;
+	      MassLimit=kTRUE;
+	    }
+	    else {
+	      BoolMC =TMath::Abs((fBkgTreeVariableInvMassK0s - mass[type][m][v]))<3*sigma[type][m][v]; 
+	      if(isSigma) MassLimit=(TMath::Abs((fBkgTreeVariableInvMassK0s - mass[type][m][v]))>nsigmamin*sigma[type][m][v] && TMath::Abs((fBkgTreeVariableInvMassK0s - mass[type][m][v]))<nsigmamax*sigma[type][m][v]);
+	      if(!isSigma)MassLimit=(TMath::Abs((fBkgTreeVariableInvMassK0s - mass[type][m][v]))>nsigmamin*sigma[type][m][v] && fBkgTreeVariableInvMassK0s>0.45 && fBkgTreeVariableInvMassK0s<0.55);
+	    }	    
+ 
+	    if(BoolMC && BoolVar &&  fBkgTreeVariablePtV0>=NPtV0[v]&& fBkgTreeVariablePtV0<NPtV0[v+1]){
 	      hBkg_PtTrigger[m][z]->Fill(fBkgTreeVariablePtTrigger);
 	      hBkg_PtV0[m][z]->Fill(fBkgTreeVariablePtV0);
 	    }	  
-	    if(BoolVar && fBkgTreeVariablePtTrigger>=NPtTrigger[tr] && fBkgTreeVariablePtTrigger<NPtTrigger[tr+1] && fBkgTreeVariablePtV0>=NPtV0[v]&& fBkgTreeVariablePtV0>=NPtV0[v]){
+	    if(BoolVar && fBkgTreeVariablePtTrigger>=NPtTrigger[tr] && fBkgTreeVariablePtTrigger<NPtTrigger[tr+1] && fBkgTreeVariablePtV0>=NPtV0[v]&& fBkgTreeVariablePtV0<NPtV0[v+1]){
 	      if(BoolMC){
 		hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->Fill(fBkgTreeVariableDeltaEta, fBkgTreeVariableDeltaPhi);
 	      }
-	      if((!isMC || (isMC &&isEfficiency)) && TMath::Abs((fBkgTreeVariableInvMassK0s - mass[type][m][v]))>nsigmamin*sigma[type][m][v] && TMath::Abs((fBkgTreeVariableInvMassK0s - mass[type][m][v]))<nsigmamax*sigma[type][m][v]){
+	      if((!isMC || (isMC &&isEfficiency)) && MassLimit){
 		hDeltaEtaDeltaPhi_MEbins_sidebands[m][z][v][tr]->Fill(fBkgTreeVariableDeltaEta, fBkgTreeVariableDeltaPhi);
 	      }
 	    }
