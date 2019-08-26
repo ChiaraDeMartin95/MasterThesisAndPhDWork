@@ -60,7 +60,8 @@ fEventCuts(0),
   fOutputList(0), 
   fSignalTree(0), 
   fBkgTree(0), 
-  fOutputList2(0), 
+  fOutputList2(0),
+  fOutputList3(0),  
   fMCEvent(0), 
   fReadMCTruth(0),
   isEfficiency(0),
@@ -190,6 +191,7 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask(const char* name) : AliAnalysisTask
 								 fSignalTree(0), 
 								 fBkgTree(0), 
 								 fOutputList2(0), 
+								 fOutputList3(0), 
 								 fMCEvent(0), 
 								 fReadMCTruth(0),
 								 isEfficiency(0),
@@ -318,6 +320,7 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask(const char* name) : AliAnalysisTask
   DefineOutput(2, TTree::Class());  
   DefineOutput(3, TTree::Class());
   DefineOutput(4, TList::Class());  
+  DefineOutput(5, TList::Class());  
 }
 //_____________________________________________________________________________
 AliAnalysisTaskMyTask::~AliAnalysisTaskMyTask()
@@ -334,6 +337,9 @@ AliAnalysisTaskMyTask::~AliAnalysisTaskMyTask()
   }
   if(fOutputList2) {
     delete fOutputList2;     // at the end of your task, it is deleted from memory by calling this function
+  }
+  if(fOutputList3) {
+    delete fOutputList3;     // at the end of your task, it is deleted from memory by calling this function
   }
   if (farrGT)
     delete[] farrGT;
@@ -410,11 +416,11 @@ void AliAnalysisTaskMyTask::ProcessMCParticles(Bool_t Generated, AliAODTrack *tr
       fHistResolutionTriggerEta->Fill(track->Eta()- particle->Eta(), lPercentiles);
       // fHistSelectedTriggerPtPhi[0]->Fill(track->Pt(), track->Phi(), lPercentiles);
       // fHistSelectedTriggerPtEta[0]->Fill(track->Pt(), track->Eta(), lPercentiles);    
-      if((TMath::Abs(track->DCA())< 0.0105+0.035/pow(track->Pt(),1.1)) &&  (TMath::Abs(track->ZAtDCA()) < 2)) {
+      if((TMath::Abs(track->DCA())< 0.0105+0.035/pow(track->Pt(),1.1)) &&  (TMath::Abs(track->ZAtDCA()) < 2.)) {
 	fHistSelectedTriggerPtPhi[1]->Fill(track->Pt(), track->Phi(), lPercentiles);
 	fHistSelectedTriggerPtEta[1]->Fill(track->Pt(), track->Eta(), lPercentiles);    
       }
-      if((TMath::Abs(track->DCA())< 0.0105+0.035/pow(track->Pt(),1.1)) &&  (TMath::Abs(track->ZAtDCA()) < 1)) {
+      if((TMath::Abs(track->DCA())< 0.0105+0.035/pow(track->Pt(),1.1)) &&  (TMath::Abs(track->ZAtDCA()) < 1.)) {
 	fHistSelectedTriggerPtPhi[0]->Fill(track->Pt(), track->Phi(), lPercentiles);
 	fHistSelectedTriggerPtEta[0]->Fill(track->Pt(), track->Eta(), lPercentiles);    
       }
@@ -481,6 +487,8 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
   fOutputList->SetOwner(kTRUE);     
   fOutputList2 = new TList();         
   fOutputList2->SetOwner(kTRUE);     
+  fOutputList3 = new TList();         
+  fOutputList3->SetOwner(kTRUE);     
   
   fSignalTree= new TTree("fSignalTree","fSignalTree");
   fSignalTree->Branch("fTreeVariablePtTrigger",          &fTreeVariablePtTrigger   , "fTreeVariablePtTrigger/D");
@@ -763,15 +771,15 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
   fHistGeneratedTriggerPtEta->GetXaxis()->SetTitle("p_{T}");
   fHistGeneratedTriggerPtEta->GetYaxis()->SetTitle("#eta");
 
-  fHistSelectedTriggerPtPhi= new TH3F*[4];
-  for(Int_t j=0; j<4; j++){
+  fHistSelectedTriggerPtPhi= new TH3F*[3];
+  for(Int_t j=0; j<3; j++){
     fHistSelectedTriggerPtPhi[j]=new TH3F(Form("fHistSelectedTriggerPtPhi_%i",j), "p_{T} and #phi distribution of selected trigger particles (primary)", 300, 0, 30, 400,0, 2*TMath::Pi() ,  100, 0, 100);
     fHistSelectedTriggerPtPhi[j]->GetXaxis()->SetTitle("p_{T}");
     fHistSelectedTriggerPtPhi[j]->GetYaxis()->SetTitle("#phi");
   }
 
-  fHistSelectedTriggerPtEta= new TH3F*[4];
-  for(Int_t j=0; j<4; j++){
+  fHistSelectedTriggerPtEta= new TH3F*[3];
+  for(Int_t j=0; j<3; j++){
     fHistSelectedTriggerPtEta[j]=new TH3F(Form("fHistSelectedTriggerPtEta_%i",j), "p_{T} and #eta distribution of selected trigger particles (primary)", 300, 0, 30, 400,-1.2, 1.2,  100, 0, 100);
     fHistSelectedTriggerPtEta[j]->GetXaxis()->SetTitle("p_{T}");
     fHistSelectedTriggerPtEta[j]->GetYaxis()->SetTitle("#eta");
@@ -913,12 +921,12 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
     fOutputList->Add(fHistMassvsPt[j]);
     fOutputList->Add(fHistMassvsPt_tagli[j]);
     
- for(Int_t i=0; i<3; i++){  
-      fOutputList2->Add(fHistPrimaryTrigger[j][i]); 
+    for(Int_t i=0; i<3; i++){  
+      fOutputList3->Add(fHistPrimaryTrigger[j][i]); 
     }
    
-    for(Int_t l=0; l<1; l++){
-    fOutputList2->Add(fHistPrimaryV0[j][l]);      
+    for(Int_t l=0; l<7; l++){
+      fOutputList2->Add(fHistPrimaryV0[j][l]);      
     }
     
   }
@@ -932,12 +940,13 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
   fOutputList->Add(fHistPtArmvsAlphaAfterLambdaRejectionSelection);  
   fOutputList->Add(fHistMultiplicityOfMixedEvent);
   
-  fOutputList2->Add(fHistGeneratedTriggerPtPhi);
-  fOutputList2->Add(fHistGeneratedTriggerPtEta);
   
-  for(Int_t j=0; j < 4; j++){
-    fOutputList2->Add(fHistSelectedTriggerPtPhi[j]);
-    fOutputList2->Add(fHistSelectedTriggerPtEta[j]);
+  fOutputList3->Add(fHistGeneratedTriggerPtPhi);
+  fOutputList3->Add(fHistGeneratedTriggerPtEta);
+  
+  for(Int_t j=0; j < 3; j++){
+    fOutputList3->Add(fHistSelectedTriggerPtPhi[j]);
+     fOutputList3->Add(fHistSelectedTriggerPtEta[j]);
   }
  
   for(Int_t j=0; j < 2; j++){
@@ -945,8 +954,8 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
    fOutputList2->Add(fHistGeneratedV0PtEta[j]); 
   }
   for(Int_t j=0; j < 7; j++){
-    fOutputList2->Add(fHistSelectedV0PtPhi[j]);
-    fOutputList2->Add(fHistSelectedV0PtEta[j]);
+   fOutputList2->Add(fHistSelectedV0PtPhi[j]);
+   fOutputList2->Add(fHistSelectedV0PtEta[j]);
   }
  
   fOutputList->Add(fHistReconstructedV0PtMass);
@@ -958,11 +967,11 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
   fOutputList->Add(fHistResolutionV0Phi);
   fOutputList->Add(fHistResolutionV0Eta);
  
- 
   PostData(1, fOutputList);  
   PostData(2, fSignalTree);       
   PostData(3, fBkgTree); 
   PostData(4, fOutputList2);     
+  PostData(5, fOutputList3);     
      
 }
 //_____________________________________________________________________________
@@ -994,6 +1003,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     PostData(2, fSignalTree);       
     PostData(3,fBkgTree); 
     PostData(4, fOutputList2);  
+    PostData(5, fOutputList3);     
     return;
   }        
   
@@ -1002,7 +1012,9 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
  if (!fEventCuts.AcceptEvent(fAOD)) {   
  PostData(1, fOutputList);
  PostData(2, fSignalTree );
- PostData(3,fBkgTree); return;
+ PostData(3,fBkgTree);
+  PostData(4, fOutputList2);     
+  PostData(5, fOutputList3);      return;
  }
   
   
@@ -1022,7 +1034,8 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     PostData(1, fOutputList);
     PostData(2, fSignalTree );
     PostData(3,fBkgTree); 
-    PostData(4, fOutputList2);  return;
+    PostData(4, fOutputList2);  
+    PostData(5, fOutputList3);     return;
   }
   fHistEventMult->Fill(2);
   AliVVertex *vertexmain =0x0;
@@ -1035,7 +1048,9 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     PostData(2, fSignalTree );
     //c cout << "z vertex selection failed " << endl;
     PostData(3,fBkgTree); 
-    PostData(4, fOutputList2);  return;
+    PostData(4, fOutputList2); 
+  PostData(5, fOutputList3);     
+  return;
   }
   fHistEventMult->Fill(3);
 
@@ -1053,7 +1068,9 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     PostData(1, fOutputList);
     PostData(2, fSignalTree );
     PostData(3,fBkgTree); 
-    PostData(4, fOutputList2);  return;
+    PostData(4, fOutputList2); 
+  PostData(5, fOutputList3);     
+ return;
   }
   fHistEventMult->Fill(4);
 
@@ -1091,7 +1108,8 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     PostData(2, fSignalTree );
     //c cout << "lPercentiles >= 200" << endl;
     PostData(3,fBkgTree); 
-    PostData(4, fOutputList2);  return;   
+    PostData(4, fOutputList2); 
+    PostData(5, fOutputList3);      return;   
   }
 
   fHistEventMult->Fill(5);
@@ -1104,7 +1122,9 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     PostData(2, fSignalTree );
     //c cout << "return: event is pile up " << endl;
     PostData(3,fBkgTree); 
-    PostData(4, fOutputList2);  return;
+    PostData(4, fOutputList2); 
+  PostData(5, fOutputList3);     
+ return;
   }
   fHistEventMult->Fill(6);
 
@@ -1146,6 +1166,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     //c cout << "event does not fulfil centrality selection criteria " << endl;     
     PostData(3,fBkgTree);
     PostData(4, fOutputList2);  
+  PostData(5, fOutputList3);     
     return;
   }
   
@@ -1273,7 +1294,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 
     if(TMath::Abs(track->DCA())> (0.0105 + 0.0350/pow(track->Pt(),1.1))) continue;
     fHistTrack->Fill(8);
-    if(TMath::Abs(track->ZAtDCA())> 2) continue;
+    if(TMath::Abs(track->ZAtDCA())> 2.) continue;
     fHistTrack->Fill(9);
 
     //to determine efficiency of trigger particle
@@ -1377,6 +1398,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     //c cout  << "event does not have Trigger particles " << endl;     
     PostData(3,fBkgTree);
     PostData(4, fOutputList2);  
+  PostData(5, fOutputList3);     
     return;
   }
  
@@ -1717,33 +1739,39 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 	    fHistResolutionV0Pt->Fill(v0->Pt()- MotherPos->Pt(), lPercentiles);
 	    fHistResolutionV0Phi->Fill(v0->Phi()- MotherPos->Phi(), lPercentiles);
 	    fHistResolutionV0Eta->Fill(v0->Eta()- MotherPos->Eta(), lPercentiles);
-	    fHistSelectedV0PtPhi[0]->Fill(v0->Pt(), v0->Phi(), lPercentiles);
-	    fHistSelectedV0PtEta[0]->Fill(v0->Pt(), v0->Eta(), lPercentiles);
-	    
-	    if(v0->CosPointingAngle(lBestPrimaryVtxPos) > 0.997){
-	      fHistSelectedV0PtPhi[1]->Fill(v0->Pt(), v0->Phi(), lPercentiles);
-	      fHistSelectedV0PtEta[1]->Fill(v0->Pt(), v0->Eta(), lPercentiles);
-	    } 
-	    if(kctau[ParticleType]<0.4*kctauval[ParticleType]){
-	      fHistSelectedV0PtPhi[2]->Fill(v0->Pt(), v0->Phi(), lPercentiles);
-	      fHistSelectedV0PtEta[2]->Fill(v0->Pt(), v0->Eta(), lPercentiles);
-	    } 
-	    if(TMath::Abs(rapidityV0[0])<0.5){
-	      fHistSelectedV0PtPhi[3]->Fill(v0->Pt(), v0->Phi(), lPercentiles);
-	      fHistSelectedV0PtEta[3]->Fill(v0->Pt(), v0->Eta(), lPercentiles);
-	    } 
-	    if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.010 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.010) {
-	      fHistSelectedV0PtPhi[4]->Fill(v0->Pt(), v0->Phi(), lPercentiles);
-	      fHistSelectedV0PtEta[4]->Fill(v0->Pt(), v0->Eta(), lPercentiles);
-	    } 
+	    fHistSelectedV0PtPhi[5]->Fill(v0->Pt(), v0->Phi(), lPercentiles);
+	    fHistSelectedV0PtEta[5]->Fill(v0->Pt(), v0->Eta(), lPercentiles);
+
+
 	    if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.005 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.005) {
-	      fHistSelectedV0PtPhi[5]->Fill(v0->Pt(), v0->Phi(), lPercentiles);
-	      fHistSelectedV0PtEta[5]->Fill(v0->Pt(), v0->Eta(), lPercentiles);
-	    } 
-	    if(v0Dca< 0.3){
-	      fHistSelectedV0PtPhi[6]->Fill(v0->Pt(), v0->Phi(), lPercentiles);
-	      fHistSelectedV0PtEta[6]->Fill(v0->Pt(), v0->Eta(), lPercentiles);
-	    } 
+	      fHistSelectedV0PtPhi[0]->Fill(v0->Pt(), v0->Phi(), lPercentiles);
+	      fHistSelectedV0PtEta[0]->Fill(v0->Pt(), v0->Eta(), lPercentiles);
+	      
+	      if(v0->CosPointingAngle(lBestPrimaryVtxPos) > 0.997){
+		fHistSelectedV0PtPhi[1]->Fill(v0->Pt(), v0->Phi(), lPercentiles);
+		fHistSelectedV0PtEta[1]->Fill(v0->Pt(), v0->Eta(), lPercentiles);
+	      } 
+	      if(kctau[ParticleType]<0.4*kctauval[ParticleType]){
+		fHistSelectedV0PtPhi[2]->Fill(v0->Pt(), v0->Phi(), lPercentiles);
+		fHistSelectedV0PtEta[2]->Fill(v0->Pt(), v0->Eta(), lPercentiles);
+	      } 
+	      if(TMath::Abs(rapidityV0[0])<0.5){
+		fHistSelectedV0PtPhi[3]->Fill(v0->Pt(), v0->Phi(), lPercentiles);
+		fHistSelectedV0PtEta[3]->Fill(v0->Pt(), v0->Eta(), lPercentiles);
+	      } 
+	      if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.010 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.010) {
+		fHistSelectedV0PtPhi[4]->Fill(v0->Pt(), v0->Phi(), lPercentiles);
+		fHistSelectedV0PtEta[4]->Fill(v0->Pt(), v0->Eta(), lPercentiles);
+	      } 
+	      // if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.005 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.005) {
+	      //   fHistSelectedV0PtPhi[5]->Fill(v0->Pt(), v0->Phi(), lPercentiles);
+	      //   fHistSelectedV0PtEta[5]->Fill(v0->Pt(), v0->Eta(), lPercentiles);
+	      // } 
+	      if(v0Dca< 0.3){
+		fHistSelectedV0PtPhi[6]->Fill(v0->Pt(), v0->Phi(), lPercentiles);
+		fHistSelectedV0PtEta[6]->Fill(v0->Pt(), v0->Eta(), lPercentiles);
+	      } 
+	    }
 	       
 	    labelPrimOrSecV0=1;
 	    NumberSecondParticleRecoTrue++;
@@ -1756,52 +1784,56 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 	    if(lPercentiles>=moltep[m] && lPercentiles<moltep[m+1]){
 	      for(Int_t p=1; p<=4; p++){
 		if (labelPrimOrSecV0==p) {
-		  fHistPrimaryV0[m][0]->Fill(p, v0->Pt());
-		  if(v0->CosPointingAngle(lBestPrimaryVtxPos) > 0.997){
-		    fHistPrimaryV0[m][1]->Fill(p, v0->Pt());
-		  } 
-		  if(kctau[ParticleType]<0.4*kctauval[ParticleType]){
-		    fHistPrimaryV0[m][2]->Fill(p, v0->Pt());
-		  } 
-		  if(TMath::Abs(rapidityV0[0])<0.5){
-		    fHistPrimaryV0[m][3]->Fill(p, v0->Pt());
-		  } 
-		  if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.010 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.010) {
-		    fHistPrimaryV0[m][4]->Fill(p, v0->Pt());
-		  } 
+		  fHistPrimaryV0[m][5]->Fill(p, v0->Pt());   
 		  if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.005 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.005) {
-		    fHistPrimaryV0[m][5]->Fill(p, v0->Pt());
-		  } 
-		  if(v0Dca< 0.3){
-		    fHistPrimaryV0[m][6]->Fill(p, v0->Pt());
-		  } 
-		  
+		    fHistPrimaryV0[m][0]->Fill(p, v0->Pt());   
+		    if(v0->CosPointingAngle(lBestPrimaryVtxPos) > 0.997){
+		      fHistPrimaryV0[m][1]->Fill(p, v0->Pt());
+		    } 
+		    if(kctau[ParticleType]<0.4*kctauval[ParticleType]){
+		      fHistPrimaryV0[m][2]->Fill(p, v0->Pt());
+		    } 
+		    if(TMath::Abs(rapidityV0[0])<0.5){
+		      fHistPrimaryV0[m][3]->Fill(p, v0->Pt());
+		    } 
+		    if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.010 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.010) {
+		      fHistPrimaryV0[m][4]->Fill(p, v0->Pt());
+		    } 
+		    // if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.005 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.005) {
+		    //   fHistPrimaryV0[m][5]->Fill(p, v0->Pt());
+		    // } 
+		    if(v0Dca< 0.3){
+		      fHistPrimaryV0[m][6]->Fill(p, v0->Pt());
+		    } 
+		  }
 		}
 	      }
 	    }
 	  }
 	  for(Int_t p=1; p<=4; p++){
 	    if (labelPrimOrSecV0==p){
-	      fHistPrimaryV0[5][0]->Fill(p, v0->Pt());
-	      if(v0->CosPointingAngle(lBestPrimaryVtxPos) > 0.997){
-		fHistPrimaryV0[5][1]->Fill(p, v0->Pt());
-	      } 
-	      if(kctau[ParticleType]<0.4*kctauval[ParticleType]){
-		fHistPrimaryV0[5][2]->Fill(p, v0->Pt());
-	      } 
-	      if(TMath::Abs(rapidityV0[0])<0.5){
-		fHistPrimaryV0[5][3]->Fill(p, v0->Pt());
-	      } 
-	      if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.010 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.010) {
-		fHistPrimaryV0[5][4]->Fill(p, v0->Pt());
-	      } 
+	      fHistPrimaryV0[5][5]->Fill(p, v0->Pt());
 	      if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.005 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.005) {
-		fHistPrimaryV0[5][5]->Fill(p, v0->Pt());
-	      } 
-	      if(v0Dca< 0.3){
-		fHistPrimaryV0[5][6]->Fill(p, v0->Pt());
-	      } 
-		  
+		fHistPrimaryV0[5][0]->Fill(p, v0->Pt());
+		if(v0->CosPointingAngle(lBestPrimaryVtxPos) > 0.997){
+		  fHistPrimaryV0[5][1]->Fill(p, v0->Pt());
+		} 
+		if(kctau[ParticleType]<0.4*kctauval[ParticleType]){
+		  fHistPrimaryV0[5][2]->Fill(p, v0->Pt());
+		} 
+		if(TMath::Abs(rapidityV0[0])<0.5){
+		  fHistPrimaryV0[5][3]->Fill(p, v0->Pt());
+		} 
+		if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.010 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.010) {
+		  fHistPrimaryV0[5][4]->Fill(p, v0->Pt());
+		} 
+		// if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.005 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.005) {
+		// 	fHistPrimaryV0[5][5]->Fill(p, v0->Pt());
+		// } 
+		if(v0Dca< 0.3){
+		  fHistPrimaryV0[5][6]->Fill(p, v0->Pt());
+		} 
+	      }
 	    }
 	  }
 	}
@@ -1932,6 +1964,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     //c cout << "event has trigger particle but no V0 " << endl;
     PostData(3,fBkgTree);
     PostData(4, fOutputList2);  
+  PostData(5, fOutputList3);     
     return;
   }
 
@@ -2009,6 +2042,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   PostData(2,fSignalTree);
   PostData(3,fBkgTree);
   PostData(4, fOutputList2);  
+  PostData(5, fOutputList3);     
 
   fEventColl[zBin][centralityBin]->FifoShift();       
 }
