@@ -73,6 +73,10 @@ fEvt(0x0),
   fMaxSecondMult(50),
   fnEventsToMix(50),
   fHistPt(0), 
+  fHistDCAxym1(0),
+  fHistDCAzm1(0),
+  fHistDCAxym2(0),
+  fHistDCAzm2(0),
   fHistPtV0(0), 
   fHistPtTMin(0),
   fHistPtTMinMC(0),
@@ -203,6 +207,10 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask(const char* name) : AliAnalysisTask
 								 fMaxSecondMult(50),
 								 fnEventsToMix(50),
 								 fHistPt(0), 
+  fHistDCAxym1(0),
+  fHistDCAzm1(0),
+  fHistDCAxym2(0),
+  fHistDCAzm2(0),
   fHistPtV0(0), 
   fHistPtTMin(0),
   fHistPtTMinMC(0),
@@ -416,15 +424,15 @@ void AliAnalysisTaskMyTask::ProcessMCParticles(Bool_t Generated, AliAODTrack *tr
       fHistResolutionTriggerEta->Fill(track->Eta()- particle->Eta(), lPercentiles);
       // fHistSelectedTriggerPtPhi[0]->Fill(track->Pt(), track->Phi(), lPercentiles);
       // fHistSelectedTriggerPtEta[0]->Fill(track->Pt(), track->Eta(), lPercentiles);    
-      if((TMath::Abs(track->DCA())< 0.0105+0.035/pow(track->Pt(),1.1)) &&  (TMath::Abs(track->ZAtDCA()) < 2.)) {
+      if(  (TMath::Abs(track->ZAtDCA()) < 2.)) {
 	fHistSelectedTriggerPtPhi[1]->Fill(track->Pt(), track->Phi(), lPercentiles);
 	fHistSelectedTriggerPtEta[1]->Fill(track->Pt(), track->Eta(), lPercentiles);    
       }
-      if((TMath::Abs(track->DCA())< 0.0105+0.035/pow(track->Pt(),1.1)) &&  (TMath::Abs(track->ZAtDCA()) < 1.)) {
+      if(  (TMath::Abs(track->ZAtDCA()) < 1.)) {
 	fHistSelectedTriggerPtPhi[0]->Fill(track->Pt(), track->Phi(), lPercentiles);
 	fHistSelectedTriggerPtEta[0]->Fill(track->Pt(), track->Eta(), lPercentiles);    
       }
-      if((TMath::Abs(track->DCA())< 0.0105+0.035/pow(track->Pt(),1.1)) &&  (TMath::Abs(track->ZAtDCA()) < 0.5)) {
+      if( (TMath::Abs(track->ZAtDCA()) < 0.5)) {
 	fHistSelectedTriggerPtPhi[2]->Fill(track->Pt(), track->Phi(), lPercentiles);
 	fHistSelectedTriggerPtEta[2]->Fill(track->Pt(), track->Eta(), lPercentiles);    
       }
@@ -438,18 +446,18 @@ void AliAnalysisTaskMyTask::ProcessMCParticles(Bool_t Generated, AliAODTrack *tr
       if(lPercentiles>=moltep[m] && lPercentiles<moltep[m+1]){
 	for(Int_t p=1; p<=4; p++){
 	  if (labelPrimOrSec==p){
-	    if(TMath::Abs(track->DCA())< 0.0105+0.035/pow(track->Pt(),1.1)  && (TMath::Abs(track->ZAtDCA()) < 1))   fHistPrimaryTrigger[m][0]->Fill(p,particle->Pt() );
-	    if(TMath::Abs(track->DCA())< 0.0105+0.035/pow(track->Pt(),1.1)  && (TMath::Abs(track->ZAtDCA()) < 2))   fHistPrimaryTrigger[m][1]->Fill(p,particle->Pt() );
-	    if(TMath::Abs(track->DCA())< 0.0105+0.035/pow(track->Pt(),1.1)  && (TMath::Abs(track->ZAtDCA()) < 0.5))   fHistPrimaryTrigger[m][2]->Fill(p,particle->Pt() );
+	    if( (TMath::Abs(track->ZAtDCA()) < 1))   fHistPrimaryTrigger[m][0]->Fill(p,particle->Pt() );
+	    if( (TMath::Abs(track->ZAtDCA()) < 2))   fHistPrimaryTrigger[m][1]->Fill(p,particle->Pt() );
+	    if( (TMath::Abs(track->ZAtDCA()) < 0.5))   fHistPrimaryTrigger[m][2]->Fill(p,particle->Pt() );
 	  }
 	}
       }
     }
     for(Int_t p=1; p<=4; p++){
       if (labelPrimOrSec==p){
-	if(TMath::Abs(track->DCA())< 0.0105+0.035/pow(track->Pt(),1.1)  && (TMath::Abs(track->ZAtDCA()) < 1))   fHistPrimaryTrigger[5][0]->Fill(p,particle->Pt() );
-	if(TMath::Abs(track->DCA())< 0.0105+0.035/pow(track->Pt(),1.1)  && (TMath::Abs(track->ZAtDCA()) < 2))   fHistPrimaryTrigger[5][1]->Fill(p,particle->Pt() );
-	if(TMath::Abs(track->DCA())< 0.0105+0.035/pow(track->Pt(),1.1)  && (TMath::Abs(track->ZAtDCA()) < 0.5))   fHistPrimaryTrigger[5][2]->Fill(p,particle->Pt() );
+	if((TMath::Abs(track->ZAtDCA()) < 1))   fHistPrimaryTrigger[5][0]->Fill(p,particle->Pt() );
+	if( (TMath::Abs(track->ZAtDCA()) < 2))   fHistPrimaryTrigger[5][1]->Fill(p,particle->Pt() );
+	if( (TMath::Abs(track->ZAtDCA()) < 0.5))   fHistPrimaryTrigger[5][2]->Fill(p,particle->Pt() );
       }
     }
   }
@@ -554,7 +562,14 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
   fHistPt = new TH1F("fHistPt", "p_{T} distribution of selected charged tracks in events used for AC", 300, 0, 30); 
   fHistPt->GetXaxis()->SetTitle("p_{T} (GeV/c)");
  
-
+  fHistDCAxym1 = new TH1F("fHistDCAxym1", "DCAxy method 1 before DCA cuts", -10, 0, 10); 
+  fHistDCAxym1->GetXaxis()->SetTitle("DCAxy method 1 (cm)");
+  fHistDCAxym2 = new TH1F("fHistDCAxym2", "DCAxy method 2 before DCA cuts", -10, 0, 10); 
+  fHistDCAxym2->GetXaxis()->SetTitle("DCAxy method 2 (cm)");
+  fHistDCAzm1 = new TH1F("fHistDCAzm1", "DCAz method 1 before DCA cuts", -10, 0, 10); 
+  fHistDCAzm1->GetXaxis()->SetTitle("DCAz method 1 (cm)");
+  fHistDCAzm2 = new TH1F("fHistDCAzm2", "DCAz method 2 before DCA cuts", -10, 0, 10); 
+  fHistDCAzm2->GetXaxis()->SetTitle("DCAz method 2 (cm)");
  
   fHistPtV0 = new TH1F("fHistPtV0", "p_{T} distribution of selected V0 in events used for AC", 300, 0, 30); 
   fHistPtV0->GetXaxis()->SetTitle("p_{T} (GeV/c)");
@@ -902,6 +917,10 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
   fOutputList->Add(fHistSecondParticle);  
   fOutputList->Add(fHistSecondParticleTruth);
   fOutputList->Add(fHistPt);     
+  fOutputList->Add(fHistDCAxym1);     
+  fOutputList->Add(fHistDCAxym2);    
+  fOutputList->Add(fHistDCAzm1);      
+  fOutputList->Add(fHistDCAzm2);     
   fOutputList->Add(fHistPtV0);     
   fOutputList->Add(fHistPtTMin);     
   fOutputList->Add(fHistPtTMinMC);     
@@ -1258,6 +1277,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   Int_t neg0or1=0;
   Int_t CharegFirstParticle=0;
   Double_t dz[2] = {-999.,-999.};
+  Double_t d[2] = {-999.,-999.};
 
   //LOOP FOR FIRST PARTICLE
  
@@ -1292,9 +1312,24 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     dz[0] = track->DCA();    // the TPC one should be applied the other biases the CF --> from Maciejs note --> FIXME to be checked 
     dz[1] = track->ZAtDCA(); // for those two lines check AliAODTrack.h // FIXME these two lines produce shifted distributions, known problem, asked Mac and Marian. 
 
-    if(TMath::Abs(track->DCA())> (0.0105 + 0.0350/pow(track->Pt(),1.1))) continue;
+    fHistDCAxym1->Fill(track->DCA());
+    fHistDCAzm1->Fill(track->ZAtDCA());
+
+    Double_t  covd[3];
+    //    if (track->DCA()==-999. || track->ZAtDCA()==-999.){
+    AliAODTrack* track_clone=(AliAODTrack*)track->Clone("track_clone"); // need to clone because PropagateToDCA updates the track parameters
+    Bool_t isDCA = track_clone->PropagateToDCA(fAOD->GetPrimaryVertex(),fAOD->GetMagneticField(),9999.,d,covd);
+    delete track_clone;
+
+    fHistDCAxym2->Fill(d[0]);
+    fHistDCAzm2 ->Fill(d[1]);
+
+
+    //   if(TMath::Abs(track->DCA())> (0.0105 + 0.0350/pow(track->Pt(),1.1))) continue;
+    if(TMath::Abs(d[0])> (0.0105 + 0.0350/pow(track->Pt(),1.1))) continue;
     fHistTrack->Fill(8);
-    if(TMath::Abs(track->ZAtDCA())> 2.) continue;
+    if(TMath::Abs(d[1])> 2.) continue;
+    //    if(TMath::Abs(track->ZAtDCA())> 2.) continue;
     fHistTrack->Fill(9);
 
     //to determine efficiency of trigger particle
@@ -1322,8 +1357,8 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 	fEvt->fReconstructedFirst[NumberFirstParticle-1].fEta          = track->Eta();
 	fEvt->fReconstructedFirst[NumberFirstParticle-1].fPhi          = track->Phi();
 	fEvt->fReconstructedFirst[NumberFirstParticle-1].fTheta        = track->Theta();
-	fEvt->fReconstructedFirst[NumberFirstParticle-1].fDCAz         = dz[1];
-	fEvt->fReconstructedFirst[NumberFirstParticle-1].fDCAxy        = dz[0];
+	fEvt->fReconstructedFirst[NumberFirstParticle-1].fDCAz         = d[1];
+	fEvt->fReconstructedFirst[NumberFirstParticle-1].fDCAxy        = d[0];
 	fEvt->fReconstructedFirst[NumberFirstParticle-1].fMultiplicity = lPercentiles;
 	fEvt->fReconstructedFirst[NumberFirstParticle-1].fZvertex      = lBestPrimaryVtxPos[2];
 	fEvt->fReconstructedFirst[NumberFirstParticle-1].isP           = labelPrimOrSec;
