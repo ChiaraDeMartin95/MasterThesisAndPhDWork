@@ -29,7 +29,7 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
   void SetEff(Bool_t isEff){isEfficiency = isEff;}
   void SetEvtToMix(Int_t EvtToMix){fnEventsToMix = EvtToMix;}
 
-  void ProcessMCParticles(Bool_t Generated, AliAODTrack* track, Int_t& labelPrimOrSec, Float_t lPercentiles, Bool_t isV0);
+  void ProcessMCParticles(Bool_t Generated, AliAODTrack* track, Int_t& labelPrimOrSec, Float_t lPercentiles, Bool_t isV0, Double_t ZAtDCA);
   // double CalculateMass(double momentum1[3], double momentum2[3], double mass1, double mass2); */
   Double_t CalculateDeltaTheta( Double_t theta1, Double_t theta2 ); 
   Double_t CalculateDeltaPhi( Double_t phi1, Double_t phi2 ) ; 
@@ -47,12 +47,14 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
   TString                 fCollidingSystem;               // "pp", "pPb", "PbPb" 
   AliAODEvent*            fAOD;             //! input event
   AliPIDResponse *        fPIDResponse;     //!PID response object 
-  //  AliMultSelection *      fMultSelection;   //!
-  //  AliEventCuts            fEventCuts; //!
+  //AliMultSelection *      fMultSelection;   //! 
+  AliEventCuts            fEventCuts; //! 
   
   TList*                  fOutputList;      //! output list
   TTree*                  fSignalTree;      //! output tree
   TTree*                  fBkgTree;      //! output tree
+  TList*                  fOutputList2;      //! output list
+  TList*                  fOutputList3;      //! output list
   
   AliMCEvent *            fMCEvent;         //!
   Bool_t                  fReadMCTruth;
@@ -67,6 +69,10 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
   Int_t                    fnEventsToMix;
 
    TH1F*                   fHistPt;          //! 
+   TH1F*                   fHistDCAxym1;          //! 
+   TH1F*                   fHistDCAxym2;          //! 
+   TH1F*                   fHistDCAzm1;          //! 
+   TH1F*                   fHistDCAzm2;          //! 
    TH1F*                   fHistPtV0;          //! 
    TH1F*                   fHistPtTMin;          //! 
    TH1F*                   fHistPtTMinMC;          //! 
@@ -79,6 +85,7 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
   TH1F*                   fHistEventV0;   //!
   TH1F*                   fHistTrack;       //!
   TH1F*                   fHistPDG;         //!	
+  TH1F*                   fHistTrackBufferOverflow;         //!	
   TH2F*                   fHistSecondParticleAll; //!
   TH2F*                   fHistSecondParticleTruthAll; //!
   TH2F*                   fHistSecondParticle; //!
@@ -131,7 +138,7 @@ TH2F*  fHistResolutionV0Phi; //!
 TH2F*  fHistResolutionV0Eta; //!
 
   TH2F *** fHistPrimaryTrigger; //!
-  TH2F **  fHistPrimaryV0; //!  
+  TH2F ***  fHistPrimaryV0; //!  
  
   Float_t                 fminPtj;
   Float_t                 fmaxPtj;

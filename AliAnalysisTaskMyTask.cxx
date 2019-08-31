@@ -55,8 +55,8 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask() :AliAnalysisTaskSE(),
   fCollidingSystem("pp"), 
   fAOD(0), 
   fPIDResponse(0),
-  fMultSelection(0),
-fEventCuts(0), 			  			
+//fMultSelection(0),
+  fEventCuts(0), 			  			
   fOutputList(0), 
   fSignalTree(0), 
   fBkgTree(0), 
@@ -88,7 +88,8 @@ fEvt(0x0),
 						fHistEventMult(0), 
   fHistEventV0(0), 
   fHistTrack(0), 
-  fHistPDG(0), 
+  fHistPDG(0),
+  fHistTrackBufferOverflow(0), 
   fHistSecondParticleAll(0),
   fHistSecondParticleTruthAll(0),
   fHistSecondParticle(0),
@@ -189,8 +190,8 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask(const char* name) : AliAnalysisTask
 								 fCollidingSystem("pp"), 
 								 fAOD(0), 
 								 fPIDResponse(0),
-								 								 fMultSelection(0), 			  		
-							 						 fEventCuts(0),								 
+								 //								 								 fMultSelection(0), 			  		
+								 fEventCuts(0),								 
 								 fOutputList(0), 
 								 fSignalTree(0), 
 								 fBkgTree(0), 
@@ -223,6 +224,7 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask(const char* name) : AliAnalysisTask
   fHistEventV0(0), 
   fHistTrack(0), 
   fHistPDG(0), 
+  fHistTrackBufferOverflow(0), 
   fHistSecondParticleAll(0),
   fHistSecondParticleTruthAll(0),
   fHistSecondParticle(0),
@@ -371,7 +373,7 @@ AliAnalysisTaskMyTask::~AliAnalysisTaskMyTask()
 }
   
 
-void AliAnalysisTaskMyTask::ProcessMCParticles(Bool_t Generated, AliAODTrack *track, Int_t& labelPrimOrSec, Float_t lPercentiles, Bool_t isV0)
+void AliAnalysisTaskMyTask::ProcessMCParticles(Bool_t Generated, AliAODTrack *track, Int_t& labelPrimOrSec, Float_t lPercentiles, Bool_t isV0, Double_t ZAtDCA)
 {
   // process MC particles
   //  TList *list=fAOD->GetList();
@@ -424,15 +426,15 @@ void AliAnalysisTaskMyTask::ProcessMCParticles(Bool_t Generated, AliAODTrack *tr
       fHistResolutionTriggerEta->Fill(track->Eta()- particle->Eta(), lPercentiles);
       // fHistSelectedTriggerPtPhi[0]->Fill(track->Pt(), track->Phi(), lPercentiles);
       // fHistSelectedTriggerPtEta[0]->Fill(track->Pt(), track->Eta(), lPercentiles);    
-      if(  (TMath::Abs(track->ZAtDCA()) < 2.)) {
+      if(  (TMath::Abs(ZAtDCA) < 2.)) {
 	fHistSelectedTriggerPtPhi[1]->Fill(track->Pt(), track->Phi(), lPercentiles);
 	fHistSelectedTriggerPtEta[1]->Fill(track->Pt(), track->Eta(), lPercentiles);    
       }
-      if(  (TMath::Abs(track->ZAtDCA()) < 1.)) {
+      if(  (TMath::Abs(ZAtDCA) < 1.)) {
 	fHistSelectedTriggerPtPhi[0]->Fill(track->Pt(), track->Phi(), lPercentiles);
 	fHistSelectedTriggerPtEta[0]->Fill(track->Pt(), track->Eta(), lPercentiles);    
       }
-      if( (TMath::Abs(track->ZAtDCA()) < 0.5)) {
+      if( (TMath::Abs(ZAtDCA) < 0.5)) {
 	fHistSelectedTriggerPtPhi[2]->Fill(track->Pt(), track->Phi(), lPercentiles);
 	fHistSelectedTriggerPtEta[2]->Fill(track->Pt(), track->Eta(), lPercentiles);    
       }
@@ -446,18 +448,18 @@ void AliAnalysisTaskMyTask::ProcessMCParticles(Bool_t Generated, AliAODTrack *tr
       if(lPercentiles>=moltep[m] && lPercentiles<moltep[m+1]){
 	for(Int_t p=1; p<=4; p++){
 	  if (labelPrimOrSec==p){
-	    if( (TMath::Abs(track->ZAtDCA()) < 1))   fHistPrimaryTrigger[m][0]->Fill(p,particle->Pt() );
-	    if( (TMath::Abs(track->ZAtDCA()) < 2))   fHistPrimaryTrigger[m][1]->Fill(p,particle->Pt() );
-	    if( (TMath::Abs(track->ZAtDCA()) < 0.5))   fHistPrimaryTrigger[m][2]->Fill(p,particle->Pt() );
+	    if( (TMath::Abs(ZAtDCA) < 1))   fHistPrimaryTrigger[m][0]->Fill(p,particle->Pt() );
+	    if( (TMath::Abs(ZAtDCA) < 2))   fHistPrimaryTrigger[m][1]->Fill(p,particle->Pt() );
+	    if( (TMath::Abs(ZAtDCA) < 0.5))   fHistPrimaryTrigger[m][2]->Fill(p,particle->Pt() );
 	  }
 	}
       }
     }
     for(Int_t p=1; p<=4; p++){
       if (labelPrimOrSec==p){
-	if((TMath::Abs(track->ZAtDCA()) < 1))   fHistPrimaryTrigger[5][0]->Fill(p,particle->Pt() );
-	if( (TMath::Abs(track->ZAtDCA()) < 2))   fHistPrimaryTrigger[5][1]->Fill(p,particle->Pt() );
-	if( (TMath::Abs(track->ZAtDCA()) < 0.5))   fHistPrimaryTrigger[5][2]->Fill(p,particle->Pt() );
+	if( (TMath::Abs(ZAtDCA) < 1))   fHistPrimaryTrigger[5][0]->Fill(p,particle->Pt() );
+	if( (TMath::Abs(ZAtDCA) < 2))   fHistPrimaryTrigger[5][1]->Fill(p,particle->Pt() );
+	if( (TMath::Abs(ZAtDCA) < 0.5))   fHistPrimaryTrigger[5][2]->Fill(p,particle->Pt() );
       }
     }
   }
@@ -562,13 +564,13 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
   fHistPt = new TH1F("fHistPt", "p_{T} distribution of selected charged tracks in events used for AC", 300, 0, 30); 
   fHistPt->GetXaxis()->SetTitle("p_{T} (GeV/c)");
  
-  fHistDCAxym1 = new TH1F("fHistDCAxym1", "DCAxy method 1 before DCA cuts", -10, 0, 10); 
+  fHistDCAxym1 = new TH1F("fHistDCAxym1", "DCAxy method 1 before DCA cuts", 100, -10, 10); 
   fHistDCAxym1->GetXaxis()->SetTitle("DCAxy method 1 (cm)");
-  fHistDCAxym2 = new TH1F("fHistDCAxym2", "DCAxy method 2 before DCA cuts", -10, 0, 10); 
+  fHistDCAxym2 = new TH1F("fHistDCAxym2", "DCAxy method 2 before DCA cuts", 100, -10, 10); 
   fHistDCAxym2->GetXaxis()->SetTitle("DCAxy method 2 (cm)");
-  fHistDCAzm1 = new TH1F("fHistDCAzm1", "DCAz method 1 before DCA cuts", -10, 0, 10); 
+  fHistDCAzm1 = new TH1F("fHistDCAzm1", "DCAz method 1 before DCA cuts", 100, -10, 10); 
   fHistDCAzm1->GetXaxis()->SetTitle("DCAz method 1 (cm)");
-  fHistDCAzm2 = new TH1F("fHistDCAzm2", "DCAz method 2 before DCA cuts", -10, 0, 10); 
+  fHistDCAzm2 = new TH1F("fHistDCAzm2", "DCAz method 2 before DCA cuts", 100, -10, 10); 
   fHistDCAzm2->GetXaxis()->SetTitle("DCAz method 2 (cm)");
  
   fHistPtV0 = new TH1F("fHistPtV0", "p_{T} distribution of selected V0 in events used for AC", 300, 0, 30); 
@@ -599,7 +601,10 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
   fHist_multiplicity->SetTitle("Centrality distribution of events used for AC");
 
   fHistPDG=new TH1F("fHistPDG", "fHistPDG",3200, -3200, 3200);
+
+  fHistTrackBufferOverflow = new TH1F("fHistTrackBufferOverflow","",2,0,2);
   
+
   fHistEventMult=new TH1F("fHistEventMult", "fHistEventMult", 22, 0.5, 22.5);
   fHistEventMult->GetXaxis()->SetBinLabel(1,"All events");
   fHistEventMult->GetXaxis()->SetBinLabel(2,"Events w/PV and AOD");
@@ -892,6 +897,7 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
   fEventCuts.AddQAplotsToList(fOutputList);
   
   fOutputList->Add(fHistPDG);
+  fOutputList->Add(fHistTrackBufferOverflow);
   fOutputList->Add(fHistEventMult);
   fOutputList->Add(fHistEventV0);
   fOutputList->Add(fHistTrack); 
@@ -1026,7 +1032,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     return;
   }        
   
-  
+ 
  /// Use the event cut class to apply the required selections
  if (!fEventCuts.AcceptEvent(fAOD)) {   
  PostData(1, fOutputList);
@@ -1035,7 +1041,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   PostData(4, fOutputList2);     
   PostData(5, fOutputList3);      return;
  }
-  
+ 
   
   Int_t iTracks(fAOD->GetNumberOfTracks());         
   Int_t V0Tracks(fAOD->GetNumberOfV0s());           
@@ -1099,9 +1105,9 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   
   Float_t lPercentiles = 0;
   
- 
+  
   //This will work for both ESDs and AODs
-  AliMultSelection *MultSelection = (AliMultSelection*) fAOD -> FindListObject("MultSelection");
+    AliMultSelection *MultSelection = (AliMultSelection*) fAOD -> FindListObject("MultSelection");
 
   if ( MultSelection ){
   //c cout << "mult sel ok" << endl;
@@ -1109,7 +1115,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   }else{
   AliInfo("Didn't find MultSelection!"); 
   }
- 
+  
   //c cout << "centralita' dell evento " << lPercentiles << endl;
   //Embedded in framework:
   // ---> if lPercentiles are 200 or above: event didn't pass event selections
@@ -1202,7 +1208,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   if(fReadMCTruth){
     fMCEvent= MCEvent();
     if (fMCEvent){
-      ProcessMCParticles(Generated, track, labelPrimOrSec, lPercentiles, isV0);
+      ProcessMCParticles(Generated, track, labelPrimOrSec, lPercentiles, isV0, 0);
     }
   }
   
@@ -1256,7 +1262,55 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   fEventColl[zBin][centralityBin]->FifoClear();
   fEvt = fEventColl[zBin][centralityBin]->fEvt;
   // // cout << "7 " << endl;
+
+
+  //*****************create a global track to get the crrect DCA*******************************
+ for (Int_t igt = 0; igt < fTrackBufferSize; igt++) farrGT[igt] = -1;
+  
+  AliAODTrack *globaltrack = 0x0;
+ 
+  // Read and store global tracks to retrieve PID information for TPC only tracks
+  for (Int_t igt = 0; igt < iTracks; igt++) {
+    globaltrack = (AliAODTrack*) fAOD->GetTrack(igt);
+
+    if (!globaltrack) continue; 
+    if (globaltrack->GetID()<0 ) continue;
+    if (!globaltrack->IsOn(AliAODTrack::kTPCrefit)) continue; // there are such tracks with no TPC clusters
+
+    // Check id is not too big for buffer
+    if (globaltrack->GetID()>=fTrackBufferSize) {
+      printf("Warning: track ID too big for buffer: ID: %d, buffer %d\n",globaltrack->GetID(),fTrackBufferSize);
+      fHistTrackBufferOverflow->Fill(1);
+      continue;
+    }
+
+    //    if ( !(globaltrack->GetFilterMap()) ) { 
+    //        cout<<" No filter map for this global track!!  "<<globaltrack->GetFilterMap()<<endl;
+    //        continue;
+    //    }
+
+    if ( globaltrack->GetTPCNcls()<=0   ) { // such tracks do not have the TPC refit either, filter map is 2 --> ITS constrained
+      //      cout<<" No TPC cl for this global track!!  "<<igt<<endl;
+      //      if (!globaltrack->IsOn(AliAODTrack::kTPCrefit)) cout<<" ... and also no tpc refit  "<<globaltrack->GetFilterMap()<<endl;
+      continue;
+    }
+    //cout<<" The array will contain "<<igt<<" , it contains "<<farrGT[globaltrack->GetID()]<<endl; 
+
+    // Warn if we overwrite a track
+    if (farrGT[globaltrack->GetID()]>=0) { // Two tracks same id  --> checked that it never happens
+      //      cout<<" Array already filled "<<farrGT[globaltrack->GetID()]<<endl;
+    } else { 
+      farrGT[globaltrack->GetID()] = igt;           // solution adopted in the femto framework
+      //    cout<<" Set array, now it contains  "<<farrGT[globaltrack->GetID()]<<endl;
+    }
+  }
+  
+  globaltrack = 0x0; 
+
   //-----------------------------------LOOP OVER THE TRACKS
+  AliVTrack *vtrackg = 0x0;
+  AliVTrack *vtrack = 0x0;
+  AliExternalTrackParam etp1;
 
   Float_t nTPCCrossedRows=0.;
   float rationCrnFind=0;
@@ -1278,12 +1332,18 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   Int_t CharegFirstParticle=0;
   Double_t dz[2] = {-999.,-999.};
   Double_t d[2] = {-999.,-999.};
+  Double_t dzg[2]= {-999.,-999.}; Double_t covarg[3]={-999.,-999.,-999.};
 
   //LOOP FOR FIRST PARTICLE
  
   Float_t ptTriggerMinimoDati=10000;
   
   for(Int_t i=0; i < iTracks; i++) {
+    // vtrack = fAOD->GetTrack(i);
+    // if (!vtrack) continue;
+    // track = dynamic_cast<AliAODTrack*>(vtrack);
+    // if(!track) AliFatal("Not a standard AOD");
+
     track = static_cast<AliAODTrack*>(fAOD->GetTrack(i));        
     fHistTrack->Fill(1);
     if(!track) continue;
@@ -1306,30 +1366,50 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     if(rationCrnFind<0.8)  continue;
     fHistTrack->Fill(6);
     
+    // Get the corresponding global track to use PID --> stored only for global tracks
+    // 
+    // Check that the array fGTI isn't too small
+    // for the track id
+    if (-track->GetID()-1 >= fTrackBufferSize) {
+      printf ("Exceeding buffer size!!");
+      continue;
+    }
+
+    vtrackg = fAOD->GetTrack(farrGT[-track->GetID()-1]);
+    if (!vtrackg) {
+      printf ("No global info! iTrack %d, ID %d\n",i,track->GetID());
+      continue;
+    }
+    if (farrGT[-track->GetID()-1]>=iTracks || farrGT[-track->GetID()-1]<0) { /*cout<<"This index is out of range!!"<<farrGT[-track->GetID()-1]<<endl;*/ continue;}
+    globaltrack = dynamic_cast<AliAODTrack*>(vtrackg); 
+    if(!globaltrack) AliFatal("Not a standard AOD");
+
+    dzg[0]= -999.; dzg[1] = -999.;
+    etp1.CopyFromVTrack(vtrackg); 
+    etp1.PropagateToDCA(vertexmain,(InputEvent())->GetMagneticField(),100.,dzg,covarg);    
+
+
     if((track->Charge())==0) continue;
     fHistTrack->Fill(7);
 
-    dz[0] = track->DCA();    // the TPC one should be applied the other biases the CF --> from Maciejs note --> FIXME to be checked 
-    dz[1] = track->ZAtDCA(); // for those two lines check AliAODTrack.h // FIXME these two lines produce shifted distributions, known problem, asked Mac and Marian. 
+    dz[0] = track->DCA();   
+    dz[1] = track->ZAtDCA(); 
 
     fHistDCAxym1->Fill(track->DCA());
     fHistDCAzm1->Fill(track->ZAtDCA());
 
-    Double_t  covd[3];
-    //    if (track->DCA()==-999. || track->ZAtDCA()==-999.){
-    AliAODTrack* track_clone=(AliAODTrack*)track->Clone("track_clone"); // need to clone because PropagateToDCA updates the track parameters
-    Bool_t isDCA = track_clone->PropagateToDCA(fAOD->GetPrimaryVertex(),fAOD->GetMagneticField(),9999.,d,covd);
-    delete track_clone;
+    // Double_t  covd[3];
+    // //    if (track->DCA()==-999. || track->ZAtDCA()==-999.){
+    // AliAODTrack* track_clone=(AliAODTrack*)track->Clone("track_clone"); // need to clone because PropagateToDCA updates the track parameters
+    // Bool_t isDCA = track_clone->PropagateToDCA(fAOD->GetPrimaryVertex(),fAOD->GetMagneticField(),9999.,d,covd);
+    // delete track_clone;
 
-    fHistDCAxym2->Fill(d[0]);
-    fHistDCAzm2 ->Fill(d[1]);
+    fHistDCAxym2->Fill(dzg[0]);
+    fHistDCAzm2 ->Fill(dzg[1]);
 
-
-    //   if(TMath::Abs(track->DCA())> (0.0105 + 0.0350/pow(track->Pt(),1.1))) continue;
-    if(TMath::Abs(d[0])> (0.0105 + 0.0350/pow(track->Pt(),1.1))) continue;
+    if(TMath::Abs(dzg[0])> (0.0105 + 0.0350/pow(track->Pt(),1.1))) continue;
     fHistTrack->Fill(8);
-    if(TMath::Abs(d[1])> 2.) continue;
-    //    if(TMath::Abs(track->ZAtDCA())> 2.) continue;
+    if(TMath::Abs(dzg[1])> 2.) continue;
     fHistTrack->Fill(9);
 
     //to determine efficiency of trigger particle
@@ -1337,7 +1417,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     Generated = kFALSE;     
     if(fReadMCTruth){
       if(fMCEvent){
-	ProcessMCParticles(Generated, track, labelPrimOrSec, lPercentiles, isV0);
+	ProcessMCParticles(Generated, track, labelPrimOrSec, lPercentiles, isV0, dzg[1]);
       }
     }
 
@@ -1357,8 +1437,8 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 	fEvt->fReconstructedFirst[NumberFirstParticle-1].fEta          = track->Eta();
 	fEvt->fReconstructedFirst[NumberFirstParticle-1].fPhi          = track->Phi();
 	fEvt->fReconstructedFirst[NumberFirstParticle-1].fTheta        = track->Theta();
-	fEvt->fReconstructedFirst[NumberFirstParticle-1].fDCAz         = d[1];
-	fEvt->fReconstructedFirst[NumberFirstParticle-1].fDCAxy        = d[0];
+	fEvt->fReconstructedFirst[NumberFirstParticle-1].fDCAz         = dzg[1];
+	fEvt->fReconstructedFirst[NumberFirstParticle-1].fDCAxy        = dzg[0];
 	fEvt->fReconstructedFirst[NumberFirstParticle-1].fMultiplicity = lPercentiles;
 	fEvt->fReconstructedFirst[NumberFirstParticle-1].fZvertex      = lBestPrimaryVtxPos[2];
 	fEvt->fReconstructedFirst[NumberFirstParticle-1].isP           = labelPrimOrSec;
@@ -1506,7 +1586,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 
   if(fReadMCTruth){
     if (fMCEvent){
-      ProcessMCParticles(Generated, track, labelPrimOrSec, lPercentiles, isV0);
+      ProcessMCParticles(Generated, track, labelPrimOrSec, lPercentiles, isV0, 0);
     }
   }
   

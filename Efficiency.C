@@ -21,25 +21,30 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
   return ((Float_t)k+1)*((Float_t)k+2)/(n+2)/(n+3) - pow((Float_t)(k+1),2)/pow(n+2,2);
 }
 
-void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysTrigger=0, Int_t sysV0=0){
+void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysTrigger=0, Int_t sysV0=5, TString data="2018d8_DCACorrFinal", TString year0="2016"){
   //TString file = "AngularCorrelation2018d8_allrunswMult";
   //TString file = "AngularCorrelation2018d8_MC_runNew";
   //TString file = "AngularCorrelation2018d8_MC_try7_10runs";
   //TString file = "AngularCorrelation2017d20a2_extra_MCEffEvt_3runs";
   // TString file = "AngularCorrelation2018d8_MC_try2fullrun";
-  TString file = "AngularCorrelation2018d8_MCEff_15runs_6thtry";
+  TString file = "Efficiency";
   // TString PathInBis =  "AnalysisResults2018d8_allrunswMult_MC.root";
   // TString PathInBis =  "AnalysisResults2018d8_MC_runNew.root";
   // TString PathInBis =  "AnalysisResults2017d20a2_extra_MCEffEvt_3runs.root";
  // TString PathInBis =  "AnalysisResults2018d8_MC_try2fullrun.root";
-  TString PathInBis =  "AnalysisResults2018d8_MCEff_15runs_6thtry.root";
+  TString PathInBis =  "FinalOutput/AnalysisResults";
+  file+=data;
+  file+="_MCEff";
+  PathInBis+=data;
+  PathInBis+="_MCEff.root";
   //  TString PathInBis =  "AnalysisResults.root";
-  TString PathOut2="histo/" + file + Form("_MC_Efficiency_SysT%i_SysV0%i.root", sysTrigger, sysV0);
+  TString PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + Form("_Efficiency_SysT%i_SysV0%i.root", sysTrigger, sysV0);
 
   TFile *fileinbis = new TFile(PathInBis);
   TDirectoryFile *dir = (TDirectoryFile*)fileinbis->Get("MyTask");
   TList *list = (TList*)dir->Get("MyOutputContainer");
-  TList *list2 = (TList*)dir->Get("MyOutputContainer3");
+  TList *list2 = (TList*)dir->Get("MyOutputContainer3"); //contiene info V0
+  TList *list3 = (TList*)dir->Get("MyOutputContainer4"); //contiene info trigger particle
 
   const Int_t nummolt=5;
   const Int_t numzeta=1;
@@ -81,13 +86,13 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
 
 
   //***************istogrammi delle efficienze**********************************************************
-  TH3D*   fHistGeneratedTriggerPtPhi= (TH3D*)list2->FindObject("fHistGeneratedTriggerPtPhi");
+  TH3D*   fHistGeneratedTriggerPtPhi= (TH3D*)list3->FindObject("fHistGeneratedTriggerPtPhi");
   //  TH3D*   fHistGeneratedTriggerPtPhi= (TH3D*)list2->FindObject(Form("fHistGeneratedTriggerPtPhi_%i",sysV0Gen));
-  TH3D*   fHistSelectedTriggerPtPhi=  (TH3D*)list2->FindObject(Form("fHistSelectedTriggerPtPhi_%i", sysTrigger));
+  TH3D*   fHistSelectedTriggerPtPhi=  (TH3D*)list3->FindObject(Form("fHistSelectedTriggerPtPhi_%i", sysTrigger));
   TH3D*   fHistGeneratedV0PtPhi=      (TH3D*)list2->FindObject(Form("fHistGeneratedV0PtPhi_%i", sysV0Gen));
   TH3D*   fHistSelectedV0PtPhi=       (TH3D*)list2->FindObject(Form("fHistSelectedV0PtPhi_%i",sysV0));
-  TH3D*   fHistGeneratedTriggerPtEta= (TH3D*)list2->FindObject("fHistGeneratedTriggerPtEta");
-  TH3D*   fHistSelectedTriggerPtEta=  (TH3D*)list2->FindObject(Form("fHistSelectedTriggerPtEta_%i", sysTrigger));
+  TH3D*   fHistGeneratedTriggerPtEta= (TH3D*)list3->FindObject("fHistGeneratedTriggerPtEta");
+  TH3D*   fHistSelectedTriggerPtEta=  (TH3D*)list3->FindObject(Form("fHistSelectedTriggerPtEta_%i", sysTrigger));
   TH3D*   fHistGeneratedV0PtEta=      (TH3D*)list2->FindObject(Form("fHistGeneratedV0PtEta_%i", sysV0Gen));
   TH3D*   fHistSelectedV0PtEta=       (TH3D*)list2->FindObject(Form("fHistSelectedV0PtEta_%i", sysV0));
   TH3D*   fHistReconstructedV0PtMass= (TH3D*)list->FindObject("fHistReconstructedV0PtMass");
@@ -269,7 +274,7 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
     HistoTriggerEfficiency->SetBinContent(molt+1, TriggerEfficiency[molt]);
     HistoTriggerEfficiency->SetBinError(molt+1, SetEfficiencyError(SelEntries, GenEntries));
     canvasUsed->cd(1);
-    HistoTriggerEfficiency->GetYaxis()->SetRangeUser(0,0.15);
+    HistoTriggerEfficiency->GetYaxis()->SetRangeUser(0,1);
     HistoTriggerEfficiency->SetMarkerStyle(ColorSysTrigger[sysTrigger]);
     HistoTriggerEfficiency->SetLineColor(ColorSysTrigger[sysTrigger]);
     HistoTriggerEfficiency->SetMarkerColor(ColorSysTrigger[sysTrigger]);
@@ -503,7 +508,7 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
 
     //***************contamination factor for trigger and V0 in multiplicity intervals***************
 
-    HistContTrigger[molt]=(TH2D*)list2->FindObject(Form("fHistPrimaryTrigger_%i_cut%i", molt, sysTrigger)); //histo tipo di trigger (primario, secondario) vs pT trigger
+    HistContTrigger[molt]=(TH2D*)list3->FindObject(Form("fHistPrimaryTrigger_%i_cut%i", molt, sysTrigger)); //histo tipo di trigger (primario, secondario) vs pT trigger
     cout << "deficit " << endl;
     HistContV0[molt]=(TH2D*)list2->FindObject(Form("fHistPrimaryV0_%i_cut%i", molt, 0));//histo tipo di V0 (primario, secondario) vs pT V0
 
@@ -515,7 +520,7 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
     else     HistContTriggerMolt->SetBinContent(molt+1, 0);
 
     canvasUsed->cd(3);
-    HistContTriggerMolt->GetYaxis()->SetRangeUser(0,0.05);
+    HistContTriggerMolt->GetYaxis()->SetRangeUser(0,0.015);
     HistContTriggerMolt->SetMarkerStyle(ColorSysTrigger[sysTrigger]);
     HistContTriggerMolt->SetLineColor(ColorSysTrigger[sysTrigger]);
     HistContTriggerMolt->SetMarkerColor(ColorSysTrigger[sysTrigger]);
@@ -602,7 +607,7 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
 
 
     canvasUsed->cd(4);
-    HistContV0PtBins[molt]->GetYaxis()->SetRangeUser(0,1);
+    HistContV0PtBins[molt]->GetYaxis()->SetRangeUser(0,0.05);
     HistContV0PtBins[molt]->SetMarkerStyle(Marker[molt]);
     HistContV0PtBins[molt]->SetLineColor(Color[molt]);
     HistContV0PtBins[molt]->SetMarkerColor(Color[molt]);

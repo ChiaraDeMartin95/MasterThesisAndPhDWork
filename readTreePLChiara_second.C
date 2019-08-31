@@ -15,8 +15,8 @@
 #include <TTree.h>
 #include <TLatex.h>
 #include <TFile.h>
-void readTreePLChiara_second(bool isMC = kFALSE,Bool_t isEfficiency=1,Int_t sysTrigger=0, Int_t sysV0=5,
-			     TString year="2016lk",  TString Path1 ="", Int_t type=0,  Double_t ptjmin=3, Double_t ptjmax =30, Double_t nsigmamin=4, Double_t nsigmamax=10, Bool_t isSigma=kFALSE){
+void readTreePLChiara_second(bool isMC = 0,Bool_t isEfficiency=0,Int_t sysTrigger=0, Int_t sysV0=0,
+			     TString year0="ALL", TString year="All",  TString Path1 ="", Int_t type=0,  Double_t ptjmin=3, Double_t ptjmax =30, Double_t nsigmamin=4, Double_t nsigmamax=10, Bool_t isSigma=kFALSE){
 
   Double_t massK0s = 0.497611;
   Double_t massLambda = 1.115683;
@@ -25,14 +25,13 @@ void readTreePLChiara_second(bool isMC = kFALSE,Bool_t isEfficiency=1,Int_t sysT
   TString file;
   const Int_t numtipo=2;  
   TString tipo[numtipo]={"kK0s", "bo"};
-
-  TString PathIn="./AnalysisResults";
-  TString PathOut="./histo/AngularCorrelation";
-  TString PathInMass= "invmass_distribution_thesis/";
+  TString PathIn="FinalOutput/AnalysisResults";
+  TString PathOut="FinalOutput/DATA" + year0 + "/histo/AngularCorrelation";
+  TString PathInMass= "FinalOutput/DATA" + year0 + "/invmass_distribution_thesis/invmass_distribution";
   TString PathInMassDef;
   PathIn+=year;
   PathOut+=year;  
-  PathInMass+=year;
+  // PathInMass+=year;
   
   if(isMC && isEfficiency){ 
     PathIn+="_MCEff";
@@ -45,10 +44,10 @@ void readTreePLChiara_second(bool isMC = kFALSE,Bool_t isEfficiency=1,Int_t sysT
   }
  
   PathIn+=Path1;
-  PathInMass+=Path1;
+  //PathInMass+=Path1;
   PathIn+=".root";
   PathOut+=Path1;
-  PathOut +=Form("_SysT%i_SysV0%i",sysTrigger, sysV0); 
+  if (!isMC ||(isMC && isEfficiency)) PathOut +=Form("_SysT%i_SysV0%i",sysTrigger, sysV0); 
   PathOut+= ".root";
 
   TFile *fin = new TFile(PathIn);
@@ -83,7 +82,7 @@ void readTreePLChiara_second(bool isMC = kFALSE,Bool_t isEfficiency=1,Int_t sysT
 
   if(isMC==0 || (isMC==1 && isEfficiency==1)){
     for(Int_t m=0; m<nummolt+1; m++){
-      PathInMassDef=PathInMass+"/invmass_distribution_"+tipo[type]+Form("_molt%i_sysT%i_sysV0%i.root", m, sysTrigger, sysV0);
+      PathInMassDef=PathInMass+ "_"+year+"_"+tipo[type]+Form("_molt%i_sysT%i_sysV0%i.root", m, sysTrigger, sysV0);
       fileMassSigma= new TFile(PathInMassDef);
       histoSigma=(TH1F*)fileMassSigma->Get("histo_sigma");
       histoMean=(TH1F*)fileMassSigma->Get("histo_mean");
@@ -369,28 +368,28 @@ void readTreePLChiara_second(bool isMC = kFALSE,Bool_t isEfficiency=1,Int_t sysT
     }
 
     //******************* some other cuts for sys studies**************************
-    if(sysV0==1){   
-      if(fSignTreeVariableV0CosineOfPointingAngle < 0.997) continue;
-    }
-    if(sysV0==2){   
-      if(fSignTreeVariablectau >3*ctauK0s )continue;
-    }
-    if(sysV0==4){   
-      if(TMath::Abs((fSignTreeVariableInvMassLambda - massLambda))< 0.010) continue;
-      if(TMath::Abs((fSignTreeVariableInvMassAntiLambda - massLambda))< 0.010) continue;
-    }
-    if(sysV0==5){   
-      if(TMath::Abs((fSignTreeVariableInvMassLambda - massLambda))< 0.005) continue;
-      if(TMath::Abs((fSignTreeVariableInvMassAntiLambda - massLambda))< 0.005) continue;
-    }
-    if(sysV0==6){   
-      if(fSignTreeVariableDcaV0ToPrimVertex>0.3 )continue;
-    }
-    }
- if(sysV0==3){   
-      if(fSignTreeVariableRapK0Short > 0.5)continue;
-    }
+       if(sysV0!=5){
+      if(TMath::Abs((fSignTreeVariableInvMassLambda - massLambda))<= 0.005) continue;
+      if(TMath::Abs((fSignTreeVariableInvMassAntiLambda - massLambda))<= 0.005) continue;
+      if(sysV0==1){   
+	if(fSignTreeVariableV0CosineOfPointingAngle <= 0.997) continue;
+      }
+      if(sysV0==2){   
+	if(fSignTreeVariablectau >=8 )continue;
+      }
+      if(sysV0==3){   
+	if(fSignTreeVariableRapK0Short >= 0.5)continue;
+      }
+      if(sysV0==4){   
+	if(TMath::Abs((fSignTreeVariableInvMassLambda - massLambda))<= 0.010) continue;
+	if(TMath::Abs((fSignTreeVariableInvMassAntiLambda - massLambda))<= 0.010) continue;
+      }
+      if(sysV0==6){   
+	if(fSignTreeVariableDcaV0ToPrimVertex>=0.3 )continue;
+      }
    
+    }
+    }
     //**********************************************************************************************
 
     if (fSignTreeVariableDeltaPhi >  (1.5*TMath::Pi())) fSignTreeVariableDeltaPhi -= 2.0*TMath::Pi();
@@ -450,27 +449,27 @@ void readTreePLChiara_second(bool isMC = kFALSE,Bool_t isEfficiency=1,Int_t sysT
     }
 
     //******************* some other cuts for sys studies **************************
-    if(sysV0==1){   
-      if(fBkgTreeVariableV0CosineOfPointingAngle < 0.997) continue;
+   if(sysV0!=5){
+      if(TMath::Abs((fBkgTreeVariableInvMassLambda - massLambda))<= 0.005) continue;
+      if(TMath::Abs((fBkgTreeVariableInvMassAntiLambda - massLambda))<= 0.005) continue;
+      if(sysV0==1){   
+	if(fBkgTreeVariableV0CosineOfPointingAngle <= 0.997) continue;
+      }
+      if(sysV0==2){   
+	if(fBkgTreeVariablectau >=8 )continue;
+      }
+      if(sysV0==3){   
+	if(fBkgTreeVariableRapK0Short >= 0.5)continue;
+      }
+      if(sysV0==4){   
+	if(TMath::Abs((fBkgTreeVariableInvMassLambda - massLambda))<= 0.010) continue;
+	if(TMath::Abs((fBkgTreeVariableInvMassAntiLambda - massLambda))<= 0.010) continue;
+      }
+      if(sysV0==6){   
+	if(fBkgTreeVariableDcaV0ToPrimVertex>=0.3 )continue;
+      }
+   
     }
-    if(sysV0==2){   
-      if(fBkgTreeVariablectau >3*ctauK0s )continue;
-    }
-    if(sysV0==4){   
-      if(TMath::Abs((fBkgTreeVariableInvMassLambda - massLambda))< 0.010) continue;
-      if(TMath::Abs((fBkgTreeVariableInvMassAntiLambda - massLambda))< 0.010) continue;
-    }
- if(sysV0==5){   
-      if(TMath::Abs((fBkgTreeVariableInvMassLambda - massLambda))< 0.005) continue;
-      if(TMath::Abs((fBkgTreeVariableInvMassAntiLambda - massLambda))< 0.005) continue;
-    }
-      
- if(sysV0==6){   
-      if(fBkgTreeVariableDcaV0ToPrimVertex>0.3 )continue;
-    }
-    }
-    if(sysV0==3){   
-      if(fBkgTreeVariableRapK0Short > 0.5)continue;
     }
 
     //**********************************************************************************************
