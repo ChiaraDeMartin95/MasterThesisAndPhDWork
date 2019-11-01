@@ -101,7 +101,7 @@ void BarlowSys(Bool_t isBulk=0, Bool_t isTotal=0, Bool_t isMC=0, TString year="2
   auto legend3= new TLegend(0.55, 0.55, 0.9, 0.9);
   legend3->SetHeader("Selezioni applicate");     
   // auto legend4= new TLegend(0.55, 0.55, 0.9, 0.9); //ter
-  auto legend4= new TLegend(0.55, 0.7, 0.9, 0.9); //noter
+ auto legend4= new TLegend(0.55, 0.55, 0.9, 0.9); //noter
   //  legend4->SetHeader("Selezioni applicate");     
   
   auto legendYield= new TLegend(0.7, 0.1, 0.9, 0.3);
@@ -162,6 +162,9 @@ void BarlowSys(Bool_t isBulk=0, Bool_t isTotal=0, Bool_t isMC=0, TString year="2
   Int_t    NumberBarlowPassedSpectrum[nummolt+1]={0};
   Int_t    NumberCorr[nummolt+1][numPtV0]={0};  Int_t    NumberCorrSpectrum[nummolt+1]={0};
   Double_t SigmaBarlow[nummolt+1][numPtV0][numSyst][50]={0};
+  Double_t SigmaBarlowMax[numSyst]={0};
+  Double_t SigmaBarlowMin[numSyst]={1000000};
+  Double_t SigmaBarlowAverage[numSyst]={0};
 
   Int_t   NTrigger[nummolt+1]={0}; //total number of trigger particles 
   Int_t   NTriggerV0[nummolt+1]={0}; //total number of trigger particles only in events with V > 0
@@ -234,6 +237,7 @@ void BarlowSys(Bool_t isBulk=0, Bool_t isTotal=0, Bool_t isMC=0, TString year="2
     Int_t syst1_limit=0;
     if(!isBulk) syst1_limit= numSyst- numsystPhi-numSysV0+1;
     if (isBulk) syst1_limit= 2;
+    if (isTotal) syst1_limit= 1; //non considero sistematico associato a bin counting per total
 
   //********************************************************************* 
   //**************calcolo numero particelle di trigger*******************
@@ -1133,10 +1137,11 @@ Double_t   mult[nummolt+1]={21.2, 16.17, 11.4625, 7.135, 3.33, 6.94};
     fHistSpectrum_master_bis[m]->GetXaxis()->SetTitleOffset(1.05);
     fHistSpectrum_master_bis[m]->GetYaxis()->SetTitleSize(0.045);
     fHistSpectrum_master_bis[m]->GetXaxis()->SetTitleSize(0.045);
-    if (isBulk) fHistSpectrum_master_bis[m]->GetYaxis()->SetTitle("C x 1/N_{Trigg} dN/dp_{T}");
+    if (isBulk || isTotal) fHistSpectrum_master_bis[m]->GetYaxis()->SetTitle("C x 1/N_{Trigg} dN/dp_{T}");
     fHistSpectrum_master_bis[m]->SetTitle("Multiplicity class "+SmoltLegend[m]);
     fHistSpectrum_master_bis[m]->GetYaxis()->SetRangeUser(0,0.05);
     if (isBulk)    fHistSpectrum_master_bis[m]->GetYaxis()->SetRangeUser(0,0.035);
+    if (isTotal)    fHistSpectrum_master_bis[m]->GetYaxis()->SetRangeUser(0,0.09);
     fHistSpectrum_master_bis[m]->SetMarkerStyle(1);
     fHistSpectrum_master_bis[m]->SetLineColor(1);
     fHistSpectrum_master_bis[m]->SetMarkerColor(1);
@@ -1147,10 +1152,11 @@ Double_t   mult[nummolt+1]={21.2, 16.17, 11.4625, 7.135, 3.33, 6.94};
     fHistSpectrum_masterSystCorr[m]->GetXaxis()->SetTitleOffset(1.05);
     fHistSpectrum_masterSystCorr[m]->GetYaxis()->SetTitleSize(0.045);
     fHistSpectrum_masterSystCorr[m]->GetXaxis()->SetTitleSize(0.045);
-    if (isBulk) fHistSpectrum_masterSystCorr[m]->GetYaxis()->SetTitle("C x 1/N_{Trigg} dN/dp_{T}");
+    if (isBulk || isTotal) fHistSpectrum_masterSystCorr[m]->GetYaxis()->SetTitle("C x 1/N_{Trigg} dN/dp_{T}");
     fHistSpectrum_masterSystCorr[m]->SetTitle("Multiplicity class "+SmoltLegend[m]);
     fHistSpectrum_masterSystCorr[m]->GetYaxis()->SetRangeUser(0,0.05);
     if (isBulk)    fHistSpectrum_masterSystCorr[m]->GetYaxis()->SetRangeUser(0,0.035);
+    if (isTotal)    fHistSpectrum_masterSystCorr[m]->GetYaxis()->SetRangeUser(0,0.09);
     fHistSpectrum_masterSystCorr[m]->SetMarkerStyle(1);
     fHistSpectrum_masterSystCorr[m]->SetLineColor(1);
     fHistSpectrum_masterSystCorr[m]->SetFillStyle(9);
@@ -1163,10 +1169,11 @@ Double_t   mult[nummolt+1]={21.2, 16.17, 11.4625, 7.135, 3.33, 6.94};
     fHistSpectrum_masterSystUnCorr[m]->GetXaxis()->SetTitleOffset(1.05);
     fHistSpectrum_masterSystUnCorr[m]->GetYaxis()->SetTitleSize(0.045);
     fHistSpectrum_masterSystUnCorr[m]->GetXaxis()->SetTitleSize(0.045);
-    if (isBulk) fHistSpectrum_masterSystUnCorr[m]->GetYaxis()->SetTitle("C x 1/N_{Trigg} dN/dp_{T}");
+    if (isBulk || isTotal) fHistSpectrum_masterSystUnCorr[m]->GetYaxis()->SetTitle("C x 1/N_{Trigg} dN/dp_{T}");
     fHistSpectrum_masterSystUnCorr[m]->SetTitle("Multiplicity class "+SmoltLegend[m]);
     fHistSpectrum_masterSystUnCorr[m]->GetYaxis()->SetRangeUser(0,0.05);
     if (isBulk)    fHistSpectrum_masterSystUnCorr[m]->GetYaxis()->SetRangeUser(0,0.035);
+    if (isTotal)    fHistSpectrum_masterSystUnCorr[m]->GetYaxis()->SetRangeUser(0,0.09);
     fHistSpectrum_masterSystUnCorr[m]->SetMarkerStyle(1);
     fHistSpectrum_masterSystUnCorr[m]->SetLineColor(1);
     fHistSpectrum_masterSystUnCorr[m]->SetMarkerColor(1);
@@ -1180,7 +1187,8 @@ Double_t   mult[nummolt+1]={21.2, 16.17, 11.4625, 7.135, 3.33, 6.94};
 
     if(m==5){
       legendErrorSpectrum->AddEntry(fHistSpectrum_master_bis[m],SErrorSpectrum[0], "el");  
-      if (!(isBulk==0 && isMC==0 && isTotal==0) && !(isBulk==0 && isMC==1 && isTotal==0))      legendErrorSpectrum->AddEntry(fHistSpectrum_masterSystCorr[m],SErrorSpectrum[2], "f");   
+      //      if (!(isBulk==0 && isMC==0 && isTotal==0) && !(isBulk==0 && isMC==1 && isTotal==0))      legendErrorSpectrum->AddEntry(fHistSpectrum_masterSystCorr[m],SErrorSpectrum[2], "f");   
+      if (isBulk)      legendErrorSpectrum->AddEntry(fHistSpectrum_masterSystCorr[m],SErrorSpectrum[2], "f");   
       legendErrorSpectrum->AddEntry(fHistSpectrum_masterSystUnCorr[m],SErrorSpectrum[1], "f");   
     }
     legendErrorSpectrum->Draw();
@@ -1541,19 +1549,22 @@ Double_t   mult[nummolt+1]={21.2, 16.17, 11.4625, 7.135, 3.33, 6.94};
        fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetTitleSize(0.045);
        fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetTitleOffset(1.55);
        fHistSpectrumErrorSist[m][syst]->SetTitle("Multiplicity class "+SmoltLegend[m]);
-       fHistSpectrumErrorSist[m][syst]->SetTitleSize(35);
+       fHistSpectrumErrorSist[m][syst]->SetTitleSize(0.045);
        fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetRangeUser(0,0.08);
 
-       if (isBulk==0 && isTotal==0 && isMC==0)       fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetRangeUser(0.005,0.08);
-       if (isBulk && m==4)       fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetRangeUser(0,0.22);
+       if (isBulk==0 && isTotal==0 && isMC==0)       fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetRangeUser(0,0.08);
+      if (isBulk && m==4)       fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetRangeUser(0,0.22);
        if (isBulk && m!=4)       fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetRangeUser(0,0.016);
        if (isBulk && isMC)       fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetRangeUser(0,0.028);
+       if (isTotal && m==4)       fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetRangeUser(0,0.18);
+       if (isTotal && m!=4)       fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetRangeUser(0,0.09);
+       if (isTotal &&isMC)       fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetRangeUser(0,0.09);
        fHistSpectrumErrorSist[m][syst]->SetMarkerStyle(MarkerBetter[syst]);
        fHistSpectrumErrorSist[m][syst]->SetLineColor(ColorBetter[syst]);
        fHistSpectrumErrorSist[m][syst]->SetMarkerColor(ColorBetter[syst]);
        //       fHistSpectrumErrorSist[m][syst]->Smooth();     
-       //  fHistSpectrumErrorSist[m][syst]->Draw("sameep"); //ter
-       //if (m==0 && syst!=0 && syst!=5) legend4->AddEntry(fHistSpectrumErrorSist[m][syst],SSystBetter[syst],"pel");   //ter
+       fHistSpectrumErrorSist[m][syst]->Draw("sameep"); //ter
+       if (m==0 && syst!=0 && syst!=5) legend4->AddEntry(fHistSpectrumErrorSist[m][syst],SSystBetter[syst],"pel");   //ter
       
      }
      if (m==0) legend4->AddEntry(  fHistSpectrumErrorSistPhi[m], "All syst. in Table", "l");
@@ -1580,7 +1591,7 @@ Double_t   mult[nummolt+1]={21.2, 16.17, 11.4625, 7.135, 3.33, 6.94};
   }
   fileout->WriteTObject( canvasSysError); 
   canvasSysError->SaveAs("FinalOutput/DATA"+year0 +"/RelSysPt"+JetOrBulk[jet]+DataOrMC[isMC]+".pdf"); //noter
-  //  canvasSysError->SaveAs("FinalOutput/DATA"+year0 +"/RelSysPt"+JetOrBulk[jet]+DataOrMC[isMC]+"Ter.pdf"); //ter
+  // canvasSysError->SaveAs("FinalOutput/DATA"+year0 +"/RelSysPt"+JetOrBulk[jet]+DataOrMC[isMC]+"Ter.pdf"); //ter
   
   for(Int_t m=0; m < nummolt+1; m++){
     canvasSys[2]->cd(m+1);
@@ -1609,7 +1620,7 @@ Double_t   mult[nummolt+1]={21.2, 16.17, 11.4625, 7.135, 3.33, 6.94};
     fHistSpectrum_masterSystCorr[m]->SetMarkerColor(9);
     fHistSpectrum_masterSystCorr[m]->SetFillStyle(0);
     fHistSpectrum_masterSystCorr[m]->Draw("same");
-    if (!(isBulk==0 && isTotal==0 && isMC==0) || (isBulk==0 && isMC==1 && isTotal==0)){
+    if (isBulk){
       if (m==0) legenderrorspectrum->AddEntry(    fHistSpectrum_masterSystCorr[m], "syst. corr. " , "pel");
     }
     fHistSpectrum_masterSystUnCorr[m]->GetYaxis()->SetRangeUser(0,0.45);
@@ -1675,6 +1686,49 @@ Double_t   mult[nummolt+1]={21.2, 16.17, 11.4625, 7.135, 3.33, 6.94};
   cout << "*************" << endl;
     }
  }
+
+ cout << "\n\n\n facciamo tabella!!!!" << endl;
+ for(Int_t syst=1; syst< numsystPhi + numSysV0; syst++){   
+   SigmaBarlowMin[syst]=100000; 
+}
+
+ Double_t MinValue=0;
+ Double_t MaxValue=0;
+  if (isBulk || isTotal ){
+    MinValue=ALowBinFit[0];
+    MaxValue=AUpBinFit[0];
+  }
+ else{
+    MinValue=-0.2;
+    MaxValue=0.2;
+   }
+ for(Int_t syst=1; syst< numsystPhi + numSysV0; syst++){   
+   if (syst==9 || syst==5||syst == avoidthissyst || syst == avoidthissystbis) continue;
+ for(Int_t m=0; m< nummolt +1; m++){
+   //cout << "*********************************mult " <<m << endl;
+    for(Int_t v=0; v < numPtV0; v++){
+      if ( BarlowPassed[m][v][syst]==kFALSE) continue;
+      for(Int_t j=fHistPhiDistr_Corr[m][v][syst]->FindBin(MinValue); j<= fHistPhiDistr_Corr[m][v][syst]->FindBin(MaxValue); j++){
+	if ((fHistPhiDistr[m][v][syst]->GetBinContent(j+1)) ==0) continue;
+	  //cout << "\n\n\n ************************************syst "<<syst << endl;
+
+	  //if (m==0 && v ==0 && j==fHistPhiDistr_master_Corr[m][v][syst]->FindBin(ALowBinFit[0])){
+	//SigmaBarlowMax[syst]=	 TMath::Abs( SigmaBarlow[m][v][syst][j]/fHistPhiDistr_master[m][v][syst]->GetBinContent(j+1));
+	//  SigmaBarlowMin[syst]=	1000000000;
+	// }
+	if (SigmaBarlow[m][v][syst][j] ==0) cout <<m << " " << v << " " << syst << "  " << j << " " << SigmaBarlow[m][v][syst][j]<< endl;
+	  if (SigmaBarlowMax[syst]< TMath::Abs(SigmaBarlow[m][v][syst][j]/fHistPhiDistr_master[m][v]->GetBinContent(j+1))) SigmaBarlowMax[syst]=TMath::Abs(SigmaBarlow[m][v][syst][j]/fHistPhiDistr_master[m][v]->GetBinContent(j+1));
+	 cout <<m << " " << v << " " << syst << "  " << j << " " << SigmaBarlowMin[syst]<< endl;
+	  if (SigmaBarlow[m][v][syst][j]!=0 && SigmaBarlowMin[syst]> TMath::Abs(SigmaBarlow[m][v][syst][j]/fHistPhiDistr_master[m][v]->GetBinContent(j+1))) SigmaBarlowMin[syst]=TMath::Abs(SigmaBarlow[m][v][syst][j]/fHistPhiDistr_master[m][v]->GetBinContent(j+1));
+	}
+      }
+    //cout << "*************" << endl;
+    }
+ }
+
+ for(Int_t syst=1; syst< numsystPhi + numSysV0; syst++){   
+   cout << syst << "  " << SSyst[syst]<<  "  " <<SigmaBarlowMin[syst] << "  " << SigmaBarlowMax[syst]<< endl;
+}
 
 
  
