@@ -16,13 +16,15 @@
 #include <TTree.h>
 #include <TLatex.h>
 #include <TFile.h>
-void readTreePLChiara_first(Int_t sysV0=0, bool isMC = kFALSE,Bool_t isEfficiency=1,Int_t sysTrigger=0,
+void readTreePLChiara_first(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t sysV0=0, bool isMC = 0,Bool_t isEfficiency=0,Int_t sysTrigger=0,
 			    //TString PathIn ="./AnalysisResults2018d8_allrunswMult_MC.root", Int_t type=0 //type = 0 per K0short
-			    TString year="All", TString year0="ALL", TString Path1 ="", Int_t type=0 //type = 0 per K0short 
+			    TString year="2018f1_extra_onlyTriggerWithHighestPt", TString year0="2016", TString Path1 ="", Int_t type=0 //type = 0 per K0short 
 			    
 			    )
 {
-
+  //2016k_onlyTriggerWithHighestPt
+  if (sysV0>6) return;
+  if (sysV0>2 && ishhCorr) return;
   TString PathIn="./FinalOutput/AnalysisResults";
   TString PathOut="./FinalOutput/DATA" + year0 + "/histo/AngularCorrelation";
   PathIn+=year;
@@ -40,7 +42,8 @@ void readTreePLChiara_first(Int_t sysV0=0, bool isMC = kFALSE,Bool_t isEfficienc
   PathIn+=Path1;
   PathIn+=".root";
   PathOut+=Path1;
-  PathOut +=Form("_MassDistr_SysT%i_SysV0%i",sysTrigger, sysV0); 
+  if (ishhCorr) PathOut +="_hhCorr";
+  PathOut +=Form("_MassDistr_SysT%i_SysV0%i_PtMin%.1f",sysTrigger, sysV0, PtTrigMin); 
   PathOut+= ".root";
 
   TFile *fin = new TFile(PathIn);
@@ -57,6 +60,9 @@ void readTreePLChiara_first(Int_t sysV0=0, bool isMC = kFALSE,Bool_t isEfficienc
   Double_t     fSignTreeVariablePhiTrigger;		       
   Double_t     fSignTreeVariableDCAz;			       
   Double_t     fSignTreeVariableDCAxy;			  
+  Double_t     fSignTreeVariableChargeAssoc;		       
+  Double_t     fSignTreeVariableAssocDCAz;			       
+  Double_t     fSignTreeVariableAssocDCAxy;			  
   Double_t     fSignTreeVariableisPrimaryTrigger;			  
   Double_t     fSignTreeVariableisPrimaryV0;			  
   Double_t     fSignTreeVariableRapK0Short;		       
@@ -87,6 +93,9 @@ void readTreePLChiara_first(Int_t sysV0=0, bool isMC = kFALSE,Bool_t isEfficienc
   Double_t        fBkgTreeVariablePhiTrigger;
   Double_t        fBkgTreeVariableDCAz;
   Double_t        fBkgTreeVariableDCAxy;
+  Double_t        fBkgTreeVariableChargeAssoc;		       
+  Double_t        fBkgTreeVariableAssocDCAz;			       
+  Double_t        fBkgTreeVariableAssocDCAxy;			  
   Double_t        fBkgTreeVariableisPrimaryTrigger;			  
   Double_t        fBkgTreeVariableisPrimaryV0;			  
   Double_t        fBkgTreeVariableRapK0Short;
@@ -110,9 +119,12 @@ void readTreePLChiara_first(Int_t sysV0=0, bool isMC = kFALSE,Bool_t isEfficienc
   Double_t        fBkgTreeVariableZvertex;
   Double_t        fBkgTreeVariablePDGCode;
 
+  Int_t CounterSignPairsAfterPtMinCut=0; 
+  Int_t CounterBkgPairsAfterPtMinCut=0; 
+
   const Int_t nummolt=5;
   const Int_t numzeta=1;
-  const Int_t numPtV0=5;
+  const Int_t numPtV0=7;
   const Int_t numPtTrigger=1;
   const Int_t numtipo=2;
   TString tipo[numtipo]={"kK0s", "bo"};
@@ -122,8 +134,10 @@ void readTreePLChiara_first(Int_t sysV0=0, bool isMC = kFALSE,Bool_t isEfficienc
   Double_t Nmolt[nummolt+1]={0, 5, 10, 30, 50, 100};
   //TString Szeta[numzeta]={""};
   //  Double_t Nzeta[numzeta+1]={};
-  TString SPtV0[numPtV0]={"0-1", "1-2", "2-3", "3-4", "4-8"};
-  Double_t NPtV0[numPtV0+1]={0,1,2,3,4,8};
+  TString SPtV0[numPtV0]={"0-1", "1-1.5", "1.5-2", "2-2.5","2.5-3", "3-4", "4-8"};
+  Double_t NPtV0[numPtV0+1]={0,1,1.5,2,2.5,3,4,8};
+  //   TString SPtV0[numPtV0]={"0-1", "1-2", "2,3", "3-4", "4-8"};
+  //   Double_t NPtV0[numPtV0+1]={0,1,2,3,4,8};
   TString SPtTrigger[numPtTrigger]={"2-10"};
   Double_t NPtTrigger[numPtTrigger+1]={2,10};
 
@@ -134,6 +148,10 @@ void readTreePLChiara_first(Int_t sysV0=0, bool isMC = kFALSE,Bool_t isEfficienc
   tSign->SetBranchAddress("fTreeVariablePhiTrigger"                ,&fSignTreeVariablePhiTrigger);		       
   tSign->SetBranchAddress("fTreeVariableDCAz"                      ,&fSignTreeVariableDCAz);			       
   tSign->SetBranchAddress("fTreeVariableDCAxy"                     ,&fSignTreeVariableDCAxy);			       
+  // tSign->SetBranchAddress("fTreeVariableChargeAssoc"             ,&fSignTreeVariableChargeAssoc);		       	   
+  // tSign->SetBranchAddress("fTreeVariableAssocDCAz"                      ,&fSignTreeVariableAssocDCAz);			       
+  // tSign->SetBranchAddress("fTreeVariableAssocDCAxy"                     ,&fSignTreeVariableAssocDCAxy);	
+
   tSign->SetBranchAddress("fTreeVariableisPrimaryTrigger"          ,&fSignTreeVariableisPrimaryTrigger);			       
   tSign->SetBranchAddress("fTreeVariableisPrimaryV0"               ,&fSignTreeVariableisPrimaryV0);			       
   tSign->SetBranchAddress("fTreeVariableRapK0Short"                ,&fSignTreeVariableRapK0Short);		       
@@ -177,7 +195,11 @@ void readTreePLChiara_first(Int_t sysV0=0, bool isMC = kFALSE,Bool_t isEfficienc
   tBkg->SetBranchAddress("fTreeVariableEtaTrigger"                ,&fBkgTreeVariableEtaTrigger);		       
   tBkg->SetBranchAddress("fTreeVariablePhiTrigger"                ,&fBkgTreeVariablePhiTrigger);		       
   tBkg->SetBranchAddress("fTreeVariableDCAz"                      ,&fBkgTreeVariableDCAz);			       
-  tBkg->SetBranchAddress("fTreeVariableDCAxy"                     ,&fBkgTreeVariableDCAxy);			       
+  tBkg->SetBranchAddress("fTreeVariableDCAxy"                     ,&fBkgTreeVariableDCAxy);	
+  // tBkg->SetBranchAddress("fTreeVariableChargeAssoc"             ,&fBkgTreeVariableChargeAssoc);		       
+  // tBkg->SetBranchAddress("fTreeVariableAssocDCAz"                      ,&fBkgTreeVariableAssocDCAz);			       
+  // tBkg->SetBranchAddress("fTreeVariableAssocDCAxy"                     ,&fBkgTreeVariableAssocDCAxy);			    
+  
   tBkg->SetBranchAddress("fTreeVariableisPrimaryTrigger"          ,&fBkgTreeVariableisPrimaryTrigger);			       
   tBkg->SetBranchAddress("fTreeVariableisPrimaryV0"               ,&fBkgTreeVariableisPrimaryV0);
   tBkg->SetBranchAddress("fTreeVariableRapK0Short"                ,&fBkgTreeVariableRapK0Short);		       
@@ -241,6 +263,7 @@ void readTreePLChiara_first(Int_t sysV0=0, bool isMC = kFALSE,Bool_t isEfficienc
   TString namemassSE[nummolt+1][numzeta][numPtV0][numPtTrigger];
   TH1D *hInvMassK0Short_SEbins[nummolt+1][numzeta][numPtV0][numPtTrigger];
   TH2D *hMassvsPt_SEbins[nummolt+1][numzeta][numPtTrigger];
+  TH2D *hMassvsPt_SEbins_true[nummolt+1][numzeta][numPtTrigger];
   TH2D *hDeltaEtaDeltaPhi_SEbins[nummolt+1][numzeta][numPtV0][numPtTrigger];
 
   //Form("hMassvsPt_"+tipo[type]+"_%i",molt
@@ -248,6 +271,7 @@ void readTreePLChiara_first(Int_t sysV0=0, bool isMC = kFALSE,Bool_t isEfficienc
     for(Int_t z=0; z<numzeta; z++){
       for(Int_t tr=0; tr<numPtTrigger; tr++){
 	hMassvsPt_SEbins[m][z][tr]= new TH2D(Form("SE_hMassvsPt_"+tipo[type]+"_%i", m),Form("SE_hMassvsPt_"+tipo[type]+"_%i", m), 100, 0.4, 0.6, 100, 0, 10);
+	hMassvsPt_SEbins_true[m][z][tr]= new TH2D(Form("SE_hMassvsPt_"+tipo[type]+"_%i_true", m),Form("SE_hMassvsPt_"+tipo[type]+"_%i_true", m), 100, 0.4, 0.6, 100, 0, 10);
 	for(Int_t v=0; v<numPtV0; v++){
 	  nameSE[m][z][v][tr]="SE_";
 	  namemassSE[m][z][v][tr]="InvMassSE_";
@@ -273,18 +297,20 @@ void readTreePLChiara_first(Int_t sysV0=0, bool isMC = kFALSE,Bool_t isEfficienc
   TString namemassME[nummolt+1][numzeta][numPtV0][numPtTrigger];
   TH1D *hInvMassK0Short_MEbins[nummolt+1][numzeta][numPtV0][numPtTrigger];
   TH2D *hMassvsPt_MEbins[nummolt+1][numzeta][numPtTrigger];
+  TH2D *hMassvsPt_MEbins_true[nummolt+1][numzeta][numPtTrigger];
   TH2D *hDeltaEtaDeltaPhi_MEbins[nummolt+1][numzeta][numPtV0][numPtTrigger];
   for(Int_t m=0; m<nummolt+1; m++){
     for(Int_t z=0; z<numzeta; z++){
       for(Int_t tr=0; tr<numPtTrigger; tr++){
 	hMassvsPt_MEbins[m][z][tr]= new TH2D(Form("ME_hMassvsPt_"+tipo[type]+"_%i", m),Form("ME_hMassvsPt_"+tipo[type]+"_%i", m),100, 0.4, 0.6,100, 0, 10);
+	hMassvsPt_MEbins_true[m][z][tr]= new TH2D(Form("ME_hMassvsPt_"+tipo[type]+"_%i_true", m),Form("ME_hMassvsPt_"+tipo[type]+"_%i_true", m),100, 0.4, 0.6,100, 0, 10);
 	for(Int_t v=0; v<numPtV0; v++){
 	  nameME[m][z][v][tr]="ME_";
 	  namemassME[m][z][v][tr]="InvMassME_";
 	  nameME[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
 	  namemassME[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
 	  hInvMassK0Short_MEbins[m][z][v][tr]= new TH1D(namemassME[m][z][v][tr], namemassME[m][z][v][tr],   100, 0.4, 0.6);
-  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]= new TH2D(nameME[m][z][v][tr], nameME[m][z][v][tr],  50, -1.5, 1.5, 100,  -0.5*TMath::Pi(), 1.5*TMath::Pi());
+	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]= new TH2D(nameME[m][z][v][tr], nameME[m][z][v][tr],  50, -1.5, 1.5, 100,  -0.5*TMath::Pi(), 1.5*TMath::Pi());
 	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetXaxis()->SetTitle("#Delta #eta");
 	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetYaxis()->SetTitle("#Delta #phi (rad)");
 	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetXaxis()->SetTitleSize(0.05);
@@ -308,6 +334,11 @@ void readTreePLChiara_first(Int_t sysV0=0, bool isMC = kFALSE,Bool_t isEfficienc
   for(Int_t k = 0; k<EntriesSign; k++){
     tSign->GetEntry(k);  
     if(isMC==0 || (isMC==1 && isEfficiency==1)){
+
+      //************cuts on pT trigger min*********************************
+      if(TMath::Abs(fSignTreeVariablePtTrigger)<PtTrigMin) continue;
+      CounterSignPairsAfterPtMinCut++;
+      //cuts on DCAz trigger*******************
       if(sysTrigger==0){
 	if(TMath::Abs(fSignTreeVariableDCAz)>1) continue;
       }
@@ -319,26 +350,41 @@ void readTreePLChiara_first(Int_t sysV0=0, bool isMC = kFALSE,Bool_t isEfficienc
       }
 
       //******************* some other cuts for sys studies**************************
-      if(sysV0!=5){
-	if(TMath::Abs((fSignTreeVariableInvMassLambda - massLambda))<= 0.005) continue;
-	if(TMath::Abs((fSignTreeVariableInvMassAntiLambda - massLambda))<= 0.005) continue;
-	if(sysV0==1){   
-	  if(fSignTreeVariableV0CosineOfPointingAngle <= 0.997) continue;
-	}
-	if(sysV0==2){   
-	  if(fSignTreeVariablectau >=8 )continue;
-	}
-	if(sysV0==3){   
-	  if(fSignTreeVariableRapK0Short >= 0.5)continue;
-	}
-	if(sysV0==4){   
-	  if(TMath::Abs((fSignTreeVariableInvMassLambda - massLambda))<= 0.010) continue;
-	  if(TMath::Abs((fSignTreeVariableInvMassAntiLambda - massLambda))<= 0.010) continue;
-	}
-	if(sysV0==6){   
-	  if(fSignTreeVariableDcaV0ToPrimVertex>=0.3 )continue;
+      if (!ishhCorr){
+	if(sysV0!=5){
+	  if(TMath::Abs((fSignTreeVariableInvMassLambda - massLambda))<= 0.005) continue;
+	  if(TMath::Abs((fSignTreeVariableInvMassAntiLambda - massLambda))<= 0.005) continue;
+	  if(sysV0==1){   
+	    if(fSignTreeVariableV0CosineOfPointingAngle <= 0.997) continue;
+	  }
+	  if(sysV0==2){   
+	    if(fSignTreeVariablectau >=8 )continue;
+	  }
+	  if(sysV0==3){   
+	    if(fSignTreeVariableRapK0Short >= 0.5)continue;
+	  }
+	  if(sysV0==4){   
+	    if(TMath::Abs((fSignTreeVariableInvMassLambda - massLambda))<= 0.010) continue;
+	    if(TMath::Abs((fSignTreeVariableInvMassAntiLambda - massLambda))<= 0.010) continue;
+	  }
+	  if(sysV0==6){   
+	    if(fSignTreeVariableDcaV0ToPrimVertex>=0.3 )continue;
+	  }
 	}
       }
+
+      if (ishhCorr){
+	if(sysV0==0){
+	  if(TMath::Abs(fSignTreeVariableAssocDCAz)>1) continue;
+	}
+	if(sysV0==1){
+	  if(TMath::Abs(fSignTreeVariableAssocDCAz)>2) continue;
+	}
+	if(sysV0==2){
+	  if(TMath::Abs(fSignTreeVariableAssocDCAz)>0.5) continue;
+	}
+      }
+
     }
   
     //**********************************************************************************************
@@ -361,6 +407,7 @@ void readTreePLChiara_first(Int_t sysV0=0, bool isMC = kFALSE,Bool_t isEfficienc
 	for(Int_t tr=0; tr<numPtTrigger; tr++){
 	  if(MoltSel){
 	    hMassvsPt_SEbins[m][z][tr]->Fill(fSignTreeVariableInvMassK0s, fSignTreeVariablePtV0); 
+	    if(fSignTreeVariablePDGCode==310) hMassvsPt_SEbins_true[m][z][tr]->Fill(fSignTreeVariableInvMassK0s, fSignTreeVariablePtV0); 
 	  }
 	  for(Int_t v=0; v<numPtV0; v++){
 	    if(MoltSel && fSignTreeVariablePtTrigger>=NPtTrigger[tr] && fSignTreeVariablePtTrigger<NPtTrigger[tr+1] && fSignTreeVariablePtV0>=NPtV0[v]&& fSignTreeVariablePtV0<NPtV0[v+1]){
@@ -379,6 +426,10 @@ void readTreePLChiara_first(Int_t sysV0=0, bool isMC = kFALSE,Bool_t isEfficienc
     // for(Int_t k = 0; k<1; k++){
     tBkg->GetEntry(k);
     if(isMC==0 || (isMC==1 && isEfficiency==1)){
+      //************cuts on pT trigger min*********************************
+      if(TMath::Abs(fBkgTreeVariablePtTrigger)<PtTrigMin) continue;
+      CounterBkgPairsAfterPtMinCut++;
+      //cuts on DCAz trigger*******************
       if(sysTrigger==0){
 	if(TMath::Abs(fBkgTreeVariableDCAz)>1) continue;
       }
@@ -390,26 +441,43 @@ void readTreePLChiara_first(Int_t sysV0=0, bool isMC = kFALSE,Bool_t isEfficienc
       }
 
       //******************* some other cuts for sys studies **************************
-      if(sysV0!=5){
-	if(TMath::Abs((fBkgTreeVariableInvMassLambda - massLambda))<= 0.005) continue;
-	if(TMath::Abs((fBkgTreeVariableInvMassAntiLambda - massLambda))<= 0.005) continue;
-	if(sysV0==1){   
-	  if(fBkgTreeVariableV0CosineOfPointingAngle <= 0.997) continue;
-	}
-	if(sysV0==2){   
-	  if(fBkgTreeVariablectau >=8 )continue;
-	}
-	if(sysV0==3){   
-	  if(fBkgTreeVariableRapK0Short >= 0.5)continue;
-	}
-	if(sysV0==4){   
-	  if(TMath::Abs((fBkgTreeVariableInvMassLambda - massLambda))<= 0.010) continue;
-	  if(TMath::Abs((fBkgTreeVariableInvMassAntiLambda - massLambda))<= 0.010) continue;
-	}
-	if(sysV0==6){   
-	  if(fBkgTreeVariableDcaV0ToPrimVertex>=0.3 )continue;
-	}
+      if (!ishhCorr){
+	if(sysV0!=5){
+	  if(TMath::Abs((fBkgTreeVariableInvMassLambda - massLambda))<= 0.005) continue;
+	  if(TMath::Abs((fBkgTreeVariableInvMassAntiLambda - massLambda))<= 0.005) continue;
+	  if(sysV0==1){   
+	    if(fBkgTreeVariableV0CosineOfPointingAngle <= 0.997) continue;
+	  }
+	  if(sysV0==2){   
+	    if(fBkgTreeVariablectau >=8 )continue;
+	  }
+	  if(sysV0==3){   
+	    if(fBkgTreeVariableRapK0Short >= 0.5)continue;
+	  }
+	  if(sysV0==4){   
+	    if(TMath::Abs((fBkgTreeVariableInvMassLambda - massLambda))<= 0.010) continue;
+	    if(TMath::Abs((fBkgTreeVariableInvMassAntiLambda - massLambda))<= 0.010) continue;
+	  }
+	  if(sysV0==6){   
+	    if(fBkgTreeVariableDcaV0ToPrimVertex>=0.3 )continue;
+	  }
    
+	}
+      }
+
+      if (ishhCorr){
+	if (ishhCorr){
+	  if(sysV0==0){
+	    if(TMath::Abs(fBkgTreeVariableAssocDCAz)>1) continue;
+	  }
+	  if(sysV0==1){
+	    if(TMath::Abs(fBkgTreeVariableAssocDCAz)>2) continue;
+	  }
+	  if(sysV0==2){
+	    if(TMath::Abs(fBkgTreeVariableAssocDCAz)>0.5) continue;
+	  }
+	}
+
       }
     }
   
@@ -417,7 +485,7 @@ void readTreePLChiara_first(Int_t sysV0=0, bool isMC = kFALSE,Bool_t isEfficienc
     // if(TMath::Abs((fBkgTreeVariableInvMassK0s - massK0s))> 0.01){
     // hBkg_PtTrigger->Fill(fBkgTreeVariablePtTrigger);
     // }
-   if (fBkgTreeVariableDeltaPhi >  (1.5*TMath::Pi())) fBkgTreeVariableDeltaPhi -= 2.0*TMath::Pi();
+    if (fBkgTreeVariableDeltaPhi >  (1.5*TMath::Pi())) fBkgTreeVariableDeltaPhi -= 2.0*TMath::Pi();
     if (fBkgTreeVariableDeltaPhi < (-0.5*TMath::Pi())) fBkgTreeVariableDeltaPhi += 2.0*TMath::Pi();
  
     for(Int_t m=0; m<nummolt+1; m++){
@@ -430,6 +498,7 @@ void readTreePLChiara_first(Int_t sysV0=0, bool isMC = kFALSE,Bool_t isEfficienc
 	for(Int_t tr=0; tr<numPtTrigger; tr++){
 	  if(MoltSel){
 	    hMassvsPt_MEbins[m][z][tr]->Fill(fBkgTreeVariableInvMassK0s, fBkgTreeVariablePtV0);
+	    if(fBkgTreeVariablePDGCode==310) 	    hMassvsPt_MEbins_true[m][z][tr]->Fill(fBkgTreeVariableInvMassK0s, fBkgTreeVariablePtV0);
 	  }
 	  for(Int_t v=0; v<numPtV0; v++){
 	    if(MoltSel && fBkgTreeVariablePtTrigger>=NPtTrigger[tr] && fBkgTreeVariablePtTrigger<NPtTrigger[tr+1] && fBkgTreeVariablePtV0>=NPtV0[v]&& fBkgTreeVariablePtV0<NPtV0[v+1]){
@@ -444,7 +513,9 @@ void readTreePLChiara_first(Int_t sysV0=0, bool isMC = kFALSE,Bool_t isEfficienc
 
    
   fout->Write();
-
+  cout << "Pt Min delle particelle trigger " << PtTrigMin<< endl;
+  cout << "signal pairs trigger-associated after Pt min cut " << 	CounterSignPairsAfterPtMinCut << endl;
+  cout << "bkg pairs trigger-associated after Pt min cut " << 	CounterBkgPairsAfterPtMinCut << endl;
   cout << "partendo dal file " << PathIn << " ho creato il file " << PathOut<< endl;
 }
 
