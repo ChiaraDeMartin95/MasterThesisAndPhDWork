@@ -21,24 +21,27 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
   return ((Float_t)k+1)*((Float_t)k+2)/(n+2)/(n+3) - pow((Float_t)(k+1),2)/pow(n+2,2);
 }
 
-void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysTrigger=0, Int_t sysV0=0, TString data="2018f1_extra", TString year0="2016"){
-  //TString file = "AngularCorrelation2018d8_allrunswMult";
-  //TString file = "AngularCorrelation2018d8_MC_runNew";
-  //TString file = "AngularCorrelation2018d8_MC_try7_10runs";
-  //TString file = "AngularCorrelation2017d20a2_extra_MCEffEvt_3runs";
-  // TString file = "AngularCorrelation2018d8_MC_try2fullrun";
+void Efficiency(Bool_t ishhCorr =1, Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysTrigger=0, Int_t sysV0=0, TString data="2018f1_extra", TString year0="2016"){
+  if (sysTrigger> 3) return;
+  if (!ishhCorr){
+  if (sysV0> 6) return;
+  }
+  if (ishhCorr){
+  if (sysV0> 2) return;
+  }
+  //2018f1_extra_onlyTriggerWithHighestPt"
+  const   Float_t PtTrigMin=ptjmin;
+  const   Float_t PtTrigMax=ptjmax;
   TString file = "Efficiency";
-  // TString PathInBis =  "AnalysisResults2018d8_allrunswMult_MC.root";
-  // TString PathInBis =  "AnalysisResults2018d8_MC_runNew.root";
-  // TString PathInBis =  "AnalysisResults2017d20a2_extra_MCEffEvt_3runs.root";
- // TString PathInBis =  "AnalysisResults2018d8_MC_try2fullrun.root";
   TString PathInBis =  "FinalOutput/AnalysisResults";
   file+=data;
-  file+="_MCEff";
+  //  file+="_MCEff";
   PathInBis+=data;
-  PathInBis+="_MCEff.root";
+  if (!ishhCorr) PathInBis+="_MCEff.root";
+  if (ishhCorr)   PathInBis+="_hhCorr_MCEff.root";
   //  TString PathInBis =  "AnalysisResults.root";
-  TString PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + Form("_Efficiency_SysT%i_SysV0%i.root", sysTrigger, sysV0);
+  TString PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + Form("_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
+  if (ishhCorr) PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + Form("_hhCorr_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
 
   TFile *fileinbis = new TFile(PathInBis);
   TDirectoryFile *dir = (TDirectoryFile*)fileinbis->Get("MyTask");
@@ -57,6 +60,7 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
   const Int_t numSysV0 = 7;
   Int_t sysV0Gen=0;
   if(sysV0==3) sysV0Gen=1;
+
 
   TString tipo[numtipo]={"kK0s", "bo"};
   
@@ -81,12 +85,16 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
 
   TCanvas *canvasEff=new TCanvas ("canvasEff", "canvasEff", 1500, 800);
   TCanvas *canvasEffBis[6];
-  for(Int_t j=0; j<6; j++){
-    canvasEffBis[j]=new TCanvas (Form("canvasEffBis%i",j), "canvasEff", 800, 600);
+  TString nomecanvaseff[6]={"TPt", "Tphi", "Teta", "V0Pt", "V0phi", "V0eta"};
+  /*  
+for(Int_t j=0; j<6; j++){
+    canvasEffBis[j]=new TCanvas (Form("canvasEffBis%i",j), "canvasEff"+nomecanvaseff[j], 800, 600);
   }
+  */
   TCanvas *canvasRes=new TCanvas ("canvasRes", "canvasRes", 1500, 800);
   TCanvas *canvasCont=new TCanvas ("canvasCont", "canvasCont", 1000, 700);
   TCanvas *canvasUsed=new TCanvas ("canvasUsed", "canvasUsed", 1000, 700);
+  // TCanvas *canvascontv0=new TCanvas ("canvascontv0", "canvascontv0", 800, 600);
 
   canvasEff->Divide(3,2);
   canvasRes->Divide(3,2);
@@ -94,38 +102,56 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
   canvasUsed->Divide(2,2);
 
 
+  //I exchange ordering to set option DCAz < 1 as default one ******************
+  Int_t sysV0hh= sysV0;
+  if (ishhCorr){
+    if (sysV0 == 0) sysV0hh =1;
+    else if (sysV0 == 1) sysV0hh =0;
+    else  sysV0hh =2;
+  }
   //***************istogrammi delle efficienze**********************************************************
   TH3D*   fHistGeneratedTriggerPtPhi= (TH3D*)list3->FindObject("fHistGeneratedTriggerPtPhi");
   //  TH3D*   fHistGeneratedTriggerPtPhi= (TH3D*)list2->FindObject(Form("fHistGeneratedTriggerPtPhi_%i",sysV0Gen));
   TH3D*   fHistSelectedTriggerPtPhi=  (TH3D*)list3->FindObject(Form("fHistSelectedTriggerPtPhi_%i", sysTrigger));
-  TH3D*   fHistGeneratedV0PtPhi=      (TH3D*)list2->FindObject(Form("fHistGeneratedV0PtPhi_%i", sysV0Gen));
-  TH3D*   fHistSelectedV0PtPhi=       (TH3D*)list2->FindObject(Form("fHistSelectedV0PtPhi_%i",sysV0));
+  TH3D*   fHistGeneratedV0PtTMaxPhi=      (TH3D*)list2->FindObject(Form("fHistGeneratedV0PtTMaxPhi_%i", sysV0Gen));
+  TH3D*   fHistSelectedV0PtTMaxPhi=       (TH3D*)list2->FindObject(Form("fHistSelectedV0PtTMaxPhi_%i",sysV0hh));
   TH3D*   fHistGeneratedTriggerPtEta= (TH3D*)list3->FindObject("fHistGeneratedTriggerPtEta");
   TH3D*   fHistSelectedTriggerPtEta=  (TH3D*)list3->FindObject(Form("fHistSelectedTriggerPtEta_%i", sysTrigger));
-  TH3D*   fHistGeneratedV0PtEta=      (TH3D*)list2->FindObject(Form("fHistGeneratedV0PtEta_%i", sysV0Gen));
-  TH3D*   fHistSelectedV0PtEta=       (TH3D*)list2->FindObject(Form("fHistSelectedV0PtEta_%i", sysV0));
+  TH3D*   fHistGeneratedV0PtTMaxEta=      (TH3D*)list2->FindObject(Form("fHistGeneratedV0PtTMaxEta_%i", sysV0Gen));
+  TH3D*   fHistSelectedV0PtTMaxEta=       (TH3D*)list2->FindObject(Form("fHistSelectedV0PtTMaxEta_%i", sysV0hh));
+  TH3D*   fHistGeneratedV0PtPtTMax=      (TH3D*)list2->FindObject(Form("fHistGeneratedV0PtPtTMax_%i", sysV0Gen));
+  TH3D*   fHistSelectedV0PtPtTMax=       (TH3D*)list2->FindObject(Form("fHistSelectedV0PtPtTMax_%i", sysV0hh)); 
   TH3D*   fHistReconstructedV0PtMass= (TH3D*)list->FindObject("fHistReconstructedV0PtMass");
   TH3D*   fHistSelectedV0PtMass=      (TH3D*)list->FindObject("fHistSelectedV0PtMass");
-
+  
   //***************istogrammi delle risoluzioni**********************************************************
-  TH2D*   fHistResolution[3][2];
+  TH2D*   fHistResolution2D[3][2];
+  TH3D*   fHistResolution3D[3][2];
   TString nameRes[3][2];
   TH1D*   fHistResolution_1D[nummolt+1][3][2];
   TString nameRes_1D[nummolt+1][3][2]; 
+  TString nameRes_2D[nummolt+1][3][2]; 
   TString TorV[2]={"Trigger", "V0"};
   TString Var[3]={"Pt", "Phi", "Eta"};
 
   for(Int_t m=0; m< 3; m++){
     for(Int_t t=0; t< 2; t++){
       nameRes[m][t]="fHistResolution" + TorV[t] + Var[m];
-      fHistResolution[m][t]=   (TH2D*)list->FindObject(nameRes[m][t]);
+      /* version to be used if resolution hiostograms are 2D, comment if not */
+      // fHistResolution2D[m][t]=   (TH2D*)list->FindObject(nameRes[m][t]); //for thesis + onlyTriggerWithHighestPt
+      /* version to be used if resolution hiostograms are 2D, comment if not */
+
+      /* version to be used if resolution hiostograms are 3D, comment if not */
+            fHistResolution3D[m][t]=   (TH3D*)list->FindObject(nameRes[m][t]); //for latest ones (hhCorr for example)
+      /* version to be used if resolution hiostograms are 3D, comment if not */
     }
   }
 
   auto legend = new TLegend(0.6, 0.6, 0.9, 0.9);
+  //  auto legend = new TLegend(0.1, 0.1, 0.4, 0.4);
   legend->SetHeader("Multiplicity classes");     
 
-  auto legenddown = new TLegend(0.6, 0.1, 0.9, 0.3);
+  auto legenddown = new TLegend(0.6, 0.1, 0.9, 0.4);
   legenddown->SetHeader("Multiplicity classes");     
 
   //distribuzioni  Pt, Phi, Eta in 2D delle selezionate e generate
@@ -137,15 +163,13 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
   TH2D*  fHistSelected_2D_TriggerPtEta[nummolt+1];
   TH2D*  fHistGenerated_2D_TriggerPtEta[nummolt+1];
 
-  TH2D*  fHistSelected_2D_V0PtPhi[nummolt+1];
-  TH2D*  fHistGenerated_2D_V0PtPhi[nummolt+1];
-  TH2D*  fHistSelected_2D_V0PtEta[nummolt+1];
-  TH2D*  fHistGenerated_2D_V0PtEta[nummolt+1];
-  TH2D*  fHistSelected_2D_V0PtPhi_clone[nummolt+1];
-  TH2D*  fHistGenerated_2D_V0PtPhi_clone[nummolt+1];
-  TH2D*  fHistSelected_2D_V0PtEta_clone[nummolt+1];
-  TH2D*  fHistGenerated_2D_V0PtEta_clone[nummolt+1];
-
+  TH2D*  fHistSelected_2D_V0PtTMaxPhi[nummolt+1];
+  TH2D*  fHistGenerated_2D_V0PtTMaxPhi[nummolt+1];
+  TH2D*  fHistSelected_2D_V0PtTMaxEta[nummolt+1];
+  TH2D*  fHistGenerated_2D_V0PtTMaxEta[nummolt+1];
+  TH2D*   fHistSelected_2D_V0PtPtTMax[nummolt+1];
+  TH2D*  fHistGenerated_2D_V0PtPtTMax[nummolt+1];
+  
   TH2D*  fHistSelectedMass_2D[nummolt+1];
   TH2D*  fHistRecoMass_2D[nummolt+1];
 
@@ -169,6 +193,7 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
   TH2D*  fHistTriggerEfficiencyPtEta[nummolt+1]; 
   TH2D*  fHistV0EfficiencyPtPhi[nummolt+1];
   TH2D*  fHistV0EfficiencyPtEta[nummolt+1];
+  TH2D*  fHistV0EfficiencyPtPtTMax[nummolt+1];
   TH2D*  fHistEfficiencyV0Selection[nummolt+1];
 
   TH1D*  fHistTriggerEfficiencyPt[nummolt+1];
@@ -192,6 +217,7 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
 
   //istogrammi per contaminazioni
   TH2D * HistContTrigger[nummolt+1];
+  TH3D * HistContV0PtTMax[nummolt+1];
   TH2D * HistContV0[nummolt+1];
   TH1D * HistContTriggerPt[nummolt+1];
   TH1D * HistContV0Pt[nummolt+1];
@@ -208,6 +234,10 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
 
   Float_t TriggerEfficiency[nummolt+1];
 
+  Double_t SelEntriespT3[nummolt+1];
+  Double_t SelEntries[nummolt+1];
+  Double_t GenEntries[nummolt+1];
+  
   cout << "*************************************************************************************" << endl;
   cout << "Sto effettuando istogrammi efficienze in range di molteplicita'" << endl;
     
@@ -219,6 +249,10 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
     fHistSelectedTriggerPtPhi->GetZaxis()->SetRange(fHistSelectedTriggerPtPhi->GetZaxis()->FindBin(Nmolt[molt]+0.001),fHistSelectedTriggerPtPhi->GetZaxis()->FindBin(Nmolt[molt+1]-0.001) );
     fHistGeneratedTriggerPtPhi->GetZaxis()->SetRange(fHistGeneratedTriggerPtPhi->GetZaxis()->FindBin(Nmolt[molt]+0.001),fHistGeneratedTriggerPtPhi->GetZaxis()->FindBin(Nmolt[molt+1]-0.001) );
     }
+    else{
+      fHistSelectedTriggerPtPhi->GetZaxis()->SetRange(0,100);
+      fHistGeneratedTriggerPtPhi->GetZaxis()->SetRange(0,100);
+    }
     fHistSelected_2D_TriggerPtPhi[molt] = (TH2D*)fHistSelectedTriggerPtPhi->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis
     fHistGenerated_2D_TriggerPtPhi[molt] = (TH2D*)fHistGeneratedTriggerPtPhi->Project3D("yxo"); //y is on the vertical axis, x along horizontal axi
     fHistSelected_2D_TriggerPtPhi[molt] ->SetName("fHistSelected_2D_TriggerPtPhi_"+ Smolt[molt] );
@@ -227,35 +261,34 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
     fHistTriggerEfficiencyPtPhi[molt]->GetXaxis()->SetTitle("p_{T}^{Trigg} (GeV/c)");      
     fHistTriggerEfficiencyPtPhi[molt]->GetYaxis()->SetTitle("#phi_{Trigg}");   
 
-    fHistSelected_2D_TriggerPtPhi[molt] ->RebinX(1);   
+    fHistSelected_2D_TriggerPtPhi[molt] ->RebinX(5);   
     fHistSelected_2D_TriggerPtPhi[molt] ->RebinY(5);   
     
-    fHistGenerated_2D_TriggerPtPhi[molt]->RebinX(1);    
+    fHistGenerated_2D_TriggerPtPhi[molt]->RebinX(5);    
     fHistGenerated_2D_TriggerPtPhi[molt]->RebinY(5);    
     
-    fHistTriggerEfficiencyPtPhi[molt]->RebinX(1);    
+    fHistTriggerEfficiencyPtPhi[molt]->RebinX(5);    
     fHistTriggerEfficiencyPtPhi[molt]->RebinY(5);    
    
     fHistTriggerEfficiencyPtPhi[molt]->Divide(fHistSelected_2D_TriggerPtPhi[molt], fHistGenerated_2D_TriggerPtPhi[molt]); 
   
     cout << "Trigger 1D projection in Phi and Pt " << endl;
     fHistSelected_1D_TriggerPt[molt]=(TH1D*)fHistSelected_2D_TriggerPtPhi[molt]->ProjectionX("fHistSelected_1D_TriggerPt_"+ Smolt[molt]) ;
-    fHistSelected_1D_TriggerPt[molt]->Rebin(2);
+    // fHistSelected_1D_TriggerPt[molt]->Rebin(1);
     fHistGenerated_1D_TriggerPt[molt]=(TH1D*)fHistGenerated_2D_TriggerPtPhi[molt]->ProjectionX("fHistGenerated_1D_TriggerPt_"+ Smolt[molt]) ;
-    fHistGenerated_1D_TriggerPt[molt]->Rebin(2);
+    //    fHistGenerated_1D_TriggerPt[molt]->Rebin(1);
 
     //  fHistTriggerEfficiencyPt[molt]= new TH1D("fHistTriggerEfficiencyPt_"+ Smolt[molt] , "fHistTriggerEfficiencyPt_"+ Smolt[molt] ,  fHistTriggerEfficiencyPtPhi[molt]->GetNbinsX(), fHistTriggerEfficiencyPtPhi[molt]->GetXaxis()->GetXmin(), fHistTriggerEfficiencyPtPhi[molt]->GetXaxis()->GetXmax() );
     fHistTriggerEfficiencyPt[molt]= (TH1D*)fHistSelected_1D_TriggerPt[molt]->Clone("fHistTriggerEfficiencyPt_"+ Smolt[molt]);
     fHistTriggerEfficiencyPt[molt]->GetXaxis()->SetTitle("p_{T}^{Trigg} (GeV/c)");      
     fHistTriggerEfficiencyPt[molt]->GetXaxis()->SetTitleSize(0.039);
     fHistTriggerEfficiencyPt[molt]->GetXaxis()->SetTitleOffset(1.2);
+    fHistTriggerEfficiencyPt[molt]->SetStats(0);
     //    fHistTriggerEfficiencyPt[molt]->SetTitle("fHistTriggerEfficiencyPt_"+ Smolt[molt]);
     fHistTriggerEfficiencyPt[molt] ->Divide(  fHistSelected_1D_TriggerPt[molt],   fHistGenerated_1D_TriggerPt[molt] );
-
-
     
     canvasEff->cd(1);
-    fHistTriggerEfficiencyPt[molt]->GetYaxis()->SetRangeUser(0,1);
+    fHistTriggerEfficiencyPt[molt]->GetYaxis()->SetRangeUser(0,1.6);
     fHistTriggerEfficiencyPt[molt]->GetYaxis()->SetTitle("#epsilon_{Trigg}");
     fHistTriggerEfficiencyPt[molt]->GetYaxis()->SetTitleSize(0.05);
     fHistTriggerEfficiencyPt[molt]->GetYaxis()->SetTitleOffset(1);
@@ -268,17 +301,20 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
     fHistTriggerEfficiencyPt[molt]->Draw("same");
     if(molt ==nummolt)     legend->Draw();
 
-     canvasEffBis[0]->cd();
+    /*
+         canvasEffBis[0]->cd();
+    fHistTriggerEfficiencyPt[molt]->GetYaxis()->SetRangeUser(0,1.2);
      fHistTriggerEfficiencyPt[molt]->Draw("same");
      if(molt ==nummolt)     legend->Draw();
+    */
 
     fHistTriggerEfficiencyPhi[molt]= new TH1D("fHistTriggerEfficiencyPhi_"+ Smolt[molt] , "fHistTriggerEfficiencyPhi_"+ Smolt[molt] ,  fHistTriggerEfficiencyPtPhi[molt]->GetNbinsY(), fHistTriggerEfficiencyPtPhi[molt]->GetYaxis()->GetBinLowEdge(1), fHistTriggerEfficiencyPtPhi[molt]->GetYaxis()->GetBinUpEdge(fHistTriggerEfficiencyPtPhi[molt]->GetNbinsY()) );
     fHistTriggerEfficiencyPhi[molt]->GetXaxis()->SetTitle("#phi_{Trigg}");      
     fHistTriggerEfficiencyPhi[molt]->GetXaxis()->SetTitleSize(0.05);
     fHistTriggerEfficiencyPhi[molt]->GetXaxis()->SetTitleOffset(0.8);
     //    fHistTriggerEfficiencyPhi[molt]->SetTitle("fHistTriggerEfficiencyPhi_"+ Smolt[molt] );  
-    fHistSelected_1D_TriggerPhi[molt]=(TH1D*)fHistSelected_2D_TriggerPtPhi[molt]->ProjectionY("fHistSelected_1D_TriggerPhi_"+ Smolt[molt],fHistTriggerEfficiencyPtPhi[molt]->GetXaxis()->FindBin(ptjmin +0.0001), fHistTriggerEfficiencyPtPhi[molt]->GetXaxis()->FindBin(ptjmax -0.0001) );
-    fHistGenerated_1D_TriggerPhi[molt]=(TH1D*)fHistGenerated_2D_TriggerPtPhi[molt]->ProjectionY("fHistGenerated_1D_TriggerPhi_"+ Smolt[molt],fHistTriggerEfficiencyPtPhi[molt]->GetXaxis()->FindBin(ptjmin +0.0001), fHistTriggerEfficiencyPtPhi[molt]->GetXaxis()->FindBin(ptjmax -0.0001));
+    fHistSelected_1D_TriggerPhi[molt]=(TH1D*)fHistSelected_2D_TriggerPtPhi[molt]->ProjectionY("fHistSelected_1D_TriggerPhi_"+ Smolt[molt],fHistSelected_2D_TriggerPtPhi[molt]->GetXaxis()->FindBin(ptjmin +0.0001), fHistSelected_2D_TriggerPtPhi[molt]->GetXaxis()->FindBin(ptjmax -0.0001) );
+    fHistGenerated_1D_TriggerPhi[molt]=(TH1D*)fHistGenerated_2D_TriggerPtPhi[molt]->ProjectionY("fHistGenerated_1D_TriggerPhi_"+ Smolt[molt],fHistSelected_2D_TriggerPtPhi[molt]->GetXaxis()->FindBin(ptjmin +0.0001), fHistSelected_2D_TriggerPtPhi[molt]->GetXaxis()->FindBin(ptjmax -0.0001));
     fHistTriggerEfficiencyPhi[molt] ->Divide (  fHistSelected_1D_TriggerPhi[molt], fHistGenerated_1D_TriggerPhi[molt]);
     /*
     for(Int_t j=0; j<fHistTriggerEfficiencyPhi[molt]->GetNbinsX(); j++ ){
@@ -295,36 +331,49 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
     fHistTriggerEfficiencyPhi[molt]->SetMarkerStyle(Marker[molt]);
     fHistTriggerEfficiencyPhi[molt]->SetLineColor(Color[molt]);
     fHistTriggerEfficiencyPhi[molt]->SetMarkerColor(Color[molt]);
+    fHistTriggerEfficiencyPhi[molt]->SetStats(0);
     fHistTriggerEfficiencyPhi[molt]->Draw("same");
     if(molt ==nummolt)     legenddown->Draw();
   
+    /*
     canvasEffBis[1]->cd();
     fHistTriggerEfficiencyPhi[molt]->Draw("same");
     if(molt ==nummolt)     legenddown->Draw();
+    */
+
+    SelEntriespT3[molt]=0;
+    SelEntries[molt]=0;
+    GenEntries[molt]=0;
 
     //Trigger efficiency integrated in all variables except multiplicity (ptmin < pt < ptmax)
-    Double_t SelEntries=0;
-    Double_t GenEntries=0;
+    for(Int_t j=fHistSelected_1D_TriggerPt[molt]->FindBin(3); j<fHistSelected_1D_TriggerPt[molt]->FindBin(ptjmax); j++ ){
+      SelEntriespT3[molt]+=fHistSelected_1D_TriggerPt[molt]->GetBinContent(j);
+    }
     for(Int_t j=fHistSelected_1D_TriggerPt[molt]->FindBin(ptjmin); j<fHistSelected_1D_TriggerPt[molt]->FindBin(ptjmax); j++ ){
-      SelEntries+=fHistSelected_1D_TriggerPt[molt]->GetBinContent(j);
+      SelEntries[molt]+=fHistSelected_1D_TriggerPt[molt]->GetBinContent(j);
     }
     for(Int_t j=fHistGenerated_1D_TriggerPt[molt]->FindBin(ptjmin); j<fHistGenerated_1D_TriggerPt[molt]->FindBin(ptjmax); j++ ){
-      GenEntries+=fHistGenerated_1D_TriggerPt[molt]->GetBinContent(j);
+      GenEntries[molt]+=fHistGenerated_1D_TriggerPt[molt]->GetBinContent(j);
     }
-    TriggerEfficiency[molt]=(SelEntries/GenEntries);
+    TriggerEfficiency[molt]=(SelEntries[molt]/GenEntries[molt]);
     HistoTriggerEfficiency->SetBinContent(molt+1, TriggerEfficiency[molt]);
-    HistoTriggerEfficiency->SetBinError(molt+1, SetEfficiencyError(SelEntries, GenEntries));
-    canvasUsed->cd(1);
+    HistoTriggerEfficiency->SetBinError(molt+1, SetEfficiencyError(SelEntries[molt], GenEntries[molt]));
+
     HistoTriggerEfficiency->GetYaxis()->SetRangeUser(0,1);
     HistoTriggerEfficiency->SetMarkerStyle(ColorSysTrigger[sysTrigger]);
     HistoTriggerEfficiency->SetLineColor(ColorSysTrigger[sysTrigger]);
     HistoTriggerEfficiency->SetMarkerColor(ColorSysTrigger[sysTrigger]);
+    canvasUsed->cd(1);
     HistoTriggerEfficiency->Draw("e");
       
     //per la particella di trigger - PtEta
     if(molt < nummolt){
     fHistSelectedTriggerPtEta->GetZaxis()->SetRange(fHistSelectedTriggerPtEta->GetZaxis()->FindBin(Nmolt[molt]+0.001),fHistSelectedTriggerPtEta->GetZaxis()->FindBin(Nmolt[molt+1]-0.001) );
     fHistGeneratedTriggerPtEta->GetZaxis()->SetRange(fHistGeneratedTriggerPtEta->GetZaxis()->FindBin(Nmolt[molt]+0.001),fHistGeneratedTriggerPtEta->GetZaxis()->FindBin(Nmolt[molt+1]-0.001) );
+    }
+    else{
+      fHistSelectedTriggerPtEta->GetZaxis()->SetRange(0,100);
+      fHistGeneratedTriggerPtEta->GetZaxis()->SetRange(0,100);
     }
     fHistSelected_2D_TriggerPtEta[molt] = (TH2D*)fHistSelectedTriggerPtEta->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis
     fHistGenerated_2D_TriggerPtEta[molt] = (TH2D*)fHistGeneratedTriggerPtEta->Project3D("yxo"); //y is on the vertical axis, x along horizontal axi
@@ -334,13 +383,13 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
     fHistTriggerEfficiencyPtEta[molt]->GetXaxis()->SetTitle("p_{T}^{Trigg} (GeV/c)");      
     fHistTriggerEfficiencyPtEta[molt]->GetYaxis()->SetTitle("#phi_{Trigg}");      
     
-    fHistSelected_2D_TriggerPtEta[molt] ->RebinX(1);   
+    fHistSelected_2D_TriggerPtEta[molt] ->RebinX(5);   
     fHistSelected_2D_TriggerPtEta[molt] ->RebinY(10);   
     
-    fHistGenerated_2D_TriggerPtEta[molt]->RebinX(1);    
+    fHistGenerated_2D_TriggerPtEta[molt]->RebinX(5);    
     fHistGenerated_2D_TriggerPtEta[molt]->RebinY(10);    
     
-    fHistTriggerEfficiencyPtEta[molt]->RebinX(1);    
+    fHistTriggerEfficiencyPtEta[molt]->RebinX(5);    
     fHistTriggerEfficiencyPtEta[molt]->RebinY(10);    
     
     fHistTriggerEfficiencyPtEta[molt]->Divide(fHistSelected_2D_TriggerPtEta[molt], fHistGenerated_2D_TriggerPtEta[molt]); 
@@ -349,9 +398,10 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
     fHistTriggerEfficiencyEta[molt]->GetXaxis()->SetTitle("#eta_{Trigg}");
     fHistTriggerEfficiencyEta[molt]->GetXaxis()->SetTitleSize(0.05);
     fHistTriggerEfficiencyEta[molt]->GetXaxis()->SetTitleOffset(0.9);      
+    fHistTriggerEfficiencyEta[molt]->SetStats(0);
     fHistTriggerEfficiencyEta[molt]->SetTitle("fHistTriggerEfficiencyEta_"+ Smolt[molt] );  
-    fHistSelected_1D_TriggerEta[molt]=(TH1D*)fHistSelected_2D_TriggerPtEta[molt]->ProjectionY("fHistSelected_1D_TriggerEta_"+ Smolt[molt],fHistTriggerEfficiencyPtEta[molt]->GetXaxis()->FindBin(ptjmin +0.0001), fHistTriggerEfficiencyPtEta[molt]->GetXaxis()->FindBin(ptjmax -0.0001));
-    fHistGenerated_1D_TriggerEta[molt]=(TH1D*)fHistGenerated_2D_TriggerPtEta[molt]->ProjectionY("fHistGenerated_1D_TriggerEta_"+ Smolt[molt],fHistTriggerEfficiencyPtEta[molt]->GetXaxis()->FindBin(ptjmin +0.0001), fHistTriggerEfficiencyPtEta[molt]->GetXaxis()->FindBin(ptjmax -0.0001));
+    fHistSelected_1D_TriggerEta[molt]=(TH1D*)fHistSelected_2D_TriggerPtEta[molt]->ProjectionY("fHistSelected_1D_TriggerEta_"+ Smolt[molt],fHistSelected_2D_TriggerPtEta[molt]->GetXaxis()->FindBin(ptjmin +0.0001), fHistSelected_2D_TriggerPtEta[molt]->GetXaxis()->FindBin(ptjmax -0.0001));
+    fHistGenerated_1D_TriggerEta[molt]=(TH1D*)fHistGenerated_2D_TriggerPtEta[molt]->ProjectionY("fHistGenerated_1D_TriggerEta_"+ Smolt[molt], fHistGenerated_2D_TriggerPtEta[molt]->GetXaxis()->FindBin(ptjmin +0.0001), fHistGenerated_2D_TriggerPtEta[molt]->GetXaxis()->FindBin(ptjmax -0.0001));
     
     fHistTriggerEfficiencyEta[molt] ->Divide (fHistSelected_1D_TriggerEta[molt], fHistGenerated_1D_TriggerEta[molt]);
     /*
@@ -371,10 +421,12 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
     fHistTriggerEfficiencyEta[molt]->Draw("same");
     if(molt ==nummolt)     legenddown->Draw();
   
+    /*
     canvasEffBis[2]->cd();
+    fHistTriggerEfficiencyEta[molt]->GetXaxis()->SetRangeUser(-1,1);
     fHistTriggerEfficiencyEta[molt]->Draw("same");
     if(molt ==nummolt)     legenddown->Draw();
-    
+    */
 
     /* per calcolo errore efficienza
     for(Int_t i=1 ; i< fHistTriggerEfficiencyEta[molt]->GetNbinsX(); i++){
@@ -386,35 +438,96 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
     }
     */
 
-    cout << "V0 2D projection in Phi and Pt " << endl;
+    cout << "V0 2D projection in Phi and PtTMax (Pt stands for PtTMax) " << endl;
     if(molt < nummolt){
-    fHistSelectedV0PtPhi->GetZaxis()->SetRange(fHistSelectedV0PtPhi->GetZaxis()->FindBin(Nmolt[molt]+0.001),fHistSelectedV0PtPhi->GetZaxis()->FindBin(Nmolt[molt+1]-0.001) );
-    fHistGeneratedV0PtPhi->GetZaxis()->SetRange(fHistGeneratedV0PtPhi->GetZaxis()->FindBin(Nmolt[molt]+0.001),fHistGeneratedV0PtPhi->GetZaxis()->FindBin(Nmolt[molt+1]-0.001) );
+    fHistSelectedV0PtTMaxPhi->GetZaxis()->SetRange(fHistSelectedV0PtTMaxPhi->GetZaxis()->FindBin(Nmolt[molt]+0.001),fHistSelectedV0PtTMaxPhi->GetZaxis()->FindBin(Nmolt[molt+1]-0.001) );
+    fHistGeneratedV0PtTMaxPhi->GetZaxis()->SetRange(fHistGeneratedV0PtTMaxPhi->GetZaxis()->FindBin(Nmolt[molt]+0.001),fHistGeneratedV0PtTMaxPhi->GetZaxis()->FindBin(Nmolt[molt+1]-0.001) );
     }
-    fHistSelected_2D_V0PtPhi[molt] = (TH2D*)fHistSelectedV0PtPhi->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis
-    fHistGenerated_2D_V0PtPhi[molt] = (TH2D*)fHistGeneratedV0PtPhi->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis
-  fHistSelected_2D_V0PtPhi[molt] ->SetName("fHistSelected_2D_V0PtPhi_"+ Smolt[molt]);
-  fHistGenerated_2D_V0PtPhi[molt]->SetName("fHistGenerated_2D_V0PtPhi_"+ Smolt[molt]);
-  fHistSelected_2D_V0PtPhi_clone[molt]  =  (TH2D*)fHistSelected_2D_V0PtPhi[molt]->Clone("fHistSelected_2D_V0PtPhi_clone_"+ Smolt[molt]);
-  fHistGenerated_2D_V0PtPhi_clone[molt] =  (TH2D*)fHistGenerated_2D_V0PtPhi[molt]->Clone("fHistGenerated_2D_V0PtPhi_clone_"+ Smolt[molt]);
+    else{
+      fHistSelectedV0PtTMaxPhi->GetZaxis()->SetRange(0,100);
+      fHistGeneratedV0PtTMaxPhi->GetZaxis()->SetRange(0,100);
+    }
+    fHistSelected_2D_V0PtTMaxPhi[molt] = (TH2D*)fHistSelectedV0PtTMaxPhi->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis
+    fHistGenerated_2D_V0PtTMaxPhi[molt] = (TH2D*)fHistGeneratedV0PtTMaxPhi->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis
+  fHistSelected_2D_V0PtTMaxPhi[molt] ->SetName("fHistSelected_2D_V0PtTMaxPhi_"+ Smolt[molt]);
+  fHistGenerated_2D_V0PtTMaxPhi[molt]->SetName("fHistGenerated_2D_V0PtTMaxPhi_"+ Smolt[molt]);
 
-  fHistV0EfficiencyPtPhi[molt]= new TH2D("fHistV0EfficiencyPtPhi_"+ Smolt[molt],"fHistV0EfficiencyPtPhi_"+ Smolt[molt],fHistSelectedV0PtPhi->GetNbinsX(),fHistSelectedV0PtPhi->GetXaxis()->GetXmin(), fHistSelectedV0PtPhi->GetXaxis()->GetXmax(),fHistSelectedV0PtPhi->GetNbinsY(),fHistSelectedV0PtPhi->GetYaxis()->GetBinLowEdge(1), fHistSelectedV0PtPhi->GetYaxis()->GetBinUpEdge(fHistSelectedV0PtPhi->GetNbinsY()) );
+  fHistV0EfficiencyPtPhi[molt]= new TH2D("fHistV0EfficiencyPtPhi_"+ Smolt[molt],"fHistV0EfficiencyPtPhi_"+ Smolt[molt],fHistSelectedV0PtTMaxPhi->GetNbinsX(),fHistSelectedV0PtTMaxPhi->GetXaxis()->GetXmin(), fHistSelectedV0PtTMaxPhi->GetXaxis()->GetXmax(),fHistSelectedV0PtTMaxPhi->GetNbinsY(),fHistSelectedV0PtTMaxPhi->GetYaxis()->GetBinLowEdge(1), fHistSelectedV0PtTMaxPhi->GetYaxis()->GetBinUpEdge(fHistSelectedV0PtTMaxPhi->GetNbinsY()) );
   fHistV0EfficiencyPtPhi[molt]->GetXaxis()->SetTitle("p_{T}^{Assoc} (GeV/c)");      
   fHistV0EfficiencyPtPhi[molt]->GetYaxis()->SetTitle("#phi_{Assoc}");
 
-  fHistSelected_2D_V0PtPhi[molt] ->RebinX(1);   
-  fHistSelected_2D_V0PtPhi[molt] ->RebinY(5);   
+  fHistSelected_2D_V0PtTMaxPhi[molt] ->RebinX(1);   
+  fHistSelected_2D_V0PtTMaxPhi[molt] ->RebinY(5);   
 
-  fHistGenerated_2D_V0PtPhi[molt]->RebinX(1);    
-  fHistGenerated_2D_V0PtPhi[molt]->RebinY(5);    
+  fHistGenerated_2D_V0PtTMaxPhi[molt]->RebinX(1);    
+  fHistGenerated_2D_V0PtTMaxPhi[molt]->RebinY(5);    
 
   fHistV0EfficiencyPtPhi[molt]->RebinX(1);    
   fHistV0EfficiencyPtPhi[molt]->RebinY(5);    
 
-  fHistV0EfficiencyPtPhi[molt]->Divide(fHistSelected_2D_V0PtPhi[molt], fHistGenerated_2D_V0PtPhi[molt]); 
+  fHistV0EfficiencyPtPhi[molt]->Divide(fHistSelected_2D_V0PtTMaxPhi[molt], fHistGenerated_2D_V0PtTMaxPhi[molt]); 
 
-  cout << "V0 1D projection in Phi and Pt " << endl;
-  fHistV0EfficiencyPt[molt]= new TH1D("fHistV0EfficiencyPt_"+ Smolt[molt] , "fHistV0EfficiencyPt_"+ Smolt[molt] ,  fHistSelected_2D_V0PtPhi[molt]->GetNbinsX(), fHistSelected_2D_V0PtPhi[molt]->GetXaxis()->GetXmin(), fHistSelected_2D_V0PtPhi[molt]->GetXaxis()->GetXmax() );
+  cout << "V0 1D projection in Phi " << endl;
+  fHistV0EfficiencyPhi[molt]= new TH1D("fHistV0EfficiencyPhi_"+ Smolt[molt] , "fHistV0EfficiencyPhi_"+ Smolt[molt] , fHistSelected_2D_V0PtTMaxPhi[molt]->GetNbinsY(), fHistSelected_2D_V0PtTMaxPhi[molt]->GetYaxis()->GetBinLowEdge(1), fHistSelected_2D_V0PtTMaxPhi[molt]->GetYaxis()->GetBinUpEdge(fHistSelected_2D_V0PtTMaxPhi[molt]->GetNbinsY()) );
+  fHistV0EfficiencyPhi[molt]->GetXaxis()->SetTitle("#phi_{Assoc}");      
+  fHistV0EfficiencyPhi[molt]->GetXaxis()->SetTitleOffset(0.8);
+  fHistV0EfficiencyPhi[molt]->GetXaxis()->SetTitleSize(0.05);
+  fHistV0EfficiencyPhi[molt]->SetTitle("fHistV0EfficiencyPhi_"+ Smolt[molt] );
+
+  fHistSelected_1D_V0Phi[molt]=(TH1D*)fHistSelected_2D_V0PtTMaxPhi[molt]->ProjectionY("fHistSelected_1D_V0Phi_"+ Smolt[molt],fHistSelected_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(PtTrigMin+0.0001) ,fHistSelected_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(PtTrigMax-0.0001) ); //***
+  fHistGenerated_1D_V0Phi[molt]=(TH1D*)fHistGenerated_2D_V0PtTMaxPhi[molt]->ProjectionY("fHistGenerated_1D_V0Phi_"+ Smolt[molt], fHistGenerated_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(PtTrigMin+0.0001) ,fHistGenerated_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(PtTrigMax-0.0001));  //***
+  fHistV0EfficiencyPhi[molt] ->Divide(  fHistSelected_1D_V0Phi[molt],  fHistGenerated_1D_V0Phi[molt]);
+  
+  canvasEff->cd(5);
+  fHistV0EfficiencyPhi[molt]->GetYaxis()->SetRangeUser(0.00001,0.2);
+  if (ishhCorr)   fHistV0EfficiencyPhi[molt]->GetYaxis()->SetRangeUser(0.00001,1);
+  fHistV0EfficiencyPhi[molt]->SetMarkerStyle(Marker[molt]);
+  fHistV0EfficiencyPhi[molt]->GetYaxis()->SetTitle("#epsilon_{Assoc}");
+  fHistV0EfficiencyPhi[molt]->GetYaxis()->SetTitleOffset(1);
+  fHistV0EfficiencyPhi[molt]->GetYaxis()->SetTitleSize(0.05);
+  fHistV0EfficiencyPhi[molt]->SetStats(0);
+  fHistV0EfficiencyPhi[molt]->SetLineColor(Color[molt]);
+  fHistV0EfficiencyPhi[molt]->SetMarkerColor(Color[molt]);
+  fHistV0EfficiencyPhi[molt]->Draw("same");
+  if(molt ==nummolt)     legend->Draw();
+  
+  /*
+  canvasEffBis[4]->cd();
+  fHistV0EfficiencyPhi[molt]->Draw("same");
+  if(molt ==nummolt)     legend->Draw();
+  */
+
+ cout << "V0 2D projection in Pt and PtTMax " << endl;
+    if(molt < nummolt){
+    fHistSelectedV0PtPtTMax->GetZaxis()->SetRange(fHistSelectedV0PtPtTMax->GetZaxis()->FindBin(Nmolt[molt]+0.001),fHistSelectedV0PtPtTMax->GetZaxis()->FindBin(Nmolt[molt+1]-0.001) );
+    fHistGeneratedV0PtPtTMax->GetZaxis()->SetRange(fHistGeneratedV0PtPtTMax->GetZaxis()->FindBin(Nmolt[molt]+0.001),fHistGeneratedV0PtPtTMax->GetZaxis()->FindBin(Nmolt[molt+1]-0.001) );
+    }
+    else{
+      fHistSelectedV0PtPtTMax->GetZaxis()->SetRange(0,100);
+      fHistGeneratedV0PtPtTMax->GetZaxis()->SetRange(0,100);
+    }
+    fHistSelected_2D_V0PtPtTMax[molt] = (TH2D*)fHistSelectedV0PtPtTMax->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis
+    fHistGenerated_2D_V0PtPtTMax[molt] = (TH2D*)fHistGeneratedV0PtPtTMax->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis
+  fHistSelected_2D_V0PtPtTMax[molt] ->SetName("fHistSelected_2D_V0PtPtTMax_"+ Smolt[molt]);
+  fHistGenerated_2D_V0PtPtTMax[molt]->SetName("fHistGenerated_2D_V0PtPtTMax_"+ Smolt[molt]);
+
+  fHistV0EfficiencyPtPtTMax[molt]= new TH2D("fHistV0EfficiencyPtPtTMax_"+ Smolt[molt],"fHistV0EfficiencyPtPtTMax_"+ Smolt[molt],fHistSelectedV0PtPtTMax->GetNbinsX(),fHistSelectedV0PtPtTMax->GetXaxis()->GetXmin(), fHistSelectedV0PtPtTMax->GetXaxis()->GetXmax(),fHistSelectedV0PtPtTMax->GetNbinsY(),fHistSelectedV0PtPtTMax->GetYaxis()->GetBinLowEdge(1), fHistSelectedV0PtPtTMax->GetYaxis()->GetBinUpEdge(fHistSelectedV0PtPtTMax->GetNbinsY()) );
+  fHistV0EfficiencyPtPtTMax[molt]->GetXaxis()->SetTitle("p_{T}^{Assoc} (GeV/c)");      
+  fHistV0EfficiencyPtPtTMax[molt]->GetYaxis()->SetTitle("#phi_{Assoc}");
+
+  fHistSelected_2D_V0PtPtTMax[molt] ->RebinX(1);   
+  fHistSelected_2D_V0PtPtTMax[molt] ->RebinY(1);   
+
+  fHistGenerated_2D_V0PtPtTMax[molt]->RebinX(1);    
+  fHistGenerated_2D_V0PtPtTMax[molt]->RebinY(1);    
+
+  fHistV0EfficiencyPtPtTMax[molt]->RebinX(1);    
+  fHistV0EfficiencyPtPtTMax[molt]->RebinY(1);    
+
+  fHistV0EfficiencyPtPtTMax[molt]->Divide(fHistSelected_2D_V0PtPtTMax[molt], fHistGenerated_2D_V0PtPtTMax[molt]); 
+ 
+  cout << "V0 1D projection in Pt with correct cut on pT(Trigger, soglia)" << endl;
+  fHistV0EfficiencyPt[molt]= new TH1D("fHistV0EfficiencyPt_"+ Smolt[molt] , "fHistV0EfficiencyPt_"+ Smolt[molt] ,  fHistSelected_2D_V0PtTMaxPhi[molt]->GetNbinsX(), fHistSelected_2D_V0PtTMaxPhi[molt]->GetXaxis()->GetXmin(), fHistSelected_2D_V0PtTMaxPhi[molt]->GetXaxis()->GetXmax() );
   fHistV0EfficiencyPt[molt]->GetXaxis()->SetTitle("p_{T}^{Assoc} (GeV/c)");      
   fHistV0EfficiencyPt[molt]->GetXaxis()->SetTitleSize(0.039);      
   fHistV0EfficiencyPt[molt]->GetXaxis()->SetTitleOffset(1);
@@ -422,9 +535,20 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
   fHistV0EfficiencyPt[molt]->GetYaxis()->SetTitleOffset(1);
   fHistV0EfficiencyPt[molt]->SetTitle("fHistV0EfficiencyPt_"+ Smolt[molt] );
 
-  fHistSelected_1D_V0Pt[molt]=(TH1D*)fHistSelected_2D_V0PtPhi[molt]->ProjectionX("fHistSelected_1D_V0Pt_"+ Smolt[molt]);
-  fHistGenerated_1D_V0Pt[molt]=(TH1D*)fHistGenerated_2D_V0PtPhi[molt]->ProjectionX("fHistGenerated_1D_V0Pt_"+ Smolt[molt]); 
+  fHistSelected_1D_V0Pt[molt]=(TH1D*)fHistSelected_2D_V0PtPtTMax[molt]->ProjectionX("fHistSelected_1D_V0Pt_"+ Smolt[molt],fHistSelected_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(PtTrigMin+0.0001) ,fHistSelected_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(fHistSelected_2D_V0PtPtTMax[molt]->GetYaxis()->GetXmax()));
+  cout << "\n\n\n\n**********massimo di PtTMax (deve essere 30)"  << fHistSelected_2D_V0PtPtTMax[molt]->GetYaxis()->GetXmax() << endl;
+  fHistGenerated_1D_V0Pt[molt]=(TH1D*)fHistGenerated_2D_V0PtPtTMax[molt]->ProjectionX("fHistGenerated_1D_V0Pt_"+ Smolt[molt],fHistGenerated_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(PtTrigMin+0.0001) ,fHistGenerated_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(fHistGenerated_2D_V0PtPtTMax[molt]->GetYaxis()->GetXmax()));
   fHistV0EfficiencyPt[molt]->Divide(fHistSelected_1D_V0Pt[molt],  fHistGenerated_1D_V0Pt[molt]);
+
+  cout << "\n\n\n*************************" << endl;
+  cout <<   fHistSelected_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(1+0.0001)<< endl;
+  cout <<   fHistSelected_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(2+0.0001)<< endl;
+  cout <<   fHistSelected_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(3+0.0001)<< endl;
+  cout <<   fHistSelected_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(4+0.0001)<< endl;
+  cout <<   fHistSelected_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(5+0.0001)<< endl;
+  cout <<   fHistSelected_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(6+0.0001)<< endl;
+  cout <<   fHistSelected_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(7+0.0001)<< endl;
+  cout << "*************************\n\n\n" << endl;
 
   canvasEff->cd(4);
   fHistV0EfficiencyPt[molt]->GetYaxis()->SetRangeUser(0,1);
@@ -433,12 +557,12 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
   fHistV0EfficiencyPt[molt]->SetMarkerColor(Color[molt]);
   fHistV0EfficiencyPt[molt]->Draw("same");
   if(molt ==nummolt)     legend->Draw();
-  
-
 
   cout << "V0 efficiency in Pt bins used in the analysis " << endl;
   fHistV0EfficiencyPtBins[molt]= new TH1D("fHistV0EfficiencyPtBins_" + Smolt[molt], "fHistV0EfficiencyPtBins_" + Smolt[molt],numPtV0, NPtV0 );
   fHistV0EfficiencyPtBins[molt]->GetXaxis()->SetTitle("p_{T}^{Assoc} (GeV/c)");      
+  fHistV0EfficiencyPtBins[molt]->GetXaxis()->SetTitleSize(0.05);
+  fHistV0EfficiencyPtBins[molt]->GetXaxis()->SetTitleOffset(1);
   Float_t NumberOfSelected;
   Float_t NumberOfGenerated;
   cout << "\n V0 efficiency in Pt bins " << endl;
@@ -455,89 +579,92 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
   }
     canvasUsed->cd(2);
     fHistV0EfficiencyPtBins[molt]->GetYaxis()->SetRangeUser(0,0.25);
+    if (ishhCorr)     fHistV0EfficiencyPtBins[molt]->GetYaxis()->SetRangeUser(0,1);
     fHistV0EfficiencyPtBins[molt]->SetMarkerStyle(Marker[molt]);
     fHistV0EfficiencyPtBins[molt]->GetYaxis()->SetTitle("#epsilon_{Assoc}");
+    fHistV0EfficiencyPtBins[molt]->GetYaxis()->SetTitleSize(0.05);
+    fHistV0EfficiencyPtBins[molt]->GetYaxis()->SetTitleOffset(1);
+    fHistV0EfficiencyPtBins[molt]->SetStats(0);
     fHistV0EfficiencyPtBins[molt]->SetLineColor(Color[molt]);
     fHistV0EfficiencyPtBins[molt]->SetMarkerColor(Color[molt]);
     fHistV0EfficiencyPtBins[molt]->Draw("samee");
     if(molt ==nummolt)     legend->Draw();
 
-   canvasEffBis[3]->cd();
-   fHistV0EfficiencyPtBins[molt]->Draw("same");
-   if(molt ==nummolt)     legend->Draw();
+    /*
+ canvasEffBis[3]->cd();
+ fHistV0EfficiencyPtBins[molt]->Draw("same");
+ if(molt ==nummolt)     legend->Draw();
+    */
 
-  fHistV0EfficiencyPhi[molt]= new TH1D("fHistV0EfficiencyPhi_"+ Smolt[molt] , "fHistV0EfficiencyPhi_"+ Smolt[molt] , fHistSelected_2D_V0PtPhi[molt]->GetNbinsY(), fHistSelected_2D_V0PtPhi[molt]->GetYaxis()->GetBinLowEdge(1), fHistSelected_2D_V0PtPhi[molt]->GetYaxis()->GetBinUpEdge(fHistSelected_2D_V0PtPhi[molt]->GetNbinsY()) );
-  fHistV0EfficiencyPhi[molt]->GetXaxis()->SetTitle("#phi_{Assoc}");      
-  fHistV0EfficiencyPhi[molt]->SetTitle("fHistV0EfficiencyPhi_"+ Smolt[molt] );
-
-  fHistSelected_1D_V0Phi[molt]=(TH1D*)fHistSelected_2D_V0PtPhi[molt]->ProjectionY("fHistSelected_1D_V0Phi_"+ Smolt[molt]);
-  fHistGenerated_1D_V0Phi[molt]=(TH1D*)fHistGenerated_2D_V0PtPhi[molt]->ProjectionY("fHistGenerated_1D_V0Phi_"+ Smolt[molt]);  
-  fHistV0EfficiencyPhi[molt] ->Divide(  fHistSelected_1D_V0Phi[molt],  fHistGenerated_1D_V0Phi[molt]);
-  
-  canvasEff->cd(5);
-  fHistV0EfficiencyPhi[molt]->GetYaxis()->SetRangeUser(0.00001,0.2);
-  fHistV0EfficiencyPhi[molt]->SetMarkerStyle(Marker[molt]);
-  fHistV0EfficiencyPhi[molt]->GetYaxis()->SetTitle("#epsilon_{Assoc}");
-  fHistV0EfficiencyPhi[molt]->SetLineColor(Color[molt]);
-  fHistV0EfficiencyPhi[molt]->SetMarkerColor(Color[molt]);
-  fHistV0EfficiencyPhi[molt]->Draw("same");
-  if(molt ==nummolt)     legend->Draw();
-  
-
-  canvasEffBis[4]->cd();
-  fHistV0EfficiencyPhi[molt]->Draw("same");
-  if(molt ==nummolt)     legend->Draw();
-
-  cout << "V0 2D projection in Eta and Pt " << endl;
+  cout << "V0 2D projection in Eta and PtTMax (Pt stands for PtTMax) " << endl;
     if(molt < nummolt){
-  fHistSelectedV0PtEta->GetZaxis()->SetRange(fHistSelectedV0PtEta->GetZaxis()->FindBin(Nmolt[molt]+0.001),fHistSelectedV0PtEta->GetZaxis()->FindBin(Nmolt[molt+1]-0.001) );
-  fHistGeneratedV0PtEta->GetZaxis()->SetRange(fHistGeneratedV0PtEta->GetZaxis()->FindBin(Nmolt[molt]+0.001),fHistGeneratedV0PtEta->GetZaxis()->FindBin(Nmolt[molt+1]-0.001) );
+  fHistSelectedV0PtTMaxEta->GetZaxis()->SetRange(fHistSelectedV0PtTMaxEta->GetZaxis()->FindBin(Nmolt[molt]+0.001),fHistSelectedV0PtTMaxEta->GetZaxis()->FindBin(Nmolt[molt+1]-0.001) );
+  fHistGeneratedV0PtTMaxEta->GetZaxis()->SetRange(fHistGeneratedV0PtTMaxEta->GetZaxis()->FindBin(Nmolt[molt]+0.001),fHistGeneratedV0PtTMaxEta->GetZaxis()->FindBin(Nmolt[molt+1]-0.001) );
     }
-  fHistSelected_2D_V0PtEta[molt]  = (TH2D*)fHistSelectedV0PtEta->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis
-  fHistGenerated_2D_V0PtEta[molt] = (TH2D*)fHistGeneratedV0PtEta->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis
-  fHistSelected_2D_V0PtEta[molt] ->SetName("fHistSelected_2D_V0PtEta_"+ Smolt[molt]);
-  fHistGenerated_2D_V0PtEta[molt]->SetName("fHistGenerated_2D_V0PtEta_"+ Smolt[molt]);
-  fHistSelected_2D_V0PtEta_clone[molt]  =  (TH2D*)fHistSelected_2D_V0PtEta[molt]->Clone("fHistSelected_2D_V0PtEta_clone_"+ Smolt[molt]);
-  fHistGenerated_2D_V0PtEta_clone[molt] =  (TH2D*)fHistGenerated_2D_V0PtEta[molt]->Clone("fHistGenerated_2D_V0PtEta_clone_"+ Smolt[molt]);
-  fHistV0EfficiencyPtEta[molt]= new TH2D("fHistV0EfficiencyPtEta_"+ Smolt[molt],"fHistV0EfficiencyPtEta_"+ Smolt[molt],fHistSelectedV0PtEta->GetNbinsX(),fHistSelectedV0PtEta->GetXaxis()->GetXmin(), fHistSelectedV0PtEta->GetXaxis()->GetXmax(),fHistSelectedV0PtEta->GetNbinsY(),fHistSelectedV0PtEta->GetYaxis()->GetBinLowEdge(1), fHistSelectedV0PtEta->GetYaxis()->GetBinUpEdge(fHistSelectedV0PtEta->GetNbinsY()) );
+    else{
+      fHistSelectedV0PtTMaxEta->GetZaxis()->SetRange(0,100);
+      fHistGeneratedV0PtTMaxEta->GetZaxis()->SetRange(0,100);
+    }
+
+  fHistSelected_2D_V0PtTMaxEta[molt]  = (TH2D*)fHistSelectedV0PtTMaxEta->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis
+  fHistGenerated_2D_V0PtTMaxEta[molt] = (TH2D*)fHistGeneratedV0PtTMaxEta->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis
+  fHistSelected_2D_V0PtTMaxEta[molt] ->SetName("fHistSelected_2D_V0PtTMaxEta_"+ Smolt[molt]);
+  fHistGenerated_2D_V0PtTMaxEta[molt]->SetName("fHistGenerated_2D_V0PtTMaxEta_"+ Smolt[molt]);
+
+  fHistV0EfficiencyPtEta[molt]= new TH2D("fHistV0EfficiencyPtEta_"+ Smolt[molt],"fHistV0EfficiencyPtEta_"+ Smolt[molt],fHistSelectedV0PtTMaxEta->GetNbinsX(),fHistSelectedV0PtTMaxEta->GetXaxis()->GetXmin(), fHistSelectedV0PtTMaxEta->GetXaxis()->GetXmax(),fHistSelectedV0PtTMaxEta->GetNbinsY(),fHistSelectedV0PtTMaxEta->GetYaxis()->GetBinLowEdge(1), fHistSelectedV0PtTMaxEta->GetYaxis()->GetBinUpEdge(fHistSelectedV0PtTMaxEta->GetNbinsY()) );
   fHistV0EfficiencyPtEta[molt]->GetXaxis()->SetTitle("p_{T}^{Assoc} (GeV/c)");      
   fHistV0EfficiencyPtEta[molt]->GetYaxis()->SetTitle("#eta_{Assoc}");      
 
-  fHistSelected_2D_V0PtEta[molt] ->RebinX(1);   
-  fHistSelected_2D_V0PtEta[molt] ->RebinY(10);   
+  fHistSelected_2D_V0PtTMaxEta[molt] ->RebinX(1);   
+  fHistSelected_2D_V0PtTMaxEta[molt] ->RebinY(10);   
 
-  fHistGenerated_2D_V0PtEta[molt]->RebinX(1);    
-  fHistGenerated_2D_V0PtEta[molt]->RebinY(10);    
+  fHistGenerated_2D_V0PtTMaxEta[molt]->RebinX(1);    
+  fHistGenerated_2D_V0PtTMaxEta[molt]->RebinY(10);    
 
   fHistV0EfficiencyPtEta[molt]->RebinX(1);    
   fHistV0EfficiencyPtEta[molt]->RebinY(10);    
 
-  fHistV0EfficiencyPtEta[molt]->Divide(fHistSelected_2D_V0PtEta[molt], fHistGenerated_2D_V0PtEta[molt]); 
+  fHistV0EfficiencyPtEta[molt]->Divide(fHistSelected_2D_V0PtTMaxEta[molt], fHistGenerated_2D_V0PtTMaxEta[molt]); 
 
   cout << "V0 1D projection in Eta " << endl;
-  fHistV0EfficiencyEta[molt]= new TH1D("fHistV0EfficiencyEta_"+ Smolt[molt] , "fHistV0EfficiencyEta_"+ Smolt[molt] ,    fHistGenerated_2D_V0PtEta[molt]->GetNbinsY(),   fHistGenerated_2D_V0PtEta[molt]->GetYaxis()->GetBinLowEdge(1),   fHistGenerated_2D_V0PtEta[molt]->GetYaxis()->GetBinUpEdge(  fHistGenerated_2D_V0PtEta[molt]->GetNbinsY()) );
+  fHistV0EfficiencyEta[molt]= new TH1D("fHistV0EfficiencyEta_"+ Smolt[molt] , "fHistV0EfficiencyEta_"+ Smolt[molt] ,    fHistGenerated_2D_V0PtTMaxEta[molt]->GetNbinsY(),   fHistGenerated_2D_V0PtTMaxEta[molt]->GetYaxis()->GetBinLowEdge(1),   fHistGenerated_2D_V0PtTMaxEta[molt]->GetYaxis()->GetBinUpEdge(  fHistGenerated_2D_V0PtTMaxEta[molt]->GetNbinsY()) );
    fHistV0EfficiencyEta[molt]->GetXaxis()->SetTitle("#eta_{Assoc}");      
   fHistV0EfficiencyEta[molt]->SetTitle( "fHistV0EfficiencyEta_"+ Smolt[molt] );
-   fHistSelected_1D_V0Eta[molt]=(TH1D*)fHistSelected_2D_V0PtEta[molt]->ProjectionY("fHistSelected_1D_V0Eta_"+ Smolt[molt]);
-  fHistGenerated_1D_V0Eta[molt]=(TH1D*)fHistGenerated_2D_V0PtEta[molt]->ProjectionY("fHistGenerated_1D_V0Eta_"+ Smolt[molt]); 
+
+  fHistSelected_1D_V0Eta[molt]=(TH1D*)fHistSelected_2D_V0PtTMaxEta[molt]->ProjectionY("fHistSelected_1D_V0Eta_"+ Smolt[molt], fHistSelected_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(PtTrigMin+0.0001) ,fHistSelected_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(PtTrigMax-0.0001));//***
+  fHistGenerated_1D_V0Eta[molt]=(TH1D*)fHistGenerated_2D_V0PtTMaxEta[molt]->ProjectionY("fHistGenerated_1D_V0Eta_"+ Smolt[molt], fHistSelected_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(PtTrigMin+0.0001) ,fHistSelected_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(PtTrigMax-0.0001)); //***
   fHistV0EfficiencyEta[molt] ->Divide(  fHistSelected_1D_V0Eta[molt],  fHistGenerated_1D_V0Eta[molt]);
    canvasEff->cd(6);
   fHistV0EfficiencyEta[molt]->GetYaxis()->SetRangeUser(0.001,0.2);
+  if (ishhCorr)   fHistV0EfficiencyEta[molt]->GetYaxis()->SetRangeUser(0,1);
   fHistV0EfficiencyEta[molt]->GetYaxis()->SetTitle("#epsilon_{Assoc}");
+  fHistV0EfficiencyEta[molt]->GetXaxis()->SetTitleOffset(0.85);
+  fHistV0EfficiencyEta[molt]->GetXaxis()->SetTitleSize(0.05);
+  fHistV0EfficiencyEta[molt]->GetYaxis()->SetTitleOffset(1);
+  fHistV0EfficiencyEta[molt]->GetYaxis()->SetTitleSize(0.05);
+  fHistV0EfficiencyEta[molt]->SetStats(0);
+  fHistV0EfficiencyEta[molt]->GetYaxis()->SetRangeUser(0,0.24);
+  if (ishhCorr)   fHistV0EfficiencyEta[molt]->GetYaxis()->SetRangeUser(0,1);
   fHistV0EfficiencyEta[molt]->SetMarkerStyle(Marker[molt]);
   fHistV0EfficiencyEta[molt]->SetLineColor(Color[molt]);
   fHistV0EfficiencyEta[molt]->SetMarkerColor(Color[molt]);
   fHistV0EfficiencyEta[molt]->Draw("same");
   if(molt ==nummolt)     legend->Draw();
-  
-    canvasEffBis[5]->cd();
+
+  /*  
+  canvasEffBis[5]->cd();
   fHistV0EfficiencyEta[molt]->Draw("same");
   if(molt ==nummolt)     legend->Draw();
+  */
 
   //per efficienza selezioni V0
     if(molt < nummolt){
   fHistSelectedV0PtMass->GetZaxis()->SetRange(fHistSelectedV0PtMass->GetZaxis()->FindBin(Nmolt[molt]+0.001),fHistSelectedV0PtMass->GetZaxis()->FindBin(Nmolt[molt+1]-0.001) );
  fHistReconstructedV0PtMass->GetZaxis()->SetRange(fHistReconstructedV0PtMass->GetZaxis()->FindBin(Nmolt[molt]+0.001),fHistReconstructedV0PtMass->GetZaxis()->FindBin(Nmolt[molt+1]-0.001) );
+    }
+    else{
+      fHistSelectedV0PtMass->GetZaxis()->SetRange(0,100);
+      fHistReconstructedV0PtMass->GetZaxis()->SetRange(0,100);
     }
  
   fHistSelectedMass_2D[molt] = (TH2D*)fHistSelectedV0PtMass->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis
@@ -557,12 +684,19 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
     //**********************resolution histograms*****************************
     for(Int_t m=0; m< 3; m++){
     for(Int_t t=0; t< 2; t++){
+      /* version to be used if resolution hiostograms are 3D, comment if not */ 
+      fHistResolution3D[m][t]->GetZaxis()->SetRange(fHistResolution3D[m][t]->GetZaxis()->FindBin(PtTrigMin+0.001),fHistResolution3D[m][t]->GetZaxis()->FindBin(PtTrigMax-0.001) );
+      fHistResolution2D[m][t]=(TH2D*)fHistResolution3D[m][t]->Project3D("yxo");
+      nameRes_2D[molt][m][t]="fHistResolution2D" + TorV[t] + Var[m] + Smolt[molt];
+      fHistResolution2D[m][t]->SetName(nameRes_2D[molt][m][t]);
+      /* version to be used if resolution hiostograms are 3D, comment if not */
+      
       nameRes_1D[molt][m][t]="fHistResolution" + TorV[t] + Var[m] + Smolt[molt];
       if(molt< nummolt){
-      fHistResolution_1D[molt][m][t]=(TH1D*)fHistResolution[m][t]->ProjectionX(nameRes_1D[molt][m][t], fHistResolution[m][t]->GetYaxis()->FindBin(Nmolt[molt]+0.0001), fHistResolution[m][t]->GetYaxis()->FindBin(Nmolt[molt+1]-0.0001));
+      fHistResolution_1D[molt][m][t]=(TH1D*)fHistResolution2D[m][t]->ProjectionX(nameRes_1D[molt][m][t], fHistResolution2D[m][t]->GetYaxis()->FindBin(Nmolt[molt]+0.0001), fHistResolution2D[m][t]->GetYaxis()->FindBin(Nmolt[molt+1]-0.0001));
       }
       else {
-      fHistResolution_1D[molt][m][t]=(TH1D*)fHistResolution[m][t]->ProjectionX(nameRes_1D[molt][m][t]);
+      fHistResolution_1D[molt][m][t]=(TH1D*)fHistResolution2D[m][t]->ProjectionX(nameRes_1D[molt][m][t]);
       }
       Int_t normal = fHistResolution_1D[molt][m][t]->GetEntries();
       fHistResolution_1D[molt][m][t]->Scale(1./normal);
@@ -570,12 +704,16 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
       else  canvasRes->cd(m+4);
       fHistResolution_1D[molt][m][t]->GetYaxis()->SetRangeUser(0, 1);
       fHistResolution_1D[molt][m][t]->GetXaxis()->SetRangeUser(-0.05, 0.05);
+      if (m==0 && t==0){
+      fHistResolution_1D[molt][m][t]->GetXaxis()->SetRangeUser(-0.5, 0.5);
+      fHistResolution_1D[molt][m][t]->GetYaxis()->SetRangeUser(0, 0.1);
+      }
       fHistResolution_1D[molt][m][t]->SetMarkerStyle(Marker[molt]);
       fHistResolution_1D[molt][m][t]->SetLineColor(Color[molt]);
       fHistResolution_1D[molt][m][t]->SetMarkerColor(Color[molt]);
       fHistResolution_1D[molt][m][t]->Draw("same");
       if(molt ==nummolt)     legend->Draw();
-  
+      //canvasRes->Close();
       cout << "molt: " << molt << " sto riempiendo histo " <<  nameRes_1D[molt][m][t]<< endl;
     }
     }
@@ -584,7 +722,7 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
 
     HistContTrigger[molt]=(TH2D*)list3->FindObject(Form("fHistPrimaryTrigger_%i_cut%i", molt, sysTrigger)); //histo tipo di trigger (primario, secondario) vs pT trigger
     cout << "deficit " << endl;
-    HistContV0[molt]=(TH2D*)list2->FindObject(Form("fHistPrimaryV0_%i_cut%i", molt, 0));//histo tipo di V0 (primario, secondario) vs pT V0
+    HistContV0PtTMax[molt]=(TH3D*)list2->FindObject(Form("fHistPrimaryV0_%i_cut%i", molt, sysV0hh));//histo tipo di V0 (primario, secondario) vs pT V0
 
     HistInt[molt]=HistContTrigger[molt]->ProjectionX("", HistContTrigger[molt]->GetYaxis()->FindBin(ptjmin+0.00001),HistContTrigger[molt]->GetYaxis()->FindBin(ptjmax-0.0001));
     if((HistInt[molt]->GetBinContent(1) + HistInt[molt]->GetBinContent(2) + HistInt[molt]->GetBinContent(3)+ HistInt[molt]->GetBinContent(4)) != 0){
@@ -604,9 +742,12 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
     HistContTriggerMolt->SetMarkerStyle(ColorSysTrigger[sysTrigger]);
     HistContTriggerMolt->SetLineColor(ColorSysTrigger[sysTrigger]);
     HistContTriggerMolt->SetMarkerColor(ColorSysTrigger[sysTrigger]);
-    HistContTriggerMolt->Draw("e");
+    // HistContTriggerMolt->Draw("e");
     HistContTriggerMolt->Draw();
     
+    HistContV0PtTMax[molt]->GetZaxis()->SetRange(    HistContV0PtTMax[molt]->GetZaxis()->FindBin(PtTrigMin+0.001),    HistContV0PtTMax[molt]->GetZaxis()->FindBin(PtTrigMax-0.0001));
+    HistContV0[molt]=(TH2D*)HistContV0PtTMax[molt]->Project3D("yxo");
+    HistContV0[molt]->SetName("HistContV0_"+Smolt[molt]);
     HistInt[molt]=      HistContV0[molt]->ProjectionX();
     ContV0[molt]=1. - (Double_t)(HistInt[molt]->GetBinContent(1))/(HistInt[molt]->GetBinContent(1) + HistInt[molt]->GetBinContent(2) + HistInt[molt]->GetBinContent(3)+ HistInt[molt]->GetBinContent(4));
 
@@ -617,18 +758,27 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
     HistContTriggerPt[molt]->GetXaxis()->SetTitle("p_T^{Trigg}");
     HistContTriggerPt[molt]->GetXaxis()->SetTitleSize(1.5);
     HistContTriggerPt[molt]->GetYaxis()->SetTitle("C factor");
+    HistContTriggerPt[molt]->SetStats(0);
 
     HistContV0Pt[molt]=new TH1D("HistContV0Pt_"+Smolt[molt], Form("HistContV0Pt_%i", molt),HistContV0[molt]->GetNbinsY(),HistContV0[molt]->GetYaxis()->GetBinLowEdge(1), HistContV0[molt]->GetYaxis()->GetBinUpEdge(HistContV0[molt]->GetNbinsY()) );
     HistContV0Pt[molt]->SetTitle("HistContV0Pt_"+Smolt[molt]);
     HistContV0Pt[molt]->GetXaxis()->SetTitle("p_T^{Assoc}");
+    HistContV0Pt[molt]->GetXaxis()->SetTitleSize(1.5);
     HistContV0Pt[molt]->GetYaxis()->SetTitle("C factor");
 
     HistContV0PtBins[molt]=new TH1D("HistContV0PtBins_"+Smolt[molt], Form("HistContV0PtBins_%i", molt),numPtV0, NPtV0 );
-    HistContV0PtBins[molt]->SetTitle("HistContV0PtBins_"+Smolt[molt]);
-    HistContV0PtBins[molt]->GetXaxis()->SetTitle("p_T^{Assoc}");
-    HistContV0PtBins[molt]->GetYaxis()->SetTitle("C factor");
-
-
+    HistContV0PtBins[molt]->SetTitle("");
+    HistContV0PtBins[molt]->GetXaxis()->SetTitle("p_{T}^{Assoc}");
+    HistContV0PtBins[molt]->GetYaxis()->SetTitle("C_{Assoc}");
+    HistContV0PtBins[molt]->GetXaxis()->SetTitleSize(0.045);
+    HistContV0PtBins[molt]->GetYaxis()->SetTitleSize(0.045);
+    HistContV0PtBins[molt]->GetYaxis()->SetTitleOffset(1);
+    HistContV0PtBins[molt]->SetStats(0);
+    /*
+    canvascontv0->cd();
+    HistContV0PtBins[molt]->Draw("same");
+    if (molt==nummolt)    legend->Draw("same");
+    */
     Double_t denom=0;
     Double_t num=0;
 
@@ -692,15 +842,12 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
 
     canvasUsed->cd(4);
     HistContV0PtBins[molt]->GetYaxis()->SetRangeUser(0,0.005);
+    if (ishhCorr)     HistContV0PtBins[molt]->GetYaxis()->SetRangeUser(0,0.05);
     HistContV0PtBins[molt]->SetMarkerStyle(Marker[molt]);
     HistContV0PtBins[molt]->SetLineColor(Color[molt]);
     HistContV0PtBins[molt]->SetMarkerColor(Color[molt]);
     HistContV0PtBins[molt]->Draw("samee");
     if(molt ==nummolt)     legend->Draw();
-
-    // canvasEffBis[3]->cd();
-    // HistContV0PtBins[molt]->Draw("samee");
-    // if(molt ==nummolt)     legend->Draw();
 
     canvasCont->cd(1);
     HistContTriggerPt[molt]->Rebin(2);
@@ -711,7 +858,7 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
     HistContTriggerPt[molt]->Draw("same");
     if(molt ==nummolt)     legend->Draw();
 
-
+    //    canvasUsed->Close();
     canvasCont->cd(2);
     HistContV0Pt[molt]->Rebin(2);
     HistContV0Pt[molt]->GetYaxis()->SetRangeUser(0, 0.15);
@@ -720,7 +867,7 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
     HistContV0Pt[molt]->SetMarkerColor(Color[molt]);
     HistContV0Pt[molt]->Draw("same");
     if(molt ==nummolt)     legend->Draw();
-
+    //    canvasCont->Close();
   
   }
 
@@ -765,9 +912,13 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
 */
   HistoTriggerEfficiency->Write();
   HistContTriggerMolt->Write();   
+  fileoutbis->WriteTObject( canvasEff);
+  fileoutbis->WriteTObject( canvasRes);
+  fileoutbis->WriteTObject( canvasCont);
+  fileoutbis->WriteTObject( canvasUsed);
 
   for(Int_t m=0; m<nummolt+1; m++){
-
+    fHistSelected_2D_V0PtPtTMax[m]->Write();
     fHistTriggerEfficiencyPtPhi[m]->Write();
     fHistTriggerEfficiencyPtEta[m]->Write();
     fHistSelected_1D_TriggerPt[m]->Write();
@@ -826,9 +977,9 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
   HistoTriggerEfficiency->SetLineColor(1);
   HistoTriggerEfficiency->SetMarkerColor(1);
   HistoTriggerEfficiency->Draw();
+  TriggerEfficiencyC->Close();
 
-
-  TCanvas *TriggerEfficiencyD = new TCanvas("triggeredffd", "triggereff", 800, 600);
+  TCanvas *TriggerEfficiencyD = new TCanvas("triggeredffd", "trigger cont factor", 800, 600);
   TriggerEfficiencyD->cd();
     HistContTriggerMolt->GetYaxis()->SetRangeUser(0,0.015);
     HistContTriggerMolt->GetYaxis()->SetTitle("C_{Trigg}");
@@ -842,9 +993,49 @@ void Efficiency(Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysT
     HistContTriggerMolt->SetMarkerColor(1);
 
   HistContTriggerMolt->Draw();
+  TriggerEfficiencyD->Close();
 
-  
+  cout << "*************Resolution information********************" << endl;
+
+    for(Int_t t=0; t< 2; t++){
+      if (t==0) cout << "Trigger: " << endl;
+      if (t==1) cout << "V0: " << endl;
+    for(Int_t m=0; m< 3; m++){
+      if (m==0) cout << "Pt resolution" << endl;
+      if (m==1) cout << "Eta resolution" << endl;
+      if (m==2) cout << "Phi resolution" << endl;
+      for (Int_t molt=0; molt < nummolt+1; molt++){
+	cout << " Molt class: " << SmoltLegend[molt] << ", Mean: "<<      fHistResolution_1D[molt][m][t]->GetMean()<< " RMS: "<< fHistResolution_1D[molt][m][t]->GetRMS()<< endl ;
+    }
+    }
+    }
+    cout << "\n\n" << endl;
+    cout << "bin width of EffTriggerPt: " <<     fHistTriggerEfficiencyPt[0]->GetXaxis()->GetBinWidth(1)<< " GeV/c" << endl;
+    cout << "bin width  of EffTriggerEta: " <<     fHistTriggerEfficiencyEta[0]->GetXaxis()->GetBinWidth(1) << endl;
+    cout << "bin width  of EffTriggerPhi: " <<     fHistTriggerEfficiencyPhi[0]->GetXaxis()->GetBinWidth(1)<< endl;
+    cout << "bin width  of EffV0Pt: " <<     fHistV0EfficiencyPt[0]->GetXaxis()->GetBinWidth(1)<< " GeV/c " <<endl;
+    cout << "bin width  of EffV0Eta: " <<     fHistV0EfficiencyEta[0]->GetXaxis()->GetBinWidth(1)<< endl;
+      cout << "bin width  of EffV0Phi: " <<     fHistV0EfficiencyPhi[0]->GetXaxis()->GetBinWidth(1)<< endl;
+
+    cout << "\n\n" << endl;
+    cout << "bin width in #sigmas resolution of EffTriggerPt: " <<     fHistTriggerEfficiencyPt[0]->GetXaxis()->GetBinWidth(1)/fHistResolution_1D[0][0][0]->GetRMS()<< endl;
+    cout << "bin width in #sigmas resolution of EffTriggerEta: " <<     fHistTriggerEfficiencyEta[0]->GetXaxis()->GetBinWidth(1)/fHistResolution_1D[0][1][0]->GetRMS()<< endl;
+    cout << "bin width in #sigmas resolution of EffTriggerPhi: " <<     fHistTriggerEfficiencyPhi[0]->GetXaxis()->GetBinWidth(1)/fHistResolution_1D[0][2][0]->GetRMS()<< endl;
+    cout << "bin width in #sigmas resolution of EffV0Pt: " <<     fHistV0EfficiencyPt[0]->GetXaxis()->GetBinWidth(1)/fHistResolution_1D[0][0][1]->GetRMS()<< endl;
+    cout << "bin width in #sigmas resolution of EffV0Eta: " <<     fHistV0EfficiencyEta[0]->GetXaxis()->GetBinWidth(1)/fHistResolution_1D[0][1][1]->GetRMS()<< endl;
+    cout << "bin width in #sigmas resolution of EffV0Phi: " <<     fHistV0EfficiencyPhi[0]->GetXaxis()->GetBinWidth(1)/fHistResolution_1D[0][2][1]->GetRMS()<< endl;
+
+  cout << endl;  
+  for (Int_t molt=0; molt < nummolt+1; molt++){
+  cout << " numero di particelle di trigger selezionate: " << SelEntries[molt]  <<  endl;
+  cout << " numero di particelle di trigger selezionate con pT > 3 GeV/c: " << SelEntriespT3[molt]  <<  endl;
+  cout << " numero di particelle di trigger selezionate sul totale di particelle di trigger con pT>3 GeV/c: " << SelEntries[molt]/SelEntriespT3[molt] << endl;
+  }
+
   cout << "******************************************************************"<< endl;
   cout << "partendo dai file "  << PathInBis << " ho creato: "<< endl;
   cout << "il file " << PathOut2 << endl;
+
+  cout << "\n\n Run it for sysV0=0,..,6 if !ishhCorr, else for sysV0=0,1,2" << endl;
+  cout << "Run it for sysTrigger=0,1,2 (although results won't be used)" << endl;
 }

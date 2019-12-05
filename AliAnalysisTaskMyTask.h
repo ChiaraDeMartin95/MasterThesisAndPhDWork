@@ -25,11 +25,14 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
   
   void SetMinPt(Float_t ptmin) {fminPtj = ptmin;}
   void SetMaxPt(Float_t ptmax) {fmaxPtj = ptmax;}
+  void SetCorr(Bool_t ishhCorr){fIshhCorr = ishhCorr;}
   void SetMC(Bool_t isMC){fReadMCTruth = isMC;}
   void SetEff(Bool_t isEff){isEfficiency = isEff;}
   void SetEvtToMix(Int_t EvtToMix){fnEventsToMix = EvtToMix;}
+  void SetEtaTrigger(Float_t EtaTrigger){fEtaTrigger = EtaTrigger;}
+  void SetEtahAssoc(Float_t EtahAssoc){fEtahAssoc = EtahAssoc;}
 
-  void ProcessMCParticles(Bool_t Generated, AliAODTrack* track, Int_t& labelPrimOrSec, Float_t lPercentiles, Bool_t isV0, Double_t ZAtDCA);
+  void ProcessMCParticles(Bool_t Generated, AliAODTrack* track, Int_t& labelPrimOrSec, Float_t lPercentiles, Bool_t isV0, Double_t ZAtDCA, Float_t PtTriggMax, Bool_t fIshhCorr);
   // double CalculateMass(double momentum1[3], double momentum2[3], double mass1, double mass2); */
   Double_t CalculateDeltaTheta( Double_t theta1, Double_t theta2 ); 
   Double_t CalculateDeltaPhi( Double_t phi1, Double_t phi2 ) ; 
@@ -39,7 +42,7 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
   //  Double_t ThetaS( Double_t posSftR125[3] )const; 
   //Double_t EtaS( Double_t posSftR125[3] ) const ; 
 
-   void DoPairsh1h2 ( const Float_t lcentrality, int fieldsignf, Double_t lBestPrimaryVtxPos);
+  void DoPairsh1h2 ( const Float_t lcentrality, int fieldsignf, Double_t lBestPrimaryVtxPos, Float_t ptTriggerMassimo);
   //void DoPairshh ( const Float_t lcentrality, int fieldsignf);
 
  private:
@@ -47,7 +50,7 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
   TString                 fCollidingSystem;               // "pp", "pPb", "PbPb" 
   AliAODEvent*            fAOD;             //! input event
   AliPIDResponse *        fPIDResponse;     //!PID response object 
-  //AliMultSelection *      fMultSelection;   //! 
+  //  AliMultSelection *      fMultSelection;   //! 
   AliEventCuts            fEventCuts; //! 
   
   TList*                  fOutputList;      //! output list
@@ -58,6 +61,7 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
   
   AliMCEvent *            fMCEvent;         //!
   Bool_t                  fReadMCTruth;
+  Bool_t                  fIshhCorr;
   Bool_t                  isEfficiency;
   AliAnalysisKPEventCollectionChiara ***fEventColl;  //!
   AliAnalysisKPEventChiara *    fEvt;                //!
@@ -67,23 +71,40 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
   Int_t                    fMaxFirstMult;
   Int_t                    fMaxSecondMult;
   Int_t                    fnEventsToMix;
+  Float_t                    fEtaTrigger;
+  Float_t                    fEtahAssoc;
 
    TH1F*                   fHistPt;          //! 
+   TH1F*                   fHistPtTriggerParticle;          //! 
    TH1F*                   fHistDCAxym1;          //! 
    TH1F*                   fHistDCAxym2;          //! 
    TH1F*                   fHistDCAzm1;          //! 
    TH1F*                   fHistDCAzm2;          //! 
    TH1F*                   fHistPtV0;          //! 
-   TH1F*                   fHistPtTMin;          //! 
-   TH1F*                   fHistPtTMinMC;          //! 
+   TH1F*                   fHistPthAssoc;          //! 
+   TH1F*                   fHistPtTMinBefAll;          //! 
+   TH1F*                   fHistPtTMinBefAllMC;          //! 
+   TH1F*                   fHistPtTMaxBefAll;          //! 
+   TH1F*                   fHistPtTMaxBefAllBis;          //! 
+   TH1F*                   fHistPtTMaxBefAllMC;          //! 
    TH2F*                   fHistPtvsMult;          //! 
    TH2F*                   fHistPtvsMultBefAll;          //! 
+   TH2F*                   fHistPtMaxvsMult;          //! 
+   TH2F*                   fHistPtMaxvsMultBefAll;          //! 
   TH1F *                  fHistZvertex;     //!
-  TH2F *                  fHist_eta_phi ;   //!
+  TH3F* fHistNumberChargedAllEvents; //!
+  TH3F* fHistNumberChargedNoTrigger; //!
+  TH3F* fHistNumberChargedTrigger; //!
+  TH2F *                  fHist_eta_phi;   //!
+  TH2F *                  fHist_eta_phi_PtMax;   //!
   TH1F*                   fHist_multiplicity; //!
+  TH1F*                   fHist_multiplicity_EvwTrigger; //!
   TH1F*                   fHistEventMult;   //!
   TH1F*                   fHistEventV0;   //!
   TH1F*                   fHistTrack;       //!
+  TH2F* fHistTriggerComposition; //! 
+  TH2F* fHistTriggerCompositionMCTruth; //! 
+  TH1F*                   fHistTrackAssoc;       //!
   TH1F*                   fHistPDG;         //!	
   TH1F*                   fHistTrackBufferOverflow;         //!	
   TH2F*                   fHistSecondParticleAll; //!
@@ -97,6 +118,8 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
   TH2F *                  fHistMultvsV0; //!
   TH2F *                  fHistMultvsV0Truth; //!
   TH2F *                  fHistMultvsV0MC; //!
+  TH3F*  fHistTriggerNotLeading; //!
+    TH3F*  fHistTriggerNotLeadingMC; //!
   TH2F**                   fHistMassvsPt;                               //!
   TH2F**                   fHistMassvsPt_tagli;                         //!
   TH2F*                  fHistMultvsTriggerBefAll; //!
@@ -121,30 +144,34 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
   TH1F*                  fHistMultiplicityOfMixedEvent; //!
   TH3F *  fHistGeneratedTriggerPtPhi; //!
   TH3F **  fHistSelectedTriggerPtPhi; //!
-  TH3F **  fHistGeneratedV0PtPhi; //!
-  TH3F **  fHistSelectedV0PtPhi; //!
+  TH3F **  fHistGeneratedV0PtTMaxPhi; //!
+  TH3F **  fHistSelectedV0PtTMaxPhi; //!
   TH3F *  fHistGeneratedTriggerPtEta; //!
   TH3F **  fHistSelectedTriggerPtEta; //!
-   TH3F **  fHistGeneratedV0PtEta; //!
-  TH3F **  fHistSelectedV0PtEta; //!
+   TH3F **  fHistGeneratedV0PtTMaxEta; //!
+  TH3F **    fHistSelectedV0PtTMaxEta; //!
+  TH3F **  fHistGeneratedV0PtPtTMax; //!
+  TH3F **  fHistSelectedV0PtPtTMax; //!
   TH3F *  fHistReconstructedV0PtMass; //!
   TH3F *  fHistSelectedV0PtMass; //!  
 
-TH2F*  fHistResolutionTriggerPt; //!
-TH2F*  fHistResolutionTriggerPhi; //!
-TH2F*  fHistResolutionTriggerEta; //!
-TH2F*  fHistResolutionV0Pt; //!
-TH2F*  fHistResolutionV0Phi; //!
-TH2F*  fHistResolutionV0Eta; //!
+TH3F*  fHistResolutionTriggerPt; //!
+TH3F*  fHistResolutionTriggerPhi; //!
+TH3F*  fHistResolutionTriggerEta; //!
+TH3F*  fHistResolutionV0Pt; //!
+TH3F*  fHistResolutionV0Phi; //!
+TH3F*  fHistResolutionV0Eta; //!
 
   TH2F *** fHistPrimaryTrigger; //!
-  TH2F ***  fHistPrimaryV0; //!  
+  TH3F ***  fHistPrimaryV0; //!  
  
   Float_t                 fminPtj;
   Float_t                 fmaxPtj;
   TString                 fV0;
   Float_t                 fminPtV0;
   Float_t                 fmaxPtV0;
+  Float_t                 fminPthAssoc;
+  Float_t                 fmaxPthAssoc;
   Int_t                   Evcounter;
   Int_t                   Evcounterczero;
   Int_t                   fmolt;
@@ -158,7 +185,10 @@ TH2F*  fHistResolutionV0Eta; //!
   Double_t fTreeVariableEtaTrigger; 		       
   Double_t fTreeVariablePhiTrigger;		       
   Double_t fTreeVariableDCAz;			       
-  Double_t fTreeVariableDCAxy;			       
+  Double_t fTreeVariableDCAxy;
+  Double_t fTreeVariableChargeAssoc;			       
+  Double_t fTreeVariableAssocDCAz;			       
+  Double_t fTreeVariableAssocDCAxy;			       
   Double_t fTreeVariableRapK0Short;		       	      
   Double_t fTreeVariableisPrimaryTrigger;
   Double_t fTreeVariableisPrimaryV0;

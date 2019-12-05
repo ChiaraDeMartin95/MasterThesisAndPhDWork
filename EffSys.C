@@ -17,7 +17,12 @@
 #include <TLegend.h>
 #include <TFile.h>
 
-void EffSys(  TString file = "2018d8_DCACorrFinal_MCEff", TString inputDir="FinalOutput/DATA2016", Bool_t year0=""){
+void EffSys(Bool_t ishhCorr=1, Float_t PtTrigMin=3.0,TString file = "2018f1_extra", TString inputDir="FinalOutput/DATA2016", Bool_t year0=""){
+
+  Int_t hhCorr =0;
+  if (ishhCorr==0) hhCorr=0;
+  if (ishhCorr==1) hhCorr=1;
+  TString StringhhCorr[2]={"", "_hhCorr"};
 
   TString PathInBis;
   TFile *fileinbis;
@@ -33,11 +38,16 @@ void EffSys(  TString file = "2018d8_DCACorrFinal_MCEff", TString inputDir="Fina
   const Int_t numSelV0=6;
   const Int_t numSysTrigger = 3;
   const Int_t numSysV0 = 7;
+  const Int_t numSysh  = 3;
+  Int_t numSysV0Loop=0;
+  if (!ishhCorr)numSysV0Loop = numSysV0;
+  if (ishhCorr)numSysV0Loop = numSysh;
 
   TString tipo[numtipo]={"kK0s", "bo"};
   TString Smolt[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "_all"};
   TString SysT[numSysTrigger]={"DCAz < 1","DCAz < 2","DCAz < 0.5"};
   TString SysV0[numSysV0]={"default", "cosTP> 0.997", "ctau <3 ", "YK0s < 0.5", "Lrejection 10 MeV","no Lrejection 5 MeV", "V0dca< 0.3"}; //all except no Lrejecxtion 5 MeV are done with the default cut on (i.e. Lrejection 5 MeV)
+  TString Sysh[numSysV0Loop]={"DCAz < 1", "DCAz < 2", "DCAz < 0.5 "};
   Double_t Nmolt[nummolt+1]={0,5,10,30,50,100}; 
   TString Szeta[numzeta]={""};
   //  Double_t Nzeta[numzeta+1]={};
@@ -61,11 +71,11 @@ void EffSys(  TString file = "2018d8_DCACorrFinal_MCEff", TString inputDir="Fina
   TCanvas *canvasSysPercV0=new TCanvas ("canvasSysPercV0", "canvasSysPercV0", 1500, 800);
   //  TCanvas *canvasSysBarlowV0=new TCanvas ("canvasSysBarlowV0", "canvasSysBarlowV0", 1500, 800);
   TCanvas *canvasSysPercV0Bis=new TCanvas ("canvasSysPercV0Bis", "canvasSysPercV0Bis", 1500, 800);
-  TCanvas *canvasSysPercV0Zoom=new TCanvas ("canvasSysPercV0Zoom", "canvasSysPercV0Zoom", 1500, 800);
+  //  TCanvas *canvasSysPercV0Zoom=new TCanvas ("canvasSysPercV0Zoom", "canvasSysPercV0Zoom", 1500, 800);
   canvasSysPercT->Divide(2,1);
   canvasSysPercV0->Divide(3,2);
   //canvasSysBarlowV0->Divide(3,2);
-  canvasSysPercV0Zoom->Divide(3,2);
+  //  canvasSysPercV0Zoom->Divide(3,2);
   canvasSysPercV0Bis->Divide(3,2);
 
   TH1D *histoEff;
@@ -81,10 +91,11 @@ void EffSys(  TString file = "2018d8_DCACorrFinal_MCEff", TString inputDir="Fina
   auto legendV0 = new TLegend(0.7, 0.7, 0.9, 0.9);
   legendV0->SetHeader("Selezioni applicate");     
 
-  TFile *fileEffT=new TFile(inputDir + file +"_EffT.root", "RECREATE");
-    TFile *fileContT=new TFile(inputDir + file +"_ContT.root", "RECREATE");
+  TFile *fileEffT=new TFile(inputDir + file +StringhhCorr[hhCorr]+Form("_EffT_PtMin%.1f.root", PtTrigMin), "RECREATE");
+  TFile *fileContT=new TFile(inputDir + file +StringhhCorr[hhCorr]+ Form("_ContT_PtMin%.1f.root", PtTrigMin), "RECREATE");
   for(Int_t i=0; i < numSysTrigger; i++){
-    PathInBis=inputDir + file + Form("_Efficiency_SysT%i_SysV0%i.root",i, 0);
+    PathInBis=inputDir + file + Form("_SysT%i_SysV0%i_PtMin%.1f.root",i, 0, PtTrigMin);
+    if (ishhCorr)     PathInBis=inputDir + file + Form("_hhCorr_SysT%i_SysV0%i_PtMin%.1f.root",i, 0, PtTrigMin);
     fileinbis = new TFile(PathInBis);
 
     if(i==0) {
@@ -95,7 +106,7 @@ void EffSys(  TString file = "2018d8_DCACorrFinal_MCEff", TString inputDir="Fina
     histoEff=(TH1D*)fileinbis->Get("HistoTriggerEfficiency");
     histoEffPerc=(TH1D*)histoEff->Clone("HistoTriggerEfficiencyPerc");
     canvasSysT->cd(1);
-    histoEff->GetYaxis()->SetRangeUser(0.7,0.9);
+    histoEff->GetYaxis()->SetRangeUser(0.5,0.9);
     histoEff->SetMarkerStyle(Marker[i]);
     histoEff->SetLineColor(Color[i]);
     histoEff->SetMarkerColor(Color[i]);
@@ -141,10 +152,11 @@ void EffSys(  TString file = "2018d8_DCACorrFinal_MCEff", TString inputDir="Fina
 
   }
 
-  TFile *fileEffV0=new TFile(inputDir + file +"_EffV0.root", "RECREATE");
+  TFile *fileEffV0=new TFile(inputDir + file +StringhhCorr[hhCorr]+Form("_EffV0_PtMin%.1f.root", PtTrigMin), "RECREATE");
   for(Int_t molt=0; molt< nummolt+1; molt++){
-    for(Int_t i=0; i < numSysV0     ; i++){
-      PathInBis=inputDir + file + Form("_Efficiency_SysT%i_SysV0%i.root",0, i);
+    for(Int_t i=0; i < numSysV0Loop    ; i++){
+      PathInBis=inputDir + file + Form("_SysT%i_SysV0%i_PtMin%.1f.root",0, i, PtTrigMin);
+      if (ishhCorr)       PathInBis=inputDir + file + Form("_hhCorr_SysT%i_SysV0%i_PtMin%.1f.root",0, i, PtTrigMin);
       fileinbis = new TFile(PathInBis);
       if(i==0) {
 	histoEffMaster=(TH1D*)fileinbis->Get("fHistV0EfficiencyPtBins_" + Smolt[molt]);
@@ -154,12 +166,14 @@ void EffSys(  TString file = "2018d8_DCACorrFinal_MCEff", TString inputDir="Fina
       
       canvasSysV0->cd(molt+1);    
       histoEff->GetYaxis()->SetRangeUser(0,0.3);
+      if (ishhCorr)      histoEff->GetYaxis()->SetRangeUser(0,1);
       histoEff->SetMarkerStyle(Marker[i]);
       histoEff->SetLineColor(Color[i]);
       histoEff->SetMarkerColor(Color[i]);
-      if (molt==0) legendV0->AddEntry(histoEff,SysV0[i],"pel");   
+      if (molt==0 && !ishhCorr) legendV0->AddEntry(histoEff,SysV0[i],"pel");   
+      if (molt==0 && ishhCorr) legendV0->AddEntry(histoEff,Sysh[i],"pel");   
       histoEff->Draw("samee");
-      if(i==numSysV0-1) legendV0->Draw();
+      if(i==numSysV0Loop-1) legendV0->Draw();
       fileEffV0->cd();
       histoEff->Write();
 
@@ -172,11 +186,12 @@ void EffSys(  TString file = "2018d8_DCACorrFinal_MCEff", TString inputDir="Fina
       }
       canvasSysPercV0->cd(molt+1);  
       histoEffPerc->GetYaxis()->SetRangeUser(-0.4,0.4);
+      if (ishhCorr)       histoEffPerc->GetYaxis()->SetRangeUser(-0.002,0.002);
       histoEffPerc->SetMarkerStyle(Marker[i]);
       histoEffPerc->SetLineColor(Color[i]);
       histoEffPerc->SetMarkerColor(Color[i]);
       histoEffPerc->Draw("samee");
-      if(i==numSysV0-1) legendV0->Draw();
+      if(i==numSysV0Loop-1) legendV0->Draw();
 
       /*
       histoEffBarlow=(TH1D*)histoEff->Clone("histoEffBarlow");
@@ -209,7 +224,7 @@ void EffSys(  TString file = "2018d8_DCACorrFinal_MCEff", TString inputDir="Fina
       histoEffBarlow->SetLineColor(Color[i]);
       histoEffBarlow->SetMarkerColor(Color[i]);
       histoEffBarlow->Draw("samee");
-      if(i==numSysV0-1) legendV0->Draw();
+      if(i==numSysV0Loop-1) legendV0->Draw();
 
       // if (i!=3){
       // canvasSysPercV0Zoom->cd(molt+1);  
@@ -218,15 +233,16 @@ void EffSys(  TString file = "2018d8_DCACorrFinal_MCEff", TString inputDir="Fina
       // histoEffPerc->SetLineColor(Color[i]);
       // histoEffPerc->SetMarkerColor(Color[i]);
       // histoEffPerc->Draw("samee");
-      // if(i==numSysV0-1) legendV0->Draw();
+      // if(i==numSysV0Loop-1) legendV0->Draw();
       // }
       */
     }
   }
     
   for(Int_t molt=0; molt< nummolt+1; molt++){
-    for(Int_t i=0; i < 1     ; i++){
-      PathInBis=inputDir + file + Form("_Efficiency_SysT%i_SysV0%i.root",0, i);
+    for(Int_t i=0; i < numSysV0Loop     ; i++){
+      PathInBis=inputDir + file + Form("_SysT%i_SysV0%i_PtMin%.1f.root",0, i, PtTrigMin);
+      if(ishhCorr)       PathInBis=inputDir + file + Form("_hhCorr_SysT%i_SysV0%i_PtMin%.1f.root",0, i, PtTrigMin);
       fileinbis = new TFile(PathInBis);
       if(i==0) {
 	HistContMoltMaster=(TH1D*)fileinbis->Get("HistContV0PtBins_"+Smolt[molt]);
@@ -236,11 +252,12 @@ void EffSys(  TString file = "2018d8_DCACorrFinal_MCEff", TString inputDir="Fina
       
       canvasSysV0Bis->cd(molt+1);
       HistContMolt->GetYaxis()->SetRangeUser(0,0.005);
+      if (ishhCorr)      HistContMolt->GetYaxis()->SetRangeUser(0,0.07);
       HistContMolt->SetMarkerStyle(Marker[i]);
       HistContMolt->SetLineColor(Color[i]);
       HistContMolt->SetMarkerColor(Color[i]);
       HistContMolt->Draw("same");
-      //  if(i==numSysV0-1) legendV0->Draw();
+      if(i==numSysV0Loop-1) legendV0->Draw();
       legendV0->Draw();
 
       for(Int_t j=1; j<= HistContMolt->GetNbinsX(); j++){
@@ -255,12 +272,12 @@ void EffSys(  TString file = "2018d8_DCACorrFinal_MCEff", TString inputDir="Fina
       HistContMoltPerc->SetLineColor(Color[i]);
       HistContMoltPerc->SetMarkerColor(Color[i]);
       HistContMoltPerc->Draw("same");
-      //if(i==numSysV0-1) legend->Draw();
+      if(i==numSysV0Loop-1) legend->Draw();
       legendV0->Draw();
     }
   }
 
 
-  cout << "ho creato ii file:\n " << inputDir + file +"_EffT.root"<< "\n" << inputDir + file +"_EffV0.root" << " \n" << endl;
+  cout << "ho creato ii file:\n " << inputDir + file +StringhhCorr[hhCorr]+Form("_EffT_PtMin%.1f.root", PtTrigMin) << "\n" << inputDir + file+ StringhhCorr[hhCorr]+Form("_EffV0_PtMin%.1f.root", PtTrigMin) << " \n" << endl;
 }
 
