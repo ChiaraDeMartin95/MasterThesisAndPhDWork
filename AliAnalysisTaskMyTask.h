@@ -82,6 +82,7 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
    TH1F*                   fHistDCAzm2;          //! 
    TH1F*                   fHistPtV0;          //! 
    TH1F*                   fHistPthAssoc;          //! 
+   TH2F*                   fHistPtTMaxBefAllCfrDataMC; //!
    TH1F*                   fHistPtTMinBefAll;          //! 
    TH1F*                   fHistPtTMinBefAllMC;          //! 
    TH1F*                   fHistPtTMaxBefAll;          //! 
@@ -104,6 +105,8 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
   TH1F*                   fHistTrack;       //!
   TH2F* fHistTriggerComposition; //! 
   TH2F* fHistTriggerCompositionMCTruth; //! 
+  TH2F* fHistAssocComposition; //! 
+  TH2F* fHistAssocCompositionMCTruth; //! 
   TH1F*                   fHistTrackAssoc;       //!
   TH1F*                   fHistPDG;         //!	
   TH1F*                   fHistTrackBufferOverflow;         //!	
@@ -158,8 +161,11 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
 TH3F*  fHistResolutionTriggerPt; //!
 TH3F*  fHistResolutionTriggerPhi; //!
 TH3F*  fHistResolutionTriggerEta; //!
+TH3F*  fHistResolutionTriggerPhiPt; //!
+TH3F*  fHistResolutionTriggerPhiPdgCode; //!
 TH3F*  fHistResolutionV0Pt; //!
 TH3F*  fHistResolutionV0Phi; //!
+TH3F*  fHistResolutionV0PhivsPt; //!
 TH3F*  fHistResolutionV0Eta; //!
 
   TH2F *** fHistPrimaryTrigger; //!
