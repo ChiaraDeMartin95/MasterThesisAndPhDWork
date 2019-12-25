@@ -62,6 +62,7 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask() :AliAnalysisTaskSE(),
   fBkgTree(0), 
   fOutputList2(0),
   fOutputList3(0),  
+  fOutputList4(0),  
   fMCEvent(0), 
   fReadMCTruth(0),
   fIshhCorr(0),
@@ -75,6 +76,7 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask() :AliAnalysisTaskSE(),
   fnEventsToMix(50),
   fEtaTrigger(0.8),
   fEtahAssoc(0.8),
+fFilterBitValue(128),
   fHistPt(0), 
   fHistPtTriggerParticle(0), 
   fHistDCAxym1(0),
@@ -149,25 +151,39 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask() :AliAnalysisTaskSE(),
   fHistMultiplicityOfMixedEvent(0),
   fHistGeneratedTriggerPtPhi(0),
   fHistSelectedTriggerPtPhi(0),
+  fHistSelectedGenTriggerPtPhi(0),
   fHistGeneratedV0PtTMaxPhi(0),
   fHistSelectedV0PtTMaxPhi(0),
   fHistGeneratedTriggerPtEta(0),
   fHistSelectedTriggerPtEta(0),
+  fHistSelectedGenTriggerPtEta(0),
   fHistGeneratedV0PtTMaxEta(0),
   fHistSelectedV0PtTMaxEta(0),
   fHistGeneratedV0PtPtTMax(0),
   fHistSelectedV0PtPtTMax(0),
+  fHistSelectedGenV0PtPtTMax(0),
   fHistReconstructedV0PtMass(0),
   fHistSelectedV0PtMass(0),
+  fHistTriggerPtRecovsPtGen(0),
+  fHistAssocPtRecovsPtGen(0),
+  fHistTriggerPtRecovsPtGenNotPrim(0),
+  fHistAssocPtRecovsPtGenNotPrim(0),
+  fHistTriggerPtRecovsPtGenPion(0),
+  fHistAssocPtRecovsPtGenPion(0),
+  fHistTriggerPtRecovsPtGenProton(0),
+  fHistAssocPtRecovsPtGenProton(0),
+  fHistTriggerPtRecovsPtGenKaon(0),
+  fHistAssocPtRecovsPtGenKaon(0),
   fHistResolutionTriggerPt(0),
   fHistResolutionTriggerPhi(0),
   fHistResolutionTriggerEta(0),
+//  fHistResolutionTriggerPhiPt(0),
+//  fHistResolutionTriggerPhiPdgCode(0),
   fHistResolutionV0Pt(0),
   fHistResolutionV0Phi(0),
   fHistResolutionV0PhivsPt(0),
   fHistResolutionV0Eta(0),
-  fHistResolutionTriggerPhiPt(0),
-  fHistResolutionTriggerPhiPdgCode(0),
+  fHistResolutionV0PtvsPt(0),
   fHistPrimaryTrigger(0),
   fHistPrimaryV0(0),
   fminPtj(2), 
@@ -212,7 +228,8 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask() :AliAnalysisTaskSE(),
   fTreeVariableDeltaTheta(0),			       
   fTreeVariableMultiplicity(0),                   
   fTreeVariableZvertex(0),
-  fTreeVariablePDGCode(0),
+  fTreeVariablePDGCodeTrigger(0),
+  fTreeVariablePDGCodeAssoc(0),
   FifoShiftok(kFALSE)
 {
   // default constructor, don't allocate memory here!
@@ -231,6 +248,7 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask(const char* name) : AliAnalysisTask
 								 fBkgTree(0), 
 								 fOutputList2(0), 
 								 fOutputList3(0), 
+								 fOutputList4(0), 
 								 fMCEvent(0), 
 								 fReadMCTruth(0),
 								 fIshhCorr(0),
@@ -244,6 +262,7 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask(const char* name) : AliAnalysisTask
   fnEventsToMix(50),
   fEtaTrigger(0.8),
   fEtahAssoc(0.8),
+fFilterBitValue(128),
   fHistPt(0), 
   fHistPtTriggerParticle(0), 
   fHistDCAxym1(0),
@@ -317,25 +336,39 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask(const char* name) : AliAnalysisTask
   fHistMultiplicityOfMixedEvent(0),
   fHistGeneratedTriggerPtPhi(0),
   fHistSelectedTriggerPtPhi(0),
+  fHistSelectedGenTriggerPtPhi(0),
   fHistGeneratedV0PtTMaxPhi(0),
   fHistSelectedV0PtTMaxPhi(0),
   fHistGeneratedTriggerPtEta(0),
   fHistSelectedTriggerPtEta(0),
+  fHistSelectedGenTriggerPtEta(0),
   fHistGeneratedV0PtTMaxEta(0),
   fHistSelectedV0PtTMaxEta(0),
   fHistGeneratedV0PtPtTMax(0),
   fHistSelectedV0PtPtTMax(0),
+  fHistSelectedGenV0PtPtTMax(0),
   fHistReconstructedV0PtMass(0),
   fHistSelectedV0PtMass(0),
+  fHistTriggerPtRecovsPtGen(0),
+  fHistAssocPtRecovsPtGen(0),
+  fHistTriggerPtRecovsPtGenNotPrim(0),
+  fHistAssocPtRecovsPtGenNotPrim(0),
+  fHistTriggerPtRecovsPtGenPion(0),
+  fHistAssocPtRecovsPtGenPion(0),
+  fHistTriggerPtRecovsPtGenProton(0),
+  fHistAssocPtRecovsPtGenProton(0),
+  fHistTriggerPtRecovsPtGenKaon(0),
+  fHistAssocPtRecovsPtGenKaon(0),
   fHistResolutionTriggerPt(0),
   fHistResolutionTriggerPhi(0),
   fHistResolutionTriggerEta(0),
+//  fHistResolutionTriggerPhiPt(0),
+//  fHistResolutionTriggerPhiPdgCode(0),
   fHistResolutionV0Pt(0),
   fHistResolutionV0Phi(0),
   fHistResolutionV0PhivsPt(0),
   fHistResolutionV0Eta(0),
-  fHistResolutionTriggerPhiPt(0),
-  fHistResolutionTriggerPhiPdgCode(0),
+  fHistResolutionV0PtvsPt(0),
   fHistPrimaryTrigger(0),
   fHistPrimaryV0(0),
   fminPtj(2), 
@@ -380,7 +413,8 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask(const char* name) : AliAnalysisTask
   fTreeVariableDeltaTheta(0),			       
   fTreeVariableMultiplicity(0),                   
   fTreeVariableZvertex(0),
-  fTreeVariablePDGCode(0),
+  fTreeVariablePDGCodeTrigger(0),
+  fTreeVariablePDGCodeAssoc(0),
   FifoShiftok(kFALSE)
 {
                     
@@ -398,6 +432,7 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask(const char* name) : AliAnalysisTask
   DefineOutput(3, TTree::Class());
   DefineOutput(4, TList::Class());  
   DefineOutput(5, TList::Class());  
+  DefineOutput(6, TList::Class());  
 }
 //_____________________________________________________________________________
 AliAnalysisTaskMyTask::~AliAnalysisTaskMyTask()
@@ -417,6 +452,9 @@ AliAnalysisTaskMyTask::~AliAnalysisTaskMyTask()
   }
   if(fOutputList3) {
     delete fOutputList3;     // at the end of your task, it is deleted from memory by calling this function
+  }
+  if(fOutputList4) {
+    delete fOutputList4;     // at the end of your task, it is deleted from memory by calling this function
   }
   if (farrGT)
     delete[] farrGT;
@@ -501,33 +539,54 @@ void AliAnalysisTaskMyTask::ProcessMCParticles(Bool_t Generated, AliAODTrack *tr
     cout << " ho preso la particle" << endl;
     // AliAODMCParticle* particle = static_cast<AliAODMCParticle*>(AODMCTrackArraybis->At(label));
     //   if(particle->IsPhysicalPrimary() && TMath::Abs(particle->Eta())<=0.8 && particle->Charge()!=0){
-    if(!(particle->IsPhysicalPrimary()))      fHistTriggerComposition->Fill(particle->GetPdgCode(),0);
+    if(!(particle->IsPhysicalPrimary()))     {
+      fHistTriggerComposition->Fill(particle->GetPdgCode(),0);
+      fHistTriggerPtRecovsPtGenNotPrim->Fill(particle->Pt(), track->Pt());
+    }
     if(particle->IsPhysicalPrimary()){
       fHistTriggerComposition->Fill(particle->GetPdgCode(),1);
       cout <<"selected trigger Pt " <<  track->Pt() << endl;
       fHistPtTriggerParticle->Fill(particle->Pt());
       cout << "pt track " << track->Pt() << " pT particle " << particle->Pt()<< endl;
-      fHistResolutionTriggerPt->Fill(track->Pt()- particle->Pt(), lPercentiles, track->Pt()); //PtTriggerMax
-      fHistResolutionTriggerPhi->Fill(track->Phi()- particle->Phi(), lPercentiles, track->Pt());
-      fHistResolutionTriggerEta->Fill(track->Eta()- particle->Eta(), lPercentiles, track->Pt());
-      if (TMath::Abs(track->Phi()- particle->Phi() ) > 0.01){
-	fHistResolutionTriggerPhiPt->Fill(track->Phi()- particle->Phi(), track->Pt()- particle->Pt(), track->Pt());
-	fHistResolutionTriggerPhiPdgCode->Fill(track->Phi()- particle->Phi(),particle->GetPdgCode(), track->Pt());
-      }
+      fHistTriggerPtRecovsPtGen->Fill(particle->Pt(), track->Pt());
+      if (particle->GetPdgCode()==211 || particle->GetPdgCode()==-211)      fHistTriggerPtRecovsPtGenPion->Fill(particle->Pt(), track->Pt());
+      if (particle->GetPdgCode()==2212 || particle->GetPdgCode()==-2212)      fHistTriggerPtRecovsPtGenProton->Fill(particle->Pt(), track->Pt());
+      if (particle->GetPdgCode()==321 || particle->GetPdgCode()==-321)      fHistTriggerPtRecovsPtGenKaon->Fill(particle->Pt(), track->Pt());
 
-      // fHistSelectedTriggerPtPhi[0]->Fill(track->Pt(), track->Phi(), lPercentiles);
-      // fHistSelectedTriggerPtEta[0]->Fill(track->Pt(), track->Eta(), lPercentiles);    
+//res3D     fHistResolutionTriggerPt->Fill(track->Pt()- particle->Pt(), lPercentiles, track->Pt()); //PtTriggerMax
+//res3D     fHistResolutionTriggerPhi->Fill(track->Phi()- particle->Phi(), lPercentiles, track->Pt());
+//res3D     fHistResolutionTriggerEta->Fill(track->Eta()- particle->Eta(), lPercentiles, track->Pt());
+     fHistResolutionTriggerPt->Fill(track->Pt()- particle->Pt(),    track->Pt()); //PtTriggerMax
+     fHistResolutionTriggerPhi->Fill(track->Phi()- particle->Phi(), track->Pt());
+     fHistResolutionTriggerEta->Fill(track->Eta()- particle->Eta(), track->Pt());
+      
+if (TMath::Abs(track->Phi()- particle->Phi() ) > 0.01){
+	//	cout << "I have bad Phi resolution " << endl;
+	//	fHistResolutionTriggerPhiPt->Fill(track->Phi()- particle->Phi(), track->Pt()- particle->Pt(), track->Pt());
+	//	fHistResolutionTriggerPhiPdgCode->Fill(track->Phi()- particle->Phi(),particle->GetPdgCode(), track->Pt());
+      }
+      else 	cout << "I have good Phi resolution " << endl;
+      //      cout << "I've filled resolution histos (part 2) " << endl;
       if(  (TMath::Abs(ZAtDCA) < 2.)) {
 	fHistSelectedTriggerPtPhi[1]->Fill(track->Pt(), track->Phi(), lPercentiles);
 	fHistSelectedTriggerPtEta[1]->Fill(track->Pt(), track->Eta(), lPercentiles);    
+	fHistSelectedGenTriggerPtEta[1]->Fill(particle->Pt(), particle->Eta(), lPercentiles);    
+	fHistSelectedGenTriggerPtPhi[1]->Fill(particle->Pt(), particle->Phi(), lPercentiles);    
+	//	cout << "I'm filling new histo for resol" << endl;
       }
       if(  (TMath::Abs(ZAtDCA) < 1.)) {
 	fHistSelectedTriggerPtPhi[0]->Fill(track->Pt(), track->Phi(), lPercentiles);
 	fHistSelectedTriggerPtEta[0]->Fill(track->Pt(), track->Eta(), lPercentiles);    
+	fHistSelectedGenTriggerPtEta[0]->Fill(particle->Pt(), particle->Eta(), lPercentiles);    
+	fHistSelectedGenTriggerPtPhi[0]->Fill(particle->Pt(), particle->Phi(), lPercentiles);    
+	//	cout << "I'm filling new histo for resol" << endl;
       }
       if( (TMath::Abs(ZAtDCA) < 0.5)) {
 	fHistSelectedTriggerPtPhi[2]->Fill(track->Pt(), track->Phi(), lPercentiles);
 	fHistSelectedTriggerPtEta[2]->Fill(track->Pt(), track->Eta(), lPercentiles);    
+	fHistSelectedGenTriggerPtEta[2]->Fill(particle->Pt(), particle->Eta(), lPercentiles);    
+	fHistSelectedGenTriggerPtPhi[2]->Fill(particle->Pt(), particle->Phi(), lPercentiles);    
+	cout << "I'm filling new histo for resol" << endl;
       }
       labelPrimOrSec=1;
     }
@@ -590,6 +649,8 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
   fOutputList2->SetOwner(kTRUE);     
   fOutputList3 = new TList();         
   fOutputList3->SetOwner(kTRUE);     
+  fOutputList4 = new TList();         
+  fOutputList4->SetOwner(kTRUE);     
   
   fSignalTree= new TTree("fSignalTree","fSignalTree");
   fSignalTree->Branch("fTreeVariablePtTrigger",          &fTreeVariablePtTrigger   , "fTreeVariablePtTrigger/D");
@@ -622,7 +683,9 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
   fSignalTree->Branch("fTreeVariableDeltaTheta",              &fTreeVariableDeltaTheta, "fTreeVariableDeltaTheta/D");
   fSignalTree->Branch("fTreeVariableMultiplicity",       &fTreeVariableMultiplicity , "fTreeVariableMultiplicity/D");
   fSignalTree->Branch("fTreeVariableZvertex",              &fTreeVariableZvertex  , "fTreeVariableZvertex/D");
-  fSignalTree->Branch("fTreeVariablePDGCode",              &fTreeVariablePDGCode  , "fTreeVariablePDGCode/D");
+  fSignalTree->Branch("fTreeVariablePDGCodeTrigger",              &fTreeVariablePDGCodeTrigger  , "fTreeVariablePDGCodeTrigger/D");
+  fSignalTree->Branch("fTreeVariablePDGCodeAssoc",              &fTreeVariablePDGCodeAssoc  , "fTreeVariablePDGCodeAssoc/D");
+
 
   fBkgTree= new TTree("fBkgTree","fBkgTree");
   fBkgTree->Branch("fTreeVariablePtTrigger",          &fTreeVariablePtTrigger   , "fTreeVariablePtTrigger/D");
@@ -655,21 +718,21 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
   fBkgTree->Branch("fTreeVariableDeltaTheta",              &fTreeVariableDeltaTheta, "fTreeVariableDeltaTheta/D");
   fBkgTree->Branch("fTreeVariableMultiplicity",       &fTreeVariableMultiplicity , "fTreeVariableMultiplicity/D");
   fBkgTree->Branch("fTreeVariableZvertex",              &fTreeVariableZvertex  , "fTreeVariableZvertex/D");
-  fBkgTree->Branch("fTreeVariablePDGCode",              &fTreeVariablePDGCode  , "fTreeVariablePDGCode/D");
-
+  fBkgTree->Branch("fTreeVariablePDGCodeTrigger",              &fTreeVariablePDGCodeTrigger  , "fTreeVariablePDGCodeTrigger/D");
+  fBkgTree->Branch("fTreeVariablePDGCodeAssoc",              &fTreeVariablePDGCodeAssoc  , "fTreeVariablePDGCodeAssoc/D");
   
   fHistPt = new TH1F("fHistPt", "p_{T} distribution of selected charged tracks in events used for AC", 300, 0, 30); 
   fHistPt->GetXaxis()->SetTitle("p_{T} (GeV/c)");
   fHistPtTriggerParticle = new TH1F("fHistPtTriggerParticle", "Particle-p_{T} distribution of selected charged tracks in events used for AC", 300, 0, 30); 
   fHistPtTriggerParticle->GetXaxis()->SetTitle("p_{T} (GeV/c)");
  
-  fHistDCAxym1 = new TH1F("fHistDCAxym1", "DCAxy method 1 before DCA cuts", 100, -10, 10); 
+  fHistDCAxym1 = new TH1F("fHistDCAxym1", "DCAxy method 1 before DCA cuts", 1000, -10, 10); 
   fHistDCAxym1->GetXaxis()->SetTitle("DCAxy method 1 (cm)");
-  fHistDCAxym2 = new TH1F("fHistDCAxym2", "DCAxy method 2 before DCA cuts", 100, -10, 10); 
+  fHistDCAxym2 = new TH1F("fHistDCAxym2", "DCAxy method 2 before DCA cuts", 1000, -10, 10); 
   fHistDCAxym2->GetXaxis()->SetTitle("DCAxy method 2 (cm)");
-  fHistDCAzm1 = new TH1F("fHistDCAzm1", "DCAz method 1 before DCA cuts", 100, -10, 10); 
+  fHistDCAzm1 = new TH1F("fHistDCAzm1", "DCAz method 1 before DCA cuts", 1000, -10, 10); 
   fHistDCAzm1->GetXaxis()->SetTitle("DCAz method 1 (cm)");
-  fHistDCAzm2 = new TH1F("fHistDCAzm2", "DCAz method 2 before DCA cuts", 100, -10, 10); 
+  fHistDCAzm2 = new TH1F("fHistDCAzm2", "DCAz method 2 before DCA cuts", 1000, -10, 10); 
   fHistDCAzm2->GetXaxis()->SetTitle("DCAz method 2 (cm)");
  
   fHistPtV0 = new TH1F("fHistPtV0", "p_{T} distribution of selected V0 in events used for AC", 300, 0, 30); 
@@ -981,12 +1044,24 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
     fHistSelectedTriggerPtPhi[j]->GetXaxis()->SetTitle("p_{T}");
     fHistSelectedTriggerPtPhi[j]->GetYaxis()->SetTitle("#phi");
   }
+  fHistSelectedGenTriggerPtPhi= new TH3F*[3];
+  for(Int_t j=0; j<3; j++){
+    fHistSelectedGenTriggerPtPhi[j]=new TH3F(Form("fHistSelectedGenTriggerPtPhi_%i",j), "p_{T} and #phi distribution of selected trigger particles (primary) (p_{T} and #phi generated))", 300, 0, 30, 400,0, 2*TMath::Pi() ,  100, 0, 100);
+    fHistSelectedGenTriggerPtPhi[j]->GetXaxis()->SetTitle("p_{T}");
+    fHistSelectedGenTriggerPtPhi[j]->GetYaxis()->SetTitle("#phi");
+  }
 
   fHistSelectedTriggerPtEta= new TH3F*[3];
   for(Int_t j=0; j<3; j++){
     fHistSelectedTriggerPtEta[j]=new TH3F(Form("fHistSelectedTriggerPtEta_%i",j), "p_{T} and #eta distribution of selected trigger particles (primary)", 300, 0, 30, 400,-1.2, 1.2,  100, 0, 100);
     fHistSelectedTriggerPtEta[j]->GetXaxis()->SetTitle("p_{T}");
     fHistSelectedTriggerPtEta[j]->GetYaxis()->SetTitle("#eta");
+  }
+  fHistSelectedGenTriggerPtEta= new TH3F*[3];
+  for(Int_t j=0; j<3; j++){
+    fHistSelectedGenTriggerPtEta[j]=new TH3F(Form("fHistSelectedGenTriggerPtEta_%i",j), "p_{T} and #eta distribution of selected trigger particles (primary) (p_{T} and #eta generated))", 300, 0, 30, 400,-1.2, 1.2,  100, 0, 100);
+    fHistSelectedGenTriggerPtEta[j]->GetXaxis()->SetTitle("p_{T}");
+    fHistSelectedGenTriggerPtEta[j]->GetYaxis()->SetTitle("#eta");
   }
   
   fHistGeneratedV0PtTMaxPhi=new TH3F*[2];
@@ -1030,6 +1105,12 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
     fHistSelectedV0PtPtTMax[j]->GetXaxis()->SetTitle("p_{T}");
     fHistSelectedV0PtPtTMax[j]->GetYaxis()->SetTitle("p^{Trigg, Max}_{T}");
   }
+  fHistSelectedGenV0PtPtTMax=new TH3F*[7];
+  for(Int_t j=0; j<7; j++){
+    fHistSelectedGenV0PtPtTMax[j]=new TH3F(Form("fHistSelectedGenV0PtPtTMax_%i",j), "p_{T} and p^{Trigg, Max}_{T} distribution of selected V0 particles (K0s, primary, events w T>0) (p_{T} generated)", 300, 0, 30, 60, 0,30,  100, 0, 100 );
+    fHistSelectedGenV0PtPtTMax[j]->GetXaxis()->SetTitle("p_{T}");
+    fHistSelectedGenV0PtPtTMax[j]->GetYaxis()->SetTitle("p^{Trigg, Max}_{T}");
+  }
 
   fHistReconstructedV0PtMass=new TH3F("fHistReconstructedV0PtMass", "p_{T} and mass distribution of reconstructed V0 particles(K0s, primary, event w T>0)", 100, 0.45, 0.55, 160, 0, 16,  100, 0, 100);
   fHistReconstructedV0PtMass->GetYaxis()->SetTitle("p_{T}");
@@ -1039,50 +1120,128 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
   fHistSelectedV0PtMass->GetYaxis()->SetTitle("p_{T}");
   fHistSelectedV0PtMass->GetXaxis()->SetTitle("M_{pi^{+} #pi^{-}}");
 
-  fHistResolutionTriggerPt=new TH3F("fHistResolutionTriggerPt", "p_{T} resolution of selected trigger particles (primary)", 500, -0.5, 0.5, 100, 0, 100, 60,0,30);
+  fHistTriggerPtRecovsPtGen = new TH2F ("fHistTriggerPtRecovsPtGen", "p_{T, reco} vs p_{T, gen} for primary trigger particles", 3000, 0,30,3000, 0,30);
+  fHistTriggerPtRecovsPtGen->GetXaxis()->SetTitle("p_{T, gen}");
+  fHistTriggerPtRecovsPtGen->GetYaxis()->SetTitle("p_{T, reco}");
+
+  fHistTriggerPtRecovsPtGenNotPrim = new TH2F ("fHistTriggerPtRecovsPtGenNotPrim", "p_{T, reco} vs p_{T, gen} for non-primary trigger particles", 3000, 0,30,3000, 0,30);
+  fHistTriggerPtRecovsPtGenNotPrim->GetXaxis()->SetTitle("p_{T, gen}");
+  fHistTriggerPtRecovsPtGenNotPrim->GetYaxis()->SetTitle("p_{T, reco}");
+
+  fHistTriggerPtRecovsPtGenPion = new TH2F ("fHistTriggerPtRecovsPtGenPion", "p_{T, reco} vs p_{T, gen} for primary Pion trigger particles", 3000, 0,30,3000, 0,30);
+  fHistTriggerPtRecovsPtGenPion->GetXaxis()->SetTitle("p_{T, gen}");
+  fHistTriggerPtRecovsPtGenPion->GetYaxis()->SetTitle("p_{T, reco}");
+
+  fHistTriggerPtRecovsPtGenProton = new TH2F ("fHistTriggerPtRecovsPtGenProton", "p_{T, reco} vs p_{T, gen} for primary Proton trigger particles", 3000, 0,30,3000, 0,30);
+  fHistTriggerPtRecovsPtGenProton->GetXaxis()->SetTitle("p_{T, gen}");
+  fHistTriggerPtRecovsPtGenProton->GetYaxis()->SetTitle("p_{T, reco}");
+
+  fHistTriggerPtRecovsPtGenKaon = new TH2F ("fHistTriggerPtRecovsPtGenKaon", "p_{T, reco} vs p_{T, gen} for primary Kaon trigger particles", 3000, 0,30,3000, 0,30);
+  fHistTriggerPtRecovsPtGenKaon->GetXaxis()->SetTitle("p_{T, gen}");
+  fHistTriggerPtRecovsPtGenKaon->GetYaxis()->SetTitle("p_{T, reco}");
+
+  fHistAssocPtRecovsPtGen = new TH2F ("fHistAssocPtRecovsPtGen", "p_{T, reco} vs p_{T, gen} for primary associated particles", 3000, 0,30,3000, 0,30);
+  fHistAssocPtRecovsPtGen->GetXaxis()->SetTitle("p_{T, gen}");
+  fHistAssocPtRecovsPtGen->GetYaxis()->SetTitle("p_{T, reco}");
+
+  fHistAssocPtRecovsPtGenNotPrim = new TH2F ("fHistAssocPtRecovsPtGenNotPrim", "p_{T, reco} vs p_{T, gen} for non-primary associated particles", 3000, 0,30,3000, 0,30);
+  fHistAssocPtRecovsPtGenNotPrim->GetXaxis()->SetTitle("p_{T, gen}");
+  fHistAssocPtRecovsPtGenNotPrim->GetYaxis()->SetTitle("p_{T, reco}");
+
+  fHistAssocPtRecovsPtGenPion = new TH2F ("fHistAssocPtRecovsPtGenPion", "p_{T, reco} vs p_{T, gen} for primary Pion associated particles", 3000, 0,30,3000, 0,30);
+  fHistAssocPtRecovsPtGenPion->GetXaxis()->SetTitle("p_{T, gen}");
+  fHistAssocPtRecovsPtGenPion->GetYaxis()->SetTitle("p_{T, reco}");
+
+  fHistAssocPtRecovsPtGenProton = new TH2F ("fHistAssocPtRecovsPtGenProton", "p_{T, reco} vs p_{T, gen} for primary Proton associated particles", 6000, 0,30,3000, 0,30);
+  fHistAssocPtRecovsPtGenProton->GetXaxis()->SetTitle("p_{T, gen}");
+  fHistAssocPtRecovsPtGenProton->GetYaxis()->SetTitle("p_{T, reco}");
+
+  fHistAssocPtRecovsPtGenKaon = new TH2F ("fHistAssocPtRecovsPtGenKaon", "p_{T, reco} vs p_{T, gen} for primary Kaon associated particles", 3000, 0,30,3000, 0,30);
+  fHistAssocPtRecovsPtGenKaon->GetXaxis()->SetTitle("p_{T, gen}");
+  fHistAssocPtRecovsPtGenKaon->GetYaxis()->SetTitle("p_{T, reco}");
+
+  fHistResolutionTriggerPt=new TH2F("fHistResolutionTriggerPt", "p_{T} resolution of selected trigger particles (primary)", 2000, -5, 5,  60,0,30);
+  fHistResolutionTriggerPt->GetXaxis()->SetTitle("p_{T, DATA}-p_{T, MC}");
+  fHistResolutionTriggerPt->GetYaxis()->SetTitle("p^{Trigg, max}_{T}");
+
+  fHistResolutionTriggerPhi=new TH2F("fHistResolutionTriggerPhi", "#Phi resolution of selected trigger particles (primary)", 2000, -1, 1,  60,0,30);
+  fHistResolutionTriggerPhi->GetXaxis()->SetTitle("Phi_{DATA}-Phi_{MC}");
+  fHistResolutionTriggerPhi->GetYaxis()->SetTitle("p^{Trigg, max}_{T}");
+
+  fHistResolutionTriggerEta=new TH2F("fHistResolutionTriggerEta", "#Eta resolution of selected trigger particles (primary)", 2000, -1, 1,  60,0,30);
+  fHistResolutionTriggerEta->GetXaxis()->SetTitle("Eta_{DATA}-Eta_{MC}");
+  fHistResolutionTriggerEta->GetYaxis()->SetTitle("p^{Trigg, max}_{T}");
+
+  fHistResolutionV0Pt=new TH2F("fHistResolutionV0Pt", "p_{T} resolution of selected V0 particles (K0s, primary, event w T>0)", 2000, -5, 5,  60,0,30);
+  fHistResolutionV0Pt->GetXaxis()->SetTitle("p_{T, DATA}-p_{T, MC}");
+  fHistResolutionV0Pt->GetYaxis()->SetTitle("p^{Trigg, max}_{T}");
+
+  fHistResolutionV0Phi=new TH2F("fHistResolutionV0Phi", "#Phi resolution of selected V0 particles (K0s, primary, event w T>0)", 2000, -1, 1,  60,0,30);
+  fHistResolutionV0Phi->GetXaxis()->SetTitle("Phi_{DATA}-Phi_{MC}");
+  fHistResolutionV0Phi->GetYaxis()->SetTitle("p^{Trigg, max}_{T}");
+
+  fHistResolutionV0PhivsPt=new TH2F("fHistResolutionV0PhivsPt", "#Phi resolution of selected V0 particles (K0s, primary, event w T>0)", 4000, -10, 10,  60,0,30);
+  fHistResolutionV0PhivsPt->GetXaxis()->SetTitle("Phi_{DATA}-Phi_{MC}");
+  fHistResolutionV0PhivsPt->GetYaxis()->SetTitle("p_{T}");
+
+  fHistResolutionV0PtvsPt=new TH2F("fHistResolutionV0PtvsPt", "#Pt resolution of selected V0 particles (K0s, primary, event w T>0) vs p_{T} trigger", 2000, -5, 5, 60,0,30);
+  fHistResolutionV0PtvsPt->GetXaxis()->SetTitle("p_{T,DATA}-p_{T,MC}");
+  fHistResolutionV0PtvsPt->GetYaxis()->SetTitle("p_{T}");
+  
+  fHistResolutionV0Eta=new TH2F("fHistResolutionV0Eta", "#Eta resolution of selected V0 particles (K0s, primary, event w T>0)", 2000, -1, 1, 60,0,30);
+  fHistResolutionV0Eta->GetXaxis()->SetTitle("Eta_{DATA}-Eta_{MC}");
+  fHistResolutionV0Eta->GetYaxis()->SetTitle("p^{Trigg, max}_{T}");
+
+  /*
+  fHistResolutionTriggerPt=new TH3F("fHistResolutionTriggerPt", "p_{T} resolution of selected trigger particles (primary)", 2000, -5, 5, 100, 0, 100, 60,0,30);
   fHistResolutionTriggerPt->GetXaxis()->SetTitle("p_{T, DATA}-p_{T, MC}");
   fHistResolutionTriggerPt->GetYaxis()->SetTitle("Centrality");
   fHistResolutionTriggerPt->GetZaxis()->SetTitle("p^{Trigg, max}_{T}");
 
-  fHistResolutionTriggerPhi=new TH3F("fHistResolutionTriggerPhi", "#Phi resolution of selected trigger particles (primary)", 500, -0.5, 0.5, 100, 0, 100, 60,0,30);
+  fHistResolutionTriggerPhi=new TH3F("fHistResolutionTriggerPhi", "#Phi resolution of selected trigger particles (primary)", 2000, -1, 1, 100, 0, 100, 60,0,30);
   fHistResolutionTriggerPhi->GetXaxis()->SetTitle("Phi_{DATA}-Phi_{MC}");
   fHistResolutionTriggerPhi->GetYaxis()->SetTitle("Centrality");
   fHistResolutionTriggerPhi->GetZaxis()->SetTitle("p^{Trigg, max}_{T}");
 
-  fHistResolutionTriggerEta=new TH3F("fHistResolutionTriggerEta", "#Eta resolution of selected trigger particles (primary)", 500, -0.5, 0.5, 100, 0, 100, 60,0,30);
+  fHistResolutionTriggerEta=new TH3F("fHistResolutionTriggerEta", "#Eta resolution of selected trigger particles (primary)", 2000, -1, 1, 100, 0, 100, 60,0,30);
   fHistResolutionTriggerEta->GetXaxis()->SetTitle("Eta_{DATA}-Eta_{MC}");
   fHistResolutionTriggerEta->GetYaxis()->SetTitle("Centrality");
   fHistResolutionTriggerEta->GetZaxis()->SetTitle("p^{Trigg, max}_{T}");
 
-  fHistResolutionV0Pt=new TH3F("fHistResolutionV0Pt", "p_{T} resolution of selected V0 particles (K0s, primary, event w T>0)", 500, -0.5, 0.5, 100, 0, 100, 60,0,30);
+  fHistResolutionV0Pt=new TH3F("fHistResolutionV0Pt", "p_{T} resolution of selected V0 particles (K0s, primary, event w T>0)", 2000, -5, 5, 100, 0, 100, 60,0,30);
   fHistResolutionV0Pt->GetXaxis()->SetTitle("p_{T, DATA}-p_{T, MC}");
   fHistResolutionV0Pt->GetYaxis()->SetTitle("Centrality");
   fHistResolutionV0Pt->GetZaxis()->SetTitle("p^{Trigg, max}_{T}");
 
-  fHistResolutionV0Phi=new TH3F("fHistResolutionV0Phi", "#Phi resolution of selected V0 particles (K0s, primary, event w T>0)", 500, -0.5, 0.5, 100, 0, 100, 60,0,30);
+  fHistResolutionV0Phi=new TH3F("fHistResolutionV0Phi", "#Phi resolution of selected V0 particles (K0s, primary, event w T>0)", 2000, -1, 1, 100, 0, 100, 60,0,30);
   fHistResolutionV0Phi->GetXaxis()->SetTitle("Phi_{DATA}-Phi_{MC}");
   fHistResolutionV0Phi->GetYaxis()->SetTitle("Centrality");
   fHistResolutionV0Phi->GetZaxis()->SetTitle("p^{Trigg, max}_{T}");
 
-  fHistResolutionV0PhivsPt=new TH3F("fHistResolutionV0PhivsPt", "#Phi resolution of selected V0 particles (K0s, primary, event w T>0)", 500, -0.5, 0.5, 100, 0, 100, 60,0,30);
+  fHistResolutionV0PhivsPt=new TH3F("fHistResolutionV0PhivsPt", "#Phi resolution of selected V0 particles (K0s, primary, event w T>0)", 4000, -10, 10, 100, 0, 100, 60,0,30);
   fHistResolutionV0PhivsPt->GetXaxis()->SetTitle("Phi_{DATA}-Phi_{MC}");
   fHistResolutionV0PhivsPt->GetYaxis()->SetTitle("Centrality");
   fHistResolutionV0PhivsPt->GetZaxis()->SetTitle("p_{T}");
+
+  fHistResolutionV0PtvsPt=new TH3F("fHistResolutionV0PtvsPt", "#Pt resolution of selected V0 particles (K0s, primary, event w T>0) vs p_{T} trigger", 2000, -5, 5, 100, 0, 100, 60,0,30);
+  fHistResolutionV0PtvsPt->GetXaxis()->SetTitle("p_{T,DATA}-p_{T,MC}");
+  fHistResolutionV0PtvsPt->GetYaxis()->SetTitle("Centrality");
+  fHistResolutionV0PtvsPt->GetZaxis()->SetTitle("p_{T}");
   
-  fHistResolutionV0Eta=new TH3F("fHistResolutionV0Eta", "#Eta resolution of selected V0 particles (K0s, primary, event w T>0)", 500, -0.5, 0.5, 100, 0, 100, 60,0,30);
+  fHistResolutionV0Eta=new TH3F("fHistResolutionV0Eta", "#Eta resolution of selected V0 particles (K0s, primary, event w T>0)", 2000, -1, 1, 100, 0, 100, 60,0,30);
   fHistResolutionV0Eta->GetXaxis()->SetTitle("Eta_{DATA}-Eta_{MC}");
   fHistResolutionV0Eta->GetYaxis()->SetTitle("Centrality");
   fHistResolutionV0Eta->GetZaxis()->SetTitle("p^{Trigg, max}_{T}");
+*/
+  //  fHistResolutionTriggerPhiPt=new TH3F("fHistResolutionTriggerPhiPt", "#Phi and Pt resolution of anomalous selected trigger particles (primary)", 2000, -1, 1, 2000, -5, 5, 60,0,30);
+  //fHistResolutionTriggerPhiPt->GetXaxis()->SetTitle("Phi_{DATA}-Phi_{MC}");
+  //fHistResolutionTriggerPhiPt->GetYaxis()->SetTitle("p_{T, DATA}-p_{T, MC}");
+  //fHistResolutionTriggerPhiPt->GetZaxis()->SetTitle("p^{Trigg, max}_{T}");
 
-  fHistResolutionTriggerPhiPt=new TH3F("fHistResolutionTriggerPhiPt", "#Phi and Pt resolution of anomalous selected trigger particles (primary)", 500, -0.5, 0.5, 500, -0.5, 0.5, 60,0,30);
-  fHistResolutionTriggerPhiPt->GetXaxis()->SetTitle("Phi_{DATA}-Phi_{MC}");
-  fHistResolutionTriggerPhiPt->GetYaxis()->SetTitle("p_{T, DATA}-p_{T, MC}");
-  fHistResolutionTriggerPhiPt->GetZaxis()->SetTitle("p^{Trigg, max}_{T}");
-
-  fHistResolutionTriggerPhiPdgCode=new TH3F("fHistResolutionTriggerPhiPdgCode", "#Phi resolution and pdg code of anomalous selected trigger particles (primary)", 500, -0.5, 0.5,6400, -3200, 3200, 60,0,30);
-  fHistResolutionTriggerPhiPdgCode->GetXaxis()->SetTitle("Phi_{DATA}-Phi_{MC}");
-  fHistResolutionTriggerPhiPdgCode->GetYaxis()->SetTitle("PdgCode");
-  fHistResolutionTriggerPhiPdgCode->GetZaxis()->SetTitle("p^{Trigg, max}_{T}");
+  //  fHistResolutionTriggerPhiPdgCode=new TH3F("fHistResolutionTriggerPhiPdgCode", "#Phi resolution and pdg code of anomalous selected trigger particles (primary)", 2000, -1 , 1,6400, -3200, 3200, 60,0,30);
+  //fHistResolutionTriggerPhiPdgCode->GetXaxis()->SetTitle("Phi_{DATA}-Phi_{MC}");
+  //fHistResolutionTriggerPhiPdgCode->GetYaxis()->SetTitle("PdgCode");
+  //fHistResolutionTriggerPhiPdgCode->GetZaxis()->SetTitle("p^{Trigg, max}_{T}");
 
   fHistPrimaryTrigger= new TH2F **[6];
   for(Int_t j=0; j<6; j++){
@@ -1211,6 +1370,8 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
   for(Int_t j=0; j < 3; j++){
     fOutputList3->Add(fHistSelectedTriggerPtPhi[j]);
     fOutputList3->Add(fHistSelectedTriggerPtEta[j]);
+    fOutputList3->Add(fHistSelectedGenTriggerPtPhi[j]);
+    fOutputList3->Add(fHistSelectedGenTriggerPtEta[j]);
   }
  
   for(Int_t j=0; j < 2; j++){
@@ -1222,25 +1383,39 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
     fOutputList2->Add(fHistSelectedV0PtTMaxPhi[j]);
     fOutputList2->Add(fHistSelectedV0PtTMaxEta[j]);
     fOutputList2->Add(fHistSelectedV0PtPtTMax[j]);
+    fOutputList2->Add(fHistSelectedGenV0PtPtTMax[j]);
   }
  
   fOutputList->Add(fHistReconstructedV0PtMass);
   fOutputList->Add(fHistSelectedV0PtMass);
-  fOutputList->Add(fHistResolutionTriggerPt);
-  fOutputList->Add(fHistResolutionTriggerPhi);
-  fOutputList->Add(fHistResolutionTriggerEta);
-  fOutputList->Add(fHistResolutionV0Pt);
-  fOutputList->Add(fHistResolutionV0Phi);
-  fOutputList->Add(fHistResolutionV0PhivsPt);
-  fOutputList->Add(fHistResolutionV0Eta);
-  fOutputList->Add(fHistResolutionTriggerPhiPt);
-  fOutputList->Add(fHistResolutionTriggerPhiPdgCode);
+  fOutputList4->Add(fHistResolutionTriggerPt);
+  fOutputList4->Add(fHistResolutionTriggerPhi);
+  fOutputList4->Add(fHistResolutionTriggerEta);
+  fOutputList4->Add(fHistResolutionV0Pt);
+  fOutputList4->Add(fHistResolutionV0Phi);
+  fOutputList4->Add(fHistResolutionV0PhivsPt);
+  fOutputList4->Add(fHistResolutionV0Eta);
+  fOutputList4->Add(fHistResolutionV0PtvsPt);
+  //  fOutputList4->Add(fHistResolutionTriggerPhiPt);
+  //  fOutputList4->Add(fHistResolutionTriggerPhiPdgCode);
+  fOutputList4->Add(fHistTriggerPtRecovsPtGen);
+  fOutputList4->Add(fHistAssocPtRecovsPtGen);
+  fOutputList4->Add(fHistTriggerPtRecovsPtGenNotPrim);
+  fOutputList4->Add(fHistAssocPtRecovsPtGenNotPrim);
+  fOutputList4->Add(fHistTriggerPtRecovsPtGenPion);
+  fOutputList4->Add(fHistAssocPtRecovsPtGenPion);
+  fOutputList4->Add(fHistTriggerPtRecovsPtGenProton);
+  fOutputList4->Add(fHistAssocPtRecovsPtGenProton);
+  fOutputList4->Add(fHistTriggerPtRecovsPtGenKaon);
+  fOutputList4->Add(fHistAssocPtRecovsPtGenKaon);
+
 
   PostData(1, fOutputList);  
   PostData(2, fSignalTree);       
   PostData(3, fBkgTree); 
   PostData(4, fOutputList2);     
   PostData(5, fOutputList3);     
+  PostData(6, fOutputList4);     
      
 }
 //_____________________________________________________________________________
@@ -1268,11 +1443,11 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   if(!fAOD) {
     AliWarning("Error: AOD event not available \n");
     PostData(1, fOutputList);       
-
     PostData(2, fSignalTree);       
     PostData(3,fBkgTree); 
     PostData(4, fOutputList2);  
     PostData(5, fOutputList3);     
+    PostData(6, fOutputList4);     
     return;
   }        
   
@@ -1283,7 +1458,9 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
  PostData(2, fSignalTree );
  PostData(3,fBkgTree);
  PostData(4, fOutputList2);     
- PostData(5, fOutputList3);      return;
+ PostData(5, fOutputList3);     
+ PostData(6, fOutputList4);     
+ return;
  }
  
   
@@ -1305,7 +1482,9 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     PostData(2, fSignalTree );
     PostData(3,fBkgTree); 
     PostData(4, fOutputList2);  
-    PostData(5, fOutputList3);     return;
+    PostData(5, fOutputList3);  
+    PostData(6, fOutputList4);     
+   return;
   }
   fHistEventMult->Fill(2);
   AliVVertex *vertexmain =0x0;
@@ -1320,6 +1499,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     PostData(3,fBkgTree); 
     PostData(4, fOutputList2); 
     PostData(5, fOutputList3);     
+    PostData(6, fOutputList4);     
     return;
   }
   fHistEventMult->Fill(3);
@@ -1340,6 +1520,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     PostData(3,fBkgTree); 
     PostData(4, fOutputList2); 
     PostData(5, fOutputList3);     
+    PostData(6, fOutputList4);     
     return;
   }
   fHistEventMult->Fill(4);
@@ -1349,9 +1530,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   //lcentrality=centrality->GetCentralityPercentile("V0A");
   
   Float_t lPercentiles = 0;
-  
-  
-  
+ 
   //This will work for both ESDs and AODs
   AliMultSelection *MultSelection = (AliMultSelection*) fAOD -> FindListObject("MultSelection");
 
@@ -1361,7 +1540,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   }else{
   AliInfo("Didn't find MultSelection!"); 
   }
-  
+ 
   
   //c cout << "centralita' dell evento " << lPercentiles << endl;
   //Embedded in framework:
@@ -1381,7 +1560,9 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     //c cout << "lPercentiles >= 200" << endl;
     PostData(3,fBkgTree); 
     PostData(4, fOutputList2); 
-    PostData(5, fOutputList3);      return;  
+    PostData(5, fOutputList3);
+    PostData(6, fOutputList4);     
+    return;  
   }
 
   fHistEventMult->Fill(5);
@@ -1396,6 +1577,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     PostData(3,fBkgTree); 
     PostData(4, fOutputList2); 
     PostData(5, fOutputList3);     
+    PostData(6, fOutputList4);     
     return;
   }
   fHistEventMult->Fill(6);
@@ -1439,6 +1621,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     PostData(3,fBkgTree);
     PostData(4, fOutputList2);  
     PostData(5, fOutputList3);     
+    PostData(6, fOutputList4);     
     return;
   }
   
@@ -1517,6 +1700,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   
   AliAODTrack *globaltrack = 0x0;
  
+  if (fFilterBitValue==128){
   // Read and store global tracks to retrieve PID information for TPC only tracks
   for (Int_t igt = 0; igt < iTracks; igt++) {
     globaltrack = (AliAODTrack*) fAOD->GetTrack(igt);
@@ -1552,7 +1736,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
       //    cout<<" Set array, now it contains  "<<farrGT[globaltrack->GetID()]<<endl;
     }
   }
-  
+  } //end if on filterbit value
   globaltrack = 0x0; 
 
   //-----------------------------------LOOP OVER THE TRACKS
@@ -1581,10 +1765,13 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   Int_t pos0or1=0;
   Int_t neg0or1=0;
   Int_t CharegFirstParticle=0;
+  Double_t dzglobal[2] = {-999.,-999.};
   Double_t dz[2] = {-999.,-999.};
   Double_t d[2] = {-999.,-999.};
   Double_t dzg[2]= {-999.,-999.}; Double_t covarg[3]={-999.,-999.,-999.};
   Double_t dzgPtTMax=-999;
+  Float_t DCAxy=-999.;
+  Float_t DCAz=-999.;
   Float_t labelPtTMax=0;
 
   //LOOP FOR FIRST PARTICLE
@@ -1607,7 +1794,8 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     if(!track) continue;
     //if(track->GetID()<0)continue;
     //  if(!track->IsOn(AliAODTrack::kTPCrefit)) continue;
-    if(!track->TestFilterBit(4)) continue; //era 128
+
+    if(!track->TestFilterBit(fFilterBitValue)) continue; //era 128
     fHistTrack->Fill(2);
     
     if(TMath::Abs(track->Eta())>fEtaTrigger)  continue;
@@ -1625,7 +1813,8 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     rationCrnFind=nTPCCrossedRows/track->GetTPCNclsF();
     if(rationCrnFind<0.8)  continue;
     fHistTrack->Fill(6);
-    
+   
+    if (fFilterBitValue==128){ 
     // Get the corresponding global track to use PID --> stored only for global tracks
     // 
     // Check that the array fGTI isn't too small
@@ -1647,16 +1836,20 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     dzg[0]= -999.; dzg[1] = -999.;
     etp1.CopyFromVTrack(vtrackg); 
     etp1.PropagateToDCA(vertexmain,(InputEvent())->GetMagneticField(),100.,dzg,covarg);    
-
+    } //end if on filterbit value
 
     if((track->Charge())==0) continue;
     fHistTrack->Fill(7);
 
-    dz[0] = track->DCA();   
-    dz[1] = track->ZAtDCA(); 
+    if (fFilterBitValue!=128){
+      DCAxy=-999.;      DCAz =-999.;
+      track->GetImpactParameters(&DCAxy, &DCAz);
+      dz[0] = DCAxy;   
+      dz[1] = DCAz; 
+    }
 
-    fHistDCAxym1->Fill(track->DCA());
-    fHistDCAzm1->Fill(track->ZAtDCA());
+    fHistDCAxym1->Fill(dz[0]);
+    fHistDCAzm1->Fill(dz[1]);
 
     // Double_t  covd[3];
     // //    if (track->DCA()==-999. || track->ZAtDCA()==-999.){
@@ -1667,9 +1860,18 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     fHistDCAxym2->Fill(dzg[0]);
     fHistDCAzm2 ->Fill(dzg[1]);
 
-    if(TMath::Abs(dzg[0])> (0.0105 + 0.0350/pow(track->Pt(),1.1))) continue;
+    if (fFilterBitValue==128){
+    dzglobal[0]=dzg[0];
+    dzglobal[1]=dzg[1];
+    }
+    else{
+    dzglobal[0]=dz[0];
+    dzglobal[1]=dz[1];
+    }
+
+    if(TMath::Abs(dzglobal[0])> (0.0105 + 0.0350/pow(track->Pt(),1.1))) continue;
     fHistTrack->Fill(8);
-    if(TMath::Abs(dzg[1])> 2.) continue;
+    if(TMath::Abs(dzglobal[1])> 2.) continue;
     fHistTrack->Fill(9);
 
     /*
@@ -1692,7 +1894,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 	etaTriggerMassimoDati=track->Eta(); 
 	phiTriggerMassimoDati=track->Phi(); 
 	labelPtTMax=track->GetLabel();
-	dzgPtTMax = dzg[1];
+	dzgPtTMax = dzglobal[1];
 	trackPtTMax = static_cast<AliAODTrack*>(fAOD->GetTrack(i));        
 	ptTriggerMassimoDatiBis=	trackPtTMax->Pt();
 	//	trackPtTMax = track;
@@ -1711,11 +1913,12 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 	fEvt->fReconstructedFirst[NumberFirstParticle-1].fEta          = track->Eta();
 	fEvt->fReconstructedFirst[NumberFirstParticle-1].fPhi          = track->Phi();
 	fEvt->fReconstructedFirst[NumberFirstParticle-1].fTheta        = track->Theta();
-	fEvt->fReconstructedFirst[NumberFirstParticle-1].fDCAz         = dzg[1];
-	fEvt->fReconstructedFirst[NumberFirstParticle-1].fDCAxy        = dzg[0];
+	fEvt->fReconstructedFirst[NumberFirstParticle-1].fDCAz         = dzglobal[1];
+	fEvt->fReconstructedFirst[NumberFirstParticle-1].fDCAxy        = dzglobal[0];
 	fEvt->fReconstructedFirst[NumberFirstParticle-1].fMultiplicity = lPercentiles;
 	fEvt->fReconstructedFirst[NumberFirstParticle-1].fZvertex      = lBestPrimaryVtxPos[2];
 	fEvt->fReconstructedFirst[NumberFirstParticle-1].isP           = labelPrimOrSec;
+	fEvt->fReconstructedFirst[NumberFirstParticle-1].fPDGcode     = 0;
       }
       fHistPtvsMultBefAll->Fill(track->Pt(), lPercentiles);
     }
@@ -1766,6 +1969,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 	fEvt->fReconstructedFirst[NumberFirstParticleMC-1].fMultiplicity = lPercentiles;
 	fEvt->fReconstructedFirst[NumberFirstParticleMC-1].fZvertex      = lBestPrimaryVtxPos[2];
 	fEvt->fReconstructedFirst[NumberFirstParticleMC-1].isP           = 1;
+	fEvt->fReconstructedFirst[NumberFirstParticleMC-1].fPDGcode     = trParticle->GetPdgCode();
 
       }
     }
@@ -1811,6 +2015,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     PostData(3,fBkgTree);
     PostData(4, fOutputList2);  
     PostData(5, fOutputList3);     
+    PostData(6, fOutputList4);     
     return;
   }
  
@@ -1854,7 +2059,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
       fHistTrackAssoc->Fill(1);
       if(!track) continue;
 
-      if(!track->TestFilterBit(4)) continue;
+      if(!track->TestFilterBit(fFilterBitValue)) continue;
       fHistTrackAssoc->Fill(2);
     
       if(TMath::Abs(track->Eta())>fEtahAssoc)  continue;
@@ -1871,11 +2076,11 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
       if(rationCrnFind<0.8)  continue;
       fHistTrackAssoc->Fill(6);
     
+      if (fFilterBitValue==128){
       if (-track->GetID()-1 >= fTrackBufferSize) {
 	printf ("Exceeding buffer size!!");
 	continue;
       }
-
       vtrackg = fAOD->GetTrack(farrGT[-track->GetID()-1]);
       if (!vtrackg) {
 	printf ("No global info! iTrack %d, ID %d\n",i,track->GetID());
@@ -1888,13 +2093,30 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
       dzg[0]= -999.; dzg[1] = -999.;
       etp1.CopyFromVTrack(vtrackg); 
       etp1.PropagateToDCA(vertexmain,(InputEvent())->GetMagneticField(),100.,dzg,covarg);    
+      } //end if on filterbit value 
 
       if((track->Charge())==0) continue;
       fHistTrackAssoc->Fill(7);
 
-      if(TMath::Abs(dzg[0])> (0.0105 + 0.0350/pow(track->Pt(),1.1))) continue;
+    if (fFilterBitValue!=128){
+      DCAxy=-999.;      DCAz =-999.;
+      track->GetImpactParameters(&DCAxy, &DCAz);
+      dz[0] = DCAxy;   
+      dz[1] = DCAz; 
+    }
+
+      if (fFilterBitValue==128){
+	dzglobal[0]=dzg[0];
+	dzglobal[1]=dzg[1];
+      }
+      else{
+	dzglobal[0]=dz[0];
+	dzglobal[1]=dz[1];
+      }
+
+      if(TMath::Abs(dzglobal[0])> (0.0105 + 0.0350/pow(track->Pt(),1.1))) continue;
       fHistTrackAssoc->Fill(8);
-      if(TMath::Abs(dzg[1])> 2.) continue;
+      if(TMath::Abs(dzglobal[1])> 2.) continue;
       fHistTrackAssoc->Fill(9);
 
       if(!(track->Pt()> fminPthAssoc && track->Pt()<fmaxPthAssoc)) continue;
@@ -1915,30 +2137,42 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 	  }
 	
 	  AliAODMCParticle* particle = static_cast<AliAODMCParticle*>(AODMCTrackArray->At(TMath::Abs(track->GetLabel())));
+	  if (particle->IsPhysicalPrimary()){
+	    fHistAssocPtRecovsPtGenNotPrim->Fill(particle->Pt(), track->Pt());
+	  }
 	  if(particle->IsPhysicalPrimary()){
 	    fHistAssocComposition->Fill(particle->GetPdgCode(),1);
+	    fHistAssocPtRecovsPtGenPion->Fill(particle->Pt(), track->Pt());
+	    if (particle->GetPdgCode()==211 || particle->GetPdgCode()==-211)      fHistAssocPtRecovsPtGenPion->Fill(particle->Pt(), track->Pt());
+	    if (particle->GetPdgCode()==2212 || particle->GetPdgCode()==-2212)      fHistAssocPtRecovsPtGenProton->Fill(particle->Pt(), track->Pt());
+	    if (particle->GetPdgCode()==321 || particle->GetPdgCode()==-321)      fHistAssocPtRecovsPtGenKaon->Fill(particle->Pt(), track->Pt());
 	    fHistResolutionV0Pt->Fill(track->Pt()- particle->Pt(), lPercentiles, ptTriggerMassimoDati);
 	    fHistResolutionV0Phi->Fill(track->Phi()- particle->Phi(), lPercentiles, ptTriggerMassimoDati);
 	    fHistResolutionV0PhivsPt->Fill(track->Phi()- particle->Phi(), lPercentiles, track->Pt());
+	    fHistResolutionV0PtvsPt->Fill(track->Pt()- particle->Pt(), lPercentiles, track->Pt());
 	    fHistResolutionV0Eta->Fill(track->Eta()- particle->Eta(), lPercentiles, ptTriggerMassimoDati);
 	    fHistSelectedV0PtTMaxPhi[5]->Fill(ptTriggerMassimoDati, track->Phi(), lPercentiles);
 	    fHistSelectedV0PtTMaxEta[5]->Fill(ptTriggerMassimoDati, track->Eta(), lPercentiles);
 	    fHistSelectedV0PtPtTMax[5]->Fill(track->Pt(),ptTriggerMassimoDati , lPercentiles);
+	    fHistSelectedGenV0PtPtTMax[5]->Fill(particle->Pt(),ptTriggerMassimoDati , lPercentiles);
 
-	    if(  (TMath::Abs(dzg[1]) < 1.)) {
+	    if(  (TMath::Abs(dzglobal[1]) < 1.)) {
 	      fHistSelectedV0PtTMaxPhi[1]->Fill(ptTriggerMassimoDati, track->Phi(), lPercentiles);
 	      fHistSelectedV0PtTMaxEta[1]->Fill(ptTriggerMassimoDati, track->Eta(), lPercentiles);
 	      fHistSelectedV0PtPtTMax[1]->Fill(track->Pt(),ptTriggerMassimoDati , lPercentiles);
+	      fHistSelectedGenV0PtPtTMax[1]->Fill(particle->Pt(),ptTriggerMassimoDati , lPercentiles);
 	    }  
-	    if(  (TMath::Abs(dzg[1]) < 2.)) {
+	    if(  (TMath::Abs(dzglobal[1]) < 2.)) {
 	      fHistSelectedV0PtTMaxPhi[0]->Fill(ptTriggerMassimoDati, track->Phi(), lPercentiles);
 	      fHistSelectedV0PtTMaxEta[0]->Fill(ptTriggerMassimoDati, track->Eta(), lPercentiles);
 	      fHistSelectedV0PtPtTMax[0]->Fill(track->Pt(),ptTriggerMassimoDati , lPercentiles);
+	      fHistSelectedGenV0PtPtTMax[0]->Fill(particle->Pt(),ptTriggerMassimoDati , lPercentiles);
 	    } 
-	    if(  (TMath::Abs(dzg[1]) < 0.5)) {
+	    if(  (TMath::Abs(dzglobal[1]) < 0.5)) {
 	      fHistSelectedV0PtTMaxPhi[2]->Fill(ptTriggerMassimoDati, track->Phi(), lPercentiles);
 	      fHistSelectedV0PtTMaxEta[2]->Fill(ptTriggerMassimoDati, track->Eta(), lPercentiles);
 	      fHistSelectedV0PtPtTMax[2]->Fill(track->Pt(),ptTriggerMassimoDati , lPercentiles);
+	      fHistSelectedGenV0PtPtTMax[2]->Fill(particle->Pt(),ptTriggerMassimoDati , lPercentiles);
 	    } 
 	    	       
 	    labelPrimOrSecV0=1;
@@ -1954,13 +2188,13 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 	    if(lPercentiles>=moltep[m] && lPercentiles<moltep[m+1]){
 	      for(Int_t p=1; p<=4; p++){
 		if (labelPrimOrSecV0==p) {
-		  if(  (TMath::Abs(dzg[1]) < 2.)) {
+		  if(  (TMath::Abs(dzglobal[1]) < 2.)) {
 		    fHistPrimaryV0[m][0]->Fill(p, track->Pt(), ptTriggerMassimoDati);   
 		  }
-		  if(  (TMath::Abs(dzg[1]) < 1.)) {
+		  if(  (TMath::Abs(dzglobal[1]) < 1.)) {
 		    fHistPrimaryV0[m][1]->Fill(p, track->Pt(), ptTriggerMassimoDati);   
 		  }
-		  if(  (TMath::Abs(dzg[1]) < 0.5)) {
+		  if(  (TMath::Abs(dzglobal[1]) < 0.5)) {
 		    fHistPrimaryV0[m][2]->Fill(p, track->Pt(), ptTriggerMassimoDati);   
 		  }
 		}
@@ -1970,13 +2204,13 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 
 	  for(Int_t p=1; p<=4; p++){
 	    if (labelPrimOrSecV0==p){
-	      if(  (TMath::Abs(dzg[1]) < 2.)) {
+	      if(  (TMath::Abs(dzglobal[1]) < 2.)) {
 		fHistPrimaryV0[5][0]->Fill(p, track->Pt(), ptTriggerMassimoDati);   
 	      }
-	      if(  (TMath::Abs(dzg[1]) < 1.)) {
+	      if(  (TMath::Abs(dzglobal[1]) < 1.)) {
 		fHistPrimaryV0[5][1]->Fill(p, track->Pt(), ptTriggerMassimoDati);   
 	      }
-	      if(  (TMath::Abs(dzg[1]) < 0.5)) {
+	      if(  (TMath::Abs(dzglobal[1]) < 0.5)) {
 		fHistPrimaryV0[5][2]->Fill(p, track->Pt(), ptTriggerMassimoDati);   
 	      }
 	    }
@@ -1991,11 +2225,12 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 	fEvt->fReconstructedSecond[NumberSecondParticle-1].sEta          = track->Eta();
 	fEvt->fReconstructedSecond[NumberSecondParticle-1].sPhi          = track->Phi();
 	fEvt->fReconstructedSecond[NumberSecondParticle-1].sTheta        = track->Theta();
-	fEvt->fReconstructedSecond[NumberSecondParticle-1].sDCAz         = dzg[1];
-	fEvt->fReconstructedSecond[NumberSecondParticle-1].sDCAxy        = dzg[0];
+	fEvt->fReconstructedSecond[NumberSecondParticle-1].sDCAz         = dzglobal[1];
+	fEvt->fReconstructedSecond[NumberSecondParticle-1].sDCAxy        = dzglobal[0];
 	fEvt->fReconstructedSecond[NumberSecondParticle-1].sMultiplicity = lPercentiles;
 	fEvt->fReconstructedSecond[NumberSecondParticle-1].sZvertex      = lBestPrimaryVtxPos[2];
 	fEvt->fReconstructedSecond[NumberSecondParticle-1].isP           = labelPrimOrSecV0;
+	fEvt->fReconstructedSecond[NumberSecondParticle-1].sPDGcode      =0 ;
 
 	fHistPthAssoc->Fill(track->Pt());
       }
@@ -2033,12 +2268,12 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 	  fEvt->fReconstructedSecond[NumberSecondParticleMC-1].sEta          = trParticle->Eta();
 	  fEvt->fReconstructedSecond[NumberSecondParticleMC-1].sPhi          = trParticle->Phi();
 	  fEvt->fReconstructedSecond[NumberSecondParticleMC-1].sTheta        = trParticle->Theta();
-	  fEvt->fReconstructedSecond[NumberSecondParticleMC-1].sDCAz         = 0;
-	  fEvt->fReconstructedSecond[NumberSecondParticleMC-1].sDCAxy        = 0;
+	  fEvt->fReconstructedSecond[NumberSecondParticleMC-1].sDCAz         = dzglobal[1];
+	  fEvt->fReconstructedSecond[NumberSecondParticleMC-1].sDCAxy        = dzglobal[0];
 	  fEvt->fReconstructedSecond[NumberSecondParticleMC-1].sMultiplicity = lPercentiles;
 	  fEvt->fReconstructedSecond[NumberSecondParticleMC-1].sZvertex      = lBestPrimaryVtxPos[2];
 	  fEvt->fReconstructedSecond[NumberSecondParticleMC-1].isP           = 1;
-
+	  fEvt->fReconstructedSecond[NumberSecondParticle-1].sPDGcode        = trParticle->GetPdgCode();
 	}
       }
     } //end MC loop for charged particles as associated
@@ -2380,36 +2615,43 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 	      fHistResolutionV0Pt->Fill(v0->Pt()- MotherPos->Pt(), lPercentiles, ptTriggerMassimoDati);
 	      fHistResolutionV0Phi->Fill(v0->Phi()- MotherPos->Phi(), lPercentiles, ptTriggerMassimoDati);
 	      fHistResolutionV0PhivsPt->Fill(v0->Phi()- MotherPos->Phi(), lPercentiles, v0->Pt());
+	      fHistResolutionV0PtvsPt->Fill(v0->Pt()- MotherPos->Pt(), lPercentiles, v0->Pt());
 	      fHistResolutionV0Eta->Fill(v0->Eta()- MotherPos->Eta(), lPercentiles, ptTriggerMassimoDati);
 	      fHistSelectedV0PtTMaxPhi[5]->Fill(ptTriggerMassimoDati, v0->Phi(), lPercentiles);
 	      fHistSelectedV0PtTMaxEta[5]->Fill(ptTriggerMassimoDati, v0->Eta(), lPercentiles);
 	      fHistSelectedV0PtPtTMax[5]->Fill(v0->Pt(),ptTriggerMassimoDati , lPercentiles);
+	      fHistSelectedGenV0PtPtTMax[5]->Fill(MotherPos->Pt(),ptTriggerMassimoDati , lPercentiles);
 
 
 	      if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.005 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.005) {
 		fHistSelectedV0PtTMaxPhi[0]->Fill(ptTriggerMassimoDati, v0->Phi(), lPercentiles);
 		fHistSelectedV0PtTMaxEta[0]->Fill(ptTriggerMassimoDati, v0->Eta(), lPercentiles);
 		fHistSelectedV0PtPtTMax[0]->Fill(v0->Pt(),ptTriggerMassimoDati , lPercentiles);
-	      
+		fHistSelectedGenV0PtPtTMax[0]->Fill(MotherPos->Pt(),ptTriggerMassimoDati , lPercentiles);
+
 		if(v0->CosPointingAngle(lBestPrimaryVtxPos) > 0.997){
 		  fHistSelectedV0PtTMaxPhi[1]->Fill(ptTriggerMassimoDati, v0->Phi(), lPercentiles);
 		  fHistSelectedV0PtTMaxEta[1]->Fill(ptTriggerMassimoDati, v0->Eta(), lPercentiles);
 		  fHistSelectedV0PtPtTMax[1]->Fill(v0->Pt(),ptTriggerMassimoDati , lPercentiles);
+		  fHistSelectedGenV0PtPtTMax[1]->Fill(MotherPos->Pt(),ptTriggerMassimoDati , lPercentiles);
 		} 
 		if(kctau[ParticleType]<0.4*kctauval[ParticleType]){
 		  fHistSelectedV0PtTMaxPhi[2]->Fill(ptTriggerMassimoDati, v0->Phi(), lPercentiles);
 		  fHistSelectedV0PtTMaxEta[2]->Fill(ptTriggerMassimoDati, v0->Eta(), lPercentiles);
 		  fHistSelectedV0PtPtTMax[2]->Fill(v0->Pt(),ptTriggerMassimoDati , lPercentiles);
+		  fHistSelectedGenV0PtPtTMax[2]->Fill(MotherPos->Pt(),ptTriggerMassimoDati , lPercentiles);
 		} 
 		if(TMath::Abs(rapidityV0[0])<0.5){
 		  fHistSelectedV0PtTMaxPhi[3]->Fill(ptTriggerMassimoDati, v0->Phi(), lPercentiles);
 		  fHistSelectedV0PtTMaxEta[3]->Fill(ptTriggerMassimoDati, v0->Eta(), lPercentiles);
 		  fHistSelectedV0PtPtTMax[3]->Fill(v0->Pt(),ptTriggerMassimoDati , lPercentiles);
+		  fHistSelectedGenV0PtPtTMax[3]->Fill(MotherPos->Pt(),ptTriggerMassimoDati , lPercentiles);
 		} 
 		if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.010 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.010) {
 		  fHistSelectedV0PtTMaxPhi[4]->Fill(ptTriggerMassimoDati, v0->Phi(), lPercentiles);
 		  fHistSelectedV0PtTMaxEta[4]->Fill(ptTriggerMassimoDati, v0->Eta(), lPercentiles);
 		  fHistSelectedV0PtPtTMax[4]->Fill(v0->Pt(),ptTriggerMassimoDati , lPercentiles);
+		  fHistSelectedGenV0PtPtTMax[4]->Fill(MotherPos->Pt(),ptTriggerMassimoDati , lPercentiles);
 		} 
 		// if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.005 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.005) {
 		//   fHistSelectedV0PtTMaxPhi[5]->Fill(ptTriggerMassimoDati, v0->Phi(), lPercentiles);
@@ -2419,6 +2661,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 		  fHistSelectedV0PtTMaxPhi[6]->Fill(ptTriggerMassimoDati, v0->Phi(), lPercentiles);
 		  fHistSelectedV0PtTMaxEta[6]->Fill(ptTriggerMassimoDati, v0->Eta(), lPercentiles);
 		  fHistSelectedV0PtPtTMax[6]->Fill(v0->Pt(),ptTriggerMassimoDati , lPercentiles);
+		  fHistSelectedGenV0PtPtTMax[6]->Fill(MotherPos->Pt(),ptTriggerMassimoDati , lPercentiles);
 		} 
 	      }
 	       
@@ -2647,6 +2890,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
     PostData(3,fBkgTree);
     PostData(4, fOutputList2);  
     PostData(5, fOutputList3);     
+    PostData(6, fOutputList4);     
     return;
   }
 
@@ -2741,6 +2985,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   PostData(3,fBkgTree);
   PostData(4, fOutputList2);  
   PostData(5, fOutputList3);     
+  PostData(6, fOutputList4);     
 
   fEventColl[zBin][centralityBin]->FifoShift();       
 }
@@ -3013,7 +3258,8 @@ void AliAnalysisTaskMyTask::DoPairsh1h2 ( const Float_t lPercentiles, int fields
 	  fTreeVariableEtaTrigger             = fEvt->fReconstructedFirst[i].fEta; 		       
 	  fTreeVariablePhiTrigger	      =	fEvt->fReconstructedFirst[i].fPhi;             
 	  fTreeVariableDCAz		      =	fEvt->fReconstructedFirst[i].fDCAz;             
-	  fTreeVariableDCAxy		      =	fEvt->fReconstructedFirst[i].fDCAxy;              
+	  fTreeVariableDCAxy		      =	fEvt->fReconstructedFirst[i].fDCAxy;   
+	  fTreeVariablePDGCodeTrigger         = fEvt->fReconstructedFirst[i].fPDGcode ;
 	  fTreeVariableChargeAssoc            = fEvt->fReconstructedSecond[j].sCharge;		       
 	  fTreeVariableAssocDCAz	      =	fEvt->fReconstructedSecond[j].sDCAz;             
 	  fTreeVariableAssocDCAxy	      =	fEvt->fReconstructedSecond[j].sDCAxy;              
@@ -3036,7 +3282,7 @@ void AliAnalysisTaskMyTask::DoPairsh1h2 ( const Float_t lPercentiles, int fields
 	  fTreeVariableDeltaTheta             = dtheta;
 	  fTreeVariableMultiplicity	      = lPercentiles;
 	  fTreeVariableZvertex                = lBestPrimaryVtxPos;
-	  fTreeVariablePDGCode =   fEvt->fReconstructedSecond[j].sPDGcode;
+	  fTreeVariablePDGCodeAssoc           = fEvt->fReconstructedSecond[j].sPDGcode;
 	  fTreeVariableisPrimaryTrigger       =  fEvt->fReconstructedFirst[i].isP ;
 	  fTreeVariableisPrimaryV0            =  fEvt->fReconstructedSecond[j].isP ;
 	  /*
@@ -3075,6 +3321,7 @@ void AliAnalysisTaskMyTask::DoPairsh1h2 ( const Float_t lPercentiles, int fields
 	  fTreeVariablePhiTrigger	      =	fEvt->fReconstructedFirst[i].fPhi;             
 	  fTreeVariableDCAz		      =	fEvt->fReconstructedFirst[i].fDCAz;             
 	  fTreeVariableDCAxy		      =	fEvt->fReconstructedFirst[i].fDCAxy;   
+	  fTreeVariablePDGCodeTrigger         = fEvt->fReconstructedFirst[i].fPDGcode ;
 	  fTreeVariableChargeAssoc            = fEvt->fReconstructedSecond[i].sCharge;		       
 	  fTreeVariableAssocDCAz	      =	fEvt->fReconstructedSecond[j].sDCAz;             
 	  fTreeVariableAssocDCAxy	      =	fEvt->fReconstructedSecond[j].sDCAxy;                         
@@ -3097,7 +3344,7 @@ void AliAnalysisTaskMyTask::DoPairsh1h2 ( const Float_t lPercentiles, int fields
 	  fTreeVariableDeltaTheta             =dtheta;      
 	  fTreeVariableMultiplicity	      = lPercentiles;
 	  fTreeVariableZvertex                = lBestPrimaryVtxPos;
-	  fTreeVariablePDGCode =   fEvt->fReconstructedSecond[j].sPDGcode;
+	  fTreeVariablePDGCodeAssoc           = fEvt->fReconstructedSecond[j].sPDGcode;
 	  fTreeVariableisPrimaryTrigger       =  fEvt->fReconstructedFirst[i].isP;
 	  fTreeVariableisPrimaryV0            =  fEvt->fReconstructedSecond[j].isP;
 
