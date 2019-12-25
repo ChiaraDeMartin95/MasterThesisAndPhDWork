@@ -2,22 +2,22 @@
 /* See cxx source for full Copyright notice */
 /* $Id$ */
 
-#ifndef AliAnalysisTaskMyTask_H
-#define AliAnalysisTaskMyTask_H
+#ifndef AliAnalysisTaskCascades_H
+#define AliAnalysisTaskCascades_H
 class AliPIDResponse;
 class AliMultSelection;
 class AliAODMCParticle;
 class AliCentrality;
 #include "AliAnalysisTaskSE.h"
-#include "AliAnalysisKPEventCollectionChiara.h"
+#include "AliAODcascade.h"
 #include "AliEventCuts.h"
 
-class AliAnalysisTaskMyTask : public AliAnalysisTaskSE  
+class AliAnalysisTaskCascades : public AliAnalysisTaskSE  
 {
  public:
-  AliAnalysisTaskMyTask();
-  AliAnalysisTaskMyTask(const char *name);
-  virtual                 ~AliAnalysisTaskMyTask();
+  AliAnalysisTaskCascades();
+  AliAnalysisTaskCascades(const char *name);
+  virtual                 ~AliAnalysisTaskCascades();
 
   virtual void            UserCreateOutputObjects();
   virtual void            UserExec(Option_t* option);
@@ -31,20 +31,8 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
   void SetEvtToMix(Int_t EvtToMix){fnEventsToMix = EvtToMix;}
   void SetEtaTrigger(Float_t EtaTrigger){fEtaTrigger = EtaTrigger;}
   void SetEtahAssoc(Float_t EtahAssoc){fEtahAssoc = EtahAssoc;}
-  void SetFilterBit(Int_t FilterBitValue){fFilterBitValue = FilterBitValue;}
 
-  void ProcessMCParticles(Bool_t Generated, AliAODTrack* track, Int_t& labelPrimOrSec, Float_t lPercentiles, Bool_t isV0, Double_t ZAtDCA, Float_t PtTriggMax, Bool_t fIshhCorr);
-  // double CalculateMass(double momentum1[3], double momentum2[3], double mass1, double mass2); */
-  Double_t CalculateDeltaTheta( Double_t theta1, Double_t theta2 ); 
-  Double_t CalculateDeltaPhi( Double_t phi1, Double_t phi2 ) ; 
-  Double_t CalculateDeltaEta( Double_t eta1, Double_t eta2 ) ; 
-  double CalculateDPhiStar(Short_t chg1, Short_t chg2, Int_t magSign, Double_t ptv1, Double_t ptv2, Double_t phi1, Double_t phi2,Double_t rad);
-
-  //  Double_t ThetaS( Double_t posSftR125[3] )const; 
-  //Double_t EtaS( Double_t posSftR125[3] ) const ; 
-
-  void DoPairsh1h2 ( const Float_t lcentrality, int fieldsignf, Double_t lBestPrimaryVtxPos, Float_t ptTriggerMassimo);
-  //void DoPairshh ( const Float_t lcentrality, int fieldsignf);
+  void ProcessMCParticles(Bool_t Generated, Float_t lPercentiles, Bool_t isV0, Bool_t fIshhCorr);
 
  private:
   TString                 fAnalysisType;                  // "ESD" or "AOD" analysis type
@@ -56,17 +44,13 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
   
   TList*                  fOutputList;      //! output list
   TTree*                  fSignalTree;      //! output tree
-  TTree*                  fBkgTree;      //! output tree
   TList*                  fOutputList2;      //! output list
   TList*                  fOutputList3;      //! output list
-  TList*                  fOutputList4;      //! output list
   
   AliMCEvent *            fMCEvent;         //!
   Bool_t                  fReadMCTruth;
   Bool_t                  fIshhCorr;
   Bool_t                  isEfficiency;
-  AliAnalysisKPEventCollectionChiara ***fEventColl;  //!
-  AliAnalysisKPEventChiara *    fEvt;                //!
 
   Int_t                    fzVertexBins; 
   Int_t                    fnMultBins;	 
@@ -75,7 +59,6 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
   Int_t                    fnEventsToMix;
   Float_t                    fEtaTrigger;
   Float_t                    fEtahAssoc;
-  Int_t                    fFilterBitValue;
 
    TH1F*                   fHistPt;          //! 
    TH1F*                   fHistPtTriggerParticle;          //! 
@@ -104,6 +87,8 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
   TH1F*                   fHist_multiplicity; //!
   TH1F*                   fHist_multiplicity_EvwTrigger; //!
   TH1F*                   fHistEventMult;   //!
+Double_t   fRunNumber; //!
+Double_t   fBunchCrossNumber; //!
   TH1F*                   fHistEventV0;   //!
   TH1F*                   fHistTrack;       //!
   TH2F* fHistTriggerComposition; //! 
@@ -112,12 +97,19 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
   TH2F* fHistAssocCompositionMCTruth; //! 
   TH1F*                   fHistTrackAssoc;       //!
   TH1F*                   fHistPDG;         //!	
+  TH1F*                   fHistPDGLambda;         //!	
+  TH1F*                   fHistPDGBachMom;         //!	
+  TH1F*                   fHistTheta; //!
+  TH1F*                   fHistEta; //!
+  TH1F*                   fHistPhi; //!
   TH1F*                   fHistTrackBufferOverflow;         //!	
   TH2F*                   fHistSecondParticleAll; //!
   TH2F*                   fHistSecondParticleTruthAll; //!
   TH2F*                   fHistSecondParticle; //!
   TH2F*                   fHistSecondParticleTruth; //!
-  TH1F*                   fMassV0;          //!
+  TH1F*                   fMassXiPlus;          //!
+  TH1F*                   fMassXiMinus;          //!
+  TH1F*                   fV0Lifetime;          //!
   TH2F *                  fHistMultvsV0All; //!
   TH2F *                  fHistMultvsV0AllTruth; //!
   TH2F *                  fHistMultvsV0MCAll; //!
@@ -148,43 +140,20 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
   TH1F*                  fHistTriggervsMult; //!
   TH1F*                  fHistTriggervsMultMC; //!
   TH1F*                  fHistMultiplicityOfMixedEvent; //!
-  TH3F *   fHistGeneratedTriggerPtPhi; //!
-  TH3F **  fHistSelectedTriggerPtPhi; //!
-  TH3F **  fHistSelectedGenTriggerPtPhi; //!
-  TH3F **  fHistGeneratedV0PtTMaxPhi; //!
-  TH3F **  fHistSelectedV0PtTMaxPhi; //!
-  TH3F *   fHistGeneratedTriggerPtEta; //!
-  TH3F **  fHistSelectedTriggerPtEta; //!
-  TH3F **  fHistSelectedGenTriggerPtEta; //!
-  TH3F **  fHistGeneratedV0PtTMaxEta; //!
-  TH3F **  fHistSelectedV0PtTMaxEta; //!
-  TH3F **  fHistGeneratedV0PtPtTMax; //!
-  TH3F **  fHistSelectedV0PtPtTMax; //!
-  TH3F **  fHistSelectedGenV0PtPtTMax; //!
-  TH3F *   fHistReconstructedV0PtMass; //!
-  TH3F *   fHistSelectedV0PtMass; //!  
+  TH3F **  fHistGeneratedV0Pt; //!
+  TH3F **  fHistSelectedV0Pt; //!
+  TH3F *  fHistReconstructedV0PtMass; //!
+  TH3F *  fHistSelectedV0PtMass; //!  
 
-  TH2F*  fHistTriggerPtRecovsPtGen; //!
-  TH2F*  fHistAssocPtRecovsPtGen; //!
-  TH2F*  fHistTriggerPtRecovsPtGenNotPrim; //!
-  TH2F*  fHistAssocPtRecovsPtGenNotPrim; //!
-  TH2F*  fHistTriggerPtRecovsPtGenPion; //!
-  TH2F*  fHistAssocPtRecovsPtGenPion; //!
-  TH2F*  fHistTriggerPtRecovsPtGenProton; //!
-  TH2F*  fHistAssocPtRecovsPtGenProton; //!
-  TH2F*  fHistTriggerPtRecovsPtGenKaon; //!
-  TH2F*  fHistAssocPtRecovsPtGenKaon; //!
-
-TH2F*  fHistResolutionTriggerPt; //!
-TH2F*  fHistResolutionTriggerPhi; //!
-TH2F*  fHistResolutionTriggerEta; //!
-TH2F*  fHistResolutionTriggerPhiPt; //!
-TH2F*  fHistResolutionTriggerPhiPdgCode; //!
-TH2F*  fHistResolutionV0Pt; //!
-TH2F*  fHistResolutionV0Phi; //!
-TH2F*  fHistResolutionV0PhivsPt; //!
-TH2F*  fHistResolutionV0Eta; //!
-TH2F*  fHistResolutionV0PtvsPt;//!
+TH3F*  fHistResolutionTriggerPt; //!
+TH3F*  fHistResolutionTriggerPhi; //!
+TH3F*  fHistResolutionTriggerEta; //!
+TH3F*  fHistResolutionTriggerPhiPt; //!
+TH3F*  fHistResolutionTriggerPhiPdgCode; //!
+TH3F*  fHistResolutionV0Pt; //!
+TH3F*  fHistResolutionV0Phi; //!
+TH3F*  fHistResolutionV0PhivsPt; //!
+TH3F*  fHistResolutionV0Eta; //!
 
   TH2F *** fHistPrimaryTrigger; //!
   TH3F ***  fHistPrimaryV0; //!  
@@ -204,39 +173,45 @@ TH2F*  fHistResolutionV0PtvsPt;//!
   UShort_t                fTrackBufferSize;      // Size fo the above array, ~12000 for PbPb
 
   //tree leaf
-  Double_t fTreeVariablePtTrigger;		       
-  Double_t fTreeVariableChargeTrigger;		       
-  Double_t fTreeVariableEtaTrigger; 		       
-  Double_t fTreeVariablePhiTrigger;		       
-  Double_t fTreeVariableDCAz;			       
-  Double_t fTreeVariableDCAxy;
-  Double_t fTreeVariableChargeAssoc;			       
-  Double_t fTreeVariableAssocDCAz;			       
-  Double_t fTreeVariableAssocDCAxy;			       
-  Double_t fTreeVariableRapK0Short;		       	      
-  Double_t fTreeVariableisPrimaryTrigger;
-  Double_t fTreeVariableisPrimaryV0;
-  Double_t fTreeVariableDcaV0ToPrimVertex ;	       	      
-  Double_t fTreeVariableDcaPosToPrimVertex;	       	      
-  Double_t fTreeVariableDcaNegToPrimVertex;	       	      
-  Double_t fTreeVariableV0CosineOfPointingAngle;       	      
-  Double_t fTreeVariablePtV0;			       
-  Double_t fTreeVariablectau;			       
-  Double_t fTreeVariableInvMassK0s;		       
-  Double_t fTreeVariableInvMassLambda;		       
-  Double_t fTreeVariableInvMassAntiLambda;		       
-  Double_t fTreeVariableEtaV0;			       
-  Double_t fTreeVariablePhiV0;			       
-  Double_t fTreeVariablePtArmenteros;                   
-  Double_t fTreeVariableAlpha;	   
-  Double_t fTreeVariableDeltaEta;			       
-  Double_t fTreeVariableDeltaPhi;			       
-  Double_t fTreeVariableDeltaTheta;
-
-  Double_t fTreeVariableMultiplicity;                   
-  Double_t fTreeVariableZvertex;
-  Double_t fTreeVariablePDGCodeTrigger;
-  Double_t fTreeVariablePDGCodeAssoc;
+Double_t  fTreeVariableMultiplicity;       
+Double_t  fTreeVariableZvertex;             
+Double_t  fTreeVariablePDGCode;             
+Double_t  fTreeVariableRunNumber;           
+Double_t  fTreeVariableBunchCrossNumber;    
+Double_t  fTreeVariableNegNSigmaPion;
+Double_t  fTreeVariableNegNSigmaProton;
+Double_t  fTreeVariablePosNSigmaPion;
+Double_t  fTreeVariablePosNSigmaProton;
+Double_t  fTreeVariableBachNSigmaPion;
+Double_t  fTreeVariableBachNSigmaKaon;
+Double_t  fTreeVariableDcaXiToPrimVertex;
+Double_t  fTreeVariableXYDcaXiToPrimVertex;
+Double_t  fTreeVariableZDcaXiToPrimVertex;
+Double_t  fTreeVariableDcaV0ToPrimVertex;
+Double_t  fTreeVariableDcaPosToPrimVertex; 
+Double_t  fTreeVariableDcaNegToPrimVertex; 
+Double_t  fTreeVariableDcaV0Daughters; 
+Double_t  fTreeVariableDcaCascDaughters; 
+Double_t  fTreeVariableDcaBachToPrimVertex; 
+Double_t  fTreeVariableV0CosineOfPointingAngle;
+Double_t  fTreeVariableV0CosineOfPointingAngleSpecial;
+Double_t  fTreeVariableCascCosineOfPointingAngle;
+Double_t  fTreeVariablePtCasc;              
+Double_t  fTreeVariableChargeCasc;          
+Double_t  fTreeVariableEtaCasc;          
+Double_t  fTreeVariablePhiCasc;          
+Double_t  fTreeVariableThetaCasc;          
+Double_t  fTreeVariablectau;               
+Double_t  fTreeVariableInvMassXi;        
+Double_t  fTreeVariableInvMassOmega;      
+Double_t  fTreeVariableInvMassLambda;  
+Double_t  fTreeVariableRapXi;               
+Double_t  fTreeVariableRapOmega;            
+Double_t  fTreeVariableCascRadius;     
+Double_t  fTreeVariableV0Radius;     
+Double_t  fTreeVariableLeastNbrClusters;    
+Double_t  fTreeVariableV0Lifetime;    
+ Double_t fTreeVariableIsPrimaryCasc;
 
   bool FifoShiftok;	                        		      
 
@@ -249,10 +224,10 @@ TH2F*  fHistResolutionV0PtvsPt;//!
   /* Double_t fTreeVariableMultiplicity;       */
   
 
-  AliAnalysisTaskMyTask(const AliAnalysisTaskMyTask&); // not implemented
-  AliAnalysisTaskMyTask& operator=(const AliAnalysisTaskMyTask&); // not implemented
+  AliAnalysisTaskCascades(const AliAnalysisTaskCascades&); // not implemented
+  AliAnalysisTaskCascades& operator=(const AliAnalysisTaskCascades&); // not implemented
 
-  ClassDef(AliAnalysisTaskMyTask, 1);
+  ClassDef(AliAnalysisTaskCascades, 1);
 };
 
 #endif
