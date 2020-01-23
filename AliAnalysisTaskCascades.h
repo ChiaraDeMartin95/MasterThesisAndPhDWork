@@ -140,8 +140,10 @@ Double_t   fBunchCrossNumber; //!
   TH1F*                  fHistTriggervsMult; //!
   TH1F*                  fHistTriggervsMultMC; //!
   TH1F*                  fHistMultiplicityOfMixedEvent; //!
-  TH3F **  fHistGeneratedV0Pt; //!
-  TH3F **  fHistSelectedV0Pt; //!
+  TH3F **  fHistGeneratedXiPt; //!
+  TH3F **  fHistSelectedXiPt; //!
+  TH3F **  fHistGeneratedOmegaPt; //!
+  TH3F **  fHistSelectedOmegaPt; //!
   TH3F *  fHistReconstructedV0PtMass; //!
   TH3F *  fHistSelectedV0PtMass; //!  
 
@@ -176,6 +178,11 @@ TH3F*  fHistResolutionV0Eta; //!
 Double_t  fTreeVariableMultiplicity;       
 Double_t  fTreeVariableZvertex;             
 Double_t  fTreeVariablePDGCode;             
+Double_t  fTreeVariablePDGCodeBach;             
+Double_t  fTreeVariablePDGCodeNeg;             
+Double_t  fTreeVariablePDGCodePos;             
+Double_t  fTreeVariablePDGCodeLambda;             
+Double_t  fTreeVariablePDGCodeMotherLambda;             
 Double_t  fTreeVariableRunNumber;           
 Double_t  fTreeVariableBunchCrossNumber;    
 Double_t  fTreeVariableNegNSigmaPion;
@@ -205,13 +212,15 @@ Double_t  fTreeVariablectau;
 Double_t  fTreeVariableInvMassXi;        
 Double_t  fTreeVariableInvMassOmega;      
 Double_t  fTreeVariableInvMassLambda;  
+Double_t  fTreeVariableInvMassK0Short;  
 Double_t  fTreeVariableRapXi;               
 Double_t  fTreeVariableRapOmega;            
 Double_t  fTreeVariableCascRadius;     
 Double_t  fTreeVariableV0Radius;     
 Double_t  fTreeVariableLeastNbrClusters;    
 Double_t  fTreeVariableV0Lifetime;    
- Double_t fTreeVariableIsPrimaryCasc;
+ Double_t fTreeVariableIsPrimaryXi;
+ Double_t fTreeVariableIsPrimaryOmega;
 
   bool FifoShiftok;	                        		      
 

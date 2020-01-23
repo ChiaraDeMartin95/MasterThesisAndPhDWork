@@ -1,4 +1,3 @@
-
 #include "Riostream.h"
 #include "TTimer.h"
 #include "TROOT.h"
@@ -16,19 +15,91 @@
 #include <TTree.h>
 #include <TLatex.h>
 #include <TFile.h>
-void readTreePLChiara_Cascades(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t sysV0=0, bool isMC = 1,Bool_t isEfficiency=1,Int_t sysTrigger=0,
+void readTreePLChiara_Cascades(Int_t type=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t sysV0=0,Int_t rap=1, bool isMC = 1,Bool_t isEfficiency=1,Int_t sysTrigger=0,
 			    //TString PathIn ="./AnalysisResults2018d8_allrunswMult_MC.root", Int_t type=0 //type = 0 per K0short
-			    TString year="2018f1_extra", TString year0="2016", TString Path1 ="_10runs", Int_t type=0 //type = 0 per K0short 
-			    
+TString year="2018f1_extra", TString year0="2016", TString Path1 ="_25runs"	    
 			    )
 {
+  if (type>1) {
+    cout << "type=0 or 1 for Xi " << endl;
+    return; 
+  }
+
+  if (sysV0>9) {
+    cout << "sysV0 must be smaller than 10" << endl;
+return;
+  }
   //2016k_onlyTriggerWithHighestPt
-  if (sysV0>6) return;
-  if (sysV0>2 && ishhCorr) return;
+  //  if (sysV0>6) return;
+  //  if (sysV0>2 && ishhCorr) return;
+
+  //systematics for Xi
+  //SysV0:
+  // 0: default cuts Fiorella Fionda 
+  // 1: fSignTreeVariableV0CosineOfPointingAngleSpecial; 0.99
+  // 2: fSignTreeVariableCascCosineOfPointingAngle;      0.99
+  // 3: fSignTreeVariableDcaV0ToPrimVertex;              0.15
+  // 4: fSignTreeVariableDcaMesonToPrimVertex;           0.30
+  // 5: fSignTreeVariableDcaBaryonToPrimVertex           0.11
+  // 6: fSignTreeVariableDcaBachToPrimVertex;            0.17
+  // 7: fSignTreeVariableDcaV0Daughters;                 1
+  // 8: fSignTreeVariableDcaCascDaughters;               0.8
+  // 9: fSignTreeVariableInvMassLambda;                  0.006
+
+  Float_t RapCasc[2]={100, 0.5};
+  Float_t V0CosineOfPointingAngleSpecial[2]={0.97, 0.97}; 
+  Float_t CascCosineOfPointingAngle[2]={0.97, 0.97};      
+  Float_t DcaV0ToPrimVertex[2]={0.06, 0.06};              
+  Float_t DcaMesonToPrimVertex[2]={0.04, 0.04};           
+  Float_t DcaBaryonToPrimVertex[2]={0.03, 0.03};           
+  Float_t DcaBachToPrimVertex[2]={0.04, 0.04};                       
+  Float_t DcaV0Daughters[2]={1.5, 1.5};                      
+  Float_t DcaCascDaughters[2]={1.3, 1.3};                 
+  Float_t InvMassLambda[2]={0.008, 0.008};       
+
+  if (sysV0==1) {
+    V0CosineOfPointingAngleSpecial[0]=0.99; 
+    V0CosineOfPointingAngleSpecial[1]=0.99; 
+  }
+
+  if (sysV0==2) {
+  CascCosineOfPointingAngle[0]=0.99;
+  CascCosineOfPointingAngle[1]=0.99;
+  }
+  if (sysV0==3) {
+  DcaV0ToPrimVertex[0]=0.15;
+  DcaV0ToPrimVertex[1]=0.10;
+  }
+  if (sysV0==4) {
+  DcaMesonToPrimVertex[0]=0.30;
+  DcaMesonToPrimVertex[1]=0.30;
+  }
+  if (sysV0==5) {
+  DcaBaryonToPrimVertex[0]=0.11;
+  DcaBaryonToPrimVertex[1]=0.10;
+  }
+  if (sysV0==6) {
+  DcaBachToPrimVertex[0]=0.17;                       
+  DcaBachToPrimVertex[1]=0.10;                       
+  }
+  if (sysV0==7) {
+  DcaV0Daughters[0]=1.;
+  DcaV0Daughters[1]=1.;
+  }
+  if (sysV0==8) {
+  DcaCascDaughters[0]=0.8;
+  DcaCascDaughters[1]=0.6;
+  }
+  if (sysV0==9) {
+  InvMassLambda[0]=0.006;
+  InvMassLambda[1]=0.006;
+  }
 
   const Int_t numtipo=4;
   TString tipo[numtipo]={"XiNeg", "XiPos", "OmegaPos", "OmegaNeg"};
   Int_t CascadesPDGCode[numtipo]={3312, -3312, 3334, -3334};
+  Float_t LimInfHisto[numtipo]={1.28, 1.28, 1.62, 1.62};
+  Float_t LimSupHisto[numtipo]={1.36, 1.36, 1.72, 1.72};
   TString PathIn="./FinalOutput/AnalysisResults";
   TString PathOut="./FinalOutput/DATA" + year0 + "/histo/AngularCorrelation";
   PathIn+=year;
@@ -50,7 +121,7 @@ void readTreePLChiara_Cascades(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t s
   PathIn+=".root";
   PathOut+=Path1;
   if (ishhCorr) PathOut +="_hhCorr";
-  PathOut +=Form("_MassDistr_SysT%i_SysV0%i_PtMin%.1f",sysTrigger, sysV0, PtTrigMin); 
+  PathOut +=Form("_MassDistr_SysT%i_SysV0%i_PtMin%.1f_Rap%i",sysTrigger, sysV0, PtTrigMin, rap); 
   PathOut+= ".root";
 
   TFile *fin = new TFile(PathIn);
@@ -60,12 +131,18 @@ void readTreePLChiara_Cascades(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t s
   Double_t massK0s = 0.497611;
   Double_t massLambda = 1.115683;
   Double_t ctauK0s = 2.6844;
-  Double_t ctauXi = 4.91;
+  Double_t ctauCasc[numtipo] = {4.91, 4.91, 2.461, 2.461};
   Double_t massXi = 1.32171;
+  Double_t massOmega = 1.67245;
 
   Double_t fSignTreeVariableMultiplicity;
   Double_t fSignTreeVariableZvertex;
   Double_t fSignTreeVariablePDGCode;
+  Double_t fSignTreeVariablePDGCodeBach;
+  Double_t fSignTreeVariablePDGCodePos;
+  Double_t fSignTreeVariablePDGCodeNeg;
+  Double_t fSignTreeVariablePDGCodeLambda;
+  Double_t fSignTreeVariablePDGCodeMotherLambda;
   Double_t fSignTreeVariableRunNumber;
   Double_t fSignTreeVariableBunchCrossNumber;
   Double_t fSignTreeVariableNegNSigmaPion;
@@ -88,6 +165,7 @@ void readTreePLChiara_Cascades(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t s
   Double_t fSignTreeVariableCascCosineOfPointingAngle;
   Double_t fSignTreeVariablePtCasc;
   Double_t fSignTreeVariableChargeCasc;
+  Double_t fSignTreeVariableEtaCasc;
   Double_t fSignTreeVariablectau;
   Double_t fSignTreeVariableInvMassXi;
   Double_t fSignTreeVariableInvMassOmega;
@@ -98,7 +176,8 @@ void readTreePLChiara_Cascades(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t s
   Double_t fSignTreeVariableV0Radius;
   Double_t fSignTreeVariableLeastNbrClusters;
   Double_t fSignTreeVariableV0Lifetime;
-
+  Double_t  fSignTreeVariableIsPrimaryXi;
+  Double_t  fSignTreeVariableIsPrimaryOmega;
 
   Double_t fBkgTreeVariableMultiplicity;
   Double_t fBkgTreeVariableZvertex;
@@ -125,6 +204,7 @@ void readTreePLChiara_Cascades(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t s
   Double_t fBkgTreeVariableCascCosineOfPointingAngle;
   Double_t fBkgTreeVariablePtCasc;
   Double_t fBkgTreeVariableChargeCasc;
+  Double_t fBkgTreeVariableEtaCasc;
   Double_t fBkgTreeVariablectau;
   Double_t fBkgTreeVariableInvMassXi;
   Double_t fBkgTreeVariableInvMassOmega;
@@ -135,6 +215,8 @@ void readTreePLChiara_Cascades(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t s
   Double_t fBkgTreeVariableV0Radius;
   Double_t fBkgTreeVariableLeastNbrClusters;
   Double_t fBkgTreeVariableV0Lifetime;
+  Double_t  fBkgTreeVariableIsPrimaryXi;
+  Double_t  fBkgTreeVariableIsPrimaryOmega;
 
 
   Int_t CounterSignPairsAfterPtMinCut=0; 
@@ -160,6 +242,11 @@ void readTreePLChiara_Cascades(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t s
   tSign->SetBranchAddress("fTreeVariableMultiplicity",                   &fSignTreeVariableMultiplicity);
   tSign->SetBranchAddress("fTreeVariableZvertex",                        &fSignTreeVariableZvertex);
   tSign->SetBranchAddress("fTreeVariablePDGCode",                        &fSignTreeVariablePDGCode);
+  tSign->SetBranchAddress("fTreeVariablePDGCodeBach",                    &fSignTreeVariablePDGCodeBach);
+  tSign->SetBranchAddress("fTreeVariablePDGCodePos",                     &fSignTreeVariablePDGCodePos);
+  tSign->SetBranchAddress("fTreeVariablePDGCodeNeg",                     &fSignTreeVariablePDGCodeNeg);
+  tSign->SetBranchAddress("fTreeVariablePDGCodeLambda",                  &fSignTreeVariablePDGCodeLambda);
+  tSign->SetBranchAddress("fTreeVariablePDGCodeMotherLambda",            &fSignTreeVariablePDGCodeMotherLambda);
   tSign->SetBranchAddress("fTreeVariableRunNumber",                      &fSignTreeVariableRunNumber);
   tSign->SetBranchAddress("fTreeVariableBunchCrossNumber",               &fSignTreeVariableBunchCrossNumber);
   tSign->SetBranchAddress("fTreeVariableNegNSigmaPion",                  &fSignTreeVariableNegNSigmaPion);
@@ -182,6 +269,7 @@ void readTreePLChiara_Cascades(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t s
   tSign->SetBranchAddress("fTreeVariableCascCosineOfPointingAngle",      &fSignTreeVariableCascCosineOfPointingAngle);
   tSign->SetBranchAddress("fTreeVariablePtCasc",                         &fSignTreeVariablePtCasc);
   tSign->SetBranchAddress("fTreeVariableChargeCasc",                     &fSignTreeVariableChargeCasc);
+  tSign->SetBranchAddress("fTreeVariableEtaCasc",                        &fSignTreeVariableEtaCasc);
   tSign->SetBranchAddress("fTreeVariablectau",                           &fSignTreeVariablectau);
   tSign->SetBranchAddress("fTreeVariableInvMassXi",                      &fSignTreeVariableInvMassXi);
   tSign->SetBranchAddress("fTreeVariableInvMassOmega",                   &fSignTreeVariableInvMassOmega);
@@ -192,6 +280,8 @@ void readTreePLChiara_Cascades(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t s
   tSign->SetBranchAddress("fTreeVariableV0Radius",                       &fSignTreeVariableV0Radius);
   tSign->SetBranchAddress("fTreeVariableLeastNbrClusters",               &fSignTreeVariableLeastNbrClusters);
   tSign->SetBranchAddress("fTreeVariableV0Lifetime",                     &fSignTreeVariableV0Lifetime);
+  tSign->SetBranchAddress("fTreeVariableIsPrimaryXi",                    &fSignTreeVariableIsPrimaryXi);
+  tSign->SetBranchAddress("fTreeVariableIsPrimaryOmega",                 &fSignTreeVariableIsPrimaryOmega);
 
   //other variables to be used when AC is performed
   /*
@@ -301,6 +391,7 @@ void readTreePLChiara_Cascades(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t s
   TH2D *hMassvsPt_SEbins_true[nummolt+1][numzeta][numPtTrigger];
   TH2D *hDeltaEtaDeltaPhi_SEbins[nummolt+1][numzeta][numPtV0][numPtTrigger];
   TH1F *hXiAfterCuts= new TH1F ("hXiAfterCuts", "hXiAfterCuts", 18,0.5, 18.5);
+
   hXiAfterCuts->GetXaxis()->SetBinLabel(17,"All Xi");
   hXiAfterCuts->GetXaxis()->SetBinLabel(1,"NumberTPCClusters");
   hXiAfterCuts->GetXaxis()->SetBinLabel(2,"PID pos/neg");
@@ -320,29 +411,51 @@ void readTreePLChiara_Cascades(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t s
   hXiAfterCuts->GetXaxis()->SetBinLabel(16,"Trues Casc");
   hXiAfterCuts->GetXaxis()->SetBinLabel(18,"Mass cuts");
 
-  TH2F *hXiPosTrueSelected= new TH2F ("hXiPosTrueSelected", "hXiPosTrueSelected", 100,0, 100, 60, 0, 30);
-  hXiPosTrueSelected->SetTitle("p_{T} and mult.class distribution of selected true XiPos");
-  hXiPosTrueSelected->GetXaxis()->SetTitle("Multiplicity class");
-  hXiPosTrueSelected->GetYaxis()->SetTitle("p_{T, #Xi}");
+  TH3F *hXiTrueSelected= new TH3F ("hXiTrueSelected", "hXiTrueSelected", 100,0, 100, 300, 0, 30, 80, LimInfHisto[type], LimSupHisto[type]);
+  hXiTrueSelected->SetTitle("p_{T} and mult.class distribution of selected true Xi");
+  hXiTrueSelected->GetXaxis()->SetTitle("Multiplicity class");
+  hXiTrueSelected->GetYaxis()->SetTitle("p_{T, #Xi}");
+  hXiTrueSelected->GetZaxis()->SetTitle("Inv mass");
 
-  TH2F *hXiNegTrueSelected= new TH2F ("hXiNegTrueSelected", "hXiNegTrueSelected", 100,0, 100, 60, 0, 30);
-  hXiNegTrueSelected->SetTitle("p_{T} and mult.class distribution of selected true XiNeg");
-  hXiNegTrueSelected->GetXaxis()->SetTitle("Multiplicity class");
-  hXiNegTrueSelected->GetYaxis()->SetTitle("p_{T, #Xi}");
+  TH1F *hXiAfterCutsBkg= new TH1F ("hXiAfterCutsBkg", "PDG code della mamma del bachelor per le non-Xi", 7200,-3600, 3600);
+
+
+  TH3F *hXiFalseSelected = new TH3F ("hXiFalseSelected", "hXiFalseSelected", 100,0, 100, 300, 0, 30, 80, LimInfHisto[type], LimSupHisto[type]);
+  hXiFalseSelected->SetTitle("p_{T} and mult.class distribution of selected non-Xi");
+  hXiFalseSelected->GetXaxis()->SetTitle("Multiplicity class");
+  hXiFalseSelected->GetYaxis()->SetTitle("p_{T, #Xi}");
+  hXiFalseSelected->GetZaxis()->SetTitle("Inv mass");
+
+  TH1F *hXiFalseSelected1D = new TH1F ("hXiFalseSelected1D", "hXiFalseSelected1D",80, LimInfHisto[type], LimSupHisto[type]);
+
+  TH3F *hXiFalseSelectedV0Particle = new TH3F ("hXiFalseSelectedV0Particle", "Distribuzione per candidate non-Xi con pos e neg da stessa mamma", 100,0, 100, 300, 0, 30, 80, LimInfHisto[type], LimSupHisto[type]);
+  hXiFalseSelectedV0Particle->SetTitle("p_{T} and mult.class distribution of selected non-Xi");
+  hXiFalseSelectedV0Particle->GetXaxis()->SetTitle("Multiplicity class");
+  hXiFalseSelectedV0Particle->GetYaxis()->SetTitle("p_{T, #Xi}");
+  hXiFalseSelectedV0Particle->GetZaxis()->SetTitle("Inv mass");
+
+  TH1F *hXiFalseSelectedV0Particle1D = new TH1F ("hXiFalseSelectedV0Particle1D", "hXiFalseSelectedV0Particle1D",80, LimInfHisto[type], LimSupHisto[type]);
+
+  TH3F *hXiSelected= new TH3F ("hXiSelected", "hXiSelected", 100,0, 100, 300, 0, 30, 80, LimInfHisto[type], LimSupHisto[type]);
+  hXiSelected->SetTitle("p_{T} and mult.class distribution of selected true Xi");
+  hXiSelected->GetXaxis()->SetTitle("Multiplicity class");
+  hXiSelected->GetYaxis()->SetTitle("p_{T, #Xi}");
+  hXiSelected->GetZaxis()->SetTitle("Inv mass");
+
 
   //Form("hMassvsPt_"+tipo[type]+"_%i",molt
   for(Int_t m=0; m<nummolt+1; m++){
     for(Int_t z=0; z<numzeta; z++){
       for(Int_t tr=0; tr<numPtTrigger; tr++){
-	hMassvsPt_SEbins[m][z][tr]= new TH2D(Form("SE_hMassvsPt_"+tipo[type]+"_%i", m),Form("SE_hMassvsPt_"+tipo[type]+"_%i", m), 100, 1.28, 1.36, 100, 0, 10);
-	hMassvsPt_SEbins_true[m][z][tr]= new TH2D(Form("SE_hMassvsPt_"+tipo[type]+"_%i_true", m),Form("SE_hMassvsPt_"+tipo[type]+"_%i_true", m), 100, 1.28, 1.36, 100, 0, 10);
+	hMassvsPt_SEbins[m][z][tr]= new TH2D(Form("SE_hMassvsPt_"+tipo[type]+"_%i", m),Form("SE_hMassvsPt_"+tipo[type]+"_%i", m), 100,  LimInfHisto[type], LimSupHisto[type],  100, 0, 10);
+	hMassvsPt_SEbins_true[m][z][tr]= new TH2D(Form("SE_hMassvsPt_"+tipo[type]+"_%i_true", m),Form("SE_hMassvsPt_"+tipo[type]+"_%i_true", m), 100,  LimInfHisto[type], LimSupHisto[type], 100, 0, 10);
 	for(Int_t v=0; v<numPtV0; v++){
 	  nameSE[m][z][v][tr]="SE_";
 	  namemassSE[m][z][v][tr]="InvMassSE_";
 	  //nameSE[m][z][v][tr]+=Form("m%i_z%i_v%i_tr%i",m,z,v,tr);
 	  nameSE[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
 	  namemassSE[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
-	  hInvMassK0Short_SEbins[m][z][v][tr]= new TH1D(namemassSE[m][z][v][tr], namemassSE[m][z][v][tr],100, 1.28, 1.36);
+	  hInvMassK0Short_SEbins[m][z][v][tr]= new TH1D(namemassSE[m][z][v][tr], namemassSE[m][z][v][tr],100,  LimInfHisto[type], LimSupHisto[type]);
 	  //	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]= new TH2D(nameSE[m][z][v][tr], nameSE[m][z][v][tr],   50, -1.5, 1.5, 100,  -0.5*TMath::Pi(), 1.5*TMath::Pi());
 	  // hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetXaxis()->SetTitle("#Delta #eta");
 	  // hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetYaxis()->SetTitle("#Delta #phi (rad)");
@@ -416,6 +529,8 @@ void readTreePLChiara_Cascades(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t s
       */
       //******************* some other cuts for sys studies**************************
       if (!ishhCorr){
+	if ((type==0 || type==2) && fSignTreeVariableChargeCasc==1) continue; //type zero seleziona solo cascades negative
+	if ((type==1 || type==3) && fSignTreeVariableChargeCasc==-1) continue; //type uno seleziona solo cascades positive
 	hXiAfterCuts->Fill(17);
 	if (fSignTreeVariableLeastNbrClusters<70) continue;
 	hXiAfterCuts->Fill(1);
@@ -429,60 +544,97 @@ void readTreePLChiara_Cascades(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t s
 	}
 	hXiAfterCuts->Fill(2);
 	
-	if (fSignTreeVariableBachNSigmaPion>4) continue;
+	if ((type==0 || type==1) && fSignTreeVariableBachNSigmaPion>4) continue;
+	if ((type==2 || type==3) && fSignTreeVariableBachNSigmaKaon>4) continue;
 	
 	hXiAfterCuts->Fill(3);
 	if (fSignTreeVariableChargeCasc==1){
-	  if (fSignTreeVariableDcaPosToPrimVertex<0.04) continue;
-	  if (fSignTreeVariableDcaNegToPrimVertex<0.03) continue;
+	  if (fSignTreeVariableDcaPosToPrimVertex<DcaMesonToPrimVertex[type]) continue; //mesone  def 0.04, 0.30 tight
+	  if (fSignTreeVariableDcaNegToPrimVertex<DcaBaryonToPrimVertex[type]) continue; //barione def 0.03, 0.11 tight
 	}
 	
 	if (fSignTreeVariableChargeCasc==-1){
-	  if (fSignTreeVariableDcaPosToPrimVertex<0.03) continue;
-	  if (fSignTreeVariableDcaNegToPrimVertex<0.04) continue;
+	  if (fSignTreeVariableDcaPosToPrimVertex<DcaBaryonToPrimVertex[type]) continue; //barione
+	  if (fSignTreeVariableDcaNegToPrimVertex<DcaMesonToPrimVertex[type]) continue; //mesone
 	}
 	
 	hXiAfterCuts->Fill(4);
 	// if (fSignTreeVariableDcaXiToPrimVertex) continue;
 	// if (fSignTreeVariableXYDcaXiToPrimVertex) continue;
 	//  if (fSignTreeVariableZDcaXiToPrimVertex) continue;
-	if (fSignTreeVariableDcaV0ToPrimVertex<0.06) continue;
+	if (fSignTreeVariableDcaV0ToPrimVertex<DcaV0ToPrimVertex[type]) continue; 
 	hXiAfterCuts->Fill(5);
-	if (fSignTreeVariableDcaV0Daughters>1.5) continue;
+	if (fSignTreeVariableDcaV0Daughters>DcaV0Daughters[type]) continue; 
 	hXiAfterCuts->Fill(6);
-	if (fSignTreeVariableDcaCascDaughters>1.3) continue;
+	if (fSignTreeVariableDcaCascDaughters>DcaCascDaughters[type]) continue; 
 	hXiAfterCuts->Fill(7);
-	if (fSignTreeVariableDcaBachToPrimVertex<0.04) continue;
+	if (fSignTreeVariableDcaBachToPrimVertex<DcaBachToPrimVertex[type]) continue; 
 	hXiAfterCuts->Fill(8);
 	
-	if(fSignTreeVariableCascRadius<0.6) continue;
+	if(fSignTreeVariableCascRadius<0.6 && (type ==0 || type==1)) continue;
+	if(fSignTreeVariableCascRadius<0.5 && (type ==2 || type==3)) continue;
 	hXiAfterCuts->Fill(9);
-	if(fSignTreeVariableV0Radius<1.2) continue;
+	if(fSignTreeVariableV0Radius<1.2  && (type ==0 || type==1)) continue;
+	if(fSignTreeVariableV0Radius<1.1  && (type ==2 || type==3)) continue;
 	hXiAfterCuts->Fill(10);
 
 	//  if (fSignTreeVariableV0CosineOfPointingAngle) continue;
-	if (fSignTreeVariableV0CosineOfPointingAngleSpecial<0.97) continue;
+	if (fSignTreeVariableV0CosineOfPointingAngleSpecial<V0CosineOfPointingAngleSpecial[type]) continue; 
 	hXiAfterCuts->Fill(11);
-	if (fSignTreeVariableCascCosineOfPointingAngle<0.97) continue;
+	if (fSignTreeVariableCascCosineOfPointingAngle<CascCosineOfPointingAngle[type]) continue; 
 	hXiAfterCuts->Fill(12);
   
-	if (TMath::Abs(fSignTreeVariableInvMassLambda - massLambda) > 0.008) continue;
+	if (TMath::Abs(fSignTreeVariableInvMassLambda - massLambda) > InvMassLambda[type]) continue;
+	if (TMath::Abs(fSignTreeVariableInvMassXi - massXi) < 0.008   && (type ==2 || type==3)) continue;
+	if (TMath::Abs(fSignTreeVariableInvMassOmega - massOmega) < 0.005   && (type ==0 || type==1)) continue;
 	hXiAfterCuts->Fill(13);
 	//  if (fSignTreeVariableRapXi) continue;
 	//  if (fSignTreeVariableRapOmega) continue;
 	if (fSignTreeVariableV0Lifetime>30) continue;
 	hXiAfterCuts->Fill(14);
-	if (fSignTreeVariablectau> 3*ctauXi) continue;
+	if (fSignTreeVariablectau> 3*ctauCasc[type]) continue;
 	hXiAfterCuts->Fill(15);
+	if (TMath::Abs(fSignTreeVariableRapXi)>= RapCasc[rap]) continue;
+	if ((fSignTreeVariableInvMassXi< 1.28 || fSignTreeVariableInvMassXi> 1.36) && (type==0 || type==1)) continue;
+	if ((fSignTreeVariableInvMassOmega< 1.62 || fSignTreeVariableInvMassOmega> 1.72) && (type==2 || type==3)) continue;
 
-	if (fSignTreeVariableInvMassXi< 1.28 || fSignTreeVariableInvMassXi> 1.36) continue;
 	hXiAfterCuts->Fill(18);
 
-	  if (fSignTreeVariablePDGCode==-3312 && fSignTreeVariableChargeCasc==1)  hXiPosTrueSelected->Fill(fSignTreeVariableMultiplicity,fSignTreeVariablePtCasc );
-	  if (fSignTreeVariablePDGCode==3312 && fSignTreeVariableChargeCasc==-1)  hXiNegTrueSelected->Fill(fSignTreeVariableMultiplicity,fSignTreeVariablePtCasc );
-      }
-      if (fSignTreeVariablePDGCode==3312 || fSignTreeVariablePDGCode==-3312 ){
-	hXiAfterCuts->Fill(16);
+	if (type==0 || type==1)  hXiSelected->Fill(fSignTreeVariableMultiplicity,fSignTreeVariablePtCasc,  fSignTreeVariableInvMassXi);
+	if (type==2 || type==3)  hXiSelected->Fill(fSignTreeVariableMultiplicity,fSignTreeVariablePtCasc,  fSignTreeVariableInvMassOmega);
+
+	if (fSignTreeVariablePDGCode==CascadesPDGCode[type]){
+	  if (type==0 || type==1)  hXiTrueSelected->Fill(fSignTreeVariableMultiplicity,fSignTreeVariablePtCasc,  fSignTreeVariableInvMassXi);
+	  if (type==2 || type==3)  hXiTrueSelected->Fill(fSignTreeVariableMultiplicity,fSignTreeVariablePtCasc,  fSignTreeVariableInvMassOmega);
+	}
+	if (fSignTreeVariablePDGCode!=CascadesPDGCode[type]){
+	  if (type==0 || type==1)  {
+	    hXiFalseSelected->Fill(fSignTreeVariableMultiplicity,fSignTreeVariablePtCasc,  fSignTreeVariableInvMassXi);
+	    hXiFalseSelected1D->Fill(fSignTreeVariableInvMassXi);
+	  }
+	  if (type==2 || type==3)  {
+	    hXiFalseSelected->Fill(fSignTreeVariableMultiplicity,fSignTreeVariablePtCasc,  fSignTreeVariableInvMassOmega);
+	    hXiFalseSelected1D->Fill(fSignTreeVariableInvMassOmega);
+	  }
+	}
+
+	if (fSignTreeVariablePDGCode!=CascadesPDGCode[type] && fSignTreeVariablePDGCodeLambda!=0){
+	  if (type==0 || type==1) {
+	    hXiFalseSelectedV0Particle->Fill(fSignTreeVariableMultiplicity,fSignTreeVariablePtCasc,  fSignTreeVariableInvMassXi);
+	    hXiFalseSelectedV0Particle1D->Fill(fSignTreeVariableInvMassXi);
+	  }
+	  if (type==2 || type==3)  {
+	    hXiFalseSelectedV0Particle->Fill(fSignTreeVariableMultiplicity,fSignTreeVariablePtCasc,  fSignTreeVariableInvMassOmega);
+	    hXiFalseSelectedV0Particle1D->Fill(fSignTreeVariableInvMassOmega);
+	  }
+	}
+
+	if (fSignTreeVariablePDGCode==CascadesPDGCode[type] ){
+	  hXiAfterCuts->Fill(16);
+	}
+	if (fSignTreeVariablePDGCode!=CascadesPDGCode[type] && 1.315< fSignTreeVariableInvMassXi &&    fSignTreeVariableInvMassXi< 1.327 ){
+	  hXiAfterCutsBkg->Fill(fSignTreeVariablePDGCode);
+	}
       }
       
 
@@ -521,20 +673,29 @@ void readTreePLChiara_Cascades(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t s
       for(Int_t z=0; z<numzeta; z++){
 	for(Int_t tr=0; tr<numPtTrigger; tr++){
 	  if(MoltSel){
-	    hMassvsPt_SEbins[m][z][tr]->Fill(fSignTreeVariableInvMassXi, fSignTreeVariablePtCasc); 
+	    if (type==0 || type==1){
+	      if (type==0 && fSignTreeVariableChargeCasc==-1)	    hMassvsPt_SEbins[m][z][tr]->Fill(fSignTreeVariableInvMassXi, fSignTreeVariablePtCasc); 
+	      if (type==1 && fSignTreeVariableChargeCasc==1) hMassvsPt_SEbins[m][z][tr]->Fill(fSignTreeVariableInvMassXi, fSignTreeVariablePtCasc); 
 	    if(fSignTreeVariablePDGCode==CascadesPDGCode[type]) hMassvsPt_SEbins_true[m][z][tr]->Fill(fSignTreeVariableInvMassXi, fSignTreeVariablePtCasc); 
+	  }
+	    if (type==2 || type==3){
+	      if (type==2 && fSignTreeVariableChargeCasc==-1)	      hMassvsPt_SEbins[m][z][tr]->Fill(fSignTreeVariableInvMassOmega, fSignTreeVariablePtCasc); 
+	      if (type==3 && fSignTreeVariableChargeCasc==1)	      hMassvsPt_SEbins[m][z][tr]->Fill(fSignTreeVariableInvMassOmega, fSignTreeVariablePtCasc); 
+	      if(fSignTreeVariablePDGCode==CascadesPDGCode[type]) hMassvsPt_SEbins_true[m][z][tr]->Fill(fSignTreeVariableInvMassOmega, fSignTreeVariablePtCasc); 
+	    }
 	  }
 	  for(Int_t v=0; v<numPtV0; v++){
 	    //corr if(MoltSel && fSignTreeVariablePtTrigger>=NPtTrigger[tr] && fSignTreeVariablePtTrigger<NPtTrigger[tr+1] && fSignTreeVariablePtV0>=NPtV0[v]&& fSignTreeVariablePtV0<NPtV0[v+1]){
 	    if(MoltSel  && fSignTreeVariablePtCasc>=NPtV0[v]&& fSignTreeVariablePtCasc<NPtV0[v+1]){
 	      //corr	      hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
-	      hInvMassK0Short_SEbins[m][z][v][tr]->Fill(fSignTreeVariableInvMassXi);
+	    if (type==0 || type==1)	      hInvMassK0Short_SEbins[m][z][v][tr]->Fill(fSignTreeVariableInvMassXi);
+	    if (type==2 || type==3)	      hInvMassK0Short_SEbins[m][z][v][tr]->Fill(fSignTreeVariableInvMassOmega);
 	    }
 	  }
 	}
       }
     }
-  }
+  } //end loop on entries
 
   /* bakg if AC is performed
   cout << MoltSel<< endl;
@@ -623,7 +784,7 @@ void readTreePLChiara_Cascades(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t s
 	      hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->Fill(fBkgTreeVariableDeltaEta, fBkgTreeVariableDeltaPhi);
 	    }
 	  }
-	}
+XS	}
       }
     }
   }
@@ -634,5 +795,6 @@ void readTreePLChiara_Cascades(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t s
 //corr  cout << "signal pairs trigger-associated after Pt min cut " << 	CounterSignPairsAfterPtMinCut << endl;
 //corr  cout << "bkg pairs trigger-associated after Pt min cut " << 	CounterBkgPairsAfterPtMinCut << endl;
   cout << "partendo dal file " << PathIn << " ho creato il file " << PathOut<< endl;
+  cout << CascadesPDGCode[type]<< endl;
 }
 

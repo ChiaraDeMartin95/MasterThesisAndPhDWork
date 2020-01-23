@@ -152,8 +152,10 @@ AliAnalysisTaskCascades::AliAnalysisTaskCascades() :AliAnalysisTaskSE(),
   fHistTriggervsMult(0),
   fHistTriggervsMultMC(0),
   fHistMultiplicityOfMixedEvent(0),
-  fHistGeneratedV0Pt(0),
-  fHistSelectedV0Pt(0),
+  fHistGeneratedXiPt(0),
+  fHistSelectedXiPt(0),
+  fHistGeneratedOmegaPt(0),
+  fHistSelectedOmegaPt(0),
   fHistReconstructedV0PtMass(0),
   fHistSelectedV0PtMass(0),
   fHistResolutionTriggerPt(0),
@@ -182,6 +184,11 @@ AliAnalysisTaskCascades::AliAnalysisTaskCascades() :AliAnalysisTaskSE(),
   fTreeVariableMultiplicity(0),       
   fTreeVariableZvertex(0),             
   fTreeVariablePDGCode(0),             
+  fTreeVariablePDGCodeBach(0),             
+  fTreeVariablePDGCodeNeg(0),             
+  fTreeVariablePDGCodePos(0),             
+  fTreeVariablePDGCodeLambda(0),             
+  fTreeVariablePDGCodeMotherLambda(0),             
   fTreeVariableRunNumber(0),           
   fTreeVariableBunchCrossNumber(0),    
   fTreeVariableNegNSigmaPion(0),
@@ -211,13 +218,15 @@ AliAnalysisTaskCascades::AliAnalysisTaskCascades() :AliAnalysisTaskSE(),
   fTreeVariableInvMassXi(0),
   fTreeVariableInvMassOmega(0),      
   fTreeVariableInvMassLambda(0),  
+  fTreeVariableInvMassK0Short(0),
   fTreeVariableRapXi(0),               
   fTreeVariableRapOmega(0),            
   fTreeVariableCascRadius(0),     
   fTreeVariableV0Radius(0),     
   fTreeVariableLeastNbrClusters(0),    
   fTreeVariableV0Lifetime(0),
-  fTreeVariableIsPrimaryCasc(0),
+  fTreeVariableIsPrimaryXi(0),
+  fTreeVariableIsPrimaryOmega(0),
   FifoShiftok(kFALSE)
 {
   // default constructor, don't allocate memory here!
@@ -230,7 +239,7 @@ AliAnalysisTaskCascades::AliAnalysisTaskCascades(const char* name) : AliAnalysis
 								 fAOD(0), 
 								 fPIDResponse(0),
 								 //								 								 fMultSelection(0), 			  		
-								     fEventCuts(0),								 
+							     fEventCuts(0),								 
 								 fOutputList(0), 
 								 fSignalTree(0), 
 								 fOutputList2(0), 
@@ -326,8 +335,10 @@ AliAnalysisTaskCascades::AliAnalysisTaskCascades(const char* name) : AliAnalysis
   fHistTriggervsMult(0),
   fHistTriggervsMultMC(0),
   fHistMultiplicityOfMixedEvent(0),
-  fHistGeneratedV0Pt(0),
-  fHistSelectedV0Pt(0),
+  fHistGeneratedXiPt(0),
+  fHistSelectedXiPt(0),
+  fHistGeneratedOmegaPt(0),
+  fHistSelectedOmegaPt(0),
   fHistReconstructedV0PtMass(0),
   fHistSelectedV0PtMass(0),
   fHistResolutionTriggerPt(0),
@@ -356,6 +367,11 @@ AliAnalysisTaskCascades::AliAnalysisTaskCascades(const char* name) : AliAnalysis
   fTreeVariableMultiplicity(0),       
   fTreeVariableZvertex(0),             
   fTreeVariablePDGCode(0),             
+  fTreeVariablePDGCodeBach(0),             
+  fTreeVariablePDGCodeNeg(0),             
+  fTreeVariablePDGCodePos(0),             
+  fTreeVariablePDGCodeLambda(0),             
+  fTreeVariablePDGCodeMotherLambda(0),             
   fTreeVariableRunNumber(0),           
   fTreeVariableBunchCrossNumber(0),    
   fTreeVariableNegNSigmaPion(0),
@@ -385,13 +401,15 @@ AliAnalysisTaskCascades::AliAnalysisTaskCascades(const char* name) : AliAnalysis
   fTreeVariableInvMassXi(0),        
   fTreeVariableInvMassOmega(0),      
   fTreeVariableInvMassLambda(0),  
+  fTreeVariableInvMassK0Short(0),
   fTreeVariableRapXi(0),               
   fTreeVariableRapOmega(0),            
   fTreeVariableCascRadius(0),     
   fTreeVariableV0Radius(0),     
   fTreeVariableLeastNbrClusters(0),    
   fTreeVariableV0Lifetime(0),
-								     fTreeVariableIsPrimaryCasc(0),
+  fTreeVariableIsPrimaryXi(0),
+  fTreeVariableIsPrimaryOmega(0),
   FifoShiftok(kFALSE)
 {
                     
@@ -466,18 +484,22 @@ void AliAnalysisTaskCascades::ProcessMCParticles(Bool_t Generated, Float_t lPerc
       }
       if(isV0==kTRUE){
 	if(!ishhCorr){ 
-	  if ( ((particle->GetPdgCode())!=-3312) && ((particle->GetPdgCode())!=3312) ) continue;
 	  if(TMath::Abs(particle->Eta())>0.8) continue;
 	  if (!(particle->IsPhysicalPrimary()))continue;
-	  if (particle->GetPdgCode() == -3312) isXi=0.5;
-	  if (particle->GetPdgCode() == 3312) isXi=-0.5;
+	  if ( ((particle->GetPdgCode())==-3312) || ((particle->GetPdgCode())==3312) ){
+	    if (particle->GetPdgCode() == -3312) isXi=0.5;
+	    if (particle->GetPdgCode() == 3312) isXi=-0.5;
+	    fHistGeneratedXiPt[0]->Fill(particle->Pt(), lPercentiles,isXi );
+	    if (TMath::Abs(particle->Y())<=0.5 ) fHistGeneratedXiPt[1]->Fill(particle->Pt(), lPercentiles, isXi);
+	  }
+	  if ( ((particle->GetPdgCode())==-3334) || ((particle->GetPdgCode())==3334) ){
+	    if (particle->GetPdgCode() == -3334) isXi=0.5;
+	    if (particle->GetPdgCode() == 3334) isXi=-0.5;
+	    fHistGeneratedOmegaPt[0]->Fill(particle->Pt(), lPercentiles,isXi );
+	    if (TMath::Abs(particle->Y())<=0.5 ) fHistGeneratedOmegaPt[1]->Fill(particle->Pt(), lPercentiles, isXi);
+	  }
 	}
-	//	cout << "these are all K0s generated passing selection criteria: label K0s " << particle->Label()<<endl; 
-	fHistGeneratedV0Pt[0]->Fill(particle->Pt(), lPercentiles,isXi );
-	if (TMath::Abs(particle->Y())>0.5 ) continue;
-	//	cout << "these are all K0s generated passing selection criteria: label K0s " << particle->Label()<<endl; 
-	fHistGeneratedV0Pt[1]->Fill(particle->Pt(), lPercentiles, isXi);
-      }      
+	}      
     }
   }
 }
@@ -508,6 +530,11 @@ void AliAnalysisTaskCascades::UserCreateOutputObjects()
   fSignalTree->Branch("fTreeVariableMultiplicity",       &fTreeVariableMultiplicity , "fTreeVariableMultiplicity/D");
   fSignalTree->Branch("fTreeVariableZvertex",              &fTreeVariableZvertex  , "fTreeVariableZvertex/D");
   fSignalTree->Branch("fTreeVariablePDGCode",              &fTreeVariablePDGCode  , "fTreeVariablePDGCode/D");
+  fSignalTree->Branch("fTreeVariablePDGCodeBach",              &fTreeVariablePDGCodeBach  , "fTreeVariablePDGCodeBach/D");
+  fSignalTree->Branch("fTreeVariablePDGCodePos",              &fTreeVariablePDGCodePos  , "fTreeVariablePDGCodePos/D");
+  fSignalTree->Branch("fTreeVariablePDGCodeNeg",              &fTreeVariablePDGCodeNeg  , "fTreeVariablePDGCodeNeg/D");
+  fSignalTree->Branch("fTreeVariablePDGCodeLambda",              &fTreeVariablePDGCodeLambda  , "fTreeVariablePDGCodeLambda/D");
+  fSignalTree->Branch("fTreeVariablePDGCodeMotherLambda",              &fTreeVariablePDGCodeMotherLambda  , "fTreeVariablePDGCodeMotherLambda/D");
   fSignalTree->Branch("fTreeVariableRunNumber",              &fTreeVariableRunNumber  , "fTreeVariableRunNumber/D");
   fSignalTree->Branch("fTreeVariableBunchCrossNumber",              &fTreeVariableBunchCrossNumber  , "fTreeVariableBunchCrossNumber/D");		
   fSignalTree->Branch("fTreeVariableNegNSigmaPion",&fTreeVariableNegNSigmaPion  ,"fTreeVariableNegNSigmaPion/D");
@@ -537,13 +564,15 @@ void AliAnalysisTaskCascades::UserCreateOutputObjects()
   fSignalTree->Branch("fTreeVariableInvMassXi",         &fTreeVariableInvMassXi, "fTreeVariableInvMassXi/D");
   fSignalTree->Branch("fTreeVariableInvMassOmega",      &fTreeVariableInvMassOmega, "fTreeVariableInvMassOmega/D");
   fSignalTree->Branch("fTreeVariableInvMassLambda",  &fTreeVariableInvMassLambda, "fTreeVariableInvMassLambda/D");
+  fSignalTree->Branch("fTreeVariableInvMassK0Short",  &fTreeVariableInvMassK0Short, "fTreeVariableInvMassK0Short/D");
   fSignalTree->Branch("fTreeVariableRapXi",               &fTreeVariableRapXi   , "fTreeVariableRapXi/D");
   fSignalTree->Branch("fTreeVariableRapOmega",               &fTreeVariableRapOmega   , "fTreeVariableRapOmega/D");
   fSignalTree->Branch("fTreeVariableCascRadius",         &fTreeVariableCascRadius, "fTreeVariableCascRadius/D");
   fSignalTree->Branch("fTreeVariableV0Radius",      &fTreeVariableV0Radius, "fTreeVariableV0Radius/D");
   fSignalTree->Branch("fTreeVariableLeastNbrClusters",      &fTreeVariableLeastNbrClusters, "fTreeVariableLeastNbrClusters/D");
   fSignalTree->Branch("fTreeVariableV0Lifetime", &fTreeVariableV0Lifetime, "fTreeVariableV0Lifetime/D");
-  fSignalTree->Branch("fTreeVariableIsPrimaryCasc", &fTreeVariableIsPrimaryCasc, "fTreeVariableIsPrimaryCasc/D");
+  fSignalTree->Branch("fTreeVariableIsPrimaryXi", &fTreeVariableIsPrimaryXi, "fTreeVariableIsPrimaryXi/D");
+  fSignalTree->Branch("fTreeVariableIsPrimaryOmega", &fTreeVariableIsPrimaryOmega, "fTreeVariableIsPrimaryOmega/D");
 
   fHistPt = new TH1F("fHistPt", "p_{T} distribution of selected charged tracks in events used for AC", 300, 0, 30); 
   fHistPt->GetXaxis()->SetTitle("p_{T} (GeV/c)");
@@ -669,14 +698,16 @@ void AliAnalysisTaskCascades::UserCreateOutputObjects()
   fHistEventV0->SetTitle("Number of V0 which progressively pass the listed selections");
   fHistEventV0->GetXaxis()->SetBinLabel(1,"All V0s");
   fHistEventV0->GetXaxis()->SetBinLabel(2,"V0s ok");
-  fHistEventV0->GetXaxis()->SetBinLabel(3,"Filterbit daughters"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(4,"Chis daughter tracks"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(5,"PID daughters"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(6,"|eta daughters|<0.8"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(7,"V0 lifetime"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(8,"Xi lifetime"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(9,"more cuts + 0.45 < Mass < 0.55"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(10,"Lrejection"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(3,"All daugthers available");
+  fHistEventV0->GetXaxis()->SetBinLabel(4,"Filterbit daughters"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(5,"Chis daughter tracks"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(6,"TPC refit"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(7,"PID daughters"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(8,"|eta daughters|<0.8"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(9,"V0 lifetime"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(10,"Xi lifetime"); 
+  //  fHistEventV0->GetXaxis()->SetBinLabel(9,"more cuts + 0.45 < Mass < 0.55"); 
+  //  fHistEventV0->GetXaxis()->SetBinLabel(10,"Lrejection"); 
   fHistEventV0->GetXaxis()->SetBinLabel(11,"0<pT<pTV0max (reco up to here)"); 
   fHistEventV0->GetXaxis()->SetBinLabel(12,"NV0(reco) in ev wNT>0"); 
   fHistEventV0->GetXaxis()->SetBinLabel(13,"NV0(reco true) in ev wNT>0");
@@ -866,20 +897,36 @@ void AliAnalysisTaskCascades::UserCreateOutputObjects()
   fHistTriggervsMultMC->GetXaxis()->SetTitle("Centrality");
 
 
-  fHistGeneratedV0Pt=new TH3F*[2];
+  fHistGeneratedXiPt=new TH3F*[2];
   for(Int_t j=0; j<2; j++){
-    fHistGeneratedV0Pt[j]=new TH3F(Form("fHistGeneratedV0Pt_%i",j), "p_{T} and p^{Trigg, Max}_{T} distribution of generated Xi particles (primary)", 300, 0, 30,  100, 0, 100 , 2, -1, 1);
-    fHistGeneratedV0Pt[j]->GetXaxis()->SetTitle("p_{T}");
-    fHistGeneratedV0Pt[j]->GetYaxis()->SetTitle("Multiplicity class");
-    fHistGeneratedV0Pt[j]->GetZaxis()->SetTitle("Xi Minus or Plus");
+    fHistGeneratedXiPt[j]=new TH3F(Form("fHistGeneratedXiPt_%i",j), "p_{T} distribution of generated Xi particles (primary)", 300, 0, 30,  100, 0, 100 , 2, -1, 1);
+    fHistGeneratedXiPt[j]->GetXaxis()->SetTitle("p_{T}");
+    fHistGeneratedXiPt[j]->GetYaxis()->SetTitle("Multiplicity class");
+    fHistGeneratedXiPt[j]->GetZaxis()->SetTitle("Xi Minus or Plus");
   }
 
-    fHistSelectedV0Pt=new TH3F*[2];
+    fHistSelectedXiPt=new TH3F*[2];
   for(Int_t j=0; j<2; j++){
-    fHistSelectedV0Pt[j]=new TH3F(Form("fHistSelectedV0Pt_%i",j), "p_{T} and p^{Trigg, Max}_{T} distribution of selected Xi particles (primary)", 300, 0, 30,  100, 0, 100 , 2, -1, 1);
-    fHistSelectedV0Pt[j]->GetXaxis()->SetTitle("p_{T}");
-    fHistSelectedV0Pt[j]->GetYaxis()->SetTitle("Multiplicity class");
-    fHistSelectedV0Pt[j]->GetZaxis()->SetTitle("Xi Minus or Plus");
+    fHistSelectedXiPt[j]=new TH3F(Form("fHistSelectedXiPt_%i",j), "p_{T} distribution of selected Xi particles (primary)", 300, 0, 30,  100, 0, 100 , 2, -1, 1);
+    fHistSelectedXiPt[j]->GetXaxis()->SetTitle("p_{T}");
+    fHistSelectedXiPt[j]->GetYaxis()->SetTitle("Multiplicity class");
+    fHistSelectedXiPt[j]->GetZaxis()->SetTitle("Xi Minus or Plus");
+  }
+
+  fHistGeneratedOmegaPt=new TH3F*[2];
+  for(Int_t j=0; j<2; j++){
+    fHistGeneratedOmegaPt[j]=new TH3F(Form("fHistGeneratedOmegaPt_%i",j), "p_{T} distribution of generated Omega particles (primary)", 300, 0, 30,  100, 0, 100 , 2, -1, 1);
+    fHistGeneratedOmegaPt[j]->GetXaxis()->SetTitle("p_{T}");
+    fHistGeneratedOmegaPt[j]->GetYaxis()->SetTitle("Multiplicity class");
+    fHistGeneratedOmegaPt[j]->GetZaxis()->SetTitle("Omega Minus or Plus");
+  }
+
+    fHistSelectedOmegaPt=new TH3F*[2];
+  for(Int_t j=0; j<2; j++){
+    fHistSelectedOmegaPt[j]=new TH3F(Form("fHistSelectedOmegaPt_%i",j), "p_{T} distribution of selected Omega particles (primary)", 300, 0, 30,  100, 0, 100 , 2, -1, 1);
+    fHistSelectedOmegaPt[j]->GetXaxis()->SetTitle("p_{T}");
+    fHistSelectedOmegaPt[j]->GetYaxis()->SetTitle("Multiplicity class");
+    fHistSelectedOmegaPt[j]->GetZaxis()->SetTitle("Omega Minus or Plus");
   }
 
 
@@ -979,8 +1026,10 @@ void AliAnalysisTaskCascades::UserCreateOutputObjects()
     
     
   for(Int_t j=0; j < 2; j++){
-    fOutputList2->Add(fHistGeneratedV0Pt[j]);
-    fOutputList2->Add(fHistSelectedV0Pt[j]); 
+    fOutputList2->Add(fHistGeneratedXiPt[j]);
+    fOutputList2->Add(fHistSelectedXiPt[j]); 
+    fOutputList2->Add(fHistGeneratedOmegaPt[j]);
+    fOutputList2->Add(fHistSelectedOmegaPt[j]); 
   }
  
   fOutputList->Add(fHistReconstructedV0PtMass);
@@ -1197,8 +1246,8 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
 
   Int_t NumberSecondParticleRecoTrue=0;
   Int_t NumberSecondParticle=0;
-  Int_t NumberTruthXiOne=0;
-  Int_t NumberTruthXiTwo=0;
+  Int_t NumberTruthXi=0;
+  Int_t NumberTruthOmega=0;
   Int_t NumberSecondParticleMC=0;
   Int_t NumberSecondParticleAll=0;
 
@@ -1252,6 +1301,7 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
   AliAODMCParticle* MotherBach;
   Int_t PdgMotherPos=0;
   Int_t PdgMotherNeg=0;
+  Int_t PdgMotherLambda=0;
   Int_t PdgGMotherPos=0;
   Int_t PdgGMotherNeg=0;
   Int_t PdgMotherBach=0;
@@ -1311,6 +1361,7 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
 
     // - 3rd part of initialisation : about V0 part in cascades
     Double_t lInvMassLambdaAsCascDghter = 0.;
+    Double_t lInvMassK0sAsCascDghter = 0.;
     //Double_t lV0Chi2Xi         = -1. ;
     Double_t lDcaV0DaughtersXi = -1.;
 
@@ -1407,7 +1458,15 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
             AliWarning("ERROR: Could not retrieve one of the 3 AOD daughter tracks of the cascade ...");
             continue;
         }
-    
+    fHistEventV0->Fill(3);   
+    if(!pTrackXi->TestFilterBit(1)) continue;
+    if(!nTrackXi->TestFilterBit(1)) continue;
+    if(!bachTrackXi->TestFilterBit(1)) continue;
+    fHistEventV0->Fill(4);   
+    if(pTrackXi->Chi2perNDF()>4.)continue;
+    if(nTrackXi->Chi2perNDF()>4.)continue;
+    if(bachTrackXi->Chi2perNDF()>4.)continue;
+    fHistEventV0->Fill(5);  
     Double_t lBMom[3], lNMom[3], lPMom[3];
     pTrackXi->GetPxPyPz( lBMom);
     nTrackXi->GetPxPyPz( lPMom);
@@ -1450,20 +1509,20 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
     //fTreeVariablekITSRefitNegative = kTRUE;
     //fTreeVariablekITSRefitPositive = kTRUE;
 
-    /*
-    if ((pStatus&AliAODtrack::kTPCrefit)    == 0) {
+    
+    if ((pStatus&AliAODTrack::kTPCrefit)    == 0) {
       AliWarning("Pb / V0 Pos. track has no TPCrefit ... continue!");
       continue;
     }
-    if ((nStatus&AliAODtrack::kTPCrefit)    == 0) {
+    if ((nStatus&AliAODTrack::kTPCrefit)    == 0) {
       AliWarning("Pb / V0 Neg. track has no TPCrefit ... continue!");
       continue;
     }
-    if ((bachStatus&AliAODtrack::kTPCrefit) == 0) {
+    if ((bachStatus&AliAODTrack::kTPCrefit) == 0) {
       AliWarning("Pb / Bach.   track has no TPCrefit ... continue!");
       continue;
     }
-    */
+    fHistEventV0->Fill(6);  
     //***********************************************
     //Sandbox mode information, please
     //   fTreeCascVarMagneticField = fAOD->GetMagneticField();
@@ -1490,6 +1549,7 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
       AliWarning("Pb / Bach.   track has less than 70 TPC clusters ... continue!");
       continue;
     }
+    fHistEventV0->Fill(7);  
     Int_t leastnumberofclusters = 1000;
     if( lPosTPCClusters < leastnumberofclusters ) leastnumberofclusters = lPosTPCClusters;
     if( lNegTPCClusters < leastnumberofclusters ) leastnumberofclusters = lNegTPCClusters;
@@ -1499,16 +1559,20 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
     Double_t pEta   = pTrackXi->Eta();
     Double_t nEta    = nTrackXi->Eta();
     Double_t bachEta = bachTrackXi->Eta();
-    if (pEta>0.8) continue;
-    if (nEta>0.8) continue;
-    if (bachEta>0.8) continue;
-    fHistEventV0->Fill(6);  
+    if (TMath::Abs(pEta)>0.8) continue;
+    if (TMath::Abs(nEta)>0.8) continue;
+    if (TMath::Abs(bachEta)>0.8) continue;
+    fHistEventV0->Fill(8);  
 
         cout << "lBachTransMom: " << lBachTransMom << "lNegTransMom: " << lNegTransMom <<  "lPosTransMom: " << lPosTransMom << endl;
+	//alternative way to define charge    lChargeXi = bachTrackXi->Charge();
     if ( lChargeXi < 0)
       lInvMassLambdaAsCascDghter    = xi->MassLambda();
     else
       lInvMassLambdaAsCascDghter    = xi->MassAntiLambda();
+
+
+      lInvMassK0sAsCascDghter    = xi->MassK0Short();
 
     //Different DCA    
     lDcaXiDaughters 	        = xi->DcaXiDaughters();
@@ -1553,7 +1617,7 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
 	    lV0Lifetime = -1;
         }
 	if (lV0Lifetime>100) continue;
-	fHistEventV0->Fill(7);  
+	fHistEventV0->Fill(9);  
 
 	/*
         //========================================================================================
@@ -1617,7 +1681,7 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
 	  kctauXi=-999.;
 	}
 	if (kctauXi > 100) continue;
-	fHistEventV0->Fill(8);  
+	fHistEventV0->Fill(10);  
     
 	//	cout << "Pt Cascade " << lXiTransvMom << endl;
 	//	cout << "P cascade component x " << lXiMom[0]<< endl;
@@ -1755,6 +1819,7 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
     if(lInvMassOmegaMinus!=0) fTreeVariableInvMassOmega = lInvMassOmegaMinus;
     if(lInvMassOmegaPlus!=0)  fTreeVariableInvMassOmega = lInvMassOmegaPlus;
     fTreeVariableInvMassLambda = lInvMassLambdaAsCascDghter;
+    fTreeVariableInvMassK0Short = lInvMassK0sAsCascDghter;
 
     fTreeVariableCascRadius = lXiRadius;
     fTreeVariableV0Radius = lV0RadiusXi;
@@ -1784,31 +1849,78 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
     //Omega mass window: 150MeV wide
 
 
-	Int_t isXi=-999;;
+	Float_t isXi=-999;;
 	if(fReadMCTruth){
 	  if (fMCEvent){
 
 	    Bool_t isXiNeg = (PdgPos==2212 && PdgNeg==-211 && PdgMotherPos == 3122 && PdgMotherNeg == 3122 && labelMotherPos==labelMotherNeg  && !MotherPos->IsPhysicalPrimary() && PdgBach==-211 && PdgMotherBach==3312 && PdgGMotherPos==3312 &&PdgGMotherNeg==3312 && GMotherPos->IsPhysicalPrimary() && labelGMotherPos==labelGMotherNeg && labelGMotherNeg==labelMotherBach);
 	    Bool_t isXiPos = (PdgPos==211 && PdgNeg==-2212 && PdgMotherPos == -3122 &&  PdgMotherNeg == -3122 && labelMotherPos==labelMotherNeg  && !MotherPos->IsPhysicalPrimary() && PdgBach==211 && PdgMotherBach==-3312 && PdgGMotherPos==-3312 && PdgGMotherNeg==-3312 && GMotherPos->IsPhysicalPrimary() && labelGMotherPos==labelGMotherNeg && labelGMotherNeg==labelMotherBach);
-	    cout << "isXiPos " << isXiPos << "isXiNeg " << isXiNeg << endl;
+	    Bool_t isOmegaNeg = (PdgPos==2212 && PdgNeg==-211 && PdgMotherPos == 3122 && PdgMotherNeg == 3122 && labelMotherPos==labelMotherNeg  && !MotherPos->IsPhysicalPrimary() && PdgBach==-321 && PdgMotherBach==3334 && PdgGMotherPos==3334 &&PdgGMotherNeg==3334 && GMotherPos->IsPhysicalPrimary() && labelGMotherPos==labelGMotherNeg && labelGMotherNeg==labelMotherBach);
+	    Bool_t isOmegaPos = (PdgPos==211 && PdgNeg==-2212 && PdgMotherPos == -3122 &&  PdgMotherNeg == -3122 && labelMotherPos==labelMotherNeg  && !MotherPos->IsPhysicalPrimary() && PdgBach==321 && PdgMotherBach==-3334 && PdgGMotherPos==-3334 && PdgGMotherNeg==-3334 && GMotherPos->IsPhysicalPrimary() && labelGMotherPos==labelGMotherNeg && labelGMotherNeg==labelMotherBach);
+
+	    Bool_t isV0Particle=(labelMotherPos==labelMotherNeg);
+	    //	    cout << "isXiPos " << isXiPos << "isXiNeg " << isXiNeg << endl;
 	    if(isXiPos || isXiNeg){
-	      if (GMotherPos->IsPrimary()) {fTreeVariableIsPrimaryCasc=1;}
-	      else {fTreeVariableIsPrimaryCasc=-1;}
+	      if (GMotherPos->IsPrimary()) {fTreeVariableIsPrimaryXi=1;}
+	      else {fTreeVariableIsPrimaryXi=-1;}
+	      fTreeVariableIsPrimaryOmega=0;
 	      //	      fTreeVariablePDGCode=PdgGMotherPos;
 	      fTreeVariablePDGCode=PdgMotherBach;
-	      NumberTruthXiOne++;
-	      if (lChargeXi==1) isXi=0.5;
-	      else if (lChargeXi==-1) isXi=-0.5;
-	      fHistSelectedV0Pt[0]->Fill(lXiTransvMom, lPercentiles,isXi );
-	      NumberTruthXiTwo++;
-	      if (TMath::Abs(lRapXi)>0.5 ) continue;
+	      fTreeVariablePDGCodeBach=0;
+	      fTreeVariablePDGCodeLambda=0;
+	      fTreeVariablePDGCodePos=0;
+	      fTreeVariablePDGCodeNeg=0;
+	      fTreeVariablePDGCodeMotherLambda=0;
+	      NumberTruthXi++;
+	      if (lChargeXi>0) isXi=0.5;
+	      else if (lChargeXi<0) isXi=-0.5;
+	      fHistSelectedXiPt[0]->Fill(lXiTransvMom, lPercentiles,isXi );
+
+	      if (TMath::Abs(lRapXi)<=0.5 ) {
 	      //	cout << "these are all K0s generated passing selection criteria: label K0s " << particle->Label()<<endl; 
-	      fHistSelectedV0Pt[1]->Fill(lXiTransvMom, lPercentiles, isXi);
+	      fHistSelectedXiPt[1]->Fill(lXiTransvMom, lPercentiles, isXi);
+	      }
 
 	    }
+	    else if(isOmegaPos || isOmegaNeg){
+	      if (GMotherPos->IsPrimary()) {fTreeVariableIsPrimaryOmega=1;}
+	      else {fTreeVariableIsPrimaryOmega=-1;}
+	      fTreeVariableIsPrimaryXi=0;
+	      //	      fTreeVariablePDGCode=PdgGMotherPos;
+	      fTreeVariablePDGCode=PdgMotherBach;
+	      fTreeVariablePDGCodeBach=0;
+	      fTreeVariablePDGCodeLambda=0;
+	      fTreeVariablePDGCodePos=0;
+	      fTreeVariablePDGCodeNeg=0;
+	      fTreeVariablePDGCodeMotherLambda=0;
+	      NumberTruthOmega++;
+	      if (lChargeXi>0) isXi=0.5;
+	      else if (lChargeXi<0) isXi=-0.5;
+	      fHistSelectedOmegaPt[0]->Fill(lXiTransvMom, lPercentiles,isXi);
+	      if (TMath::Abs(lRapOmega)<=0.5 ) {
+	      //	cout << "these are all K0s generated passing selection criteria: label K0s " << particle->Label()<<endl; 
+	      fHistSelectedOmegaPt[1]->Fill(lXiTransvMom, lPercentiles, isXi);
+	      }
+
+	    }
+
 	    else {
-	      fTreeVariablePDGCode=0;
-	      fTreeVariableIsPrimaryCasc=0;
+	      if (isV0Particle) {
+		fTreeVariablePDGCodeLambda=PdgMotherPos; 	  
+		fTreeVariablePDGCodeMotherLambda=PdgGMotherPos;
+	      }
+	      else {
+		fTreeVariablePDGCodeLambda=0;
+		fTreeVariablePDGCodeMotherLambda=0;
+	      }
+	      if (isV0Particle) fTreeVariablePDGCodeBach=PdgBach;
+	      else  fTreeVariablePDGCodeBach=0;
+	      fTreeVariablePDGCodePos=PdgPos;
+	      fTreeVariablePDGCodeNeg=PdgNeg;
+	      fTreeVariablePDGCode=PdgMotherBach;
+	      fTreeVariableIsPrimaryXi=0;
+	      fTreeVariableIsPrimaryOmega=0;
+
 	    }
 	  }
 	}
@@ -2323,10 +2435,9 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
 
   cout << "*******************************************************************************************************************************" << endl;
  
-
     fHistEventV0->AddBinContent(15, NumberSecondParticle);    
-    fHistEventV0->AddBinContent(16, NumberTruthXiOne);    
-    fHistEventV0->AddBinContent(17, NumberTruthXiTwo);    
+    fHistEventV0->AddBinContent(16, NumberTruthXi);    
+    fHistEventV0->AddBinContent(17, NumberTruthOmega);    
     fHistEventMult->Fill(22);  
 
  
