@@ -41,9 +41,11 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
 }
 
 
+void histos_exercise_Cascades(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=3.0, Int_t rap=0,Int_t type=5, Int_t sysTrigger=0, Int_t sysV0=0, Int_t syst=0, Double_t nsigmamax=9, TString year0="2016", TString year="2016k", Bool_t isMC=0, Bool_t isEfficiency=1, TString path1="" , Bool_t isParticleStudy=1){
 
-void histos_exercise_Cascades(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=3.0, Int_t rap=1,Int_t type=4, Int_t sysTrigger=0, Int_t sysV0=0, Int_t syst=0, Double_t nsigmamax=9, TString year0="2016", TString year="2018f1_extra", Bool_t isMC=1, Bool_t isEfficiency=1, TString path1="_25runs" , Bool_t isParticleStudy=1){
-
+  TString yearMC;
+  if (year=="2016k") yearMC = "2018f1_extra";
+  if (year=="2018f1_extra") yearMC = "2018f1_extra";
   //isSignalFromIntegral permette di scegliere tra l'utilizzo di S = integral fit function o S = entries- integral bkg function
   //IsBkgPParab = fit con pl2 per fondo if kTRUE, fit con pol1 per fodno if kFALSE
   //isParticleStudy =1 se sto studiando una particella, 0 se sto studiando correlazioni (cambia sezione calcolo efficienza)
@@ -180,15 +182,18 @@ void histos_exercise_Cascades(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0
   //  cout<< " ciao " << endl;
   TFile *myfile; 
   TFile *myfileAnalysis; 
+  TFile *myfileAnalysisMC; 
   TCanvas *canv[mult+1];
-
+    Int_t     NEvents[mult+1];
   for(Int_t molt=0; molt<mult+1; molt++){
     TString nome_file_1 ="FinalOutput/DATA"+year0+"/histo/AngularCorrelation"+year;
     TString nome_file_output[NsysTrigger][NsysV0];
     TString nome_file_analysis;
+    TString nome_file_analysisMC;
     if (type>3){
       nome_file_analysis="FinalOutput/AnalysisResults"+year+"_Cascades"+path1+".root";
       if (isMC && isEfficiency)   nome_file_analysis="FinalOutput/AnalysisResults"+year+"_MCEff_Cascades"+path1+".root";
+      nome_file_analysisMC="FinalOutput/AnalysisResults"+yearMC+"_MCEff_Cascades"+path1+".root";
     }
     else{
       nome_file_analysis="FinalOutput/AnalysisResults"+year+".root";
@@ -201,7 +206,9 @@ void histos_exercise_Cascades(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0
       nome_file_output[sysTrigger][sysV0]+="_MCEff";
     }
     nome_file_1+="_Cascades_";
-    nome_file_output[sysTrigger][sysV0]+="_Cascades_";
+    nome_file_output[sysTrigger][sysV0]+="_Cascades";
+    nome_file_output[sysTrigger][sysV0]+=path1;
+    nome_file_output[sysTrigger][sysV0]+="_";
     if (type!=0) nome_file_1+=tipo[type];
     
     nome_file_1+=path1;
@@ -210,10 +217,28 @@ void histos_exercise_Cascades(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0
     nome_file_output[sysTrigger][sysV0] +=Form(year+"_"+tipo[type]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f_Rap%i.root", molt, sysTrigger, sysV0, syst,PtTrigMin, rap);
 
     cout << "questo è il nome del file prodotto dal task (nome_file_analysis) " << nome_file_analysis << endl;
+    cout << "questo è il nome del file prodotto dal task (nome_file_analysisMC) " << nome_file_analysisMC << endl;
     myfile = new TFile(nome_file_1, ""); 
     myfileAnalysis = new TFile(nome_file_analysis, ""); 
+    myfileAnalysisMC = new TFile(nome_file_analysisMC, ""); 
+    TDirectoryFile *dirinputMC = (TDirectoryFile*)myfileAnalysisMC->Get(nome_TDir);
     TDirectoryFile *dirinput = (TDirectoryFile*)myfileAnalysis->Get(nome_TDir);
-    TList *listinput = (TList*)dirinput->Get("MyOutputContainer3");
+    TList *listinput = (TList*)dirinputMC->Get("MyOutputContainer3");
+    TList *listinputForNEvents = (TList*)dirinput->Get("MyOutputContainer");
+    TH1F* fHistMul = (TH1F*)listinputForNEvents->FindObject("fHist_multiplicity");
+
+      NEvents[molt] =0;
+      if (molt!=mult){
+      for (Int_t l=fHistMul->FindBin(multip_intervals[molt]+0.0001);l<fHistMul->FindBin(multip_intervals[molt+1]-0.0001);l++){
+	NEvents[molt]+=fHistMul->GetBinContent(l);
+      }
+      }
+      else {
+      for (Int_t l=fHistMul->FindBin(0+0.0001);l<fHistMul->FindBin(100-0.0001);l++){
+	NEvents[molt]+=fHistMul->GetBinContent(l);
+      }
+      }
+      cout << "n events " << NEvents[molt]<< endl;
 
     canv[molt] = new TCanvas(Form("canv_molt%i", molt),"Distribuzione di massa invariante di " +invmass[type] + " dopo applicazione tagli",1600,1000);
     canv[molt]->Divide(4,2);
@@ -263,6 +288,7 @@ void histos_exercise_Cascades(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0
     TH1F *histo_SB = new TH1F ("histo_SB","S/B entro 3sigma vs Pt", num_histo, binl);
     TH1F *histo_SSB = new TH1F ("histo_SSB","S/(S+B) entro 3sigma vs Pt", num_histo, binl);
     TH1F *histo_S = new TH1F ("histo_S","S entro 3sigma vs Pt", num_histo, binl);
+    TH1F *histo_SEffCorr;
     TH1F *histo_Bcentral = new TH1F ("histo_Bcentral","B entro nsigma vs Pt", num_histo, binl);
     TH1F *histo_BsideFalse = new TH1F ("histo_BsideFalse","B in sideband from MC vs Pt", num_histo, binl);
     TH1F *histo_BcentralFalse = new TH1F ("histo_BcentralFalse","B entro nsigma from MC vs Pt", num_histo, binl);
@@ -383,6 +409,12 @@ void histos_exercise_Cascades(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0
       //    cout << "qui ok" << endl;
       isto_tagli[j]->Rebin(rebin[type][molt][j]);
       isto_tagli_true[j]->Rebin(rebin[type][molt][j]);
+      isto_tagli_false[j]->Rebin(rebin[type][molt][j]);
+      if ((type ==4 || type==5) && j>=5){
+      isto_tagli[j]->Rebin(2);
+      isto_tagli_true[j]->Rebin(2);
+
+      }
       //if(j<=4) isto_tagli[j]->Rebin(2);
       //else  isto_tagli[j]->Rebin(4);
       // isto[j]->SetTitle("Distribuzione di massa invariante nell'intervallo di p_{T} ["+ int_pt[j] + "] GeV/c e di molteplicita ["+ multiplicity[molt]+") ("+tipo[type]+")");
@@ -560,19 +592,8 @@ void histos_exercise_Cascades(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0
       // for Xi******************************************************************************************
       //*************************************************************************************************************
       if (tipo[type]=="XiNeg" || tipo[type]=="XiPos"){
-	if(year=="2018f1_extra"){
-	  //     UseTwoGauss=kFALSE;
+	if(year=="2018f1_extra" || year=="2016k"){
 	  UseTwoGauss=kTRUE;
-	  //     if(sysV0==0) UseTwoGauss=((j<7 && molt==0) || (j<7 && molt==1) || (j<6&& molt ==2) || (j<6 && j!=4 && molt ==3) || (j<4 && molt ==4) ||  (j<7 && molt==5));
-	  /*
-	    if(sysV0==0) UseTwoGauss=((j<7 && molt==0) || (j<7 && molt==1) || (j<6&& molt ==2) || (j<6 && j!=4 && molt ==3) || (j<4 && molt ==4) ||  (j<7 && molt==5));
-	    if(sysV0==1) UseTwoGauss=((j<7 && molt==0) || (j<6 && molt==1) || (j<6&& molt ==2) || (j<6 && molt ==3) || (j<7  && molt ==4) ||  (j<7 && molt==5));
-	    if(sysV0==2) UseTwoGauss=((j<6 && molt==0) || (j<5 && molt==1) || (j<6&& molt ==2) || (j<6 && molt ==3) || (j<7 && molt ==4) ||  (j<7 && molt==5));
-	    if(sysV0==3) UseTwoGauss=((j<6 && molt==0) || (j<6 && molt==1) || (j<6&&j!=1&& molt ==2) || (j!=4 && j<6&& molt ==3) || (j<4  && molt ==4) ||  (j<7  && molt==5));
-	    if(sysV0==4) UseTwoGauss=((j<7 && molt==0) || (j<7 && molt==1) || (j<6&& molt ==2) || (j<6&& molt ==3) || (j<4  && molt ==4) ||  (j<7  && molt==5));
-	    if(sysV0==5) UseTwoGauss=((j<7 && molt==0) || (j<6 && molt==1) || (j<6&& molt ==2) || (j<6 && molt ==3) || (j<4 && molt ==4) ||  (j!=2  && molt==5));
-	    if(sysV0==6) UseTwoGauss=((j<7 && molt==0) || (j<7 && molt==1) || (j<6&& molt ==2) || (j<6 && molt ==3) || (j<4 && molt ==4) ||  (j<7 && molt==5));   
-	  */
 	}
       }
       //*************************************************************************************************************
@@ -617,13 +638,13 @@ void histos_exercise_Cascades(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0
 	  //total[j]->SetParLimits(5, 0.001,10);
 	  // total[j]->SetParLimits(4, total[j]->GetParameter(1)-1*total[j]->GetParameter(2), total[j]->GetParameter(1)+1*total[j]->GetParameter(2) );
 	  total[j]->SetParLimits(1, 1.318, 1.326);
-	  total[j]->SetParLimits(2, 0.0012,10); //it was 0.001
+	  total[j]->SetParLimits(2, 0.0012,0.010); //it was 0.001
 
 	  total[j]->SetParLimits(3, 0.08*isto_tagli[j]->GetBinContent(isto_tagli[j]->GetMaximumBin()),isto_tagli[j]->GetBinContent(isto_tagli[j]->GetMaximumBin()));  //maximum was wothout 0.3
 	  total[j]->SetParLimits(4, 1.318, 1.326);
 	  //     total[j]->SetParLimits(5, 0.003, 1);
 
-	  total[j]->SetParLimits(5, 0.0012, 1); 
+	  total[j]->SetParLimits(5, 0.0012, 0.007); 
 	  if(isMeanFixedPDG){
 	  total[j]->FixParameter(1, massParticle[type]);
 	  total[j]->FixParameter(4, massParticle[type]);
@@ -726,7 +747,7 @@ void histos_exercise_Cascades(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0
 	else   isto_tagli[j]-> Fit(bkg1[j], "BR+");
 	// isto_tagli[j]-> Fit(functionsFirst[j], "RB+"); 
 	// isto_tagli[j]-> Fit(functionsSecond[j], "RB+");  
-
+	isto_tagli[j]->GetYaxis()->SetRangeUser(0, 1.2*isto_tagli[j]->GetBinContent(isto_tagli[j]->GetMaximumBin()));
 	isto_tagli[j]->GetXaxis()->SetRangeUser(min_histo[type],max_histo[type]);
 	isto_tagli_true[j]->GetXaxis()->SetRangeUser(min_histo[type],max_histo[type]);
 	isto_tagli_false[j]->GetXaxis()->SetRangeUser(min_histo[type],max_histo[type]);
@@ -926,7 +947,7 @@ void histos_exercise_Cascades(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0
       entries_sideband_false[j]=0;      
       entries_sideband_true[j]=0;
 
-      for(Int_t l=isto_tagli_false[j]->GetXaxis()->FindBin(mean[j]-sigmacentral*sigma[j]); l<=isto_tagli_false[j]->GetXaxis()->FindBin(mean[j]+sigmacentral*sigma[j]); l++){
+      for(Int_t l=isto_tagli[j]->GetXaxis()->FindBin(mean[j]-sigmacentral*sigma[j]); l<=isto_tagli[j]->GetXaxis()->FindBin(mean[j]+sigmacentral*sigma[j]); l++){
 	entries_range[j]+=isto_tagli[j]->GetBinContent(l);
 	entries_range_true[j]+=isto_tagli_true[j]->GetBinContent(l);
 	entries_range_false[j]+=isto_tagli_false[j]->GetBinContent(l);
@@ -1027,8 +1048,8 @@ void histos_exercise_Cascades(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0
 	  histo_SB->SetBinError(j+1, errSB1[j]);
 	  histo_SSB->SetBinContent(j+1,bin_contentSSB1[j]);
 	  histo_SSB->SetBinError(j+1, errSSB1[j]);
-	  histo_S->SetBinContent(j+1,bin_contentS1[j]/isto_tagli[j]->GetBinWidth(1));
-	  histo_S->SetBinError(j+1, errS1[j]/isto_tagli[j]->GetBinWidth(1));
+	  histo_S->SetBinContent(j+1,bin_contentS1[j]/isto_tagli[j]->GetBinWidth(1)/NEvents[molt]);
+	  histo_S->SetBinError(j+1, errS1[j]/isto_tagli[j]->GetBinWidth(1)/NEvents[molt]);
 	  histo_Bcentral->SetBinContent(j+1,b[j]);
 	  histo_Bcentral->SetBinError(j+1, errb[j]);
 	  histo_Bside->SetBinContent(j+1,bside[j]);
@@ -1038,6 +1059,7 @@ void histos_exercise_Cascades(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0
 	  histo_BsideFalse->SetBinContent(j+1,entries_sideband_false[j]*isto_tagli[j]->GetBinWidth(1));
 	  histo_BsideFalse->SetBinError(j+1, err_sideband_false[j]*isto_tagli[j]->GetBinWidth(1));
 	  histo_FracStrangePeak->SetBinContent(j+1,(entries_range_false[j]*isto_tagli[j]->GetBinWidth(1)-b[j])/entries_range[j]/isto_tagli[j]->GetBinWidth(1));
+	  histo_FracStrangePeak->SetBinError(j+1,0);
 	  histo_BRatioCentral->SetBinContent(j+1,b[j]/entries_range_false[j]/isto_tagli[j]->GetBinWidth(1));
 	  histo_SRatioCentral->SetBinContent(j+1,st[j]/entries_range_true[j]/isto_tagli[j]->GetBinWidth(1));
 	  histo_BRatioSide->SetBinContent(j+1,bside[j]/entries_sideband_false[j]/isto_tagli[j]->GetBinWidth(1));
@@ -1059,8 +1081,8 @@ void histos_exercise_Cascades(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0
 	  histo_SB->SetBinError(j+1,errSB2[j]);
 	  histo_SSB->SetBinContent(j+1,bin_contentSSB2[j]);
 	  histo_SSB->SetBinError(j+1, errSSB2[j]);
-	  histo_S->SetBinContent(j+1,bin_contentS2[j]/isto_tagli[j]->GetBinWidth(1));
-	  histo_S->SetBinError(j+1,errS2[j]/isto_tagli[j]->GetBinWidth(1));
+	  histo_S->SetBinContent(j+1,bin_contentS2[j]/isto_tagli[j]->GetBinWidth(1)/NEvents[molt]);
+	  histo_S->SetBinError(j+1,errS2[j]/isto_tagli[j]->GetBinWidth(1)/NEvents[molt]);
 	  histo_Bcentral->SetBinContent(j+1,b[j]);
 	  histo_Bcentral->SetBinError(j+1, errb[j]);
 	  histo_Bside->SetBinContent(j+1,bside[j]);
@@ -1077,6 +1099,7 @@ void histos_exercise_Cascades(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0
 	  histo_BRatioCentral->SetBinError(j+1,0);
 	  histo_BRatioSide->SetBinError(j+1,0);
 	  histo_SRatioCentral->SetBinError(j+1,0);
+	  histo_FracStrangePeak->SetBinError(j+1,0);
 	  histo_signal_int->SetBinContent(j+1,(tot[j]-b[j])/isto_tagli[j]->GetBinWidth(1)/events);
 	  histo_signal_int->SetBinError(j+1,errS2[j]/isto_tagli[j]->GetBinWidth(1)/events);
 	  histo_signal_int_pure->SetBinContent(j+1,(tot[j]-b[j])/isto_tagli[j]->GetBinWidth(1));
@@ -1094,7 +1117,7 @@ cout << functions1[j]->Integral(functions1[j]->GetParameter(1)-sigmacentral*func
 
 	}  else {
 	  cout << " S su B varra' zero perche  condizioni non sono soddisfatte " << endl; 
-	  cout << "reduced chi " << total[j]->GetChisquare()/total[j]->GetNDF()<< "\nmean " << mean[j] << " >? " << lim_inf_mean[type] << " <? " <<lim_sup_mean[type] <<"\n S/B " <<bin_contentSB2[j]<< "\n sigma " << sigma[j] << " <? " << lim_sup_sigma[type] << "\n err sigma " << errsigma[j] << " <? " << lim_sup_errsigma[type] << "\n err mean " << errmean[j] << " <? " << lim_sup_errmean[type] << endl;
+	  cout << "reduced chi " << total[j]->GetChisquare()/total[j]->GetNDF()<< "\nmean " << mean[j] << " >? " << lim_inf_mean[type] << " <? " <<lim_sup_mean[type] <<"\n totale in central region from bin counting " << tot[j] << "\nB in central region from integral " << b[j] << " \n S/B " <<bin_contentSB2[j]<< "\n sigma " << sigma[j] << " <? " << lim_sup_sigma[type] << "\n err sigma " << errsigma[j] << " <? " << lim_sup_errsigma[type] << "\n err mean " << errmean[j] << " <? " << lim_sup_errmean[type] << endl;
 	  histo_SB->SetBinContent(j+1,0);
 	  histo_SB->SetBinError(j+1,0);
 	  histo_SSB->SetBinContent(j+1,0);
@@ -1113,10 +1136,10 @@ cout << functions1[j]->Integral(functions1[j]->GetParameter(1)-sigmacentral*func
 	  histo_BRatioCentral->SetBinContent(j+1,0);
 	  histo_BRatioSide->SetBinContent(j+1,0);
 	  histo_SRatioCentral->SetBinContent(j+1,0);
-
 	  histo_BRatioCentral->SetBinError(j+1,0);
 	  histo_BRatioSide->SetBinError(j+1,0);
 	  histo_SRatioCentral->SetBinError(j+1,0);
+	  histo_FracStrangePeak->SetBinError(j+1,0);
 	  histo_signal_int->SetBinContent(j+1,0);
 	  histo_signal_int->SetBinError(j+1,0);
 	  histo_signal_int_pure->SetBinContent(j+1,0);
@@ -1145,7 +1168,7 @@ cout << functions1[j]->Integral(functions1[j]->GetParameter(1)-sigmacentral*func
 	  cout << entries_range[j]*isto_tagli[j]->GetBinWidth(1)/(-functions1[j]->Integral(functions1[j]->GetParameter(1)-sigmacentral*functions1[j]->GetParameter(2),functions1[j]->GetParameter(1)+sigmacentral*functions1[j]->GetParameter(2))+entries_range[j]*isto_tagli[j]->GetBinWidth(1)) << endl;
 	*/
 	cout<<"---------------"<<j<<endl;
-      }  
+      }
     }
 
     //*************************************************************************************************************
@@ -1213,6 +1236,10 @@ cout << functions1[j]->Integral(functions1[j]->GetParameter(1)-sigmacentral*func
     }
 
     cout << "**********I END efficiency computation*************** " << endl;
+
+    histo_SEffCorr = (TH1F*) histo_S->Clone("histo_SEffCorr");
+      histo_SEffCorr->Divide(histo_Efficiency);
+
     //*************************************************************************************************************
     //End of efficiency calculation if isParticleStudy==1
     //*************************************************************************************************************
@@ -1235,6 +1262,7 @@ cout << functions1[j]->Integral(functions1[j]->GetParameter(1)-sigmacentral*func
     histo_SB->Write();
     histo_SSB->Write();
     histo_S->Write();
+    histo_SEffCorr->Write();
     histo_Bcentral->Write();
     histo_Bside->Write();
     histo_BcentralFalse->Write();
@@ -1258,7 +1286,7 @@ cout << functions1[j]->Integral(functions1[j]->GetParameter(1)-sigmacentral*func
     // histo_signal_int->Write();
     // histo_signal_int_pure->Write();
     f->Close();
-   
+      cout << NEvents[molt] << endl;
 
     cout << endl;
     cout << "*******************" << endl;

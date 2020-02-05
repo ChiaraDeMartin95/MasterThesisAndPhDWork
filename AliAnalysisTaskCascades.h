@@ -34,6 +34,8 @@ class AliAnalysisTaskCascades : public AliAnalysisTaskSE
 
   void ProcessMCParticles(Bool_t Generated, Float_t lPercentiles, Bool_t isV0, Bool_t fIshhCorr);
 
+  Float_t GetLengthInActiveZone( AliAODTrack *gt, Float_t deltaY, Float_t deltaZ, Float_t b );
+
  private:
   TString                 fAnalysisType;                  // "ESD" or "AOD" analysis type
   TString                 fCollidingSystem;               // "pp", "pPb", "PbPb" 
@@ -90,6 +92,8 @@ class AliAnalysisTaskCascades : public AliAnalysisTaskSE
 Double_t   fRunNumber; //!
 Double_t   fBunchCrossNumber; //!
   TH1F*                   fHistEventV0;   //!
+  TH2F*                   fHistEventXiTruePos;   //!
+  TH2F*                   fHistEventXiTrueNeg;   //!
   TH1F*                   fHistTrack;       //!
   TH2F* fHistTriggerComposition; //! 
   TH2F* fHistTriggerCompositionMCTruth; //! 
@@ -152,10 +156,12 @@ TH3F*  fHistResolutionTriggerPhi; //!
 TH3F*  fHistResolutionTriggerEta; //!
 TH3F*  fHistResolutionTriggerPhiPt; //!
 TH3F*  fHistResolutionTriggerPhiPdgCode; //!
-TH3F*  fHistResolutionV0Pt; //!
-TH3F*  fHistResolutionV0Phi; //!
-TH3F*  fHistResolutionV0PhivsPt; //!
-TH3F*  fHistResolutionV0Eta; //!
+TH2F*  fHistResolutionXiPt; //!
+TH2F*  fHistResolutionXiPhi; //!
+TH2F*  fHistResolutionXiEta; //!
+TH2F*  fHistResolutionOmegaPt; //!
+TH2F*  fHistResolutionOmegaPhi; //!
+TH2F*  fHistResolutionOmegaEta; //!
 
   TH2F *** fHistPrimaryTrigger; //!
   TH3F ***  fHistPrimaryV0; //!  
@@ -191,6 +197,9 @@ Double_t  fTreeVariablePosNSigmaPion;
 Double_t  fTreeVariablePosNSigmaProton;
 Double_t  fTreeVariableBachNSigmaPion;
 Double_t  fTreeVariableBachNSigmaKaon;
+ Double_t	fTreeVariablePosTrackLength;
+ Double_t	fTreeVariableNegTrackLength;
+ Double_t	fTreeVariableBachTrackLength;
 Double_t  fTreeVariableDcaXiToPrimVertex;
 Double_t  fTreeVariableXYDcaXiToPrimVertex;
 Double_t  fTreeVariableZDcaXiToPrimVertex;

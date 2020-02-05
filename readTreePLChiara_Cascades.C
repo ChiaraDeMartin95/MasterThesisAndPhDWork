@@ -15,9 +15,9 @@
 #include <TTree.h>
 #include <TLatex.h>
 #include <TFile.h>
-void readTreePLChiara_Cascades(Int_t type=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t sysV0=0,Int_t rap=1, bool isMC = 1,Bool_t isEfficiency=1,Int_t sysTrigger=0,
+void readTreePLChiara_Cascades(Int_t type=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t sysV0=0,Int_t rap=0, bool isMC = 0,Bool_t isEfficiency=1,Int_t sysTrigger=0,
 			    //TString PathIn ="./AnalysisResults2018d8_allrunswMult_MC.root", Int_t type=0 //type = 0 per K0short
-TString year="2018f1_extra", TString year0="2016", TString Path1 ="_25runs"	    
+TString year="2016k", TString year0="2016", TString Path1 =""	    
 			    )
 {
   if (type>1) {
@@ -166,6 +166,7 @@ return;
   Double_t fSignTreeVariablePtCasc;
   Double_t fSignTreeVariableChargeCasc;
   Double_t fSignTreeVariableEtaCasc;
+  Double_t fSignTreeVariablePhiCasc;
   Double_t fSignTreeVariablectau;
   Double_t fSignTreeVariableInvMassXi;
   Double_t fSignTreeVariableInvMassOmega;
@@ -205,6 +206,7 @@ return;
   Double_t fBkgTreeVariablePtCasc;
   Double_t fBkgTreeVariableChargeCasc;
   Double_t fBkgTreeVariableEtaCasc;
+  Double_t fBkgTreeVariablePhiCasc;
   Double_t fBkgTreeVariablectau;
   Double_t fBkgTreeVariableInvMassXi;
   Double_t fBkgTreeVariableInvMassOmega;
@@ -241,12 +243,14 @@ return;
   //Signal
   tSign->SetBranchAddress("fTreeVariableMultiplicity",                   &fSignTreeVariableMultiplicity);
   tSign->SetBranchAddress("fTreeVariableZvertex",                        &fSignTreeVariableZvertex);
+  if (isMC){
   tSign->SetBranchAddress("fTreeVariablePDGCode",                        &fSignTreeVariablePDGCode);
   tSign->SetBranchAddress("fTreeVariablePDGCodeBach",                    &fSignTreeVariablePDGCodeBach);
   tSign->SetBranchAddress("fTreeVariablePDGCodePos",                     &fSignTreeVariablePDGCodePos);
   tSign->SetBranchAddress("fTreeVariablePDGCodeNeg",                     &fSignTreeVariablePDGCodeNeg);
   tSign->SetBranchAddress("fTreeVariablePDGCodeLambda",                  &fSignTreeVariablePDGCodeLambda);
   tSign->SetBranchAddress("fTreeVariablePDGCodeMotherLambda",            &fSignTreeVariablePDGCodeMotherLambda);
+  }
   tSign->SetBranchAddress("fTreeVariableRunNumber",                      &fSignTreeVariableRunNumber);
   tSign->SetBranchAddress("fTreeVariableBunchCrossNumber",               &fSignTreeVariableBunchCrossNumber);
   tSign->SetBranchAddress("fTreeVariableNegNSigmaPion",                  &fSignTreeVariableNegNSigmaPion);
@@ -270,6 +274,7 @@ return;
   tSign->SetBranchAddress("fTreeVariablePtCasc",                         &fSignTreeVariablePtCasc);
   tSign->SetBranchAddress("fTreeVariableChargeCasc",                     &fSignTreeVariableChargeCasc);
   tSign->SetBranchAddress("fTreeVariableEtaCasc",                        &fSignTreeVariableEtaCasc);
+  tSign->SetBranchAddress("fTreeVariablePhiCasc",                        &fSignTreeVariablePhiCasc);
   tSign->SetBranchAddress("fTreeVariablectau",                           &fSignTreeVariablectau);
   tSign->SetBranchAddress("fTreeVariableInvMassXi",                      &fSignTreeVariableInvMassXi);
   tSign->SetBranchAddress("fTreeVariableInvMassOmega",                   &fSignTreeVariableInvMassOmega);
@@ -390,7 +395,7 @@ return;
   TH2D *hMassvsPt_SEbins[nummolt+1][numzeta][numPtTrigger];
   TH2D *hMassvsPt_SEbins_true[nummolt+1][numzeta][numPtTrigger];
   TH2D *hDeltaEtaDeltaPhi_SEbins[nummolt+1][numzeta][numPtV0][numPtTrigger];
-  TH1F *hXiAfterCuts= new TH1F ("hXiAfterCuts", "hXiAfterCuts", 18,0.5, 18.5);
+  TH1F *hXiAfterCuts= new TH1F ("hXiAfterCuts", "hXiAfterCuts", 21,0.5, 21.5);
 
   hXiAfterCuts->GetXaxis()->SetBinLabel(17,"All Xi");
   hXiAfterCuts->GetXaxis()->SetBinLabel(1,"NumberTPCClusters");
@@ -408,14 +413,21 @@ return;
   hXiAfterCuts->GetXaxis()->SetBinLabel(13,"Invmass Lambda");
   hXiAfterCuts->GetXaxis()->SetBinLabel(14,"V0 lifetime");
   hXiAfterCuts->GetXaxis()->SetBinLabel(15,"Casc lifetime");
-  hXiAfterCuts->GetXaxis()->SetBinLabel(16,"Trues Casc");
+  hXiAfterCuts->GetXaxis()->SetBinLabel(16,"Eta casc < 0.8");
+  hXiAfterCuts->GetXaxis()->SetBinLabel(17,"Rapidity");
   hXiAfterCuts->GetXaxis()->SetBinLabel(18,"Mass cuts");
+  hXiAfterCuts->GetXaxis()->SetBinLabel(19,"Trues Casc");
+  hXiAfterCuts->GetXaxis()->SetBinLabel(20,"All");
+  hXiAfterCuts->GetXaxis()->SetBinLabel(21,"Sign selected");
 
   TH3F *hXiTrueSelected= new TH3F ("hXiTrueSelected", "hXiTrueSelected", 100,0, 100, 300, 0, 30, 80, LimInfHisto[type], LimSupHisto[type]);
   hXiTrueSelected->SetTitle("p_{T} and mult.class distribution of selected true Xi");
   hXiTrueSelected->GetXaxis()->SetTitle("Multiplicity class");
   hXiTrueSelected->GetYaxis()->SetTitle("p_{T, #Xi}");
   hXiTrueSelected->GetZaxis()->SetTitle("Inv mass");
+  TH1F *hXiTrueSelected1D = new TH1F ("hXiTrueSelected1D", "hXiTrueSelected1D",80, LimInfHisto[type], LimSupHisto[type]);
+  TH1F *hXiSelected1D = new TH1F ("hXiSelected1D", "hXiSelected1D",80, LimInfHisto[type], LimSupHisto[type]);
+  hXiTrueSelected1D->SetLineColor(kRed);
 
   TH1F *hXiAfterCutsBkg= new TH1F ("hXiAfterCutsBkg", "PDG code della mamma del bachelor per le non-Xi", 7200,-3600, 3600);
 
@@ -427,7 +439,7 @@ return;
   hXiFalseSelected->GetZaxis()->SetTitle("Inv mass");
 
   TH1F *hXiFalseSelected1D = new TH1F ("hXiFalseSelected1D", "hXiFalseSelected1D",80, LimInfHisto[type], LimSupHisto[type]);
-
+  hXiFalseSelected1D->SetLineColor(kBlue);
   TH3F *hXiFalseSelectedV0Particle = new TH3F ("hXiFalseSelectedV0Particle", "Distribuzione per candidate non-Xi con pos e neg da stessa mamma", 100,0, 100, 300, 0, 30, 80, LimInfHisto[type], LimSupHisto[type]);
   hXiFalseSelectedV0Particle->SetTitle("p_{T} and mult.class distribution of selected non-Xi");
   hXiFalseSelectedV0Particle->GetXaxis()->SetTitle("Multiplicity class");
@@ -442,6 +454,8 @@ return;
   hXiSelected->GetYaxis()->SetTitle("p_{T, #Xi}");
   hXiSelected->GetZaxis()->SetTitle("Inv mass");
 
+  TH1F *hXiSelectedPhi1D = new TH1F ("hXiSelectedPhi1D", "hXiSelectedPhi1D",100,0, 2*TMath::Pi());
+  TH1F *hXiSelectedEta1D = new TH1F ("hXiSelectedEta1D", "hXiSelectedEta1D",100,-1.2, 1.2);
 
   //Form("hMassvsPt_"+tipo[type]+"_%i",molt
   for(Int_t m=0; m<nummolt+1; m++){
@@ -529,9 +543,10 @@ return;
       */
       //******************* some other cuts for sys studies**************************
       if (!ishhCorr){
-	if ((type==0 || type==2) && fSignTreeVariableChargeCasc==1) continue; //type zero seleziona solo cascades negative
-	if ((type==1 || type==3) && fSignTreeVariableChargeCasc==-1) continue; //type uno seleziona solo cascades positive
-	hXiAfterCuts->Fill(17);
+	hXiAfterCuts->Fill(20);
+	 if ((type==0 || type==2) && fSignTreeVariableChargeCasc==1) continue; //type zero seleziona solo cascades negative
+	 if ((type==1 || type==3) && fSignTreeVariableChargeCasc==-1) continue; //type uno seleziona solo cascades positive
+	hXiAfterCuts->Fill(21);
 	if (fSignTreeVariableLeastNbrClusters<70) continue;
 	hXiAfterCuts->Fill(1);
 	if (fSignTreeVariableChargeCasc==1){
@@ -594,7 +609,10 @@ return;
 	hXiAfterCuts->Fill(14);
 	if (fSignTreeVariablectau> 3*ctauCasc[type]) continue;
 	hXiAfterCuts->Fill(15);
+	if (TMath::Abs(fSignTreeVariableEtaCasc)>= 0.8) continue;
+	hXiAfterCuts->Fill(16);
 	if (TMath::Abs(fSignTreeVariableRapXi)>= RapCasc[rap]) continue;
+	hXiAfterCuts->Fill(17);
 	if ((fSignTreeVariableInvMassXi< 1.28 || fSignTreeVariableInvMassXi> 1.36) && (type==0 || type==1)) continue;
 	if ((fSignTreeVariableInvMassOmega< 1.62 || fSignTreeVariableInvMassOmega> 1.72) && (type==2 || type==3)) continue;
 
@@ -603,11 +621,31 @@ return;
 	if (type==0 || type==1)  hXiSelected->Fill(fSignTreeVariableMultiplicity,fSignTreeVariablePtCasc,  fSignTreeVariableInvMassXi);
 	if (type==2 || type==3)  hXiSelected->Fill(fSignTreeVariableMultiplicity,fSignTreeVariablePtCasc,  fSignTreeVariableInvMassOmega);
 
-	if (fSignTreeVariablePDGCode==CascadesPDGCode[type]){
-	  if (type==0 || type==1)  hXiTrueSelected->Fill(fSignTreeVariableMultiplicity,fSignTreeVariablePtCasc,  fSignTreeVariableInvMassXi);
-	  if (type==2 || type==3)  hXiTrueSelected->Fill(fSignTreeVariableMultiplicity,fSignTreeVariablePtCasc,  fSignTreeVariableInvMassOmega);
+	hXiSelectedEta1D->Fill(fSignTreeVariableEtaCasc);
+	hXiSelectedPhi1D->Fill(fSignTreeVariablePhiCasc);
+
+	if (isMC){
+	  if (type==0 || type==1){
+	    hXiSelected1D->Fill(fSignTreeVariableInvMassXi);
+	  }
+	  if (type==2 || type==3) {
+	    hXiSelected1D->Fill(fSignTreeVariableInvMassOmega);
+	  }
+
+	  if (fSignTreeVariablePDGCode==CascadesPDGCode[type]){
+	    //	if (fSignTreeVariablePDGCode==3312 || fSignTreeVariablePDGCode==-3312){
+	  if (type==0 || type==1){
+	    hXiTrueSelected->Fill(fSignTreeVariableMultiplicity,fSignTreeVariablePtCasc,  fSignTreeVariableInvMassXi);
+	    hXiTrueSelected1D->Fill(fSignTreeVariableInvMassXi);
+	  }
+	  if (type==2 || type==3) {
+	    hXiTrueSelected->Fill(fSignTreeVariableMultiplicity,fSignTreeVariablePtCasc,  fSignTreeVariableInvMassOmega);
+	    hXiTrueSelected1D->Fill(fSignTreeVariableInvMassOmega);
+	  }
+	   
 	}
 	if (fSignTreeVariablePDGCode!=CascadesPDGCode[type]){
+	//	if (fSignTreeVariablePDGCode!=3312 &&fSignTreeVariablePDGCode!=-3312 ){
 	  if (type==0 || type==1)  {
 	    hXiFalseSelected->Fill(fSignTreeVariableMultiplicity,fSignTreeVariablePtCasc,  fSignTreeVariableInvMassXi);
 	    hXiFalseSelected1D->Fill(fSignTreeVariableInvMassXi);
@@ -630,10 +668,11 @@ return;
 	}
 
 	if (fSignTreeVariablePDGCode==CascadesPDGCode[type] ){
-	  hXiAfterCuts->Fill(16);
+	  hXiAfterCuts->Fill(19);
 	}
 	if (fSignTreeVariablePDGCode!=CascadesPDGCode[type] && 1.315< fSignTreeVariableInvMassXi &&    fSignTreeVariableInvMassXi< 1.327 ){
 	  hXiAfterCutsBkg->Fill(fSignTreeVariablePDGCode);
+	}
 	}
       }
       
