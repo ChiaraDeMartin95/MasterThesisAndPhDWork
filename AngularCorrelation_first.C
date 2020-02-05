@@ -17,17 +17,20 @@
 #include <TFile.h>
 #include <TLegend.h>
 
-void AngularCorrelation_first(Bool_t ishhCorr=1,Float_t ptjmin=3., Int_t sysV0=0, Int_t sysTrigger=0,Int_t sys=0,Int_t type=0, Bool_t isMC=0, Bool_t isEfficiency=1,   TString year0 = "2016",TString year="2016k", TString yearMC="2018f1_extra",  TString Path1 ="", TString Path2 ="",TString Path3="_15runs_6thtry", TString Dir ="FinalOutput/",  Float_t ptjmax=30, Int_t rebin=1,  Int_t rebinx=2,  Int_t rebiny=2, Bool_t MasterThesisAnalysis=0, Float_t PtTrigMinFit=3.){ 
+void AngularCorrelation_first(Bool_t ishhCorr=0,Float_t ptjmin=3., Int_t sysV0=0, Int_t sysTrigger=0,Int_t sys=0,Int_t type=0, Bool_t isMC=0, Bool_t isEfficiency=1,   TString year0 = "2016",TString year="2016k", TString yearMC="2018f1_extra",  TString Path1 ="", TString Path2 ="",TString Path3="_15runs_6thtry", TString Dir ="FinalOutput/",  Float_t ptjmax=30, Int_t rebin=1,  Int_t rebinx=2,  Int_t rebiny=2, Bool_t MasterThesisAnalysis=0, Float_t PtTrigMinFit=3.){ 
 
   //masterthesis analysis è usato quando devo fare analisi presentata per la tesi
-
+  if (!ishhCorr && (((year!="2016k_onlyTriggerWithHighestPt"&& year!="2018f1_extra_onlyTriggerWithHighestPt") || yearMC!="2018f1_extra_onlyTriggerWithHighestPt"))) {
+      cout << "for hV0 correlation you should use year = 2016k_onlyTriggerWithHighestPt together with the MC yearMC = 2018f1_extra_onlyTriggerWithHighestPt" << endl;
+      return; 
+    }
   const  Float_t PtTrigMin=ptjmin;
     gStyle->SetOptStat(0);
 
   //lista degli effetti  sistematici studiati in questa macro
   if (sys==3 || sys>5) return;
   if (sysV0>6)return;
-  if (ishhCorr && sys<4) return; //se faccio correlazione hh non posso studiare sistematico associato a scelta regione Sidebands e peak nella distribuzione di massa invariante
+  if (ishhCorr && sys<4 && sys!=0) return; //se faccio correlazione hh non posso studiare sistematico associato a scelta regione Sidebands e peak nella distribuzione di massa invariante
   if (sysV0>2 && ishhCorr) return;
   if (sysTrigger!=0) return;
   if (sysV0!=0 && sys!=0) return;
@@ -37,13 +40,26 @@ void AngularCorrelation_first(Bool_t ishhCorr=1,Float_t ptjmin=3., Int_t sysV0=0
   if (sys==2) sysang=2;
 
   Float_t JetValue=0.4;
-  Float_t JetValueDefault=0.4;
-  if (sys==4) JetValue=0.5;
+  Float_t JetValueDefault=0.4; //questo valore è indipendente dalla scelta del valore di sys
+  if (ishhCorr) JetValueDefault =1.;
+  if (sys==0 && !ishhCorr) JetValue=0.4;
+  if ((sys==0 || sys==5) && ishhCorr) JetValue=1.;
+  if (sys==4 && !ishhCorr) JetValue=0.5;
+  if (sys==4 && ishhCorr) JetValue=0.9;
   Float_t BulkLowValue=0.5;
   Float_t BulkUpValue=1.1;
-  if (sys==5){
+  Float_t InclusiveUpValue=1.1;
+  if (sys==5 && !ishhCorr){
     BulkLowValue=0.7;
     BulkUpValue=1.1;
+  }
+  if ((sys==0 || sys==4) && ishhCorr){
+    BulkLowValue=1.05;
+    BulkUpValue=1.3;
+  }
+  if (sys==5 && ishhCorr){
+    BulkLowValue=1.15;
+    BulkUpValue=1.4;
   }
 
   /*
@@ -55,6 +71,11 @@ void AngularCorrelation_first(Bool_t ishhCorr=1,Float_t ptjmin=3., Int_t sysV0=0
 
   Dir+="DATA"+year0;
   TString file = year+Path1;
+  TString file2 = year+Path1;
+  if (ishhCorr) {
+    file2+="_hhCorr";
+    if (isMC)     file2+="_MCEff";
+  }
   if(isMC && isEfficiency) file = year + "_MCEff" + Path2;
   if(isMC && !isEfficiency) file = yearMC + "_MCTruth" + Path3;
   TString fileMC = yearMC +Path2;
@@ -73,6 +94,8 @@ void AngularCorrelation_first(Bool_t ishhCorr=1,Float_t ptjmin=3., Int_t sysV0=0
   }
  
   TString PathInBis =  "FinalOutput/AnalysisResults" + file  + ".root";
+  if (ishhCorr) PathInBis="FinalOutput/AnalysisResults" + file2  + ".root";
+
   TString PathInEfficiency = Dir+ "/Efficiency/Efficiency" +fileMC  +Form("_SysT%i_SysV0%i_PtMin%.1f", sysTrigger, sysV0, PtTrigMin)+".root";
   if (ishhCorr) PathInEfficiency = Dir+ "/Efficiency/Efficiency" +fileMC  +Form("_hhCorr_SysT%i_SysV0%i_PtMin%.1f", sysTrigger, sysV0, PtTrigMin)+".root";
   if (MasterThesisAnalysis) PathInEfficiency = Dir+ "/Efficiency/Efficiency" +fileMC  +Form("_MCEff_Efficiency_SysT%i_SysV0%i", sysTrigger, sysV0)+".root";
@@ -177,6 +200,7 @@ void AngularCorrelation_first(Bool_t ishhCorr=1,Float_t ptjmin=3., Int_t sysV0=0
   TH1D *hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[nummolt+1][numzeta][numPtV0][numPtTrigger][numeta]; //sottrazione bkg V0 effettuata
   TH1D *hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Bulk_EffCorr[nummolt+1][numzeta][numPtV0][numPtTrigger]; //sottrazione bkg V0 effettuata
   TH1D *hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_JetBulk_EffCorr[nummolt+1][numzeta][numPtV0][numPtTrigger]; //sottrazione bkg V0 effettuata
+  TH1D *hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_JetBulk_EffCorrNotScaled[nummolt+1][numzeta][numPtV0][numPtTrigger]; //sottrazione bkg V0 effettuata
   TH1D *hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSub[nummolt+1][numzeta][numPtV0][numPtTrigger]; //sottrazione bkg V0 effettuata  + sottrazione distribuzione bulk effettuata
   TH1D *hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_EffCorr[nummolt+1][numzeta][numPtV0][numPtTrigger]; //sottrazione bkg V0 effettuata  + sottrazione distribuzione bulk effettuata
   TH1D *hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_EtaAll[nummolt+1][numzeta][numPtV0][numPtTrigger];
@@ -342,7 +366,7 @@ void AngularCorrelation_first(Bool_t ishhCorr=1,Float_t ptjmin=3., Int_t sysV0=0
 	    //****************************************************************************************************************
 
 	    hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][sb][0]= (TH1D*)(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->ProjectionY(nameME[m][z][v][tr][sb]+"_AC_phi_etaJet", hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->FindBin(-JetValue), hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->FindBin(JetValue), "E"));
-	    hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][sb][2]= (TH1D*)(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->ProjectionY(nameME[m][z][v][tr][sb]+"_AC_phi_etaAll",  hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->FindBin(-BulkUpValue), hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->FindBin(BulkUpValue), "E"));
+	    hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][sb][2]= (TH1D*)(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->ProjectionY(nameME[m][z][v][tr][sb]+"_AC_phi_etaAll",  hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->FindBin(-InclusiveUpValue), hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->FindBin(InclusiveUpValue), "E"));
 	    // HistBI->Sumw2();
 	    // HistBII->Sumw2();
 
@@ -487,6 +511,7 @@ void AngularCorrelation_first(Bool_t ishhCorr=1,Float_t ptjmin=3., Int_t sysV0=0
 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Bulk_EffCorr[m][z][v][tr]->SetLineColor(kGreen+2);
 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Bulk_EffCorr[m][z][v][tr]->SetTitle("UE distribution in " +Proj[1] + TitleStringBis[m][v]);
 
+
 	  //********jet*****
 	  ScaleFactorJet[m][z][v][tr]=(1./(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(JetValueDefault)) - hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(-JetValueDefault))));
 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSub[m][z][v][tr]->Scale(ScaleFactorJet[m][z][v][tr]);
@@ -499,11 +524,13 @@ void AngularCorrelation_first(Bool_t ishhCorr=1,Float_t ptjmin=3., Int_t sysV0=0
 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSub_EffCorr[m][z][v][tr]->SetTitle("Jet distribution in " +Proj[0] + TitleStringBis[m][v]);
 
 	  //********inclusive*******
-	  ScaleFactorJetBulk[m][z][v][tr]=1./2/(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(BulkUpValue)));
+	  ScaleFactorJetBulk[m][z][v][tr]=1./2/(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(InclusiveUpValue)));
 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][2]->Scale(ScaleFactorJetBulk[m][z][v][tr]);
 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_JetBulk_EffCorr[m][z][v][tr]=(TH1D*)hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][2]->Clone(nameME[m][z][v][tr][0]+"_AC_phi_V0Sub_JetBulkEffCorr");
 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_JetBulk_EffCorr[m][z][v][tr]->SetTitle("Jet + UE distribution in " +Proj[0] + TitleStringBis[m][v]);
-	  //	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_JetBulk_EffCorr[m][z][v][tr]->Scale(ScaleFactorJetBulk[m][z][v][tr]);
+	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_JetBulk_EffCorrNotScaled[m][z][v][tr]=(TH1D*)hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][2]->Clone(nameME[m][z][v][tr][0]+"_AC_phi_V0Sub_JetBulkEffCorrNotScaled");
+	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_JetBulk_EffCorrNotScaled[m][z][v][tr]->Scale(1./ScaleFactorJetBulk[m][z][v][tr]);
+	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_JetBulk_EffCorrNotScaled[m][z][v][tr]->SetTitle("Jet + UE distribution in " +Proj[0] + TitleStringBis[m][v]);
 
 
 	  //****************************************************************************************************************
@@ -519,6 +546,7 @@ void AngularCorrelation_first(Bool_t ishhCorr=1,Float_t ptjmin=3., Int_t sysV0=0
 	      hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_EffCorr[m][z][v][tr]->Scale(1./fHistV0EfficiencyPtBins[m]->GetBinContent(v+1)*(1-HistContV0PtBins[m]->GetBinContent(v+1)));
 	      hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Bulk_EffCorr[m][z][v][tr]->Scale(1./fHistV0EfficiencyPtBins[m]->GetBinContent(v+1)*(1-HistContV0PtBins[m]->GetBinContent(v+1)));
 	      hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_JetBulk_EffCorr[m][z][v][tr]->Scale(1./fHistV0EfficiencyPtBins[m]->GetBinContent(v+1)*(1-HistContV0PtBins[m]->GetBinContent(v+1)));
+	      hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_JetBulk_EffCorrNotScaled[m][z][v][tr]->Scale(1./fHistV0EfficiencyPtBins[m]->GetBinContent(v+1)*(1-HistContV0PtBins[m]->GetBinContent(v+1)));
 
 	      isProjectionPhi[m][z][v][tr]=kTRUE;
 	    }
@@ -701,7 +729,9 @@ void AngularCorrelation_first(Bool_t ishhCorr=1,Float_t ptjmin=3., Int_t sysV0=0
 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Bulk_EffCorr[m][z][v][tr]->SetTitle("OJ region projection, (fake-K0s + Eff + DeltaEta width) corrected");
 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Bulk_EffCorr[m][z][v][tr]->Write();
 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_JetBulk_EffCorr[m][z][v][tr]->SetTitle("JOJ region projection, (fake-K0s + Eff + DeltaEta width) corrected");
+	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_JetBulk_EffCorrNotScaled[m][z][v][tr]->SetTitle("JOJ region projection, (fake-K0s + Eff) corrected");
 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_JetBulk_EffCorr[m][z][v][tr]->Write();
+	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_JetBulk_EffCorrNotScaled[m][z][v][tr]->Write();
 	}
       }
     }
@@ -791,5 +821,11 @@ void AngularCorrelation_first(Bool_t ishhCorr=1,Float_t ptjmin=3., Int_t sysV0=0
   cout << "\npartendo dai file " << PathIn << " e "<< PathInBis << " e "<< PathInEfficiency <<  " ho creato: "<< endl;
   cout << "\nil file " << PathOut1 << endl;
   if (ishhCorr) cout << " use sysV0 = 0,1,2 and sys==0 " << endl;
+  cout << "\nbin x (delta phi) " << binwx <<  " bin y (delta eta) " << binwy << endl;
   if (MasterThesisAnalysis) cout << " *****************************Be aware master thesis analysis has been selected!!" << endl;
+  cout << "DeltaEta Jet interval " << hDeltaEtaDeltaPhi_ACbins[0][0][0][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[0][0][0][0][0]->GetXaxis()->FindBin(-JetValue)) << " - " << hDeltaEtaDeltaPhi_ACbins[0][0][0][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[0][0][0][0][0]->GetXaxis()->FindBin(JetValue)) << endl;
+ cout << "DeltaEta Bulk interval " << hDeltaEtaDeltaPhi_ACbins[0][0][0][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[0][0][0][0][0]->GetXaxis()->FindBin(BulkLowValue)) << " - " << hDeltaEtaDeltaPhi_ACbins[0][0][0][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[0][0][0][0][0]->GetXaxis()->FindBin(BulkUpValue)) << endl;
+ cout << "DeltaEta Inclusive interval " << hDeltaEtaDeltaPhi_ACbins[0][0][0][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[0][0][0][0][0]->GetXaxis()->FindBin(-InclusiveUpValue)) << " - " << hDeltaEtaDeltaPhi_ACbins[0][0][0][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[0][0][0][0][0]->GetXaxis()->FindBin(InclusiveUpValue)) << endl;
+ cout << "!!!!!!!!! se valori si sovrappongono, modificare intervallo deltaEta" << endl;
+
 }

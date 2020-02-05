@@ -17,7 +17,7 @@
 #include <TLegend.h>
 #include <TFile.h>
 
-void CfrDataMC(Float_t PtTrigMin=3.0, TString year0="2016", Int_t ishhCorr=0, Bool_t MasterThesis=1){
+void CfrDataMC(Float_t PtTrigMin=3.0, TString year0="2016", Int_t ishhCorr=1, Bool_t MasterThesis=0){
 
   TString PathIn;
   TString PathOut;
@@ -92,8 +92,14 @@ void CfrDataMC(Float_t PtTrigMin=3.0, TString year0="2016", Int_t ishhCorr=0, Bo
   TH1D*    fHistYieldDatiPubblicati;
   TH1D*    fHistYieldErroriDatiPubblicati;
 
-  TFile *filedatipubbl= new TFile("HEPData-1574358449-v1-Table_8c.root", "");
-  TDirectoryFile *dir = (TDirectoryFile*)filedatipubbl->Get("Table 8c");
+  TFile *filedatipubbl;
+  TDirectoryFile *dir;
+  if (!ishhCorr){
+  filedatipubbl= new TFile("HEPData-1574358449-v1-Table_8c.root", "");
+  dir  = (TDirectoryFile*)filedatipubbl->Get("Table 8c");
+  fHistYieldDatiPubblicati=(TH1D*)dir->Get("Hist1D_y1");
+  fHistYieldErroriDatiPubblicati=(TH1D*)dir->Get("Hist1D_y1_e3");
+  }
 
   TLegend* legend[3];
   TLegend* legendtype[3];
@@ -102,8 +108,6 @@ void CfrDataMC(Float_t PtTrigMin=3.0, TString year0="2016", Int_t ishhCorr=0, Bo
 
   auto legenderr=new TLegend(0.6,0.6, 0.9, 0.9);
   auto legenderrbis=new TLegend(0.6,0.6, 0.9, 0.9);
-
-
 
   TString  PathInJet;
   TString  PathInJetMC;
@@ -119,7 +123,6 @@ void CfrDataMC(Float_t PtTrigMin=3.0, TString year0="2016", Int_t ishhCorr=0, Bo
   PathInBulkMC="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorr] +Form("_BulkMC_PtMin%.1f.root", PtTrigMin);
   PathInAll="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorr] +Form("_All_PtMin%.1f.root", PtTrigMin); 	 
   PathInAllMC="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorr] +Form("_AllMC_PtMin%.1f.root", PtTrigMin);  
-
   
   //per analsisi presentata nella tesi
   if (MasterThesis){
@@ -171,7 +174,9 @@ void CfrDataMC(Float_t PtTrigMin=3.0, TString year0="2016", Int_t ishhCorr=0, Bo
       fHistYieldvsErrSoloStatRatio[j]->SetMarkerStyle(Marker[j]);
       fHistYieldvsErrSoloStatRatio[j]->SetLineColor(Color[col]);
       fHistYieldvsErrSoloStatRatio[j]->GetYaxis()->SetRangeUser(0,0.4);
+      if (ishhCorr)       fHistYieldvsErrSoloStatRatio[j]->GetYaxis()->SetRangeUser(0,6);
       if (l==0) fHistYieldvsErrSoloStatRatio[j]->GetYaxis()->SetRangeUser(0,0.12);
+      if (l==0 && ishhCorr) fHistYieldvsErrSoloStatRatio[j]->GetYaxis()->SetRangeUser(0,1);
       fHistYieldvsErrSoloStatRatio[j]->GetXaxis()->SetRangeUser(0,25);
       fHistYieldvsErrSoloStatRatio[j]->SetMarkerSize(msize);
       if (j==0)    fHistYieldvsErrSoloStatRatio[j]->SetMarkerSize(3);
@@ -184,7 +189,9 @@ void CfrDataMC(Float_t PtTrigMin=3.0, TString year0="2016", Int_t ishhCorr=0, Bo
       fHistYieldvsErrSoloSistRatio[j]->SetLineColor(Color[col]);
       fHistYieldvsErrSoloSistRatio[j]->SetFillStyle(0);
       fHistYieldvsErrSoloSistRatio[j]->GetYaxis()->SetRangeUser(0,0.4);
+      if (ishhCorr)       fHistYieldvsErrSoloSistRatio[j]->GetYaxis()->SetRangeUser(0,6);
       if (l==0) fHistYieldvsErrSoloSistRatio[j]->GetYaxis()->SetRangeUser(0,0.12);
+      if (l==0 && ishhCorr) fHistYieldvsErrSoloSistRatio[j]->GetYaxis()->SetRangeUser(0,1);
       fHistYieldvsErrSoloSistRatio[j]->GetXaxis()->SetRangeUser(0,25);
       fHistYieldvsErrSoloSistRatio[j]->SetMarkerSize(msize);
       if (j==0)    fHistYieldvsErrSoloSistRatio[j]->SetMarkerSize(3);
@@ -196,7 +203,7 @@ void CfrDataMC(Float_t PtTrigMin=3.0, TString year0="2016", Int_t ishhCorr=0, Bo
       if(j==1)    legend[l]->Draw();
       if(j==1)    legendtype[l]->Draw();
     }
-    canvas[l]->SaveAs("FinalOutput/DATA"+year0+"/Yield"+Region[l]+Form("PtMin%.1f.pdf", PtTrigMin));
+    canvas[l]->SaveAs("FinalOutput/DATA"+year0+"/Yield"+Region[l]+hhCorr[ishhCorr]+Form("_PtMin%.1f.pdf", PtTrigMin));
   if (MasterThesis)    canvas[l]->SaveAs("FinalOutput/DATA"+year0+"/Yield"+Region[l]+".pdf");
   }
 
@@ -224,7 +231,7 @@ void CfrDataMC(Float_t PtTrigMin=3.0, TString year0="2016", Int_t ishhCorr=0, Bo
 
       fHistYieldvsErrSoloStatRatio[j]=(TH1D*)filein->Get("fHistYieldvsErrSoloStatRatio");
       fHistYieldvsErrSoloStatRatio[j]->SetTitle("");
-      fHistYieldvsErrSoloStatRatio[j]->GetYaxis()->SetRangeUser(0.03, 2.2);
+      fHistYieldvsErrSoloStatRatio[j]->GetYaxis()->SetRangeUser(0, 2.2); //..
       fHistYieldvsErrSoloStatRatio[j]->GetXaxis()->SetRangeUser(0,25);
       fHistYieldvsErrSoloStatRatio[j]->SetMarkerColor(Color[2*j]);
       fHistYieldvsErrSoloStatRatio[j]->SetMarkerStyle(MarkerOrigin[col]);
@@ -235,7 +242,7 @@ void CfrDataMC(Float_t PtTrigMin=3.0, TString year0="2016", Int_t ishhCorr=0, Bo
  
      fHistYieldvsErrSoloSistRatio[j]=(TH1D*)filein->Get("fHistYieldvsErrSoloSistRatio");
       fHistYieldvsErrSoloSistRatio[j]->SetTitle("");
-      fHistYieldvsErrSoloSistRatio[j]->GetYaxis()->SetRangeUser(0.03, 2.2);
+      fHistYieldvsErrSoloSistRatio[j]->GetYaxis()->SetRangeUser(0, 2.2);//..
       fHistYieldvsErrSoloSistRatio[j]->GetXaxis()->SetRangeUser(0,25);
       fHistYieldvsErrSoloSistRatio[j]->SetMarkerColor(Color[2*j]);
       fHistYieldvsErrSoloSistRatio[j]->SetMarkerStyle(MarkerOrigin[col]);
@@ -254,7 +261,7 @@ void CfrDataMC(Float_t PtTrigMin=3.0, TString year0="2016", Int_t ishhCorr=0, Bo
       // fHistYieldvsErrSoloSist[j]->SetMarkerColor(Color[j]);
       // fHistYieldvsErrSoloSist[j]->Draw("samee");
     }
-    canvasratiobis[l]->SaveAs("FinalOutput/DATA2016/YieldRatio"+DATAorMC[l]+Form("PtMin%.1f.pdf", PtTrigMin));
+    canvasratiobis[l]->SaveAs("FinalOutput/DATA2016/YieldRatio"+DATAorMC[l]+hhCorr[ishhCorr]+Form("_PtMin%.1f.pdf", PtTrigMin));
   if (MasterThesis)        canvasratiobis[l]->SaveAs("FinalOutput/DATA2016/YieldRatio"+DATAorMC[l]+".pdf");
   }
 
@@ -263,10 +270,10 @@ void CfrDataMC(Float_t PtTrigMin=3.0, TString year0="2016", Int_t ishhCorr=0, Bo
     Int_t count=0;
     canvasnotratio[l] = new TCanvas(Form("canvasnotratio%i", l), "Yield_"+DATAorMC[l], 1300, 1000);
     cout << l << endl;
-    fHistYieldDatiPubblicati=(TH1D*)dir->Get("Hist1D_y1");
-    fHistYieldErroriDatiPubblicati=(TH1D*)dir->Get("Hist1D_y1_e3");
+    if (!ishhCorr){
     for(Int_t k=1; k < fHistYieldDatiPubblicati->GetNbinsX(); k++){
     fHistYieldDatiPubblicati->SetBinError(k,     fHistYieldErroriDatiPubblicati->GetBinContent(k));
+    }
     }
     //    fHistYieldDatiPubblicati->Scale(1.6);
     for(Int_t j=0; j<3; j++){
@@ -288,6 +295,8 @@ void CfrDataMC(Float_t PtTrigMin=3.0, TString year0="2016", Int_t ishhCorr=0, Bo
       fHistYieldvsErrSoloStat[j]->Scale(1/1.6);
       fHistYieldvsErrSoloStat[j]->SetTitle("per unit of eta/rapidity");
       fHistYieldvsErrSoloStat[j]->GetYaxis()->SetRangeUser(0.03, 1.5);
+      if (ishhCorr)       fHistYieldvsErrSoloStat[j]->GetYaxis()->SetRangeUser(0, 4);
+      if (isSE)       fHistYieldvsErrSoloStat[j]->GetYaxis()->SetRangeUser(0, 1);
       fHistYieldvsErrSoloStat[j]->GetXaxis()->SetRangeUser(0,25);
       fHistYieldvsErrSoloStat[j]->SetMarkerColor(Color[2*j]);
       fHistYieldvsErrSoloStat[j]->SetMarkerStyle(MarkerOrigin[col]);
@@ -300,6 +309,8 @@ void CfrDataMC(Float_t PtTrigMin=3.0, TString year0="2016", Int_t ishhCorr=0, Bo
       fHistYieldvsErrSoloSist[j]->Scale(1/1.6);
       fHistYieldvsErrSoloSist[j]->SetTitle("");
       fHistYieldvsErrSoloSist[j]->GetYaxis()->SetRangeUser(0.03, 1.5);
+      if (ishhCorr)      fHistYieldvsErrSoloSist[j]->GetYaxis()->SetRangeUser(0, 4);
+      if (isSE)      fHistYieldvsErrSoloSist[j]->GetYaxis()->SetRangeUser(0, 1);
       fHistYieldvsErrSoloSist[j]->GetXaxis()->SetRangeUser(0,25);
       fHistYieldvsErrSoloSist[j]->SetMarkerColor(Color[2*j]);
       fHistYieldvsErrSoloSist[j]->SetMarkerStyle(MarkerOrigin[col]);
@@ -309,7 +320,7 @@ void CfrDataMC(Float_t PtTrigMin=3.0, TString year0="2016", Int_t ishhCorr=0, Bo
       if (j==2)    fHistYieldvsErrSoloSist[j]->SetMarkerSize(3);
       fHistYieldvsErrSoloSist[j]->Draw("samee2");
 
-      fHistYieldDatiPubblicati->Draw("same");
+      if (!ishhCorr) fHistYieldDatiPubblicati->Draw("same");
         
       if(j==0)legendbis[l]->Draw();
       if(j==0)legendtype[l]->Draw();
@@ -317,7 +328,7 @@ void CfrDataMC(Float_t PtTrigMin=3.0, TString year0="2016", Int_t ishhCorr=0, Bo
       // fHistYieldvsErrSoloSist[j]->SetMarkerColor(Color[j]);
       // fHistYieldvsErrSoloSist[j]->Draw("samee");
     }
-    canvasnotratio[l]->SaveAs("FinalOutput/DATA2016/Yield"+DATAorMC[l]+Form("PtMin%.1f.pdf", PtTrigMin));
+    canvasnotratio[l]->SaveAs("FinalOutput/DATA2016/Yield"+DATAorMC[l]+hhCorr[ishhCorr]+Form("_PtMin%.1f.pdf", PtTrigMin));
   if (MasterThesis)         canvasnotratio[l]->SaveAs("FinalOutput/DATA2016/Yield"+DATAorMC[l]+".pdf");
   }
 
@@ -411,7 +422,7 @@ void CfrDataMC(Float_t PtTrigMin=3.0, TString year0="2016", Int_t ishhCorr=0, Bo
       if(count==2)legenderr->Draw();
     
     }
-    canvaserr[l] ->SaveAs("FinalOutput/DATA2016/RelErr"+Region[l]+Form("PtMin%.1f.pdf", PtTrigMin));
+    canvaserr[l] ->SaveAs("FinalOutput/DATA2016/RelErr"+Region[l]+hhCorr[ishhCorr]+Form("_PtMin%.1f.pdf", PtTrigMin));
   if (MasterThesis)     canvaserr[l] ->SaveAs("FinalOutput/DATA2016/RelErr"+Region[l]+".pdf");
   }
 
@@ -509,7 +520,7 @@ void CfrDataMC(Float_t PtTrigMin=3.0, TString year0="2016", Int_t ishhCorr=0, Bo
 
   }
   
-  canvaserrall[0] ->SaveAs(Form("FinalOutput/DATA2016/RelErrAllDATA0_PtMin%.1f.pdf", PtTrigMin)); 
+  canvaserrall[0] ->SaveAs("FinalOutput/DATA2016/RelErrAllDATA0" +hhCorr[ishhCorr]+Form("_PtMin%.1f.pdf", PtTrigMin)); 
   if (MasterThesis)  canvaserrall[0] ->SaveAs("FinalOutput/DATA2016/RelErrAllDATA0.pdf"); 
   //canvaserrall[1] ->SaveAs(Form("FinalOutput/DATA2016/RelErrAllDATA1_PtMin%.1f.pdf", PtTrigMin)); 
  
