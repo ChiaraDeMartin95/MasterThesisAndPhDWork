@@ -107,6 +107,17 @@ AliAnalysisTaskCascades::AliAnalysisTaskCascades() :AliAnalysisTaskSE(),
   fHistEventV0(0), 
   fHistEventXiTrueNeg(0), 
   fHistEventXiTruePos(0), 
+  fHistEventXiTrueNegRapSel(0), 
+  fHistEventXiTruePosRapSel(0), 
+  fHistDCApTrackXi(0),
+  fHistDCAnTrackXi(0),
+  fHistDCAbachTrackXi(0),
+  fHistLengthvsCrossedRowsPos(0),
+  fHistLengthvsCrossedRowsNeg(0),
+  fHistLengthvsCrossedRowsBach(0),
+  fHistLengthvsCrossedRowsAfterSelPos(0),
+  fHistLengthvsCrossedRowsAfterSelNeg(0),
+  fHistLengthvsCrossedRowsAfterSelBach(0),
   fHistTrack(0), 
   fHistTriggerComposition(0), 
   fHistTriggerCompositionMCTruth(0), 
@@ -127,6 +138,8 @@ AliAnalysisTaskCascades::AliAnalysisTaskCascades() :AliAnalysisTaskSE(),
   fMassXiPlus(0), 
   fMassXiMinus(0),
   fV0Lifetime(0), 
+  fV0DistanceTrav(0), 
+  fV0TotMomentum(0), 
   fHistMultvsV0All(0),
   fHistMultvsV0AllTruth(0),
   fHistMultvsV0MCAll(0),
@@ -297,6 +310,17 @@ AliAnalysisTaskCascades::AliAnalysisTaskCascades(const char* name) : AliAnalysis
   fHistEventV0(0), 
   fHistEventXiTrueNeg(0), 
   fHistEventXiTruePos(0), 
+  fHistEventXiTrueNegRapSel(0), 
+  fHistEventXiTruePosRapSel(0), 
+  fHistDCApTrackXi(0),
+  fHistDCAnTrackXi(0),
+  fHistDCAbachTrackXi(0),
+  fHistLengthvsCrossedRowsPos(0),
+  fHistLengthvsCrossedRowsNeg(0),
+  fHistLengthvsCrossedRowsBach(0),
+  fHistLengthvsCrossedRowsAfterSelPos(0),
+  fHistLengthvsCrossedRowsAfterSelNeg(0),
+  fHistLengthvsCrossedRowsAfterSelBach(0),
   fHistTrack(0), 
   fHistTriggerComposition(0), 
   fHistTriggerCompositionMCTruth(0), 
@@ -317,6 +341,8 @@ AliAnalysisTaskCascades::AliAnalysisTaskCascades(const char* name) : AliAnalysis
   fMassXiPlus(0), 
   fMassXiMinus(0),
   fV0Lifetime(0), 
+  fV0DistanceTrav(0), 
+  fV0TotMomentum(0), 
   fHistMultvsV0All(0),
   fHistMultvsV0AllTruth(0),
   fHistMultvsV0MCAll(0), 
@@ -507,13 +533,13 @@ void AliAnalysisTaskCascades::ProcessMCParticles(Bool_t Generated, Float_t lPerc
 	    if (particle->GetPdgCode() == -3312) isXi=0.5;
 	    if (particle->GetPdgCode() == 3312) isXi=-0.5;
 	    fHistGeneratedXiPt[0]->Fill(particle->Pt(), lPercentiles,isXi );
-	    if (TMath::Abs(particle->Y())<=0.5 ) fHistGeneratedXiPt[1]->Fill(particle->Pt(), lPercentiles, isXi);
+	    if (TMath::Abs(particle->Y())<0.5 ) fHistGeneratedXiPt[1]->Fill(particle->Pt(), lPercentiles, isXi);
 	  }
 	  else if ( ((particle->GetPdgCode())==-3334) || ((particle->GetPdgCode())==3334) ){
 	    if (particle->GetPdgCode() == -3334) isXi=0.5;
 	    if (particle->GetPdgCode() == 3334) isXi=-0.5;
 	    fHistGeneratedOmegaPt[0]->Fill(particle->Pt(), lPercentiles,isXi );
-	    if (TMath::Abs(particle->Y())<=0.5 ) fHistGeneratedOmegaPt[1]->Fill(particle->Pt(), lPercentiles, isXi);
+	    if (TMath::Abs(particle->Y())<0.5 ) fHistGeneratedOmegaPt[1]->Fill(particle->Pt(), lPercentiles, isXi);
 	  }
 	}
       }      
@@ -714,64 +740,147 @@ void AliAnalysisTaskCascades::UserCreateOutputObjects()
   fHistEventMult->GetXaxis()->SetBinLabel(21,"Common daughterNeg");
   fHistEventMult->GetXaxis()->SetBinLabel(22,"SelEv (ACEvents)");//tutti gli eventi usati per correlazione angolare
 
-  fHistEventV0=new TH1F("fHistEventV0", "fHistEventV0",17, 0.5, 17.5);
+  fHistDCApTrackXi = new TH2F("fHistDCApTrackXi", "fHistDCApTrackXi", 400, -20, 20, 200, 0, 20);
+  fHistDCApTrackXi->GetXaxis()->SetTitle("DCAxy");
+  fHistDCApTrackXi->GetYaxis()->SetTitle("DCAz");
+  fHistDCAnTrackXi = new TH2F("fHistDCAnTrackXi", "fHistDCAnTrackXi",400, -20, 20, 200, 0, 20); 
+  fHistDCAnTrackXi->GetXaxis()->SetTitle("DCAxy");
+  fHistDCAnTrackXi->GetYaxis()->SetTitle("DCAz");
+  fHistDCAbachTrackXi = new TH2F("fHistDCAbachTrackXi", "fHistDCAbachTrackXi", 400, -20, 20, 200, 0, 20);
+  fHistDCAbachTrackXi->GetXaxis()->SetTitle("DCAxy");
+  fHistDCAbachTrackXi->GetYaxis()->SetTitle("DCAz");
+
+  fHistEventV0=new TH1F("fHistEventV0", "fHistEventV0",25, 0.5, 25.5);
   fHistEventV0->SetTitle("Number of V0 which progressively pass the listed selections");
   fHistEventV0->GetXaxis()->SetBinLabel(1,"All V0s");
   fHistEventV0->GetXaxis()->SetBinLabel(2,"V0s ok");
-  fHistEventV0->GetXaxis()->SetBinLabel(3,"All daugthers available");
-  fHistEventV0->GetXaxis()->SetBinLabel(4,"Filterbit daughters"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(5,"Chis daughter tracks"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(3,"Daughter tracks available"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(4,"All, Filterbit not applied"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(5,"Chis/NDF daughter tracks"); 
   fHistEventV0->GetXaxis()->SetBinLabel(6,"TPC refit"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(7,"PID daughters"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(8,"|eta daughters|<0.8"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(9,"V0 lifetime"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(10,"Xi lifetime"); 
-  //  fHistEventV0->GetXaxis()->SetBinLabel(9,"more cuts + 0.45 < Mass < 0.55"); 
-  //  fHistEventV0->GetXaxis()->SetBinLabel(10,"Lrejection"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(11,"Mass selected"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(12,"FB4"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(13,"FB1"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(14,"FB128"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(15,"NumberSecondParticle"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(16,"NumberTrueXi"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(17,"NumberTrueOmega"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(7,"NClusters > 50"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(8,"NCrossedRows>70"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(9,"NCrossedRows/Findable>0.8"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(10,"Reject kink daughters"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(11,"|eta daughters|<0.8"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(12,"V0 lifetime"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(13,"Xi lifetime"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(14,"Mass selected"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(15,"FB4"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(16,"FB1"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(17,"FB128"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(18,"DCAxy<2.4"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(19,"DCAz<3.2"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(20,"TrackLength>90"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(21,"NCrossed/TrackLength>0.8"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(22,"Out-of-Bunch pileup"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(23,"NumberSecondParticle"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(24,"NumberTrueXi"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(25,"NumberTrueOmega"); 
 
-  fHistEventXiTrueNeg=new TH2F("fHistEventXiTrueNeg", "fHistEventXiTrueNeg",14, 0.5, 14.5, 150,0,30);
+  fHistEventXiTrueNeg=new TH2F("fHistEventXiTrueNeg", "fHistEventXiTrueNeg",25, 0.5, 25.5, 150,0,30);
   fHistEventXiTrueNeg->SetTitle("Number of V0 which progressively pass the listed selections");
-  fHistEventXiTrueNeg->GetYaxis()->SetTitle("p_{T,reco}");
-  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(1,"All V0s");
-  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(2,"V0s ok");
-  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(3,"All daugthers available");
-  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(4,"Filterbit daughters"); 
-  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(5,"Chis daughter tracks"); 
+  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(1,"No meaning");
+  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(2,"No meaning");
+  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(3,"No meaning");
+  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(4,"All, Filterbit not applied"); 
+  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(5,"Chis/NDF daughter tracks"); 
   fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(6,"TPC refit"); 
-  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(7,"PID daughters"); 
-  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(8,"|eta daughters|<0.8"); 
-  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(9,"V0 lifetime"); 
-  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(10,"Xi lifetime"); 
-  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(11,"Mass selected"); 
-  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(12,"FB4"); 
-  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(13,"FB1"); 
-  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(14,"FB128"); 
+  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(7,"NClusters > 50"); 
+  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(8,"NCrossedRows>80"); 
+  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(9,"NCrossedRows/Findable>0.8"); 
+  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(10,"Reject kink daughters"); 
+  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(11,"|eta daughters|<0.8"); 
+  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(12,"V0 lifetime"); 
+  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(13,"Xi lifetime"); 
+  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(14,"Mass selected"); 
+  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(15,"FB4"); 
+  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(16,"FB1"); 
+  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(17,"FB128"); 
+  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(18,"DCAxy<2.4"); 
+  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(19,"DCAz<3.2"); 
+  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(20,"TrackLength>90"); 
+  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(21,"NCrossed/TrackLength>0.8"); 
+  fHistEventXiTrueNeg->GetXaxis()->SetBinLabel(22,"Out-of-Bunch pileup"); 
 
-  fHistEventXiTruePos=new TH2F("fHistEventXiTruePos", "fHistEventXiTruePos",14, 0.5, 14.5, 150, 0, 30);
+  fHistEventXiTruePos=new TH2F("fHistEventXiTruePos", "fHistEventXiTruePos",25, 0.5, 25.5, 150, 0, 30);
   fHistEventXiTruePos->SetTitle("Number of V0 which progressively pass the listed selections");
   fHistEventXiTruePos->GetYaxis()->SetTitle("p_{T,reco}");
-  fHistEventXiTruePos->GetXaxis()->SetBinLabel(1,"All V0s");
-  fHistEventXiTruePos->GetXaxis()->SetBinLabel(2,"V0s ok");
-  fHistEventXiTruePos->GetXaxis()->SetBinLabel(3,"All daugthers available");
-  fHistEventXiTruePos->GetXaxis()->SetBinLabel(4,"Filterbit daughters"); 
-  fHistEventXiTruePos->GetXaxis()->SetBinLabel(5,"Chis daughter tracks"); 
+  fHistEventXiTruePos->GetXaxis()->SetBinLabel(1,"No meaning");
+  fHistEventXiTruePos->GetXaxis()->SetBinLabel(2,"No meaning");
+  fHistEventXiTruePos->GetXaxis()->SetBinLabel(3,"No meaning");
+  fHistEventXiTruePos->GetXaxis()->SetBinLabel(4,"All, Filterbit not applied"); 
+  fHistEventXiTruePos->GetXaxis()->SetBinLabel(5,"Chis/NDF daughter tracks"); 
   fHistEventXiTruePos->GetXaxis()->SetBinLabel(6,"TPC refit"); 
-  fHistEventXiTruePos->GetXaxis()->SetBinLabel(7,"PID daughters"); 
-  fHistEventXiTruePos->GetXaxis()->SetBinLabel(8,"|eta daughters|<0.8"); 
-  fHistEventXiTruePos->GetXaxis()->SetBinLabel(9,"V0 lifetime"); 
-  fHistEventXiTruePos->GetXaxis()->SetBinLabel(10,"Xi lifetime"); 
-  fHistEventXiTruePos->GetXaxis()->SetBinLabel(11,"Mass selected"); 
-  fHistEventXiTruePos->GetXaxis()->SetBinLabel(12,"FB4"); 
-  fHistEventXiTruePos->GetXaxis()->SetBinLabel(13,"FB1"); 
-  fHistEventXiTruePos->GetXaxis()->SetBinLabel(14,"FB128"); 
+  fHistEventXiTruePos->GetXaxis()->SetBinLabel(7,"NClusters > 50"); 
+  fHistEventXiTruePos->GetXaxis()->SetBinLabel(8,"NCrossedRows>80"); 
+  fHistEventXiTruePos->GetXaxis()->SetBinLabel(9,"NCrossedRows/Findable>0.8"); 
+  fHistEventXiTruePos->GetXaxis()->SetBinLabel(10,"Reject kink daughters"); 
+  fHistEventXiTruePos->GetXaxis()->SetBinLabel(11,"|eta daughters|<0.8"); 
+  fHistEventXiTruePos->GetXaxis()->SetBinLabel(12,"V0 lifetime"); 
+  fHistEventXiTruePos->GetXaxis()->SetBinLabel(13,"Xi lifetime"); 
+  fHistEventXiTruePos->GetXaxis()->SetBinLabel(14,"Mass selected"); 
+  fHistEventXiTruePos->GetXaxis()->SetBinLabel(15,"FB4"); 
+  fHistEventXiTruePos->GetXaxis()->SetBinLabel(16,"FB1"); 
+  fHistEventXiTruePos->GetXaxis()->SetBinLabel(17,"FB128"); 
+  fHistEventXiTruePos->GetXaxis()->SetBinLabel(18,"DCAxy<2.4"); 
+  fHistEventXiTruePos->GetXaxis()->SetBinLabel(19,"DCAz<3.2"); 
+  fHistEventXiTruePos->GetXaxis()->SetBinLabel(20,"TrackLength>90"); 
+  fHistEventXiTruePos->GetXaxis()->SetBinLabel(21,"NCrossed/TrackLength>0.8"); 
+  fHistEventXiTruePos->GetXaxis()->SetBinLabel(22,"Out-of-Bunch pileup"); 
 
+
+  fHistEventXiTrueNegRapSel=new TH2F("fHistEventXiTrueNegRapSel", "fHistEventXiTrueNegRapSel",25, 0.5, 25.5, 150, 0, 30);
+  fHistEventXiTrueNegRapSel->SetTitle("Number of V0 which progressively pass the listed selections");
+  fHistEventXiTrueNegRapSel->GetYaxis()->SetTitle("p_{T,reco}");
+  fHistEventXiTrueNegRapSel->GetXaxis()->SetBinLabel(1,"No meaning");
+  fHistEventXiTrueNegRapSel->GetXaxis()->SetBinLabel(2,"No meaning");
+  fHistEventXiTrueNegRapSel->GetXaxis()->SetBinLabel(3,"No meaning");
+  fHistEventXiTrueNegRapSel->GetXaxis()->SetBinLabel(4,"All, Filterbit not applied"); 
+  fHistEventXiTrueNegRapSel->GetXaxis()->SetBinLabel(5,"Chis/NDF daughter tracks"); 
+  fHistEventXiTrueNegRapSel->GetXaxis()->SetBinLabel(6,"TPC refit"); 
+  fHistEventXiTrueNegRapSel->GetXaxis()->SetBinLabel(7,"NClusters > 50"); 
+  fHistEventXiTrueNegRapSel->GetXaxis()->SetBinLabel(8,"NCrossedRows>70"); 
+  fHistEventXiTrueNegRapSel->GetXaxis()->SetBinLabel(9,"NCrossedRows/Findable>0.8"); 
+  fHistEventXiTrueNegRapSel->GetXaxis()->SetBinLabel(10,"Reject kink daughters"); 
+  fHistEventXiTrueNegRapSel->GetXaxis()->SetBinLabel(11,"|eta daughters|<0.8"); 
+  fHistEventXiTrueNegRapSel->GetXaxis()->SetBinLabel(12,"V0 lifetime"); 
+  fHistEventXiTrueNegRapSel->GetXaxis()->SetBinLabel(13,"Xi lifetime"); 
+  fHistEventXiTrueNegRapSel->GetXaxis()->SetBinLabel(14,"Mass selected"); 
+  fHistEventXiTrueNegRapSel->GetXaxis()->SetBinLabel(15,"FB4"); 
+  fHistEventXiTrueNegRapSel->GetXaxis()->SetBinLabel(16,"FB1"); 
+  fHistEventXiTrueNegRapSel->GetXaxis()->SetBinLabel(17,"FB128"); 
+  fHistEventXiTrueNegRapSel->GetXaxis()->SetBinLabel(18,"DCAxy<2.4"); 
+  fHistEventXiTrueNegRapSel->GetXaxis()->SetBinLabel(19,"DCAz<3.2"); 
+  fHistEventXiTrueNegRapSel->GetXaxis()->SetBinLabel(20,"TrackLength>90"); 
+  fHistEventXiTrueNegRapSel->GetXaxis()->SetBinLabel(21,"NCrossed/TrackLength>0.8"); 
+  fHistEventXiTrueNegRapSel->GetXaxis()->SetBinLabel(22,"Out-of-Bunch pileup"); 
+
+  fHistEventXiTruePosRapSel=new TH2F("fHistEventXiTruePosRapSel", "fHistEventXiTruePosRapSel",25, 0.5, 25.5, 150, 0, 30);
+  fHistEventXiTruePosRapSel->SetTitle("Number of V0 which progressively pass the listed selections");
+  fHistEventXiTruePosRapSel->GetYaxis()->SetTitle("p_{T,reco}");
+  fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(1,"No meaning");
+  fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(2,"No meaning");
+  fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(3,"No meaning");
+  fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(4,"All, Filterbit not applied"); 
+  fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(5,"Chis/NDF daughter tracks"); 
+  fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(6,"TPC refit"); 
+  fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(7,"NClusters > 50"); 
+  fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(8,"NCrossedRows>70"); 
+  fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(9,"NCrossedRows/Findable>0.8"); 
+  fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(10,"Reject kink daughters"); 
+  fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(11,"|eta daughters|<0.8"); 
+  fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(12,"V0 lifetime"); 
+  fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(13,"Xi lifetime"); 
+  fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(14,"Mass selected"); 
+  fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(15,"FB4"); 
+  fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(16,"FB1"); 
+  fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(17,"FB128"); 
+  fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(18,"DCAxy<2.4"); 
+  fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(19,"DCAz<3.2"); 
+  fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(20,"TrackLength>90"); 
+  fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(21,"NCrossed/TrackLength>0.8"); 
+  fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(22,"Out-of-Bunch pileup"); 
 
   fHistTrack=new TH1F("fHistTrack", "fHistTrack", 15, 0.5, 15.5);
   fHistTrack->GetXaxis()->SetBinLabel(1,"All tracks");
@@ -828,6 +937,12 @@ void AliAnalysisTaskCascades::UserCreateOutputObjects()
 
   fV0Lifetime= new TH1F("fV0Lifetime", "ctau of Lambda daughter of Xi candidates", 100,0, 100);
   fV0Lifetime->GetXaxis()->SetTitle("cm");
+
+fV0DistanceTrav= new TH1F("fV0DistanceTrav", "ctau of Lambda daughter of Xi candidates", 100,0, 100);
+  fV0DistanceTrav->GetXaxis()->SetTitle("cm");
+
+fV0TotMomentum= new TH1F("fV0TotMomentum", "ctau of Lambda daughter of Xi candidates", 100,0, 100);
+  fV0TotMomentum->GetXaxis()->SetTitle("cm");
 
   fHistSecondParticleAll= new TH2F("fHistSecondParticleAll", "Number of V0 MCTrue vs number V0 reco (T>0) ", 60,-0.5,59.5,60,-0.5,59.5);
   fHistSecondParticleAll->GetXaxis()->SetTitle("Number (reco)");
@@ -987,6 +1102,26 @@ void AliAnalysisTaskCascades::UserCreateOutputObjects()
   }
 
 
+  fHistLengthvsCrossedRowsPos = new TH2F("fHistLengthvsCrossedRowsPos", "fHistLengthvsCrossedRowsPos",  160, 0, 160, 160, 0, 160);
+  fHistLengthvsCrossedRowsPos->GetXaxis()->SetTitle("Number of Crossed rows");
+  fHistLengthvsCrossedRowsPos->GetYaxis()->SetTitle("Track length");
+  fHistLengthvsCrossedRowsNeg = new TH2F("fHistLengthvsCrossedRowsNeg", "fHistLengthvsCrossedRowsNeg",  160, 0, 160, 160, 0, 160);
+  fHistLengthvsCrossedRowsNeg->GetXaxis()->SetTitle("Number of Crossed rows");
+  fHistLengthvsCrossedRowsNeg->GetYaxis()->SetTitle("Track length");
+  fHistLengthvsCrossedRowsBach = new TH2F("fHistLengthvsCrossedRowsBach", "fHistLengthvsCrossedRowsBach",  160, 0, 160, 160, 0, 160);
+  fHistLengthvsCrossedRowsBach->GetXaxis()->SetTitle("Number of Crossed rows");
+  fHistLengthvsCrossedRowsBach->GetYaxis()->SetTitle("Track length");
+  fHistLengthvsCrossedRowsAfterSelPos = new TH2F("fHistLengthvsCrossedRowsAfterSelPos", "fHistLengthvsCrossedRowsAfterSelPos",  160, 0, 160, 160, 0, 160);
+  fHistLengthvsCrossedRowsAfterSelPos->GetXaxis()->SetTitle("Number of Crossed rows");
+  fHistLengthvsCrossedRowsAfterSelPos->GetYaxis()->SetTitle("Track length");
+  fHistLengthvsCrossedRowsAfterSelNeg = new TH2F("fHistLengthvsCrossedRowsAfterSelNeg", "fHistLengthvsCrossedRowsAfterSelNeg",  160, 0, 160, 160, 0, 160);
+  fHistLengthvsCrossedRowsAfterSelNeg->GetXaxis()->SetTitle("Number of Crossed rows");
+  fHistLengthvsCrossedRowsAfterSelNeg->GetYaxis()->SetTitle("Track length");
+  fHistLengthvsCrossedRowsAfterSelBach = new TH2F("fHistLengthvsCrossedRowsAfterSelBach", "fHistLengthvsCrossedRowsAfterSelBach",  160, 0, 160, 160, 0, 160);
+  fHistLengthvsCrossedRowsAfterSelBach->GetXaxis()->SetTitle("Number of Crossed rows");
+  fHistLengthvsCrossedRowsAfterSelBach->GetYaxis()->SetTitle("Track length");
+
+
   fHistResolutionTriggerPt=new TH3F("fHistResolutionTriggerPt", "p_{T} resolution of selected trigger particles (primary)", 500, -0.5, 0.5, 100, 0, 100, 60,0,30);
   fHistResolutionTriggerPt->GetXaxis()->SetTitle("p_{T, DATA}-p_{T, MC}");
   fHistResolutionTriggerPt->GetYaxis()->SetTitle("Centrality");
@@ -1002,7 +1137,7 @@ void AliAnalysisTaskCascades::UserCreateOutputObjects()
   fHistResolutionTriggerEta->GetYaxis()->SetTitle("Centrality");
   fHistResolutionTriggerEta->GetZaxis()->SetTitle("p^{Trigg, max}_{T}");
 
-  fHistResolutionXiPt=new TH2F("fHistResolutionXiPt", "p_{T} resolution of selected Xi particles (K0s, primary, event w T>0)", 500, -0.5, 0.5, 60,0,30);
+  fHistResolutionXiPt=new TH2F("fHistResolutionXiPt", "p_{T} resolution of selected Xi particles (K0s, primary, event w T>0)", 500, -1, 1, 60,0,30);
   fHistResolutionXiPt->GetXaxis()->SetTitle("p_{T, DATA}-p_{T, MC}");
   fHistResolutionXiPt->GetYaxis()->SetTitle("p^{Trigg, max}_{T}");
 
@@ -1072,8 +1207,17 @@ void AliAnalysisTaskCascades::UserCreateOutputObjects()
   fOutputList->Add(fHistEventV0);
   fOutputList->Add(fHistEventXiTrueNeg);
   fOutputList->Add(fHistEventXiTruePos);
-  
-  //istogrammi riempiti ad ogni evento selezionato (ossia utilizzato per AC) con una entry
+  fOutputList->Add(fHistEventXiTrueNegRapSel);
+  fOutputList->Add(fHistEventXiTruePosRapSel);
+  fOutputList->Add(fHistDCApTrackXi);
+  fOutputList->Add(fHistDCAnTrackXi);
+  fOutputList->Add(fHistDCAbachTrackXi);
+  fOutputList->Add(fHistLengthvsCrossedRowsPos);
+  fOutputList->Add(fHistLengthvsCrossedRowsNeg);
+  fOutputList->Add(fHistLengthvsCrossedRowsBach);
+  fOutputList->Add(fHistLengthvsCrossedRowsAfterSelPos);
+  fOutputList->Add(fHistLengthvsCrossedRowsAfterSelNeg);
+  fOutputList->Add(fHistLengthvsCrossedRowsAfterSelBach);
   fOutputList->Add(fHistZvertex);
   fOutputList->Add(fHist_multiplicity); 
   fOutputList->Add(fHistMultiplicityVsVertexZ);
@@ -1081,6 +1225,8 @@ void AliAnalysisTaskCascades::UserCreateOutputObjects()
   fOutputList->Add(fMassXiPlus);
   fOutputList->Add(fMassXiMinus);
   fOutputList->Add(fV0Lifetime);
+  fOutputList->Add(fV0DistanceTrav);
+  fOutputList->Add(fV0TotMomentum);
   fOutputList->Add(fHistPDG);
   fOutputList->Add(fHistPDGLambda);
   fOutputList->Add(fHistPDGBachMom);
@@ -1302,7 +1448,7 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
     
   if(!isSelected){   
     PostData(1, fOutputList);
-    PostData(2, fSignalTree );
+    PostData(2, fSignalTree);
     //c cout << "event does not fulfil centrality selection criteria " << endl;     
     PostData(4, fOutputList2);  
     PostData(5, fOutputList3);     
@@ -1348,8 +1494,6 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
   Float_t kEtacut[2]={0.8,0.8};
   Float_t Mass[2]={0.497611, 1.115683};
   Int_t ParticleType=0;
-  AliPIDResponse::EDetPidStatus statusTOFPos;
-  AliPIDResponse::EDetPidStatus statusTOFNeg;
 
   AliAODMCParticle* particlePos;
   AliAODMCParticle* particleNeg;
@@ -1663,42 +1807,63 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
     // if(!nTrackXi->TestFilterBit(4)) continue;
     // if(!bachTrackXi->TestFilterBit(4)) continue;
     //----------------------------------------
+
+
+    lRapXi    = xi->RapXi();
+    lRapOmega = xi->RapOmega();
+
     fHistEventV0->Fill(4);   
     if(fReadMCTruth){
       if (fMCEvent){
 	if (isXiPos)    fHistEventXiTruePos->Fill(4,PtMotherBach);  
 	if (isXiNeg)    fHistEventXiTrueNeg->Fill(4,PtMotherBach);  
+	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(4,PtMotherBach);  
+	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(4,PtMotherBach);  
+
       }
     }
     if (pTrackXi->TestFilterBit(4) && nTrackXi->TestFilterBit(4) &&bachTrackXi->TestFilterBit(4)){
+    fHistEventV0->Fill(15);   
       if(fReadMCTruth){
 	if (fMCEvent){
 
-	  if (isXiPos)    fHistEventXiTruePos->Fill(12,PtMotherBach);  
-	  if (isXiNeg)    fHistEventXiTrueNeg->Fill(12,PtMotherBach);  
+	  if (isXiPos)    fHistEventXiTruePos->Fill(15,PtMotherBach);  
+	  if (isXiNeg)    fHistEventXiTrueNeg->Fill(15,PtMotherBach);  
+	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(15,PtMotherBach);  
+	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(15,PtMotherBach);  
+
 	}
       }
-      fHistEventV0->Fill(12);   
+      fHistEventV0->Fill(15);   
     }
     if (pTrackXi->TestFilterBit(1) && nTrackXi->TestFilterBit(1) &&bachTrackXi->TestFilterBit(1)){
+
+    fHistEventV0->Fill(16);   
       if(fReadMCTruth){
 	if (fMCEvent){
 
-	  if (isXiPos)    fHistEventXiTruePos->Fill(13,PtMotherBach);  
-	  if (isXiNeg)    fHistEventXiTrueNeg->Fill(13,PtMotherBach);  
+	  if (isXiPos)    fHistEventXiTruePos->Fill(16,PtMotherBach);  
+	  if (isXiNeg)    fHistEventXiTrueNeg->Fill(16,PtMotherBach);  
+	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(16,PtMotherBach);  
+	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(16,PtMotherBach);  
+
 	}
       }
-      fHistEventV0->Fill(13);   
+      fHistEventV0->Fill(16);   
     }
     if (pTrackXi->TestFilterBit(128) && nTrackXi->TestFilterBit(128) &&bachTrackXi->TestFilterBit(128)){
+    fHistEventV0->Fill(17);   
       if(fReadMCTruth){
 	if (fMCEvent){
   
-	  if (isXiPos)  fHistEventXiTruePos->Fill(14,PtMotherBach);  
-	  if (isXiNeg)    fHistEventXiTrueNeg->Fill(14,PtMotherBach);  
+	  if (isXiPos)    fHistEventXiTruePos->Fill(17,PtMotherBach);  
+	  if (isXiNeg)    fHistEventXiTrueNeg->Fill(17,PtMotherBach);  
+	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(17,PtMotherBach);  
+	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(17,PtMotherBach);  
+
 	}
       }
-      fHistEventV0->Fill(14);   
+      fHistEventV0->Fill(17);   
     }
 
     //daughter track quality cuts------------
@@ -1712,10 +1877,16 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
 
 	if (isXiPos)    fHistEventXiTruePos->Fill(5,PtMotherBach);  
 	if (isXiNeg)    fHistEventXiTrueNeg->Fill(5,PtMotherBach);  
+	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(5,PtMotherBach);  
+	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(5,PtMotherBach);  
+
       }
     }
 
-    Double_t lBMom[3], lNMom[3], lPMom[3];
+    //    Double_t lBMom[3], lNMom[3], lPMom[3];
+    Double_t lBMom[3]={0};
+    Double_t  lNMom[3]={0};
+    Double_t lPMom[3]={0};
     pTrackXi->GetPxPyPz( lBMom);
     nTrackXi->GetPxPyPz( lPMom);
     bachTrackXi->GetPxPyPz( lNMom);
@@ -1770,6 +1941,9 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
       if (fMCEvent){
 	if (isXiPos)    fHistEventXiTruePos->Fill(6,PtMotherBach);  
 	if (isXiNeg)    fHistEventXiTrueNeg->Fill(6,PtMotherBach);  
+	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(6,PtMotherBach);  
+	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(6,PtMotherBach);  
+
       }
     }
     //***********************************************
@@ -1785,58 +1959,58 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
         
      
     //********************************
-      
+    
     Int_t leastnumberofclusters = 1000;
     if( lPosTPCClusters < leastnumberofclusters ) leastnumberofclusters = lPosTPCClusters;
     if( lNegTPCClusters < leastnumberofclusters ) leastnumberofclusters = lNegTPCClusters;
     if( lBachTPCClusters < leastnumberofclusters ) leastnumberofclusters = lBachTPCClusters;
 
+    //Calculate V0 lifetime for adaptive decay radius cut
+    xi->GetXYZ( lPosV0Xi );
+    lV0RadiusXi		= TMath::Sqrt( lPosV0Xi[0]*lPosV0Xi[0]  +  lPosV0Xi[1]*lPosV0Xi[1] );
+
+    /* implemented below in the same way
     //Extra track quality: min track length--------------------------------------------
     Float_t lSmallestTrackLength = 1000;
     Float_t lPosTrackLength = -1;
     Float_t lNegTrackLength = -1;
     Float_t lBachTrackLength = -1;
-    lPosTrackLength = GetLengthInActiveZone( pTrackXi, /*1,*/ 2.0, 220.0, fAOD->GetMagneticField());
-    lNegTrackLength = GetLengthInActiveZone( nTrackXi, /*1,*/ 2.0, 220.0, fAOD->GetMagneticField());
-    lBachTrackLength = GetLengthInActiveZone( bachTrackXi, /*1,*/ 2.0, 220.0, fAOD->GetMagneticField());
+    lPosTrackLength = GetLengthInActiveZone( pTrackXi, 2.0, 220.0, fAOD->GetMagneticField());
+    lNegTrackLength = GetLengthInActiveZone( nTrackXi, 2.0, 220.0, fAOD->GetMagneticField());
+    lBachTrackLength = GetLengthInActiveZone( bachTrackXi,  2.0, 220.0, fAOD->GetMagneticField());
         
     if ( lPosTrackLength  < lSmallestTrackLength ) lSmallestTrackLength = lPosTrackLength;
     if ( lNegTrackLength  < lSmallestTrackLength ) lSmallestTrackLength = lNegTrackLength;
     if ( lBachTrackLength  < lSmallestTrackLength ) lSmallestTrackLength = lBachTrackLength;
-
-    //Calculate V0 lifetime for adaptive decay radius cut
-    xi->GetXYZ( lPosV0Xi );
-    lV0RadiusXi		= TMath::Sqrt( lPosV0Xi[0]*lPosV0Xi[0]  +  lPosV0Xi[1]*lPosV0Xi[1] );
         
     Float_t lLeastNcrOverLength = 200;
     Float_t lPosTrackNcrOverLength = pTrackXi->GetTPCClusterInfo(2,1)/(lPosTrackLength-TMath::Max(lV0RadiusXi-85.,0.));
     Float_t lNegTrackNcrOverLength = nTrackXi->GetTPCClusterInfo(2,1)/(lNegTrackLength-TMath::Max(lV0RadiusXi-85.,0.));
     Float_t lBachTrackNcrOverLength = bachTrackXi->GetTPCClusterInfo(2,1)/(lBachTrackLength-TMath::Max(lXiRadius-85.,0.));
-        
+    // 85 cm is the inner radius of the active volume of the TPC
+
     lLeastNcrOverLength = (Float_t) lPosTrackNcrOverLength;
     if( lNegTrackNcrOverLength < lLeastNcrOverLength )
       lLeastNcrOverLength = (Float_t) lNegTrackNcrOverLength;
     if( lBachTrackNcrOverLength < lLeastNcrOverLength )
       lLeastNcrOverLength = (Float_t) lBachTrackNcrOverLength;
-        
-
-    //        fTreeCascVarMinTrackLength = lSmallestTrackLength;
+        */
     //---------------------------------------------------------------------------------------
 
     // 2 - Poor quality related to TPC clusters: lowest cut of 70 clusters
     //    if(lPosTPCClusters  < 70 && lSmallestTrackLength<80) {
-    if(lPosTPCClusters  < 70) {
-      AliWarning("Pb / V0 Pos. track has less than 70 TPC clusters ... continue!");
+    if(lPosTPCClusters  < 50) {
+      AliWarning("Pb / V0 Pos. track has less than 50 TPC clusters ... continue!");
       continue;
     }
-    //    if(lNegTPCClusters  < 70  && lSmallestTrackLength<80) {
-    if(lNegTPCClusters  < 70) {
-      AliWarning("Pb / V0 Neg. track has less than 70 TPC clusters ... continue!");
+    //    if(lNegTPCClusters  < 50  && lSmallestTrackLength<80) {
+    if(lNegTPCClusters  < 50) {
+      AliWarning("Pb / V0 Neg. track has less than 50 TPC clusters ... continue!");
       continue;
     }
-    //    if(lBachTPCClusters < 70  && lSmallestTrackLength<80) {
-    if(lBachTPCClusters < 70) {
-      AliWarning("Pb / Bach.   track has less than 70 TPC clusters ... continue!");
+    //    if(lBachTPCClusters < 50  && lSmallestTrackLength<80) {
+    if(lBachTPCClusters < 50) {
+      AliWarning("Pb / Bach.   track has less than 50 TPC clusters ... continue!");
       continue;
     }
     fHistEventV0->Fill(7);  
@@ -1845,8 +2019,178 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
 
 	if (isXiPos)    fHistEventXiTruePos->Fill(7,PtMotherBach);  
 	if (isXiNeg)    fHistEventXiTrueNeg->Fill(7,PtMotherBach);  
+	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(7,PtMotherBach);  
+	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(7,PtMotherBach);  
+
       }
     }
+
+
+    Int_t lPosTPCCrossedRows=    pTrackXi ->GetTPCNCrossedRows();
+    Int_t lNegTPCCrossedRows=    nTrackXi ->GetTPCNCrossedRows();
+    Int_t lBachTPCCrossedRows=    bachTrackXi ->GetTPCNCrossedRows();
+    if(lPosTPCCrossedRows  < 80) {
+      AliWarning("Pb / V0 Pos. track has less than 80 TPC crossed rows ... continue!");
+      continue;
+    }
+    if(lNegTPCCrossedRows  < 80) {
+      AliWarning("Pb / V0 Neg. track has less than 80 TPC crossed rows ... continue!");
+      continue;
+    }
+    if(lBachTPCCrossedRows < 80) {
+      AliWarning("Pb / Bach.   track has less than 80 TPC crossed rows ... continue!");
+      continue;
+    }
+    fHistEventV0->Fill(8);  
+    if(fReadMCTruth){
+      if (fMCEvent){
+	if (isXiPos)    fHistEventXiTruePos->Fill(8,PtMotherBach);  
+	if (isXiNeg)    fHistEventXiTrueNeg->Fill(8,PtMotherBach);  
+	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(8,PtMotherBach);  
+	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(8,PtMotherBach);  
+
+      }
+    }
+
+      Float_t rationCrnFindpos=lPosTPCCrossedRows/pTrackXi->GetTPCNclsF();
+      Float_t rationCrnFindneg=lNegTPCCrossedRows/nTrackXi->GetTPCNclsF();
+      Float_t rationCrnFindbach=lBachTPCCrossedRows/bachTrackXi->GetTPCNclsF();
+    if(rationCrnFindpos <  0.8) {
+      continue;
+    }
+    if(rationCrnFindneg  < 0.8) {
+      continue;
+    }
+    if(rationCrnFindbach <  0.8) {
+      continue;
+    }
+    fHistEventV0->Fill(9);  
+    if(fReadMCTruth){
+      if (fMCEvent){
+	if (isXiPos)    fHistEventXiTruePos->Fill(9,PtMotherBach);  
+	if (isXiNeg)    fHistEventXiTrueNeg->Fill(9,PtMotherBach);  
+	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(9,PtMotherBach);  
+	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(9,PtMotherBach);  
+
+      }
+    }
+
+    //Tracklength selection
+    Float_t lTrackLengthpos = -1;
+    Float_t lTrackLengthneg = -1;
+    Float_t lTrackLengthbach = -1;
+    lTrackLengthpos = GetLengthInActiveZone( pTrackXi, /*1,*/ 2.0, 220.0, fAOD->GetMagneticField());
+    lTrackLengthneg = GetLengthInActiveZone( nTrackXi, /*1,*/ 2.0, 220.0, fAOD->GetMagneticField());
+    lTrackLengthbach = GetLengthInActiveZone( bachTrackXi, /*1,*/ 2.0, 220.0, fAOD->GetMagneticField());
+    Float_t lPosTrackNcrOverLength = pTrackXi->GetTPCClusterInfo(2,1)/(lTrackLengthpos-TMath::Max(lV0RadiusXi-85.,0.));
+    Float_t lNegTrackNcrOverLength = nTrackXi->GetTPCClusterInfo(2,1)/(lTrackLengthneg-TMath::Max(lV0RadiusXi-85.,0.));
+    Float_t lBachTrackNcrOverLength = bachTrackXi->GetTPCClusterInfo(2,1)/(lTrackLengthbach-TMath::Max(lXiRadius-85.,0.));
+
+    fHistLengthvsCrossedRowsPos ->Fill(  (Float_t)lPosTPCCrossedRows, lTrackLengthpos );
+    fHistLengthvsCrossedRowsNeg ->Fill(  (Float_t)lNegTPCCrossedRows, lTrackLengthneg );
+    fHistLengthvsCrossedRowsBach ->Fill(  (Float_t)lBachTPCCrossedRows, lTrackLengthbach );
+
+    if (lTrackLengthpos<90 || lTrackLengthneg<90|| lTrackLengthbach<90) continue;
+    fHistEventV0->Fill(20);  
+    if(fReadMCTruth){
+      if (fMCEvent){
+	if (isXiPos)    fHistEventXiTruePos->Fill(20,PtMotherBach);  
+	if (isXiNeg)    fHistEventXiTrueNeg->Fill(20,PtMotherBach);  
+	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(20,PtMotherBach);  
+	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(20,PtMotherBach);  
+
+      }
+    }
+
+    if (lPosTrackNcrOverLength< 0.8 || lNegTrackNcrOverLength< 0.8 || lBachTrackNcrOverLength< 0.8) continue;
+    fHistEventV0->Fill(21);  
+    if(fReadMCTruth){
+      if (fMCEvent){
+	if (isXiPos)    fHistEventXiTruePos->Fill(21,PtMotherBach);  
+	if (isXiNeg)    fHistEventXiTrueNeg->Fill(21,PtMotherBach);  
+	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(21,PtMotherBach);  
+	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(21,PtMotherBach);  
+
+      }
+    }
+
+    fHistLengthvsCrossedRowsAfterSelPos ->Fill(  (Float_t)lPosTPCCrossedRows, lTrackLengthpos );
+    fHistLengthvsCrossedRowsAfterSelNeg ->Fill(  (Float_t)lNegTPCCrossedRows, lTrackLengthneg );
+    fHistLengthvsCrossedRowsAfterSelBach ->Fill(  (Float_t)lBachTPCCrossedRows, lTrackLengthbach );
+
+    //GetKinkIndex condition
+    Bool_t CascVarPosIsKink=kFALSE;
+    Bool_t CascVarNegIsKink=kFALSE;
+    Bool_t CascVarBachIsKink=kFALSE;
+    if( bachTrackXi->GetKinkIndex(0)>0 ) CascVarBachIsKink = kTRUE;
+    if( pTrackXi->GetKinkIndex(0)>0 ) CascVarPosIsKink = kTRUE;
+    if( nTrackXi->GetKinkIndex(0)>0 ) CascVarNegIsKink = kTRUE;
+
+    if (CascVarPosIsKink || CascVarNegIsKink || CascVarBachIsKink) continue;
+
+    fHistEventV0->Fill(10);  
+    if(fReadMCTruth){
+      if (fMCEvent){
+	if (isXiPos)    fHistEventXiTruePos->Fill(10,PtMotherBach);  
+	if (isXiNeg)    fHistEventXiTrueNeg->Fill(10,PtMotherBach);  
+	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(10,PtMotherBach);  
+	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(10,PtMotherBach);  
+
+      }
+    }
+
+    //pile up study from my task
+
+    AliPIDResponse::EDetPidStatus statusTOFPos;
+    AliPIDResponse::EDetPidStatus statusTOFNeg;
+    AliPIDResponse::EDetPidStatus statusTOFBach;
+
+      statusTOFPos = fPIDResponse->CheckPIDStatus(AliPIDResponse::kTOF,pTrackXi);
+      statusTOFNeg = fPIDResponse->CheckPIDStatus(AliPIDResponse::kTOF,nTrackXi);
+      statusTOFBach = fPIDResponse->CheckPIDStatus(AliPIDResponse::kTOF,bachTrackXi);
+
+      //      if ( !(statusTOFPos ==  AliPIDResponse::kDetPidOk) && !(statusTOFNeg ==  AliPIDResponse::kDetPidOk) ) {  
+      if (!(statusTOFBach ==  AliPIDResponse::kDetPidOk) ) {  
+	continue;
+      }
+
+    fHistEventV0->Fill(22);  
+    if(fReadMCTruth){
+      if (fMCEvent){
+	if (isXiPos)    fHistEventXiTruePos->Fill(22,PtMotherBach);  
+	if (isXiNeg)    fHistEventXiTrueNeg->Fill(22,PtMotherBach);  
+	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(22,PtMotherBach);  
+	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(22,PtMotherBach);  
+
+      }
+    }
+
+    //Info for pileup studies from Chinellato task
+    /*
+        fTreeVariableNegTOFExpTDiff = nTrack->GetTOFExpTDiff( lAODevent->GetMagneticField() );
+        fTreeVariablePosTOFExpTDiff = pTrack->GetTOFExpTDiff( lAODevent->GetMagneticField() );
+        fTreeVariableNegTOFSignal = nTrack->GetTOFsignal() * 1.e-3; // in ns
+        fTreeVariablePosTOFSignal = pTrack->GetTOFsignal() * 1.e-3; // in ns
+        fTreeVariableNegTOFBCid = nTrack->GetTOFBunchCrossing( lAODevent->GetMagneticField() );
+        fTreeVariablePosTOFBCid = pTrack->GetTOFBunchCrossing( lAODevent->GetMagneticField() );
+        //Copy OOB pileup flag for this event
+        fTreeVariableOOBPileupFlag = fOOBPileupFlag;
+        //Copy VZERO information for this event
+        fTreeVariableAmplitudeV0A = fAmplitudeV0A;
+        fTreeVariableAmplitudeV0C = fAmplitudeV0C;
+        //Copy IR information for this event
+        fTreeVariableClosestNonEmptyBC = fClosestNonEmptyBC;
+        
+        //This is the flag for ITS||TOF requirement cross-check
+        Bool_t lITSorTOFsatisfied = kFALSE;
+        if(
+           (fTreeVariableNegTrackStatus & AliAODTrack::kITSrefit) ||
+           (fTreeVariablePosTrackStatus & AliAODTrack::kITSrefit) ) lITSorTOFsatisfied = kTRUE;
+        if(
+           (TMath::Abs(fTreeVariableNegTOFExpTDiff+2500.) > 1e-6) ||
+           (TMath::Abs(fTreeVariablePosTOFExpTDiff+2500.)  > 1e-6) ) lITSorTOFsatisfied = kTRUE;
+	*/	
+    //*******************************************
 
     //eta of the three daughters 
     Double_t pEta   = pTrackXi->Eta();
@@ -1855,14 +2199,18 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
     if (TMath::Abs(pEta)>0.8) continue;
     if (TMath::Abs(nEta)>0.8) continue;
     if (TMath::Abs(bachEta)>0.8) continue;
-    fHistEventV0->Fill(8);  
+    fHistEventV0->Fill(11);  
     if(fReadMCTruth){
       if (fMCEvent){
 
-	if (isXiPos)    fHistEventXiTruePos->Fill(8,PtMotherBach);  
-	if (isXiNeg)    fHistEventXiTrueNeg->Fill(8,PtMotherBach);  
+	if (isXiPos)    fHistEventXiTruePos->Fill(11,PtMotherBach);  
+	if (isXiNeg)    fHistEventXiTrueNeg->Fill(11,PtMotherBach);  
+	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(11,PtMotherBach);  
+	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(11,PtMotherBach);  
+
       }
     }
+
 
     cout << "lBachTransMom: " << lBachTransMom << "lNegTransMom: " << lNegTransMom <<  "lPosTransMom: " << lPosTransMom << endl;
     //alternative way to define charge    lChargeXi = bachTrackXi->Charge();
@@ -1913,13 +2261,20 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
     }else{
       lV0Lifetime = -1;
     }
+
+    fV0DistanceTrav->Fill(lV0DistanceTrav);    
+    fV0TotMomentum->Fill(lV0TotMomentum);    
+    fV0Lifetime->Fill(lV0Lifetime);    
     if (lV0Lifetime>100) continue;
-    fHistEventV0->Fill(9);  
+    fHistEventV0->Fill(12);  
     if(fReadMCTruth){
       if (fMCEvent){
 
-	if (isXiPos)	fHistEventXiTruePos->Fill(9,PtMotherBach);  
-	if (isXiNeg)	fHistEventXiTrueNeg->Fill(9,PtMotherBach);  
+	if (isXiPos)	fHistEventXiTruePos->Fill(12,PtMotherBach);  
+	if (isXiNeg)	fHistEventXiTrueNeg->Fill(12,PtMotherBach);  
+	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(12,PtMotherBach);  
+	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(12,PtMotherBach);  
+
       }
     }
 
@@ -1975,9 +2330,6 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
 
     lXiTotMom  	= TMath::Sqrt( lXiMomX*lXiMomX   + lXiMomY*lXiMomY   + lXiMomZ*lXiMomZ );
 
-    lRapXi    = xi->RapXi();
-    lRapOmega = xi->RapOmega();
-
     if (	TMath::Sqrt( pow( lXiMomX,2)+ pow(lXiMomY,2) + pow(lXiMomZ,2)) > 1.e-5) {
       kctauXi=NominalMassXi* lXiDecayLength/TMath::Sqrt( pow( lXiMomX,2)+ pow(lXiMomY,2) + pow(lXiMomZ,2));
     }
@@ -1985,12 +2337,15 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
       kctauXi=-999.;
     }
     if (kctauXi > 100) continue;
-    fHistEventV0->Fill(10);  
+    fHistEventV0->Fill(13);  
     if(fReadMCTruth){
       if (fMCEvent){
 
-	if (isXiPos)    fHistEventXiTruePos->Fill(10,PtMotherBach);  
-	if (isXiNeg)    fHistEventXiTrueNeg->Fill(10,PtMotherBach);  
+	if (isXiPos)    fHistEventXiTruePos->Fill(13,PtMotherBach);  
+	if (isXiNeg)    fHistEventXiTrueNeg->Fill(13,PtMotherBach);  
+	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(13,PtMotherBach);  
+	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(13,PtMotherBach);  
+
       }    
     }
     //	cout << "Pt Cascade " << lXiTransvMom << endl;
@@ -2043,9 +2398,9 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
     //Copy Multiplicity information
     // fTreeVariableVarRefMultEta8 = fRefMultEta8;
     // fTreeVariableVarRefMultEta5 = fRefMultEta5;
-    fTreeVariablePosTrackLength= lPosTrackLength;
-    fTreeVariableNegTrackLength= lNegTrackLength;
-    fTreeVariableBachTrackLength= lBachTrackLength;
+    fTreeVariablePosTrackLength= lTrackLengthpos;
+    fTreeVariableNegTrackLength= lTrackLengthneg;
+    fTreeVariableBachTrackLength= lTrackLengthbach;
     fTreeVariableRunNumber = fRunNumber;
     fTreeVariableBunchCrossNumber = fBunchCrossNumber;
     fTreeVariableMultiplicity	      = lPercentiles;
@@ -2107,15 +2462,55 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
     //Xi    Mass window: 150MeV wide
     //Omega mass window: 150MeV wide
 
-
+    fHistEventV0->Fill(14);  
     fSignalTree->Fill();
-
     if(fReadMCTruth){
       if (fMCEvent){
-	if (isXiPos)  	fHistEventXiTruePos->Fill(11,PtMotherBach);  
-	if (isXiNeg) 	fHistEventXiTrueNeg->Fill(11,PtMotherBach);  
+	if (isXiPos)  	fHistEventXiTruePos->Fill(14,PtMotherBach);  
+	if (isXiNeg) 	fHistEventXiTrueNeg->Fill(14,PtMotherBach);  
+	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(14,PtMotherBach);  
+	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(14,PtMotherBach);  
+
       }
     }
+
+
+
+    Float_t  DCAxyPos=-999.;      Float_t DCAzPos =-999.;
+    Float_t  DCAxyNeg=-999.;      Float_t DCAzNeg =-999.;
+    Float_t  DCAxyBach=-999.;      Float_t DCAzBach =-999.;
+      pTrackXi->GetImpactParameters(&DCAxyPos, &DCAzPos);
+      nTrackXi->GetImpactParameters(&DCAxyNeg, &DCAzNeg);
+      bachTrackXi->GetImpactParameters(&DCAxyBach, &DCAzBach);
+
+      fHistDCApTrackXi->Fill(DCAxyPos, DCAzPos);
+      fHistDCAnTrackXi->Fill(DCAxyNeg, DCAzNeg);
+      fHistDCAbachTrackXi->Fill(DCAxyBach, DCAzBach);
+
+	if (TMath::Abs(DCAxyPos)< 2.4 && TMath::Abs(DCAxyNeg )< 2.4 && TMath::Abs(DCAxyBach)<2.4){
+	  fHistEventV0->Fill(18);  
+	}
+	if (TMath::Abs(DCAxyPos)< 2.4 && TMath::Abs(DCAxyNeg )< 2.4 && TMath::Abs(DCAxyBach)<2.4 && TMath::Abs(DCAzPos)< 3.2 && TMath::Abs(DCAzNeg )< 3.2 && TMath::Abs(DCAzBach)<3.2){
+    fHistEventV0->Fill(19);  
+	}
+    if(fReadMCTruth){
+      if (fMCEvent){
+	if (TMath::Abs(DCAxyPos)< 2.4 && TMath::Abs(DCAxyNeg )< 2.4 && TMath::Abs(DCAxyBach)<2.4){
+	if (isXiPos)    fHistEventXiTruePos->Fill(18,PtMotherBach);  
+	if (isXiNeg)    fHistEventXiTrueNeg->Fill(18,PtMotherBach);  
+	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(18,PtMotherBach);  
+	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(18,PtMotherBach);  
+	}
+	if (TMath::Abs(DCAxyPos)< 2.4 && TMath::Abs(DCAxyNeg )< 2.4 && TMath::Abs(DCAxyBach)<2.4 && TMath::Abs(DCAzPos)< 3.2 && TMath::Abs(DCAzNeg )< 3.2 && TMath::Abs(DCAzBach)<3.2){
+	if (isXiPos)    fHistEventXiTruePos->Fill(19,PtMotherBach);  
+	if (isXiNeg)    fHistEventXiTrueNeg->Fill(19,PtMotherBach);  
+	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(19,PtMotherBach);  
+	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(19,PtMotherBach);  
+	}
+
+      }
+    }
+
     NumberSecondParticle++;
     if (isXiNeg)       NumberSecondParticleRecoTrueXiNeg++;
     if (isXiPos)       NumberSecondParticleRecoTrueXiPos++;
@@ -2127,11 +2522,11 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
 	  if (isXiPos) isXi=0.5;
 	  else if (isXiNeg) isXi=-0.5;
 	  fHistSelectedXiPt[0]->Fill(lXiTransvMom, lPercentiles,isXi );
-	  if (TMath::Abs(lRapXi)<=0.5 ) {
+	  if (TMath::Abs(lRapXi)<0.5 ) {
 	    //	cout << "these are all K0s generated passing selection criteria: label K0s " << particle->Label()<<endl; 
 	    fHistSelectedXiPt[1]->Fill(lXiTransvMom, lPercentiles, isXi);
 	  }
-	  fHistResolutionXiPt->Fill(lXiTransvMom-MotherBach->Pt(),lXiTransvMom);
+	  fHistResolutionXiPt->Fill(lXiTransvMom - MotherBach->Pt(),lXiTransvMom);
 	  fHistResolutionXiPhi->Fill(xi->Phi()-MotherBach->Phi(),lXiTransvMom);
 	  fHistResolutionXiEta->Fill(lEtaXi-MotherBach->Eta(), lXiTransvMom);
 	  NumberTruthXi++;
@@ -2140,7 +2535,7 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
 	  if (isOmegaPos) isXi=0.5;
 	  else if (isOmegaNeg) isXi=-0.5;
 	  fHistSelectedOmegaPt[0]->Fill(lXiTransvMom, lPercentiles,isXi);
-	  if (TMath::Abs(lRapOmega)<=0.5 ) {
+	  if (TMath::Abs(lRapOmega)<0.5 ) {
 	    //	cout << "these are all K0s generated passing selection criteria: label K0s " << particle->Label()<<endl; 
 	    fHistSelectedOmegaPt[1]->Fill(lXiTransvMom, lPercentiles, isXi);
 	  }
@@ -2157,7 +2552,7 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
     //------------------------------------------------
     fMassXiMinus->Fill(lInvMassXiMinus);    
     fMassXiPlus->Fill(lInvMassXiPlus);    
-    fV0Lifetime->Fill(lV0Lifetime);    
+    //    fV0Lifetime->Fill(lV0Lifetime);    
     fHistPDG-> Fill(PdgGMotherPos);
     fHistPDGLambda-> Fill(PdgMotherPos);
     fHistPDGBachMom-> Fill(PdgMotherBach);
@@ -2190,9 +2585,9 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
 
   cout << "*******************************************************************************************************************************" << endl;
  
-  fHistEventV0->AddBinContent(15, NumberSecondParticle);    
-  fHistEventV0->AddBinContent(16, NumberTruthXi);    
-  fHistEventV0->AddBinContent(17, NumberTruthOmega);    
+  fHistEventV0->AddBinContent(23, NumberSecondParticle);    
+  fHistEventV0->AddBinContent(24, NumberTruthXi);    
+  fHistEventV0->AddBinContent(25, NumberTruthOmega);    
   fHistEventMult->Fill(22);  
 
  

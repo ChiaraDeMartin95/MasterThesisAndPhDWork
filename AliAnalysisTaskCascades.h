@@ -94,6 +94,18 @@ Double_t   fBunchCrossNumber; //!
   TH1F*                   fHistEventV0;   //!
   TH2F*                   fHistEventXiTruePos;   //!
   TH2F*                   fHistEventXiTrueNeg;   //!
+  TH2F*                   fHistEventXiTruePosRapSel;   //!
+  TH2F*                   fHistEventXiTrueNegRapSel;   //!
+TH2F *fHistDCApTrackXi;//!
+TH2F *fHistDCAnTrackXi;//!
+TH2F *fHistDCAbachTrackXi; //!
+TH2F*  fHistLengthvsCrossedRowsPos; //!
+TH2F*  fHistLengthvsCrossedRowsNeg; //!
+TH2F* fHistLengthvsCrossedRowsBach; //!
+TH2F*  fHistLengthvsCrossedRowsAfterSelPos; //!
+TH2F*  fHistLengthvsCrossedRowsAfterSelNeg; //!
+TH2F* fHistLengthvsCrossedRowsAfterSelBach; //!
+
   TH1F*                   fHistTrack;       //!
   TH2F* fHistTriggerComposition; //! 
   TH2F* fHistTriggerCompositionMCTruth; //! 
@@ -114,6 +126,8 @@ Double_t   fBunchCrossNumber; //!
   TH1F*                   fMassXiPlus;          //!
   TH1F*                   fMassXiMinus;          //!
   TH1F*                   fV0Lifetime;          //!
+TH1F *  fV0DistanceTrav; //! 
+TH1F *  fV0TotMomentum; //! 
   TH2F *                  fHistMultvsV0All; //!
   TH2F *                  fHistMultvsV0AllTruth; //!
   TH2F *                  fHistMultvsV0MCAll; //!
