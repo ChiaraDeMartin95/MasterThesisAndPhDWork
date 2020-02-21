@@ -12,15 +12,15 @@
 #include <TCutG.h>
 #include <TLegend.h>
 #include <THStack.h>
-void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=3.0, Int_t type=4, Int_t sysTrigger=0, Int_t sysV0=0, Int_t sys=0, TString yearMC="2018f1_extra", TString yeardati="2016k", TString year="2016k18f1_extra", TString year0="2016", Bool_t isParticleStudy=1, Bool_t isSystV0Analysis=0, Int_t rap=0){ 
+void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=3.0, Int_t type=4, Int_t sysTrigger=0, Int_t sysV0=0, Int_t sys=0, TString yearMC="2018f1_extra", TString yeardati="2016k", TString year="2016k18f1_extra", TString year0="2016", Bool_t isParticleStudy=1, Bool_t isSystV0Analysis=1, Int_t rap=1){ 
 
 
   //isSystV0Analysis=1 if I want to compare different selections used to identify the particle for a given multiplcity (to be chosen!); =0 if I want to compare diffrerent multiplcity ranges (but same selections)
   Int_t chosenmolt=5; //choose the multiplicity you desire
-  const Int_t numsysV0=10; 
+  const Int_t numsysV0=21; 
   const Int_t mult=5; //numero intervalli molteplicita'
   const Int_t num_tipo=8; //numero tipologie di particelle
-  const Int_t num_isto=10; //numero di istogrammi di tipologia diversa per dati veri
+  const Int_t num_isto=11; //numero di istogrammi di tipologia diversa per dati veri
   const Int_t num_isto_MC=13; //numero di istogrammi di tipologia diversa per MC
   const Int_t num_isto_cfr=2; //numero di istogrammi di confronto dati/MC
   const Int_t num_isto_lambda=1; //numero di istogrammi di confronto lambda/antilambda
@@ -38,7 +38,7 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
   TString tipo[num_tipo]={"K0s", "Lambda", "AntiLambda", "LambdaAntiLambda", "XiNeg", "XiPos", "OmegaNeg", "OmegaPos"};
   TString tipobis[num_tipo]={"kK0s", "Lambda", "AntiLambda", "LambdaAntiLambda", "XiNeg", "XiPos", "OmegaNeg", "OmegaPos"};
   TString ParticleType[num_tipo]={"", "Lambda", "AntiLambda", "LambdaAntiLambda", "XiNeg", "XiPos", "OmegaNeg", "OmegaPos"};
-  TString tipo_histo[num_isto+1]={"sigma", "mean", "chis", "SB", "S","SEffCorr", "SSB","FracStrangePeak", "BRatioCentral", "BRatioSide", "Efficiency"};
+  TString tipo_histo[num_isto+1]={"sigma", "mean", "chis", "SB", "S","SEffCorr", "SSB","SRatioCentral", "BRatioCentral", "BRatioSide", "Efficiency", "EfficiencyRelError"};
   TString nomi[num_isto+1]={"Invariant mass resolution", 
 			    tipo2[type]+" mass",
 			    "#chi^{2}/dof", 
@@ -46,10 +46,12 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
 			    "S within 3#sigma",
 			    "dN/dp_{T} 1/N_{ev}",
 			    "S/(S+B) within 3#sigma", 
-			    "Estimate of gaussian bkg/all selected within 3#sigma",
+			    //			    "Estimate of gaussian bkg/all selected within 3#sigma",
+			    "S (bin counting - integral bkg) / S (MCTruth)",
 			    "B within 3#sigma (bkg integral/MC truth)", 
 			    "B in sidebands  (bkg integral/MCtruth)",
-			    "Efficiency"};
+			    "Efficiency",
+			    "Relative errors of efficiency"};
   TString tipo_histo_MC[num_isto_MC]={"sigma", "mean", "chis", "SB","SSB", "S", "signal_int","eff","eff_bis", "eff_tagli", "eff_tagli_bis","eff_tris","bontafit"};
   TString nomi_MC[num_isto_MC]={
     "Risoluzione della massa invariante",
@@ -70,10 +72,10 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
   TString nomi_cfr[num_isto_cfr] = {"Numero "+ tipo2[type]+ " dati veri/numero "+ tipo2[type]+ " MC (dopo selezioni)", "Numero di "+ tipo2[type]+ " per evento corretto per efficienza"}; //il primo integrale e':"Integrale dati veri per evento/integrale segnale MC per evento, entrambi dopo tagli";  il secondo istogramma e': Integrale segnale dopo applicazione tagli (ossia numero di V0 per evento) corretto per efficienza"
   TString nomi_lambda[num_isto_lambda] = {"Rapporto numero "+ tipo2[1]+ " e "+ tipo2[2]+ " dopo applicazione selezioni"}; //"Integrale segnale Lambda/integrale segnale AntiLambda dopo applicazione tagli (rapporto tra numero lambda e antilambda dopo applicazione tagli, cioe' non corretto per efficienza totale)"
   TString molteplicit[mult+1]={"0-5 %", "5-10 %", "10-30 %","30-50 %","50-100 %", "0-100 %" };//"[40-70)"
-  TString systematic[numsysV0]={"Default", "CosPointingAngleV0", "CosPointingAngleCasc", "DCAV0ToPV", "DCAMesonToPV", "DCABaryonToPV", "DCABachToPV", "DCAV0Daught", "CascDaught", "MassLambda"};
+  TString systematic[numsysV0]={"Default", "CosPointingAngleV0", "CosPointingAngleCasc", "DCAV0ToPV", "DCAMesonToPV", "DCABaryonToPV", "DCABachToPV", "DCAV0Daught", "CascDaught", "MassLambda", "Mixed1", "+CascPAngle>0.995", "+V0PAngle>0.99", "+V0PAngle>0.995", "+Both PAngle > 0.995", "+CascPAngle>0.992", "+CascV0<0.6", "+InvMassLambda< 0.005"};
   // TString systematic[numsysV0]={"Default", "CosPointingAngleV0", "CosPointingAngleCasc"};
   TString titleX="p^{Assoc}_{T} (GeV/c)";
-  TString titleY[num_isto+1]={"#sigma_{G} (GeV/c^{2})","#mu (GeV/c^{2})", "#chi^{2}/dof","S/B", "S", "dN/dp_{T} 1/N_{ev}", "S/(S+B)", "","B (integral/conteggi)", "B (integral/conteggi)" , "Efficiency"};
+  TString titleY[num_isto+1]={"#sigma_{G} (GeV/c^{2})","#mu (GeV/c^{2})", "#chi^{2}/dof","S/B", "S", "dN/dp_{T} 1/N_{ev}", "S/(S+B)", "","B (integral/conteggi)", "B (integral/conteggi)" , "Efficiency", "Relative error"};
   TString titleY_MC[num_isto_MC]={"#sigma (GeV/c^{2})","#mu (GeV/c^{2})", "#chi^{2}/dof","S/B","S", "S/(S+B)",  "Conteggi", "Numero di "+ tipo2[type]+ "/evento" , "Efficienza x B.R.","Efficienza x accettanza x B.R.", "Efficienza", "F", "Efficienza"}; //r e' rapporto integrale MC/segnale MC
   TString titleY_cfr[num_isto_cfr]={"Numero "+ tipo2[type]+ " dati veri/numero "+ tipo2[type]+ " dati MC", "Numero di "+ tipo2[type]+ "/evento/(efficienza x accettanza x B.R.)"};
   TString titleY_lambda[num_isto_lambda]={"Numero #Lambda/Numero #bar{#Lambda}"};
@@ -98,7 +100,7 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
   if (type>=4) outname="FinalOutput/DATA"+year0 + "/invmass_distribution_thesis/confronto_histogrammi_"+year +"_" +ParticleType[type]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+StringSystV0Analysis[isSystV0Analysis]+Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f_Rap%i.root",sysTrigger, sysV0, sys, PtTrigMin, rap);
   TFile *outfile = new TFile(outname, "RECREATE");
 
-  Int_t Color[10]={1, 401, 801, 628, 909, 881, 860, 868, 841, 418};
+  Int_t Color[21]={1, 401, 801, 628, 909, 881, 860, 868, 841, 418, 628, 909, 881, 867, 921, 401, 841, 862, 866, 865, 864};
   TCanvas *c[num_isto+1]; 
   TCanvas *c_MC[num_isto_MC-num_isto+1];
   TCanvas *c_cfr[num_isto_cfr];
@@ -138,11 +140,11 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
   //  Float_t min_range[num_tipo][num_isto+1]= {{0., 0.491,0, 0,0.92,0,0.000001,0,0},{0., 1.112,0, 0,0,0,0.000001,0,0}, {0., 1.112,0, 0,0,0,0.000001,0,0}, {0., 1.112,0, 0,0,0,0.00001,0,0},  {0., 1.32,0, 0,0,0,0.00001,0,0},  {0., 1.32,0, 0,0,0,0.00001,0,0},  {0., 1.665,0, 0,0,0,0.00001,0,0},  {0., 1.665,0, 0,0,0,0.00001,0,0} };
   //for first 4 brackets (K0s and Lambda) use this!
 
-  Float_t min_range[num_tipo][num_isto+1]= {{0., 0.491,0, 0,0,0,0.92,0,0.000001,0,0},{0., 1.112,0, 0,0,0,0,0,0.000001,0,0}, {0., 1.112,0, 0,0,0,0,0,0.000001,0,0}, {0., 1.112,0, 0,0,0,0,0,0.00001,0,0},  {0., 1.32,0, 0,0,0,0,0,0.00001,0,0},  {0., 1.32,0, 0,0,0,0,0,0.00001,0,0},  {0., 1.665,0, 0,0,0,0,0,0.00001,0,0},  {0., 1.665,0, 0,0,0,0,0,0.00001,0,0} };
-  Float_t max_range[num_tipo][num_isto+1]= {{0.012, 0.505,8, 500,367,367,1,250000,100,100,1},{0.004, 1.119,45, 40,367,367,1.2,400000,0.04,60000,1}, {0.004, 1.119,45, 40,367,367,1.2,400000,0.04, 60000,1}, {0.003, 1.119,30, 20,367,367,1.2, 800000,0.09,60000,1}, {0.01, 1.325,3,20, 0.0001,0.004, 1,1,5,5,0.2}, {0.01, 1.325,3, 20, 0.0001,0.004,1,1,5,5,0.2}, {0.006, 1.678,8, 20, 20,500,1,250000,100,100,1}, {0.012, 1.678,8, 20,20, 500,1,250000,100,100,1} };
+  Float_t min_range[num_tipo][num_isto+1]= {{0., 0.491,0, 0,0,0,0.92,0,0.000001,0,0,-0.001},{0., 1.112,0, 0,0,0,0,0,0.000001,0,0,-0.001}, {0., 1.112,0, 0,0,0,0,0,0.000001,0,0,-0.001}, {0., 1.112,0, 0,0,0,0,0,0.00001,0,0,-0.001},  {0., 1.32,0, 0,0,0,0,0,0.00001,0,0,-0.011},  {0., 1.32,0, 0,0,0,0,0,0.00001,0,0,-0.01},  {0., 1.665,0, 0,0,0,0,0,0.00001,0,0,-0.01},  {0., 1.665,0, 0,0,0,0,0,0.00001,0,0,-0.01 }};
+  Float_t max_range[num_tipo][num_isto+1]= {{0.012, 0.505,8, 500,367,367,1,250000,100,100,1, 0.001},{0.01, 1.119,45, 40,367,367,1.2,400000,0.04,60000,1,0.01}, {0.01, 1.119,45, 40,367,367,1.2,400000,0.04, 60000,1,0.01}, {0.003, 1.119,30, 20,367,367,1.2, 800000,0.09,60000,1,0.01}, {0.01, 1.325,3,20, 0.001,0.04, 1,1.5,5,5,0.2,0.1}, {0.01, 1.325,3, 20, 0.001,0.04,1,1.5,5,5,0.2,0.1}, {0.006, 1.678,8, 20, 20,500,1,250000,100,100,1,0.01}, {0.012, 1.678,8, 20,20, 500,1,250000,100,100,1,0.01}};
 
-  Float_t canvas_size1[num_isto+1]={800, 800, 1400, 1400, 800,800, 1400, 800, 800};
-  Float_t canvas_size2[num_isto+1]={600, 600, 500, 500, 600, 1000, 500, 1000, 1000};
+  Float_t canvas_size1[num_isto+1]={800, 800, 1400, 1400, 800,800, 1400, 800, 800, 800};
+  Float_t canvas_size2[num_isto+1]={600, 600, 500, 500, 600, 1000, 500, 1000, 1000, 1000};
 
   Float_t massParticle[num_tipo]= {0.497611, 1.115683, 1.115683, 1.115683, 1.32171, 1.32171, 1.67245, 1.67245};
   TString Title[2];
@@ -159,11 +161,12 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
   for (Int_t j =0 ; j< num_isto_finale; j++){ //ciclo sui diversi istogrammi relativi ai dati veri
     //    cout << "tipo isto " << j << endl;
     nomi_completi[j] = nomi[j];
+    //  if (j!=num_isto_finale-1) continue;
     //    if (j==3 || j==10) continue;
     cout << "\n\ntipo isto " << titleY[j]<< endl;
     //    auto legend = new TLegend(X1[j],Y1[j],X2[j],Y2[j]);
-    auto legend = new TLegend(0.6, 0.6, 0.9, 0.9);
-    //    auto legend = new TLegend(0.6, 0.1, 0.9, 0.4);
+    //    auto legend = new TLegend(0.6, 0.6, 0.9, 0.9);
+    auto legend = new TLegend(0.6, 0.1, 0.9, 0.4);
     if (!isSystV0Analysis)    legend->SetHeader("Multiplicity classes"); 
     else     legend->SetHeader("Selections"); 
     auto legendMass = new TLegend(0.6, 0.6, 0.9, 0.9);
@@ -178,7 +181,8 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
      
       for(Int_t dataorMC=0; dataorMC<2; dataorMC++){
 	cout << "data or MC " << dataorMC << endl;
-	if (dataorMC==0 && j>=num_isto_finale-4) continue;
+
+	if (dataorMC==0 && j>=num_isto_finale-5) continue;
 	hs[j] = new THStack(Form("hs%i",j),"");
 	hs_ratio[j] = new THStack(Form("hs_ratio%i",j),"");
 	Title[ParticleType-type]=isDataorMC[dataorMC]+"  "+ tipobis[ParticleType];
@@ -187,9 +191,11 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
 	if (isSystV0Analysis){ ForLoopLimit=numsysV0; ForLoopLimInf=0;}
 	if (!isSystV0Analysis) {ForLoopLimit=0;ForLoopLimInf=mult;}
 	Int_t 	Icounter=-1;
-	for (Int_t i =ForLoopLimInf ; i>= ForLoopLimit; i--){//ok for mult loop
-	//for (Int_t i =ForLoopLimInf ; i< ForLoopLimit; i++){//ok for systloop
-
+	//for (Int_t i =ForLoopLimInf ; i>= ForLoopLimit; i--){//ok for mult loop
+	   for (Int_t i =ForLoopLimInf ; i< ForLoopLimit; i++){//ok for systloop
+	     if (isSystV0Analysis && i>=3 && i<=6 ) continue;
+	    //	    if (isSystV0Analysis && systematic[i]=="Mixed3") continue;
+	    //	    if (isSystV0Analysis && systematic[i]=="Mixed4") continue;
 	  Icounter++;
 	  //if multiplicity dependence is analyzed*****************
 	  if (!isSystV0Analysis){
@@ -209,16 +215,25 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
 	  //*******************************************************
 	  myfile[i] = new TFile(innamecompleto[i], ""); 
 	  histo[j][i] = (TH1F*)myfile[i]->Get("histo_"+tipo_histo[j]);
-	  hs[j]->Add(histo[j][i], "p");
-	  hs[j]->Add(histo[j][i]);
-	  histo[j][i]->SetMarkerStyle(33);
+	  if (i<=25) 	  histo[j][i]->SetMarkerStyle(33);
+	  else 	  histo[j][i]->SetMarkerStyle(20);
 	  histo[j][i]->SetMarkerSize(1.2);
 	  histo[j][i]->SetLineColor(Color[i]);
 	  histo[j][i]->SetMarkerColor(Color[i]);
-
-	  if (Icounter==0) 	histo_master[j] = (TH1F*)histo[j][i] ->Clone("histo_"+tipo_histo[j]+"_master");
+	  hs[j]->Add(histo[j][i], "p");
+	  hs[j]->Add(histo[j][i], "same");
+	  
+	  if (tipo_histo[j]=="EfficiencyRelError"){
+	    for (Int_t l=0; l<histo[j][i]->GetNbinsX() ; l++){
+	      cout << "bin " << l<< "  " <<histo[j][i]->GetBinContent(l+1) << endl;
+	    }
+	  }
+	  if (Icounter==0) 	{
+	    histo_master[j] = (TH1F*)histo[j][i] ->Clone("histo_"+tipo_histo[j]+"_master");
+	    histo_master[j]->Sumw2();
+	  }
 	  histo_ratio[j] = (TH1F*)	histo[j][i] ->Clone("histo_"+tipo_histo[j]+"_ratio");
-
+	  histo_ratio[j]->Sumw2();
 	  
 	  Bool_t SkipIsto=kFALSE;
 	  for (Int_t IPt=1; IPt <histo[j][i]->GetNbinsX(); IPt++){ //parto da IPt = 1 perché nelle Xi il primo bin è vuoto (< 0.3 GeV/c)
@@ -229,19 +244,29 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
 	  //cout << "SkipIsto " << SkipIsto << endl;
 	 	 
 	  if (!SkipIsto)	  histo_ratio[j] ->Divide( histo_master[j] );
-	  histo_ratio[j]->SetMarkerStyle(33);
+
+	  //I set at zero the first bin [0-0.3] GeV/c since not used
+	  histo_ratio[j]->SetBinContent(1,0);
+	  histo[j][i]->SetBinContent(1,0);
+	  //I set the correct errors to the ratios according to Barlow prescription
+	  for (Int_t l=1; l<histo_ratio[j]->GetNbinsX(); l++){
+	    histo_ratio[j]->SetBinError(l+1, sqrt(TMath::Abs(pow(histo_master[j]->GetBinError(l+1),2) -pow(histo[j][i]->GetBinError(l+1),2)))/histo_master[j]->GetBinContent(l+1));
+	  }
+
+	  if (i<=25)	  histo_ratio[j]->SetMarkerStyle(33);
+	  else   histo_ratio[j]->SetMarkerStyle(20);
 	  histo_ratio[j]->SetMarkerSize(1.2);
 	  histo_ratio[j]->SetLineColor(Color[i]);
 	  histo_ratio[j]->SetMarkerColor(Color[i]);
 	  
-	  if (Icounter!=0)	  hs_ratio[j]->Add(histo_ratio[j], "p");
-	  if (Icounter!=0)	  hs_ratio[j]->Add(histo_ratio[j]);
+	  if (Icounter!=0)	  hs_ratio[j]->Add(histo_ratio[j], "P");
+	  if (Icounter!=0 && tipo_histo[j]!="EfficiencyRelError")	  hs_ratio[j]->Add(histo_ratio[j]);
 	  //	  cout << "ho aggiunto histo ratio" << endl;
-	  if (dataorMC==1 && !isSystV0Analysis && counterParticleType==1) legend->AddEntry(histo[j][i],molteplicit[i],"pel");
-	  if (dataorMC==1 && !isSystV0Analysis && counterParticleType==1) legendMass->AddEntry(histo[j][i],molteplicit[i],"pel");
+	  if (dataorMC==0 && !isSystV0Analysis && counterParticleType==1) legend->AddEntry(histo[j][i],molteplicit[i],"pel");
+	  if (dataorMC==0 && !isSystV0Analysis && counterParticleType==1) legendMass->AddEntry(histo[j][i],molteplicit[i],"pel");
 	  //if particle selection dependence is analyzed*****************
-	  if (dataorMC==1 && isSystV0Analysis && counterParticleType==1) legend->AddEntry(histo[j][i],systematic[i],"pel");
-	  if (dataorMC==1 && isSystV0Analysis && counterParticleType==1) legendMass->AddEntry(histo[j][i],systematic[i],"pel");
+	  if (dataorMC==0 && isSystV0Analysis && counterParticleType==1) legend->AddEntry(histo[j][i],systematic[i],"pel");
+	  if (dataorMC==0 && isSystV0Analysis && counterParticleType==1) legendMass->AddEntry(histo[j][i],systematic[i],"pel");
 	  if(i==0 && j==1 && dataorMC==0 && counterParticleType==1) legendMass->AddEntry(retta, tipoNotSign[ParticleType]+" PDG mass");
 	  outfile->cd();
 	  // histo[j][i]->Write();
@@ -249,7 +274,7 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
 	  cout << "I'm triying to close the file" << Form(innamedataorMC[dataorMC]+"_" +tipobis[ParticleType]+ "_" +MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f.root", chosenmolt, sysTrigger, i, sys, PtTrigMin) << endl;
 	  //       	myfile[i]->Close();      
 	  cout << "file closed" << endl;
-	}
+	} //molteplicità o sistematico
       
 	if (ParticleType==type)      c[j]->cd(dataorMC+1);
 	if (ParticleType==type+1)      c[j]->cd(dataorMC+3);
@@ -286,6 +311,9 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
 	hs_ratio[j]->GetYaxis()->SetTitleSize(0.046); 
 	hs_ratio[j]->SetMinimum(0);
 	hs_ratio[j]->SetMaximum(2); //l'unico modo funzionante per settare estremi
+	if (j==4 || j ==5 || j == num_isto_finale -1){
+	  hs_ratio[j]->SetMaximum(13);
+	}
 	//	cout << "ok 5"<< endl;
 	if (j==1){
 	 hs_ratio[j]->SetMinimum(0.9985);
@@ -297,7 +325,7 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
 	//cout << "ok 7"<< endl;
       } //data or MC
     } //particle type
-  }
+  } //tipo isto
 
   /*
     for (Int_t j =0 ; j< num_isto; j++){ //ciclo sugli istogrammi relativi al MC
@@ -442,7 +470,7 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
   */
   outfile->Close();
   cout << "\n\n\n il file di output si chiama " << outname << endl;
-
+  cout << " errors on the ratios calculated according to Barlow presciption " << endl;
 
 
 }
