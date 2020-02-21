@@ -31,9 +31,13 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
   void SetEvtToMix(Int_t EvtToMix){fnEventsToMix = EvtToMix;}
   void SetEtaTrigger(Float_t EtaTrigger){fEtaTrigger = EtaTrigger;}
   void SetEtahAssoc(Float_t EtahAssoc){fEtahAssoc = EtahAssoc;}
+  void SetEtaV0Assoc(Float_t EtaV0Assoc){fEtaV0Assoc = EtaV0Assoc;}
   void SetFilterBit(Int_t FilterBitValue){fFilterBitValue = FilterBitValue;}
+  void SetYear (Int_t year = 2010) { fYear = year;}
 
-  void ProcessMCParticles(Bool_t Generated, AliAODTrack* track, Int_t& labelPrimOrSec, Float_t lPercentiles, Bool_t isV0, Double_t ZAtDCA, Float_t PtTriggMax, Bool_t fIshhCorr);
+  Float_t GetLengthInActiveZone( AliAODTrack *gt, Float_t deltaY, Float_t deltaZ, Float_t b );
+
+  void ProcessMCParticles(Bool_t Generated, AliAODTrack* track, Int_t& labelPrimOrSec, Float_t lPercentiles, Bool_t isV0, Double_t ZAtDCA, Float_t PtTriggMax, Bool_t fIshhCorr, AliAODTrack* globaltrack);
   // double CalculateMass(double momentum1[3], double momentum2[3], double mass1, double mass2); */
   Double_t CalculateDeltaTheta( Double_t theta1, Double_t theta2 ); 
   Double_t CalculateDeltaPhi( Double_t phi1, Double_t phi2 ) ; 
@@ -75,9 +79,15 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
   Int_t                    fnEventsToMix;
   Float_t                    fEtaTrigger;
   Float_t                    fEtahAssoc;
+  Float_t                    fEtaV0Assoc;
   Int_t                    fFilterBitValue;
+  Int_t                    fYear;
 
    TH1F*                   fHistPt;          //! 
+TH2F *   fHistTriggerNCrvsLength3; //!
+TH2F *     fHistTriggerNCrvsLength5; //!
+TH2F *     fHistTriggerNCrvsLength35; //!
+
    TH1F*                   fHistPtTriggerParticle;          //! 
    TH1F*                   fHistDCAxym1;          //! 
    TH1F*                   fHistDCAxym2;          //! 
@@ -96,6 +106,8 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
    TH2F*                   fHistPtMaxvsMult;          //! 
    TH2F*                   fHistPtMaxvsMultBefAll;          //! 
   TH1F *                  fHistZvertex;     //!
+  TH1F* fHistFractionSharedTPCClusters; //!
+  TH1F* fHistGoldenCut; //!
   TH3F* fHistNumberChargedAllEvents; //!
   TH3F* fHistNumberChargedNoTrigger; //!
   TH3F* fHistNumberChargedTrigger; //!
@@ -106,6 +118,11 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
   TH1F*                   fHistEventMult;   //!
   TH1F*                   fHistEventV0;   //!
   TH1F*                   fHistTrack;       //!
+  TH1F*                   fHistV0Radius;       //!
+  TH1F*                   fHistV0RadiusBis;       //!
+  TH2F*    fHistLengthvsCrossedRowsBis; //!
+  TH2F*    fHistLengthvsCrossedRows; //!
+  TH2F*    fHistLengthvsCrossedRowsDiff; //!
   TH2F* fHistTriggerComposition; //! 
   TH2F* fHistTriggerCompositionMCTruth; //! 
   TH2F* fHistAssocComposition; //! 
@@ -177,7 +194,11 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
 
 TH2F*  fHistResolutionTriggerPt; //!
 TH2F*  fHistResolutionTriggerPhi; //!
+TH2F*  fHistResolutionTriggerPtvsPhiPart; //!
+TH2F*  fHistResolutionTriggerPtvsEtaPart; //!
 TH2F*  fHistResolutionTriggerEta; //!
+TH2F*  fHistResolutionTriggerPhiPhi; //!
+TH2F*  fHistResolutionTriggerPhiEta; //!
 TH2F*  fHistResolutionTriggerPhiPt; //!
 TH2F*  fHistResolutionTriggerPhiPdgCode; //!
 TH2F*  fHistResolutionV0Pt; //!
