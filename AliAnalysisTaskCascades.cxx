@@ -118,6 +118,8 @@ AliAnalysisTaskCascades::AliAnalysisTaskCascades() :AliAnalysisTaskSE(),
   fHistLengthvsCrossedRowsAfterSelPos(0),
   fHistLengthvsCrossedRowsAfterSelNeg(0),
   fHistLengthvsCrossedRowsAfterSelBach(0),
+  fHistCfrDiffDefXiPt(0),
+  fHistCfrDiffDefXiP(0),
   fHistTrack(0), 
   fHistTriggerComposition(0), 
   fHistTriggerCompositionMCTruth(0), 
@@ -176,17 +178,28 @@ AliAnalysisTaskCascades::AliAnalysisTaskCascades() :AliAnalysisTaskSE(),
   fHistSelectedOmegaPt(0),
   fHistReconstructedV0PtMass(0),
   fHistSelectedV0PtMass(0),
+  fHistTriggerPtRecovsPtGenCasc(0),
+  fHistTriggerPtRecovsPtGenPos(0),
+  fHistTriggerPtRecovsPtGenNeg(0),
+  fHistTriggerPtRecovsPtGenBach(0),
+  fHistTriggerYRecovsYGenCasc(0),
   fHistResolutionTriggerPt(0),
   fHistResolutionTriggerPhi(0),
   fHistResolutionTriggerEta(0),
   fHistResolutionXiPt(0),
   fHistResolutionXiPhi(0),
   fHistResolutionXiEta(0),
+  fHistResolutionWithCrossedRowsOverFindXiPt(0),
+  fHistResolutionWithCrossedRowsOverFindXiPhi(0),
+  fHistResolutionWithCrossedRowsOverFindXiEta(0),
   fHistResolutionOmegaPt(0),
   fHistResolutionOmegaPhi(0),
   fHistResolutionOmegaEta(0),
   fHistResolutionTriggerPhiPt(0),
   fHistResolutionTriggerPhiPdgCode(0),
+  fHistCrossedRowsOverFindablePos(0),
+  fHistCrossedRowsOverFindableNeg(0),
+  fHistCrossedRowsOverFindableBach(0),
   fHistPrimaryTrigger(0),
   fHistPrimaryV0(0),
   fminPtj(2), 
@@ -321,6 +334,8 @@ AliAnalysisTaskCascades::AliAnalysisTaskCascades(const char* name) : AliAnalysis
   fHistLengthvsCrossedRowsAfterSelPos(0),
   fHistLengthvsCrossedRowsAfterSelNeg(0),
   fHistLengthvsCrossedRowsAfterSelBach(0),
+  fHistCfrDiffDefXiPt(0),
+  fHistCfrDiffDefXiP(0),
   fHistTrack(0), 
   fHistTriggerComposition(0), 
   fHistTriggerCompositionMCTruth(0), 
@@ -379,17 +394,28 @@ AliAnalysisTaskCascades::AliAnalysisTaskCascades(const char* name) : AliAnalysis
   fHistSelectedOmegaPt(0),
   fHistReconstructedV0PtMass(0),
   fHistSelectedV0PtMass(0),
+  fHistTriggerPtRecovsPtGenCasc(0),
+  fHistTriggerPtRecovsPtGenPos(0),
+  fHistTriggerPtRecovsPtGenNeg(0),
+  fHistTriggerPtRecovsPtGenBach(0),
+  fHistTriggerYRecovsYGenCasc(0),
   fHistResolutionTriggerPt(0),
   fHistResolutionTriggerPhi(0),
   fHistResolutionTriggerEta(0),
   fHistResolutionXiPt(0),
   fHistResolutionXiPhi(0),
   fHistResolutionXiEta(0),
+  fHistResolutionWithCrossedRowsOverFindXiPt(0),
+  fHistResolutionWithCrossedRowsOverFindXiPhi(0),
+  fHistResolutionWithCrossedRowsOverFindXiEta(0),
   fHistResolutionOmegaPt(0),
   fHistResolutionOmegaPhi(0),
   fHistResolutionOmegaEta(0),
   fHistResolutionTriggerPhiPt(0),
   fHistResolutionTriggerPhiPdgCode(0),
+  fHistCrossedRowsOverFindablePos(0),
+  fHistCrossedRowsOverFindableNeg(0),
+  fHistCrossedRowsOverFindableBach(0),
   fHistPrimaryTrigger(0),
   fHistPrimaryV0(0),
   fminPtj(2), 
@@ -531,15 +557,15 @@ void AliAnalysisTaskCascades::ProcessMCParticles(Bool_t Generated, Float_t lPerc
 	  if (!(particle->IsPhysicalPrimary()))continue;
 	  if ( ((particle->GetPdgCode())==-3312) || ((particle->GetPdgCode())==3312) ){
 	    if (particle->GetPdgCode() == -3312) isXi=0.5;
-	    if (particle->GetPdgCode() == 3312) isXi=-0.5;
-	    fHistGeneratedXiPt[0]->Fill(particle->Pt(), lPercentiles,isXi );
-	    if (TMath::Abs(particle->Y())<0.5 ) fHistGeneratedXiPt[1]->Fill(particle->Pt(), lPercentiles, isXi);
+	    else if (particle->GetPdgCode() == 3312) isXi=-0.5;
+	    if (isXi==0.5)	    fHistGeneratedXiPt->Fill(particle->Pt(), lPercentiles,particle->Y());
+	    else	    fHistGeneratedXiPt->Fill(-particle->Pt(), lPercentiles,particle->Y() );
 	  }
 	  else if ( ((particle->GetPdgCode())==-3334) || ((particle->GetPdgCode())==3334) ){
 	    if (particle->GetPdgCode() == -3334) isXi=0.5;
-	    if (particle->GetPdgCode() == 3334) isXi=-0.5;
-	    fHistGeneratedOmegaPt[0]->Fill(particle->Pt(), lPercentiles,isXi );
-	    if (TMath::Abs(particle->Y())<0.5 ) fHistGeneratedOmegaPt[1]->Fill(particle->Pt(), lPercentiles, isXi);
+	    else	    if (particle->GetPdgCode() == 3334) isXi=-0.5;
+	    if (isXi==0.5)	    fHistGeneratedOmegaPt->Fill(particle->Pt(), lPercentiles,particle->Y());
+	    else	    fHistGeneratedOmegaPt->Fill(-particle->Pt(), lPercentiles,particle->Y());
 	  }
 	}
       }      
@@ -625,6 +651,26 @@ void AliAnalysisTaskCascades::UserCreateOutputObjects()
   fHistPtTriggerParticle = new TH1F("fHistPtTriggerParticle", "Particle-p_{T} distribution of selected charged tracks in events used for AC", 300, 0, 30); 
   fHistPtTriggerParticle->GetXaxis()->SetTitle("p_{T} (GeV/c)");
  
+  fHistTriggerPtRecovsPtGenCasc = new TH2F ("fHistTriggerPtRecovsPtGenCasc", "p_{T, reco} vs p_{T, gen} for Selected True Cascade", 200, 0,10,200, 0,10);
+  fHistTriggerPtRecovsPtGenCasc->GetXaxis()->SetTitle("p_{T, gen}");
+  fHistTriggerPtRecovsPtGenCasc->GetYaxis()->SetTitle("p_{T, reco}");
+
+  fHistTriggerPtRecovsPtGenPos = new TH2F ("fHistTriggerPtRecovsPtGenPos", "p_{T, reco} vs p_{T, gen} for pos daughter of Selected True cascades", 200, 0,10,200, 0,10);
+  fHistTriggerPtRecovsPtGenPos->GetXaxis()->SetTitle("p_{T, gen}");
+  fHistTriggerPtRecovsPtGenPos->GetYaxis()->SetTitle("p_{T, reco}");
+
+  fHistTriggerPtRecovsPtGenNeg = new TH2F ("fHistTriggerPtRecovsPtGenNeg", "p_{T, reco} vs p_{T, gen} for neg daughter of Selected True cascades", 200, 0,10,200, 0,10);
+  fHistTriggerPtRecovsPtGenNeg->GetXaxis()->SetTitle("p_{T, gen}");
+  fHistTriggerPtRecovsPtGenNeg->GetYaxis()->SetTitle("p_{T, reco}");
+
+  fHistTriggerPtRecovsPtGenBach = new TH2F ("fHistTriggerPtRecovsPtGenBach", "p_{T, reco} vs p_{T, gen} for bach daughter of Selected True Cascade", 200, 0,10,200, 0,10);
+  fHistTriggerPtRecovsPtGenBach->GetXaxis()->SetTitle("p_{T, gen}"); 
+  fHistTriggerPtRecovsPtGenBach->GetYaxis()->SetTitle("p_{T, reco}");
+
+  fHistTriggerYRecovsYGenCasc = new TH2F("fHistTriggerYRecovsYGenCasc", "Y_{reco} vs Y_{gen} for Selected True Cascade", 200, -2,2,200, -2,2);
+  fHistTriggerYRecovsYGenCasc->GetXaxis()->SetTitle("p_{T, gen}"); 
+  fHistTriggerYRecovsYGenCasc->GetYaxis()->SetTitle("p_{T, reco}");
+
   fHistDCAxym1 = new TH1F("fHistDCAxym1", "DCAxy method 1 before DCA cuts", 100, -10, 10); 
   fHistDCAxym1->GetXaxis()->SetTitle("DCAxy method 1 (cm)");
   fHistDCAxym2 = new TH1F("fHistDCAxym2", "DCAxy method 2 before DCA cuts", 100, -10, 10); 
@@ -882,6 +928,13 @@ void AliAnalysisTaskCascades::UserCreateOutputObjects()
   fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(21,"NCrossed/TrackLength>0.8"); 
   fHistEventXiTruePosRapSel->GetXaxis()->SetBinLabel(22,"Out-of-Bunch pileup"); 
 
+  fHistCfrDiffDefXiPt= new TH2F (  "fHistCfrDiffDefXiPt","fHistCfrDiffDefXiPt", 100,0,10,100,0,10);
+  fHistCfrDiffDefXiPt->GetXaxis()->SetTitle("Pt from cascade methods");
+  fHistCfrDiffDefXiPt->GetYaxis()->SetTitle("Pt from Lorentz vector");
+  fHistCfrDiffDefXiP= new TH2F (  "fHistCfrDiffDefXiP","fHistCfrDiffDefXiP", 100,0,10,100,0,10);
+  fHistCfrDiffDefXiP->GetXaxis()->SetTitle("P from cascade methods");
+  fHistCfrDiffDefXiP->GetYaxis()->SetTitle("P from Lorentz vector");
+
   fHistTrack=new TH1F("fHistTrack", "fHistTrack", 15, 0.5, 15.5);
   fHistTrack->GetXaxis()->SetBinLabel(1,"All tracks");
   fHistTrack->GetXaxis()->SetBinLabel(2,"Tracks after filterbit");
@@ -938,10 +991,10 @@ void AliAnalysisTaskCascades::UserCreateOutputObjects()
   fV0Lifetime= new TH1F("fV0Lifetime", "ctau of Lambda daughter of Xi candidates", 100,0, 100);
   fV0Lifetime->GetXaxis()->SetTitle("cm");
 
-fV0DistanceTrav= new TH1F("fV0DistanceTrav", "ctau of Lambda daughter of Xi candidates", 100,0, 100);
+  fV0DistanceTrav= new TH1F("fV0DistanceTrav", "ctau of Lambda daughter of Xi candidates", 100,0, 100);
   fV0DistanceTrav->GetXaxis()->SetTitle("cm");
 
-fV0TotMomentum= new TH1F("fV0TotMomentum", "ctau of Lambda daughter of Xi candidates", 100,0, 100);
+  fV0TotMomentum= new TH1F("fV0TotMomentum", "ctau of Lambda daughter of Xi candidates", 100,0, 100);
   fV0TotMomentum->GetXaxis()->SetTitle("cm");
 
   fHistSecondParticleAll= new TH2F("fHistSecondParticleAll", "Number of V0 MCTrue vs number V0 reco (T>0) ", 60,-0.5,59.5,60,-0.5,59.5);
@@ -1069,37 +1122,26 @@ fV0TotMomentum= new TH1F("fV0TotMomentum", "ctau of Lambda daughter of Xi candid
   fHistTriggervsMultMC->GetXaxis()->SetTitle("Centrality");
 
 
-  fHistGeneratedXiPt=new TH3F*[2];
-  for(Int_t j=0; j<2; j++){
-    fHistGeneratedXiPt[j]=new TH3F(Form("fHistGeneratedXiPt_%i",j), "p_{T} distribution of generated Xi particles (primary)", 300, 0, 30,  100, 0, 100 , 2, -1, 1);
-    fHistGeneratedXiPt[j]->GetXaxis()->SetTitle("p_{T}");
-    fHistGeneratedXiPt[j]->GetYaxis()->SetTitle("Multiplicity class");
-    fHistGeneratedXiPt[j]->GetZaxis()->SetTitle("Xi Minus or Plus");
-  }
+    fHistGeneratedXiPt=new TH3F("fHistGeneratedXiPt", "p_{T} distribution of generated Xi particles (primary)", 400, -20, 20,  100, 0, 100 , 8, -1, 1);
+    fHistGeneratedXiPt->GetXaxis()->SetTitle("p_{T}");
+    fHistGeneratedXiPt->GetYaxis()->SetTitle("Multiplicity class");
+    fHistGeneratedXiPt->GetZaxis()->SetTitle("Rapidity");
 
-  fHistSelectedXiPt=new TH3F*[2];
-  for(Int_t j=0; j<2; j++){
-    fHistSelectedXiPt[j]=new TH3F(Form("fHistSelectedXiPt_%i",j), "p_{T} distribution of selected Xi particles (primary)", 300, 0, 30,  100, 0, 100 , 2, -1, 1);
-    fHistSelectedXiPt[j]->GetXaxis()->SetTitle("p_{T}");
-    fHistSelectedXiPt[j]->GetYaxis()->SetTitle("Multiplicity class");
-    fHistSelectedXiPt[j]->GetZaxis()->SetTitle("Xi Minus or Plus");
-  }
+    fHistSelectedXiPt=new TH3F("fHistSelectedXiPt", "p_{T} distribution of selected Xi particles (primary)", 400, -20, 20,  100, 0, 100 , 8, -1, 1);
+    fHistSelectedXiPt->GetXaxis()->SetTitle("p_{T}");
+    fHistSelectedXiPt->GetYaxis()->SetTitle("Multiplicity class");
+    fHistSelectedXiPt->GetZaxis()->SetTitle("Rapidity");
 
-  fHistGeneratedOmegaPt=new TH3F*[2];
-  for(Int_t j=0; j<2; j++){
-    fHistGeneratedOmegaPt[j]=new TH3F(Form("fHistGeneratedOmegaPt_%i",j), "p_{T} distribution of generated Omega particles (primary)", 300, 0, 30,  100, 0, 100 , 2, -1, 1);
-    fHistGeneratedOmegaPt[j]->GetXaxis()->SetTitle("p_{T}");
-    fHistGeneratedOmegaPt[j]->GetYaxis()->SetTitle("Multiplicity class");
-    fHistGeneratedOmegaPt[j]->GetZaxis()->SetTitle("Omega Minus or Plus");
-  }
 
-  fHistSelectedOmegaPt=new TH3F*[2];
-  for(Int_t j=0; j<2; j++){
-    fHistSelectedOmegaPt[j]=new TH3F(Form("fHistSelectedOmegaPt_%i",j), "p_{T} distribution of selected Omega particles (primary)", 300, 0, 30,  100, 0, 100 , 2, -1, 1);
-    fHistSelectedOmegaPt[j]->GetXaxis()->SetTitle("p_{T}");
-    fHistSelectedOmegaPt[j]->GetYaxis()->SetTitle("Multiplicity class");
-    fHistSelectedOmegaPt[j]->GetZaxis()->SetTitle("Omega Minus or Plus");
-  }
+    fHistGeneratedOmegaPt=new TH3F("fHistGeneratedOmegaPt", "p_{T} distribution of generated Omega particles (primary)", 400, -20, 20,  100, 0, 100 , 8, -1, 1);
+    fHistGeneratedOmegaPt->GetXaxis()->SetTitle("p_{T}");
+    fHistGeneratedOmegaPt->GetYaxis()->SetTitle("Multiplicity class");
+    fHistGeneratedOmegaPt->GetZaxis()->SetTitle("Rapidity");
+
+    fHistSelectedOmegaPt=new TH3F("fHistSelectedOmegaPt", "p_{T} distribution of selected Omega particles (primary)", 400, -20, 20,  100, 0, 100 , 8, -1, 1);
+    fHistSelectedOmegaPt->GetXaxis()->SetTitle("p_{T}");
+    fHistSelectedOmegaPt->GetYaxis()->SetTitle("Multiplicity class");
+    fHistSelectedOmegaPt->GetZaxis()->SetTitle("Rapidity");
 
 
   fHistLengthvsCrossedRowsPos = new TH2F("fHistLengthvsCrossedRowsPos", "fHistLengthvsCrossedRowsPos",  160, 0, 160, 160, 0, 160);
@@ -1149,6 +1191,18 @@ fV0TotMomentum= new TH1F("fV0TotMomentum", "ctau of Lambda daughter of Xi candid
   fHistResolutionXiEta->GetXaxis()->SetTitle("Eta_{DATA}-Eta_{MC}");
   fHistResolutionXiEta->GetYaxis()->SetTitle("p^{Trigg, max}_{T}");
 
+  fHistResolutionWithCrossedRowsOverFindXiPt=new TH2F("fHistResolutionWithCrossedRowsOverFindXiPt", "p_{T} resolution of selected Xi particles (K0s, primary, event w T>0)", 500, -1, 1, 60,0,30);
+  fHistResolutionWithCrossedRowsOverFindXiPt->GetXaxis()->SetTitle("p_{T, DATA}-p_{T, MC}");
+  fHistResolutionWithCrossedRowsOverFindXiPt->GetYaxis()->SetTitle("p^{Trigg, max}_{T}");
+
+  fHistResolutionWithCrossedRowsOverFindXiPhi=new TH2F("fHistResolutionWithCrossedRowsOverFindXiPhi", "#Phi resolution of selected Xi particles (K0s, primary, event w T>0)", 500, -0.5, 0.5, 60,0,30);
+  fHistResolutionWithCrossedRowsOverFindXiPhi->GetXaxis()->SetTitle("Phi_{DATA}-Phi_{MC}");
+  fHistResolutionWithCrossedRowsOverFindXiPhi->GetYaxis()->SetTitle("p^{Trigg, max}_{T}");
+  
+  fHistResolutionWithCrossedRowsOverFindXiEta=new TH2F("fHistResolutionWithCrossedRowsOverFindXiEta", "#Eta resolution of selected Xi particles (K0s, primary, event w T>0)", 500, -0.5, 0.5, 60,0,30);
+  fHistResolutionWithCrossedRowsOverFindXiEta->GetXaxis()->SetTitle("Eta_{DATA}-Eta_{MC}");
+  fHistResolutionWithCrossedRowsOverFindXiEta->GetYaxis()->SetTitle("p^{Trigg, max}_{T}");
+
 
   fHistResolutionOmegaPt=new TH2F("fHistResolutionOmegaPt", "p_{T} resolution of selected Omega particles (K0s, primary, event w T>0)", 500, -0.5, 0.5, 60,0,30);
   fHistResolutionOmegaPt->GetXaxis()->SetTitle("p_{T, DATA}-p_{T, MC}");
@@ -1171,6 +1225,11 @@ fV0TotMomentum= new TH1F("fV0TotMomentum", "ctau of Lambda daughter of Xi candid
   fHistResolutionTriggerPhiPdgCode->GetXaxis()->SetTitle("Phi_{DATA}-Phi_{MC}");
   fHistResolutionTriggerPhiPdgCode->GetYaxis()->SetTitle("PdgCode");
   fHistResolutionTriggerPhiPdgCode->GetZaxis()->SetTitle("p^{Trigg, max}_{T}");
+
+
+  fHistCrossedRowsOverFindablePos= new TH1F ("fHistCrossedRowsOverFindablePos", "Distribution of NCrossedRows/Findable for positive daughters of true Xi (neg+pos)", 200, 0,2);
+  fHistCrossedRowsOverFindableNeg= new TH1F ("fHistCrossedRowsOverFindableNeg", "Distribution of NCrossedRows/Findable for negative daughters of true Xi (neg+pos)", 200, 0,2);
+  fHistCrossedRowsOverFindableBach= new TH1F ("fHistCrossedRowsOverFindableBach", "Distribution of NCrossedRows/Findable for bachelor daughters of true Xi (neg+pos)", 200, 0,2);
 
   fHistPrimaryTrigger= new TH2F **[6];
   for(Int_t j=0; j<6; j++){
@@ -1218,6 +1277,8 @@ fV0TotMomentum= new TH1F("fV0TotMomentum", "ctau of Lambda daughter of Xi candid
   fOutputList->Add(fHistLengthvsCrossedRowsAfterSelPos);
   fOutputList->Add(fHistLengthvsCrossedRowsAfterSelNeg);
   fOutputList->Add(fHistLengthvsCrossedRowsAfterSelBach);
+  fOutputList->Add(  fHistCfrDiffDefXiPt);
+  fOutputList->Add(  fHistCfrDiffDefXiP);
   fOutputList->Add(fHistZvertex);
   fOutputList->Add(fHist_multiplicity); 
   fOutputList->Add(fHistMultiplicityVsVertexZ);
@@ -1234,27 +1295,35 @@ fV0TotMomentum= new TH1F("fV0TotMomentum", "ctau of Lambda daughter of Xi candid
   fOutputList->Add(fHistEta);
   fOutputList->Add(fHistPhi);
     
-    
-  for(Int_t j=0; j < 2; j++){
-    fOutputList2->Add(fHistGeneratedXiPt[j]);
-    fOutputList2->Add(fHistSelectedXiPt[j]); 
-    fOutputList2->Add(fHistGeneratedOmegaPt[j]);
-    fOutputList2->Add(fHistSelectedOmegaPt[j]); 
-  }
+    fOutputList2->Add(fHistGeneratedXiPt);
+    fOutputList2->Add(fHistSelectedXiPt); 
+    fOutputList2->Add(fHistGeneratedOmegaPt);
+    fOutputList2->Add(fHistSelectedOmegaPt); 
  
   fOutputList->Add(fHistReconstructedV0PtMass);
   fOutputList->Add(fHistSelectedV0PtMass);
+  fOutputList->Add(fHistTriggerPtRecovsPtGenCasc);
+  fOutputList->Add(fHistTriggerPtRecovsPtGenPos);
+  fOutputList->Add(fHistTriggerPtRecovsPtGenNeg);
+  fOutputList->Add(fHistTriggerPtRecovsPtGenBach);
+  fOutputList->Add(fHistTriggerYRecovsYGenCasc);
   fOutputList->Add(fHistResolutionTriggerPt);
   fOutputList->Add(fHistResolutionTriggerPhi);
   fOutputList->Add(fHistResolutionTriggerEta);
   fOutputList->Add(fHistResolutionXiPt);
   fOutputList->Add(fHistResolutionXiPhi);
   fOutputList->Add(fHistResolutionXiEta);
+  fOutputList->Add(fHistResolutionWithCrossedRowsOverFindXiPt);
+  fOutputList->Add(fHistResolutionWithCrossedRowsOverFindXiPhi);
+  fOutputList->Add(fHistResolutionWithCrossedRowsOverFindXiEta);
   fOutputList->Add(fHistResolutionOmegaPt);
   fOutputList->Add(fHistResolutionOmegaPhi);
   fOutputList->Add(fHistResolutionOmegaEta);
   fOutputList->Add(fHistResolutionTriggerPhiPt);
   fOutputList->Add(fHistResolutionTriggerPhiPdgCode);
+  fOutputList->Add(fHistCrossedRowsOverFindablePos);
+  fOutputList->Add(fHistCrossedRowsOverFindableNeg);
+  fOutputList->Add(fHistCrossedRowsOverFindableBach);
 
   PostData(1, fOutputList);  
   PostData(2, fSignalTree);       
@@ -1525,6 +1594,9 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
   Double_t MassPhoton2;
   Double_t MassElectron= 0.0005109989461;
   Double_t massLambda = 1.115683;
+  Double_t MassPion = 0.13957061;
+  Double_t MassProton=0.938272081;
+  Double_t MassKaon=0.493677;
   Int_t isaK0s=0;
   if(fV0=="kK0s") ParticleType =0;
   if(fV0=="kLambda") ParticleType=1;
@@ -1595,9 +1667,11 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
 
     // - 6th part of initialisation : extra info for QA
     Double_t lXiMomX       = 0. , lXiMomY = 0., lXiMomZ = 0.;
+    Double_t lXiTransvMomNotCorrect  = 0. ;
     Double_t lXiTransvMom  = 0. ;
     //Double_t lXiTransvMomMC= 0. ;
     Double_t lXiTotMom     = 0. ;
+    Double_t lXiTotMomLVector     = 0. ;
 
     Double_t lBachMomX       = 0., lBachMomY  = 0., lBachMomZ   = 0.;
     //Double_t lBachTransvMom  = 0.;
@@ -1823,14 +1897,14 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
       }
     }
     if (pTrackXi->TestFilterBit(4) && nTrackXi->TestFilterBit(4) &&bachTrackXi->TestFilterBit(4)){
-    fHistEventV0->Fill(15);   
+      fHistEventV0->Fill(15);   
       if(fReadMCTruth){
 	if (fMCEvent){
 
 	  if (isXiPos)    fHistEventXiTruePos->Fill(15,PtMotherBach);  
 	  if (isXiNeg)    fHistEventXiTrueNeg->Fill(15,PtMotherBach);  
-	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(15,PtMotherBach);  
-	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(15,PtMotherBach);  
+	  if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(15,PtMotherBach);  
+	  if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(15,PtMotherBach);  
 
 	}
       }
@@ -1838,28 +1912,28 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
     }
     if (pTrackXi->TestFilterBit(1) && nTrackXi->TestFilterBit(1) &&bachTrackXi->TestFilterBit(1)){
 
-    fHistEventV0->Fill(16);   
+      fHistEventV0->Fill(16);   
       if(fReadMCTruth){
 	if (fMCEvent){
 
 	  if (isXiPos)    fHistEventXiTruePos->Fill(16,PtMotherBach);  
 	  if (isXiNeg)    fHistEventXiTrueNeg->Fill(16,PtMotherBach);  
-	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(16,PtMotherBach);  
-	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(16,PtMotherBach);  
+	  if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(16,PtMotherBach);  
+	  if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(16,PtMotherBach);  
 
 	}
       }
       fHistEventV0->Fill(16);   
     }
     if (pTrackXi->TestFilterBit(128) && nTrackXi->TestFilterBit(128) &&bachTrackXi->TestFilterBit(128)){
-    fHistEventV0->Fill(17);   
+      fHistEventV0->Fill(17);   
       if(fReadMCTruth){
 	if (fMCEvent){
   
 	  if (isXiPos)    fHistEventXiTruePos->Fill(17,PtMotherBach);  
 	  if (isXiNeg)    fHistEventXiTrueNeg->Fill(17,PtMotherBach);  
-	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(17,PtMotherBach);  
-	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(17,PtMotherBach);  
+	  if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(17,PtMotherBach);  
+	  if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(17,PtMotherBach);  
 
 	}
       }
@@ -1991,10 +2065,10 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
 
     lLeastNcrOverLength = (Float_t) lPosTrackNcrOverLength;
     if( lNegTrackNcrOverLength < lLeastNcrOverLength )
-      lLeastNcrOverLength = (Float_t) lNegTrackNcrOverLength;
+    lLeastNcrOverLength = (Float_t) lNegTrackNcrOverLength;
     if( lBachTrackNcrOverLength < lLeastNcrOverLength )
-      lLeastNcrOverLength = (Float_t) lBachTrackNcrOverLength;
-        */
+    lLeastNcrOverLength = (Float_t) lBachTrackNcrOverLength;
+    */
     //---------------------------------------------------------------------------------------
 
     // 2 - Poor quality related to TPC clusters: lowest cut of 70 clusters
@@ -2052,17 +2126,17 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
       }
     }
 
-      Float_t rationCrnFindpos=lPosTPCCrossedRows/pTrackXi->GetTPCNclsF();
-      Float_t rationCrnFindneg=lNegTPCCrossedRows/nTrackXi->GetTPCNclsF();
-      Float_t rationCrnFindbach=lBachTPCCrossedRows/bachTrackXi->GetTPCNclsF();
+    Float_t rationCrnFindpos= (Float_t)lPosTPCCrossedRows/pTrackXi->GetTPCNclsF();
+    Float_t rationCrnFindneg= (Float_t)lNegTPCCrossedRows/nTrackXi->GetTPCNclsF();
+    Float_t rationCrnFindbach=(Float_t)lBachTPCCrossedRows/bachTrackXi->GetTPCNclsF();
     if(rationCrnFindpos <  0.8) {
-      continue;
+      //      continue;
     }
     if(rationCrnFindneg  < 0.8) {
-      continue;
+      //      continue;
     }
     if(rationCrnFindbach <  0.8) {
-      continue;
+      //        continue;
     }
     fHistEventV0->Fill(9);  
     if(fReadMCTruth){
@@ -2079,12 +2153,20 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
     Float_t lTrackLengthpos = -1;
     Float_t lTrackLengthneg = -1;
     Float_t lTrackLengthbach = -1;
-    lTrackLengthpos = GetLengthInActiveZone( pTrackXi, /*1,*/ 2.0, 220.0, fAOD->GetMagneticField());
-    lTrackLengthneg = GetLengthInActiveZone( nTrackXi, /*1,*/ 2.0, 220.0, fAOD->GetMagneticField());
-    lTrackLengthbach = GetLengthInActiveZone( bachTrackXi, /*1,*/ 2.0, 220.0, fAOD->GetMagneticField());
-    Float_t lPosTrackNcrOverLength = pTrackXi->GetTPCClusterInfo(2,1)/(lTrackLengthpos-TMath::Max(lV0RadiusXi-85.,0.));
-    Float_t lNegTrackNcrOverLength = nTrackXi->GetTPCClusterInfo(2,1)/(lTrackLengthneg-TMath::Max(lV0RadiusXi-85.,0.));
-    Float_t lBachTrackNcrOverLength = bachTrackXi->GetTPCClusterInfo(2,1)/(lTrackLengthbach-TMath::Max(lXiRadius-85.,0.));
+    // lTrackLengthpos = GetLengthInActiveZone( pTrackXi, /*1,*/ 2.0, 220.0, fAOD->GetMagneticField());
+    // lTrackLengthneg = GetLengthInActiveZone( nTrackXi, /*1,*/ 2.0, 220.0, fAOD->GetMagneticField());
+    // lTrackLengthbach = GetLengthInActiveZone( bachTrackXi, /*1,*/ 2.0, 220.0, fAOD->GetMagneticField());
+    lTrackLengthpos = GetLengthInActiveZone( pTrackXi, /*1,*/ 2.0, 220.0, fAOD->GetMagneticField())-TMath::Max(lV0RadiusXi-85.,0.);
+    lTrackLengthneg = GetLengthInActiveZone( nTrackXi, /*1,*/ 2.0, 220.0, fAOD->GetMagneticField()) -TMath::Max(lV0RadiusXi-85.,0.);
+    lTrackLengthbach = GetLengthInActiveZone( bachTrackXi, /*1,*/ 2.0, 220.0, fAOD->GetMagneticField()) -TMath::Max(lXiRadius-85.,0.);
+
+    //    Float_t lPosTrackNcrOverLength =  pTrackXi->GetTPCClusterInfo(2,1)/(lTrackLengthpos-TMath::Max(lV0RadiusXi-85.,0.));
+    //    Float_t lNegTrackNcrOverLength =  nTrackXi->GetTPCClusterInfo(2,1)/(lTrackLengthneg-TMath::Max(lV0RadiusXi-85.,0.));
+    //    Float_t lBachTrackNcrOverLength = bachTrackXi->GetTPCClusterInfo(2,1)/(lTrackLengthbach-TMath::Max(lXiRadius-85.,0.));
+
+    Float_t lPosTrackNcrOverLength =  pTrackXi->GetTPCClusterInfo(2,1)/lTrackLengthpos;
+    Float_t lNegTrackNcrOverLength =  nTrackXi->GetTPCClusterInfo(2,1)/lTrackLengthneg;
+    Float_t lBachTrackNcrOverLength = bachTrackXi->GetTPCClusterInfo(2,1)/lTrackLengthbach;
 
     fHistLengthvsCrossedRowsPos ->Fill(  (Float_t)lPosTPCCrossedRows, lTrackLengthpos );
     fHistLengthvsCrossedRowsNeg ->Fill(  (Float_t)lNegTPCCrossedRows, lTrackLengthneg );
@@ -2138,21 +2220,25 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
 
       }
     }
-
-    //pile up study from my task
-
+    //out of bunch pileup study from my task
     AliPIDResponse::EDetPidStatus statusTOFPos;
     AliPIDResponse::EDetPidStatus statusTOFNeg;
     AliPIDResponse::EDetPidStatus statusTOFBach;
 
-      statusTOFPos = fPIDResponse->CheckPIDStatus(AliPIDResponse::kTOF,pTrackXi);
-      statusTOFNeg = fPIDResponse->CheckPIDStatus(AliPIDResponse::kTOF,nTrackXi);
-      statusTOFBach = fPIDResponse->CheckPIDStatus(AliPIDResponse::kTOF,bachTrackXi);
+    statusTOFPos = fPIDResponse->CheckPIDStatus(AliPIDResponse::kTOF,pTrackXi);
+    statusTOFNeg = fPIDResponse->CheckPIDStatus(AliPIDResponse::kTOF,nTrackXi);
+    statusTOFBach = fPIDResponse->CheckPIDStatus(AliPIDResponse::kTOF,bachTrackXi);
 
-      //      if ( !(statusTOFPos ==  AliPIDResponse::kDetPidOk) && !(statusTOFNeg ==  AliPIDResponse::kDetPidOk) ) {  
-      if (!(statusTOFBach ==  AliPIDResponse::kDetPidOk) ) {  
-	continue;
-      }
+    Bool_t HasPointOnSPDPos=kFALSE;
+    Bool_t HasPointOnSPDNeg=kFALSE;
+    Bool_t HasPointOnSPDBach=kFALSE;
+    if (pTrackXi->HasPointOnITSLayer(0) || pTrackXi->HasPointOnITSLayer(1) ) HasPointOnSPDPos=kTRUE;
+    if (nTrackXi->HasPointOnITSLayer(0) || nTrackXi->HasPointOnITSLayer(1) ) HasPointOnSPDNeg=kTRUE;
+    if (bachTrackXi->HasPointOnITSLayer(0) || bachTrackXi->HasPointOnITSLayer(1) ) HasPointOnSPDBach=kTRUE;
+
+    if ( !(statusTOFPos ==  AliPIDResponse::kDetPidOk) && !(statusTOFNeg ==  AliPIDResponse::kDetPidOk) && !(statusTOFBach ==  AliPIDResponse::kDetPidOk) && !(HasPointOnSPDPos) && !(HasPointOnSPDNeg) && !(HasPointOnSPDBach)) {  
+      continue;
+    }
 
     fHistEventV0->Fill(22);  
     if(fReadMCTruth){
@@ -2167,29 +2253,29 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
 
     //Info for pileup studies from Chinellato task
     /*
-        fTreeVariableNegTOFExpTDiff = nTrack->GetTOFExpTDiff( lAODevent->GetMagneticField() );
-        fTreeVariablePosTOFExpTDiff = pTrack->GetTOFExpTDiff( lAODevent->GetMagneticField() );
-        fTreeVariableNegTOFSignal = nTrack->GetTOFsignal() * 1.e-3; // in ns
-        fTreeVariablePosTOFSignal = pTrack->GetTOFsignal() * 1.e-3; // in ns
-        fTreeVariableNegTOFBCid = nTrack->GetTOFBunchCrossing( lAODevent->GetMagneticField() );
-        fTreeVariablePosTOFBCid = pTrack->GetTOFBunchCrossing( lAODevent->GetMagneticField() );
-        //Copy OOB pileup flag for this event
-        fTreeVariableOOBPileupFlag = fOOBPileupFlag;
-        //Copy VZERO information for this event
-        fTreeVariableAmplitudeV0A = fAmplitudeV0A;
-        fTreeVariableAmplitudeV0C = fAmplitudeV0C;
-        //Copy IR information for this event
-        fTreeVariableClosestNonEmptyBC = fClosestNonEmptyBC;
+      fTreeVariableNegTOFExpTDiff = nTrack->GetTOFExpTDiff( lAODevent->GetMagneticField() );
+      fTreeVariablePosTOFExpTDiff = pTrack->GetTOFExpTDiff( lAODevent->GetMagneticField() );
+      fTreeVariableNegTOFSignal = nTrack->GetTOFsignal() * 1.e-3; // in ns
+      fTreeVariablePosTOFSignal = pTrack->GetTOFsignal() * 1.e-3; // in ns
+      fTreeVariableNegTOFBCid = nTrack->GetTOFBunchCrossing( lAODevent->GetMagneticField() );
+      fTreeVariablePosTOFBCid = pTrack->GetTOFBunchCrossing( lAODevent->GetMagneticField() );
+      //Copy OOB pileup flag for this event
+      fTreeVariableOOBPileupFlag = fOOBPileupFlag;
+      //Copy VZERO information for this event
+      fTreeVariableAmplitudeV0A = fAmplitudeV0A;
+      fTreeVariableAmplitudeV0C = fAmplitudeV0C;
+      //Copy IR information for this event
+      fTreeVariableClosestNonEmptyBC = fClosestNonEmptyBC;
         
-        //This is the flag for ITS||TOF requirement cross-check
-        Bool_t lITSorTOFsatisfied = kFALSE;
-        if(
-           (fTreeVariableNegTrackStatus & AliAODTrack::kITSrefit) ||
-           (fTreeVariablePosTrackStatus & AliAODTrack::kITSrefit) ) lITSorTOFsatisfied = kTRUE;
-        if(
-           (TMath::Abs(fTreeVariableNegTOFExpTDiff+2500.) > 1e-6) ||
-           (TMath::Abs(fTreeVariablePosTOFExpTDiff+2500.)  > 1e-6) ) lITSorTOFsatisfied = kTRUE;
-	*/	
+      //This is the flag for ITS||TOF requirement cross-check
+      Bool_t lITSorTOFsatisfied = kFALSE;
+      if(
+      (fTreeVariableNegTrackStatus & AliAODTrack::kITSrefit) ||
+      (fTreeVariablePosTrackStatus & AliAODTrack::kITSrefit) ) lITSorTOFsatisfied = kTRUE;
+      if(
+      (TMath::Abs(fTreeVariableNegTOFExpTDiff+2500.) > 1e-6) ||
+      (TMath::Abs(fTreeVariablePosTOFExpTDiff+2500.)  > 1e-6) ) lITSorTOFsatisfied = kTRUE;
+    */	
     //*******************************************
 
     //eta of the three daughters 
@@ -2315,23 +2401,53 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
     if ( lChargeXi < 0 )        lInvMassOmegaMinus     = xi->MassOmega();
     if ( lChargeXi > 0 )        lInvMassOmegaPlus     = xi->MassOmega();
 
-		
-
-    Double_t lXiMom[3];
+	       
 	
     //	xi->GetPxPyPz(lXiMom);
+    //il seguente modo di prendere l'impulso della Xi NON è corretto!!!! Lo lascio solo per confronto valore corretto/valore scorretto***********************************************************************************************
+    Double_t lXiMom[3];
     lXiMom[0]=xi->Px();
     lXiMom[1]=xi->Py();
     lXiMom[2]=xi->Pz();
     lXiMomX=lXiMom[0];
     lXiMomY=lXiMom[1];
     lXiMomZ=lXiMom[2];
-    lXiTransvMom  	= TMath::Sqrt( lXiMomX*lXiMomX   + lXiMomY*lXiMomY );
-
+    lXiTransvMomNotCorrect  	= TMath::Sqrt( lXiMomX*lXiMomX   + lXiMomY*lXiMomY );
     lXiTotMom  	= TMath::Sqrt( lXiMomX*lXiMomX   + lXiMomY*lXiMomY   + lXiMomZ*lXiMomZ );
 
-    if (	TMath::Sqrt( pow( lXiMomX,2)+ pow(lXiMomY,2) + pow(lXiMomZ,2)) > 1.e-5) {
-      kctauXi=NominalMassXi* lXiDecayLength/TMath::Sqrt( pow( lXiMomX,2)+ pow(lXiMomY,2) + pow(lXiMomZ,2));
+    //********************************************************************************************
+
+    // Calculate Xi Transv Mom in different way
+    Double_t MassPos=0;
+    Double_t MassNeg=0;
+    if ( lChargeXi < 0 ){
+      MassPos=MassProton;
+      MassNeg=MassPion;
+    }
+    if ( lChargeXi > 0 ){
+      MassPos=MassPion;
+      MassNeg=MassProton;
+    }
+
+    TLorentzVector  vPos,vNeg,vBachXi, vBachOmega, vCascXi, vCascOmega;  
+    vPos.SetXYZM(lPMom[0], lPMom[1], lPMom[2],MassPos );
+    vNeg.SetXYZM(lNMom[0], lNMom[1], lNMom[2],MassNeg );
+    vBachXi.SetXYZM(lBMom[0], lBMom[1], lBMom[2],MassPion );
+    vBachOmega.SetXYZM(lBMom[0], lBMom[1], lBMom[2],MassKaon );
+
+    vCascXi=vPos+vNeg+vBachXi;
+    vCascOmega=vPos+vNeg+vBachOmega;
+
+    lXiTransvMom = sqrt(pow(vCascXi.Px(),2) + pow(vCascXi.Py(),2));
+    lXiTotMomLVector = sqrt(pow(vCascXi.Px(),2) + pow(vCascXi.Py(),2) + pow(vCascXi.Pz(),2));
+
+    Double_t lXiMomLVector[3]= {0};
+    lXiMomLVector[0] = vCascXi.Px();
+    lXiMomLVector[1] = vCascXi.Py();
+    lXiMomLVector[2] = vCascXi.Pz();
+
+    if (  lXiTotMomLVector > 1.e-5) {
+      kctauXi=NominalMassXi* lXiDecayLength/lXiTotMomLVector;
     }
     else {
       kctauXi=-999.;
@@ -2365,7 +2481,7 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
     xyzCascade[1] = xi->DecayVertexXiY();
     xyzCascade[2] = xi->DecayVertexXiZ();
 
-    AliExternalTrackParam lCascTrajObject(xyzCascade,lXiMom,cvCascade,lChargeCascade), *hCascTraj = &lCascTrajObject;
+    AliExternalTrackParam lCascTrajObject(xyzCascade,lXiMomLVector,cvCascade,lChargeCascade), *hCascTraj = &lCascTrajObject;
         
     Double_t lCascDCAtoPVxy = TMath::Abs(hCascTraj->GetD(lBestPrimaryVtxPos[0],
 							 lBestPrimaryVtxPos[1],
@@ -2385,9 +2501,6 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
     cout << "V0 lifetime " <<             lV0Lifetime<< endl;
     cout << "Xi ctau " <<             kctauXi<< endl;
     cout << "Pt Cascade " << lXiTransvMom << endl;
-    cout << "P cascade component x " << lXiMom[0]<< endl;
-    cout << "P cascade component y " << lXiMom[1]<< endl;
-    cout << "P cascade component z " << lXiMom[2]<< endl;
     cout << "DCA cascade to PV xy " <<         lCascDCAtoPVxy;
     cout << " DCA cascade to PV z " <<         lCascDCAtoPVz;
     cout << " DCA cascade to PV " <<         lDcaXiToPrimVertex << endl;
@@ -2464,6 +2577,10 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
 
     fHistEventV0->Fill(14);  
     fSignalTree->Fill();
+
+    fHistCfrDiffDefXiP->Fill(lXiTotMom, lXiTotMomLVector);
+    fHistCfrDiffDefXiPt->Fill(lXiTransvMomNotCorrect, lXiTransvMom);
+
     if(fReadMCTruth){
       if (fMCEvent){
 	if (isXiPos)  	fHistEventXiTruePos->Fill(14,PtMotherBach);  
@@ -2471,41 +2588,46 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
 	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(14,PtMotherBach);  
 	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(14,PtMotherBach);  
 
+	//CrossedRows/findable distribution of daughters of True Xi
+	if (isXiPos || isXiNeg)  	{
+	  fHistCrossedRowsOverFindablePos->Fill(rationCrnFindpos);
+	  fHistCrossedRowsOverFindableNeg->Fill(rationCrnFindneg);
+	  fHistCrossedRowsOverFindableBach->Fill(rationCrnFindbach);
+	}
       }
     }
-
 
 
     Float_t  DCAxyPos=-999.;      Float_t DCAzPos =-999.;
     Float_t  DCAxyNeg=-999.;      Float_t DCAzNeg =-999.;
     Float_t  DCAxyBach=-999.;      Float_t DCAzBach =-999.;
-      pTrackXi->GetImpactParameters(&DCAxyPos, &DCAzPos);
-      nTrackXi->GetImpactParameters(&DCAxyNeg, &DCAzNeg);
-      bachTrackXi->GetImpactParameters(&DCAxyBach, &DCAzBach);
+    pTrackXi->GetImpactParameters(&DCAxyPos, &DCAzPos);
+    nTrackXi->GetImpactParameters(&DCAxyNeg, &DCAzNeg);
+    bachTrackXi->GetImpactParameters(&DCAxyBach, &DCAzBach);
 
-      fHistDCApTrackXi->Fill(DCAxyPos, DCAzPos);
-      fHistDCAnTrackXi->Fill(DCAxyNeg, DCAzNeg);
-      fHistDCAbachTrackXi->Fill(DCAxyBach, DCAzBach);
+    fHistDCApTrackXi->Fill(DCAxyPos, DCAzPos);
+    fHistDCAnTrackXi->Fill(DCAxyNeg, DCAzNeg);
+    fHistDCAbachTrackXi->Fill(DCAxyBach, DCAzBach);
 
-	if (TMath::Abs(DCAxyPos)< 2.4 && TMath::Abs(DCAxyNeg )< 2.4 && TMath::Abs(DCAxyBach)<2.4){
-	  fHistEventV0->Fill(18);  
-	}
-	if (TMath::Abs(DCAxyPos)< 2.4 && TMath::Abs(DCAxyNeg )< 2.4 && TMath::Abs(DCAxyBach)<2.4 && TMath::Abs(DCAzPos)< 3.2 && TMath::Abs(DCAzNeg )< 3.2 && TMath::Abs(DCAzBach)<3.2){
-    fHistEventV0->Fill(19);  
-	}
+    if (TMath::Abs(DCAxyPos)< 2.4 && TMath::Abs(DCAxyNeg )< 2.4 && TMath::Abs(DCAxyBach)<2.4){
+      fHistEventV0->Fill(18);  
+    }
+    if (TMath::Abs(DCAxyPos)< 2.4 && TMath::Abs(DCAxyNeg )< 2.4 && TMath::Abs(DCAxyBach)<2.4 && TMath::Abs(DCAzPos)< 3.2 && TMath::Abs(DCAzNeg )< 3.2 && TMath::Abs(DCAzBach)<3.2){
+      fHistEventV0->Fill(19);  
+    }
     if(fReadMCTruth){
       if (fMCEvent){
 	if (TMath::Abs(DCAxyPos)< 2.4 && TMath::Abs(DCAxyNeg )< 2.4 && TMath::Abs(DCAxyBach)<2.4){
-	if (isXiPos)    fHistEventXiTruePos->Fill(18,PtMotherBach);  
-	if (isXiNeg)    fHistEventXiTrueNeg->Fill(18,PtMotherBach);  
-	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(18,PtMotherBach);  
-	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(18,PtMotherBach);  
+	  if (isXiPos)    fHistEventXiTruePos->Fill(18,PtMotherBach);  
+	  if (isXiNeg)    fHistEventXiTrueNeg->Fill(18,PtMotherBach);  
+	  if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(18,PtMotherBach);  
+	  if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(18,PtMotherBach);  
 	}
 	if (TMath::Abs(DCAxyPos)< 2.4 && TMath::Abs(DCAxyNeg )< 2.4 && TMath::Abs(DCAxyBach)<2.4 && TMath::Abs(DCAzPos)< 3.2 && TMath::Abs(DCAzNeg )< 3.2 && TMath::Abs(DCAzBach)<3.2){
-	if (isXiPos)    fHistEventXiTruePos->Fill(19,PtMotherBach);  
-	if (isXiNeg)    fHistEventXiTrueNeg->Fill(19,PtMotherBach);  
-	if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(19,PtMotherBach);  
-	if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(19,PtMotherBach);  
+	  if (isXiPos)    fHistEventXiTruePos->Fill(19,PtMotherBach);  
+	  if (isXiNeg)    fHistEventXiTrueNeg->Fill(19,PtMotherBach);  
+	  if (isXiPos && TMath::Abs(lRapXi)<0.5)    fHistEventXiTruePosRapSel->Fill(19,PtMotherBach);  
+	  if (isXiNeg && TMath::Abs(lRapXi)<0.5)    fHistEventXiTrueNegRapSel->Fill(19,PtMotherBach);  
 	}
 
       }
@@ -2521,24 +2643,36 @@ void AliAnalysisTaskCascades::UserExec(Option_t *)
 	if(isXiPos || isXiNeg){
 	  if (isXiPos) isXi=0.5;
 	  else if (isXiNeg) isXi=-0.5;
-	  fHistSelectedXiPt[0]->Fill(lXiTransvMom, lPercentiles,isXi );
-	  if (TMath::Abs(lRapXi)<0.5 ) {
-	    //	cout << "these are all K0s generated passing selection criteria: label K0s " << particle->Label()<<endl; 
-	    fHistSelectedXiPt[1]->Fill(lXiTransvMom, lPercentiles, isXi);
-	  }
-	  fHistResolutionXiPt->Fill(lXiTransvMom - MotherBach->Pt(),lXiTransvMom);
+	  if (isXiPos) fHistSelectedXiPt->Fill(lXiTransvMom, lPercentiles,lRapXi);
+	  else fHistSelectedXiPt->Fill(-lXiTransvMom, lPercentiles,lRapXi);
+
+	  fHistTriggerPtRecovsPtGenCasc->Fill(MotherBach->Pt(), lXiTransvMom);
+	  fHistTriggerPtRecovsPtGenPos ->Fill(particlePos->Pt(),pTrackXi->Pt());
+	  fHistTriggerPtRecovsPtGenNeg ->Fill(particleNeg->Pt(),nTrackXi->Pt());
+	  fHistTriggerPtRecovsPtGenBach->Fill(particleBach->Pt(),bachTrackXi->Pt());
+	  fHistTriggerYRecovsYGenCasc->Fill(MotherBach->Y(),lRapXi);
+
+	  fHistResolutionXiPt->Fill(lXiTransvMom - PtMotherBach,lXiTransvMom);
 	  fHistResolutionXiPhi->Fill(xi->Phi()-MotherBach->Phi(),lXiTransvMom);
 	  fHistResolutionXiEta->Fill(lEtaXi-MotherBach->Eta(), lXiTransvMom);
+	  if (rationCrnFindpos  >0.8 && rationCrnFindpos > 0.8 && rationCrnFindpos  > 0.8){
+	    fHistResolutionWithCrossedRowsOverFindXiPt->Fill(lXiTransvMom - MotherBach->Pt(),lXiTransvMom);
+	    fHistResolutionWithCrossedRowsOverFindXiPhi->Fill(xi->Phi()-MotherBach->Phi(),lXiTransvMom);
+	    fHistResolutionWithCrossedRowsOverFindXiEta->Fill(lEtaXi-MotherBach->Eta(), lXiTransvMom);
+	  }
 	  NumberTruthXi++;
 	}
 	else if(isOmegaPos || isOmegaNeg){
 	  if (isOmegaPos) isXi=0.5;
 	  else if (isOmegaNeg) isXi=-0.5;
-	  fHistSelectedOmegaPt[0]->Fill(lXiTransvMom, lPercentiles,isXi);
-	  if (TMath::Abs(lRapOmega)<0.5 ) {
-	    //	cout << "these are all K0s generated passing selection criteria: label K0s " << particle->Label()<<endl; 
-	    fHistSelectedOmegaPt[1]->Fill(lXiTransvMom, lPercentiles, isXi);
-	  }
+	  if (isOmegaPos)	  fHistSelectedOmegaPt->Fill(lXiTransvMom, lPercentiles,isXi);
+	  else	  fHistSelectedOmegaPt->Fill(-lXiTransvMom, lPercentiles,isXi);
+	  fHistTriggerPtRecovsPtGenCasc->Fill(MotherBach->Pt(), lXiTransvMom);
+	  fHistTriggerPtRecovsPtGenPos ->Fill(particlePos->Pt(),pTrackXi->Pt());
+	  fHistTriggerPtRecovsPtGenNeg ->Fill(particleNeg->Pt(),nTrackXi->Pt());
+	  fHistTriggerPtRecovsPtGenBach->Fill(particleBach->Pt(),bachTrackXi->Pt());
+	  fHistTriggerYRecovsYGenCasc->Fill(MotherBach->Y(),lRapOmega);
+
 	  fHistResolutionOmegaPt->Fill(lXiTransvMom-MotherBach->Pt(),lXiTransvMom);
 	  fHistResolutionOmegaPhi->Fill(xi->Phi()-MotherBach->Phi(), lXiTransvMom);
 	  fHistResolutionOmegaEta->Fill(lEtaXi-MotherBach->Eta(),lXiTransvMom);

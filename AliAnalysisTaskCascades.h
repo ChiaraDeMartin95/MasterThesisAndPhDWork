@@ -106,6 +106,9 @@ TH2F*  fHistLengthvsCrossedRowsAfterSelPos; //!
 TH2F*  fHistLengthvsCrossedRowsAfterSelNeg; //!
 TH2F* fHistLengthvsCrossedRowsAfterSelBach; //!
 
+ TH2F*   fHistCfrDiffDefXiPt; //!
+ TH2F*   fHistCfrDiffDefXiP; //!
+
   TH1F*                   fHistTrack;       //!
   TH2F* fHistTriggerComposition; //! 
   TH2F* fHistTriggerCompositionMCTruth; //! 
@@ -158,24 +161,40 @@ TH1F *  fV0TotMomentum; //!
   TH1F*                  fHistTriggervsMult; //!
   TH1F*                  fHistTriggervsMultMC; //!
   TH1F*                  fHistMultiplicityOfMixedEvent; //!
-  TH3F **  fHistGeneratedXiPt; //!
-  TH3F **  fHistSelectedXiPt; //!
-  TH3F **  fHistGeneratedOmegaPt; //!
-  TH3F **  fHistSelectedOmegaPt; //!
+  TH3F *  fHistGeneratedXiPt; //!
+  TH3F *  fHistSelectedXiPt; //!
+  TH3F *  fHistGeneratedOmegaPt; //!
+  TH3F *  fHistSelectedOmegaPt; //!
   TH3F *  fHistReconstructedV0PtMass; //!
   TH3F *  fHistSelectedV0PtMass; //!  
+
+TH2F*  fHistTriggerPtRecovsPtGenCasc; //!
+TH2F*  fHistTriggerPtRecovsPtGenPos; //!
+TH2F*  fHistTriggerPtRecovsPtGenNeg; //!
+TH2F*  fHistTriggerPtRecovsPtGenBach; //!
+TH2F*  fHistTriggerYRecovsYGenCasc; //!
 
 TH3F*  fHistResolutionTriggerPt; //!
 TH3F*  fHistResolutionTriggerPhi; //!
 TH3F*  fHistResolutionTriggerEta; //!
-TH3F*  fHistResolutionTriggerPhiPt; //!
-TH3F*  fHistResolutionTriggerPhiPdgCode; //!
 TH2F*  fHistResolutionXiPt; //!
 TH2F*  fHistResolutionXiPhi; //!
 TH2F*  fHistResolutionXiEta; //!
+TH2F *  fHistResolutionWithCrossedRowsOverFindXiPt; //!
+TH2F *  fHistResolutionWithCrossedRowsOverFindXiPhi; //!
+TH2F *  fHistResolutionWithCrossedRowsOverFindXiEta; //!
+
 TH2F*  fHistResolutionOmegaPt; //!
 TH2F*  fHistResolutionOmegaPhi; //!
 TH2F*  fHistResolutionOmegaEta; //!
+
+TH3F*  fHistResolutionTriggerPhiPt; //!
+TH3F*  fHistResolutionTriggerPhiPdgCode; //!
+
+TH1F*  fHistCrossedRowsOverFindablePos; //!
+TH1F*  fHistCrossedRowsOverFindableNeg; //!
+TH1F*  fHistCrossedRowsOverFindableBach; //!
+
 
   TH2F *** fHistPrimaryTrigger; //!
   TH3F ***  fHistPrimaryV0; //!  
