@@ -13,12 +13,6 @@
  * provided "as is" without express or implied warranty.                  *
  ************************************v**************************************/
 
-/* AliAnaysisTaskMyTask
- *
- * empty task which can serve as a starting point for building an analysis
- * as an example, one histogram is filled
- */
-
 #include "TChain.h"
 #include "TH1.h"
 #include "TH2.h"
@@ -33,12 +27,11 @@
 #include "AliAnalysisTaskMyTask.h"
 #include "AliPIDResponse.h"
 #include "AliMultiplicity.h"
-//#include "AliMultSelectionBase.h"
-#include "AliMultSelection.h"
+//#include "AliMultSelection.h"
 #include "AliAODMCParticle.h"
-#include "AliAnalysisKPEventCollectionChiara.h"
+#include "AliAnalysisCorrelationEventCollection.h"
 #include "AliAODVertex.h"
-#include "AliEventCuts.h"
+//#include "AliEventCuts.h"
 #include "AliAODTrack.h"
 #include "AliAODv0.h"
 #include "AliVVertex.h"
@@ -46,10 +39,8 @@
 #include "AliESDEvent.h"
 
 
-class AliAnalysisTaskMyTask;    // your analysis class
-
-using namespace std;            // std namespace: so you can do things like 'cout'
-
+class AliAnalysisTaskMyTask;   
+using namespace std;          
 ClassImp(AliAnalysisTaskMyTask) // classimp: necessary for root
 
 AliAnalysisTaskMyTask::AliAnalysisTaskMyTask() :AliAnalysisTaskSE(), 
@@ -57,8 +48,7 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask() :AliAnalysisTaskSE(),
   fCollidingSystem("pp"), 
   fAOD(0), 
   fPIDResponse(0),
-//fMultSelection(0),
-  fEventCuts(0), 			  			
+//  fEventCuts(0), 			  			
   fOutputList(0), 
   fSignalTree(0), 
   fBkgTree(0), 
@@ -77,9 +67,9 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask() :AliAnalysisTaskSE(),
   fMaxSecondMult(150),
   fnEventsToMix(50),
   fEtaTrigger(0.8),
-						fEtahAssoc(0.8),
-						fEtaV0Assoc(0.8),
-						fFilterBitValue(128),
+  fEtahAssoc(0.8),
+  fEtaV0Assoc(0.8),
+  fFilterBitValue(128),
   fYear(2016),
   fHistPt(0), 
   fHistTriggerNCrvsLength3(0),
@@ -259,8 +249,7 @@ AliAnalysisTaskMyTask::AliAnalysisTaskMyTask(const char* name) : AliAnalysisTask
 								 fCollidingSystem("pp"), 
 								 fAOD(0), 
 								 fPIDResponse(0),
-								 // fMultSelection(0), 			  	       							 
-                                                                 fEventCuts(0),								 
+								 //                                                                 fEventCuts(0),								 
 								 fOutputList(0), 
 								 fSignalTree(0), 
 								 fBkgTree(0), 
@@ -694,12 +683,12 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
  
   //file collection
   //OpenFile();
-  fEventColl = new AliAnalysisKPEventCollectionChiara **[fzVertexBins]; 
+  fEventColl = new AliAnalysisCorrelationEventCollection **[fzVertexBins]; 
   
   for (unsigned short i=0; i<fzVertexBins; i++) {
-    fEventColl[i] = new AliAnalysisKPEventCollectionChiara *[fnMultBins];
+    fEventColl[i] = new AliAnalysisCorrelationEventCollection *[fnMultBins];
     for (unsigned short j=0; j<fnMultBins; j++) {
-      fEventColl[i][j] = new AliAnalysisKPEventCollectionChiara(fnEventsToMix+1, fMaxFirstMult, fMaxSecondMult);
+      fEventColl[i][j] = new AliAnalysisCorrelationEventCollection(fnEventsToMix+1, fMaxFirstMult, fMaxSecondMult);
     }
   }
   // end event collection
@@ -1406,7 +1395,7 @@ void AliAnalysisTaskMyTask::UserCreateOutputObjects()
   //  TString molteplicit[6]={"0-7","7-15","15-25","25-40","40-70",">70"};
   fHistMultiplicityOfMixedEvent=new TH1F("fHistMultiplicityOfMixedEvent", "Distribution of number of events used for the mixing", 20, 0.5, 20.5);
 
-  fEventCuts.AddQAplotsToList(fOutputList);
+  //  fEventCuts.AddQAplotsToList(fOutputList);
   
   fOutputList->Add(fHistPDG);
   fOutputList->Add(fHistTrackBufferOverflow);
@@ -1591,7 +1580,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   // fEventCuts.SetManualMode(true);
   // fEventCuts.SetupRun2pp();
 
-  
+  /*
  /// Use the event cut class to apply the required selections
  if (!fEventCuts.AcceptEvent(fAOD)) {   
  PostData(1, fOutputList);
@@ -1602,7 +1591,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
  PostData(6, fOutputList4);     
  return;
  }
-  
+  */
   fHistEventMult->Fill(1);
   
   Int_t iTracks(fAOD->GetNumberOfTracks());         
@@ -1669,7 +1658,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
 
   Float_t lPercentiles = 0;
  
-  
+  /*
   //This will work for both ESDs and AODs
   AliMultSelection *MultSelection = (AliMultSelection*) fAOD -> FindListObject("MultSelection");
   
@@ -1679,7 +1668,7 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
   }else{
   AliInfo("Didn't find MultSelection!"); 
   }
-  
+  */
   
   //c cout << "centralita' dell evento " << lPercentiles << endl;
     
@@ -2664,8 +2653,8 @@ void AliAnalysisTaskMyTask::UserExec(Option_t *)
       Float_t lTrackLengthneg = -1;
       lTrackLengthpos = GetLengthInActiveZone( prongTrackPos, 2.0, 220.0, fAOD->GetMagneticField());
       lTrackLengthneg = GetLengthInActiveZone( prongTrackNeg, 2.0, 220.0, fAOD->GetMagneticField());
-      Float_t lPosTrackNcrOverLength = prongTrackPos->GetTPCClusterInfo(2,1)/(lTrackLengthpos-TMath::Max(lV0Radius-85.,0.));
-      Float_t lNegTrackNcrOverLength = prongTrackNeg->GetTPCClusterInfo(2,1)/(lTrackLengthneg-TMath::Max(lV0Radius-85.,0.));
+      Float_t lPosTrackNcrOverLength = (Float_t)prongTrackPos->GetTPCClusterInfo(2,1)/(lTrackLengthpos-TMath::Max(lV0Radius-85.,0.));
+      Float_t lNegTrackNcrOverLength = (Float_t)prongTrackNeg->GetTPCClusterInfo(2,1)/(lTrackLengthneg-TMath::Max(lV0Radius-85.,0.));
       
       // fHistLengthvsCrossedRowsPos ->Fill(  (Float_t)lPosTPCCrossedRows, lTrackLengthpos );
       // fHistLengthvsCrossedRowsNeg ->Fill(  (Float_t)lNegTPCCrossedRows, lTrackLengthneg );

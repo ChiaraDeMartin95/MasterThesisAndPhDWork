@@ -5,12 +5,12 @@
 #ifndef AliAnalysisTaskMyTask_H
 #define AliAnalysisTaskMyTask_H
 class AliPIDResponse;
-class AliMultSelection;
+//class AliMultSelection;
 class AliAODMCParticle;
 class AliCentrality;
 #include "AliAnalysisTaskSE.h"
-#include "AliAnalysisKPEventCollectionChiara.h"
-#include "AliEventCuts.h"
+#include "AliAnalysisCorrelationEventCollection.h"
+//#include "AliEventCuts.h"
 
 class AliAnalysisTaskMyTask : public AliAnalysisTaskSE  
 {
@@ -56,7 +56,7 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
   AliAODEvent*            fAOD;             //! input event
   AliPIDResponse *        fPIDResponse;     //!PID response object 
   //  AliMultSelection *      fMultSelection;   //! 
-  AliEventCuts            fEventCuts; //! 
+  //  AliEventCuts            fEventCuts; //! 
   
   TList*                  fOutputList;      //! output list
   TTree*                  fSignalTree;      //! output tree
@@ -69,8 +69,8 @@ class AliAnalysisTaskMyTask : public AliAnalysisTaskSE
   Bool_t                  fReadMCTruth;
   Bool_t                  fIshhCorr;
   Bool_t                  isEfficiency;
-  AliAnalysisKPEventCollectionChiara ***fEventColl;  //!
-  AliAnalysisKPEventChiara *    fEvt;                //!
+  AliAnalysisCorrelationEventCollection ***fEventColl;  //!
+  AliAnalysisCorrelationEvent *    fEvt;                //!
 
   Int_t                    fzVertexBins; 
   Int_t                    fnMultBins;	 
