@@ -640,18 +640,7 @@ void AliAnalysisTaskCorrelationhhK0s::ProcessMCParticles(Bool_t Generated, AliAO
 //_____________________________________________________________________________
 void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
 {
-  // create output objects
-  //
-  // this function is called ONCE at the start of your analysis (RUNTIME)
-  // here you ceate the histograms that you want to use 
-  //
-  // the histograms are in this case added to a tlist, this list is in the end saved
-  // to an output event
-  //
 
- 
-  //file collection
-  //OpenFile();
   fEventColl = new AliAnalysisCorrelationEventCollection **[fzVertexBins]; 
   
   for (unsigned short i=0; i<fzVertexBins; i++) {
@@ -660,8 +649,6 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
       fEventColl[i][j] = new AliAnalysisCorrelationEventCollection(fnEventsToMix+1, fMaxFirstMult, fMaxSecondMult);
     }
   }
-  // end event collection
- 
 
   // Store pointer to global tracks
   farrGT = new Int_t[fTrackBufferSize];
@@ -682,11 +669,11 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   fSignalTree->Branch("fTreeVariablePhiTrigger",         &fTreeVariablePhiTrigger, "fTreeVariablePhiTrigger/D");
   fSignalTree->Branch("fTreeVariableDCAz",               &fTreeVariableDCAz  , "fTreeVariableDCAz/D");
   fSignalTree->Branch("fTreeVariableDCAxy",              &fTreeVariableDCAxy  , "fTreeVariableDCAxy/D");
-  fSignalTree->Branch("fTreeVariableChargeAssoc",              &fTreeVariableChargeAssoc  , "fTreeVariableChargeAssoc/D");
-  fSignalTree->Branch("fTreeVariableAssocDCAz",              &fTreeVariableAssocDCAz  , "fTreeVariableAssocDCAz/D");
-  fSignalTree->Branch("fTreeVariableAssocDCAxy",              &fTreeVariableAssocDCAxy  , "fTreeVariableAssocDCAxy/D");
-  fSignalTree->Branch("fTreeVariableisPrimaryTrigger",              &fTreeVariableisPrimaryTrigger  , "fTreeVariableisPrimaryTrigger/D");
-  fSignalTree->Branch("fTreeVariableisPrimaryV0",              &fTreeVariableisPrimaryV0  , "fTreeVariableisPrimaryV0/D");
+  fSignalTree->Branch("fTreeVariableChargeAssoc",        &fTreeVariableChargeAssoc  , "fTreeVariableChargeAssoc/D");
+  fSignalTree->Branch("fTreeVariableAssocDCAz",          &fTreeVariableAssocDCAz  , "fTreeVariableAssocDCAz/D");
+  fSignalTree->Branch("fTreeVariableAssocDCAxy",         &fTreeVariableAssocDCAxy  , "fTreeVariableAssocDCAxy/D");
+  fSignalTree->Branch("fTreeVariableisPrimaryTrigger",   &fTreeVariableisPrimaryTrigger  , "fTreeVariableisPrimaryTrigger/D");
+  fSignalTree->Branch("fTreeVariableisPrimaryV0",        &fTreeVariableisPrimaryV0  , "fTreeVariableisPrimaryV0/D");
   fSignalTree->Branch("fTreeVariableRapK0Short",         &fTreeVariableRapK0Short               ,"fTreeVariableRapK0Short/D");
   fSignalTree->Branch("fTreeVariableDcaV0ToPrimVertex",  &fTreeVariableDcaV0ToPrimVertex 	, "fTreeVariableDcaV0ToPrimVertex/D");
   fSignalTree->Branch("fTreeVariableDcaPosToPrimVertex", &fTreeVariableDcaPosToPrimVertex	, "fTreeVariableDcaPosToPrimVertex/D");
@@ -701,13 +688,13 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   fSignalTree->Branch("fTreeVariablePhiV0",              &fTreeVariablePhiV0, "fTreeVariablePhiV0/D");
   fSignalTree->Branch("fTreeVariablePtArmenteros",       &fTreeVariablePtArmenteros  , "fTreeVariablePtArmenteros/D");
   fSignalTree->Branch("fTreeVariableAlpha",              &fTreeVariableAlpha  , "fTreeVariableAlpha/D");
-  fSignalTree->Branch("fTreeVariableDeltaEta",              &fTreeVariableDeltaEta  , "fTreeVariableDeltaEta/D");
-  fSignalTree->Branch("fTreeVariableDeltaPhi",              &fTreeVariableDeltaPhi, "fTreeVariableDeltaPhi/D");
-  fSignalTree->Branch("fTreeVariableDeltaTheta",              &fTreeVariableDeltaTheta, "fTreeVariableDeltaTheta/D");
+  fSignalTree->Branch("fTreeVariableDeltaEta",           &fTreeVariableDeltaEta  , "fTreeVariableDeltaEta/D");
+  fSignalTree->Branch("fTreeVariableDeltaPhi",           &fTreeVariableDeltaPhi, "fTreeVariableDeltaPhi/D");
+  fSignalTree->Branch("fTreeVariableDeltaTheta",         &fTreeVariableDeltaTheta, "fTreeVariableDeltaTheta/D");
   fSignalTree->Branch("fTreeVariableMultiplicity",       &fTreeVariableMultiplicity , "fTreeVariableMultiplicity/D");
-  fSignalTree->Branch("fTreeVariableZvertex",              &fTreeVariableZvertex  , "fTreeVariableZvertex/D");
-  fSignalTree->Branch("fTreeVariablePDGCodeTrigger",              &fTreeVariablePDGCodeTrigger  , "fTreeVariablePDGCodeTrigger/D");
-  fSignalTree->Branch("fTreeVariablePDGCodeAssoc",              &fTreeVariablePDGCodeAssoc  , "fTreeVariablePDGCodeAssoc/D");
+  fSignalTree->Branch("fTreeVariableZvertex",            &fTreeVariableZvertex  , "fTreeVariableZvertex/D");
+  fSignalTree->Branch("fTreeVariablePDGCodeTrigger",     &fTreeVariablePDGCodeTrigger  , "fTreeVariablePDGCodeTrigger/D");
+  fSignalTree->Branch("fTreeVariablePDGCodeAssoc",       &fTreeVariablePDGCodeAssoc  , "fTreeVariablePDGCodeAssoc/D");
 
 
   fBkgTree= new TTree("fBkgTree","fBkgTree");
@@ -717,11 +704,11 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   fBkgTree->Branch("fTreeVariablePhiTrigger",         &fTreeVariablePhiTrigger, "fTreeVariablePhiTrigger/D");
   fBkgTree->Branch("fTreeVariableDCAz",               &fTreeVariableDCAz  , "fTreeVariableDCAz/D");
   fBkgTree->Branch("fTreeVariableDCAxy",              &fTreeVariableDCAxy  , "fTreeVariableDCAxy/D");
-  fBkgTree->Branch("fTreeVariableChargeAssoc",              &fTreeVariableChargeAssoc  , "fTreeVariableChargeAssoc/D");
-  fBkgTree->Branch("fTreeVariableAssocDCAz",              &fTreeVariableAssocDCAz  , "fTreeVariableAssocDCAz/D");
-  fBkgTree->Branch("fTreeVariableAssocDCAxy",              &fTreeVariableAssocDCAxy  , "fTreeVariableAssocDCAxy/D");
-  fBkgTree->Branch("fTreeVariableisPrimaryTrigger",              &fTreeVariableisPrimaryTrigger  , "fTreeVariableisPrimaryTrigger/D");  
-  fBkgTree->Branch("fTreeVariableisPrimaryV0",              &fTreeVariableisPrimaryV0  , "fTreeVariableisPrimaryV0/D");  
+  fBkgTree->Branch("fTreeVariableChargeAssoc",        &fTreeVariableChargeAssoc  , "fTreeVariableChargeAssoc/D");
+  fBkgTree->Branch("fTreeVariableAssocDCAz",          &fTreeVariableAssocDCAz  , "fTreeVariableAssocDCAz/D");
+  fBkgTree->Branch("fTreeVariableAssocDCAxy",         &fTreeVariableAssocDCAxy  , "fTreeVariableAssocDCAxy/D");
+  fBkgTree->Branch("fTreeVariableisPrimaryTrigger",   &fTreeVariableisPrimaryTrigger  , "fTreeVariableisPrimaryTrigger/D");  
+  fBkgTree->Branch("fTreeVariableisPrimaryV0",        &fTreeVariableisPrimaryV0  , "fTreeVariableisPrimaryV0/D");  
   fBkgTree->Branch("fTreeVariableRapK0Short",         &fTreeVariableRapK0Short               ,"fTreeVariableRapK0Short/D");
   fBkgTree->Branch("fTreeVariableDcaV0ToPrimVertex",  &fTreeVariableDcaV0ToPrimVertex 	, "fTreeVariableDcaV0ToPrimVertex/D");
   fBkgTree->Branch("fTreeVariableDcaPosToPrimVertex", &fTreeVariableDcaPosToPrimVertex	, "fTreeVariableDcaPosToPrimVertex/D");
@@ -736,13 +723,13 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   fBkgTree->Branch("fTreeVariablePhiV0",              &fTreeVariablePhiV0, "fTreeVariablePhiV0/D");
   fBkgTree->Branch("fTreeVariablePtArmenteros",       &fTreeVariablePtArmenteros  , "fTreeVariablePtArmenteros/D");
   fBkgTree->Branch("fTreeVariableAlpha",              &fTreeVariableAlpha  , "fTreeVariableAlpha/D");
-  fBkgTree->Branch("fTreeVariableDeltaEta",              &fTreeVariableDeltaEta  , "fTreeVariableDeltaEta/D");
-  fBkgTree->Branch("fTreeVariableDeltaPhi",              &fTreeVariableDeltaPhi  , "fTreeVariableDeltaPhi/D");
-  fBkgTree->Branch("fTreeVariableDeltaTheta",              &fTreeVariableDeltaTheta, "fTreeVariableDeltaTheta/D");
+  fBkgTree->Branch("fTreeVariableDeltaEta",           &fTreeVariableDeltaEta  , "fTreeVariableDeltaEta/D");
+  fBkgTree->Branch("fTreeVariableDeltaPhi",           &fTreeVariableDeltaPhi  , "fTreeVariableDeltaPhi/D");
+  fBkgTree->Branch("fTreeVariableDeltaTheta",         &fTreeVariableDeltaTheta, "fTreeVariableDeltaTheta/D");
   fBkgTree->Branch("fTreeVariableMultiplicity",       &fTreeVariableMultiplicity , "fTreeVariableMultiplicity/D");
-  fBkgTree->Branch("fTreeVariableZvertex",              &fTreeVariableZvertex  , "fTreeVariableZvertex/D");
-  fBkgTree->Branch("fTreeVariablePDGCodeTrigger",              &fTreeVariablePDGCodeTrigger  , "fTreeVariablePDGCodeTrigger/D");
-  fBkgTree->Branch("fTreeVariablePDGCodeAssoc",              &fTreeVariablePDGCodeAssoc  , "fTreeVariablePDGCodeAssoc/D");
+  fBkgTree->Branch("fTreeVariableZvertex",            &fTreeVariableZvertex  , "fTreeVariableZvertex/D");
+  fBkgTree->Branch("fTreeVariablePDGCodeTrigger",     &fTreeVariablePDGCodeTrigger  , "fTreeVariablePDGCodeTrigger/D");
+  fBkgTree->Branch("fTreeVariablePDGCodeAssoc",       &fTreeVariablePDGCodeAssoc  , "fTreeVariablePDGCodeAssoc/D");
   
   fHistTriggerNCrvsLength5 = new TH2F("fHistTriggerNCrvsLength5","fHistTriggerNCrvsLength5", 1600, 0, 160, 160, 0, 160);
   fHistTriggerNCrvsLength3 = new TH2F("fHistTriggerNCrvsLength3","fHistTriggerNCrvsLength3", 1600, 0, 160, 160, 0, 160);
@@ -809,7 +796,6 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   fHistPtMaxvsMult->GetXaxis()->SetTitle("p_{T} (GeV/c)");
   fHistPtMaxvsMult->GetYaxis()->SetTitle("Centrality");
 
-
   fHistZvertex= new TH1F("fHistZvertex", "Z vertex distribution of selected events used for AC", 40,-20,20);
 
   fHistFractionSharedTPCClusters = new TH1F ("fHistFractionSharedTPCClusters", "fHistFractionSharedTPCClusters",100, 0,1);
@@ -848,7 +834,6 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
 
   fHistTrackBufferOverflow = new TH1F("fHistTrackBufferOverflow","",2,0,2);
   
-
   fHistEventMult=new TH1F("fHistEventMult", "fHistEventMult", 24, 0.5, 24.5);
   fHistEventMult->GetXaxis()->SetBinLabel(1,"Event cuts");
   fHistEventMult->GetXaxis()->SetBinLabel(2,"Events w/PV and AOD");
@@ -871,10 +856,9 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   fHistEventMult->GetXaxis()->SetBinLabel(19,"NTrigger>0 && DoubleCounted");
   fHistEventMult->GetXaxis()->SetBinLabel(20,"Common daughterPos");
   fHistEventMult->GetXaxis()->SetBinLabel(21,"Common daughterNeg");
-  fHistEventMult->GetXaxis()->SetBinLabel(22,"SelEv (ACEvents)");//tutti gli eventi usati per correlazione angolare
+  fHistEventMult->GetXaxis()->SetBinLabel(22,"SelEv (ACEvents)"); //all the events used for angular correlation
   fHistEventMult->GetXaxis()->SetBinLabel(23,"All events");
   fHistEventMult->GetXaxis()->SetBinLabel(24,"AOD event");
-
 
   fHistEventV0=new TH1F("fHistEventV0", "fHistEventV0",25, 0.5, 25.5);
   fHistEventV0->SetTitle("Number of V0 which progressively pass the listed selections");
@@ -913,9 +897,9 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   fHistTrack->GetXaxis()->SetBinLabel(9,"Charged tracks");
   fHistTrack->GetXaxis()->SetBinLabel(10,"DCAxy < 0.010+0.035/pt**1.1");
   fHistTrack->GetXaxis()->SetBinLabel(11,"DCAz <2");
-  fHistTrack->GetXaxis()->SetBinLabel(12,"N.trigger"); //NumberPrimary in all slected events 
+  fHistTrack->GetXaxis()->SetBinLabel(12,"N.trigger"); //NumberPrimary in all selected events 
   fHistTrack->GetXaxis()->SetBinLabel(13,"N.trigger MC");
-  fHistTrack->GetXaxis()->SetBinLabel(14,"N.trigger (NT>0)"); //NumberPrimary in all slected events 
+  fHistTrack->GetXaxis()->SetBinLabel(14,"N.trigger (NT>0)"); //NumberPrimary in all selected events 
   fHistTrack->GetXaxis()->SetBinLabel(15,"N.trigger MC (NT>0)");
   fHistTrack->GetXaxis()->SetBinLabel(16,"N.trigger (NV0>0)"); //NumberPrimary in events with at least one V0 (one reco V0 for data, one true V0 for MC)
   fHistTrack->GetXaxis()->SetBinLabel(17,"N.trigger MC (NV0>0)");
@@ -943,15 +927,15 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   fHistTrackAssoc->GetXaxis()->SetBinLabel(20,"NAssoc(MC) in SelEv"); 
 
   fHistLengthvsCrossedRows = new TH2F("fHistLengthvsCrossedRows", "fHistLengthvsCrossedRows",  160, 0, 160, 160, 0, 160);
-    fHistLengthvsCrossedRows->GetXaxis()->SetTitle("Number of Crossed rows");
-    fHistLengthvsCrossedRows->GetYaxis()->SetTitle("Track length");
+  fHistLengthvsCrossedRows->GetXaxis()->SetTitle("Number of Crossed rows");
+  fHistLengthvsCrossedRows->GetYaxis()->SetTitle("Track length");
   fHistLengthvsCrossedRowsDiff = new TH2F("fHistLengthvsCrossedRowsDiff", "fHistLengthvsCrossedRowsDiff",  160, 0, 160, 160, 0, 160);
-    fHistLengthvsCrossedRowsDiff->GetXaxis()->SetTitle("Number of Crossed rows");
-    fHistLengthvsCrossedRowsDiff->GetYaxis()->SetTitle("Track length");
+  fHistLengthvsCrossedRowsDiff->GetXaxis()->SetTitle("Number of Crossed rows");
+  fHistLengthvsCrossedRowsDiff->GetYaxis()->SetTitle("Track length");
 
-    fHistLengthvsCrossedRowsBis = new TH2F("fHistLengthvsCrossedRowsBis", "fHistLengthvsCrossedRowsBis",  160, 0, 160, 160, 0, 160);
-    fHistLengthvsCrossedRowsBis->GetXaxis()->SetTitle("Number of Crossed rows");
-    fHistLengthvsCrossedRowsBis->GetYaxis()->SetTitle("Track length");
+  fHistLengthvsCrossedRowsBis = new TH2F("fHistLengthvsCrossedRowsBis", "fHistLengthvsCrossedRowsBis",  160, 0, 160, 160, 0, 160);
+  fHistLengthvsCrossedRowsBis->GetXaxis()->SetTitle("Number of Crossed rows");
+  fHistLengthvsCrossedRowsBis->GetYaxis()->SetTitle("Track length");
 
   fHistTriggerComposition=new TH2F("fHistTriggerComposition", "fHistTriggerComposition",10000 , -5000, 5000, 2, 0,2);
   fHistTriggerComposition->GetYaxis()->SetTitle("0=NotPrim, 1=Primary");
@@ -1347,7 +1331,6 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
     }
   }
 
-
   fHistPrimaryV0= new TH3F**[6];
   for(Int_t j=0; j<6; j++){
     fHistPrimaryV0[j]=new TH3F*[7];
@@ -1361,7 +1344,6 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
     } 
   }
 
-  //  TString molteplicit[6]={"0-7","7-15","15-25","25-40","40-70",">70"};
   fHistMultiplicityOfMixedEvent=new TH1F("fHistMultiplicityOfMixedEvent", "Distribution of number of events used for the mixing", 20, 0.5, 20.5);
 
   //  fEventCuts.AddQAplotsToList(fOutputList);
@@ -1454,8 +1436,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
       fOutputList2->Add(fHistPrimaryV0[j][l]);      
     }
     
-  }
-  
+  } 
   
   fOutputList->Add(fHistMass2Photon);
   fOutputList->Add(fHistMassPhoton);
@@ -1464,8 +1445,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   fOutputList->Add(fHistPtArmvsAlphaAfterPhotonSelection);  
   fOutputList->Add(fHistPtArmvsAlphaAfterLambdaRejectionSelection);  
   fOutputList->Add(fHistMultiplicityOfMixedEvent);
-  
-  
+   
   fOutputList3->Add(fHistGeneratedTriggerPtPhi);
   fOutputList3->Add(fHistGeneratedTriggerPtEta);
   
@@ -1514,7 +1494,6 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   fOutputList4->Add(fHistAssocPtRecovsPtGenProton);
   fOutputList4->Add(fHistTriggerPtRecovsPtGenKaon);
   fOutputList4->Add(fHistAssocPtRecovsPtGenKaon);
-
 
   PostData(1, fOutputList);  
   PostData(2, fSignalTree);       
