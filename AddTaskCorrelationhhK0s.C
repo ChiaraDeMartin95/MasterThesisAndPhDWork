@@ -1,6 +1,6 @@
 //used to instantiate an object of the task,define input and output and connect it to manager
 
-AliAnalysisTaskCorrelationhhK0s* AddMyTask(TString name = "name", Float_t minpt=3, Float_t maxpt=15, Bool_t ishhCorr,bool isLocal=kTRUE, bool isMC=kTRUE, bool isEff=kTRUE, Int_t EvtToMix=50, Float_t EtaTrigger=0.8, Float_t EtahAssoc=0.8,Float_t EtaV0Assoc=0.8, Int_t FilterBitValue=128, Int_t year=2010){
+AliAnalysisTaskCorrelationhhK0s* AddTaskCorrelationhhK0s(TString name = "name", Float_t minpt=3, Float_t maxpt=15, Bool_t ishhCorr,bool isLocal=kTRUE, bool isMC=kTRUE, bool isEff=kTRUE, Int_t EvtToMix=50, Float_t EtaTrigger=0.8, Float_t EtahAssoc=0.8,Float_t EtaV0Assoc=0.8, Int_t FilterBitValue=128, Int_t year=2010){
 
   // get the manager via the static access member. since it's static, you don't need
   // to create an instance of the class here to call the fun2ction

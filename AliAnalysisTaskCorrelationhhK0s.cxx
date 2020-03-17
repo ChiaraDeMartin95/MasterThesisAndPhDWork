@@ -41,7 +41,7 @@
 
 class AliAnalysisTaskCorrelationhhK0s;   
 using namespace std;          
-ClassImp(AliAnalysisTaskCorrelationhhK0s) // classimp: necessary for root
+ClassImp(AliAnalysisTaskCorrelationhhK0s) 
 
 AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s() :AliAnalysisTaskSE(), 
   fAnalysisType("AOD"), 
@@ -75,7 +75,6 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s() :AliAnalysisT
   fHistTriggerNCrvsLength3(0),
   fHistTriggerNCrvsLength5(0),
   fHistTriggerNCrvsLength35(0),
-
   fHistPtTriggerParticle(0), 
   fHistDCAxym1(0),
   fHistDCAzm1(0),
@@ -93,7 +92,6 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s() :AliAnalysisT
   fHistPtvsMultBefAll(0), 
   fHistPtMaxvsMult(0), 
   fHistPtMaxvsMultBefAll(0), 
-
   fHistZvertex(0),  
   fHistFractionSharedTPCClusters(0),
   fHistGoldenCut(0),
@@ -276,7 +274,6 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s(const char* nam
   fHistTriggerNCrvsLength3(0),
   fHistTriggerNCrvsLength5(0),
   fHistTriggerNCrvsLength35(0),
-
   fHistPtTriggerParticle(0), 
   fHistDCAxym1(0),
   fHistDCAzm1(0),
@@ -440,17 +437,9 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s(const char* nam
   fTreeVariablePDGCodeAssoc(0),
   FifoShiftok(kFALSE)
 {
-                    
-  
-  // constructor
-  DefineInput(0, TChain::Class());    // define the input of the analysis: in this case we take a 'chain' of events
-  // this chain is created by the analysis manager, so no need to worry about it, 
-  // it does its work automatically
-  DefineOutput(1, TList::Class());    // define the ouptut of the analysis: in this case it's a list of histograms 
-  // you can add more output objects by calling DefineOutput(2, classname::Class())
-  // if you add more output objects, make sure to call PostData for all of them, and to
-  // make changes to your AddTask macro!
-
+                      
+  DefineInput(0, TChain::Class()); 
+  DefineOutput(1, TList::Class());
   DefineOutput(2, TTree::Class());  
   DefineOutput(3, TTree::Class());
   DefineOutput(4, TList::Class());  
@@ -460,36 +449,29 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s(const char* nam
 //_____________________________________________________________________________
 AliAnalysisTaskCorrelationhhK0s::~AliAnalysisTaskCorrelationhhK0s()
 {
-  // destructor
+
   if(fOutputList) {
-    delete fOutputList;     // at the end of your task, it is deleted from memory by calling this function
+    delete fOutputList;  
   }
   if(fSignalTree) {
-    delete fSignalTree;     // at the end of your task, it is deleted from memory by calling this function
+    delete fSignalTree;
   }
   if(fBkgTree) {
-    delete fBkgTree;     // at the end of your task, it is deleted from memory by calling this function
+    delete fBkgTree;   
   }
   if(fOutputList2) {
-    delete fOutputList2;     // at the end of your task, it is deleted from memory by calling this function
+    delete fOutputList2;
   }
   if(fOutputList3) {
-    delete fOutputList3;     // at the end of your task, it is deleted from memory by calling this function
+    delete fOutputList3;
   }
   if(fOutputList4) {
-    delete fOutputList4;     // at the end of your task, it is deleted from memory by calling this function
+    delete fOutputList4;
   }
   if (farrGT)
     delete[] farrGT;
   farrGT=0;
 
-  // if (fHistMassvsPt)
-  // delete[] fHistMassvsPt;
-
-  // if (fHistMassvsPt_tagli)
-  // delete[] fHistMassvsPt_tagli ;
-
-  
   for(unsigned short i=0; i < fzVertexBins; i++){
     for(unsigned short j=0; j < fnMultBins; j++){
       delete fEventColl[i][j];
@@ -500,12 +482,11 @@ AliAnalysisTaskCorrelationhhK0s::~AliAnalysisTaskCorrelationhhK0s()
   
 }
   
-
 void AliAnalysisTaskCorrelationhhK0s::ProcessMCParticles(Bool_t Generated, AliAODTrack *track, Int_t& labelPrimOrSec, Float_t lPercentiles, Bool_t isV0, Double_t ZAtDCA, Float_t PtTriggMax, Bool_t ishhCorr,  AliAODTrack *globaltrack)
 {
-  // process MC particles
-  //  TList *list=fAOD->GetList();
-  Float_t moltep[6]={0,5,10,30,50,100};  //valori associati a centralita'  
+
+  Float_t moltep[6]={0,5,10,30,50,100};  //V0M multiplicity intervals
+
   TClonesArray* AODMCTrackArraybis =0x0;  
   AODMCTrackArraybis = dynamic_cast<TClonesArray*>(fAOD->FindListObject(AliAODMCParticle::StdBranchName()));
   if (AODMCTrackArraybis == NULL){
@@ -513,43 +494,39 @@ void AliAnalysisTaskCorrelationhhK0s::ProcessMCParticles(Bool_t Generated, AliAO
     Printf("ERROR: stack not available");
   }
   if(Generated){
-    cout << "loop for all generated" << endl;
-    // Loop over all primary MC particle
+    // Loop over all generated primary MC particle
     for(Long_t i = 0; i < AODMCTrackArraybis->GetEntriesFast(); i++) {
       
       AliAODMCParticle* particle = static_cast<AliAODMCParticle*>(AODMCTrackArraybis->At(i));
       if (!particle) continue;
       
-      if(isV0==kFALSE){
+      if(isV0==kFALSE){ //for trigger particles
 	fHistPDG->Fill(particle->GetPdgCode());      
 	if((particle->Charge())==0) continue;	
-	if(TMath::Abs(particle->Eta())>fEtaTrigger)continue; //I need to select particles within this eta range!
+	if(TMath::Abs(particle->Eta())>fEtaTrigger)continue; 
 	if (!(particle->IsPhysicalPrimary()))continue; 
 	fHistGeneratedTriggerPtPhi->Fill(particle->Pt(), particle->Phi(), lPercentiles);
 	fHistGeneratedTriggerPtEta->Fill(particle->Pt(), particle->Eta(), lPercentiles);
       }
-      if(isV0==kTRUE){
-	if(!ishhCorr){ 
+      else if(isV0==kTRUE){ //for associated particles
+	if(!ishhCorr){ //if associated particles are K0s
 	  if ((particle->GetPdgCode())!=310) continue;
 	  if(TMath::Abs(particle->Eta())>fEtaV0Assoc) continue;
 	  if (!(particle->IsPhysicalPrimary()))continue;
 	}
-	if(ishhCorr){
+	else if(ishhCorr){ //if associated particles are hadrons
 	  if((particle->Charge())==0) continue;	
 	  if(TMath::Abs(particle->Eta())>fEtahAssoc)continue; 
 	  if (!(particle->IsPhysicalPrimary()))continue; 
 	  if ((particle->GetLabel()) == (static_cast<AliAODMCParticle*>(AODMCTrackArraybis->At(TMath::Abs(track->GetLabel()))))->GetLabel() ) continue;
-	  //	  cout << " problem with getting label" << endl;
 	  if (particle->Pt() == (static_cast<AliAODMCParticle*>(AODMCTrackArraybis->At(TMath::Abs(track->GetLabel()))))->Pt() ) continue; 
-	  //	  cout << " problem with getting label (2)" << endl;
-       
 	}
-	//	cout << "these are all K0s generated passing selection criteria: label K0s " << particle->Label()<<endl; 
+
 	fHistGeneratedV0PtTMaxPhi[0]->Fill(PtTriggMax,particle->Phi(), lPercentiles );
 	fHistGeneratedV0PtTMaxEta[0]->Fill(PtTriggMax,particle->Eta(), lPercentiles );
 	fHistGeneratedV0PtPtTMax[0]->Fill(particle->Pt(),PtTriggMax, lPercentiles );
+
 	if (TMath::Abs(particle->Y())>0.5 ) continue;
-	//	cout << "these are all K0s generated passing selection criteria: label K0s " << particle->Label()<<endl; 
 	fHistGeneratedV0PtTMaxPhi[1]->Fill(PtTriggMax,particle->Phi(), lPercentiles );
 	fHistGeneratedV0PtTMaxEta[1]->Fill(PtTriggMax,particle->Eta(), lPercentiles );
 	fHistGeneratedV0PtPtTMax[1]->Fill(particle->Pt(),PtTriggMax, lPercentiles );
@@ -557,16 +534,12 @@ void AliAnalysisTaskCorrelationhhK0s::ProcessMCParticles(Bool_t Generated, AliAO
     }
   }
   else {
-    cout << "selected trigger particles" << endl;
+    // Loop over all reconstructed primary MC particle
     AliAODMCParticle* particle = static_cast<AliAODMCParticle*>(AODMCTrackArraybis->At(TMath::Abs(track->GetLabel())));
-    cout << " ho preso la particle" << endl;
-    // AliAODMCParticle* particle = static_cast<AliAODMCParticle*>(AODMCTrackArraybis->At(label));
-    // if(particle->IsPhysicalPrimary() && TMath::Abs(particle->Eta())<=0.8 && particle->Charge()!=0){
+
     Float_t TrackLength=0;
     TrackLength = GetLengthInActiveZone(track, /*1,*/ 2.0, 220.0, fAOD->GetMagneticField());
-    // AliPIDResponse::EDetPidStatus statusTOF;
-    // statusTOF = fPIDResponse->CheckPIDStatus(AliPIDResponse::kTOF,globaltrack); 
-    //    if ( (statusTOF ==  AliPIDResponse::kDetPidOk) ) {  
+
     if (particle->Pt()<3.){
       fHistTriggerNCrvsLength3->Fill( TrackLength, track->GetTPCNCrossedRows());
     }
@@ -576,16 +549,18 @@ void AliAnalysisTaskCorrelationhhK0s::ProcessMCParticles(Bool_t Generated, AliAO
     if (particle->Pt()>5.){
       fHistTriggerNCrvsLength5->Fill( TrackLength, track->GetTPCNCrossedRows());
     }
-    //    }
+
     if(!(particle->IsPhysicalPrimary()))     {
+
       fHistTriggerComposition->Fill(particle->GetPdgCode(),0);
       fHistTriggerPtRecovsPtGenNotPrim->Fill(particle->Pt(), track->Pt());
+
     }
+
     if(particle->IsPhysicalPrimary()){
+
       fHistTriggerComposition->Fill(particle->GetPdgCode(),1);
-      cout <<"selected trigger Pt " <<  track->Pt() << endl;
       fHistPtTriggerParticle->Fill(particle->Pt());
-      cout << "pt track " << track->Pt() << " pT particle " << particle->Pt()<< endl;
       fHistTriggerPtRecovsPtGen->Fill(particle->Pt(), track->Pt());
       if (particle->GetPdgCode()==211 || particle->GetPdgCode()==-211)      fHistTriggerPtRecovsPtGenPion->Fill(particle->Pt(), track->Pt());
       if (particle->GetPdgCode()==2212 || particle->GetPdgCode()==-2212)      fHistTriggerPtRecovsPtGenProton->Fill(particle->Pt(), track->Pt());
@@ -613,40 +588,34 @@ void AliAnalysisTaskCorrelationhhK0s::ProcessMCParticles(Bool_t Generated, AliAO
 	}
       */
       //2D histos
-      if ((TMath::Abs(track->Phi()- particle->Phi() ) > 0.015) && (track->Pt()>3)){
+      if ((TMath::Abs(track->Phi()- particle->Phi() ) > 0.015) && (track->Pt()>3)){ //check for bad Phi resolution tracks
 	fHistResolutionTriggerPhiPt->Fill(track->Phi()- particle->Phi(), track->Pt()- particle->Pt());
 	fHistResolutionTriggerPhiPdgCode->Fill(track->Phi()- particle->Phi(),particle->GetPdgCode());
       }
-      //
-      else 	cout << "I have good Phi resolution " << endl;
-      //      cout << "I've filled resolution histos (part 2) " << endl;
+
       if(  (TMath::Abs(ZAtDCA) < 2.)) {
 	fHistSelectedTriggerPtPhi[1]->Fill(track->Pt(), track->Phi(), lPercentiles);
 	fHistSelectedTriggerPtEta[1]->Fill(track->Pt(), track->Eta(), lPercentiles);    
 	fHistSelectedGenTriggerPtEta[1]->Fill(particle->Pt(), particle->Eta(), lPercentiles);    
 	fHistSelectedGenTriggerPtPhi[1]->Fill(particle->Pt(), particle->Phi(), lPercentiles);    
-	//	cout << "I'm filling new histo for resol" << endl;
       }
       if(  (TMath::Abs(ZAtDCA) < 1.)) {
 	fHistSelectedTriggerPtPhi[0]->Fill(track->Pt(), track->Phi(), lPercentiles);
 	fHistSelectedTriggerPtEta[0]->Fill(track->Pt(), track->Eta(), lPercentiles);    
 	fHistSelectedGenTriggerPtEta[0]->Fill(particle->Pt(), particle->Eta(), lPercentiles);    
 	fHistSelectedGenTriggerPtPhi[0]->Fill(particle->Pt(), particle->Phi(), lPercentiles);    
-	//	cout << "I'm filling new histo for resol" << endl;
       }
       if( (TMath::Abs(ZAtDCA) < 0.5)) {
 	fHistSelectedTriggerPtPhi[2]->Fill(track->Pt(), track->Phi(), lPercentiles);
 	fHistSelectedTriggerPtEta[2]->Fill(track->Pt(), track->Eta(), lPercentiles);    
 	fHistSelectedGenTriggerPtEta[2]->Fill(particle->Pt(), particle->Eta(), lPercentiles);    
 	fHistSelectedGenTriggerPtPhi[2]->Fill(particle->Pt(), particle->Phi(), lPercentiles);    
-	cout << "I'm filling new histo for resol" << endl;
       }
       labelPrimOrSec=1;
     }
     else if(particle->IsSecondaryFromWeakDecay())      labelPrimOrSec=2;
     else if(particle->IsSecondaryFromMaterial())      labelPrimOrSec=3;
     else labelPrimOrSec=4;
-    //    cout << "label is " << labelPrimOrSec<< endl;
     for (Int_t m =0; m<5;m++){
       if(lPercentiles>=moltep[m] && lPercentiles<moltep[m+1]){
 	for(Int_t p=1; p<=4; p++){
