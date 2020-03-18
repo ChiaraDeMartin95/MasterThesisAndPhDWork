@@ -870,7 +870,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   fHistEventV0->GetXaxis()->SetBinLabel(4,"Chis daughter tracks"); 
   fHistEventV0->GetXaxis()->SetBinLabel(5,"Length DTracks>90cm"); 
   fHistEventV0->GetXaxis()->SetBinLabel(6,"CrossedRows/Length>0.8"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(7,"TOF hit for pileup"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(7,"TOF or SPD hit for pileup"); 
   fHistEventV0->GetXaxis()->SetBinLabel(8,"PID daughters"); 
   fHistEventV0->GetXaxis()->SetBinLabel(9,"|eta daughters|<0.8"); 
   fHistEventV0->GetXaxis()->SetBinLabel(10,"TPC track quality"); 
@@ -2570,7 +2570,12 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	//	isTOFPIDok=kTRUE;
       }
 
-      if ( !(statusTOFPos ==  AliPIDResponse::kDetPidOk) && !(statusTOFNeg ==  AliPIDResponse::kDetPidOk) ) continue; //out of bunch pile up (a V0 daughter track is required to have at least a hit in the TOF 
+      Bool_t HasPointOnSPDPos=kFALSE;
+      Bool_t HasPointOnSPDNeg=kFALSE;
+      if (prongTrackPos->HasPointOnITSLayer(0) || prongTrackPos->HasPointOnITSLayer(1) ) HasPointOnSPDPos=kTRUE;
+      if (prongTrackNeg->HasPointOnITSLayer(0) || prongTrackNeg->HasPointOnITSLayer(1) ) HasPointOnSPDNeg=kTRUE;
+
+      if ( !(statusTOFPos ==  AliPIDResponse::kDetPidOk) && !(statusTOFNeg ==  AliPIDResponse::kDetPidOk) && !(HasPointOnSPDPos) && !(HasPointOnSPDNeg)) continue; //out of bunch pile up (a V0 daughter track is required to have at least a hit in the TOF or in one of the first two ITS layers (SPD))
       fHistEventV0->Fill(7);
 
       if(isTOFPIDok){
@@ -3072,8 +3077,8 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   DoPairsh1h2((Int_t)lPercentiles, fieldsign, lBestPrimaryVtxPos[2], ptTriggerMassimo);  
 
   PostData(1, fOutputList);     
-  PostData(2,fSignalTree);
-  PostData(3,fBkgTree);
+  PostData(2, fSignalTree);
+  PostData(3, fBkgTree);
   PostData(4, fOutputList2);  
   PostData(5, fOutputList3);     
   PostData(6, fOutputList4);     
