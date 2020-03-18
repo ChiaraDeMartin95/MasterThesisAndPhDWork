@@ -76,135 +76,135 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
   Int_t                    fMaxFirstMult;
   Int_t                    fMaxSecondMult;
   Int_t                    fnEventsToMix;
-  Float_t                    fEtaTrigger;
-  Float_t                    fEtahAssoc;
-  Float_t                    fEtaV0Assoc;
+  Float_t                  fEtaTrigger;
+  Float_t                  fEtahAssoc;
+  Float_t                  fEtaV0Assoc;
   Int_t                    fFilterBitValue;
   Int_t                    fYear;
 
-  TH1F*                   fHistPt;          //! 
-  TH2F *   fHistTriggerNCrvsLength3; //!
-  TH2F *     fHistTriggerNCrvsLength5; //!
-  TH2F *     fHistTriggerNCrvsLength35; //!
+  TH1F*                   fHistPt;                   //! 
+  TH2F *                  fHistTriggerNCrvsLength3;  //!
+  TH2F *                  fHistTriggerNCrvsLength5;  //!
+  TH2F *                  fHistTriggerNCrvsLength35; //!
 
-  TH1F*                   fHistPtTriggerParticle;          //! 
-  TH1F*                   fHistDCAxym1;          //! 
-  TH1F*                   fHistDCAxym2;          //! 
-  TH1F*                   fHistDCAzm1;          //! 
-  TH1F*                   fHistDCAzm2;          //! 
-  TH1F*                   fHistPtV0;          //! 
-  TH1F*                   fHistPthAssoc;          //! 
+  TH1F*                   fHistPtTriggerParticle;    //! 
+  TH1F*                   fHistDCAxym1;              //! 
+  TH1F*                   fHistDCAxym2;              //! 
+  TH1F*                   fHistDCAzm1;               //! 
+  TH1F*                   fHistDCAzm2;               //! 
+  TH1F*                   fHistPtV0;                 //! 
+  TH1F*                   fHistPthAssoc;             //! 
   TH2F*                   fHistPtTMaxBefAllCfrDataMC; //!
   TH1F*                   fHistPtTMinBefAll;          //! 
-  TH1F*                   fHistPtTMinBefAllMC;          //! 
+  TH1F*                   fHistPtTMinBefAllMC;        //! 
   TH1F*                   fHistPtTMaxBefAll;          //! 
-  TH1F*                   fHistPtTMaxBefAllBis;          //! 
-  TH1F*                   fHistPtTMaxBefAllMC;          //! 
-  TH2F*                   fHistPtvsMult;          //! 
-  TH2F*                   fHistPtvsMultBefAll;          //! 
-  TH2F*                   fHistPtMaxvsMult;          //! 
-  TH2F*                   fHistPtMaxvsMultBefAll;          //! 
-  TH1F *                  fHistZvertex;     //!
-  TH1F* fHistFractionSharedTPCClusters; //!
-  TH1F* fHistGoldenCut; //!
-  TH3F* fHistNumberChargedAllEvents; //!
-  TH3F* fHistNumberChargedNoTrigger; //!
-  TH3F* fHistNumberChargedTrigger; //!
-  TH2F *                  fHist_eta_phi;   //!
-  TH2F *                  fHist_eta_phi_PtMax;   //!
-  TH1F*                   fHist_multiplicity; //!
-  TH1F*                   fHist_multiplicity_EvwTrigger; //!
-  TH1F*                   fHistEventMult;   //!
-  TH1F*                   fHistEventV0;   //!
-  TH1F*                   fHistTrack;       //!
-  TH1F*                   fHistV0Radius;       //!
-  TH1F*                   fHistV0RadiusBis;       //!
-  TH2F*    fHistLengthvsCrossedRowsBis; //!
-  TH2F*    fHistLengthvsCrossedRows; //!
-  TH2F*    fHistLengthvsCrossedRowsDiff; //!
-  TH2F* fHistTriggerComposition; //! 
-  TH2F* fHistTriggerCompositionMCTruth; //! 
-  TH2F* fHistAssocComposition; //! 
-  TH2F* fHistAssocCompositionMCTruth; //! 
-  TH1F*                   fHistTrackAssoc;       //!
-  TH1F*                   fHistPDG;         //!	
-  TH1F*                   fHistTrackBufferOverflow;         //!	
-  TH2F*                   fHistSecondParticleAll; //!
-  TH2F*                   fHistSecondParticleTruthAll; //!
-  TH2F*                   fHistSecondParticle; //!
-  TH2F*                   fHistSecondParticleTruth; //!
-  TH1F*                   fMassV0;          //!
-  TH2F *                  fHistMultvsV0All; //!
-  TH2F *                  fHistMultvsV0AllTruth; //!
-  TH2F *                  fHistMultvsV0MCAll; //!
-  TH2F *                  fHistMultvsV0; //!
-  TH2F *                  fHistMultvsV0Truth; //!
-  TH2F *                  fHistMultvsV0MC; //!
-  TH3F*  fHistTriggerNotLeading; //!
-  TH3F*  fHistTriggerNotLeadingMC; //!
-  TH2F**                   fHistMassvsPt;                               //!
-  TH2F**                   fHistMassvsPt_tagli;                         //!
-  TH2F*                  fHistMultvsTriggerBefAll; //!
-  TH2F*                  fHistMultvsTriggerMCTruthBefAll; //!
-  TH2F*                  fHistMultvsTriggerAll; //!
-  TH2F*                  fHistMultvsTriggerMCTruthAll; //!
-  TH2F*                  fHistMultvsTrigger; //!
-  TH2F*                  fHistMultvsTriggerMCTruth; //!
-  TH1F*                  fHistMassPhoton;  //!
-  TH1F*                  fHistMass2Photon;  //!
-  TH2F*                  fHistPtArmvsAlpha;  //!
-  TH2F*                  fHistPtArmvsAlphaAfterSelection;  //!
-  TH2F*                  fHistPtArmvsAlphaAfterPhotonSelection;  //!
-  TH2F*                  fHistPtArmvsAlphaAfterLambdaRejectionSelection;  //!
-  TH1F*                  fHistTrigger;//!
-  TH1F*                  fHistTriggerMCTruth;//!
-  TH1F*                  fHistTriggerwV0;//!
-  TH1F*                  fHistTriggerwV0MCTruth;//!
-  TH2F*                  fHistMultiplicityVsVertexZ; //!
-  TH1F*                  fHistTriggervsMult; //!
-  TH1F*                  fHistTriggervsMultMC; //!
-  TH1F*                  fHistMultiplicityOfMixedEvent; //!
-  TH3F *   fHistGeneratedTriggerPtPhi; //!
-  TH3F **  fHistSelectedTriggerPtPhi; //!
-  TH3F **  fHistSelectedGenTriggerPtPhi; //!
-  TH3F **  fHistGeneratedV0PtTMaxPhi; //!
-  TH3F **  fHistSelectedV0PtTMaxPhi; //!
-  TH3F *   fHistGeneratedTriggerPtEta; //!
-  TH3F **  fHistSelectedTriggerPtEta; //!
-  TH3F **  fHistSelectedGenTriggerPtEta; //!
-  TH3F **  fHistGeneratedV0PtTMaxEta; //!
-  TH3F **  fHistSelectedV0PtTMaxEta; //!
-  TH3F **  fHistGeneratedV0PtPtTMax; //!
-  TH3F **  fHistSelectedV0PtPtTMax; //!
-  TH3F **  fHistSelectedGenV0PtPtTMax; //!
-  TH3F *   fHistReconstructedV0PtMass; //!
-  TH3F *   fHistSelectedV0PtMass; //!  
+  TH1F*                   fHistPtTMaxBefAllBis;       //! 
+  TH1F*                   fHistPtTMaxBefAllMC;        //! 
+  TH2F*                   fHistPtvsMult;              //! 
+  TH2F*                   fHistPtvsMultBefAll;        //! 
+  TH2F*                   fHistPtMaxvsMult;           //! 
+  TH2F*                   fHistPtMaxvsMultBefAll;     //! 
+  TH1F*                   fHistZvertex;               //!
+  TH1F*                   fHistFractionSharedTPCClusters;               //!
+  TH1F*                   fHistGoldenCut; //!
+  TH3F*                   fHistNumberChargedAllEvents; //!
+  TH3F*                   fHistNumberChargedNoTrigger; //!
+  TH3F*                   fHistNumberChargedTrigger; //!
+  TH2F*                   fHist_eta_phi;                //!
+  TH2F*                   fHist_eta_phi_PtMax;   	//!
+  TH1F*                   fHist_multiplicity; 		//!
+  TH1F*                   fHist_multiplicity_EvwTrigger;//!
+  TH1F*                   fHistEventMult;   		//!
+  TH1F*                   fHistEventV0;   		//!
+  TH1F*                   fHistTrack;       		//!
+  TH1F*                   fHistV0Radius;       		//!
+  TH1F*                   fHistV0RadiusBis;       	//!
+  TH2F*                   fHistLengthvsCrossedRowsBis;  //!
+  TH2F*                   fHistLengthvsCrossedRows;       //!
+  TH2F*                   fHistLengthvsCrossedRowsDiff;   //!
+  TH2F*                   fHistTriggerComposition;  	  //!
+  TH2F*                   fHistTriggerCompositionMCTruth; //! 
+  TH2F*                   fHistAssocComposition;  	  //!
+  TH2F*                   fHistAssocCompositionMCTruth;   //!
+  TH1F*                   fHistTrackAssoc;       	  //!
+  TH1F*                   fHistPDG;         		  //!
+  TH1F*                   fHistTrackBufferOverflow;       //!  	
+  TH2F*                   fHistSecondParticleAll; 	  //!
+  TH2F*                   fHistSecondParticleTruthAll; 	  //!
+  TH2F*                   fHistSecondParticle; 		  //!
+  TH2F*                   fHistSecondParticleTruth; 	  //!
+  TH1F*                   fMassV0;          		  //!
+  TH2F *                  fHistMultvsV0All; 		  //!
+  TH2F *                  fHistMultvsV0AllTruth; 	  //!
+  TH2F *                  fHistMultvsV0MCAll; 		  //!
+  TH2F *                  fHistMultvsV0; 		  //!
+  TH2F *                  fHistMultvsV0Truth; 		  //!
+  TH2F *                  fHistMultvsV0MC; 		  //!
+  TH3F*                   fHistTriggerNotLeading; 	  //!
+  TH3F*                   fHistTriggerNotLeadingMC;       //!  
+  TH2F**                  fHistMassvsPt;                    //!           
+  TH2F**                  fHistMassvsPt_tagli;              //!           
+  TH2F*                   fHistMultvsTriggerBefAll; 	    //!
+  TH2F*                   fHistMultvsTriggerMCTruthBefAll;  //!
+  TH2F*                   fHistMultvsTriggerAll; 	    //!
+  TH2F*                   fHistMultvsTriggerMCTruthAll;     //!
+  TH2F*                   fHistMultvsTrigger; 		    //!
+  TH2F*                   fHistMultvsTriggerMCTruth; 	    //!
+  TH1F*                   fHistMassPhoton;  		    //!
+  TH1F*                   fHistMass2Photon;  		    //!
+  TH2F*                   fHistPtArmvsAlpha;  		    //!
+  TH2F*                   fHistPtArmvsAlphaAfterSelection;  //!
+  TH2F*                   fHistPtArmvsAlphaAfterPhotonSelection;          //! 
+  TH2F*                   fHistPtArmvsAlphaAfterLambdaRejectionSelection; //!  
+  TH1F*                   fHistTrigger;                     //!
+  TH1F*                   fHistTriggerMCTruth;		    //!
+  TH1F*                   fHistTriggerwV0;		    //!
+  TH1F*                   fHistTriggerwV0MCTruth;	    //!
+  TH2F*                   fHistMultiplicityVsVertexZ; 	    //!
+  TH1F*                   fHistTriggervsMult; 		    //!
+  TH1F*                   fHistTriggervsMultMC; 	    //!
+  TH1F*                   fHistMultiplicityOfMixedEvent;    //!
+  TH3F *                  fHistGeneratedTriggerPtPhi; 	    //!
+  TH3F **                 fHistSelectedTriggerPtPhi; 	    //!
+  TH3F **                 fHistSelectedGenTriggerPtPhi;     //!
+  TH3F **                 fHistGeneratedV0PtTMaxPhi; 	    //!
+  TH3F **                 fHistSelectedV0PtTMaxPhi; 	    //!
+  TH3F *                  fHistGeneratedTriggerPtEta; 	    //!
+  TH3F **                 fHistSelectedTriggerPtEta; 	    //!
+  TH3F **                 fHistSelectedGenTriggerPtEta;     //!
+  TH3F **                 fHistGeneratedV0PtTMaxEta; 	    //!
+  TH3F **                 fHistSelectedV0PtTMaxEta; 	    //!
+  TH3F **                 fHistGeneratedV0PtPtTMax; 	    //!
+  TH3F **                 fHistSelectedV0PtPtTMax; 	    //!
+  TH3F **                 fHistSelectedGenV0PtPtTMax; 	    //!
+  TH3F *                  fHistReconstructedV0PtMass; 	    //!
+  TH3F *                  fHistSelectedV0PtMass;            //!
 
-  TH2F*  fHistTriggerPtRecovsPtGen; //!
-  TH2F*  fHistAssocPtRecovsPtGen; //!
-  TH2F*  fHistTriggerPtRecovsPtGenNotPrim; //!
-  TH2F*  fHistAssocPtRecovsPtGenNotPrim; //!
-  TH2F*  fHistTriggerPtRecovsPtGenPion; //!
-  TH2F*  fHistAssocPtRecovsPtGenPion; //!
-  TH2F*  fHistTriggerPtRecovsPtGenProton; //!
-  TH2F*  fHistAssocPtRecovsPtGenProton; //!
-  TH2F*  fHistTriggerPtRecovsPtGenKaon; //!
-  TH2F*  fHistAssocPtRecovsPtGenKaon; //!
-
-  TH2F*  fHistResolutionTriggerPt; //!
-  TH2F*  fHistResolutionTriggerPhi; //!
+  TH2F*  fHistTriggerPtRecovsPtGen;         //!
+  TH2F*  fHistAssocPtRecovsPtGen; 	    //!
+  TH2F*  fHistTriggerPtRecovsPtGenNotPrim;  //!
+  TH2F*  fHistAssocPtRecovsPtGenNotPrim;    //!
+  TH2F*  fHistTriggerPtRecovsPtGenPion;     //!
+  TH2F*  fHistAssocPtRecovsPtGenPion; 	    //!
+  TH2F*  fHistTriggerPtRecovsPtGenProton;   //!
+  TH2F*  fHistAssocPtRecovsPtGenProton;     //!
+  TH2F*  fHistTriggerPtRecovsPtGenKaon;     //!
+  TH2F*  fHistAssocPtRecovsPtGenKaon; 	    //!
+					   
+  TH2F*  fHistResolutionTriggerPt; 	    //!
+  TH2F*  fHistResolutionTriggerPhi; 	    //!
   TH2F*  fHistResolutionTriggerPtvsPhiPart; //!
   TH2F*  fHistResolutionTriggerPtvsEtaPart; //!
-  TH2F*  fHistResolutionTriggerEta; //!
-  TH2F*  fHistResolutionTriggerPhiPhi; //!
-  TH2F*  fHistResolutionTriggerPhiEta; //!
-  TH2F*  fHistResolutionTriggerPhiPt; //!
-  TH2F*  fHistResolutionTriggerPhiPdgCode; //!
-  TH2F*  fHistResolutionV0Pt; //!
-  TH2F*  fHistResolutionV0Phi; //!
-  TH2F*  fHistResolutionV0PhivsPt; //!
-  TH2F*  fHistResolutionV0Eta; //!
-  TH2F*  fHistResolutionV0PtvsPt;//!
+  TH2F*  fHistResolutionTriggerEta; 	    //!
+  TH2F*  fHistResolutionTriggerPhiPhi; 	    //!
+  TH2F*  fHistResolutionTriggerPhiEta; 	    //!
+  TH2F*  fHistResolutionTriggerPhiPt; 	    //!
+  TH2F*  fHistResolutionTriggerPhiPdgCode;  //!
+  TH2F*  fHistResolutionV0Pt; 		    //!
+  TH2F*  fHistResolutionV0Phi; 		    //!
+  TH2F*  fHistResolutionV0PhivsPt; 	    //!
+  TH2F*  fHistResolutionV0Eta; 		    //!
+  TH2F*  fHistResolutionV0PtvsPt;           //!
 
   TH2F *** fHistPrimaryTrigger; //!
   TH3F ***  fHistPrimaryV0; //!  
