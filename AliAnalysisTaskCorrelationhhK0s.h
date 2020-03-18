@@ -38,7 +38,6 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
   Float_t GetLengthInActiveZone( AliAODTrack *gt, Float_t deltaY, Float_t deltaZ, Float_t b );
 
   void ProcessMCParticles(Bool_t Generated, AliAODTrack* track, Int_t& labelPrimOrSec, Float_t lPercentiles, Bool_t isV0, Double_t ZAtDCA, Float_t PtTriggMax, Bool_t fIshhCorr, AliAODTrack* globaltrack);
-  // double CalculateMass(double momentum1[3], double momentum2[3], double mass1, double mass2); */
   Double_t CalculateDeltaTheta( Double_t theta1, Double_t theta2 ); 
   Double_t CalculateDeltaPhi( Double_t phi1, Double_t phi2 ) ; 
   Double_t CalculateDeltaEta( Double_t eta1, Double_t eta2 ) ; 
@@ -60,10 +59,10 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
   
   TList*                  fOutputList;      //! output list
   TTree*                  fSignalTree;      //! output tree
-  TTree*                  fBkgTree;      //! output tree
-  TList*                  fOutputList2;      //! output list
-  TList*                  fOutputList3;      //! output list
-  TList*                  fOutputList4;      //! output list
+  TTree*                  fBkgTree;         //! output tree
+  TList*                  fOutputList2;     //! output list
+  TList*                  fOutputList3;     //! output list
+  TList*                  fOutputList4;     //! output list
   
   AliMCEvent *            fMCEvent;         //!
   Bool_t                  fReadMCTruth;
@@ -83,28 +82,28 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
   Int_t                    fFilterBitValue;
   Int_t                    fYear;
 
-   TH1F*                   fHistPt;          //! 
-TH2F *   fHistTriggerNCrvsLength3; //!
-TH2F *     fHistTriggerNCrvsLength5; //!
-TH2F *     fHistTriggerNCrvsLength35; //!
+  TH1F*                   fHistPt;          //! 
+  TH2F *   fHistTriggerNCrvsLength3; //!
+  TH2F *     fHistTriggerNCrvsLength5; //!
+  TH2F *     fHistTriggerNCrvsLength35; //!
 
-   TH1F*                   fHistPtTriggerParticle;          //! 
-   TH1F*                   fHistDCAxym1;          //! 
-   TH1F*                   fHistDCAxym2;          //! 
-   TH1F*                   fHistDCAzm1;          //! 
-   TH1F*                   fHistDCAzm2;          //! 
-   TH1F*                   fHistPtV0;          //! 
-   TH1F*                   fHistPthAssoc;          //! 
-   TH2F*                   fHistPtTMaxBefAllCfrDataMC; //!
-   TH1F*                   fHistPtTMinBefAll;          //! 
-   TH1F*                   fHistPtTMinBefAllMC;          //! 
-   TH1F*                   fHistPtTMaxBefAll;          //! 
-   TH1F*                   fHistPtTMaxBefAllBis;          //! 
-   TH1F*                   fHistPtTMaxBefAllMC;          //! 
-   TH2F*                   fHistPtvsMult;          //! 
-   TH2F*                   fHistPtvsMultBefAll;          //! 
-   TH2F*                   fHistPtMaxvsMult;          //! 
-   TH2F*                   fHistPtMaxvsMultBefAll;          //! 
+  TH1F*                   fHistPtTriggerParticle;          //! 
+  TH1F*                   fHistDCAxym1;          //! 
+  TH1F*                   fHistDCAxym2;          //! 
+  TH1F*                   fHistDCAzm1;          //! 
+  TH1F*                   fHistDCAzm2;          //! 
+  TH1F*                   fHistPtV0;          //! 
+  TH1F*                   fHistPthAssoc;          //! 
+  TH2F*                   fHistPtTMaxBefAllCfrDataMC; //!
+  TH1F*                   fHistPtTMinBefAll;          //! 
+  TH1F*                   fHistPtTMinBefAllMC;          //! 
+  TH1F*                   fHistPtTMaxBefAll;          //! 
+  TH1F*                   fHistPtTMaxBefAllBis;          //! 
+  TH1F*                   fHistPtTMaxBefAllMC;          //! 
+  TH2F*                   fHistPtvsMult;          //! 
+  TH2F*                   fHistPtvsMultBefAll;          //! 
+  TH2F*                   fHistPtMaxvsMult;          //! 
+  TH2F*                   fHistPtMaxvsMultBefAll;          //! 
   TH1F *                  fHistZvertex;     //!
   TH1F* fHistFractionSharedTPCClusters; //!
   TH1F* fHistGoldenCut; //!
@@ -142,7 +141,7 @@ TH2F *     fHistTriggerNCrvsLength35; //!
   TH2F *                  fHistMultvsV0Truth; //!
   TH2F *                  fHistMultvsV0MC; //!
   TH3F*  fHistTriggerNotLeading; //!
-    TH3F*  fHistTriggerNotLeadingMC; //!
+  TH3F*  fHistTriggerNotLeadingMC; //!
   TH2F**                   fHistMassvsPt;                               //!
   TH2F**                   fHistMassvsPt_tagli;                         //!
   TH2F*                  fHistMultvsTriggerBefAll; //!
@@ -192,20 +191,20 @@ TH2F *     fHistTriggerNCrvsLength35; //!
   TH2F*  fHistTriggerPtRecovsPtGenKaon; //!
   TH2F*  fHistAssocPtRecovsPtGenKaon; //!
 
-TH2F*  fHistResolutionTriggerPt; //!
-TH2F*  fHistResolutionTriggerPhi; //!
-TH2F*  fHistResolutionTriggerPtvsPhiPart; //!
-TH2F*  fHistResolutionTriggerPtvsEtaPart; //!
-TH2F*  fHistResolutionTriggerEta; //!
-TH2F*  fHistResolutionTriggerPhiPhi; //!
-TH2F*  fHistResolutionTriggerPhiEta; //!
-TH2F*  fHistResolutionTriggerPhiPt; //!
-TH2F*  fHistResolutionTriggerPhiPdgCode; //!
-TH2F*  fHistResolutionV0Pt; //!
-TH2F*  fHistResolutionV0Phi; //!
-TH2F*  fHistResolutionV0PhivsPt; //!
-TH2F*  fHistResolutionV0Eta; //!
-TH2F*  fHistResolutionV0PtvsPt;//!
+  TH2F*  fHistResolutionTriggerPt; //!
+  TH2F*  fHistResolutionTriggerPhi; //!
+  TH2F*  fHistResolutionTriggerPtvsPhiPart; //!
+  TH2F*  fHistResolutionTriggerPtvsEtaPart; //!
+  TH2F*  fHistResolutionTriggerEta; //!
+  TH2F*  fHistResolutionTriggerPhiPhi; //!
+  TH2F*  fHistResolutionTriggerPhiEta; //!
+  TH2F*  fHistResolutionTriggerPhiPt; //!
+  TH2F*  fHistResolutionTriggerPhiPdgCode; //!
+  TH2F*  fHistResolutionV0Pt; //!
+  TH2F*  fHistResolutionV0Phi; //!
+  TH2F*  fHistResolutionV0PhivsPt; //!
+  TH2F*  fHistResolutionV0Eta; //!
+  TH2F*  fHistResolutionV0PtvsPt;//!
 
   TH2F *** fHistPrimaryTrigger; //!
   TH3F ***  fHistPrimaryV0; //!  
@@ -261,17 +260,8 @@ TH2F*  fHistResolutionV0PtvsPt;//!
 
   bool FifoShiftok;	                        		      
 
-  /* Double_t fTreeVariableDcaV0Daughters;			       */
-  /* Double_t fTreeVariableV0Radius;			       */
-  /* Double_t fTreeVariableLeastNbrCrossedRowsPos;		       */
-  /* Double_t fTreeVariableLeastRatioCrossedRowsOverFindablePos;     */
-  /* Double_t fTreeVariableLeastNbrCrossedRowsNeg;		       */
-  /* Double_t fTreeVariableLeastRatioCrossedRowsOverFindableNeg;      */
-  /* Double_t fTreeVariableMultiplicity;       */
-  
-
-  AliAnalysisTaskCorrelationhhK0s(const AliAnalysisTaskCorrelationhhK0s&); // not implemented
-  AliAnalysisTaskCorrelationhhK0s& operator=(const AliAnalysisTaskCorrelationhhK0s&); // not implemented
+  AliAnalysisTaskCorrelationhhK0s(const AliAnalysisTaskCorrelationhhK0s&); 
+  AliAnalysisTaskCorrelationhhK0s& operator=(const AliAnalysisTaskCorrelationhhK0s&); 
 
   ClassDef(AliAnalysisTaskCorrelationhhK0s, 1);
 };
