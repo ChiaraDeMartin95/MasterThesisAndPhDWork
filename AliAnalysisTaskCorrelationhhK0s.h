@@ -98,7 +98,6 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
   TH1F*                   fHistPtTMinBefAll;          //! 
   TH1F*                   fHistPtTMinBefAllMC;        //! 
   TH1F*                   fHistPtTMaxBefAll;          //! 
-  TH1F*                   fHistPtTMaxBefAllBis;       //! 
   TH1F*                   fHistPtTMaxBefAllMC;        //! 
   TH2F*                   fHistPtvsMult;              //! 
   TH2F*                   fHistPtvsMultBefAll;        //! 
@@ -120,10 +119,10 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
   TH1F*                   fHistV0Radius;       		//!
   TH2F*                   fHistLengthvsCrossedRowsAfterSel; //!
   TH2F*                   fHistLengthvsCrossedRows;       //!
-  TH2F*                   fHistTriggerComposition;  	  //!
-  TH2F*                   fHistTriggerCompositionMCTruth; //! 
-  TH2F*                   fHistAssocComposition;  	  //!
-  TH2F*                   fHistAssocCompositionMCTruth;   //!
+  TH3F*                   fHistTriggerComposition;  	  //!
+  TH3F*                   fHistTriggerCompositionMCTruth; //! 
+  TH3F*                   fHistAssocComposition;  	  //!
+  TH3F*                   fHistAssocCompositionMCTruth;   //!
   TH1F*                   fHistTrackAssoc;       	  //!
   TH1F*                   fHistPDG;         		  //!
   TH1F*                   fHistTrackBufferOverflow;       //!  	
