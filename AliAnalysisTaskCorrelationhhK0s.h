@@ -5,12 +5,12 @@
 #ifndef AliAnalysisTaskCorrelationhhK0s_H
 #define AliAnalysisTaskCorrelationhhK0s_H
 class AliPIDResponse;
-//class AliMultSelection;
+class AliMultSelection;
 class AliAODMCParticle;
 class AliCentrality;
 #include "AliAnalysisTaskSE.h"
 #include "AliAnalysisCorrelationEventCollection.h"
-//#include "AliEventCuts.h"
+#include "AliEventCuts.h"
 
 class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE  
 {
@@ -55,7 +55,7 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
   AliAODEvent*            fAOD;             //! input event
   AliPIDResponse *        fPIDResponse;     //!PID response object 
   //  AliMultSelection *      fMultSelection;   //! 
-  //  AliEventCuts            fEventCuts; //! 
+  AliEventCuts            fEventCuts; //! 
   
   TList*                  fOutputList;      //! output list
   TTree*                  fSignalTree;      //! output tree
