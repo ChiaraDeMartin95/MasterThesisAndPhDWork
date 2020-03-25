@@ -853,30 +853,33 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   fHistEventMult->GetXaxis()->SetBinLabel(23,"All events");
   fHistEventMult->GetXaxis()->SetBinLabel(24,"AOD event");
 
-  fHistEventV0=new TH1F("fHistEventV0", "fHistEventV0",25, 0.5, 25.5);
+  fHistEventV0=new TH1F("fHistEventV0", "fHistEventV0",26, 0.5, 26.5);
   fHistEventV0->SetTitle("Number of V0 which progressively pass the listed selections");
   fHistEventV0->GetXaxis()->SetBinLabel(1,"All V0s");
-  fHistEventV0->GetXaxis()->SetBinLabel(2,"V0s ok");
+  fHistEventV0->GetXaxis()->SetBinLabel(2,"V0s OnFly");
   fHistEventV0->GetXaxis()->SetBinLabel(3,"Filterbit daughters"); 
   fHistEventV0->GetXaxis()->SetBinLabel(4,"Chis daughter tracks"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(5,"Length DTracks>90cm"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(6,"CrossedRows/Length>0.8"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(7,"TOF or SPD hit for pileup"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(8,"PID daughters"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(9,"|eta daughters|<0.8"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(10,"TPC track quality"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(11,"|eta_K0s|<0.8"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(12,"more cuts + 0.45 < Mass < 0.55"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(13,"Lrejection"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(14,"0<pT<pTV0max (reco up to here)"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(15,"NV0(reco) in ev wNT>0"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(16,"NV0(reco true) in ev wNT>0");
-  fHistEventV0->GetXaxis()->SetBinLabel(17,"NV0(MC) in ev wNT>0");
-  fHistEventV0->GetXaxis()->SetBinLabel(18,"N V0 pT>pTTrig(reco) in ev wNT>0");
-  fHistEventV0->GetXaxis()->SetBinLabel(19,"N V0 pT>pTTrig(MC) in ev wNT>0");
-  fHistEventV0->GetXaxis()->SetBinLabel(20,"NV0(reco) in SelEv");
-  fHistEventV0->GetXaxis()->SetBinLabel(21,"NV0(reco true) in SelEv");
-  fHistEventV0->GetXaxis()->SetBinLabel(22,"NV0(MC) in SelEv"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(5,"TPC Refit"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(6,"NClusters>50"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(7,"Reject kink daughter"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(8,"Length DTracks>90cm"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(9,"CrossedRows/Length>0.8"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(10,"TOF or SPD hit for pileup"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(11,"PID daughters"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(12,"|eta daughters|<0.8"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(13,"NCrossedRows>70 && Crossed/Find>0.8"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(14,"|eta_K0s|<0.8"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(15,"more cuts + 0.45 < Mass < 0.55"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(16,"Lrejection"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(17,"0<pT<pTV0max (reco up to here)"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(18,"NV0(reco) in ev wNT>0"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(19,"NV0(reco true) in ev wNT>0");
+  fHistEventV0->GetXaxis()->SetBinLabel(20,"NV0(MC) in ev wNT>0");
+  fHistEventV0->GetXaxis()->SetBinLabel(21,"N V0 pT>pTTrig(reco) in ev wNT>0");
+  fHistEventV0->GetXaxis()->SetBinLabel(22,"N V0 pT>pTTrig(MC) in ev wNT>0");
+  fHistEventV0->GetXaxis()->SetBinLabel(23,"NV0(reco) in SelEv");
+  fHistEventV0->GetXaxis()->SetBinLabel(24,"NV0(reco true) in SelEv");
+  fHistEventV0->GetXaxis()->SetBinLabel(25,"NV0(MC) in SelEv"); 
 
   fHistTrack=new TH1F("fHistTrack", "fHistTrack", 19, 0.5, 19.5);
   fHistTrack->GetXaxis()->SetBinLabel(1,"All tracks");
@@ -1598,7 +1601,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   if ( MultSelection ){
   //c cout << "mult sel ok" << endl;
   lPercentiles= MultSelection->GetMultiplicityPercentile("V0M");
-  cout << lPercentiles << endl;
+  //  cout << lPercentiles << endl;
   }else{
   AliInfo("Didn't find MultSelection!"); 
   }
@@ -2434,7 +2437,6 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
     // cout << "\n \n  here I start the loop on v0s " << endl;
     for(Int_t i(0); i < V0Tracks; i++) {       
       isaK0s=0; //it will be put to 1 for true K0s in MC
-      fHistEventV0->Fill(1);
       rapidityV0[2]={0};    
       EV0[2]={0};
       kctau[2]={0};
@@ -2443,6 +2445,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 
       AliAODv0* v0 = fAOD->GetV0(i);
       if(!v0) continue;       
+      fHistEventV0->Fill(1);
 
       if(v0->GetOnFlyStatus()) continue;
       fHistEventV0->Fill(2);
@@ -2514,8 +2517,8 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
       Float_t rationCrnFindpos=nTPCCrossedRowspos/prongTrackPos->GetTPCNclsF();
       Float_t rationCrnFindneg=nTPCCrossedRowsneg/prongTrackNeg->GetTPCNclsF();
 
-      if(!prongTrackPos->TestFilterBit(1)) continue;
-      if(!prongTrackNeg->TestFilterBit(1)) continue;
+//      if(!prongTrackPos->TestFilterBit(1)) continue; //I do not use the Filterbit for V0 daughter tracks because this suppresses the efficiency
+//      if(!prongTrackNeg->TestFilterBit(1)) continue;
       fHistEventV0->Fill(3);
       if(prongTrackPos->Chi2perNDF()>4.)continue;
       if(prongTrackNeg->Chi2perNDF()>4.)continue;
@@ -2526,6 +2529,44 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 
       fHistV0Radius->Fill(lV0Radius);
 
+      //TPC Refit for daugther tracks
+      ULong_t pStatus    = prongTrackPos->GetStatus();
+      ULong_t nStatus    = prongTrackNeg->GetStatus();
+
+      if ((pStatus&AliAODTrack::kTPCrefit)    == 0) {
+	AliWarning("Pb / V0 Pos. track has no TPCrefit ... continue!");
+	continue;
+      }
+      if ((nStatus&AliAODTrack::kTPCrefit)    == 0) {
+	AliWarning("Pb / V0 Neg. track has no TPCrefit ... continue!");
+	continue;
+      }
+      fHistEventV0->Fill(5);
+
+      //TPCClusters
+      Int_t      lPosTPCClusters   = prongTrackPos->GetTPCNcls();
+      Int_t      lNegTPCClusters   = prongTrackNeg->GetTPCNcls();
+      if(lPosTPCClusters  < 50) {
+	AliWarning("Pb / V0 Pos. track has less than 50 TPC clusters ... continue!");
+	continue;
+      }
+      
+      if(lNegTPCClusters  < 50) {
+	AliWarning("Pb / V0 Neg. track has less than 50 TPC clusters ... continue!");
+	continue;
+      }
+      fHistEventV0->Fill(6);
+
+
+      //GetKinkIndex condition                                                                                                        
+      Bool_t V0VarPosIsKink=kFALSE;
+      Bool_t V0VarNegIsKink=kFALSE;
+      if( prongTrackPos->GetKinkIndex(0)>0 ) V0VarPosIsKink = kTRUE;
+      if( prongTrackNeg->GetKinkIndex(0)>0 ) V0VarNegIsKink = kTRUE;
+
+      if (V0VarPosIsKink || V0VarNegIsKink) continue;
+      fHistEventV0->Fill(7);
+
       //Tracklength selection
       Float_t lTrackLengthpos = -1;
       Float_t lTrackLengthneg = -1;
@@ -2535,11 +2576,11 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
       Float_t lNegTrackNcrOverLength = (Float_t)prongTrackNeg->GetTPCClusterInfo(2,1)/(lTrackLengthneg-TMath::Max(lV0Radius-85.,0.));
       
       if (lTrackLengthpos<90 || lTrackLengthneg<90) continue;
-      fHistEventV0->Fill(5);
+      fHistEventV0->Fill(8);
 
       if (lPosTrackNcrOverLength< 0.8 || lNegTrackNcrOverLength< 0.8) continue;
-      fHistEventV0->Fill(6);
- 
+      fHistEventV0->Fill(9); 
+
      //TPC PID
       if(TMath::Abs(fPIDResponse->NumberOfSigmasTPC( prongTrackPos, (AliPID::EParticleType)2))< 3.) goodPiPlusTPC=kTRUE;
       if(TMath::Abs(fPIDResponse->NumberOfSigmasTPC( prongTrackNeg, (AliPID::EParticleType)2))< 3.) goodPiMinusTPC=kTRUE;
@@ -2563,7 +2604,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
       if (prongTrackNeg->HasPointOnITSLayer(0) || prongTrackNeg->HasPointOnITSLayer(1) ) HasPointOnSPDNeg=kTRUE;
 
       if ( !(statusTOFPos ==  AliPIDResponse::kDetPidOk) && !(statusTOFNeg ==  AliPIDResponse::kDetPidOk) && !(HasPointOnSPDPos) && !(HasPointOnSPDNeg)) continue; //out of bunch pile up (a V0 daughter track is required to have at least a hit in the TOF or in one of the first two ITS layers (SPD))
-      fHistEventV0->Fill(7);
+      fHistEventV0->Fill(10);
 
       if(isTOFPIDok){
 	if(goodPiPlusTPC && goodPiPlusTOF){
@@ -2583,23 +2624,23 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 
 
       if(!goodPiMinus || !goodPiPlus )             continue;
-      fHistEventV0->Fill(8);
+      fHistEventV0->Fill(11);
 
       if(TMath::Abs(v0->EtaProng(pos0or1))>0.8) continue;
       if(TMath::Abs(v0->EtaProng(neg0or1))>0.8) continue;
-      fHistEventV0->Fill(9);
+      fHistEventV0->Fill(12);
     
       //DAUGHTER TRACK QUALITY 
       if(nTPCCrossedRowspos<80) continue;
       if(nTPCCrossedRowsneg<80) continue;
       if(rationCrnFindpos<0.8)  continue;
       if(rationCrnFindneg<0.8)  continue;
-      fHistEventV0->Fill(10);    
+      fHistEventV0->Fill(13);    
     
       // if(TMath::Abs(rapidityV0[ParticleType])>ycut[ParticleType])             continue;
       //fHistEventV0->Fill(8);    
       if(TMath::Abs(v0->Eta()) >  fEtaV0Assoc)	   	continue;
-      fHistEventV0->Fill(11);    
+      fHistEventV0->Fill(14);    
     
       //    if(v0->PtProng(pos0or1) < .15) continue;
       //if(v0->PtProng(neg0or1) < .15) continue;
@@ -2650,10 +2691,10 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
       }
 
       if(v0->MassK0Short()> 0.55 || v0->MassK0Short()< 0.45) continue;
-      fHistEventV0->Fill(12);    
+      fHistEventV0->Fill(15);    
       // if(TMath::Abs((v0->MassLambda() - massLambda))< 0.005) continue;
       // if(TMath::Abs((v0->MassAntiLambda() - massLambda))< 0.005) continue;
-      fHistEventV0->Fill(13);    
+      fHistEventV0->Fill(16);    
 
       bool skipV0=kFALSE;
       if(fReadMCTruth){
@@ -2668,7 +2709,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
     
     
       if(!(v0->Pt()> fminPtV0 && v0->Pt()<fmaxPtV0) )continue;
-      fHistEventV0->Fill(14);     
+      fHistEventV0->Fill(17);     
       if (v0->Pt()>=ptTriggerMassimoDati){
 	skipV0=kTRUE;
 	NumberSecondParticleNoAssoc++;
@@ -2911,11 +2952,11 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   //************************end hV0 section*************************************************
 
   if (!fIshhCorr){
-    fHistEventV0->AddBinContent(15, NumberSecondParticle);    
-    fHistEventV0->AddBinContent(16, NumberSecondParticleRecoTrue);    
-    fHistEventV0->AddBinContent(17, NumberSecondParticleMC);  
-    fHistEventV0->AddBinContent(18, NumberSecondParticleNoAssoc);    
-    fHistEventV0->AddBinContent(19, NumberSecondParticleMCNoAssoc);      
+    fHistEventV0->AddBinContent(18, NumberSecondParticle);    
+    fHistEventV0->AddBinContent(19, NumberSecondParticleRecoTrue);    
+    fHistEventV0->AddBinContent(20, NumberSecondParticleMC);  
+    fHistEventV0->AddBinContent(21, NumberSecondParticleNoAssoc);    
+    fHistEventV0->AddBinContent(22, NumberSecondParticleMCNoAssoc);      
   }
   if (fIshhCorr){
     fHistTrackAssoc->AddBinContent(13, NumberSecondParticle);    
@@ -2980,9 +3021,9 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   fHistSecondParticleTruth->Fill(NumberSecondParticleRecoTrue, NumberSecondParticleMC);
 
   if(!fIshhCorr){
-    fHistEventV0->AddBinContent(20, NumberSecondParticle);    
-    fHistEventV0->AddBinContent(21, NumberSecondParticleRecoTrue);    
-    fHistEventV0->AddBinContent(22, NumberSecondParticleMC);    
+    fHistEventV0->AddBinContent(23, NumberSecondParticle);    
+    fHistEventV0->AddBinContent(24, NumberSecondParticleRecoTrue);    
+    fHistEventV0->AddBinContent(25, NumberSecondParticleMC);    
   }
   if(fIshhCorr){
     fHistTrackAssoc->AddBinContent(18, NumberSecondParticle);    
