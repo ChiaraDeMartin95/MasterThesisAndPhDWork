@@ -26,12 +26,12 @@
 #include "AliAODInputHandler.h"
 #include "AliAnalysisTaskCorrelationhhK0s.h"
 #include "AliPIDResponse.h"
-#include "AliMultiplicity.h"
-#include "AliMultSelection.h"
+//#include "AliMultiplicity.h"
+//#include "AliMultSelection.h"
 #include "AliAODMCParticle.h"
 #include "AliAnalysisCorrelationEventCollection.h"
 #include "AliAODVertex.h"
-#include "AliEventCuts.h"
+//#include "AliEventCuts.h"
 #include "AliAODTrack.h"
 #include "AliAODv0.h"
 #include "AliVVertex.h"
@@ -48,7 +48,7 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s() :AliAnalysisT
   fCollidingSystem("pp"), 
   fAOD(0), 
   fPIDResponse(0),
-  fEventCuts(0), 			  			
+//  fEventCuts(0), 			  			
   fOutputList(0), 
   fSignalTree(0), 
   fBkgTree(0), 
@@ -119,6 +119,12 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s() :AliAnalysisT
   fHistSecondParticle(0),
   fHistSecondParticleTruth(0),
   fMassV0(0), 
+  fDCAxyDaughters(0),
+  fDCAzDaughters(0),
+  fDCAxyPos(0),
+  fDCAzPos(0),
+  fDCAxyNeg(0),
+  fDCAzNeg(0),    
   fHistMultvsV0All(0),
   fHistMultvsV0AllTruth(0),
   fHistMultvsV0MCAll(0),
@@ -245,7 +251,7 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s(const char* nam
 								 fCollidingSystem("pp"), 
 								 fAOD(0), 
 								 fPIDResponse(0),
-                                                                 fEventCuts(0),								 
+										     //                                                                 fEventCuts(0),								 
 								 fOutputList(0), 
 								 fSignalTree(0), 
 								 fBkgTree(0), 
@@ -316,6 +322,12 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s(const char* nam
   fHistSecondParticle(0),
   fHistSecondParticleTruth(0),
   fMassV0(0),
+  fDCAxyDaughters(0),
+  fDCAzDaughters(0),
+  fDCAxyPos(0),
+  fDCAzPos(0),
+  fDCAxyNeg(0),
+  fDCAzNeg(0),    
   fHistMultvsV0All(0),
   fHistMultvsV0AllTruth(0),
   fHistMultvsV0MCAll(0), 
@@ -853,7 +865,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   fHistEventMult->GetXaxis()->SetBinLabel(23,"All events");
   fHistEventMult->GetXaxis()->SetBinLabel(24,"AOD event");
 
-  fHistEventV0=new TH1F("fHistEventV0", "fHistEventV0",26, 0.5, 26.5);
+  fHistEventV0=new TH1F("fHistEventV0", "fHistEventV0",28, 0.5, 28.5);
   fHistEventV0->SetTitle("Number of V0 which progressively pass the listed selections");
   fHistEventV0->GetXaxis()->SetBinLabel(1,"All V0s");
   fHistEventV0->GetXaxis()->SetBinLabel(2,"V0s OnFly");
@@ -871,15 +883,17 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   fHistEventV0->GetXaxis()->SetBinLabel(14,"|eta_K0s|<0.8"); 
   fHistEventV0->GetXaxis()->SetBinLabel(15,"more cuts + 0.45 < Mass < 0.55"); 
   fHistEventV0->GetXaxis()->SetBinLabel(16,"Lrejection"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(17,"0<pT<pTV0max (reco up to here)"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(18,"NV0(reco) in ev wNT>0"); 
-  fHistEventV0->GetXaxis()->SetBinLabel(19,"NV0(reco true) in ev wNT>0");
-  fHistEventV0->GetXaxis()->SetBinLabel(20,"NV0(MC) in ev wNT>0");
-  fHistEventV0->GetXaxis()->SetBinLabel(21,"N V0 pT>pTTrig(reco) in ev wNT>0");
-  fHistEventV0->GetXaxis()->SetBinLabel(22,"N V0 pT>pTTrig(MC) in ev wNT>0");
-  fHistEventV0->GetXaxis()->SetBinLabel(23,"NV0(reco) in SelEv");
-  fHistEventV0->GetXaxis()->SetBinLabel(24,"NV0(reco true) in SelEv");
-  fHistEventV0->GetXaxis()->SetBinLabel(25,"NV0(MC) in SelEv"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(17,"DCAxy and DCAz Daughter cuts (not applied)"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(18,"FilterBit(1) on daughters (not applied)"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(19,"0<pT<pTV0max (reco up to here)"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(20,"NV0(reco) in ev wNT>0"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(21,"NV0(reco true) in ev wNT>0");
+  fHistEventV0->GetXaxis()->SetBinLabel(22,"NV0(MC) in ev wNT>0");
+  fHistEventV0->GetXaxis()->SetBinLabel(23,"N V0 pT>pTTrig(reco) in ev wNT>0");
+  fHistEventV0->GetXaxis()->SetBinLabel(24,"N V0 pT>pTTrig(MC) in ev wNT>0");
+  fHistEventV0->GetXaxis()->SetBinLabel(25,"NV0(reco) in SelEv");
+  fHistEventV0->GetXaxis()->SetBinLabel(26,"NV0(reco true) in SelEv");
+  fHistEventV0->GetXaxis()->SetBinLabel(27,"NV0(MC) in SelEv"); 
 
   fHistTrack=new TH1F("fHistTrack", "fHistTrack", 19, 0.5, 19.5);
   fHistTrack->GetXaxis()->SetBinLabel(1,"All tracks");
@@ -948,6 +962,23 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
 
   fMassV0= new TH1F("fMassV0", "Invariant mass of V0 candidates", 100, 0.45, 0.55);
   fMassV0->GetXaxis()->SetTitle("M_{#pi^+ #pi^-}");
+
+  fDCAxyDaughters=new TH2F("fDCAxyDaughters", "DCAxy Neg Daughter vs DCAxy Pos Daughter of V0 candidates", 100, -10, 10, 100, -10, 10);
+  fDCAxyDaughters->GetXaxis()->SetTitle("DCAxyPos");
+  fDCAxyDaughters->GetYaxis()->SetTitle("DCAxyNeg");
+  fDCAzDaughters =new TH2F("fDCAzDaughters", "DCAxy Neg Daughter vs DCAxy Pos Daughter of V0 candidates", 100, -10, 10, 100, -10, 10);
+  fDCAzDaughters->GetXaxis()->SetTitle("DCAzPos");
+  fDCAzDaughters->GetYaxis()->SetTitle("DCAzNeg");
+
+  fDCAxyPos=new TH1F("fDCAxyPos", "DCAxy Pos Daughter of V0 candidates", 100, -5, 5);
+  fDCAxyPos->GetXaxis()->SetTitle("DCAxyPos");
+  fDCAxyNeg=new TH1F("fDCAxyNeg", "DCAxy Neg Daughter of V0 candidates", 100, -5, 5);
+  fDCAxyNeg->GetXaxis()->SetTitle("DCAxyNeg");
+
+  fDCAzPos =new TH1F("fDCAzPos", "DCAz Pos Daughter of V0 candidates", 100, -5, 5);
+  fDCAzPos->GetXaxis()->SetTitle("DCAzPos");
+  fDCAzNeg =new TH1F("fDCAzNeg", "DCAz Neg Daughter of V0 candidates", 100, -5, 5);
+  fDCAzNeg->GetXaxis()->SetTitle("DCAzNeg");
 
   fHistSecondParticleAll= new TH2F("fHistSecondParticleAll", "Number of V0 MCTrue vs number V0 reco (T>0) ", 60,-0.5,59.5,60,-0.5,59.5);
   fHistSecondParticleAll->GetXaxis()->SetTitle("Number (reco)");
@@ -1341,7 +1372,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
 
   fHistMultiplicityOfMixedEvent=new TH1F("fHistMultiplicityOfMixedEvent", "Distribution of number of events used for the mixing", 20, 0.5, 20.5);
 
-  fEventCuts.AddQAplotsToList(fOutputList);
+  //  fEventCuts.AddQAplotsToList(fOutputList);
   
   fOutputList->Add(fHistPDG);
   fOutputList->Add(fHistTrackBufferOverflow);
@@ -1415,6 +1446,15 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   fOutputList->Add(fHistTriggerwV0MCTruth);
 
   fOutputList->Add(fMassV0);
+  fOutputList->Add(fDCAxyDaughters);
+  fOutputList->Add(fDCAzDaughters);
+  fOutputList->Add(fDCAxyPos);
+  fOutputList->Add(fDCAxyNeg);
+  fOutputList->Add(fDCAzPos);
+  fOutputList->Add(fDCAzNeg);
+
+
+
 
   for(Int_t j=0; j < 6; j++){
     fOutputList->Add(fHistMassvsPt[j]);
@@ -1520,7 +1560,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   // fEventCuts.SetManualMode(true);
   // fEventCuts.SetupRun2pp();
 
-  
+  /*
   /// Use the event cut class to apply the required selections
   if (!fEventCuts.AcceptEvent(fAOD)) {   
     PostData(1, fOutputList);
@@ -1531,7 +1571,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
     PostData(6, fOutputList4);     
     return;
   }
-  
+  */
 
   fHistEventMult->Fill(1);
   
@@ -1594,7 +1634,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 
   Float_t lPercentiles = 0;
  
-  
+  /*
   //This will work for both ESDs and AODs
   AliMultSelection *MultSelection = (AliMultSelection*) fAOD -> FindListObject("MultSelection");
   
@@ -1605,7 +1645,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   }else{
   AliInfo("Didn't find MultSelection!"); 
   }
-  
+  */
         
   if ( lPercentiles > 199 ){
     PostData(1,fOutputList );
@@ -1773,7 +1813,11 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   //***********************************************************************************
   AliVTrack *vtrackg = 0x0;
   AliVTrack *vtrack = 0x0;
+  AliVTrack *vtrackgPos = 0x0;
+  AliVTrack *vtrackgNeg = 0x0;
   AliExternalTrackParam etp1;
+  AliExternalTrackParam etpPos;
+  AliExternalTrackParam etpNeg;
 
   Float_t nTPCCrossedRows=0.;
   float rationCrnFind=0;
@@ -1802,6 +1846,8 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   Double_t dz[2] = {-999.,-999.};
   Double_t d[2] = {-999.,-999.};
   Double_t dzg[2]= {-999.,-999.}; Double_t covarg[3]={-999.,-999.,-999.};
+  Double_t dzgPos[2]= {-999.,-999.}; Double_t covargPos[3]={-999.,-999.,-999.};
+  Double_t dzgNeg[2]= {-999.,-999.}; Double_t covargNeg[3]={-999.,-999.,-999.};
   Double_t dzgPtTMax=-999;
   Float_t DCAxy=-999.;
   Float_t DCAz=-999.;
@@ -1907,7 +1953,8 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
       //      TrackLength= globaltrack->GetIntegratedLength();
       //      CrossedRowsOverLength=(Float_t)nTPCCrossedRows/TrackLength;
     } //end if on filterbit value
-	  
+
+    //    cout << "DCAxy trigger particle " << dzg[0] << " DCAz trigger particle " << dzg[1] << endl;	  
     if((track->Charge())==0) continue;
     fHistTrack->Fill(9);
 	  
@@ -2696,6 +2743,96 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
       // if(TMath::Abs((v0->MassAntiLambda() - massLambda))< 0.005) continue;
       fHistEventV0->Fill(16);    
 
+      //V0 daugthter DCA cut (just a check)
+      Float_t DCAxyPos=-999.; Float_t DCAxyNeg=-999.;
+      Float_t DCAzPos=-999.; Float_t DCAzNeg=-999.;
+      Float_t DCAxyPosGlobal=-999.; Float_t DCAxyNegGlobal=-999.;
+      Float_t DCAzPosGlobal=-999.; Float_t DCAzNegGlobal=-999.;
+
+      Bool_t  DCAxyDaughters=kFALSE;
+      cout << " prongtrackneg id " << prongTrackNeg->GetID() << " prong track pos id " << prongTrackPos->GetID() << endl;
+
+      cout << " DCAxyPos: "  << DCAxyPos <<  " DCAxyNeg: "  << DCAxyNeg <<  " DCAzPos: "  << DCAzPos <<  " DCAzNeg: "  << DCAzNeg <<endl;
+      cout << " DCAxyPosGlobal: "  << DCAxyPosGlobal <<  " DCAxyNegGlobal: "  << DCAxyNegGlobal <<  " DCAzPosGlobal: "  << DCAzPosGlobal <<  " DCAzNegGlobal: "  << DCAzNegGlobal <<endl;
+
+      cout << " \ngetting track parameters for positive and negative V0 daughter " << endl;
+      prongTrackPos->GetImpactParameters(&DCAxyPos, &DCAzPos);
+      prongTrackNeg->GetImpactParameters(&DCAxyNeg, &DCAzNeg);
+      cout << " DCAxyPos: "  << DCAxyPos <<  " DCAxyNeg: "  << DCAxyNeg <<  " DCAzPos: "  << DCAzPos <<  " DCAzNeg: "  << DCAzNeg <<endl;
+      cout << " DCAxyPosGlobal: "  << DCAxyPosGlobal <<  " DCAxyNegGlobal: "  << DCAxyNegGlobal <<  " DCAzPosGlobal: "  << DCAzPosGlobal <<  " DCAzNegGlobal: "  << DCAzNegGlobal <<endl;
+
+      cout << "\n******* getting track parameters for positive V0 daughter (globaltrack)" << endl;
+      //other way to get DCA (is this the correct one?)
+      //Pos daughter+++++++++++++++++++++++
+      if (-prongTrackPos->GetID()-1 >= fTrackBufferSize) {
+	printf ("Exceeding buffer size!!");
+	continue;
+      }
+      vtrackgPos = fAOD->GetTrack(farrGT[-prongTrackPos->GetID()-1]);
+      if (!vtrackgPos) {
+	printf ("No global info! iTrack %d, ID %d\n",i,prongTrackPos->GetID());
+	continue;
+      }
+      if (farrGT[-prongTrackPos->GetID()-1]>=iTracks || farrGT[-prongTrackPos->GetID()-1]<0) { /*cout<<"This index is out of range!!"<<farrGT[-track->GetID()-1]<<endl;*/ continue;}
+    
+      globaltrack = dynamic_cast<AliAODTrack*>(vtrackgPos); 
+      if(!globaltrack) AliFatal("Not a standard AOD");
+
+      dzgPos[0]= -999.; dzgPos[1] = -999.;
+      etpPos.CopyFromVTrack(vtrackgPos); 
+      etpPos.PropagateToDCA(vertexmain,(InputEvent())->GetMagneticField(),100.,dzgPos,covargPos);    
+      DCAxyPosGlobal = dzgPos[0];
+      DCAzPosGlobal = dzgPos[1];
+      cout << " from vtrack: DCAxyPosGlobal: "  << DCAxyPosGlobal <<  " DCAxyNegGlobal: "  << DCAxyNegGlobal <<  " DCAzPosGlobal: "  << DCAzPosGlobal <<  " DCAzNegGlobal: "  << DCAzNegGlobal <<endl;
+
+      etpPos.CopyFromVTrack(prongTrackPos); 
+      etpPos.PropagateToDCA(vertexmain,(InputEvent())->GetMagneticField(),100.,dzgPos,covargPos);    
+      DCAxyPosGlobal = dzgPos[0];
+      DCAzPosGlobal = dzgPos[1];
+      cout << " from pronTrackPos: DCAxyPosGlobal: "  << DCAxyPosGlobal <<  " DCAxyNegGlobal: "  << DCAxyNegGlobal <<  " DCAzPosGlobal: "  << DCAzPosGlobal <<  " DCAzNegGlobal: "  << DCAzNegGlobal <<endl;
+
+      cout << "\n****** getting track parameters for negative V0 daughter (globaltrack)" << endl;
+      //Neg daughter+++++++++++++++++++++++
+      if (-prongTrackNeg->GetID()-1 >= fTrackBufferSize) {
+	printf ("Exceeding buffer size!!");
+	continue;
+      }
+      vtrackgNeg = fAOD->GetTrack(farrGT[-prongTrackNeg->GetID()-1]);
+      if (!vtrackgNeg) {
+	printf ("No global info! iTrack %d, ID %d\n",i,prongTrackNeg->GetID());
+	continue;
+      }
+      if (farrGT[-prongTrackNeg->GetID()-1]>=iTracks || farrGT[-prongTrackNeg->GetID()-1]<0) { /*cout<<"This index is out of range!!"<<farrGT[-track->GetID()-1]<<endl;*/ continue;}
+      globaltrack = dynamic_cast<AliAODTrack*>(vtrackgNeg); 
+      if(!globaltrack) AliFatal("Not a standard AOD");
+
+      //      cout << "\n is prongTrackPos == vtrackPos? " << prongTrackNeg==vtrackgNeg << endl;
+      dzgNeg[0]= -999.; dzgNeg[1] = -999.;
+      etpNeg.CopyFromVTrack(vtrackgNeg); 
+      etpNeg.PropagateToDCA(vertexmain,(InputEvent())->GetMagneticField(),100.,dzgNeg,covargNeg);    
+      DCAxyNegGlobal = dzgNeg[0];
+      DCAzNegGlobal = dzgNeg[1];
+      //************************************************
+      cout << " from vtrack: DCAxyPosGlobal: "  << DCAxyPosGlobal <<  " DCAxyNegGlobal: "  << DCAxyNegGlobal <<  " DCAzPosGlobal: "  << DCAzPosGlobal <<  " DCAzNegGlobal: "  << DCAzNegGlobal <<endl;
+
+      etpNeg.CopyFromVTrack(prongTrackNeg); 
+      etpNeg.PropagateToDCA(vertexmain,(InputEvent())->GetMagneticField(),100.,dzgNeg,covargNeg);    
+      DCAxyNegGlobal = dzgNeg[0];
+      DCAzNegGlobal = dzgNeg[1];
+      cout << " from prongtrackneg: DCAxyPosGlobal: "  << DCAxyPosGlobal <<  " DCAxyNegGlobal: "  << DCAxyNegGlobal <<  " DCAzPosGlobal: "  << DCAzPosGlobal <<  " DCAzNegGlobal: "  << DCAzNegGlobal <<endl;
+
+      cout << " prongtrackneg id " << prongTrackNeg->GetID() << " prong track pos id " << prongTrackPos->GetID() << endl;
+      cout << " vtrackneg id " << vtrackgNeg->GetID() << " v track pos id " << vtrackgPos->GetID() << endl;
+
+      if (TMath::Abs(DCAxyPos)<=2.4 && TMath::Abs(DCAxyNeg)<=2.4 ) {
+	//	  fHistEventV0->Fill(17);
+	  DCAxyDaughters=kTRUE;
+      }
+      if (TMath::Abs(DCAzPos)<=3.2 && TMath::Abs(DCAzNeg)<=3.2 && DCAxyDaughters ) {
+	fHistEventV0->Fill(17);
+      }
+      if(prongTrackPos->TestFilterBit(1) && prongTrackNeg->TestFilterBit(1)) 	fHistEventV0->Fill(18);
+
       bool skipV0=kFALSE;
       if(fReadMCTruth){
 	if (fMCEvent){
@@ -2709,7 +2846,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
     
     
       if(!(v0->Pt()> fminPtV0 && v0->Pt()<fmaxPtV0) )continue;
-      fHistEventV0->Fill(17);     
+      fHistEventV0->Fill(19);     
       if (v0->Pt()>=ptTriggerMassimoDati){
 	skipV0=kTRUE;
 	NumberSecondParticleNoAssoc++;
@@ -2717,7 +2854,14 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
       if (skipV0){
 	continue;
       }
+
       fMassV0->Fill(v0->MassK0Short());    
+      fDCAxyDaughters->Fill(DCAxyPos, DCAxyNeg);
+      fDCAzDaughters->Fill(DCAzPos, DCAzNeg);
+      fDCAxyPos->Fill(DCAxyPos);
+      fDCAxyNeg->Fill(DCAxyNeg);
+      fDCAzPos->Fill(DCAzPos);
+      fDCAzNeg->Fill(DCAzNeg);
 
       for (Int_t m =0; m<5;m++){
 	if(lPercentiles>=moltep[m] && lPercentiles<moltep[m+1]){
@@ -2952,11 +3096,11 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   //************************end hV0 section*************************************************
 
   if (!fIshhCorr){
-    fHistEventV0->AddBinContent(18, NumberSecondParticle);    
-    fHistEventV0->AddBinContent(19, NumberSecondParticleRecoTrue);    
-    fHistEventV0->AddBinContent(20, NumberSecondParticleMC);  
-    fHistEventV0->AddBinContent(21, NumberSecondParticleNoAssoc);    
-    fHistEventV0->AddBinContent(22, NumberSecondParticleMCNoAssoc);      
+    fHistEventV0->AddBinContent(20, NumberSecondParticle);    
+    fHistEventV0->AddBinContent(21, NumberSecondParticleRecoTrue);    
+    fHistEventV0->AddBinContent(22, NumberSecondParticleMC);  
+    fHistEventV0->AddBinContent(23, NumberSecondParticleNoAssoc);    
+    fHistEventV0->AddBinContent(24, NumberSecondParticleMCNoAssoc);      
   }
   if (fIshhCorr){
     fHistTrackAssoc->AddBinContent(13, NumberSecondParticle);    
@@ -3021,9 +3165,9 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   fHistSecondParticleTruth->Fill(NumberSecondParticleRecoTrue, NumberSecondParticleMC);
 
   if(!fIshhCorr){
-    fHistEventV0->AddBinContent(23, NumberSecondParticle);    
-    fHistEventV0->AddBinContent(24, NumberSecondParticleRecoTrue);    
-    fHistEventV0->AddBinContent(25, NumberSecondParticleMC);    
+    fHistEventV0->AddBinContent(25, NumberSecondParticle);    
+    fHistEventV0->AddBinContent(26, NumberSecondParticleRecoTrue);    
+    fHistEventV0->AddBinContent(27, NumberSecondParticleMC);    
   }
   if(fIshhCorr){
     fHistTrackAssoc->AddBinContent(18, NumberSecondParticle);    
