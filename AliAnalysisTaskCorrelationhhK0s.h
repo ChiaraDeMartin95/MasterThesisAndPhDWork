@@ -131,6 +131,14 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
   TH2F*                   fHistSecondParticle; 		  //!
   TH2F*                   fHistSecondParticleTruth; 	  //!
   TH1F*                   fMassV0;          		  //!
+  TH2F *                  fDCAxyDaughters;                //!
+  TH2F *                  fDCAzDaughters;                 //!
+  TH2F *                  fDCAxyDaughtersBis;                //!
+  TH2F *                  fDCAzDaughtersBis;                 //!
+  TH1F*  fDCAxyPos; //!
+  TH1F*  fDCAzPos; //!
+  TH1F*  fDCAxyNeg; //!
+  TH1F*  fDCAzNeg; //!
   TH2F *                  fHistMultvsV0All; 		  //!
   TH2F *                  fHistMultvsV0AllTruth; 	  //!
   TH2F *                  fHistMultvsV0MCAll; 		  //!

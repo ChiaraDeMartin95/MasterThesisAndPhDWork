@@ -26,12 +26,12 @@
 #include "AliAODInputHandler.h"
 #include "AliAnalysisTaskCorrelationhhK0s.h"
 #include "AliPIDResponse.h"
-//#include "AliMultiplicity.h"
-//#include "AliMultSelection.h"
+#include "AliMultiplicity.h"
+#include "AliMultSelection.h"
 #include "AliAODMCParticle.h"
 #include "AliAnalysisCorrelationEventCollection.h"
 #include "AliAODVertex.h"
-//#include "AliEventCuts.h"
+#include "AliEventCuts.h"
 #include "AliAODTrack.h"
 #include "AliAODv0.h"
 #include "AliVVertex.h"
@@ -48,7 +48,7 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s() :AliAnalysisT
   fCollidingSystem("pp"), 
   fAOD(0), 
   fPIDResponse(0),
-//  fEventCuts(0), 			  			
+  fEventCuts(0), 			  			
   fOutputList(0), 
   fSignalTree(0), 
   fBkgTree(0), 
@@ -121,6 +121,8 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s() :AliAnalysisT
   fMassV0(0), 
   fDCAxyDaughters(0),
   fDCAzDaughters(0),
+  fDCAxyDaughtersBis(0),
+  fDCAzDaughtersBis(0),
   fDCAxyPos(0),
   fDCAzPos(0),
   fDCAxyNeg(0),
@@ -251,7 +253,7 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s(const char* nam
 								 fCollidingSystem("pp"), 
 								 fAOD(0), 
 								 fPIDResponse(0),
-										     //                                                                 fEventCuts(0),								 
+								 fEventCuts(0),								 
 								 fOutputList(0), 
 								 fSignalTree(0), 
 								 fBkgTree(0), 
@@ -324,6 +326,8 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s(const char* nam
   fMassV0(0),
   fDCAxyDaughters(0),
   fDCAzDaughters(0),
+  fDCAxyDaughtersBis(0),
+  fDCAzDaughtersBis(0),
   fDCAxyPos(0),
   fDCAzPos(0),
   fDCAxyNeg(0),
@@ -970,6 +974,13 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   fDCAzDaughters->GetXaxis()->SetTitle("DCAzPos");
   fDCAzDaughters->GetYaxis()->SetTitle("DCAzNeg");
 
+  fDCAxyDaughtersBis=new TH2F("fDCAxyDaughtersBis", "DCAxy Neg Daughter vs DCAxy Pos Daughter of V0 candidates", 100, -10, 10, 100, -10, 10);
+  fDCAxyDaughtersBis->GetXaxis()->SetTitle("DCAxyPos");
+  fDCAxyDaughtersBis->GetYaxis()->SetTitle("DCAxyNeg");
+  fDCAzDaughtersBis =new TH2F("fDCAzDaughtersBis", "DCAxy Neg Daughter vs DCAxy Pos Daughter of V0 candidates", 100, -10, 10, 100, -10, 10);
+  fDCAzDaughtersBis->GetXaxis()->SetTitle("DCAzPos");
+  fDCAzDaughtersBis->GetYaxis()->SetTitle("DCAzNeg");
+
   fDCAxyPos=new TH1F("fDCAxyPos", "DCAxy Pos Daughter of V0 candidates", 100, -5, 5);
   fDCAxyPos->GetXaxis()->SetTitle("DCAxyPos");
   fDCAxyNeg=new TH1F("fDCAxyNeg", "DCAxy Neg Daughter of V0 candidates", 100, -5, 5);
@@ -1372,7 +1383,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
 
   fHistMultiplicityOfMixedEvent=new TH1F("fHistMultiplicityOfMixedEvent", "Distribution of number of events used for the mixing", 20, 0.5, 20.5);
 
-  //  fEventCuts.AddQAplotsToList(fOutputList);
+  fEventCuts.AddQAplotsToList(fOutputList);
   
   fOutputList->Add(fHistPDG);
   fOutputList->Add(fHistTrackBufferOverflow);
@@ -1448,6 +1459,8 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   fOutputList->Add(fMassV0);
   fOutputList->Add(fDCAxyDaughters);
   fOutputList->Add(fDCAzDaughters);
+  fOutputList->Add(fDCAxyDaughtersBis);
+  fOutputList->Add(fDCAzDaughtersBis);
   fOutputList->Add(fDCAxyPos);
   fOutputList->Add(fDCAxyNeg);
   fOutputList->Add(fDCAzPos);
@@ -1560,7 +1573,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   // fEventCuts.SetManualMode(true);
   // fEventCuts.SetupRun2pp();
 
-  /*
+  
   /// Use the event cut class to apply the required selections
   if (!fEventCuts.AcceptEvent(fAOD)) {   
     PostData(1, fOutputList);
@@ -1571,7 +1584,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
     PostData(6, fOutputList4);     
     return;
   }
-  */
+  
 
   fHistEventMult->Fill(1);
   
@@ -1634,7 +1647,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 
   Float_t lPercentiles = 0;
  
-  /*
+  
   //This will work for both ESDs and AODs
   AliMultSelection *MultSelection = (AliMultSelection*) fAOD -> FindListObject("MultSelection");
   
@@ -1645,7 +1658,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   }else{
   AliInfo("Didn't find MultSelection!"); 
   }
-  */
+  
         
   if ( lPercentiles > 199 ){
     PostData(1,fOutputList );
@@ -1769,7 +1782,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   //*****************create a global track to get the correct DCA*******************************
   for (Int_t igt = 0; igt < fTrackBufferSize; igt++) farrGT[igt] = -1;
  
-  if (fFilterBitValue==128){
+  if (fFilterBitValue==128 || fFilterBitValue==512){
     // Read and store global tracks to retrieve PID information for TPC only tracks
     for (Int_t igt = 0; igt < iTracks; igt++) {
       globaltrack = (AliAODTrack*) fAOD->GetTrack(igt);
@@ -1865,8 +1878,6 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
     track = static_cast<AliAODTrack*>(fAOD->GetTrack(i));        
     fHistTrack->Fill(1);
     if(!track) continue;
-    //if(track->GetID()<0)continue;
-    //  if(!track->IsOn(AliAODTrack::kTPCrefit)) continue;
 
     if(!track->TestFilterBit(fFilterBitValue)) continue; 
     fHistTrack->Fill(2);
@@ -1927,11 +1938,11 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
     //  if ((track->GetChi2TPCConstrainedVsGlobal())>36) continue;
     //    fHistTrack->Fill(7);
 
-    if (fFilterBitValue==128){ 
-      // Get the corresponding global track to use PID --> stored only for global tracks
-      // 
-      // Check that the array fGTI isn't too small
-      // for the track id
+    if((track->Charge())==0) continue;
+    fHistTrack->Fill(9);
+	  
+    if (fFilterBitValue==128 || fFilterBitValue==512){ 
+      //!!!!!!!!!information on DCA is correct only if taken in this way for tracks with FB128!!!!!!!!
       if (-track->GetID()-1 >= fTrackBufferSize) {
 	printf ("Exceeding buffer size!!");
 	continue;
@@ -1949,37 +1960,71 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
       dzg[0]= -999.; dzg[1] = -999.;
       etp1.CopyFromVTrack(vtrackg); 
       etp1.PropagateToDCA(vertexmain,(InputEvent())->GetMagneticField(),100.,dzg,covarg);    
-    
-      //      TrackLength= globaltrack->GetIntegratedLength();
-      //      CrossedRowsOverLength=(Float_t)nTPCCrossedRows/TrackLength;
+      //      cout << "Propagate to DCA method : DCAxy " << dzg[0] << " DCAz " << dzg[1] << endl;
+
+      /* does not seem to work properly 
+      vtrackg->GetImpactParameters(&DCAxy, &DCAz);
+      dz[0] = DCAxy;   
+      dz[1] = DCAz; 
+      cout << "GetImpactParamter method : DCAxy " << dz[0] << " DCAz " << dz[1] << endl;
+      */
+	
+      /* The following method gives equal results to propagate to DCA     
+      Float_t fPosition[2]={-999.};
+      static_cast<AliAODTrack*>(fAOD->GetTrack(farrGT[-track->GetID()-1]))->GetPosition(fPosition);
+      cout << "z position pos " << fPosition[2] << " z position primary vertex " << lBestPrimaryVtxPos[2] << endl;
+      cout << "y position pos " << fPosition[1] << " y position primary vertex " << lBestPrimaryVtxPos[1] << endl;
+      cout << "x position pos " << fPosition[0] << " x position primary vertex " << lBestPrimaryVtxPos[0] << endl;
+      cout << fPosition[2]- lBestPrimaryVtxPos[2] << endl; //this value is = to dzg[1]
+      cout << sqrt(pow (fPosition[0]- lBestPrimaryVtxPos[0],2) + pow(fPosition[1]- lBestPrimaryVtxPos[1],2)) << endl; //this value is = to dzg[0]
+      */
     } //end if on filterbit value
 
     //    cout << "DCAxy trigger particle " << dzg[0] << " DCAz trigger particle " << dzg[1] << endl;	  
-    if((track->Charge())==0) continue;
-    fHistTrack->Fill(9);
-	  
-    if (fFilterBitValue!=128){
+
+    if (fFilterBitValue!=128 && fFilterBitValue!=512){
+
+      /* does not seem to work properly
       DCAxy=-999.;      DCAz =-999.;
       track->GetImpactParameters(&DCAxy, &DCAz);
       dz[0] = DCAxy;   
       dz[1] = DCAz; 
+      cout << "GetImpactParamter method : DCAxy " << dz[0] << " DCAz " << dz[1] << endl;
+      */
+
+      //It seems that for FB 256 the two following methods (my method and propagate t DCA) give the same results (which seem reasonable: both DCAz and DCA yx are < 0.2 and have the correct shape), while the previous method (GetImpactParameter) give smaller results. 
+      dzg[0]= -999.; dzg[1] = -999.;
+      etp1.CopyFromVTrack(track); 
+      etp1.PropagateToDCA(vertexmain,(InputEvent())->GetMagneticField(),100.,dzg,covarg);    
+      //      cout << "Propagate to DCA method : DCAxy " << dzg[0] << " DCAz " << dzg[1] << endl;
+
+      /*      Float_t fPosition[2]={-999.};
+      track->GetPosition(fPosition);
+      cout << "z position pos " << fPosition[2] << " z position primary vertex " << lBestPrimaryVtxPos[2] << endl;
+      cout << "y position pos " << fPosition[1] << " y position primary vertex " << lBestPrimaryVtxPos[1] << endl;
+      cout << "x position pos " << fPosition[0] << " x position primary vertex " << lBestPrimaryVtxPos[0] << endl;
+      cout << "DCAz my method " << fPosition[2]- lBestPrimaryVtxPos[2] << endl; //this value is = to dzg[1]
+      cout << "|DCAxy| my method " << sqrt(pow (fPosition[0]- lBestPrimaryVtxPos[0],2) + pow(fPosition[1]- lBestPrimaryVtxPos[1],2)) << endl; //this value is = to dzg[0]
+      */
     }
 
-    fHistDCAxym1->Fill(dz[0]);
-    fHistDCAzm1->Fill(dz[1]);
+    //    fHistDCAxym1->Fill(dz[0]);
+    //    fHistDCAzm1->Fill(dz[1]);
 
     fHistDCAxym2->Fill(dzg[0]);
     fHistDCAzm2 ->Fill(dzg[1]);
 
-    if (fFilterBitValue==128){
+    //it seems that Propagate to DCA give the best results for all FB:
+    //    if (fFilterBitValue==128){
       dzglobal[0]=dzg[0];
       dzglobal[1]=dzg[1];
+      /*
     }
     else{
       dzglobal[0]=dz[0];
       dzglobal[1]=dz[1];
     }
-
+      */
 
     if(TMath::Abs(dzglobal[0])> (0.0105 + 0.0350/pow(track->Pt(),1.1))) continue;
     fHistTrack->Fill(10);
@@ -2200,7 +2245,12 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
       if (CrossedRowsOverLengthAssoc< 0.8) continue;
       fHistTrackAssoc->Fill(8); 
 
-      if (fFilterBitValue==128){
+      if((track->Charge())==0) continue;
+      fHistTrackAssoc->Fill(9);
+
+      if (fFilterBitValue==128 || fFilterBitValue==512){
+	//	cout << "track ID (FB 128 selected" << 	track->GetID()<< endl;;
+	
 	if (-track->GetID()-1 >= fTrackBufferSize) {
 	  printf ("Exceeding buffer size!!");
 	  continue;
@@ -2210,33 +2260,31 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	  printf ("No global info! iTrack %d, ID %d\n",i,track->GetID());
 	  continue;
 	}
-	if (farrGT[-track->GetID()-1]>=iTracks || farrGT[-track->GetID()-1]<0) { /*cout<<"This index is out of range!!"<<farrGT[-track->GetID()-1]<<endl;*/ continue;}
+	if (farrGT[-track->GetID()-1]>=iTracks || farrGT[-track->GetID()-1]<0) { /*cout<<"This index is out of range!!"<<farrGT[-track->GetID()-1]<<endl;*/  continue;}
 	globaltrack = dynamic_cast<AliAODTrack*>(vtrackg); 
 	if(!globaltrack) AliFatal("Not a standard AOD");
 
 	dzg[0]= -999.; dzg[1] = -999.;
 	etp1.CopyFromVTrack(vtrackg); 
 	etp1.PropagateToDCA(vertexmain,(InputEvent())->GetMagneticField(),100.,dzg,covarg);    
+
       } //end if on filterbit value 
 
-      if((track->Charge())==0) continue;
-      fHistTrackAssoc->Fill(9);
+      if (fFilterBitValue!=128 && fFilterBitValue!=512){
+	dzg[0]= -999.; dzg[1] = -999.;
+	etp1.CopyFromVTrack(vtrackg); 
+	etp1.PropagateToDCA(vertexmain,(InputEvent())->GetMagneticField(),100.,dzg,covarg);    
 
-      if (fFilterBitValue!=128){
+	/* does not seem to work properly 
 	DCAxy=-999.;      DCAz =-999.;
 	track->GetImpactParameters(&DCAxy, &DCAz);
 	dz[0] = DCAxy;   
 	dz[1] = DCAz; 
+	*/
       }
 
-      if (fFilterBitValue==128){
 	dzglobal[0]=dzg[0];
 	dzglobal[1]=dzg[1];
-      }
-      else{
-	dzglobal[0]=dz[0];
-	dzglobal[1]=dz[1];
-      }
 
       if(TMath::Abs(dzglobal[0])> (0.0105 + 0.0350/pow(track->Pt(),1.1))) continue;
       fHistTrackAssoc->Fill(10);
@@ -2750,85 +2798,39 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
       Float_t DCAzPosGlobal=-999.; Float_t DCAzNegGlobal=-999.;
 
       Bool_t  DCAxyDaughters=kFALSE;
-      cout << " prongtrackneg id " << prongTrackNeg->GetID() << " prong track pos id " << prongTrackPos->GetID() << endl;
+      //      cout << " prongtrackneg id " << prongTrackNeg->GetID() << " prong track pos id " << prongTrackPos->GetID() << endl;
 
-      cout << " DCAxyPos: "  << DCAxyPos <<  " DCAxyNeg: "  << DCAxyNeg <<  " DCAzPos: "  << DCAzPos <<  " DCAzNeg: "  << DCAzNeg <<endl;
-      cout << " DCAxyPosGlobal: "  << DCAxyPosGlobal <<  " DCAxyNegGlobal: "  << DCAxyNegGlobal <<  " DCAzPosGlobal: "  << DCAzPosGlobal <<  " DCAzNegGlobal: "  << DCAzNegGlobal <<endl;
-
-      cout << " \ngetting track parameters for positive and negative V0 daughter " << endl;
+      //      cout << " \ngetting track parameters for positive and negative V0 daughter " << endl;
       prongTrackPos->GetImpactParameters(&DCAxyPos, &DCAzPos);
       prongTrackNeg->GetImpactParameters(&DCAxyNeg, &DCAzNeg);
-      cout << " DCAxyPos: "  << DCAxyPos <<  " DCAxyNeg: "  << DCAxyNeg <<  " DCAzPos: "  << DCAzPos <<  " DCAzNeg: "  << DCAzNeg <<endl;
-      cout << " DCAxyPosGlobal: "  << DCAxyPosGlobal <<  " DCAxyNegGlobal: "  << DCAxyNegGlobal <<  " DCAzPosGlobal: "  << DCAzPosGlobal <<  " DCAzNegGlobal: "  << DCAzNegGlobal <<endl;
-
-      cout << "\n******* getting track parameters for positive V0 daughter (globaltrack)" << endl;
-      //other way to get DCA (is this the correct one?)
-      //Pos daughter+++++++++++++++++++++++
-      if (-prongTrackPos->GetID()-1 >= fTrackBufferSize) {
-	printf ("Exceeding buffer size!!");
-	continue;
-      }
-      vtrackgPos = fAOD->GetTrack(farrGT[-prongTrackPos->GetID()-1]);
-      if (!vtrackgPos) {
-	printf ("No global info! iTrack %d, ID %d\n",i,prongTrackPos->GetID());
-	continue;
-      }
-      if (farrGT[-prongTrackPos->GetID()-1]>=iTracks || farrGT[-prongTrackPos->GetID()-1]<0) { /*cout<<"This index is out of range!!"<<farrGT[-track->GetID()-1]<<endl;*/ continue;}
-    
-      globaltrack = dynamic_cast<AliAODTrack*>(vtrackgPos); 
-      if(!globaltrack) AliFatal("Not a standard AOD");
-
-      dzgPos[0]= -999.; dzgPos[1] = -999.;
-      etpPos.CopyFromVTrack(vtrackgPos); 
-      etpPos.PropagateToDCA(vertexmain,(InputEvent())->GetMagneticField(),100.,dzgPos,covargPos);    
-      DCAxyPosGlobal = dzgPos[0];
-      DCAzPosGlobal = dzgPos[1];
-      cout << " from vtrack: DCAxyPosGlobal: "  << DCAxyPosGlobal <<  " DCAxyNegGlobal: "  << DCAxyNegGlobal <<  " DCAzPosGlobal: "  << DCAzPosGlobal <<  " DCAzNegGlobal: "  << DCAzNegGlobal <<endl;
-
+      //      cout << " DCAxyPos: "  << DCAxyPos <<  " DCAxyNeg: "  << DCAxyNeg <<  " DCAzPos: "  << DCAzPos <<  " DCAzNeg: "  << DCAzNeg <<endl;
+      
+      //      cout << "\n******* getting track parameters for positive V0 daughter (globaltrack)" << endl;
       etpPos.CopyFromVTrack(prongTrackPos); 
       etpPos.PropagateToDCA(vertexmain,(InputEvent())->GetMagneticField(),100.,dzgPos,covargPos);    
       DCAxyPosGlobal = dzgPos[0];
       DCAzPosGlobal = dzgPos[1];
-      cout << " from pronTrackPos: DCAxyPosGlobal: "  << DCAxyPosGlobal <<  " DCAxyNegGlobal: "  << DCAxyNegGlobal <<  " DCAzPosGlobal: "  << DCAzPosGlobal <<  " DCAzNegGlobal: "  << DCAzNegGlobal <<endl;
+      //      cout << " from prongtrackneg: DCAxyPosGlobal: "  << DCAxyPosGlobal <<  " DCAxyNegGlobal: "  << DCAxyNegGlobal <<  " DCAzPosGlobal: "  << DCAzPosGlobal <<  " DCAzNegGlobal: "  << DCAzNegGlobal <<endl;
 
-      cout << "\n****** getting track parameters for negative V0 daughter (globaltrack)" << endl;
-      //Neg daughter+++++++++++++++++++++++
-      if (-prongTrackNeg->GetID()-1 >= fTrackBufferSize) {
-	printf ("Exceeding buffer size!!");
-	continue;
-      }
-      vtrackgNeg = fAOD->GetTrack(farrGT[-prongTrackNeg->GetID()-1]);
-      if (!vtrackgNeg) {
-	printf ("No global info! iTrack %d, ID %d\n",i,prongTrackNeg->GetID());
-	continue;
-      }
-      if (farrGT[-prongTrackNeg->GetID()-1]>=iTracks || farrGT[-prongTrackNeg->GetID()-1]<0) { /*cout<<"This index is out of range!!"<<farrGT[-track->GetID()-1]<<endl;*/ continue;}
-      globaltrack = dynamic_cast<AliAODTrack*>(vtrackgNeg); 
-      if(!globaltrack) AliFatal("Not a standard AOD");
-
-      //      cout << "\n is prongTrackPos == vtrackPos? " << prongTrackNeg==vtrackgNeg << endl;
-      dzgNeg[0]= -999.; dzgNeg[1] = -999.;
-      etpNeg.CopyFromVTrack(vtrackgNeg); 
-      etpNeg.PropagateToDCA(vertexmain,(InputEvent())->GetMagneticField(),100.,dzgNeg,covargNeg);    
-      DCAxyNegGlobal = dzgNeg[0];
-      DCAzNegGlobal = dzgNeg[1];
-      //************************************************
-      cout << " from vtrack: DCAxyPosGlobal: "  << DCAxyPosGlobal <<  " DCAxyNegGlobal: "  << DCAxyNegGlobal <<  " DCAzPosGlobal: "  << DCAzPosGlobal <<  " DCAzNegGlobal: "  << DCAzNegGlobal <<endl;
-
+      //      cout << "\n****** getting track parameters for negative V0 daughter (globaltrack)" << endl;
       etpNeg.CopyFromVTrack(prongTrackNeg); 
       etpNeg.PropagateToDCA(vertexmain,(InputEvent())->GetMagneticField(),100.,dzgNeg,covargNeg);    
       DCAxyNegGlobal = dzgNeg[0];
       DCAzNegGlobal = dzgNeg[1];
-      cout << " from prongtrackneg: DCAxyPosGlobal: "  << DCAxyPosGlobal <<  " DCAxyNegGlobal: "  << DCAxyNegGlobal <<  " DCAzPosGlobal: "  << DCAzPosGlobal <<  " DCAzNegGlobal: "  << DCAzNegGlobal <<endl;
+      //      cout << " from prongtrackneg: DCAxyPosGlobal: "  << DCAxyPosGlobal <<  " DCAxyNegGlobal: "  << DCAxyNegGlobal <<  " DCAzPosGlobal: "  << DCAzPosGlobal <<  " DCAzNegGlobal: "  << DCAzNegGlobal <<endl;
 
-      cout << " prongtrackneg id " << prongTrackNeg->GetID() << " prong track pos id " << prongTrackPos->GetID() << endl;
-      cout << " vtrackneg id " << vtrackgNeg->GetID() << " v track pos id " << vtrackgPos->GetID() << endl;
-
-      if (TMath::Abs(DCAxyPos)<=2.4 && TMath::Abs(DCAxyNeg)<=2.4 ) {
+      /*
+      Float_t fPositionPos[2]={-999.};
+      prongTrackPos->GetPosition(fPositionPos);
+      cout << "z position pos " << fPositionPos[2] << " z position primary vertex " << lBestPrimaryVtxPos[2] << endl;
+      cout << "y position pos " << fPositionPos[1] << " y position primary vertex " << lBestPrimaryVtxPos[1] << endl;
+      cout << "x position pos " << fPositionPos[0] << " x position primary vertex " << lBestPrimaryVtxPos[0] << endl;
+      */
+      if (TMath::Abs(DCAxyPosGlobal)<=2.4 && TMath::Abs(DCAxyNegGlobal)<=2.4 ) {
 	//	  fHistEventV0->Fill(17);
 	  DCAxyDaughters=kTRUE;
       }
-      if (TMath::Abs(DCAzPos)<=3.2 && TMath::Abs(DCAzNeg)<=3.2 && DCAxyDaughters ) {
+      if (TMath::Abs(DCAzPosGlobal)<=3.2 && TMath::Abs(DCAzNegGlobal)<=3.2 && DCAxyDaughters ) {
 	fHistEventV0->Fill(17);
       }
       if(prongTrackPos->TestFilterBit(1) && prongTrackNeg->TestFilterBit(1)) 	fHistEventV0->Fill(18);
@@ -2856,12 +2858,14 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
       }
 
       fMassV0->Fill(v0->MassK0Short());    
-      fDCAxyDaughters->Fill(DCAxyPos, DCAxyNeg);
-      fDCAzDaughters->Fill(DCAzPos, DCAzNeg);
-      fDCAxyPos->Fill(DCAxyPos);
-      fDCAxyNeg->Fill(DCAxyNeg);
-      fDCAzPos->Fill(DCAzPos);
-      fDCAzNeg->Fill(DCAzNeg);
+      fDCAxyDaughters->Fill(DCAxyPosGlobal, DCAxyNegGlobal);
+      fDCAzDaughters->Fill(DCAzPosGlobal, DCAzNegGlobal);
+      fDCAxyDaughtersBis->Fill(DCAxyPos, DCAxyNeg);
+      fDCAzDaughtersBis->Fill(DCAzPos, DCAzNeg);
+      fDCAxyPos->Fill(DCAxyPosGlobal);
+      fDCAxyNeg->Fill(DCAxyNegGlobal);
+      fDCAzPos->Fill(DCAzPosGlobal);
+      fDCAzNeg->Fill(DCAzNegGlobal);
 
       for (Int_t m =0; m<5;m++){
 	if(lPercentiles>=moltep[m] && lPercentiles<moltep[m+1]){
