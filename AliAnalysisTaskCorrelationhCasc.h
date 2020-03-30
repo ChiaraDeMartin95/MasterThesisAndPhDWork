@@ -10,7 +10,7 @@ class AliAODMCParticle;
 class AliCentrality;
 #include "AliAnalysisTaskSE.h"
 #include "AliAnalysisCorrelationEventCollection.h"
-#include "AliEventCuts.h"
+//#include "AliEventCuts.h"
 
 class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE  
 {
@@ -37,7 +37,7 @@ class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE
 
   Float_t GetLengthInActiveZone( AliAODTrack *gt, Float_t deltaY, Float_t deltaZ, Float_t b );
 
-  void ProcessMCParticles(Bool_t Generated, AliAODTrack* track, Int_t& labelPrimOrSec, Float_t lPercentiles, Bool_t isV0, Double_t ZAtDCA, Float_t PtTriggMax, Bool_t fIshhCorr, AliAODTrack* globaltrack);
+  void ProcessMCParticles(Bool_t Generated, AliAODTrack* track, Int_t& labelPrimOrSec, Float_t lPercentiles, Bool_t isV0, Double_t ZAtDCA, Float_t PtTriggMax);
   Double_t CalculateDeltaTheta( Double_t theta1, Double_t theta2 ); 
   Double_t CalculateDeltaPhi( Double_t phi1, Double_t phi2 ) ; 
   Double_t CalculateDeltaEta( Double_t eta1, Double_t eta2 ) ; 
@@ -55,7 +55,7 @@ class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE
   AliAODEvent*            fAOD;             //! input event
   AliPIDResponse *        fPIDResponse;     //!PID response object 
   //  AliMultSelection *      fMultSelection;   //! 
-  AliEventCuts            fEventCuts; //! 
+  //  AliEventCuts            fEventCuts; //! 
   
   TList*                  fOutputList;      //! output list
   TTree*                  fSignalTree;      //! output tree
