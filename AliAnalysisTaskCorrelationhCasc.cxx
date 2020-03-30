@@ -24,7 +24,7 @@
 #include "AliAnalysisManager.h"
 #include "AliAODEvent.h"
 #include "AliAODInputHandler.h"
-#include "AliAnalysisTaskCorrelationhhK0s.h"
+#include "AliAnalysisTaskCorrelationhCasc.h"
 #include "AliPIDResponse.h"
 #include "AliMultiplicity.h"
 #include "AliMultSelection.h"
@@ -39,11 +39,11 @@
 #include "AliESDEvent.h"
 
 
-class AliAnalysisTaskCorrelationhhK0s;   
+class AliAnalysisTaskCorrelationhCasc;   
 using namespace std;          
-ClassImp(AliAnalysisTaskCorrelationhhK0s) 
+ClassImp(AliAnalysisTaskCorrelationhCasc) 
 
-AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s() :AliAnalysisTaskSE(), 
+AliAnalysisTaskCorrelationhCasc::AliAnalysisTaskCorrelationhCasc() :AliAnalysisTaskSE(), 
   fAnalysisType("AOD"), 
   fCollidingSystem("pp"), 
   fAOD(0), 
@@ -248,7 +248,7 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s() :AliAnalysisT
   // this is used by root for IO purpos, it needs to remain empty
 }
 //_____________________________________________________________________________
-AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s(const char* name) : AliAnalysisTaskSE(name),
+AliAnalysisTaskCorrelationhCasc::AliAnalysisTaskCorrelationhCasc(const char* name) : AliAnalysisTaskSE(name),
 								 fAnalysisType("AOD"), 
 								 fCollidingSystem("pp"), 
 								 fAOD(0), 
@@ -459,7 +459,7 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s(const char* nam
   DefineOutput(6, TList::Class());  
 }
 //_____________________________________________________________________________
-AliAnalysisTaskCorrelationhhK0s::~AliAnalysisTaskCorrelationhhK0s()
+AliAnalysisTaskCorrelationhCasc::~AliAnalysisTaskCorrelationhCasc()
 {
 
   if(fOutputList) {
@@ -494,7 +494,7 @@ AliAnalysisTaskCorrelationhhK0s::~AliAnalysisTaskCorrelationhhK0s()
   
 }
   
-void AliAnalysisTaskCorrelationhhK0s::ProcessMCParticles(Bool_t Generated, AliAODTrack *track, Int_t& labelPrimOrSec, Float_t lPercentiles, Bool_t isV0, Double_t ZAtDCA, Float_t PtTriggMax, Bool_t ishhCorr,  AliAODTrack *globaltrack)
+void AliAnalysisTaskCorrelationhCasc::ProcessMCParticles(Bool_t Generated, AliAODTrack *track, Int_t& labelPrimOrSec, Float_t lPercentiles, Bool_t isV0, Double_t ZAtDCA, Float_t PtTriggMax, Bool_t ishhCorr,  AliAODTrack *globaltrack)
 {
 
   Float_t moltep[6]={0,5,10,30,50,100};  //V0M multiplicity intervals
@@ -650,7 +650,7 @@ void AliAnalysisTaskCorrelationhhK0s::ProcessMCParticles(Bool_t Generated, AliAO
 }
 
 //_____________________________________________________________________________
-void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
+void AliAnalysisTaskCorrelationhCasc::UserCreateOutputObjects()
 {
 
   fEventColl = new AliAnalysisCorrelationEventCollection **[fzVertexBins]; 
@@ -1549,7 +1549,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
      
 }
 //_____________________________________________________________________________
-void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
+void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
 {
 
   Float_t moltep[6]={0,5,10,30,50,100};  
@@ -3265,7 +3265,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 
 //----------------------------------------------------------------------------------------------------
 
-void AliAnalysisTaskCorrelationhhK0s::DoPairsh1h2 ( const Float_t lPercentiles, int fieldsign, Double_t lBestPrimaryVtxPos, Float_t ptTriggerMassimo)  {
+void AliAnalysisTaskCorrelationhCasc::DoPairsh1h2 ( const Float_t lPercentiles, int fieldsign, Double_t lBestPrimaryVtxPos, Float_t ptTriggerMassimo)  {
 
   //-----------
   double DCAxyP1  = -999. ;
@@ -3445,7 +3445,7 @@ return;
 
 
 //-----------------------------------------------------------------------------------------------
-double AliAnalysisTaskCorrelationhhK0s::CalculateDPhiStar(Short_t chg1, Short_t chg2, Int_t magSign, Double_t ptv1, Double_t ptv2, Double_t phi1, Double_t phi2,Double_t rad) { //AliFemtoUser/AliFemtoPairCutDetaDphi.h
+double AliAnalysisTaskCorrelationhCasc::CalculateDPhiStar(Short_t chg1, Short_t chg2, Int_t magSign, Double_t ptv1, Double_t ptv2, Double_t phi1, Double_t phi2,Double_t rad) { //AliFemtoUser/AliFemtoPairCutDetaDphi.h
 
   const Double_t unit_factor = 0.299792458 / 2.0;
   const Double_t b_field = 0.5006670488586 * magSign;
@@ -3462,29 +3462,29 @@ double AliAnalysisTaskCorrelationhhK0s::CalculateDPhiStar(Short_t chg1, Short_t 
 }
 
 //-------------------------------------------------------------------------------------
-Double_t AliAnalysisTaskCorrelationhhK0s::CalculateDeltaEta( Double_t eta1, Double_t eta2 )  {   //AliFemtoUser/AliFemtoPairCutDetaDphi.h
+Double_t AliAnalysisTaskCorrelationhCasc::CalculateDeltaEta( Double_t eta1, Double_t eta2 )  {   //AliFemtoUser/AliFemtoPairCutDetaDphi.h
   const double deta = eta2 - eta1;
   return deta;
 }
 //_______________________________________________________________
-Double_t AliAnalysisTaskCorrelationhhK0s::CalculateDeltaTheta( Double_t theta1, Double_t theta2 )  {  
+Double_t AliAnalysisTaskCorrelationhCasc::CalculateDeltaTheta( Double_t theta1, Double_t theta2 )  {  
   const double dtheta = theta2 - theta1;
   return dtheta;
 }
 //-------------------------------------------------------------------------------------
-Double_t AliAnalysisTaskCorrelationhhK0s::CalculateDeltaPhi( Double_t phi1, Double_t phi2 )  {   //AliFemtoUser/AliFemtoPairCutDetaDphi.h
+Double_t AliAnalysisTaskCorrelationhCasc::CalculateDeltaPhi( Double_t phi1, Double_t phi2 )  {   //AliFemtoUser/AliFemtoPairCutDetaDphi.h
   const double dphi = phi2 - phi1;
   return dphi;
 }
 
 //_____________________________________________________________________________
-void AliAnalysisTaskCorrelationhhK0s::Terminate(Option_t *)
+void AliAnalysisTaskCorrelationhCasc::Terminate(Option_t *)
 {
   // terminate
   // called at the END of the analysis (when all events are processed)
 }
 //_____________________________________________________________________________
-Float_t AliAnalysisTaskCorrelationhhK0s::GetLengthInActiveZone( AliAODTrack *gt, Float_t deltaY, Float_t deltaZ, Float_t b ){
+Float_t AliAnalysisTaskCorrelationhCasc::GetLengthInActiveZone( AliAODTrack *gt, Float_t deltaY, Float_t deltaZ, Float_t b ){
   // Input parameters:
   //   deltaY - user defined "dead region" in cm
   //   deltaZ - user defined "active region" in cm (250 cm drift lenght - 14 cm L1 delay

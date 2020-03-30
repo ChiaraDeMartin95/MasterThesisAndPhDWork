@@ -2,8 +2,8 @@
 /* See cxx source for full Copyright notice */
 /* $Id$ */
 
-#ifndef AliAnalysisTaskCorrelationhhK0s_H
-#define AliAnalysisTaskCorrelationhhK0s_H
+#ifndef AliAnalysisTaskCorrelationhCasc_H
+#define AliAnalysisTaskCorrelationhCasc_H
 class AliPIDResponse;
 class AliMultSelection;
 class AliAODMCParticle;
@@ -12,12 +12,12 @@ class AliCentrality;
 #include "AliAnalysisCorrelationEventCollection.h"
 #include "AliEventCuts.h"
 
-class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE  
+class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE  
 {
  public:
-  AliAnalysisTaskCorrelationhhK0s();
-  AliAnalysisTaskCorrelationhhK0s(const char *name);
-  virtual                 ~AliAnalysisTaskCorrelationhhK0s();
+  AliAnalysisTaskCorrelationhCasc();
+  AliAnalysisTaskCorrelationhCasc(const char *name);
+  virtual                 ~AliAnalysisTaskCorrelationhCasc();
 
   virtual void            UserCreateOutputObjects();
   virtual void            UserExec(Option_t* option);
@@ -265,10 +265,10 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
 
   bool FifoShiftok;	                        		      
 
-  AliAnalysisTaskCorrelationhhK0s(const AliAnalysisTaskCorrelationhhK0s&); 
-  AliAnalysisTaskCorrelationhhK0s& operator=(const AliAnalysisTaskCorrelationhhK0s&); 
+  AliAnalysisTaskCorrelationhCasc(const AliAnalysisTaskCorrelationhCasc&); 
+  AliAnalysisTaskCorrelationhCasc& operator=(const AliAnalysisTaskCorrelationhCasc&); 
 
-  ClassDef(AliAnalysisTaskCorrelationhhK0s, 1);
+  ClassDef(AliAnalysisTaskCorrelationhCasc, 1);
 };
 
 #endif
