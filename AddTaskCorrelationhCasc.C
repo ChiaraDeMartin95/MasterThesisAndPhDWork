@@ -1,6 +1,6 @@
 //used to instantiate an object of the task,define input and output and connect it to manager
 
-AliAnalysisTaskCorrelationhCasc* AddTaskCorrelationhCasc(TString name = "name", Float_t minpt=3, Float_t maxpt=15, Bool_t ishhCorr,bool isLocal=kTRUE, bool isMC=kTRUE, bool isEff=kTRUE, Int_t EvtToMix=50, Float_t EtaTrigger=0.8, Float_t EtahAssoc=0.8,Float_t EtaV0Assoc=0.8, Int_t FilterBitValue=128, Int_t year=2010){
+AliAnalysisTaskCorrelationhCasc* AddTaskCorrelationhCasc(TString name = "name", Float_t minpt=3, Float_t maxpt=15, bool isLocal=kTRUE, bool isMC=kTRUE, bool isEff=kTRUE, Int_t EvtToMix=50, Float_t EtaTrigger=0.8, Float_t EtahAssoc=0.8,Float_t EtaV0Assoc=0.8, Int_t FilterBitValue=128, Int_t year=2010, TString AssocParticle="Xi"){
 
   AliAnalysisManager *mgr = AliAnalysisManager::GetAnalysisManager();
   if (!mgr) {
@@ -13,12 +13,13 @@ AliAnalysisTaskCorrelationhCasc* AddTaskCorrelationhCasc(TString name = "name", 
 
   TString fileName;  
   if(isLocal) {
-    fileName = "AnalysisResultsLocal.root";
+    fileName = "AnalysisResultsLocalhCasc.root";
   }
   else {
     fileName = AliAnalysisManager::GetCommonFileName();
   }
   fileName += ":MyTask";     
+  fileName += AssocParticle;
 
   AliAnalysisTaskCorrelationhCasc* task = new AliAnalysisTaskCorrelationhCasc(name.Data());   
   if(!task) return 0x0;
@@ -26,7 +27,6 @@ AliAnalysisTaskCorrelationhCasc* AddTaskCorrelationhCasc(TString name = "name", 
   // add your task to the manager
    task->SetMinPt(minpt); 
    task->SetMaxPt(maxpt);
-   task->SetCorr(ishhCorr);
    task->SetMC(isMC);
    task->SetEff(isEff);
    task->SetEvtToMix(EvtToMix);
@@ -35,6 +35,10 @@ AliAnalysisTaskCorrelationhCasc* AddTaskCorrelationhCasc(TString name = "name", 
    task->SetEtaV0Assoc(EtaV0Assoc);
    task->SetFilterBit(FilterBitValue);
    task->SetYear(year);
+   task->SetAssocParticle(AssocParticle);
+
+   //   Float_t fMassLimInf=0;
+   //   Float_t fMassLimSup=0;
 
   mgr->AddTask(task);
 
