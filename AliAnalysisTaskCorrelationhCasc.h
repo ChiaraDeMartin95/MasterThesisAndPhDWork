@@ -10,7 +10,7 @@ class AliAODMCParticle;
 class AliCentrality;
 #include "AliAnalysisTaskSE.h"
 #include "AliAnalysisCorrelationEventCollection.h"
-//#include "AliEventCuts.h"
+#include "AliEventCuts.h"
 
 class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE  
 {
@@ -55,7 +55,7 @@ class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE
   AliAODEvent*            fAOD;             //! input event
   AliPIDResponse *        fPIDResponse;     //!PID response object 
   //  AliMultSelection *      fMultSelection;   //! 
-  //  AliEventCuts            fEventCuts; //! 
+  AliEventCuts            fEventCuts; //! 
   
   TList*                  fOutputList;      //! output list
   TTree*                  fSignalTree;      //! output tree
@@ -82,19 +82,14 @@ class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE
   Int_t                    fYear;
 
   TH1F*                   fHistPt;                   //! 
-
-  TH1F*                   fHistPtTriggerParticle;    //! 
   TH1F*                   fHistDCAxym1;              //! 
   TH1F*                   fHistDCAxym2;              //! 
   TH1F*                   fHistDCAzm1;               //! 
   TH1F*                   fHistDCAzm2;               //! 
   TH1F*                   fHistPtV0;                 //! 
-  TH1F*                   fHistPthAssoc;             //! 
   TH2F*                   fHistPtTMaxBefAllCfrDataMC; //!
   TH1F*                   fHistPtTMinBefAll;          //! 
   TH1F*                   fHistPtTMinBefAllMC;        //! 
-  TH1F*                   fHistPtTMaxBefAll;          //! 
-  TH1F*                   fHistPtTMaxBefAllMC;        //! 
   TH2F*                   fHistPtvsMult;              //! 
   TH2F*                   fHistPtvsMultBefAll;        //! 
   TH2F*                   fHistPtMaxvsMult;           //! 
@@ -116,7 +111,6 @@ class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE
   TH2F*                   fHistLengthvsCrossedRows;       //!
   TH3F*                   fHistTriggerComposition;  	  //!
   TH3F*                   fHistTriggerCompositionMCTruth; //! 
-  TH1F*                   fHistTrackAssoc;       	  //!
   TH1F*                   fHistPDG;         		  //!
   TH1F*                   fHistTrackBufferOverflow;       //!  	
   TH2F*                   fHistSecondParticleAll; 	  //!
@@ -132,8 +126,6 @@ class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE
   TH2F *                  fHistMultvsV0MC; 		  //!
   TH3F*                   fHistTriggerNotLeading; 	  //!
   TH3F*                   fHistTriggerNotLeadingMC;       //!  
-  Float_t fLimInfMass; //!
-  Float_t fLimSupMass; //!
   TH2F**                  fHistMassvsPt;                    //!           
   TH2F**                  fHistMassvsPt_tagli;              //!           
   TH2F*                   fHistMultvsTriggerBefAll; 	    //!
@@ -142,8 +134,6 @@ class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE
   TH2F*                   fHistMultvsTriggerMCTruthAll;     //!
   TH2F*                   fHistMultvsTrigger; 		    //!
   TH2F*                   fHistMultvsTriggerMCTruth; 	    //!
-  TH1F*                   fHistMassPhoton;  		    //!
-  TH1F*                   fHistMass2Photon;  		    //!
   TH1F*                   fHistTrigger;                     //!
   TH1F*                   fHistTriggerMCTruth;		    //!
   TH1F*                   fHistTriggerwV0;		    //!
@@ -173,21 +163,14 @@ class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE
   TH2F*  fHistTriggerPtRecovsPtGenNotPrim;  //!
   TH2F*  fHistAssocPtRecovsPtGenNotPrim;    //!
   TH2F*  fHistTriggerPtRecovsPtGenPion;     //!
-  TH2F*  fHistAssocPtRecovsPtGenPion; 	    //!
   TH2F*  fHistTriggerPtRecovsPtGenProton;   //!
-  TH2F*  fHistAssocPtRecovsPtGenProton;     //!
   TH2F*  fHistTriggerPtRecovsPtGenKaon;     //!
-  TH2F*  fHistAssocPtRecovsPtGenKaon; 	    //!
 					   
   TH2F*  fHistResolutionTriggerPt; 	    //!
   TH2F*  fHistResolutionTriggerPhi; 	    //!
-  TH2F*  fHistResolutionTriggerPtvsPhiPart; //!
-  TH2F*  fHistResolutionTriggerPtvsEtaPart; //!
   TH2F*  fHistResolutionTriggerEta; 	    //!
   TH2F*  fHistResolutionTriggerPhiPhi; 	    //!
   TH2F*  fHistResolutionTriggerPhiEta; 	    //!
-  TH2F*  fHistResolutionTriggerPhiPt; 	    //!
-  TH2F*  fHistResolutionTriggerPhiPdgCode;  //!
   TH2F*  fHistResolutionV0Pt; 		    //!
   TH2F*  fHistResolutionV0Phi; 		    //!
   TH2F*  fHistResolutionV0PhivsPt; 	    //!
@@ -202,8 +185,6 @@ class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE
   TString                 fV0;
   Float_t                 fminPtV0;
   Float_t                 fmaxPtV0;
-  Float_t                 fminPthAssoc;
-  Float_t                 fmaxPthAssoc;
   Int_t                   Evcounter;
   Int_t                   Evcounterczero;
   Int_t                   fmolt;
