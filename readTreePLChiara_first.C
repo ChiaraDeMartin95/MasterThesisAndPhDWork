@@ -16,12 +16,18 @@
 #include <TTree.h>
 #include <TLatex.h>
 #include <TFile.h>
-void readTreePLChiara_first(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t sysV0=0, bool isMC = 0,Bool_t isEfficiency=0,Int_t sysTrigger=0,
+void readTreePLChiara_first(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Float_t ptjmax=15, Int_t sysV0=0, bool isMC = 0,Bool_t isEfficiency=0,Int_t sysTrigger=0,
 			    //TString PathIn ="./AnalysisResults2018d8_allrunswMult_MC.root", Int_t type=0 //type = 0 per K0short
-			    TString year="2018f1_extra_onlyTriggerWithHighestPt", TString year0="2016", TString Path1 ="", Int_t type=0 //type = 0 per K0short 
+			    TString year="2016k_onlyTriggerWithHighestPt", TString year0="2016", TString Path1 ="", Int_t type=0 //type = 0 per K0short 
 			    
 			    )
 {
+
+  if (ishhCorr) {
+    cout << "This macro should not be run is hh correlation is studied; go directly to readTreePLChiara_second " << endl;
+    return;
+  }
+
   //2016k_onlyTriggerWithHighestPt
   if (sysV0>6) return;
   if (sysV0>2 && ishhCorr) return;
@@ -138,8 +144,7 @@ void readTreePLChiara_first(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t sysV
   Double_t NPtV0[numPtV0+1]={0,1,1.5,2,2.5,3,4,8};
   //   TString SPtV0[numPtV0]={"0-1", "1-2", "2,3", "3-4", "4-8"};
   //   Double_t NPtV0[numPtV0+1]={0,1,2,3,4,8};
-  TString SPtTrigger[numPtTrigger]={"2-10"};
-  Double_t NPtTrigger[numPtTrigger+1]={2,10};
+  Double_t NPtTrigger[numPtTrigger+1]={PtTrigMin,ptjmax};
 
   //Signal
   tSign->SetBranchAddress("fTreeVariablePtTrigger"                 ,&fSignTreeVariablePtTrigger);		       
