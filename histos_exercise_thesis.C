@@ -21,9 +21,21 @@ Double_t fparab(Double_t *x, Double_t *par)
       return 0;
    }
     return par[0] + par[1]*x[0] + par[2]*x[0]*x[0];
-    //return par[0] + par[1]*x[0] + par[2]*0;
 }
 
+
+Double_t fretta(Double_t *x, Double_t *par)
+{
+  if (reject && x[0] > 0.474 && x[0] < 0.520) {
+    TF1::RejectPoint();
+    return 0;
+  }
+  return par[0] + par[1]*x[0];
+}
+
+Double_t SetEfficiencyError(Int_t k, Int_t n){
+  return sqrt(((Float_t)k+1)*((Float_t)k+2)/(n+2)/(n+3) - pow((Float_t)(k+1),2)/pow(n+2,2));
+}
 
 void histos_exercise_thesis( Float_t PtTrigMin=3.0, Int_t type=0, Int_t sysTrigger=0, Int_t sysV0=0, Int_t syst=0, Double_t nsigmamax=9, TString year0="2016", TString year="2018f1_extra_onlyTriggerWithHighestPt", TString Path1="", Bool_t isMC=1, Bool_t isEfficiency=1){ //molt va da 0 a 4, type=0 (=K0s), type=1 (=Lambda), type=2 (=AntiLambda), type=3 (=Lambda + Antilambda) , cut = 0 per tagli definitivi (quelli riportati nella presentazione per il tirocinio), cut=1 per tagli di default (quelli riportati nell'analysis note); opzione valida per i soli K0s, per altre particelle usare cut = 0
 
@@ -217,7 +229,8 @@ void histos_exercise_thesis( Float_t PtTrigMin=3.0, Int_t type=0, Int_t sysTrigg
   TCanvas* canvas[num_histo];
   TF1 **bkg1 = new TF1*[num_histo];
   TF1 **bkg2 = new TF1*[num_histo];
-  TF1 **bkg3 = new TF1*[num_histo];
+  TF1 **bkgparab = new TF1*[num_histo];
+
   TF1 **total= new TF1*[num_histo];
   TF1 **totalbis =new TF1*[num_histo]; //mi serve solo per calcolare errore del bkg
   TF1 **total_one= new TF1*[num_histo];
@@ -313,13 +326,14 @@ void histos_exercise_thesis( Float_t PtTrigMin=3.0, Int_t type=0, Int_t sysTrigg
     //    bkg2[j] = new TF1(fnamebkg2,"pol2",functions1[j]->GetParameter(1)-range_bkg[type][molt][j]*functions1[j]->GetParameter(2),functions1[j]->GetParameter(1)+range_bkg[type][molt][j]*functions1[j]->GetParameter(2));
     bkg2[j] = new TF1(fnamebkg2,"pol2",0.45, 0.55);
     bkg2[j]->SetLineColor(kBlue);
-    char fnamebkg3[num_histo]; 
-    sprintf(fnamebkg3,"f%d",j); 
-    //  bkg3[j] = new TF1(fnamebkg3,fparab,functions1[j]->GetParameter(1)-range_bkg[type][molt][j]*functions1[j]->GetParameter(2),functions1[j]->GetParameter(1)+range_bkg[type][molt][j]*functions1[j]->GetParameter(2),3);
-    bkg3[j] = new TF1(fnamebkg3,fparab,0.45, 0.55,3);
-    bkg3[j]->SetLineColor(kBlue);
-    //bkg3[j]->FixParameter(3,functions1[j]->GetParameter(1)-4*functions1[j]->GetParameter(2) );
-    //bkg3[j]->FixParameter(4,functions1[j]->GetParameter(1)+4*functions1[j]->GetParameter(2) );
+
+    char fnamebkgparab[num_histo]; 
+    sprintf(fnamebkgparab,"f%d",j); 
+    //  bkgparab[j] = new TF1(fnamebkgparab,fparab,functions1[j]->GetParameter(1)-range_bkg[type][molt][j]*functions1[j]->GetParameter(2),functions1[j]->GetParameter(1)+range_bkg[type][molt][j]*functions1[j]->GetParameter(2),3);
+    bkgparab[j] = new TF1(fnamebkgparab,fparab,0.45, 0.55,3);
+    bkgparab[j]->SetLineColor(kBlue);
+    //bkgparab[j]->FixParameter(3,functions1[j]->GetParameter(1)-4*functions1[j]->GetParameter(2) );
+    //bkgparab[j]->FixParameter(4,functions1[j]->GetParameter(1)+4*functions1[j]->GetParameter(2) );
   
     gStyle->SetOptFit(0111);
     //histo_sigma->Sumw2();
@@ -459,14 +473,14 @@ void histos_exercise_thesis( Float_t PtTrigMin=3.0, Int_t type=0, Int_t sysTrigg
     isto_tagli[j]-> Fit(functions2[j], "R0");     
     //   bkg2[j]->SetRange(functions1[j]->GetParameter(1)-range_bkg[type][molt][j]*functions1[j]->GetParameter(2),functions1[j]->GetParameter(1)+range_bkg[type][molt][j]*functions1[j]->GetParameter(2));
       bkg2[j]->SetRange(0.45, 0.55);
-      //bkg3[j]->SetRange(functions1[j]->GetParameter(1)-range_bkg[type][molt][j]*functions1[j]->GetParameter(2),functions1[j]->GetParameter(1)+range_bkg[type][molt][j]*functions1[j]->GetParameter(2));
-      bkg3[j]->SetRange(0.45, 0.55);
+      //bkgparab[j]->SetRange(functions1[j]->GetParameter(1)-range_bkg[type][molt][j]*functions1[j]->GetParameter(2),functions1[j]->GetParameter(1)+range_bkg[type][molt][j]*functions1[j]->GetParameter(2));
+      bkgparab[j]->SetRange(0.45, 0.55);
       //    total[j]->SetRange(functions1[j]->GetParameter(1)-range_bkg[type][molt][j]*functions1[j]->GetParameter(2),functions1[j]->GetParameter(1)+range_bkg[type][molt][j]*functions1[j]->GetParameter(2));
       total[j]->SetRange(0.45, 0.55);
-    isto_tagli[j]-> Fit(bkg3[j], "RB0");
+    isto_tagli[j]-> Fit(bkgparab[j], "RB0");
     functions1[j]->GetParameters(&par[j][0]);
     functions2[j]->GetParameters(&par[j][3]);
-    bkg3[j]->GetParameters(&par[j][6]);
+    bkgparab[j]->GetParameters(&par[j][6]);
     total[j]->SetParameters(par[j]);
     fFitResultPtr0[j] =  isto_tagli[j]->Fit(total[j],"SR");//per errore gaussiana, S indica che il risultato del fit e' accessibile da fFitResultPtr0
     //isto_tagli[j]-> Fit(total[j], "R");
@@ -483,13 +497,13 @@ void histos_exercise_thesis( Float_t PtTrigMin=3.0, Int_t type=0, Int_t sysTrigg
     bkg2[j]->FixParameter(0,total[j]->GetParameter(6));
     bkg2[j]->FixParameter(1,total[j]->GetParameter(7));
     bkg2[j]->FixParameter(2,total[j]->GetParameter(8));
-    bkg3[j]->FixParameter(0,total[j]->GetParameter(6));
-    bkg3[j]->FixParameter(1,total[j]->GetParameter(7));
-    bkg3[j]->FixParameter(2,total[j]->GetParameter(8));
+    bkgparab[j]->FixParameter(0,total[j]->GetParameter(6));
+    bkgparab[j]->FixParameter(1,total[j]->GetParameter(7));
+    bkgparab[j]->FixParameter(2,total[j]->GetParameter(8));
     //    isto_tagli[j]-> Fit(functions1[j], "RB+");
     isto_tagli[j]-> Fit(functions1[j], "RB+");
     isto_tagli[j]-> Fit(functions2[j], "RB+");
-    //isto_tagli[j]-> Fit(bkg3[j], "RB+");
+    //isto_tagli[j]-> Fit(bkgparab[j], "RB+");
     //    isto_tagli[j]-> Fit(bkg2[j], "B+", "", functions1[j]->GetParameter(1)-range_bkg[type][molt][j]*functions1[j]->GetParameter(2),functions1[j]->GetParameter(1)+range_bkg[type][molt][j]*functions1[j]->GetParameter(2));
     isto_tagli[j]-> Fit(bkg2[j], "BR+");
 
@@ -551,12 +565,12 @@ void histos_exercise_thesis( Float_t PtTrigMin=3.0, Int_t type=0, Int_t sysTrigg
     isto_tagli[j]-> Fit(functions1[j], "R0"); //non ho ben capito l;a differenza tra 0 e N
     //        bkg2[j]->SetRange(functions1[j]->GetParameter(1)-range_bkg[type][molt][j]*functions1[j]->GetParameter(2),functions1[j]->GetParameter(1)+range_bkg[type][molt][j]*functions1[j]->GetParameter(2));
            bkg2[j]->SetRange(0.45, 0.55);
-	   //  bkg3[j]->SetRange(functions1[j]->GetParameter(1)-range_bkg[type][molt][j]*functions1[j]->GetParameter(2),functions1[j]->GetParameter(1)+range_bkg[type][molt][j]*functions1[j]->GetParameter(2));
-	   bkg3[j]->SetRange(0.45, 0.55);
+	   //  bkgparab[j]->SetRange(functions1[j]->GetParameter(1)-range_bkg[type][molt][j]*functions1[j]->GetParameter(2),functions1[j]->GetParameter(1)+range_bkg[type][molt][j]*functions1[j]->GetParameter(2));
+	   bkgparab[j]->SetRange(0.45, 0.55);
     total[j]->SetRange(functions1[j]->GetParameter(1)-range_bkg[type][molt][j]*functions1[j]->GetParameter(2),functions1[j]->GetParameter(1)+range_bkg[type][molt][j]*functions1[j]->GetParameter(2));
-    isto_tagli[j]-> Fit(bkg3[j], "RB0");
+    isto_tagli[j]-> Fit(bkgparab[j], "RB0");
     functions1[j]->GetParameters(&par[j][0]);
-     bkg3[j]->GetParameters(&par[j][3]);
+     bkgparab[j]->GetParameters(&par[j][3]);
     total[j]->SetParameters(par[j]);
     fFitResultPtr0[j] =  isto_tagli[j]->Fit(total[j],"SR");//per errore gaussiana, S indica che il risultato del fit e' accessibile da fFitResultPtr0
     //isto_tagli[j]-> Fit(total[j], "R");
@@ -571,11 +585,11 @@ void histos_exercise_thesis( Float_t PtTrigMin=3.0, Int_t type=0, Int_t sysTrigg
     bkg2[j]->FixParameter(0,total[j]->GetParameter(3));
     bkg2[j]->FixParameter(1,total[j]->GetParameter(4));
     bkg2[j]->FixParameter(2,total[j]->GetParameter(5));
-    bkg3[j]->FixParameter(0,total[j]->GetParameter(3));
-    bkg3[j]->FixParameter(1,total[j]->GetParameter(4));
-    bkg3[j]->FixParameter(2,total[j]->GetParameter(5));
+    bkgparab[j]->FixParameter(0,total[j]->GetParameter(3));
+    bkgparab[j]->FixParameter(1,total[j]->GetParameter(4));
+    bkgparab[j]->FixParameter(2,total[j]->GetParameter(5));
     isto_tagli[j]-> Fit(functions1[j], "RB+");
-    //isto_tagli[j]-> Fit(bkg3[j], "RB+");
+    //isto_tagli[j]-> Fit(bkgparab[j], "RB+");
     //    isto_tagli[j]-> Fit(bkg2[j], "B+", "", functions1[j]->GetParameter(1)-range_bkg[type][molt][j]*functions1[j]->GetParameter(2),functions1[j]->GetParameter(1)+range_bkg[type][molt][j]*functions1[j]->GetParameter(2)); 
     isto_tagli[j]-> Fit(bkg2[j], "RB+"); 
     //isto[j]-> Write();
