@@ -529,6 +529,7 @@ void AliAnalysisTaskCorrelationhCasc::ProcessMCParticles(Bool_t Generated, AliAO
     else if(particle->IsSecondaryFromWeakDecay())      labelPrimOrSec=2;
     else if(particle->IsSecondaryFromMaterial())      labelPrimOrSec=3;
     else labelPrimOrSec=4;
+    
     for (Int_t m =0; m<5;m++){
       if(lPercentiles>=moltep[m] && lPercentiles<moltep[m+1]){
 	for(Int_t p=1; p<=4; p++){
@@ -1156,7 +1157,7 @@ void AliAnalysisTaskCorrelationhCasc::UserCreateOutputObjects()
   for(Int_t j=0; j<6; j++){
     fHistPrimaryV0[j]=new TH3F*[7];
     for(Int_t i=0; i<1; i++){
-      fHistPrimaryV0[j][i]=new TH3F(Form("fHistPrimaryV0_%i_cut%i",j,i), "V0 MC (Casc, selected)", 4, 0.5, 4.5, 160, 0, 16, 60, 0, 30);
+      fHistPrimaryV0[j][i]=new TH3F(Form("fHistPrimaryV0_%i_cut%i",j,i), "V0 MC (Casc, selected)", 4, 0.5, 4.5, 160, 0, 16, 120, -30, 30);
       fHistPrimaryV0[j][i]->GetXaxis()->SetBinLabel(1,"Primary selected V0s");
       fHistPrimaryV0[j][i]->GetXaxis()->SetBinLabel(2,"Secondary from w-decay selected V0s"); 
       fHistPrimaryV0[j][i]->GetXaxis()->SetBinLabel(3,"Secondary from material selected V0s"); 
@@ -1628,7 +1629,8 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
   Float_t ptTriggerMassimoDatiBis=0;
   Float_t etaTriggerMassimoDati=0;
   Float_t phiTriggerMassimoDati=0;
-
+  Int_t   PdgCodeTrackPtMax=0;
+    Int_t TriggerPdgCode = 0;
   //begin loop for trigger particles   
   for(Int_t i=0; i < iTracks; i++) {
 
@@ -1652,6 +1654,8 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
       else if(particleTrig->IsSecondaryFromWeakDecay())      labelPrimOrSec=2;
       else if(particleTrig->IsSecondaryFromMaterial())      labelPrimOrSec=3;
       else labelPrimOrSec=4;
+      TriggerPdgCode = particleTrig->GetPdgCode();
+
     }
   }
   
@@ -1819,7 +1823,7 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
       trackPtTMax = static_cast<AliAODTrack*>(fAOD->GetTrack(i));        
       globaltrackPtTMax = dynamic_cast<AliAODTrack*>(vtrackg); 
       ptTriggerMassimoDatiBis=	trackPtTMax->Pt();
-
+      PdgCodeTrackPtMax = labelPrimOrSec; 
     }
 
     if (track->Pt()>Ptintermediate){
@@ -1842,7 +1846,7 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
 	fEvt->fReconstructedFirst[NumberFirstParticle-1].fMultiplicity = lPercentiles;
 	fEvt->fReconstructedFirst[NumberFirstParticle-1].fZvertex      = lBestPrimaryVtxPos[2];
 	fEvt->fReconstructedFirst[NumberFirstParticle-1].isP           = labelPrimOrSec;
-	fEvt->fReconstructedFirst[NumberFirstParticle-1].fPDGcode     = 0;
+	fEvt->fReconstructedFirst[NumberFirstParticle-1].fPDGcode      = TriggerPdgCode;
       }
       fHistPtvsMultBefAll->Fill(track->Pt(), lPercentiles);
     }
@@ -1854,7 +1858,7 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
   Float_t ptTriggerMassimoMC=0;
   Float_t etaTriggerMassimoMC=0;
   Float_t phiTriggerMassimoMC=0;
-  Int_t TriggerPdgCode=0;
+  TriggerPdgCode=0;
   
   //begin loop for trigger particles (MC truth analysis)
   if(fReadMCTruth){
@@ -1938,6 +1942,7 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
     return;
   }
  
+  cout <<  "labelPrimOrSec before " <<  PdgCodeTrackPtMax << endl;
   //************Filling selected histograms for trigger particle efficiency calculation  ***************
   //only the highest pT trigger particle in each event is used, since this is the definition of trigger particle used in the angular correlation
   //! The selected histograms are filled also by trigger particles with pT< fminPtj, a cut on pT is therefore required in post processing phase
@@ -1949,6 +1954,7 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
     }
   }
   //***********************************************************************************************************
+  cout <<  "labelPrimOrSec after" << labelPrimOrSec << endl; 
 
   if(NumberFirstParticleAll==0){   
     PostData(1, fOutputList);
@@ -2198,7 +2204,7 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
 	  if (GMotherPos->IsPhysicalPrimary()) lVariableIsPrimaryXi=1;
 	  else if(GMotherPos->IsSecondaryFromWeakDecay())     lVariableIsPrimaryXi=2;
 	  else if(GMotherPos->IsSecondaryFromMaterial())      lVariableIsPrimaryXi=3;
-	  else lVariableIsPrimaryXi=-1;
+	  else lVariableIsPrimaryXi=4;
 	  lVariableIsPrimaryOmega=0;
 	  lVariablePDGCode=PdgMotherBach;
 	}
@@ -2206,7 +2212,7 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
 	  if (GMotherPos->IsPhysicalPrimary()) lVariableIsPrimaryOmega=1;
 	  else if(GMotherPos->IsSecondaryFromWeakDecay())     lVariableIsPrimaryOmega=2;
 	  else if(GMotherPos->IsSecondaryFromMaterial())      lVariableIsPrimaryOmega=3;
-	  else lVariableIsPrimaryOmega=-1;
+	  else lVariableIsPrimaryOmega=4;
 	  lVariableIsPrimaryXi=0;
 	  lVariablePDGCode=PdgMotherBach;
 	}
@@ -2649,7 +2655,7 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
 	  else if(GMotherPos->IsSecondaryFromMaterial())      labelPrimOrSecV0=3;
 	  else labelPrimOrSecV0=4;
 	    
-	  if(GMotherPos->IsPhysicalPrimary())	    fHistAssocPtRecovsPtGenNotPrim->Fill(GMotherPos->Pt(), lXiTransvMom);
+	  if(!GMotherPos->IsPhysicalPrimary())	    fHistAssocPtRecovsPtGenNotPrim->Fill(GMotherPos->Pt(), lXiTransvMom);
 	  for (Int_t m =0; m<5;m++){
 	    if(lPercentiles>=moltep[m] && lPercentiles<moltep[m+1]){
 	      for(Int_t p=1; p<=4; p++){
@@ -2669,6 +2675,7 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
     }
 
     //save second particle information (V0)
+    cout << "isprimary casc " << isPrimaryCasc << "labelPrimOrSecV0" << labelPrimOrSecV0 << endl; 
     //cout << "save second particle information (V0) "<< endl;
     if((fReadMCTruth && isEfficiency) || (!fReadMCTruth)){
       fEvt->fReconstructedSecond[NumberSecondParticle-1].cLabelMotherBach       = lVariablePDGCode;
