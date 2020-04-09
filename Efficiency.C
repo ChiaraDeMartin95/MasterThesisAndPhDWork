@@ -18,10 +18,12 @@
 #include <TFile.h>
 
 Double_t SetEfficiencyError(Int_t k, Int_t n){
-  return sqrt(((Float_t)k+1)*((Float_t)k+2)/(n+2)/(n+3) - pow((Float_t)(k+1),2)/pow(n+2,2));
+  return sqrt(((Double_t)k+1)*((Double_t)k+2)/(n+2)/(n+3) - pow((Double_t)(k+1),2)/pow(n+2,2));
 }
 
-void Efficiency(Bool_t ishhCorr =1, Int_t type=0,   Float_t ptjmin=3,  Float_t ptjmax=30, Int_t sysTrigger=0, Int_t sysV0=0, TString data="2018f1_extra", TString year0="2016", TString path1="_10runs_FB128_TrackLengthCut"){
+void Efficiency(Bool_t ishhCorr =0, Int_t type=0, TString ResoHisto="2D", Float_t ptjmin=3,Float_t ptjmax=30, Int_t sysTrigger=0, Int_t sysV0=0, TString data="2018f1_extra_onlyTriggerWithHighestPt", TString year0="2016", TString path1=""/*"_New"*/ /*"_10runs_FB128_TrackLengthCut"*/){
+
+
   if (sysTrigger> 3) return;
   if (!ishhCorr){
     if (sysV0> 6) return;
@@ -29,17 +31,20 @@ void Efficiency(Bool_t ishhCorr =1, Int_t type=0,   Float_t ptjmin=3,  Float_t p
   if (ishhCorr){
     if (sysV0> 2) return;
   }
+  // ResHisto è pari a 2D se gli istogrammi della risoluzione sono 2D (Delta vs PtTrig, min)
 
   //2018f1_extra_onlyTriggerWithHighestPt"
   const   Float_t PtTrigMin=ptjmin;
   const   Float_t PtTrigMax=ptjmax;
+
   TString file = "Efficiency";
   TString PathInBis =  "FinalOutput/AnalysisResults";
   file+=data;
   //  file+="_MCEff";
   PathInBis+=data;
-  if (!ishhCorr) PathInBis+="_MCEff.root";
+  if (!ishhCorr) PathInBis+="_MCEff"+path1+".root";
   if (ishhCorr) {
+
     PathInBis+="_hhCorr_MCEff";
     PathInBis+=path1;
     //    PathInBis+= "_MCEff.root";
@@ -47,7 +52,7 @@ void Efficiency(Bool_t ishhCorr =1, Int_t type=0,   Float_t ptjmin=3,  Float_t p
   }
   cout << PathInBis << endl;
   //  TString PathInBis =  "AnalysisResults.root";
-  TString PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + Form("_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
+  TString PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + path1 +Form("_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
   if (ishhCorr) PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + "_hhCorr" + path1 + Form("_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
 
   TFile *fileinbis = new TFile(PathInBis);
@@ -56,6 +61,7 @@ void Efficiency(Bool_t ishhCorr =1, Int_t type=0,   Float_t ptjmin=3,  Float_t p
     return;
   }
 
+  cout << "ok "<< endl;
   TDirectoryFile *dir = (TDirectoryFile*)fileinbis->Get("MyTask");
   TList *list = (TList*)dir->Get("MyOutputContainer");
   TList *list2 = (TList*)dir->Get("MyOutputContainer3"); //contiene info V0
@@ -78,6 +84,7 @@ void Efficiency(Bool_t ishhCorr =1, Int_t type=0,   Float_t ptjmin=3,  Float_t p
   Int_t sysV0Gen=0;
   if(sysV0==3) sysV0Gen=1;
 
+  Float_t ptjminBis[nummolt+1]={3,4,5,6,7,8};
   TString tipo[numtipo]={"kK0s", "bo"};
   
   TString Smolt[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "_all"};
@@ -164,23 +171,31 @@ void Efficiency(Bool_t ishhCorr =1, Int_t type=0,   Float_t ptjmin=3,  Float_t p
   TString nameRes_2D[nummolt+1][3][2]; 
   TString TorV[2]={"Trigger", "V0"};
   TString Var[3]={"Pt", "Phi", "Eta"};
-
+  cout << "\nI'm taking resolution histos ";
   for(Int_t m=0; m< 3; m++){
     for(Int_t t=0; t< 2; t++){
       nameRes[m][t]="fHistResolution" + TorV[t] + Var[m];
       /* version to be used if resolution hiostograms are 2D, comment if not */
-      fHistResolution2D[m][t]=   (TH2D*)listRisoluzione->FindObject(nameRes[m][t]); //for thesis + onlyTriggerWithHighestPt
+      if (ResoHisto=="2D"){
+	if (listRisoluzione)	fHistResolution2D[m][t]=   (TH2D*)listRisoluzione->FindObject(nameRes[m][t]); //for studies of efficiency with different FB
+
+	else  fHistResolution2D[m][t]=   (TH2D*)list->FindObject(nameRes[m][t]);       //for thesis + onlyTriggerWithHighestPt
+      }
       /* version to be used if resolution hiostograms are 2D, comment if not */
 
       /* version to be used if resolution hiostograms are 3D, comment if not */
-      //fHistResolution3D[m][t]=   (TH3D*)list->FindObject(nameRes[m][t]); //for latest ones (hhCorr for example)
+      if (ResoHisto=="3D"){
+	fHistResolution3D[m][t]=   (TH3D*)list->FindObject(nameRes[m][t]); //for latest ones (hhCorr for example)
+      }
       /* version to be used if resolution hiostograms are 3D, comment if not */
     }
   }
-
+  cout << "...I've taken resolution histos " << endl;
   auto legend = new TLegend(0.6, 0.6, 0.9, 0.9);
-  //  auto legend = new TLegend(0.1, 0.1, 0.4, 0.4);
   legend->SetHeader("Multiplicity classes");     
+
+  auto legendPtMin = new TLegend(0.6, 0.6, 0.9, 0.9);
+  legendPtMin->SetHeader("Pt Trig Min");     
 
   auto legenddown = new TLegend(0.6, 0.1, 0.9, 0.4);
   legenddown->SetHeader("Multiplicity classes");     
@@ -379,6 +394,7 @@ void Efficiency(Bool_t ishhCorr =1, Int_t type=0,   Float_t ptjmin=3,  Float_t p
     fHistTriggerEfficiencyPt[molt]->SetMarkerColor(Color[molt]);
     legend->AddEntry(fHistTriggerEfficiencyPt[molt],SmoltLegend[molt],"pel");   
     legenddown->AddEntry(fHistTriggerEfficiencyPt[molt],SmoltLegend[molt],"pel");   
+    if (ResoHisto=="2D")    legendPtMin->AddEntry(fHistTriggerEfficiencyPt[molt],Form("p_{T}^{Trig, min} > %.0f", ptjminBis[molt]),"pel");   
 
     fHistTriggerEfficiencyPt[molt]->Draw("same");
     if(molt ==nummolt)     legend->Draw();
@@ -456,7 +472,9 @@ void Efficiency(Bool_t ishhCorr =1, Int_t type=0,   Float_t ptjmin=3,  Float_t p
 
       fHistTriggerEfficiencyGenPtBins[molt]->SetBinContent(j+1, NumberOfSelectedGenTrigger/NumberOfGeneratedTrigger);
       fHistTriggerEfficiencyGenPtBins[molt]->SetBinError(j+1, SetEfficiencyError(NumberOfSelectedGenTrigger,NumberOfGeneratedTrigger));
+
       cout << 	fHistTriggerEfficiencyPtBins[molt]->GetBinContent(j+1) << "+-" << 	fHistTriggerEfficiencyPtBins[molt]->GetBinError(j+1)<< endl;
+
     }
 
     fHistTriggerEfficiencyPtBins[molt]->GetYaxis()->SetRangeUser(0,0.25);
@@ -722,11 +740,12 @@ void Efficiency(Bool_t ishhCorr =1, Int_t type=0,   Float_t ptjmin=3,  Float_t p
 	NumberOfSelected+=fHistSelected_1D_V0Pt[molt]->GetBinContent(i);
 	NumberOfSelectedGen+=fHistSelectedGen_1D_V0Pt[molt]->GetBinContent(i);
       }
+      //      cout << "molt " << molt << "PtMin " << j << "NumberSelected " << NumberOfSelected << "NumberGenerated " << NumberOfGenerated << "error " << SetEfficiencyError(NumberOfSelected,NumberOfGenerated) << " first part " << ((Float_t)NumberOfSelected+1)*((Float_t)NumberOfSelected+2)/(NumberOfGenerated+2)/(NumberOfGenerated+3) << " second part " << pow((Float_t)NumberOfSelected+1,2)/pow(NumberOfGenerated+2,2) << endl;
       fHistV0EfficiencyPtBins[molt]->SetBinContent(j+1, NumberOfSelected/NumberOfGenerated);
       fHistV0EfficiencyPtBins[molt]->SetBinError(j+1, SetEfficiencyError(NumberOfSelected,NumberOfGenerated));
       fHistV0EfficiencyGenPtBins[molt]->SetBinContent(j+1, NumberOfSelectedGen/NumberOfGenerated);
       fHistV0EfficiencyGenPtBins[molt]->SetBinError(j+1, SetEfficiencyError(NumberOfSelectedGen,NumberOfGenerated));
-      cout << 	fHistV0EfficiencyPtBins[molt]->GetBinContent(j+1) << "+-" << 	fHistV0EfficiencyPtBins[molt]->GetBinError(j+1)<< endl;
+      cout << 	fHistV0EfficiencyPtBins[molt]->GetBinContent(j+1) << "+-" << 	fHistV0EfficiencyPtBins[molt]->GetBinError(j+1) << " rel: " << fHistV0EfficiencyPtBins[molt]->GetBinError(j+1)/fHistV0EfficiencyPtBins[molt]->GetBinContent(j+1)<< endl;
     }
     canvasUsed->cd(2);
     fHistV0EfficiencyPtBins[molt]->GetYaxis()->SetRangeUser(0,0.25);
@@ -841,30 +860,38 @@ void Efficiency(Bool_t ishhCorr =1, Int_t type=0,   Float_t ptjmin=3,  Float_t p
     fHistRecoMass_1D[molt]= (TH1D*)fHistRecoMass_2D[molt]->ProjectionY("fHistRecoMass_1D_"+ Smolt[molt]);  
     fHistV0EfficiencyRecoPt[molt] ->Divide(fHistSelectedMass_1D[molt], fHistRecoMass_1D[molt]);
 
-    cout << "resolution histos" << endl;
+    cout << "resoltiuon histos" << endl;
     //**********************resolution histograms*****************************
     for(Int_t m=0; m< 3; m++){
       for(Int_t t=0; t< 2; t++){
-	/* version to be used if resolution hiostograms are 3D, comment if not /*
+	/* version to be used if resolution hiostograms are 3D, comment if not */
+	   if (ResoHisto=="3D"){
 	fHistResolution3D[m][t]->GetZaxis()->SetRange(fHistResolution3D[m][t]->GetZaxis()->FindBin(PtTrigMin+0.001),fHistResolution3D[m][t]->GetZaxis()->FindBin(PtTrigMax-0.001) );
 	fHistResolution2D[m][t]=(TH2D*)fHistResolution3D[m][t]->Project3D("yxo");
 	nameRes_2D[molt][m][t]="fHistResolution2D" + TorV[t] + Var[m] + Smolt[molt];
 	fHistResolution2D[m][t]->SetName(nameRes_2D[molt][m][t]);
-	*/// version to be used if resolution hiostograms are 3D, comment if not */
+}
+	// version to be used if resolution hiostograms are 3D, comment if not */
       
 	nameRes_1D[molt][m][t]="fHistResolution" + TorV[t] + Var[m] + Smolt[molt];
+	if (ResoHisto=="3D"){
 	if(molt< nummolt){
 	  fHistResolution_1D[molt][m][t]=(TH1D*)fHistResolution2D[m][t]->ProjectionX(nameRes_1D[molt][m][t], fHistResolution2D[m][t]->GetYaxis()->FindBin(Nmolt[molt]+0.0001), fHistResolution2D[m][t]->GetYaxis()->FindBin(Nmolt[molt+1]-0.0001));
 	}
 	else {
 	  fHistResolution_1D[molt][m][t]=(TH1D*)fHistResolution2D[m][t]->ProjectionX(nameRes_1D[molt][m][t]);
 	}
+	}
+	else {
+	  fHistResolution_1D[molt][m][t]=(TH1D*)fHistResolution2D[m][t]->ProjectionX(nameRes_1D[molt][m][t], fHistResolution2D[m][t]->GetYaxis()->FindBin(ptjminBis[molt]+0.0001), fHistResolution2D[m][t]->GetYaxis()->FindBin(ptjmax-0.0001));
+	}
+
 	Int_t normal = fHistResolution_1D[molt][m][t]->GetEntries();
 	fHistResolution_1D[molt][m][t]->Scale(1./normal);
 	if (t==0)      canvasRes->cd(m+1);
 	else  canvasRes->cd(m+4);
 	fHistResolution_1D[molt][m][t]->GetYaxis()->SetRangeUser(0, 1);
-	fHistResolution_1D[molt][m][t]->GetXaxis()->SetRangeUser(-0.05, 0.05);
+	fHistResolution_1D[molt][m][t]->GetXaxis()->SetRangeUser(-0.03, 0.03); //was 0.05
 	if (m==0 && t==0){
 	  fHistResolution_1D[molt][m][t]->GetXaxis()->SetRangeUser(-0.5, 0.5);
 	  fHistResolution_1D[molt][m][t]->GetYaxis()->SetRangeUser(0, 0.1);
@@ -873,16 +900,17 @@ void Efficiency(Bool_t ishhCorr =1, Int_t type=0,   Float_t ptjmin=3,  Float_t p
 	fHistResolution_1D[molt][m][t]->SetLineColor(Color[molt]);
 	fHistResolution_1D[molt][m][t]->SetMarkerColor(Color[molt]);
 	fHistResolution_1D[molt][m][t]->Draw("same");
-	if(molt ==nummolt)     legend->Draw();
+	if(ResoHisto=="3D" && molt ==nummolt)     legend->Draw();
+	if(ResoHisto=="2D" && molt ==nummolt)     legendPtMin->Draw();
 	//canvasRes->Close();
-	cout << "molt: " << molt << " sto riempiendo histo " <<  nameRes_1D[molt][m][t]<< endl;
+	//	cout << "molt: " << molt << " sto riempiendo histo " <<  nameRes_1D[molt][m][t]<< endl;
       }
     }
 
     //***************contamination factor for trigger and V0 in multiplicity intervals***************
 
     HistContTrigger[molt]=(TH2D*)list3->FindObject(Form("fHistPrimaryTrigger_%i_cut%i", molt, sysTrigger)); //histo tipo di trigger (primario, secondario) vs pT trigger
-    cout << "deficit " << endl;
+    //    cout << "deficit " << endl;
     HistContV0PtTMax[molt]=(TH3D*)list2->FindObject(Form("fHistPrimaryV0_%i_cut%i", molt, sysV0hh));//histo tipo di V0 (primario, secondario) vs pT V0
 
     HistInt[molt]=HistContTrigger[molt]->ProjectionX("", HistContTrigger[molt]->GetYaxis()->FindBin(ptjmin+0.00001),HistContTrigger[molt]->GetYaxis()->FindBin(ptjmax-0.0001));
@@ -953,7 +981,7 @@ void Efficiency(Bool_t ishhCorr =1, Int_t type=0,   Float_t ptjmin=3,  Float_t p
 	//ContTriggerIntError=sqrt(pow((num-denom)/pow(denom,2),2)*num);
 	HistContTriggerPt[molt]->SetBinContent(pt+1, ContTriggerInt);
 	//	HistContTriggerPt[molt]->SetBinError(pt+1, ContTriggerIntError);
-	cout << "pt bin " << pt << " cont factor trigger " << ContTriggerInt <<" +- " << ContTriggerIntError <<endl;
+	//	cout << "pt bin " << pt << " cont factor trigger " << ContTriggerInt <<" +- " << ContTriggerIntError <<endl;
       }
     }
 
@@ -967,7 +995,7 @@ void Efficiency(Bool_t ishhCorr =1, Int_t type=0,   Float_t ptjmin=3,  Float_t p
 	//ContV0IntError=sqrt(pow(ContV0Int,2)*(denom-num)+pow((num-denom)/pow(denom,2),2)*num);
 	HistContV0Pt[molt]->SetBinContent(pt+1, ContV0Int);
 	//HistContV0Pt[molt]->SetBinContent(pt+1, ContV0IntError);
-	cout << "pt bin " << pt << " cont factor V0 " << ContV0Int <<" +- " << ContV0IntError << endl;
+	//	cout << "pt bin " << pt << " cont factor V0 " << ContV0Int <<" +- " << ContV0IntError << endl;
       }
       else{
 	HistContV0Pt[molt]->SetBinContent(pt+1, 0);
@@ -990,7 +1018,7 @@ void Efficiency(Bool_t ishhCorr =1, Int_t type=0,   Float_t ptjmin=3,  Float_t p
 	HistContV0PtBins[molt]->SetBinContent(binpt+1, ContV0Int);
 	HistContV0PtBins[molt]->SetBinError(binpt+1, 0);
 	//HistContV0PtBins[molt]->SetBinContent(binpt+1, ContV0IntError);
-	cout << "pt bin " << binpt << " cont factor V0 " << ContV0Int <<" +- " << ContV0IntError << endl;
+	//	cout << "pt bin " << binpt << " cont factor V0 " << ContV0Int <<" +- " << ContV0IntError << endl;
       }
       else{
 	HistContV0PtBins[molt]->SetBinContent(binpt+1, 0);
@@ -1069,9 +1097,9 @@ if (listRisoluzione){
 	  
   }
   }
-  cout << "\n\n\npTTrigger " << pTTrigger << " " << pTTrigger1<< endl;
-  cout << "low and up edge of global bin (x direction) "<< fHistTriggerPtRecovsPtGen_PtBins->GetXaxis()->GetBinLowEdge(pTTrigger+1)<< "  " << fHistTriggerPtRecovsPtGen_PtBins->GetXaxis()->GetBinUpEdge(pTTrigger+1)<<endl;
-  cout << "global bin number " << fHistTriggerPtRecovsPtGen_PtBins->GetBin(pTTrigger+1,pTTrigger1+1) << " and its content " << CountForTProfile << endl;
+  //  cout << "\n\n\npTTrigger " << pTTrigger << " " << pTTrigger1<< endl;
+  //  cout << "low and up edge of global bin (x direction) "<< fHistTriggerPtRecovsPtGen_PtBins->GetXaxis()->GetBinLowEdge(pTTrigger+1)<< "  " << fHistTriggerPtRecovsPtGen_PtBins->GetXaxis()->GetBinUpEdge(pTTrigger+1)<<endl;
+  //  cout << "global bin number " << fHistTriggerPtRecovsPtGen_PtBins->GetBin(pTTrigger+1,pTTrigger1+1) << " and its content " << CountForTProfile << endl;
   //  fHistTriggerPtRecovsPtGen_PtBins->AddBinContent(fHistTriggerPtRecovsPtGen_PtBins->GetBin(pTTrigger+1,pTTrigger1+1),   CountForTProfile );
   fHistTriggerPtRecovsPtGen_PtBins->Fill(NPtTrigger[pTTrigger]+0.001, NPtTrigger[pTTrigger1]+0.001, CountForTProfile );
   }
@@ -1093,8 +1121,8 @@ if (listRisoluzione){
 	  
   }
   }
-  cout << "\n\n\npTAssoc " << pTAssoc << " " << pTAssoc1<< endl;
-  cout << "low and up edge of global bin (x direction) "<< fHistAssocPtRecovsPtGen_PtBins->GetXaxis()->GetBinLowEdge(pTAssoc+1)<< "  " << fHistAssocPtRecovsPtGen_PtBins->GetXaxis()->GetBinUpEdge(pTAssoc+1)<<endl;
+  //  cout << "\n\n\npTAssoc " << pTAssoc << " " << pTAssoc1<< endl;
+  //  cout << "low and up edge of global bin (x direction) "<< fHistAssocPtRecovsPtGen_PtBins->GetXaxis()->GetBinLowEdge(pTAssoc+1)<< "  " << fHistAssocPtRecovsPtGen_PtBins->GetXaxis()->GetBinUpEdge(pTAssoc+1)<<endl;
   cout << "global bin number " << fHistAssocPtRecovsPtGen_PtBins->GetBin(pTAssoc+1,pTAssoc1+1) << " and its content " << CountForTProfile << endl;
   //  fHistAssocPtRecovsPtGen_PtBins->AddBinContent(fHistAssocPtRecovsPtGen_PtBins->GetBin(pTAssoc+1,pTAssoc1+1),   CountForTProfile );
   fHistAssocPtRecovsPtGen_PtBins->Fill(NPtV0[pTAssoc]+0.001, NPtV0[pTAssoc1]+0.001, CountForTProfile );
@@ -1263,7 +1291,8 @@ if (listRisoluzione){
       if (m==1) cout << "Eta resolution" << endl;
       if (m==2) cout << "Phi resolution" << endl;
       for (Int_t molt=0; molt < nummolt+1; molt++){
-	cout << " Molt class: " << SmoltLegend[molt] << ", Mean: "<<      fHistResolution_1D[molt][m][t]->GetMean()<< " RMS: "<< fHistResolution_1D[molt][m][t]->GetRMS()<< endl ;
+	if (ResoHisto=="3D")	cout << " Molt class: " << SmoltLegend[molt] << ", Mean: "<<      fHistResolution_1D[molt][m][t]->GetMean() << " +- " << fHistResolution_1D[molt][m][t]->GetMeanError()/sqrt(fHistResolution_1D[molt][m][t]->GetEntries()) << " RMS: "<< fHistResolution_1D[molt][m][t]->GetRMS()<< endl ;
+	else cout << " p_{T}^{Trig, min}: " << ptjminBis[molt] << ", Mean: "<<      fHistResolution_1D[molt][m][t]->GetMean()<< "+- " << fHistResolution_1D[molt][m][t]->GetMeanError()/sqrt(fHistResolution_1D[molt][m][t]->GetEntries()) << " RMS: "<< fHistResolution_1D[molt][m][t]->GetRMS()<< endl ;
       }
     }
   }
