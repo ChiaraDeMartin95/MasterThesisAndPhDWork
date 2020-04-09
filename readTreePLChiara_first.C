@@ -16,9 +16,9 @@
 #include <TTree.h>
 #include <TLatex.h>
 #include <TFile.h>
-void readTreePLChiara_first(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Float_t ptjmax=15, Int_t sysV0=0, bool isMC = 0,Bool_t isEfficiency=0,Int_t sysTrigger=0,
+void readTreePLChiara_first(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Float_t ptjmax=15, Int_t sysV0=0, bool isMC = 1,Bool_t isEfficiency=1,Int_t sysTrigger=0,
 			    //TString PathIn ="./AnalysisResults2018d8_allrunswMult_MC.root", Int_t type=0 //type = 0 per K0short
-			    TString year="2016k_onlyTriggerWithHighestPt", TString year0="2016", TString Path1 ="", Int_t type=0 //type = 0 per K0short 
+			    TString year="2018f1_extra_onlyTriggerWithHighestPt", TString year0="2016", TString Path1 ="", Int_t type=0 //type = 0 per K0short 
 			    
 			    )
 {
@@ -54,6 +54,8 @@ void readTreePLChiara_first(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Float_t pt
 
   TFile *fin = new TFile(PathIn);
   TDirectoryFile *d = (TDirectoryFile*)fin->Get("MyTask");
+
+
   TTree *tSign = (TTree *)d->Get("fSignalTree");
   TTree *tBkg  = (TTree *)d->Get("fBkgTree");
   Double_t massK0s = 0.497611;
@@ -146,6 +148,33 @@ void readTreePLChiara_first(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Float_t pt
   //   Double_t NPtV0[numPtV0+1]={0,1,2,3,4,8};
   Double_t NPtTrigger[numPtTrigger+1]={PtTrigMin,ptjmax};
 
+  
+  //what is the fraction of AC events in each multiplicity class?
+  TList *d1 = (TList*)d->Get("MyOutputContainer");
+  if (!d1) return;
+  TH1F* hMultiplicity=(TH1F*)  d1->FindObject("fHist_multiplicity");
+  TH2F* hMultvsNumberAssoc=(TH2F*)  d1->FindObject("fHistMultvsV0");
+  TH1F*  hMultvsNumberAssoc_Proj[nummolt];
+  if (!hMultiplicity) cout << " no info about multiplicity distribution of AC events available " << endl;
+  if (!hMultvsNumberAssoc) cout << " no info about multiplicity distribution of AC events available " << endl;
+  Float_t ACcounter[nummolt+1];
+  if (hMultiplicity && hMultvsNumberAssoc){
+    ACcounter[5]= hMultiplicity->GetEntries();
+    cout <<   hMultiplicity->GetEntries() << endl;
+    for (Int_t m=0; m< nummolt; m++){ 
+      hMultvsNumberAssoc_Proj[m] = (TH1F*)       hMultvsNumberAssoc->ProjectionX(Form("hMultvsNumberAssoc_%i", m), hMultvsNumberAssoc->GetYaxis()->FindBin(Nmolt[m]+0.001), hMultvsNumberAssoc->GetYaxis()->FindBin(Nmolt[m+1]-0.001));
+
+    cout << " m " << m << endl;
+    ACcounter[m] =0;
+    for (Int_t b= hMultiplicity->GetXaxis()->FindBin(Nmolt[m]+0.001); b <=  hMultiplicity->GetXaxis()->FindBin(Nmolt[m+1]-0.001); b++){
+      ACcounter[m] +=  hMultiplicity->GetBinContent(b);
+    }
+    cout << "fraction of events in mult bin " << Smolt[m] << ": " << ACcounter[m]/ACcounter[5] <<  " ~average V0 number " <<     hMultvsNumberAssoc_Proj[m]->GetMean() <<endl;
+    }
+    
+  }
+
+  
   //Signal
   tSign->SetBranchAddress("fTreeVariablePtTrigger"                 ,&fSignTreeVariablePtTrigger);		       
   tSign->SetBranchAddress("fTreeVariableChargeTrigger"             ,&fSignTreeVariableChargeTrigger);		       
@@ -250,6 +279,49 @@ void readTreePLChiara_first(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Float_t pt
   TDirectory  *dirSign= fout->mkdir("SE");
   TDirectory  *dirBkg= fout->mkdir("ME");
 
+
+  //------------------Histograms os selected particles (V0) for future efficiency calculation ----------------
+  TH3F*    fHistSelectedV0PtTMaxPhi=new TH3F("fHistSelectedV0PtTMaxPhi", "p^{Trigg, Max}_{T} and #phi distribution of selected V0 particles (K0s, primary, events w T>0)", 300, 0, 30, 400,0, 2*TMath::Pi() ,  100, 0, 100);
+  fHistSelectedV0PtTMaxPhi->GetXaxis()->SetTitle("p^{Trigg, Max}_{T}");
+  fHistSelectedV0PtTMaxPhi->GetYaxis()->SetTitle("#phi");
+
+  TH3F *    fHistSelectedV0PtTMaxEta=new TH3F("fHistSelectedV0PtTMaxEta", "p^{Trigg, Max}_{T} and #eta distribution of selected V0 particles (K0s, primary, events w T>0)", 300, 0, 30, 400,-1.2,1.2,  100, 0, 100 );
+  fHistSelectedV0PtTMaxEta->GetXaxis()->SetTitle("p^{Trigg, max}_{T}");
+  fHistSelectedV0PtTMaxEta->GetYaxis()->SetTitle("#eta");
+
+  TH3F *    fHistSelectedV0PtPtTMax=new TH3F("fHistSelectedV0PtPtTMax", "p_{T} and p^{Trigg, Max}_{T} distribution of selected V0 particles (K0s, primary, events w T>0)", 300, 0, 30, 60, 0,30,  100, 0, 100 );
+  fHistSelectedV0PtPtTMax->GetXaxis()->SetTitle("p_{T}");
+  fHistSelectedV0PtPtTMax->GetYaxis()->SetTitle("p^{Trigg, Max}_{T}");
+
+  TH3F*    fHistPrimaryV0[nummolt+1];
+  for(Int_t j=0; j<nummolt+1; j++){
+    fHistPrimaryV0[j]=new TH3F(Form("fHistPrimaryV0_%i",j), "V0 MC (K0s, selected)", 4, 0.5, 4.5, 160, 0, 16, 60, 0, 30);
+    fHistPrimaryV0[j]->GetXaxis()->SetBinLabel(1,"Primary selected V0s");
+    fHistPrimaryV0[j]->GetXaxis()->SetBinLabel(2,"Secondary from w-decay selected V0s");
+    fHistPrimaryV0[j]->GetXaxis()->SetBinLabel(3,"Secondary from material selected V0s");
+    fHistPrimaryV0[j]->GetYaxis()->SetTitle("p_{T}");
+    fHistPrimaryV0[j]->GetZaxis()->SetTitle("p^{Trigg, Max}_{T}");
+  }
+
+  //------------------Histograms os selected particles (trigger) for future efficiency calculation ----------------
+  TH3F*      fHistSelectedTriggerPtPhi=new TH3F("fHistSelectedTriggerPtPhi", "p_{T} and #phi distribution of selected trigger particles (primary)", 300, 0, 30, 400,0   , 2*TMath::Pi() ,  100, 0, 100);
+  fHistSelectedTriggerPtPhi->GetXaxis()->SetTitle("p_{T}");
+  fHistSelectedTriggerPtPhi->GetYaxis()->SetTitle("#phi");
+
+  TH3F*     fHistSelectedTriggerPtEta=new TH3F("fHistSelectedTriggerPtEta_%i", "p_{T} and #eta distribution of selected trigger particles (primary)", 300, 0, 30, 400,   1.2, 1.2,  100, 0, 100);
+  fHistSelectedTriggerPtEta->GetXaxis()->SetTitle("p_{T}");
+  fHistSelectedTriggerPtEta->GetYaxis()->SetTitle("#eta");
+
+
+  TH2F*    fHistPrimaryTrigger[nummolt+1];
+  for(Int_t j=0; j<nummolt+1; j++){
+    fHistPrimaryTrigger[j]=new TH2F(Form("fHistPrimaryTrigger_%i", j), "Trigger MC (selected)", 4, 0.5, 4.5, 100, 0,30 );
+    fHistPrimaryTrigger[j]->GetXaxis()->SetBinLabel(1,"Primary selected triggers");
+    fHistPrimaryTrigger[j]->GetXaxis()->SetBinLabel(2,"Secondary from w-decay selected triggers");
+    fHistPrimaryTrigger[j]->GetXaxis()->SetBinLabel(3,"Secondary from material selected triggers");
+    fHistPrimaryTrigger[j]->GetYaxis()->SetTitle("p_{T}");
+  }
+ 
   /*-----------------------Pt Trigger  --------------------------- */
   TH1D *hSign_PtTrigger       = new TH1D("hSign_PtTrigger",       "hSign_PtTrigger",       300, 0, 30);
   hSign_PtTrigger->GetXaxis()->SetTitle("p_{T} (Gev/c)");
@@ -398,10 +470,53 @@ void readTreePLChiara_first(Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Float_t pt
     //   hSign_PtTrigger->Fill(fSignTreeVariablePtTrigger);
     // }
    
-    //    cout << "*********************"<< endl;
+    //    cofSignTreeVariableisPut << "*********************"<< endl;
     if (fSignTreeVariableDeltaPhi >  (1.5*TMath::Pi())) fSignTreeVariableDeltaPhi -= 2.0*TMath::Pi();
     if (fSignTreeVariableDeltaPhi < (-0.5*TMath::Pi())) fSignTreeVariableDeltaPhi += 2.0*TMath::Pi();
 
+    if(fSignTreeVariableisPrimaryTrigger==1){
+    fHistSelectedTriggerPtPhi->Fill(fSignTreeVariablePtTrigger,fSignTreeVariablePhiTrigger, fSignTreeVariableMultiplicity);
+    fHistSelectedTriggerPtEta->Fill(fSignTreeVariablePtTrigger,fSignTreeVariableEtaTrigger, fSignTreeVariableMultiplicity);
+    }
+
+    for (Int_t m =0; m<5;m++){
+      if(fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1]){
+        for(Int_t p=1; p<=4; p++){
+          if (fSignTreeVariableisPrimaryTrigger==p){
+	    fHistPrimaryTrigger[m]->Fill(p,fSignTreeVariablePtTrigger );
+          }
+        }
+      }
+    }
+    for(Int_t p=1; p<=4; p++){
+      if (fSignTreeVariableisPrimaryTrigger==p){
+	fHistPrimaryTrigger[5]->Fill(p,fSignTreeVariablePtTrigger );
+      }
+    }
+
+    
+    if(fSignTreeVariablePDGCode==310 &&  fSignTreeVariableisPrimaryV0==1){
+    fHistSelectedV0PtTMaxPhi->Fill(fSignTreeVariablePtTrigger, fSignTreeVariablePhiV0, fSignTreeVariableMultiplicity);
+    fHistSelectedV0PtTMaxEta->Fill(fSignTreeVariablePtTrigger, fSignTreeVariableEtaV0, fSignTreeVariableMultiplicity);
+    fHistSelectedV0PtPtTMax->Fill(fSignTreeVariablePtV0,fSignTreeVariablePtTrigger , fSignTreeVariableMultiplicity);
+    }
+    
+
+    for (Int_t m =0; m<5;m++){
+      if(fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1]){
+        for(Int_t p=1; p<=4; p++){
+          if (fSignTreeVariableisPrimaryV0==p){
+	    fHistPrimaryV0[m]->Fill(p,fSignTreeVariablePtV0, fSignTreeVariablePtTrigger );
+          }
+        }
+      }
+    }
+    for(Int_t p=1; p<=4; p++){
+      if (fSignTreeVariableisPrimaryV0==p){
+	fHistPrimaryV0[5]->Fill(p,fSignTreeVariablePtV0, fSignTreeVariablePtTrigger );
+      }
+    }
+    
     for(Int_t m=0; m<nummolt+1; m++){
       if (m < nummolt){
 	MoltSel = (fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1]);
