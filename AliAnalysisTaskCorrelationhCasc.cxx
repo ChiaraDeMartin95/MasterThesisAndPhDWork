@@ -1017,16 +1017,16 @@ void AliAnalysisTaskCorrelationhCasc::UserCreateOutputObjects()
   }
   fHistSelectedGenV0PtPtTMax=new TH3F*[7];
   for(Int_t j=0; j<7; j++){
-    fHistSelectedGenV0PtPtTMax[j]=new TH3F(Form("fHistSelectedGenV0PtPtTMax_%i",j), "p_{T} and p^{Trigg, Max}_{T} distribution of selected V0 particles (Casc, primary, events w T>0) (p_{T} generated)", 300, 0, 30, 60, 0,30,  100, 0, 100 );
+    fHistSelectedGenV0PtPtTMax[j]=new TH3F(Form("fHistSelectedGenV0PtPtTMax_%i",j), "p_{T} and p^{Trigg, Max}_{T} distribution of selected V0 particles (Casc, primary, events w T>0) (p_{T} generated)", 120, -30, 30, 60, 0,30,  100, 0, 100 );
     fHistSelectedGenV0PtPtTMax[j]->GetXaxis()->SetTitle("p_{T}");
     fHistSelectedGenV0PtPtTMax[j]->GetYaxis()->SetTitle("p^{Trigg, Max}_{T}");
   }
 
-  fHistReconstructedV0PtMass=new TH3F("fHistReconstructedV0PtMass", "p_{T} and mass distribution of reconstructed V0 particles(Casc, primary, event w T>0)", 100, 0.45, 0.55, 160, 0, 16,  100, 0, 100);
+  fHistReconstructedV0PtMass=new TH3F("fHistReconstructedV0PtMass", "p_{T} and mass distribution of reconstructed V0 particles(Casc, primary, event w T>0)", 100, lLimInfMass, lLimSupMass, 160, 0, 16,  100, 0, 100);
   fHistReconstructedV0PtMass->GetYaxis()->SetTitle("p_{T}");
   fHistReconstructedV0PtMass->GetXaxis()->SetTitle("M_{pi^{+} #pi^{-}}");
 
-  fHistSelectedV0PtMass=new TH3F("fHistSelectedV0PtMass", "p_{T} and mass distribution of selected V0 particles (Casc, primary, event w T>0)", 100, 0.45, 0.55,  160, 0, 16, 100, 0, 100);
+  fHistSelectedV0PtMass=new TH3F("fHistSelectedV0PtMass", "p_{T} and mass distribution of selected V0 particles (Casc, primary, event w T>0) (no pT < pT, trigger and no selections applied offline)", 100, lLimInfMass, lLimInfMass,  160, 0, 16, 100, 0, 100);
   fHistSelectedV0PtMass->GetYaxis()->SetTitle("p_{T}");
   fHistSelectedV0PtMass->GetXaxis()->SetTitle("M_{pi^{+} #pi^{-}}");
 
@@ -1271,7 +1271,6 @@ void AliAnalysisTaskCorrelationhCasc::UserCreateOutputObjects()
   }
  
   fOutputList->Add(fHistReconstructedV0PtMass);
-  fOutputList->Add(fHistSelectedV0PtMass);
   fOutputList4->Add(fHistResolutionTriggerPt);
   fOutputList4->Add(fHistResolutionTriggerPhi);
   fOutputList4->Add(fHistResolutionTriggerEta);
@@ -2225,6 +2224,16 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
       }
     }
 
+
+    if(fReadMCTruth){
+      if (fMCEvent){
+	//cout << "\n this particle has been reconstructed: let's fill the mass Pt histo for true reco K0s "<< endl;
+	if(isCascade && isPrimaryCasc){ 
+	  fHistReconstructedV0PtMass->Fill(lInvMassCasc, lXiTransvMom, lPercentiles);
+	}
+      }
+    }
+
     //daughter track quality cuts------------                                                                                                                  
     if(pTrackXi->Chi2perNDF()>4.)continue;
     if(nTrackXi->Chi2perNDF()>4.)continue;
@@ -2548,7 +2557,7 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
     if(fReadMCTruth){
       if (fMCEvent){
 	//cout << "\n this particle has passed all but pt cuts: let's fill the mass Pt histo for true reco K0s "<< endl;
-	if(isCascade){ 
+	if(isCascade && isPrimaryCasc){ 
 	  fHistSelectedV0PtMass->Fill(lInvMassCasc, lXiTransvMom, lPercentiles);
 	}
       }
