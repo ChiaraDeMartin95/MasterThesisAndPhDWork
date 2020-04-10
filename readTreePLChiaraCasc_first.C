@@ -238,21 +238,21 @@ void readTreePLChiaraCasc_first( Int_t type=0 /*type = 0 for XiMinus, =1, for Xi
 
 
   //------------------Histograms os selected particles (V0) for future efficiency calculation ----------------
-  TH3F*    fHistSelectedV0PtTMaxPhi=new TH3F("fHistSelectedV0PtTMaxPhi", "p^{Trigg, Max}_{T} and #phi distribution of selected V0 particles (Casc, primary, events w T>0)", 300, 0, 30, 400,0, 2*TMath::Pi() ,  100, 0, 100);
+  TH3F*    fHistSelectedV0PtTMaxPhi=new TH3F(Form("fHistSelectedV0PtTMaxPhi_%i", sysV0), "p^{Trigg, Max}_{T} and #phi distribution of selected V0 particles (Casc, primary, events w T>0)", 120, -30, 30, 400,0, 2*TMath::Pi() ,  100, 0, 100);
   fHistSelectedV0PtTMaxPhi->GetXaxis()->SetTitle("p^{Trigg, Max}_{T}");
   fHistSelectedV0PtTMaxPhi->GetYaxis()->SetTitle("#phi");
 
-  TH3F *    fHistSelectedV0PtTMaxEta=new TH3F("fHistSelectedV0PtTMaxEta", "p^{Trigg, Max}_{T} and #eta distribution of selected V0 particles (Casc, primary, events w T>0)", 300, 0, 30, 400,-1.2,1.2,  100, 0, 100 );
+  TH3F *    fHistSelectedV0PtTMaxEta=new TH3F(Form("fHistSelectedV0PtTMaxEta_%i", sysV0), "p^{Trigg, Max}_{T} and #eta distribution of selected V0 particles (Casc, primary, events w T>0)", 120, -30, 30, 400,-1.2,1.2,  100, 0, 100 );
   fHistSelectedV0PtTMaxEta->GetXaxis()->SetTitle("p^{Trigg, max}_{T}");
   fHistSelectedV0PtTMaxEta->GetYaxis()->SetTitle("#eta");
 
-  TH3F *    fHistSelectedV0PtPtTMax=new TH3F("fHistSelectedV0PtPtTMax", "p_{T} and p^{Trigg, Max}_{T} distribution of selected V0 particles (Casc, primary, events w T>0)", 300, 0, 30, 60, 0,30,  100, 0, 100 );
+  TH3F *    fHistSelectedV0PtPtTMax=new TH3F(Form("fHistSelectedV0PtPtTMax_%i",sysV0), "p_{T} and p^{Trigg, Max}_{T} distribution of selected V0 particles (Casc, primary, events w T>0)", 300, 0, 30, 120, -30,30,  100, 0, 100 );
   fHistSelectedV0PtPtTMax->GetXaxis()->SetTitle("p_{T}");
   fHistSelectedV0PtPtTMax->GetYaxis()->SetTitle("p^{Trigg, Max}_{T}");
 
   TH3F*    fHistPrimaryV0[nummolt+1];
   for(Int_t j=0; j<nummolt+1; j++){
-    fHistPrimaryV0[j]=new TH3F(Form("fHistPrimaryV0_%i",j), "V0 MC (Casc, selected)", 4, 0.5, 4.5, 160, 0, 16, 60, 0, 30);
+    fHistPrimaryV0[j]=new TH3F(Form("fHistPrimaryV0_%i_cut%i",j, sysV0), "V0 MC (Casc, selected)", 4, 0.5, 4.5, 160, 0, 16, 60, 0, 30);
     fHistPrimaryV0[j]->GetXaxis()->SetBinLabel(1,"Primary selected V0s");
     fHistPrimaryV0[j]->GetXaxis()->SetBinLabel(2,"Secondary from w-decay selected V0s");
     fHistPrimaryV0[j]->GetXaxis()->SetBinLabel(3,"Secondary from material selected V0s");
@@ -261,18 +261,18 @@ void readTreePLChiaraCasc_first( Int_t type=0 /*type = 0 for XiMinus, =1, for Xi
   }
 
   //------------------Histograms os selected particles (trigger) for future efficiency calculation ----------------
-  TH3F*      fHistSelectedTriggerPtPhi=new TH3F("fHistSelectedTriggerPtPhi", "p_{T} and #phi distribution of selected trigger particles (primary)", 300, 0, 30, 400,0   , 2*TMath::Pi() ,  100, 0, 100);
+  TH3F*      fHistSelectedTriggerPtPhi=new TH3F(Form("fHistSelectedTriggerPtPhi_%i",sysTrigger), "p_{T} and #phi distribution of selected trigger particles (primary)", 300, 0, 30, 400,0   , 2*TMath::Pi() ,  100, 0, 100);
   fHistSelectedTriggerPtPhi->GetXaxis()->SetTitle("p_{T}");
   fHistSelectedTriggerPtPhi->GetYaxis()->SetTitle("#phi");
 
-  TH3F*     fHistSelectedTriggerPtEta=new TH3F("fHistSelectedTriggerPtEta", "p_{T} and #eta distribution of selected trigger particles (primary)", 300, 0, 30, 400,   1.2, 1.2,  100, 0, 100);
+  TH3F*     fHistSelectedTriggerPtEta=new TH3F(Form("fHistSelectedTriggerPtEta_%i",sysTrigger), "p_{T} and #eta distribution of selected trigger particles (primary)", 300, 0, 30, 400,   1.2, 1.2,  100, 0, 100);
   fHistSelectedTriggerPtEta->GetXaxis()->SetTitle("p_{T}");
   fHistSelectedTriggerPtEta->GetYaxis()->SetTitle("#eta");
 
 
   TH2F*    fHistPrimaryTrigger[nummolt+1];
   for(Int_t j=0; j<nummolt+1; j++){
-    fHistPrimaryTrigger[j]=new TH2F(Form("fHistPrimaryTrigger_%i", j), "Trigger MC (selected)", 4, 0.5, 4.5, 100, 0,30 );
+    fHistPrimaryTrigger[j]=new TH2F(Form("fHistPrimaryTrigger_%i_cut%i", j, sysTrigger), "Trigger MC (selected)", 4, 0.5, 4.5, 100, 0,30 );
     fHistPrimaryTrigger[j]->GetXaxis()->SetBinLabel(1,"Primary selected triggers");
     fHistPrimaryTrigger[j]->GetXaxis()->SetBinLabel(2,"Secondary from w-decay selected triggers");
     fHistPrimaryTrigger[j]->GetXaxis()->SetBinLabel(3,"Secondary from material selected triggers");
@@ -435,6 +435,7 @@ void readTreePLChiaraCasc_first( Int_t type=0 /*type = 0 for XiMinus, =1, for Xi
     if (fSignTreeVariableDeltaPhi >  (1.5*TMath::Pi())) fSignTreeVariableDeltaPhi -= 2.0*TMath::Pi();
     if (fSignTreeVariableDeltaPhi < (-0.5*TMath::Pi())) fSignTreeVariableDeltaPhi += 2.0*TMath::Pi();
 
+
     if(fSignTreeVariableisPrimaryTrigger==1){
       fHistSelectedTriggerPtPhi->Fill(fSignTreeVariablePtTrigger,fSignTreeVariablePhiTrigger, fSignTreeVariableMultiplicity);
       fHistSelectedTriggerPtEta->Fill(fSignTreeVariablePtTrigger,fSignTreeVariableEtaTrigger, fSignTreeVariableMultiplicity);
@@ -457,9 +458,9 @@ void readTreePLChiaraCasc_first( Int_t type=0 /*type = 0 for XiMinus, =1, for Xi
 
     
     if(isCascTrue &&  fSignTreeVariableisPrimaryV0==1){
-      fHistSelectedV0PtTMaxPhi->Fill(fSignTreeVariablePtTrigger, fSignTreeVariablePhiV0, fSignTreeVariableMultiplicity);
-      fHistSelectedV0PtTMaxEta->Fill(fSignTreeVariablePtTrigger, fSignTreeVariableEtaV0, fSignTreeVariableMultiplicity);
-      fHistSelectedV0PtPtTMax->Fill(fSignTreeVariablePtV0,fSignTreeVariablePtTrigger , fSignTreeVariableMultiplicity);
+      fHistSelectedV0PtTMaxPhi->Fill(fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc, fSignTreeVariablePhiV0, fSignTreeVariableMultiplicity);
+      fHistSelectedV0PtTMaxEta->Fill(fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc, fSignTreeVariableEtaV0, fSignTreeVariableMultiplicity);
+      fHistSelectedV0PtPtTMax->Fill(fSignTreeVariablePtV0,fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc , fSignTreeVariableMultiplicity);
     }
     
 
@@ -474,7 +475,7 @@ void readTreePLChiaraCasc_first( Int_t type=0 /*type = 0 for XiMinus, =1, for Xi
     }
     for(Int_t p=1; p<=4; p++){
       if (fSignTreeVariableisPrimaryV0==p){
-	fHistPrimaryV0[5]->Fill(p,fSignTreeVariablePtV0, fSignTreeVariablePtTrigger );
+	fHistPrimaryV0[5]->Fill(p,fSignTreeVariablePtV0, fSignTreeVariablePtTrigger);
       }
     }
     
