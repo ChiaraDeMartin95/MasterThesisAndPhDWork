@@ -200,6 +200,7 @@ AliAnalysisTaskCorrelationhCasc::AliAnalysisTaskCorrelationhCasc() :AliAnalysisT
   fTreeVariableInvMassOmega(0),		      
   fTreeVariableEtaV0(0),			      
   fTreeVariablePhiV0(0),			      
+  fTreeVariableSkipAssoc(0),			      
   fTreeVariableDeltaEta(0),			       
   fTreeVariableDeltaPhi(0),
   fTreeVariableDeltaTheta(0),			       
@@ -369,6 +370,7 @@ AliAnalysisTaskCorrelationhCasc::AliAnalysisTaskCorrelationhCasc(const char* nam
   fTreeVariableInvMassOmega(0),		      
   fTreeVariableEtaV0(0),			      
   fTreeVariablePhiV0(0),			      
+  fTreeVariableSkipAssoc(0),			      
   fTreeVariableDeltaEta(0),			       
   fTreeVariableDeltaPhi(0),
   fTreeVariableDeltaTheta(0),			       
@@ -595,14 +597,14 @@ void AliAnalysisTaskCorrelationhCasc::UserCreateOutputObjects()
   
   fSignalTree= new TTree("fSignalTree","fSignalTree");
   fSignalTree->Branch("fTreeVariablePtTrigger",          &fTreeVariablePtTrigger   , "fTreeVariablePtTrigger/D");
-  fSignalTree->Branch("fTreeVariableChargeTrigger",      &fTreeVariableChargeTrigger, "fTreeVariableChargeTrigger/D");
+  fSignalTree->Branch("fTreeVariableChargeTrigger",      &fTreeVariableChargeTrigger, "fTreeVariableChargeTrigger/I");
   fSignalTree->Branch("fTreeVariableEtaTrigger",         &fTreeVariableEtaTrigger  , "fTreeVariableEtaTrigger/D");
   fSignalTree->Branch("fTreeVariablePhiTrigger",         &fTreeVariablePhiTrigger, "fTreeVariablePhiTrigger/D");
   fSignalTree->Branch("fTreeVariableDCAz",               &fTreeVariableDCAz  , "fTreeVariableDCAz/D");
   fSignalTree->Branch("fTreeVariableDCAxy",              &fTreeVariableDCAxy  , "fTreeVariableDCAxy/D");
-  fSignalTree->Branch("fTreeVariableChargeAssoc",        &fTreeVariableChargeAssoc  , "fTreeVariableChargeAssoc/D");
-  fSignalTree->Branch("fTreeVariableisPrimaryTrigger",   &fTreeVariableisPrimaryTrigger  , "fTreeVariableisPrimaryTrigger/D");
-  fSignalTree->Branch("fTreeVariableisPrimaryV0",        &fTreeVariableisPrimaryV0  , "fTreeVariableisPrimaryV0/D");
+  fSignalTree->Branch("fTreeVariableChargeAssoc",        &fTreeVariableChargeAssoc  , "fTreeVariableChargeAssoc/I");
+  fSignalTree->Branch("fTreeVariableisPrimaryTrigger",   &fTreeVariableisPrimaryTrigger  , "fTreeVariableisPrimaryTrigger/I");
+  fSignalTree->Branch("fTreeVariableisPrimaryV0",        &fTreeVariableisPrimaryV0  , "fTreeVariableisPrimaryV0/I");
   fSignalTree->Branch("fTreeVariableRapAssoc",         &fTreeVariableRapAssoc               ,"fTreeVariableRapAssoc/D");
   fSignalTree->Branch("fTreeVariableDcaXiDaughters",  &fTreeVariableDcaXiDaughters 	, "fTreeVariableDcaXiDaughters/D");
   //  fSignalTree->Branch("fTreeVariableDcaPosToPrimVertex", &fTreeVariableDcaPosToPrimVertex	, "fTreeVariableDcaPosToPrimVertex/D");
@@ -616,45 +618,47 @@ void AliAnalysisTaskCorrelationhCasc::UserCreateOutputObjects()
   fSignalTree->Branch("fTreeVariableInvMassOmega",          &fTreeVariableInvMassOmega, "fTreeVariableInvMassOmega/D");
   fSignalTree->Branch("fTreeVariableEtaV0",              &fTreeVariableEtaV0  , "fTreeVariableEtaV0/D");
   fSignalTree->Branch("fTreeVariablePhiV0",              &fTreeVariablePhiV0, "fTreeVariablePhiV0/D");
+  fSignalTree->Branch("fTreeVariableSkipAssoc",          &fTreeVariableSkipAssoc, "fTreeVariableSkipAssoc/b");
   fSignalTree->Branch("fTreeVariableDeltaEta",           &fTreeVariableDeltaEta  , "fTreeVariableDeltaEta/D");
   fSignalTree->Branch("fTreeVariableDeltaPhi",           &fTreeVariableDeltaPhi, "fTreeVariableDeltaPhi/D");
   fSignalTree->Branch("fTreeVariableDeltaTheta",         &fTreeVariableDeltaTheta, "fTreeVariableDeltaTheta/D");
   fSignalTree->Branch("fTreeVariableMultiplicity",       &fTreeVariableMultiplicity , "fTreeVariableMultiplicity/D");
   fSignalTree->Branch("fTreeVariableZvertex",            &fTreeVariableZvertex  , "fTreeVariableZvertex/D");
-  fSignalTree->Branch("fTreeVariablePDGCodeTrigger",     &fTreeVariablePDGCodeTrigger  , "fTreeVariablePDGCodeTrigger/D");
-  fSignalTree->Branch("fTreeVariablePDGCodeAssoc",       &fTreeVariablePDGCodeAssoc  , "fTreeVariablePDGCodeAssoc/D");
+  fSignalTree->Branch("fTreeVariablePDGCodeTrigger",     &fTreeVariablePDGCodeTrigger  , "fTreeVariablePDGCodeTrigger/I");
+  fSignalTree->Branch("fTreeVariablePDGCodeAssoc",       &fTreeVariablePDGCodeAssoc  , "fTreeVariablePDGCodeAssoc/I");
 
 
   fBkgTree= new TTree("fBkgTree","fBkgTree");
-  fBkgTree->Branch("fTreeVariablePtTrigger",          &fTreeVariablePtTrigger   , "fTreeVariablePtTrigger/D");
-  fBkgTree->Branch("fTreeVariableChargeTrigger",      &fTreeVariableChargeTrigger, "fTreeVariableChargeTrigger/D");
-  fBkgTree->Branch("fTreeVariableEtaTrigger",         &fTreeVariableEtaTrigger  , "fTreeVariableEtaTrigger/D");
-  fBkgTree->Branch("fTreeVariablePhiTrigger",         &fTreeVariablePhiTrigger, "fTreeVariablePhiTrigger/D");
-  fBkgTree->Branch("fTreeVariableDCAz",               &fTreeVariableDCAz  , "fTreeVariableDCAz/D");
-  fBkgTree->Branch("fTreeVariableDCAxy",              &fTreeVariableDCAxy  , "fTreeVariableDCAxy/D");
-  fBkgTree->Branch("fTreeVariableChargeAssoc",        &fTreeVariableChargeAssoc  , "fTreeVariableChargeAssoc/D");
-  fBkgTree->Branch("fTreeVariableisPrimaryTrigger",   &fTreeVariableisPrimaryTrigger  , "fTreeVariableisPrimaryTrigger/D");  
-  fBkgTree->Branch("fTreeVariableisPrimaryV0",        &fTreeVariableisPrimaryV0  , "fTreeVariableisPrimaryV0/D");  
-  fBkgTree->Branch("fTreeVariableRapAssoc",         &fTreeVariableRapAssoc               ,"fTreeVariableRapAssoc/D");
-  fBkgTree->Branch("fTreeVariableDcaXiDaughters",  &fTreeVariableDcaXiDaughters 	, "fTreeVariableDcaXiDaughters/D");
-  //  fBkgTree->Branch("fTreeVariableDcaPosToPrimVertex", &fTreeVariableDcaPosToPrimVertex	, "fTreeVariableDcaPosToPrimVertex/D");
-  //  fBkgTree->Branch("fTreeVariableDcaNegToPrimVertex", &fTreeVariableDcaNegToPrimVertex	, "fTreeVariableDcaNegToPrimVertex/D");
-  fBkgTree->Branch("fTreeVariableV0CosineOfPointingAngle", &fTreeVariableV0CosineOfPointingAngle	, "fTreeVariableV0CosineOfPointingAngle/D");
-  fBkgTree->Branch("fTreeVariableXiCosineOfPointingAngle", &fTreeVariableXiCosineOfPointingAngle	, "fTreeVariableXiCosineOfPointingAngle/D");
+  fBkgTree->Branch("fTreeVariablePtTrigger",                  &fTreeVariablePtTrigger   ,  "fTreeVariablePtTrigger/D");
+  fBkgTree->Branch("fTreeVariableChargeTrigger",              &fTreeVariableChargeTrigger, "fTreeVariableChargeTrigger/I");
+  fBkgTree->Branch("fTreeVariableEtaTrigger",                 &fTreeVariableEtaTrigger  , "fTreeVariableEtaTrigger/D");
+  fBkgTree->Branch("fTreeVariablePhiTrigger",                 &fTreeVariablePhiTrigger, "fTreeVariablePhiTrigger/D");
+  fBkgTree->Branch("fTreeVariableDCAz",                       &fTreeVariableDCAz  , "fTreeVariableDCAz/D");
+  fBkgTree->Branch("fTreeVariableDCAxy",                      &fTreeVariableDCAxy  , "fTreeVariableDCAxy/D");
+  fBkgTree->Branch("fTreeVariableChargeAssoc",                &fTreeVariableChargeAssoc  , "fTreeVariableChargeAssoc/I");
+  fBkgTree->Branch("fTreeVariableisPrimaryTrigger",           &fTreeVariableisPrimaryTrigger  , "fTreeVariableisPrimaryTrigger/I");  
+  fBkgTree->Branch("fTreeVariableisPrimaryV0",                &fTreeVariableisPrimaryV0  , "fTreeVariableisPrimaryV0/I");  
+  fBkgTree->Branch("fTreeVariableRapAssoc",                   &fTreeVariableRapAssoc               ,"fTreeVariableRapAssoc/D");
+  fBkgTree->Branch("fTreeVariableDcaXiDaughters",             &fTreeVariableDcaXiDaughters 	, "fTreeVariableDcaXiDaughters/D");
+  //  fBkgTree->Branch("fTreeVariableDcaPosToPrimVertex",     &fTreeVariableDcaPosToPrimVertex	, "fTreeVariableDcaPosToPrimVertex/D");
+  //  fBkgTree->Branch("fTreeVariableDcaNegToPrimVertex",     &fTreeVariableDcaNegToPrimVertex	, "fTreeVariableDcaNegToPrimVertex/D");
+  fBkgTree->Branch("fTreeVariableV0CosineOfPointingAngle",    &fTreeVariableV0CosineOfPointingAngle	, "fTreeVariableV0CosineOfPointingAngle/D");
+  fBkgTree->Branch("fTreeVariableXiCosineOfPointingAngle",    &fTreeVariableXiCosineOfPointingAngle	, "fTreeVariableXiCosineOfPointingAngle/D");
   fBkgTree->Branch("fTreeVariablePtV0",               &fTreeVariablePtV0   , "fTreeVariablePtV0/D");
   fBkgTree->Branch("fTreeVariablectau",               &fTreeVariablectau   , "fTreeVariablectau/D");
   fBkgTree->Branch("fTreeVariableInvMassLambda",      &fTreeVariableInvMassLambda, "fTreeVariableInvMassLambda/D");
-  fBkgTree->Branch("fTreeVariableInvMassXi",      &fTreeVariableInvMassXi, "fTreeVariableInvMassXi/D");
-  fBkgTree->Branch("fTreeVariableInvMassOmega",      &fTreeVariableInvMassOmega, "fTreeVariableInvMassOmega/D");
+  fBkgTree->Branch("fTreeVariableInvMassXi",          &fTreeVariableInvMassXi, "fTreeVariableInvMassXi/D");
+  fBkgTree->Branch("fTreeVariableInvMassOmega",       &fTreeVariableInvMassOmega, "fTreeVariableInvMassOmega/D");
   fBkgTree->Branch("fTreeVariableEtaV0",              &fTreeVariableEtaV0  , "fTreeVariableEtaV0/D");
   fBkgTree->Branch("fTreeVariablePhiV0",              &fTreeVariablePhiV0, "fTreeVariablePhiV0/D");
+  fBkgTree->Branch("fTreeVariableSkipAssoc",          &fTreeVariableSkipAssoc, "fTreeVariableSkipAssoc/b");
   fBkgTree->Branch("fTreeVariableDeltaEta",           &fTreeVariableDeltaEta  , "fTreeVariableDeltaEta/D");
   fBkgTree->Branch("fTreeVariableDeltaPhi",           &fTreeVariableDeltaPhi  , "fTreeVariableDeltaPhi/D");
   fBkgTree->Branch("fTreeVariableDeltaTheta",         &fTreeVariableDeltaTheta, "fTreeVariableDeltaTheta/D");
   fBkgTree->Branch("fTreeVariableMultiplicity",       &fTreeVariableMultiplicity , "fTreeVariableMultiplicity/D");
   fBkgTree->Branch("fTreeVariableZvertex",            &fTreeVariableZvertex  , "fTreeVariableZvertex/D");
-  fBkgTree->Branch("fTreeVariablePDGCodeTrigger",     &fTreeVariablePDGCodeTrigger  , "fTreeVariablePDGCodeTrigger/D");
-  fBkgTree->Branch("fTreeVariablePDGCodeAssoc",       &fTreeVariablePDGCodeAssoc  , "fTreeVariablePDGCodeAssoc/D");
+  fBkgTree->Branch("fTreeVariablePDGCodeTrigger",     &fTreeVariablePDGCodeTrigger  , "fTreeVariablePDGCodeTrigger/I");
+  fBkgTree->Branch("fTreeVariablePDGCodeAssoc",       &fTreeVariablePDGCodeAssoc  , "fTreeVariablePDGCodeAssoc/I");
   
   fHistPt = new TH1F("fHistPt", "p_{T} distribution of selected charged tracks in events used for AC", 300, 0, 30); 
   fHistPt->GetXaxis()->SetTitle("p_{T} (GeV/c)");
@@ -2224,12 +2228,29 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
       }
     }
 
+    Bool_t isCascadePos=kFALSE;
+    Bool_t isCascadeNeg=kFALSE;
+    Bool_t isCascade=kFALSE;
+    Int_t  isPrimaryCasc=0;
+
+    if (ParticleType==0){
+      isCascade = (isXiPos || isXiNeg);
+      isCascadePos = isXiPos;
+      isCascadeNeg = isXiNeg;
+      isPrimaryCasc=lVariableIsPrimaryXi;
+    }
+    else if (ParticleType==1){
+      isCascade = (isOmegaPos || isOmegaNeg);
+      isCascadePos = isOmegaPos;
+      isCascadeNeg = isOmegaNeg;
+      isPrimaryCasc=lVariableIsPrimaryOmega;
+    }
 
     if(fReadMCTruth){
       if (fMCEvent){
 	//cout << "\n this particle has been reconstructed: let's fill the mass Pt histo for true reco K0s "<< endl;
 	if(isCascade && isPrimaryCasc){ 
-	  fHistReconstructedV0PtMass->Fill(lInvMassCasc, lXiTransvMom, lPercentiles);
+	  //	  fHistReconstructedV0PtMass->Fill(lInvMassCasc, lXiTransvMom, lPercentiles);
 	}
       }
     }
@@ -2525,26 +2546,14 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
 
     Double_t lInvMassCasc =0;
     Double_t lRapCasc =0;
-    Int_t  isPrimaryCasc=0;
-    Bool_t isCascadePos=kFALSE;
-    Bool_t isCascadeNeg=kFALSE;
-    Bool_t isCascade=kFALSE;
 
     if (ParticleType==0){
       lInvMassCasc = lInvMassXi;
       lRapCasc =lRapXi;
-      isPrimaryCasc=lVariableIsPrimaryXi;
-      isCascade = (isXiPos || isXiNeg);
-      isCascadePos = isXiPos;
-      isCascadeNeg = isXiNeg;
     }
     else if (ParticleType==1){
       lInvMassCasc = lInvMassOmega;
       lRapCasc =lRapOmega;
-      isPrimaryCasc=lVariableIsPrimaryOmega;
-      isCascade = (isOmegaPos || isOmegaNeg);
-      isCascadePos = isOmegaPos;
-      isCascadeNeg = isOmegaNeg;
     }
 
     for (Int_t m =0; m<5;m++){
@@ -2576,8 +2585,8 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
 	}
       }
     }
-    if (skipV0)    continue;
 
+    //    if (skipV0)    continue;
 
     fMassV0->Fill(lInvMassCasc);    
 
@@ -2603,13 +2612,14 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
 	       fHistResolutionV0Eta->Fill(v0->Eta()- MotherPos->Eta(), lPercentiles, ptTriggerMassimoDati);
 	    */
 	    //2D histos
+	    if (skipV0) { //new line
 	    fHistResolutionV0Pt->Fill(lXiTransvMom- GMotherPos->Pt(), ptTriggerMassimoDati);
 	    fHistResolutionV0Phi->Fill(lPhiXi- GMotherPos->Phi(), ptTriggerMassimoDati);
 	    fHistResolutionV0PhivsPt->Fill(lPhiXi- GMotherPos->Phi() , lXiTransvMom);
 	    fHistResolutionV0PtvsPt->Fill(lXiTransvMom- GMotherPos->Pt(), lXiTransvMom);
 	    fHistResolutionV0Eta->Fill(lEtaXi- GMotherPos->Eta(),  ptTriggerMassimoDati);
 	    fHistAssocPtRecovsPtGen->Fill(GMotherPos->Pt(), lXiTransvMom);
-
+	    }
 	    //
 	    //this histogram should not be used to calculate the efficiency 
 	    if (TMath::Abs(lRapCasc) <0.5){
@@ -2682,7 +2692,7 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
 	}
       }
     }
-
+    
     //save second particle information (V0)
     cout << "isprimary casc " << isPrimaryCasc << "labelPrimOrSecV0" << labelPrimOrSecV0 << endl; 
     //cout << "save second particle information (V0) "<< endl;
@@ -2702,6 +2712,7 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
       fEvt->fReconstructedSecond[NumberSecondParticle-1].cTheta                 = lThetaXi;
       fEvt->fReconstructedSecond[NumberSecondParticle-1].cPhi                   = lPhiXi;
       fEvt->fReconstructedSecond[NumberSecondParticle-1].cCharge                = lChargeXi;
+      fEvt->fReconstructedSecond[NumberSecondParticle-1].cAssocOrNot            = skipV0;
       
       fHistPtV0->Fill(lXiTransvMom);
     }
@@ -2746,6 +2757,7 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
 	fEvt->fReconstructedSecond[NumberSecondParticle-1].cTheta                 = particleV0->Theta();
 	fEvt->fReconstructedSecond[NumberSecondParticle-1].cPhi                   = particleV0->Phi();
 	fEvt->fReconstructedSecond[NumberSecondParticle-1].cCharge                = particleV0->Charge();
+	fEvt->fReconstructedSecond[NumberSecondParticle-1].cAssocOrNot            = skipV0_MC;
       }
     }
   } //end MC truth loop for Casc particles as associated 
@@ -2982,6 +2994,7 @@ void AliAnalysisTaskCorrelationhCasc::DoPairsh1h2 ( const Float_t lPercentiles, 
 	  fTreeVariableEtaV0                  =    fEvt->fReconstructedSecond[j].cEta                  ; 
 	  fTreeVariablePhiV0		      =    fEvt->fReconstructedSecond[j].cPhi                  ; 
 	  fTreeVariableChargeAssoc 	      =    fEvt->fReconstructedSecond[j].cCharge               ; 
+	  fTreeVariableSkipAssoc	      =    fEvt->fReconstructedSecond[j].cAssocOrNot           ; 
 
 	  fTreeVariableDeltaEta	      	      = deta;  
 	  fTreeVariableDeltaPhi		      = dphi;
@@ -3018,6 +3031,7 @@ void AliAnalysisTaskCorrelationhCasc::DoPairsh1h2 ( const Float_t lPercentiles, 
 	  fTreeVariableEtaV0                  =    fEvt->fReconstructedSecond[j].cEta                  ; 
 	  fTreeVariablePhiV0		      =    fEvt->fReconstructedSecond[j].cPhi                  ; 
 	  fTreeVariableChargeAssoc 	      =    fEvt->fReconstructedSecond[j].cCharge               ; 
+	  fTreeVariableSkipAssoc 	      =    fEvt->fReconstructedSecond[j].cAssocOrNot           ; 
 
 	  fTreeVariableDeltaEta	       	      =deta;  
 	  fTreeVariableDeltaPhi		      =dphi;

@@ -194,17 +194,17 @@ class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE
 
   //tree leaf
   Double_t fTreeVariablePtTrigger;		       
-  Double_t fTreeVariableChargeTrigger;		       
+  Int_t    fTreeVariableChargeTrigger;		       
   Double_t fTreeVariableEtaTrigger; 		       
   Double_t fTreeVariablePhiTrigger;		       
   Double_t fTreeVariableDCAz;			       
   Double_t fTreeVariableDCAxy;
-  Double_t fTreeVariableChargeAssoc;			       
+  Int_t    fTreeVariableChargeAssoc;			       
   Double_t fTreeVariableAssocDCAz;			       
   Double_t fTreeVariableAssocDCAxy;			       
   Double_t fTreeVariableRapAssoc;		       	      
-  Double_t fTreeVariableisPrimaryTrigger;
-  Double_t fTreeVariableisPrimaryV0;
+  Int_t    fTreeVariableisPrimaryTrigger;
+  Int_t    fTreeVariableisPrimaryV0;
   Double_t fTreeVariableDcaXiDaughters;	       	      
   //  Double_t fTreeVariableDcaPosToPrimVertex;	       	      
   //  Double_t fTreeVariableDcaNegToPrimVertex;	       	      
@@ -217,14 +217,15 @@ class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE
   Double_t fTreeVariableInvMassOmega;		       
   Double_t fTreeVariableEtaV0;			       
   Double_t fTreeVariablePhiV0;			       
+  Bool_t   fTreeVariableSkipAssoc;			       
   Double_t fTreeVariableDeltaEta;			       
   Double_t fTreeVariableDeltaPhi;			       
   Double_t fTreeVariableDeltaTheta;
 
   Double_t fTreeVariableMultiplicity;                   
   Double_t fTreeVariableZvertex;
-  Double_t fTreeVariablePDGCodeTrigger;
-  Double_t fTreeVariablePDGCodeAssoc;
+  Int_t fTreeVariablePDGCodeTrigger;
+  Int_t fTreeVariablePDGCodeAssoc;
 
   bool FifoShiftok;	                        		      
 
