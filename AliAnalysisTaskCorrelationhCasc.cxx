@@ -2612,7 +2612,7 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
 	       fHistResolutionV0Eta->Fill(v0->Eta()- MotherPos->Eta(), lPercentiles, ptTriggerMassimoDati);
 	    */
 	    //2D histos
-	    if (skipV0) { //new line
+	    if (!skipV0) { //new line
 	    fHistResolutionV0Pt->Fill(lXiTransvMom- GMotherPos->Pt(), ptTriggerMassimoDati);
 	    fHistResolutionV0Phi->Fill(lPhiXi- GMotherPos->Phi(), ptTriggerMassimoDati);
 	    fHistResolutionV0PhivsPt->Fill(lPhiXi- GMotherPos->Phi() , lXiTransvMom);
