@@ -618,7 +618,7 @@ void AliAnalysisTaskCorrelationhCasc::UserCreateOutputObjects()
   fSignalTree->Branch("fTreeVariableInvMassOmega",          &fTreeVariableInvMassOmega, "fTreeVariableInvMassOmega/D");
   fSignalTree->Branch("fTreeVariableEtaV0",              &fTreeVariableEtaV0  , "fTreeVariableEtaV0/D");
   fSignalTree->Branch("fTreeVariablePhiV0",              &fTreeVariablePhiV0, "fTreeVariablePhiV0/D");
-  fSignalTree->Branch("fTreeVariableSkipAssoc",          &fTreeVariableSkipAssoc, "fTreeVariableSkipAssoc/b");
+  fSignalTree->Branch("fTreeVariableSkipAssoc",          &fTreeVariableSkipAssoc, "fTreeVariableSkipAssoc/O");
   fSignalTree->Branch("fTreeVariableDeltaEta",           &fTreeVariableDeltaEta  , "fTreeVariableDeltaEta/D");
   fSignalTree->Branch("fTreeVariableDeltaPhi",           &fTreeVariableDeltaPhi, "fTreeVariableDeltaPhi/D");
   fSignalTree->Branch("fTreeVariableDeltaTheta",         &fTreeVariableDeltaTheta, "fTreeVariableDeltaTheta/D");
@@ -651,7 +651,7 @@ void AliAnalysisTaskCorrelationhCasc::UserCreateOutputObjects()
   fBkgTree->Branch("fTreeVariableInvMassOmega",       &fTreeVariableInvMassOmega, "fTreeVariableInvMassOmega/D");
   fBkgTree->Branch("fTreeVariableEtaV0",              &fTreeVariableEtaV0  , "fTreeVariableEtaV0/D");
   fBkgTree->Branch("fTreeVariablePhiV0",              &fTreeVariablePhiV0, "fTreeVariablePhiV0/D");
-  fBkgTree->Branch("fTreeVariableSkipAssoc",          &fTreeVariableSkipAssoc, "fTreeVariableSkipAssoc/b");
+  fBkgTree->Branch("fTreeVariableSkipAssoc",          &fTreeVariableSkipAssoc, "fTreeVariableSkipAssoc/O");
   fBkgTree->Branch("fTreeVariableDeltaEta",           &fTreeVariableDeltaEta  , "fTreeVariableDeltaEta/D");
   fBkgTree->Branch("fTreeVariableDeltaPhi",           &fTreeVariableDeltaPhi  , "fTreeVariableDeltaPhi/D");
   fBkgTree->Branch("fTreeVariableDeltaTheta",         &fTreeVariableDeltaTheta, "fTreeVariableDeltaTheta/D");
