@@ -43,9 +43,6 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
 
 void histos_exercise_AllParticles(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=0.150, Int_t rap=1,Int_t type=8, Int_t sysTrigger=0, Int_t sysV0=0, Int_t syst=0, Double_t nsigmamax=9, TString year0="2016", TString year="2018f1_extra_hXi_65runs", Bool_t isMC=1, Bool_t isEfficiency=1, TString path1=""){
 
-  TString yearMC;
-  if (year=="2016k") yearMC = "2018f1_extra";
-  if (year=="2018f1_extra") yearMC = "2018f1_extra";
   //isSignalFromIntegral permette di scegliere tra l'utilizzo di S = integral fit function o S = entries- integral bkg function
   //IsBkgPParab = fit con pl2 per fondo if kTRUE, fit con pol1 per fodno if kFALSE
 
@@ -67,8 +64,6 @@ void histos_exercise_AllParticles(Bool_t isSignalFromIntegral=0, Bool_t isBkgPar
     return;
   }
 
-  //sys=1 nsigmamin=5 (def:4)
-  //sys=2 sigmacentral =4 (def:3)
   Double_t sigmacentral=4; //it was 3 for kaons
   Double_t nsigmamin=5; //it was four for kaons
   
@@ -117,12 +112,8 @@ void histos_exercise_AllParticles(Bool_t isSignalFromIntegral=0, Bool_t isBkgPar
   Float_t lim_inf_sigma[num_tipo]={0};
   Float_t lim_sup_sigma[num_tipo]={0.008,0.002,0.002,0.002 , 0.008, 0.008, 0.008, 0.008, 0.008, 0.008}; //first one must be 0.008 if we want to display the 7-15 mult values between 7 and 8 pT
   Float_t lim_inf_errmean[num_tipo]={0}; 
-  //  Float_t lim_sup_errmean[num_tipo]={0.001,0.0006,0.00035,0.0006 }; //per Arm e tagli standard
-  // Float_t lim_sup_errmean[num_tipo]={0.002,0.0006,0.00035,0.0006 };//per Lrejection
   Float_t lim_sup_errmean[num_tipo]={10,0.0006,0.00035,0.0006, 10, 10, 10, 10 ,10,10};//loooooose
   Float_t lim_inf_errsigma[num_tipo]={0}; 
-  //  Float_t lim_sup_errsigma[num_tipo]={0.001,0.0004,0.0015,0.0004 }; //per Arm e tagli standard
-  //  Float_t lim_sup_errsigma[num_tipo]={0.002,0.0004,0.0015,0.0004 }; //per Lrejection
   Float_t lim_sup_errsigma[num_tipo]={10,0.0004,0.0015,0.0004 , 10, 10, 10, 10, 10, 10}; //loose
 
   Int_t entries_range[num_histo]={0};
@@ -185,50 +176,48 @@ void histos_exercise_AllParticles(Bool_t isSignalFromIntegral=0, Bool_t isBkgPar
   TCanvas *canv[mult+1];
     Int_t     NEvents[mult+1];
     TString Srap[2] = {"_Eta0.8", "_y0.5"};
-  for(Int_t molt=0; molt<mult+1; molt++){
-    //  if (molt < mult) continue;
-    TString nome_file_1 ="FinalOutput/DATA"+year0+"/histo/AngularCorrelation"+year;
-    TString nome_file_output[NsysTrigger][NsysV0];
-    TString nome_file_analysis;
+    for(Int_t molt=0; molt<mult+1; molt++){
+      if (molt < mult) continue;
+      TString nome_file_1 ="FinalOutput/DATA"+year0+"/histo/AngularCorrelation"+year;
+      TString nome_file_output[NsysTrigger][NsysV0];
+      TString nome_file_analysis;
       nome_file_analysis="FinalOutput/AnalysisResults"+year+".root";
       if (isMC && isEfficiency) nome_file_analysis="FinalOutput/AnalysisResults"+year+"_MCEff.root";
-    nome_file_output[sysTrigger][sysV0] ="FinalOutput/DATA"+year0+"/invmass_distribution_thesis/invmass_distribution";
+      nome_file_output[sysTrigger][sysV0] ="FinalOutput/DATA"+year0+"/invmass_distribution_thesis/invmass_distribution";
 
-    if(isMC && isEfficiency){
-      nome_file_1+="_MCEff";
-      nome_file_output[sysTrigger][sysV0]+="_MCEff";
-    }
+      if(isMC && isEfficiency){
+	nome_file_1+="_MCEff";
+	nome_file_output[sysTrigger][sysV0]+="_MCEff";
+      }
 
-    nome_file_output[sysTrigger][sysV0]+=path1;
-    nome_file_output[sysTrigger][sysV0]+="_";
-    if (type!=0){ 
-   nome_file_1+="_" +tipo[type];
-   nome_file_output[sysTrigger][sysV0]+="_" +tipo[type];
-}
+      nome_file_output[sysTrigger][sysV0]+=path1;
+      nome_file_output[sysTrigger][sysV0]+="_";
+      if (type!=0){ 
+	nome_file_1+="_" +tipo[type];
+      }
 
-    nome_file_1+=path1;
-    if (type!=0){
-    nome_file_1 +=Srap[rap];
-    nome_file_output[sysTrigger][sysV0]+=Srap[type];
-    }
-    nome_file_1 +=Form("_MassDistr_SysT%i_SysV0%i_PtMin%.1f.root",sysTrigger, sysV0, PtTrigMin);
-    nome_file_output[sysTrigger][sysV0] +=Form(year+"_"+tipo[type]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f_Rap%i.root", molt, sysTrigger, sysV0, syst,PtTrigMin, rap);
+      nome_file_1+=path1;
+      if (type!=0){
+	nome_file_1 +=Srap[rap];
+      }
+      nome_file_1 +=Form("_MassDistr_SysT%i_SysV0%i_PtMin%.1f.root",sysTrigger, sysV0, PtTrigMin);
+      nome_file_output[sysTrigger][sysV0] +=Form(year+"_"+tipo[type]+Srap[rap]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f.root", molt, sysTrigger, sysV0, syst,PtTrigMin);
 
-    cout << "questo è il nome del file prodotto dal task (nome_file_analysis) " << nome_file_analysis << endl;
-    cout << "questo è il nome del file " << nome_file_1 << endl;
-    cout << "questo è il nome del file di output " << nome_file_output[sysTrigger][sysV0] << endl;
+      cout << "questo è il nome del file prodotto dal task (nome_file_analysis) " << nome_file_analysis << endl;
+      cout << "questo è il nome del file " << nome_file_1 << endl;
+      cout << "questo è il nome del file di output " << nome_file_output[sysTrigger][sysV0] << endl;
 
-    myfile = new TFile(nome_file_1, ""); 
-    if (!myfile) { cout << "nome_file_1 is missing " << endl; return;}
-    myfileAnalysis = new TFile(nome_file_analysis, ""); 
-    if (!myfileAnalysis) { cout << "nome_file_analysis is missing " << endl; return;}
+      myfile = new TFile(nome_file_1, ""); 
+      if (!myfile) { cout << "nome_file_1 is missing " << endl; return;}
+      myfileAnalysis = new TFile(nome_file_analysis, ""); 
+      if (!myfileAnalysis) { cout << "nome_file_analysis is missing " << endl; return;}
 
-    TDirectoryFile *dirinput = (TDirectoryFile*)myfileAnalysis->Get(nome_TDir);
-    if (!dirinput) return;
-    TList *listinputForNEvents = (TList*)dirinput->Get("MyOutputContainer");
-    if (!listinputForNEvents) return;
-    TH1F* fHistMul = (TH1F*)listinputForNEvents->FindObject("fHist_multiplicity_EvwTrigger");
-    if (!fHistMul) return;
+      TDirectoryFile *dirinput = (TDirectoryFile*)myfileAnalysis->Get(nome_TDir);
+      if (!dirinput) return;
+      TList *listinputForNEvents = (TList*)dirinput->Get("MyOutputContainer");
+      if (!listinputForNEvents) return;
+      TH1F* fHistMul = (TH1F*)listinputForNEvents->FindObject("fHist_multiplicity_EvwTrigger");
+      if (!fHistMul) return;
 
       NEvents[molt] =0;
       if (molt!=mult){
@@ -265,9 +254,9 @@ void histos_exercise_AllParticles(Bool_t isSignalFromIntegral=0, Bool_t isBkgPar
     Double_t parOneGaussRetta[num_histo][5];  
     //  cout<< " ciao " << endl;
 
-    TF1 **functionsFirst = new TF1*[num_histo];  //perche due star
-    TF1 **functionsSecond = new TF1*[num_histo];  //perche due star
-    TF1 **functions1 = new TF1*[num_histo];  //perche due star
+    TF1 **functionsFirst = new TF1*[num_histo];  
+    TF1 **functionsSecond = new TF1*[num_histo]; 
+    TF1 **functions1 = new TF1*[num_histo];  
     TF1 **functions2 = new TF1*[num_histo];
     //  cout<< " ciao " << endl;
 
@@ -325,8 +314,6 @@ void histos_exercise_AllParticles(Bool_t isSignalFromIntegral=0, Bool_t isBkgPar
     histo_BcentralFalse->GetYaxis()->SetTitle("");
     histo_BsideFalse->GetXaxis()->SetTitle("p_{T} (GeV/c)");
     histo_BsideFalse->GetYaxis()->SetTitle("");
-    // histo_stat->GetXaxis()->SetTitle("p_{T} (GeV/c)");
-    // histo_stat->GetYaxis()->SetTitle("Counts");
     histo_signal_int->GetXaxis()->SetTitle("p_{T} (GeV/c)");
     histo_signal_int->GetYaxis()->SetTitle("Signal integral/#events (GeV/c^{2})");
     histo_signal_int_pure->GetXaxis()->SetTitle("p_{T} (GeV/c)");
@@ -336,11 +323,10 @@ void histos_exercise_AllParticles(Bool_t isSignalFromIntegral=0, Bool_t isBkgPar
     histo_chis->GetYaxis()->SetTitleOffset(1.2);
     histo_SB->GetYaxis()->SetTitleOffset(1.2);
     histo_SSB->GetYaxis()->SetTitleOffset(1.2);
-    //  histo_stat->GetYaxis()->SetTitleOffset(1.2);
     histo_signal_int->GetYaxis()->SetTitleOffset(1.2);
     histo_signal_int_pure->GetYaxis()->SetTitleOffset(1.2);
 
-    cout << "ciao" << endl;
+    //    cout << "ciao" << endl;
     for(Int_t j=1;j<num_histo; j++){
       if (type==4 || type==5){
 	liminf[type]=1.30;
@@ -365,7 +351,7 @@ void histos_exercise_AllParticles(Bool_t isSignalFromIntegral=0, Bool_t isBkgPar
       isto_tagli[j]->Rebin(rebin[type][molt][j]);
       isto_tagli_true[j]->Rebin(rebin[type][molt][j]);
       isto_tagli_false[j]->Rebin(rebin[type][molt][j]);
-      if ((type ==4 || type==5) && j>=5){
+      if ((type ==4 || type==5 || type ==8) && j>=5){
       isto_tagli[j]->Rebin(2);
       isto_tagli_true[j]->Rebin(2);
       isto_tagli_false[j]->Rebin(2);
@@ -448,112 +434,12 @@ void histos_exercise_AllParticles(Bool_t isSignalFromIntegral=0, Bool_t isBkgPar
 
       Bool_t UseTwoGauss=kTRUE;
       Bool_t IsOneGauss=kFALSE;
-      //*************************************************************************************************************
-      // for K0s******************************************************************************************
-      //*************************************************************************************************************
 
-      //if (sysV0!=4) UseTwoGauss=((j<3 && molt==0) ||(j<4 && molt==1) || (j<4 && molt ==2) || (j<4 && molt ==3) || (j<4 && j>0 && molt ==4) || (j<0 && j>0 && molt ==5)); //no cut
-      //2016lk if (sysV0!=4) UseTwoGauss=((j<2 && molt==0) ||(j<4 && molt==1) || (j<3 && molt ==2) || (j<1 && molt ==3) || (j<3 && molt ==4)|| (j<3 && molt ==5)); //no cut
-      //2017kh 
-      //if (sysV0!=4) UseTwoGauss=((j<5 && molt==0) ||(j<4 && molt==1) || (j<5 && molt ==2) || (j<4 && molt ==3) || (j<1 && molt ==4)|| (j<5 && molt ==5)); //no cut
-      //2018d8_MCEff
-      //if (sysV0!=4) UseTwoGauss=(((j<3 && j>0) && molt==0) ||(j==1 && molt==1) || (j==1 && molt ==2) || (j<0 && molt ==3) || (j<0 && molt ==4)|| (j>0 &&j<3  && molt ==5)); //no cut
-      //if (sysV0!=4) UseTwoGauss=((j<0 && molt==0) ||(j<0 && molt==1) || (j<0&& molt ==2) || (j<0 && molt ==3) || (j<0 && molt ==4)|| (j<0 && molt ==5)); //no cut
-
-      // else if (sysV0==4) UseTwoGauss=((j<6 && molt==0) || (j<=7 && molt==1)||(j<9 && molt ==2) || (j<9 && molt ==3) || (j<3 && j>0 && molt ==4) || (j<0 && j>0 && molt ==5)); //Arm
-      //   else if (cut==2) UseTwoGauss=((j<6 && molt==0) || (j<=8 && molt==1)||(j<9 && molt ==2) || (j<8 && molt ==3) || (j<3 && j>1 && molt ==4)); //Lrej
-      //2018b
-      //  UseTwoGauss=((j<4 && molt==0) ||(j<2 && molt==1) || (j<5 && molt ==2) || (j<3 && molt ==3) || (j<1 && molt ==4)|| (j>=0 &&j<5  && molt ==5)); //no cut
-      //2018mb
-      //    UseTwoGauss=((j<5 && molt==0) ||(j<3 && molt==1) || (j<4 && molt ==2) || (j<2 && molt ==3) || (j<4 && molt ==4)|| (j>=0 &&j<5  && molt ==5)); //no cut
-      //2018mb2016l2017hkm
-  
-      // UseTwoGauss=((j<5 && molt==0) ||(j<4 && j>0 && molt==1) || (j<5 && molt ==2) || (j<4 && molt ==3) || (j<4 && molt ==4)|| (j>=0 &&j<5  && molt ==5)); //no cut
-      //2016k
-      // UseTwoGauss=((j<4 && molt==0) ||(j<4 && j>=0 && molt==1) || (j<4&& molt ==2) || (j<4&& molt ==3) || (j<4 && j!=1 && molt ==4)|| (j>=0 &&j<5  && molt ==5)); //no cut
-      //2018d8_DCACorrFinal
-      // UseTwoGauss=((j<4 && molt==0) ||(j<3 && j>=0 && molt==1) || (j==1&& molt ==2) || (j==1&& molt ==3) || (j<0  && molt ==4)|| (j>=0 &&j<5  && molt ==5)); //no cut
- 
-      //2016k con 7 bin pT
-      if(year=="2016k"){
-	UseTwoGauss=((j<6 && molt==0) ||(j<6 && j>=0 && molt==1) || (j<6&& molt ==2) || (j<6 &&j!=2&& molt ==3) || (j<6 &&j!=1 && molt ==4)|| (j>=0 &&j<7  && molt ==5));
-	if(sysV0==1)   UseTwoGauss=((j<6 && molt==0) ||(j<6 && j>=0 && molt==1) || (j<6&& molt ==2) || (j<6 &&j!=2&& molt ==3) || (j<5 &&j!=1 && molt ==4)|| (j>=0 &&j<7  && molt ==5));
-	if(sysV0==3)     UseTwoGauss=((j<5 && molt==0) ||(j<6 && j>=0 &&j!=3 && molt==1) || (j<6&& molt ==2) || (j<6 &&j!=2&& molt ==3) || (j<4 &&j!=1 && molt ==4)|| (j>=0 &&j<7  && molt ==5));
-	if(sysV0==4)     UseTwoGauss=((j<6 && molt==0) ||(j<6 && j>=0 && molt==1) || (j<6&& molt ==2) || (j<6 &&j!=2&& molt ==3) || (j<5 &&j!=1 && molt ==4)|| (j>=0 &&j<7  && molt ==5));
-	if(sysV0==5)     UseTwoGauss=((j<6 && j!=3 && molt==0) ||(j<6 && j>=0 && molt==1) || (j<6&& j!=2 &&molt ==2) || (j<6 &&j!=2&&j!=3&& molt ==3) || (j<5 &&j!=1 && molt ==4)|| (j>=0 &&j<7  && molt ==5));
-	if(sysV0==6)   UseTwoGauss=((j<6 && molt==0) ||(j<6 && j>=0 && molt==1) || (j<6&& molt ==2) || (j<6 &&j!=2&&j!=4&& molt ==3) || (j<6 &&j!=1 && molt ==4)|| (j>=0 &&j<7  && molt ==5));
-      }
-
-
-      if(year=="2016k_onlyTriggerWithHighestPt"){
-	UseTwoGauss=((j<7 && molt==0) ||(j<7 && molt==1) || (j<7&& molt ==2) || (j<7 && molt ==3) || (j<5 && j!=3 && molt ==4)|| (j<6  && molt ==5));
-	if(sysV0==1)   UseTwoGauss=((j<7 && molt==0) ||(j<7 &&j!=5 && molt==1) || (j<7&& molt ==2) || (j<7 && molt ==3) || (j!=4 &&j!=3 && molt ==4)|| (j<7  && molt ==5));
-	if (sysV0==2) UseTwoGauss=((j<7 && molt==0) ||(j<7 && molt==1) || (j<7&& molt ==2) || (j<7 && molt ==3) || (j<5 &&j!=3&& molt ==4)|| (j<6  && molt ==5));
-	if(sysV0==3)     UseTwoGauss=((j<7&& molt==0) ||(j<7 && molt==1) || (j<7&& molt ==2) || (j<7 &&molt ==3) || (j<6 &&j!=3 && molt ==4)|| (j<7  && molt ==5));
-	if(sysV0==4)     UseTwoGauss=((j<7 && molt==0) ||(j<7 && molt==1) || (j<7&& molt ==2) || (j<7 &&j!=2&& molt ==3) || (j<5 &&j!=1 &&j!=3&& molt ==4)|| (j<7 && molt ==5));
-	if(sysV0==5)     UseTwoGauss=((j!=5 && j!=3 &&j!=2&& molt==0) ||(j<7 && j!=2 && molt==1) || (j<7&& j!=5 &&molt ==2) || (j<7 &&j!=2&& molt ==3) || ((j==5 ||j ==0 ||j==2) && molt ==4)|| (j!=2 && j!=4 &&j<7  && molt ==5));
-	if(sysV0==6)   UseTwoGauss=((j<7 && molt==0) ||(j<7 && j!=3 && molt==1) || (j<7&& molt ==2) || (j<7 && molt ==3) || (j<3 && j!=1 && molt ==4)|| (j<7  && molt ==5));
-	//UseTwoGauss=kTRUE;
-      }
-
-      if(year=="2018f1_extra_onlyTriggerWithHighestPt"){
-	UseTwoGauss=((j<7 && molt==0) ||(j<7 && molt==1) || (j<6&& molt ==2) || (j<6&&j!=4 && molt ==3) || (j<5 && j!=2 && molt ==4)|| (j<7  && molt ==5));
-	if(sysV0==1)   UseTwoGauss=((j<7 && molt==0) ||(j<7  && molt==1) || (j<7&& molt ==2) || (j<6 && molt ==3) || (j<5 &&j!=2 && molt ==4)|| (j<7  && molt ==5));
-	if (sysV0==2) UseTwoGauss=((j<7 && molt==0) ||(j<7 && molt==1) || (j<6&& molt ==2) || (j<6 &&j!=4 && molt ==3) || (j<5 &&j!=2&& molt ==4)|| (j<7  && molt ==5));
-	if(sysV0==3)     UseTwoGauss=((j<7&& molt==0) ||(j<7 && molt==1) || (j<6&& molt ==2) || (j<4 &&molt ==3) || (j<6 &&j!=4 && molt ==4)|| (j<7  && molt ==5));
-	if(sysV0==4)     UseTwoGauss=((j<7 && molt==0) ||(j<7 && molt==1) || (j<6&& molt ==2) || (j<4 && molt ==3) || (j<5 && molt ==4)|| (j<7 && molt ==5));
-	if(sysV0==5)     UseTwoGauss=((j<6 && molt==0) ||(j!=4 && j!=3 && molt==1) || (j<7&& j!=6 &&molt ==2) || (j!=3 &&j!=4&&j!=6 && molt ==3) || (j!=6 && j!=2 && molt ==4)|| (j<7  && molt ==5));
-	if(sysV0==6)   UseTwoGauss=((j<7 && molt==0) ||(j<7  && molt==1) || (j<6&& molt ==2) || (j<7 && molt ==3) || (j<6 && j!=1 && molt ==4)|| (j<7  && molt ==5));
-	//UseTwoGauss=kTRUE;
-      }
-
-      if(year=="2016k" && PtTrigMin==4){
-	UseTwoGauss=((j<6 && molt==0) ||(j<6 && j>=0 && molt==1) || (j<6&& molt ==2) || ((j==0 || j==5)&&molt ==3) || (j<3 &&j!=1 && j!=3 && molt ==4)|| (j>=0 &&j<7  && molt ==5));
-	if(sysV0==1)   UseTwoGauss=((j<6 && molt==0) ||(j<6 && j>=0 && molt==1) || (j<6&& molt ==2) || (j<6 &&j!=4 &&j!=2&& molt ==3) || (j<4 &&j!=1 && molt ==4)|| (j>=0 &&j<7  && molt ==5));
-	if(sysV0==3)     UseTwoGauss=((j<5 && molt==0) ||(j<6 && j>=0 &&j!=3 && molt==1) || (j<6&& molt ==2) || (j<6 &&j!=3 && j!=4 &&j!=2&& molt ==3) || (j<4 &&j!=1 && molt ==4)|| (j>=0 &&j<7  && molt ==5));
-	if(sysV0==4)     UseTwoGauss=((j<6 && molt==0) ||(j<6 && j>=1 && molt==1) || (j<6&& molt ==2) || (j<6 &&j!=2 && j!=4 && molt ==3) || (j<5 &&j!=4 && j!=1 && molt ==4)|| (j>=0 &&j<7  && molt ==5));
-	if(sysV0==5)     UseTwoGauss=((j<6 && j!=3 && j!=2 && molt==0) ||(j<6 && j>=0 && molt==1) || (j<6&& j!=2 &&molt ==2) || (j<6 &&j!=2&&j!=3&&j!=1 && molt ==3) || (j<3 &&j!=1 && molt ==4)|| (j>=0 &&j<7  && molt ==5));
-	if(sysV0==6)   UseTwoGauss=((j<6 && molt==0) ||(j<6 && j>=0 && molt==1) || (j<6&& molt ==2) || (j<6 &&j!=2&&j!=4&& molt ==3) || (j<6 &&j!=1 && molt ==4)|| (j>=0 &&j<7  && molt ==5));
-      }
-
-
-      if(year=="2017h"){
-	UseTwoGauss=kTRUE;
-	if(sysV0==0) UseTwoGauss=((j<6 && molt==0) || (j<7 && molt==1) || (j<6&& molt ==2) || (j<5 && molt ==3) || (j<6 &&j!=0 && molt ==4) ||  (j<7 && molt==5));
-	if(sysV0==1) UseTwoGauss=((j<6 && molt==0) || (j<6 && molt==1) || (j<6&& molt ==2) || (j<5 && molt ==3) || (j<6  && molt ==4) ||  (j<7 && molt==5));
-	if(sysV0==2) UseTwoGauss=((j<6 && molt==0) || (j<7 && molt==1) || (j<6&& molt ==2) || (j<5 && molt ==3) || (j<6 && j!=0  && molt ==4) ||  (j<7 && j!=1 && j!=2 && molt==5));
-	if(sysV0==3) UseTwoGauss=((j<7 && molt==0) || (j<6 && molt==1) || (j<6&& molt ==2) || (j!=5 && molt ==3) || (j<6 && j!=0 && j!=4  && molt ==4) ||  (j<7  && molt==5));
-	if(sysV0==4) UseTwoGauss=((j<6 && molt==0) || (j<6 && molt==1) || (j<7&& molt ==2) || (j!=5 && molt ==3) || (j<6  && molt ==4) ||  (j<7  && molt==5));
-	if(sysV0==5) UseTwoGauss=((j<7 && molt==0) || (j<7 && j!=2 && molt==1) || (j<6&& molt ==2) || (j!=5 && j!=4 && molt ==3) || (j<6 && j!=0  && molt ==4) ||  (j<6 && j!=4  && molt==5));
-	if(sysV0==6) UseTwoGauss=((j<6 && molt==0) || (j<7 && molt==1) || (j<6&& molt ==2) || (j<5 && molt ==3) || (j<6 && j!=0  && molt ==4) ||  (j<7 && molt==5));   
-      }
-
-      if(year=="2018f1_extra"){
-	UseTwoGauss=kTRUE;
-	if(sysV0==0) UseTwoGauss=((j<7 && molt==0) || (j<7 && molt==1) || (j<6&& molt ==2) || (j<6 && j!=4 && molt ==3) || (j<4 && molt ==4) ||  (j<7 && molt==5));
-	if(sysV0==1) UseTwoGauss=((j<7 && molt==0) || (j<6 && molt==1) || (j<6&& molt ==2) || (j<6 && molt ==3) || (j<7  && molt ==4) ||  (j<7 && molt==5));
-	if(sysV0==2) UseTwoGauss=((j<6 && molt==0) || (j<5 && molt==1) || (j<6&& molt ==2) || (j<6 && molt ==3) || (j<7 && molt ==4) ||  (j<7 && molt==5));
-	if(sysV0==3) UseTwoGauss=((j<6 && molt==0) || (j<6 && molt==1) || (j<6&&j!=1&& molt ==2) || (j!=4 && j<6&& molt ==3) || (j<4  && molt ==4) ||  (j<7  && molt==5));
-	if(sysV0==4) UseTwoGauss=((j<7 && molt==0) || (j<7 && molt==1) || (j<6&& molt ==2) || (j<6&& molt ==3) || (j<4  && molt ==4) ||  (j<7  && molt==5));
-	if(sysV0==5) UseTwoGauss=((j<7 && molt==0) || (j<6 && molt==1) || (j<6&& molt ==2) || (j<6 && molt ==3) || (j<4 && molt ==4) ||  (j!=2  && molt==5));
-	if(sysV0==6) UseTwoGauss=((j<7 && molt==0) || (j<7 && molt==1) || (j<6&& molt ==2) || (j<6 && molt ==3) || (j<4 && molt ==4) ||  (j<7 && molt==5));   
-      }
-      //*************************************************************************************************************
-      // Up to here for K0s******************************************************************************************
-      //*************************************************************************************************************
-
-
-      //*************************************************************************************************************
-      // for Xi******************************************************************************************
-      //*************************************************************************************************************
-      if (tipo[type]=="XiNeg" || tipo[type]=="XiPos"){
-	if(year=="2018f1_extra" || year=="2016k"){
+      //      if (tipo[type]=="XiNeg" || tipo[type]=="XiPos"){
+      //	if(year=="2018f1_extra" || year=="2016k"){
 	  UseTwoGauss=kTRUE;
-	}
-      }
-      //*************************************************************************************************************
-      // Up to here for Xi******************************************************************************************
-      //*************************************************************************************************************
+	  //}
+	  //      }
 
       canvas[j]= new TCanvas(Form("canvas_v%i",j),Form("canvas_v%i",j), 800,600);
       legend[j]=new TLegend(0.6,0.6,0.9,0.9);
@@ -858,7 +744,7 @@ void histos_exercise_AllParticles(Bool_t isSignalFromIntegral=0, Bool_t isBkgPar
 	if (isBkgParab)  legend[j]->AddEntry(bkg2[j],"2nd degree polynomial","l");
 	else  legend[j]->AddEntry(bkg1[j],"1st degree polynomial","l");
 	legend[j]->Draw("same");
-	cout << "ho disegnato legenda" << endl;
+	//	cout << "ho disegnato legenda" << endl;
 	f->WriteTObject(canvas[j]);
 	canvas[j]->Close();
 	isto_tagli[j]-> Write();
@@ -894,7 +780,6 @@ void histos_exercise_AllParticles(Bool_t isSignalFromIntegral=0, Bool_t isBkgPar
 
       //******Rimepio isto con sigma, mean, purezza,...**********************************************************************
 
-      cout << "hello" << endl;
       entries_range_false[j]=0;
       entries_range_true[j]=0;
       entries_range[j]=0;
@@ -969,8 +854,6 @@ void histos_exercise_AllParticles(Bool_t isSignalFromIntegral=0, Bool_t isBkgPar
       //credo errato      errSSB2[j]=pow(b[j],2)/pow(tot[j],3)-pow(sigmab1[j],2)/pow(tot[j],2);
       errSSB2[j]=sqrt(pow(b[j],2)/pow(tot[j],4)*pow(isto_tagli[j]->GetBinWidth(1),2)*entries_range[j]+pow(sigmab1[j],2)/pow(tot[j],2));//ok
 
-      //      cout << "hello" << endl;
-
       Bool_t ShowInHisto=kTRUE;
       if(ShowInHisto){
 	if(mean[j]>lim_inf_mean[type] && mean[j]<lim_sup_mean[type] && sigma[j]<lim_sup_sigma[type] && errsigma[j]<lim_sup_errsigma[type] && errmean[j]<lim_sup_errmean[type]){
@@ -994,8 +877,6 @@ void histos_exercise_AllParticles(Bool_t isSignalFromIntegral=0, Bool_t isBkgPar
 	  histo_chis->SetBinError(j+1,0);
 	}
 	// histo_stat->SetBinContent(j+1,isto[j]->GetEntries());
-	cout << "hello" << endl;
-
 	
 	//	if((total[j]->GetChisquare()/total[j]->GetNDF())<=3. && mean[j]>lim_inf_mean[type] && mean[j]<lim_sup_mean[type] && bin_contentSB1[j]>0 && sigma[j]<lim_sup_sigma[type] && errsigma[j]<lim_sup_errsigma[type] && errmean[j]<lim_sup_errmean[type]){
 	if( isSignalFromIntegral && mean[j]>lim_inf_mean[type] && mean[j]<lim_sup_mean[type] && bin_contentSB1[j]>0 && sigma[j]<lim_sup_sigma[type] && errsigma[j]<lim_sup_errsigma[type] && errmean[j]<lim_sup_errmean[type]){
@@ -1065,8 +946,8 @@ void histos_exercise_AllParticles(Bool_t isSignalFromIntegral=0, Bool_t isBkgPar
 	  histo_signal_int_pure->SetBinError(j+1,errS2[j]/isto_tagli[j]->GetBinWidth(1));
 
 	  cout << "caso B"<< endl;
-	  cout <<"mean1 of total" << total[j]->GetParameter(1) << endl; 
-	  cout <<"mean2 of total" << total[j]->GetParameter(4) << endl; 
+	  cout <<"mean1 of total " << total[j]->GetParameter(1) << endl; 
+	  cout <<"mean2 of total " << total[j]->GetParameter(4) << endl; 
 	  cout <<"mean of function1 " <<  functions1[j]->GetParameter(1)<< endl;	  cout << "mean put in histo " << mean[j]<< endl;
 	  /*
 cout << functions1[j]->Integral(functions1[j]->GetParameter(1)-sigmacentral*functions1[j]->GetParameter(2),functions1[j]->GetParameter(1)+sigmacentral*functions1[j]->GetParameter(2))<< endl; 
@@ -1075,6 +956,7 @@ cout << functions1[j]->Integral(functions1[j]->GetParameter(1)-sigmacentral*func
 	  */
 
 	}  else {
+	  cout << "caso C " << endl;
 	  cout << " S su B varra' zero perche  condizioni non sono soddisfatte " << endl; 
 	  cout << "reduced chi " << total[j]->GetChisquare()/total[j]->GetNDF()<< "\nmean " << mean[j] << " >? " << lim_inf_mean[type] << " <? " <<lim_sup_mean[type] <<"\n totale in central region from bin counting " << tot[j] << "\nB in central region from integral " << b[j] << " \n S/B " <<bin_contentSB2[j]<< "\n sigma " << sigma[j] << " <? " << lim_sup_sigma[type] << "\n err sigma " << errsigma[j] << " <? " << lim_sup_errsigma[type] << "\n err mean " << errmean[j] << " <? " << lim_sup_errmean[type] << endl;
 	  histo_SB->SetBinContent(j+1,0);
@@ -1106,13 +988,14 @@ cout << functions1[j]->Integral(functions1[j]->GetParameter(1)-sigmacentral*func
 	  histo_signal_int_pure->SetBinContent(j+1,0);
 	  histo_signal_int_pure->SetBinError(j+1,0);
 
-	  cout << "caso C " << endl;
 	}
+
+	cout << "\n more results: " << endl;
 	cout << "mu - nsigma " << mean[j]-sigmacentral*sigma[j] << " mu + nsigmna " << mean[j]+sigmacentral*sigma[j]<< endl;
-	cout << "min_histo "<< min_histo[type] << " mu - nsigmnamin *sigma" << mean[j]-nsigmamin*sigma[j]<< endl;
-	cout <<mean[j]+nsigmamin*sigma[j] <<  " limsup " << limsup[type]<< endl;
-          cout << "bside from integral " << bside[j]<< ", from bin counting "<< entries_sideband_false[j]*isto_tagli[j]->GetBinWidth(1)<< endl;
-      cout << "b in central region from integral " << b[j]<< ", from bin counting "<< entries_range_false[j]*isto_tagli[j]->GetBinWidth(1)<< endl;
+	cout << "min_histo "<< min_histo[type] << " mu - nsigmnamin *sigma" << mean[j]-nsigmamin*sigma[j]<< " mu + nsigmamin*sigma " <<  mean[j]+nsigmamin*sigma[j] <<  " limsup " << max_histo[type]<< endl;
+
+	cout << "bside from integral " << bside[j]<< ", from bin counting "<< entries_sideband_false[j]*isto_tagli[j]->GetBinWidth(1)<< endl;
+	cout << "b in central region from integral " << b[j]<< ", from bin counting "<< entries_range_false[j]*isto_tagli[j]->GetBinWidth(1)<< endl;
 
 	cout << "****************"<<endl;
 	// cout << total[j]->GetChisquare()<<endl;
