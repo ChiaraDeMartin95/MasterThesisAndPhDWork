@@ -93,6 +93,8 @@ class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE
   TH2F*                   fHistPtvsMult;              //! 
   TH2F*                   fHistPtvsMultBefAll;        //! 
   TH2F*                   fHistPtMaxvsMult;           //! 
+  TH2F*                   fHistPtMaxvsMultKeepV0;     //! 
+  TH2F*                   fHistPtMaxvsMultSkipV0;     //! 
   TH2F*                   fHistPtMaxvsMultBefAll;     //! 
   TH1F*                   fHistZvertex;               //!
   TH1F*                   fHistFractionSharedTPCClusters;               //!
@@ -159,7 +161,8 @@ class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE
   TH3F *                  fHistSelectedV0PtMass;            //!
 
   TH2F*  fHistTriggerPtRecovsPtGen;         //!
-  TH2F*  fHistAssocPtRecovsPtGen; 	    //!
+  TH2F*  fHistAssocPtRecovsPtGenPos; 	    //!
+  TH2F*  fHistAssocPtRecovsPtGenNeg; 	    //!
   TH2F*  fHistTriggerPtRecovsPtGenNotPrim;  //!
   TH2F*  fHistAssocPtRecovsPtGenNotPrim;    //!
   TH2F*  fHistTriggerPtRecovsPtGenPion;     //!
