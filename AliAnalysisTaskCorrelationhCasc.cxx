@@ -2125,6 +2125,7 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
     Double_t  lEtaXi = -999;
     Double_t  lThetaXi = -999;
     Double_t  lPhiXi = -999;
+    Double_t  lPhiXiOldStyle = -999;
 
     Double_t lRapXi   = -20.0, lRapOmega = -20.0; 
     // -------------------------------------                                                            
@@ -2149,9 +2150,12 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
     lThetaXi  = xi->Theta();
     lEtaXi    = -TMath::Log(TMath::Tan(lThetaXi/2));
     lPhiXi    = xi->Phi();
-    lRapXi    = xi->RapXi();
+    lPhiXi  = TMath::Pi()+TMath::ATan2(-(xi->MomXiY()),-(xi->MomXiX()));
+    lRapXiOldStyle    = xi->RapXi();
     lRapOmega = xi->RapOmega();
 
+    //    cout << lPhiXi << " Phi My way " << lPhiXiHM << endl;
+    //    fHistPhi->Fill(lPhiXi);
     //info about daughter tracks
     AliAODTrack *pTrackXi    = dynamic_cast<AliAODTrack*>( xi->GetDaughter(0) );
     AliAODTrack *nTrackXi    = dynamic_cast<AliAODTrack*>( xi->GetDaughter(1) );
