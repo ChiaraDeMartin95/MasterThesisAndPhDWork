@@ -38,6 +38,8 @@ class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE
   Float_t GetLengthInActiveZone( AliAODTrack *gt, Float_t deltaY, Float_t deltaZ, Float_t b );
 
   void ProcessMCParticles(Bool_t Generated, AliAODTrack* track, Int_t& labelPrimOrSec, Float_t lPercentiles, Bool_t isV0, Double_t ZAtDCA, Float_t PtTriggMax);
+  void Propagate( Double_t vv[3],  Double_t x[3],  Double_t p[3],    Double_t bz, Double_t sign);
+
   Double_t CalculateDeltaTheta( Double_t theta1, Double_t theta2 ); 
   Double_t CalculateDeltaPhi( Double_t phi1, Double_t phi2 ) ; 
   Double_t CalculateDeltaEta( Double_t eta1, Double_t eta2 ) ; 
@@ -87,6 +89,9 @@ class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE
   TH1F*                   fHistDCAzm1;               //! 
   TH1F*                   fHistDCAzm2;               //! 
   TH1F*                   fHistPtV0;                 //! 
+  TH2F*                   fHistPhi;                 //! 
+  TH2F*                   fHistTheta;                 //! 
+  TH2F*                   fHistEta;                 //! 
   TH2F*                   fHistPtTMaxBefAllCfrDataMC; //!
   TH1F*                   fHistPtTMinBefAll;          //! 
   TH1F*                   fHistPtTMinBefAllMC;        //! 
@@ -161,8 +166,15 @@ class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE
   TH3F *                  fHistSelectedV0PtMass;            //!
 
   TH2F*  fHistTriggerPtRecovsPtGen;         //!
+  TH2F*  fHistAssocPhiRecovsPhiGen; 	    //!
   TH2F*  fHistAssocPtRecovsPtGenPos; 	    //!
   TH2F*  fHistAssocPtRecovsPtGenNeg; 	    //!
+  TH2F *  fHistAssocPxRecovsPxGenPos; //!
+  TH2F *    fHistAssocPxRecovsPxGenNeg; //!
+  TH2F *    fHistAssocPyRecovsPyGenPos; //!
+  TH2F *    fHistAssocPyRecovsPyGenNeg; //!
+  TH2F *    fHistAssocPzRecovsPzGenPos; //!
+  TH2F *    fHistAssocPzRecovsPzGenNeg; //!
   TH2F*  fHistTriggerPtRecovsPtGenNotPrim;  //!
   TH2F*  fHistAssocPtRecovsPtGenNotPrim;    //!
   TH2F*  fHistTriggerPtRecovsPtGenPion;     //!

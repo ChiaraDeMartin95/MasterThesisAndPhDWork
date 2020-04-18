@@ -76,7 +76,10 @@ AliAnalysisTaskCorrelationhCasc::AliAnalysisTaskCorrelationhCasc() :AliAnalysisT
   fHistDCAzm1(0),
   fHistDCAxym2(0),
   fHistDCAzm2(0),
-  fHistPtV0(0), 
+  fHistPtV0(0),
+  fHistPhi(0),
+  fHistTheta(0),
+  fHistEta(0), 
   fHistPtTMaxBefAllCfrDataMC(0),
   fHistPtTMinBefAll(0),
   fHistPtTMinBefAllMC(0),
@@ -150,8 +153,15 @@ AliAnalysisTaskCorrelationhCasc::AliAnalysisTaskCorrelationhCasc() :AliAnalysisT
   fHistReconstructedV0PtMass(0),
   fHistSelectedV0PtMass(0),
   fHistTriggerPtRecovsPtGen(0),
+  fHistAssocPhiRecovsPhiGen(0),
   fHistAssocPtRecovsPtGenPos(0),
   fHistAssocPtRecovsPtGenNeg(0),
+  fHistAssocPxRecovsPxGenPos(0),
+  fHistAssocPxRecovsPxGenNeg(0),
+  fHistAssocPyRecovsPyGenPos(0),
+  fHistAssocPyRecovsPyGenNeg(0),
+  fHistAssocPzRecovsPzGenPos(0),
+  fHistAssocPzRecovsPzGenNeg(0),
   fHistTriggerPtRecovsPtGenNotPrim(0),
   fHistAssocPtRecovsPtGenNotPrim(0),
   fHistTriggerPtRecovsPtGenPion(0),
@@ -222,7 +232,7 @@ AliAnalysisTaskCorrelationhCasc::AliAnalysisTaskCorrelationhCasc(const char* nam
 										     fCollidingSystem("pp"), 
 										     fAOD(0), 
 										     fPIDResponse(0),
-										     								 fEventCuts(0),								 
+                	     								 fEventCuts(0),								 
 										     fOutputList(0), 
 										     fSignalTree(0), 
 										     fBkgTree(0), 
@@ -250,6 +260,9 @@ AliAnalysisTaskCorrelationhCasc::AliAnalysisTaskCorrelationhCasc(const char* nam
   fHistDCAxym2(0),
   fHistDCAzm2(0),
   fHistPtV0(0), 
+  fHistPhi(0),
+  fHistTheta(0),
+  fHistEta(0),
   fHistPtTMaxBefAllCfrDataMC(0), 
   fHistPtTMinBefAll(0),
   fHistPtTMinBefAllMC(0),
@@ -323,8 +336,15 @@ AliAnalysisTaskCorrelationhCasc::AliAnalysisTaskCorrelationhCasc(const char* nam
   fHistReconstructedV0PtMass(0),
   fHistSelectedV0PtMass(0),
   fHistTriggerPtRecovsPtGen(0),
+  fHistAssocPhiRecovsPhiGen(0),
   fHistAssocPtRecovsPtGenPos(0),
   fHistAssocPtRecovsPtGenNeg(0),
+  fHistAssocPxRecovsPxGenPos(0),
+  fHistAssocPxRecovsPxGenNeg(0),
+  fHistAssocPyRecovsPyGenPos(0),
+  fHistAssocPyRecovsPyGenNeg(0),
+  fHistAssocPzRecovsPzGenPos(0),
+  fHistAssocPzRecovsPzGenNeg(0),
   fHistTriggerPtRecovsPtGenNotPrim(0),
   fHistAssocPtRecovsPtGenNotPrim(0),
   fHistTriggerPtRecovsPtGenPion(0),
@@ -430,7 +450,48 @@ AliAnalysisTaskCorrelationhCasc::~AliAnalysisTaskCorrelationhCasc()
   delete[] fEventColl;
   
 }
+/*  
+void AliAnalysisTaskCorrelationhCasc::Propagate( Double_t vv[3],  Double_t x[3], Double_t p[3], Double_t bz, Double_t sign) const{
+  //Propagation to the primary vertex to determine the px and py
+  //x, p are the position and momentum as input and output
+  //bz is the magnetic field along z direction
+  //sign is the charge of particle for propagation
+
+  Double_t pp = TMath::Sqrt(p[0]*p[0]+p[1]*p[1]+p[2]*p[2]); //total momentum
+  Double_t len = (vv[2]-x[2])*pp/p[2];  
+  Double_t a = -kB2C*bz*sign;
+
+  Double_t rho = a/pp;
+  x[0] += p[0]*TMath::Sin(rho*len)/a - p[1]*(1-TMath::Cos(rho*len))/a;
+  x[1] += p[1]*TMath::Sin(rho*len)/a + p[0]*(1-TMath::Cos(rho*len))/a;
+  x[2] += p[2]*len/pp;
+
+  Double_t p0=p[0];
+  p[0] = p0  *TMath::Cos(rho*len) - p[1]*TMath::Sin(rho*len);
+  p[1] = p[1]*TMath::Cos(rho*len) + p0  *TMath::Sin(rho*len); 
   
+  //  p[1] = p[1]*TMath::Cos(rho*len) + p0  *TMath::Sin(rho*len);
+}
+*/
+
+void AliAnalysisTaskCorrelationhCasc::Propagate( Double_t vv[3],  Double_t x[3], Double_t p[3], Double_t bz, Double_t sign) {
+  //Propagation to the primary vertex to determine the px and py
+  //x, p are the position and momentum as input and output
+  //bz is the magnetic field along z direction
+  //sign is the charge of particle for propagation
+
+  const Double_t kB2C=0.299792458e-3; //light speed in m/ps
+  Double_t pp = TMath::Sqrt(p[0]*p[0]+p[1]*p[1]+p[2]*p[2]); //total momentum
+  Double_t len = (vv[2]-x[2])*pp/p[2];  
+  Double_t a = -kB2C*bz*sign;
+
+  Double_t rho = a/pp;
+  Double_t p0=p[0];
+  p[0] = p0  *TMath::Cos(rho*len) - p[1]*TMath::Sin(rho*len);
+  p[1] = p[1]*TMath::Cos(rho*len) + p0  *TMath::Sin(rho*len); 
+  
+}
+
 void AliAnalysisTaskCorrelationhCasc::ProcessMCParticles(Bool_t Generated, AliAODTrack *track, Int_t& labelPrimOrSec, Float_t lPercentiles, Bool_t isV0, Double_t ZAtDCA, Float_t PtTriggMax)
 {
 
@@ -1068,6 +1129,7 @@ void AliAnalysisTaskCorrelationhCasc::UserCreateOutputObjects()
   fHistTriggerPtRecovsPtGenKaon->GetXaxis()->SetTitle("p_{T, gen}");
   fHistTriggerPtRecovsPtGenKaon->GetYaxis()->SetTitle("p_{T, reco}");
 
+  //Pt
   fHistAssocPtRecovsPtGenPos = new TH2F ("fHistAssocPtRecovsPtGenPos", "p_{T, reco} vs p_{T, gen} for primary positive associated particles", 600, 0,30,600, 0,30);
   fHistAssocPtRecovsPtGenPos->GetXaxis()->SetTitle("p_{T, gen}");
   fHistAssocPtRecovsPtGenPos->GetYaxis()->SetTitle("p_{T, reco}");
@@ -1076,9 +1138,50 @@ void AliAnalysisTaskCorrelationhCasc::UserCreateOutputObjects()
   fHistAssocPtRecovsPtGenNeg->GetXaxis()->SetTitle("p_{T, gen}");
   fHistAssocPtRecovsPtGenNeg->GetYaxis()->SetTitle("p_{T, reco}");
 
+  //Px
+  fHistAssocPxRecovsPxGenPos = new TH2F ("fHistAssocPxRecovsPxGenPos", "p_{x, reco} vs p_{x, gen} for primary positive associated particles", 600, 0,30,600, 0,30);
+  fHistAssocPxRecovsPxGenPos->GetXaxis()->SetTitle("p_{x, gen}");
+  fHistAssocPxRecovsPxGenPos->GetYaxis()->SetTitle("p_{x, reco}");
+
+  fHistAssocPxRecovsPxGenNeg = new TH2F ("fHistAssocPxRecovsPxGenNeg", "p_{x, reco} vs p_{x, gen} for primary negative associated particles", 600, 0,30,600, 0,30);
+  fHistAssocPxRecovsPxGenNeg->GetXaxis()->SetTitle("p_{x, gen}");
+  fHistAssocPxRecovsPxGenNeg->GetYaxis()->SetTitle("p_{x, reco}");
+
+  //Py
+  fHistAssocPyRecovsPyGenPos = new TH2F ("fHistAssocPyRecovsPyGenPos", "p_{y, reco} vs p_{y, gen} for primary positive associated particles", 600, 0,30,600, 0,30);
+  fHistAssocPyRecovsPyGenPos->GetXaxis()->SetTitle("p_{y, gen}");
+  fHistAssocPyRecovsPyGenPos->GetYaxis()->SetTitle("p_{y, reco}");
+
+  fHistAssocPyRecovsPyGenNeg = new TH2F ("fHistAssocPyRecovsPyGenNeg", "p_{y, reco} vs p_{y, gen} for primary negative associated particles", 600, 0,30,600, 0,30);
+  fHistAssocPyRecovsPyGenNeg->GetXaxis()->SetTitle("p_{y, gen}");
+  fHistAssocPyRecovsPyGenNeg->GetYaxis()->SetTitle("p_{y, reco}");
+
+  //Pz
+  fHistAssocPzRecovsPzGenPos = new TH2F ("fHistAssocPzRecovsPzGenPos", "p_{z, reco} vs p_{z, gen} for primary positive associated particles", 600, 0,30,600, 0,30);
+  fHistAssocPzRecovsPzGenPos->GetXaxis()->SetTitle("p_{z, gen}");
+  fHistAssocPzRecovsPzGenPos->GetYaxis()->SetTitle("p_{z, reco}");
+
+  fHistAssocPzRecovsPzGenNeg = new TH2F ("fHistAssocPzRecovsPzGenNeg", "p_{z, reco} vs p_{z, gen} for primary negative associated particles", 600, 0,30,600, 0,30);
+  fHistAssocPzRecovsPzGenNeg->GetXaxis()->SetTitle("p_{z, gen}");
+  fHistAssocPzRecovsPzGenNeg->GetYaxis()->SetTitle("p_{z, reco}");
+
   fHistAssocPtRecovsPtGenNotPrim = new TH2F ("fHistAssocPtRecovsPtGenNotPrim", "p_{T, reco} vs p_{T, gen} for non-primary associated particles", 600, 0,30,600, 0,30);
   fHistAssocPtRecovsPtGenNotPrim->GetXaxis()->SetTitle("p_{T, gen}");
   fHistAssocPtRecovsPtGenNotPrim->GetYaxis()->SetTitle("p_{T, reco}");
+
+  fHistPhi= new TH2F ("fHistPhi", "casc->Phi() vs Phi calculated in my way" , 100, 0, 2*TMath::Pi(), 100, 0, 2*TMath::Pi());
+  fHistPhi->GetYaxis()->SetTitle("#phi my way");
+  fHistPhi->GetXaxis()->SetTitle("casc->Phi");
+
+  fHistTheta= new TH2F ("fHistTheta", "casc->Theta() vs Theta calculated in my way" , 100,0, TMath::Pi(), 100, 0, TMath::Pi());
+  fHistTheta->GetYaxis()->SetTitle("#theta my way");
+  fHistTheta->GetXaxis()->SetTitle("casc->Theta");
+
+  fHistEta= new TH2F ("fHistEta", "casc->Eta() vs Eta calculated in my way" , 100, -1, 1, 100, -1, 1);
+  fHistEta->GetYaxis()->SetTitle("#eta my way");
+  fHistEta->GetXaxis()->SetTitle("casc->Eta");
+
+  fHistAssocPhiRecovsPhiGen = new TH2F ("fHistAssocPhiRecovsPhiGen", "#phi_{reco} vs #phi_{gen} for primary associated particles", 100, 0,2*TMath::Pi(),100, 0,2*TMath::Pi());
 
   fHistResolutionTriggerPt=new TH2F("fHistResolutionTriggerPt", "p_{T} resolution of selected trigger particles (primary)", 2000, -10, 10,  60,0,30);
   fHistResolutionTriggerPt->GetXaxis()->SetTitle("p_{T, DATA}-p_{T, MC}");
@@ -1306,13 +1409,23 @@ void AliAnalysisTaskCorrelationhCasc::UserCreateOutputObjects()
   fOutputList4->Add(fHistResolutionV0Eta);
   fOutputList4->Add(fHistResolutionV0PtvsPt);
   fOutputList4->Add(fHistTriggerPtRecovsPtGen);
+  fOutputList4->Add(fHistAssocPhiRecovsPhiGen);
   fOutputList4->Add(fHistAssocPtRecovsPtGenPos);
   fOutputList4->Add(fHistAssocPtRecovsPtGenNeg);
+  fOutputList4->Add(fHistAssocPxRecovsPxGenPos);
+  fOutputList4->Add(fHistAssocPxRecovsPxGenNeg);
+  fOutputList4->Add(fHistAssocPyRecovsPyGenPos);
+  fOutputList4->Add(fHistAssocPyRecovsPyGenNeg);
+  fOutputList4->Add(fHistAssocPzRecovsPzGenPos);
+  fOutputList4->Add(fHistAssocPzRecovsPzGenNeg);
   fOutputList4->Add(fHistTriggerPtRecovsPtGenNotPrim);
   fOutputList4->Add(fHistAssocPtRecovsPtGenNotPrim);
   fOutputList4->Add(fHistTriggerPtRecovsPtGenPion);
   fOutputList4->Add(fHistTriggerPtRecovsPtGenProton);
   fOutputList4->Add(fHistTriggerPtRecovsPtGenKaon);
+  fOutputList4->Add(fHistPhi);
+  fOutputList4->Add(fHistEta);
+  fOutputList4->Add(fHistTheta);
 
   PostData(1, fOutputList);  
   PostData(2, fSignalTree);       
@@ -1347,7 +1460,7 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
   // fEventCuts.SetManualMode(true);
   // fEventCuts.SetupRun2pp();
 
-  
+ 
  /// Use the event cut class to apply the required selections
  if (!fEventCuts.AcceptEvent(fAOD)) {   
  PostData(1, fOutputList);
@@ -1358,11 +1471,12 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
  PostData(6, fOutputList4);     
  return;
  }
-  
+ 
   fHistEventMult->Fill(1);
   
   Int_t iTracks(fAOD->GetNumberOfTracks());         
-  Int_t iCascades(fAOD->GetNumberOfCascades());      
+  Int_t iCascades(fAOD->GetNumberOfCascades());     
+  Double_t b = fAOD->GetMagneticField(); 
   Evcounter++;  
   // cout << "\n \n \n ********************************************************* "<< endl;
   // cout << "event number "<<  Evcounter << endl; 
@@ -2123,9 +2237,12 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
 
     Short_t  lChargeXi = -2;
     Double_t  lEtaXi = -999;
+    Double_t  lEtaXiDef = -999;
     Double_t  lThetaXi = -999;
+    Double_t  lThetaXiDef = -999;
     Double_t  lPhiXi = -999;
-    Double_t  lPhiXiOldStyle = -999;
+    Double_t  lPhiXiMy = -999;
+    Double_t  lPhiXiDef = -999;
 
     Double_t lRapXi   = -20.0, lRapOmega = -20.0; 
     // -------------------------------------                                                            
@@ -2146,16 +2263,53 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
 				 TMath::Power( lPosXi[1] - lBestPrimaryVtxPos[1] , 2) +
 				 TMath::Power( lPosXi[2] - lBestPrimaryVtxPos[2] , 2)
 				 );
+
+    Double_t lXiMom[3];      
+    lXiMom[0]=xi->MomXiX();
+    lXiMom[1]=xi->MomXiY();
+    lXiMom[2]=xi->MomXiZ();
+    lXiMomX=lXiMom[0];
+    lXiMomY=lXiMom[1];
+    lXiMomZ=lXiMom[2];
+    lXiTransvMom        = TMath::Sqrt( lXiMomX*lXiMomX   + lXiMomY*lXiMomY );
+    lXiTotMom   = TMath::Sqrt( lXiMomX*lXiMomX   + lXiMomY*lXiMomY   + lXiMomZ*lXiMomZ );
+
     lChargeXi = xi->ChargeXi();
-    lThetaXi  = xi->Theta();
+    lThetaXiDef  = xi->Theta();
+    lEtaXiDef = xi->Eta();
+    lPhiXiDef    = xi->Phi();
+    lThetaXi  = 0.5*TMath::Pi()- TMath::ATan(xi->MomXiZ()/lXiTransvMom);
     lEtaXi    = -TMath::Log(TMath::Tan(lThetaXi/2));
-    lPhiXi    = xi->Phi();
-    lPhiXi  = TMath::Pi()+TMath::ATan2(-(xi->MomXiY()),-(xi->MomXiX()));
-    lRapXiOldStyle    = xi->RapXi();
+    lPhiXiMy  = TMath::Pi()+TMath::ATan2(-(xi->MomXiY()),-(xi->MomXiX()));
+    lRapXi    = xi->RapXi();
     lRapOmega = xi->RapOmega();
 
-    //    cout << lPhiXi << " Phi My way " << lPhiXiHM << endl;
-    //    fHistPhi->Fill(lPhiXi);
+    Double_t XiP[3] = {-999., -999., -999.};
+    XiP[0] = lXiMom[0];
+    XiP[1] = lXiMom[1];
+    XiP[2] = lXiMom[2];
+    Double_t posXi[3] = {-999., -999., -999.};
+    posXi[0] = xi->DecayVertexXiX();
+    posXi[1] = xi->DecayVertexXiY();
+    posXi[2] = xi->DecayVertexXiZ();
+
+    cout << "charge  "<< xi->ChargeXi()<< endl;
+    cout << "SV: px "  <<XiP[0] << " py " << XiP[1] <<" pz "<< XiP[2] << endl;
+    Propagate(lBestPrimaryVtxPos, posXi, XiP, b, xi->ChargeXi());
+    cout << "PV: px "  <<XiP[0] << " py " << XiP[1] <<" pz "<< XiP[2] << endl;
+    lPhiXi  = TMath::Pi()+TMath::ATan2(-XiP[1],-XiP[0]);
+
+    cout << lPhiXiDef << " Phi new way (PV?)" << lPhiXi  << " phimy way (SV?) " <<  lPhiXiMy<< endl;
+    cout << lThetaXiDef << " theta My way " << lThetaXi  << endl;
+    cout << lEtaXiDef << " eta My way " << lEtaXi  << endl;
+
+    //    xi->SetPhi(GetMomentum.Phi());
+    //    cout << "phi oton way " << xi->Phi() << endl;
+    if (xi->ChargeXi()>0)    fHistPhi->Fill(lPhiXiMy, lPhiXi);
+    fHistTheta->Fill(lThetaXiDef, lThetaXi);
+    fHistEta->Fill(lEtaXiDef, lEtaXi);
+    //    fHistPhi->Fill(lPhiXiOldStyle);
+
     //info about daughter tracks
     AliAODTrack *pTrackXi    = dynamic_cast<AliAODTrack*>( xi->GetDaughter(0) );
     AliAODTrack *nTrackXi    = dynamic_cast<AliAODTrack*>( xi->GetDaughter(1) );
@@ -2544,16 +2698,6 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
     //Omega(Xi) rejection when Xi(Omega) is analyzed
     if (fV0=="Omega" && TMath::Abs(lInvMassXi - massXi) < CascRejectionWindow[ParticleType]) continue;
     if (fV0=="Xi" && TMath::Abs(lInvMassOmega - massOmega) <  CascRejectionWindow[ParticleType]) continue;
-
-    Double_t lXiMom[3];      
-    lXiMom[0]=xi->MomXiX();
-    lXiMom[1]=xi->MomXiY();
-    lXiMom[2]=xi->MomXiZ();
-    lXiMomX=lXiMom[0];
-    lXiMomY=lXiMom[1];
-    lXiMomZ=lXiMom[2];
-    lXiTransvMom        = TMath::Sqrt( lXiMomX*lXiMomX   + lXiMomY*lXiMomY );
-    lXiTotMom   = TMath::Sqrt( lXiMomX*lXiMomX   + lXiMomY*lXiMomY   + lXiMomZ*lXiMomZ );
       
     if (  lXiTotMom > 1.e-5) {
       kctauXi=NominalMassCasc[ParticleType]* lXiDecayLength/lXiTotMom;
@@ -2646,13 +2790,24 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
 	    */
 	    //2D histos
 	    if (!skipV0) { //new line
-	    fHistResolutionV0Pt->Fill(lXiTransvMom- GMotherPos->Pt(), ptTriggerMassimoDati*lChargeXi);
-	    fHistResolutionV0Phi->Fill(lPhiXi- GMotherPos->Phi(), ptTriggerMassimoDati*lChargeXi);
-	    fHistResolutionV0PhivsPt->Fill(lPhiXi- GMotherPos->Phi() , lXiTransvMom*lChargeXi);
-	    fHistResolutionV0PtvsPt->Fill(lXiTransvMom- GMotherPos->Pt(), lXiTransvMom*lChargeXi);
-	    fHistResolutionV0Eta->Fill(lEtaXi- GMotherPos->Eta(),  ptTriggerMassimoDati*lChargeXi);
-	    if (lChargeXi>0)	    fHistAssocPtRecovsPtGenPos->Fill(GMotherPos->Pt(), lXiTransvMom);
-	    else if (lChargeXi<0)	    fHistAssocPtRecovsPtGenNeg->Fill(GMotherPos->Pt(), lXiTransvMom);
+	      fHistResolutionV0Pt->Fill(lXiTransvMom- GMotherPos->Pt(), ptTriggerMassimoDati*lChargeXi);
+	      fHistResolutionV0Phi->Fill(lPhiXi- GMotherPos->Phi(), ptTriggerMassimoDati*lChargeXi);
+	      fHistResolutionV0PhivsPt->Fill(lPhiXi- GMotherPos->Phi() , lXiTransvMom*lChargeXi);
+	      fHistResolutionV0PtvsPt->Fill(lXiTransvMom- GMotherPos->Pt(), lXiTransvMom*lChargeXi);
+	      fHistResolutionV0Eta->Fill(lEtaXi- GMotherPos->Eta(),  ptTriggerMassimoDati*lChargeXi);
+	      fHistAssocPhiRecovsPhiGen->Fill(GMotherPos->Phi(),lPhiXi );
+	      if (lChargeXi>0)	  {
+		fHistAssocPtRecovsPtGenPos->Fill(GMotherPos->Pt(), lXiTransvMom);
+		if (lXiMom[1]>0)		fHistAssocPxRecovsPxGenPos->Fill(GMotherPos->Px(), lXiMom[0]);
+		if (lXiMom[0]>0)		fHistAssocPyRecovsPyGenPos->Fill(GMotherPos->Py(), XiP[1]);
+		fHistAssocPzRecovsPzGenPos->Fill(GMotherPos->Pz(), lXiMom[2]);
+	      }
+	      else if (lChargeXi<0)	{
+		fHistAssocPtRecovsPtGenNeg->Fill(GMotherPos->Pt(), lXiTransvMom);
+		if (lXiMom[1]>0)	fHistAssocPxRecovsPxGenNeg->Fill(GMotherPos->Px(), XiP[0]);
+		if (lXiMom[0]>0)	fHistAssocPyRecovsPyGenNeg->Fill(GMotherPos->Py(), lXiMom[1]);
+		fHistAssocPzRecovsPzGenNeg->Fill(GMotherPos->Pz(), lXiMom[2]);
+	      }
 	    }
 	    //
 	    //this histogram should not be used to calculate the efficiency 
