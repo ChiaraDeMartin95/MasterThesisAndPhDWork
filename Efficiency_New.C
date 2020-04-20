@@ -21,7 +21,7 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
   return sqrt(((Double_t)k+1)*((Double_t)k+2)/(n+2)/(n+3) - pow((Double_t)(k+1),2)/pow(n+2,2));
 }
 
-void Efficiency_New(Bool_t ishhCorr =0, Int_t type=4, Int_t israp=1, TString ResoHisto="2D",   Float_t ptjmin=0.150,  Float_t ptjmax=15, Int_t sysTrigger=0, Int_t sysV0=0, TString data="2018f1_extra_hXi_25runs", TString year0="2016", TString path1=""/*"_New"*/ /*"_10runs_FB128_TrackLengthCut"*/){
+void Efficiency_New(Bool_t ishhCorr =0, Int_t type=4, Int_t israp=1, TString ResoHisto="2D",   Float_t ptjmin=0.150,  Float_t ptjmax=15, Int_t sysTrigger=0, Int_t sysV0=0, TString data="2018f1_extra_hXi_25runs_Quater", TString year0="2016", TString path1=""/*"_New"*/ /*"_10runs_FB128_TrackLengthCut"*/){
 
   //  if (type==6 && israp!=0) return; //so far I haven't appended any info on the rapidity to efficiency output files for K0s; if I decide to do as ofr the cascade, just remove this line
 
@@ -44,12 +44,6 @@ void Efficiency_New(Bool_t ishhCorr =0, Int_t type=4, Int_t israp=1, TString Res
   const   Float_t PtTrigMin=ptjmin;
   const   Float_t PtTrigMax=ptjmax;
   const Int_t numtipo = 8; 
-
-  Float_t ptjminGen=0;
-  Float_t ptjmaxGen=0;
-  if (type==0 || type ==2) {ptjminGen = -ptjmax; ptjmaxGen=-ptjmin;}
-  else  if (type==1 || type ==3 || type >5) {ptjminGen = ptjmin;  ptjmaxGen=ptjmax;}
-  else if (type==4 || type==5) {ptjminGen = -ptjmax;  ptjmaxGen=ptjmax;}
 
   TString tipo[numtipo]={"XiNeg", "XiPos", "OmegaNeg", "OmegaPos", "Xi", "Omega", "K0s", "h"};
   TString tipoPart[numtipo]={"Xi", "Xi", "Omega", "Omega", "Xi", "Omega", "K0s", "h"};
@@ -111,7 +105,7 @@ void Efficiency_New(Bool_t ishhCorr =0, Int_t type=4, Int_t israp=1, TString Res
   }
   const Int_t nummolt=5;
   const Int_t numzeta=1;
-  const Int_t numPtV0=7;
+  const Int_t numPtV0=8;
   const Int_t numPtTrigger=19;
   const Int_t numSelTrigger=3;
   const Int_t numSelV0=6;
@@ -121,17 +115,43 @@ void Efficiency_New(Bool_t ishhCorr =0, Int_t type=4, Int_t israp=1, TString Res
   if (israp==0) sysV0Gen=0;
   else if (israp==1) sysV0Gen=1;
 
-  Float_t ptjminBis[nummolt+1]={0.150, 1,2, 3,4,5};
-  
+
+
+  Float_t ptjminGen=0;
+  Float_t ptjmaxGen=0;
+    Float_t ptjminBisFixed[nummolt+1]={0.150,1,2, 3,4,5};
+    Float_t ptjminBis[nummolt+1];
+    Float_t ptjmaxRes[nummolt+1]={ptjmax};
+
+    cout << " I will print ... " << endl;
+  if (type==0 || type ==2) {
+    ptjminGen = -ptjmax; ptjmaxGen=-ptjmin;
+    for (Int_t i =0; i< nummolt+1; i++){    ptjminBis[i]=-ptjmax;}
+    for (Int_t i =0; i< nummolt+1; i++){    ptjmaxRes[i]=-ptjminBisFixed[i];}
+    cout << ptjminBis[0] << "  " << ptjminBis[3] << endl;    
+    cout << ptjmaxRes[0] << "  " << ptjmaxRes[3] << endl;    
+}
+  else  if (type==1 || type ==3 || type >5) {
+    ptjminGen = ptjmin;  ptjmaxGen=ptjmax;
+    for (Int_t i =0; i< nummolt+1; i++){    ptjminBis[i]=ptjminBisFixed[i];}
+    for (Int_t i =0; i< nummolt+1; i++){    ptjmaxRes[i]=ptjmax;}
+}
+  else if (type==4 || type==5) {
+    ptjminGen = -ptjmax;  ptjmaxGen=ptjmax;
+    for (Int_t i =0; i< nummolt+1; i++){    ptjminBis[i]=-ptjmax;}
+    for (Int_t i =0; i< nummolt+1; i++){    ptjmaxRes[i]=ptjmax;}
+
+}
+
   TString Smolt[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "_all"};
   TString SmoltLegend[nummolt+1]={"0-5 %", "5-10 %", "10-30 %", "30-50 %", "50-100 %", "0-100 %"};
   Double_t Nmolt[nummolt+1]={0,5,10,30,50,100}; 
   TString Szeta[numzeta]={""};
   //  Double_t Nzeta[numzeta+1]={};
   //  TString SPtV0[numPtV0]={"0-1", "1-2", "2-3", "3-4", "4-8"};
-  TString SPtV0[numPtV0]={"0-1", "1-1.5","1.5-2", "2-2.5","2.5,3", "3-4", "4-8"};
+  TString SPtV0[numPtV0]={"0-0.5","0.5-1", "1-1.5","1.5-2", "2-2.5","2.5,3", "3-4", "4-8"};
   //  Double_t NPtV0[numPtV0+1]={0,1,2,3,4,8};
-  Double_t NPtV0[numPtV0+1]={0,1,1.5,2,2.5,3,4,8};
+  Double_t NPtV0[numPtV0+1]={0,0.5,1,1.5,2,2.5,3,4,8};
   Double_t NPtTrigger[numPtTrigger+1]={0,0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 8.0, 10.0, 13.0, 20.0, 30.0};
   //  Int_t Marker[nummolt+1]={7,4,20,22,29, 35};
   Int_t Marker[nummolt+1]={7,20,20,22,29,25};
@@ -218,6 +238,8 @@ void Efficiency_New(Bool_t ishhCorr =0, Int_t type=4, Int_t israp=1, TString Res
     TH3D*   fHistResolution3D[3][2];
     TString nameRes[3][2];
     TH1D*   fHistResolution_1D[nummolt+1][3][2];
+    TH1D*   fHistResolution_1D_Int1[nummolt+1][3][2];
+    TH1D*   fHistResolution_1D_Int2[nummolt+1][3][2];
     TString nameRes_1D[nummolt+1][3][2]; 
     TString nameRes_2D[nummolt+1][3][2]; 
     TString TorV[2]={"Trigger", "V0"};
@@ -449,7 +471,7 @@ void Efficiency_New(Bool_t ishhCorr =0, Int_t type=4, Int_t israp=1, TString Res
     fHistTriggerEfficiencyPt[molt]->SetMarkerColor(Color[molt]);
     legend->AddEntry(fHistTriggerEfficiencyPt[molt],SmoltLegend[molt],"pel");   
     legenddown->AddEntry(fHistTriggerEfficiencyPt[molt],SmoltLegend[molt],"pel");   
-    if (ResoHisto=="2D")    legendPtMin->AddEntry(fHistTriggerEfficiencyPt[molt],Form("p_{T}^{Trig, min} > %.0f", ptjminBis[molt]),"pel");   
+    if (ResoHisto=="2D")    legendPtMin->AddEntry(fHistTriggerEfficiencyPt[molt],Form("p_{T}^{Trig, min} > %.0f", ptjminBisFixed[molt]),"pel");   
 
     fHistTriggerEfficiencyPt[molt]->Draw("same");
     if(molt ==nummolt)     legend->Draw();
@@ -696,12 +718,15 @@ void Efficiency_New(Bool_t ishhCorr =0, Int_t type=4, Int_t israp=1, TString Res
   fHistGenerated_1D_V0Phi[molt]->Add((TH1D*)fHistGenerated_2D_V0PtTMaxPhi[molt]->ProjectionY("fHistGenerated_1D_V0Phi_"+ Smolt[molt],fHistSelected_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(ptjminGen+0.0001) ,fHistSelected_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(-ptjmin-0.0001)));
   cout <<     fHistGenerated_1D_V0Phi[molt]->GetEntries() << endl;
 */
-    
+    if (type>=4){
     fHistGenerated_1D_V0Phi_Int1[molt]=(TH1D*)fHistGenerated_2D_V0PtTMaxPhi[molt]->ProjectionY("fHistGenerated_1D_V0Phi_Int1"+ Smolt[molt],fHistSelected_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(ptjmin+0.0001) ,fHistSelected_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(ptjmaxGen-0.0001));
     fHistGenerated_1D_V0Phi_Int2[molt]=(TH1D*)fHistGenerated_2D_V0PtTMaxPhi[molt]->ProjectionY("fHistGenerated_1D_V0Phi_Int2"+ Smolt[molt],fHistSelected_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(ptjminGen+0.0001) ,fHistSelected_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(-ptjmin-0.0001));
     fHistGenerated_1D_V0Phi[molt]=(TH1D*)     fHistGenerated_1D_V0Phi_Int2[molt]->Clone("fHistGenerated_1D_V0Phi_"+ Smolt[molt]);
     fHistGenerated_1D_V0Phi[molt]->Add(fHistGenerated_1D_V0Phi_Int1[molt]);
-
+    }
+    else {
+    fHistGenerated_1D_V0Phi[molt]=(TH1D*)fHistGenerated_2D_V0PtTMaxPhi[molt]->ProjectionY("fHistGenerated_1D_V0Phi"+ Smolt[molt],fHistSelected_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(ptjminGen+0.0001) ,fHistSelected_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(ptjmaxGen-0.0001));
+    }
     fHistV0EfficiencyPhi[molt] ->Divide(  fHistSelected_1D_V0Phi[molt],  fHistGenerated_1D_V0Phi[molt]);
   
     canvasEff->cd(5);
@@ -762,11 +787,16 @@ void Efficiency_New(Bool_t ishhCorr =0, Int_t type=4, Int_t israp=1, TString Res
     fHistSelected_1D_V0Pt[molt]=(TH1D*)fHistSelected_2D_V0PtPtTMax[molt]->ProjectionX("fHistSelected_1D_V0Pt_"+ Smolt[molt],fHistSelected_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(ptjminGen+0.0001) ,fHistSelected_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(ptjmaxGen-0.0001));
     fHistSelectedGen_1D_V0Pt[molt]=(TH1D*)fHistSelectedGen_2D_V0PtPtTMax[molt]->ProjectionX("fHistSelectedGen_1D_V0Pt_"+ Smolt[molt],fHistSelectedGen_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(ptjminGen+0.0001) ,fHistSelectedGen_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(ptjmaxGen-0.0001));
 
+    if (type>=4){
     fHistGenerated_1D_V0Pt_Int1[molt]=(TH1D*)fHistGenerated_2D_V0PtPtTMax[molt]->ProjectionX("fHistGenerated_1D_V0Pt_Int1"+ Smolt[molt],fHistGenerated_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(ptjmin+0.0001) ,fHistGenerated_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(ptjmaxGen-0.0001));
     fHistGenerated_1D_V0Pt_Int2[molt]=(TH1D*)fHistGenerated_2D_V0PtPtTMax[molt]->ProjectionX("fHistGenerated_1D_V0Pt_Int2"+ Smolt[molt],fHistGenerated_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(ptjminGen+0.0001) ,fHistGenerated_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(-ptjmin-0.0001));
     fHistGenerated_1D_V0Pt[molt]=(TH1D*)    fHistGenerated_1D_V0Pt_Int2[molt]->Clone("fHistGenerated_1D_V0Pt_"+ Smolt[molt]);
     fHistGenerated_1D_V0Pt[molt]->Add( fHistGenerated_1D_V0Pt_Int1[molt]);
-    
+    }
+    else {
+    fHistGenerated_1D_V0Pt[molt]=(TH1D*)fHistGenerated_2D_V0PtPtTMax[molt]->ProjectionX("fHistGenerated_1D_V0Pt"+ Smolt[molt],fHistGenerated_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(ptjminGen+0.0001) ,fHistGenerated_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(ptjmaxGen-0.0001));
+    }
+
     fHistV0EfficiencyPt[molt]= (TH1D*) fHistSelected_1D_V0Pt[molt]->Clone("fHistV0EfficiencyPt_"+ Smolt[molt]);
     fHistV0EfficiencyPt[molt]->GetXaxis()->SetTitle("p_{T}^{Assoc} (GeV/c)");      
     fHistV0EfficiencyPt[molt]->GetXaxis()->SetTitleSize(0.039);      
@@ -897,10 +927,15 @@ cout << "sel2D " <<     fHistSelected_1D_V0Pt[molt]->GetNbinsX() << endl;
 
     fHistSelected_1D_V0Eta[molt]=(TH1D*)fHistSelected_2D_V0PtTMaxEta[molt]->ProjectionY("fHistSelected_1D_V0Eta_"+ Smolt[molt], fHistSelected_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(ptjminGen+0.0001) ,fHistSelected_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(ptjmaxGen-0.0001));//***
 
+    if (type>=4){
     fHistGenerated_1D_V0Eta_Int1[molt]=(TH1D*)fHistGenerated_2D_V0PtTMaxEta[molt]->ProjectionY("fHistGenerated_1D_V0Eta_Int1"+ Smolt[molt],fHistSelected_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(ptjmin+0.0001) ,fHistSelected_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(ptjmaxGen-0.0001));
     fHistGenerated_1D_V0Eta_Int2[molt]=(TH1D*)fHistGenerated_2D_V0PtTMaxEta[molt]->ProjectionY("fHistGenerated_1D_V0Eta_Int2"+ Smolt[molt],fHistSelected_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(ptjminGen+0.0001) ,fHistSelected_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(-ptjmin-0.0001));
     fHistGenerated_1D_V0Eta[molt]=(TH1D*)fHistGenerated_1D_V0Eta_Int2[molt]->Clone("fHistGenerated_1D_V0Eta_"+ Smolt[molt]);
     fHistGenerated_1D_V0Eta[molt]->Add(fHistGenerated_1D_V0Eta_Int1[molt]);
+    }
+    else {
+    fHistGenerated_1D_V0Eta[molt]=(TH1D*)fHistGenerated_2D_V0PtTMaxEta[molt]->ProjectionY("fHistGenerated_1D_V0Eta"+ Smolt[molt],fHistSelected_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(ptjminGen+0.0001) ,fHistSelected_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(ptjmaxGen-0.0001));
+    }
 
     fHistV0EfficiencyEta[molt] ->Divide(  fHistSelected_1D_V0Eta[molt],  fHistGenerated_1D_V0Eta[molt]);
     canvasEff->cd(6);
@@ -962,7 +997,7 @@ cout << "sel2D " <<     fHistSelected_1D_V0Pt[molt]->GetNbinsX() << endl;
 	fHistResolution2D[m][t]=(TH2D*)fHistResolution3D[m][t]->Project3D("yxo");
 	nameRes_2D[molt][m][t]="fHistResolution2D" + TorV[t] + Var[m] + Smolt[molt];
 	fHistResolution2D[m][t]->SetName(nameRes_2D[molt][m][t]);
-}
+	   }
 	// version to be used if resolution hiostograms are 3D, comment if not */
       
 	nameRes_1D[molt][m][t]="fHistResolution" + TorV[t] + Var[m] + Smolt[molt];
@@ -975,26 +1010,37 @@ cout << "sel2D " <<     fHistSelected_1D_V0Pt[molt]->GetNbinsX() << endl;
 	  }
 	}
 	else {
-	  fHistResolution_1D[molt][m][t]=(TH1D*)fHistResolution2D[m][t]->ProjectionX(nameRes_1D[molt][m][t], fHistResolution2D[m][t]->GetYaxis()->FindBin(ptjminBis[molt]+0.0001), fHistResolution2D[m][t]->GetYaxis()->FindBin(ptjmax-0.0001));
+	  if (t==0)  fHistResolution_1D[molt][m][t]=(TH1D*)fHistResolution2D[m][t]->ProjectionX(nameRes_1D[molt][m][t], fHistResolution2D[m][t]->GetYaxis()->FindBin(ptjminBisFixed[molt]+0.0001), fHistResolution2D[m][t]->GetYaxis()->FindBin(ptjmax-0.0001));
+	  else if (t==1){
+	    if (type>=4){
+	      fHistResolution_1D_Int1[molt][m][t]=(TH1D*)fHistResolution2D[m][t]->ProjectionX(nameRes_1D[molt][m][t]+"_Int1", fHistResolution2D[m][t]->GetYaxis()->FindBin(ptjminBisFixed[molt]+0.0001), fHistResolution2D[m][t]->GetYaxis()->FindBin(ptjmaxRes[molt]-0.0001));
+	      fHistResolution_1D_Int2[molt][m][t]=(TH1D*)fHistResolution2D[m][t]->ProjectionX(nameRes_1D[molt][m][t]+"_Int2", fHistResolution2D[m][t]->GetYaxis()->FindBin(ptjminBis[molt]+0.0001), fHistResolution2D[m][t]->GetYaxis()->FindBin(-ptjminBisFixed[molt]-0.0001));
+	      fHistResolution_1D[molt][m][t]=(TH1D*)  fHistResolution_1D_Int2[molt][m][t]->Clone(nameRes_1D[molt][m][t]);
+	      fHistResolution_1D[molt][m][t]->Add(  fHistResolution_1D_Int1[molt][m][t]);
+	    }
+	    else {
+	      fHistResolution_1D[molt][m][t]=(TH1D*)fHistResolution2D[m][t]->ProjectionX(nameRes_1D[molt][m][t], fHistResolution2D[m][t]->GetYaxis()->FindBin(ptjminBis[molt]+0.0001), fHistResolution2D[m][t]->GetYaxis()->FindBin(ptjmaxRes[molt]-0.0001));
+	    }
+	  }
 	}
 
 	Int_t normal = fHistResolution_1D[molt][m][t]->GetEntries();
 	fHistResolution_1D[molt][m][t]->Scale(1./normal);
 	if (t==0)      canvasRes->cd(m+1);
 	else  canvasRes->cd(m+4);
-	fHistResolution_1D[molt][m][t]->GetYaxis()->SetRangeUser(0, 1);
-	fHistResolution_1D[molt][m][t]->GetXaxis()->SetRangeUser(-0.03, 0.03); //was 0.05
+	fHistResolution_1D[molt][m][t]->GetYaxis()->SetRangeUser(0, 0.4);
+	fHistResolution_1D[molt][m][t]->GetXaxis()->SetRangeUser(-0.2, 0.2); //was 0.05
 	if (type==0 || type==1 || type==4) {
 	  if (t==1){
 	    if (m==0) fHistResolution_1D[molt][m][t]->GetXaxis()->SetRangeUser(-0.2, 0.2);
 	    if (m==1 || m==2) {
-	      fHistResolution_1D[molt][m][t]->Rebin(8);
-	      fHistResolution_1D[molt][m][t]->GetXaxis()->SetRangeUser(-0.4, 0.4);
-	      fHistResolution_1D[molt][m][t]->GetYaxis()->SetRangeUser(0, 0.1);
+	      fHistResolution_1D[molt][m][t]->Rebin(2);
+	      fHistResolution_1D[molt][m][t]->GetXaxis()->SetRangeUser(-0.03, 0.03);
+	      fHistResolution_1D[molt][m][t]->GetYaxis()->SetRangeUser(0, 0.5);
 	    }
 	  }
 	  else if (t==0){
-	    if (m==0) fHistResolution_1D[molt][m][t]->GetXaxis()->SetRangeUser(-0.03, 0.03);
+	    if (m==0) fHistResolution_1D[molt][m][t]->GetXaxis()->SetRangeUser(-0.2, 0.2);
 	    if (m==1 || m==2) {
 	      fHistResolution_1D[molt][m][t]->GetXaxis()->SetRangeUser(-0.03, 0.03);
 	      fHistResolution_1D[molt][m][t]->GetYaxis()->SetRangeUser(0, 0.5);
@@ -1002,8 +1048,8 @@ cout << "sel2D " <<     fHistSelected_1D_V0Pt[molt]->GetNbinsX() << endl;
 	  }
 	}
 	if (m==0 && t==0){
-	  fHistResolution_1D[molt][m][t]->GetXaxis()->SetRangeUser(-0.5, 0.5);
-	  fHistResolution_1D[molt][m][t]->GetYaxis()->SetRangeUser(0, 0.1);
+	  //	  fHistResolution_1D[molt][m][t]->GetXaxis()->SetRangeUser(-0.5, 0.5);
+	  //	  fHistResolution_1D[molt][m][t]->GetYaxis()->SetRangeUser(0, 0.1);
 	}
 	fHistResolution_1D[molt][m][t]->SetMarkerStyle(Marker[molt]);
 	fHistResolution_1D[molt][m][t]->SetLineColor(Color[molt]);
@@ -1174,6 +1220,8 @@ cout << "sel2D " <<     fHistSelected_1D_V0Pt[molt]->GetNbinsX() << endl;
   TH2F* fHistTriggerPtRecovsPtGen;  
   TProfile *fHistTriggerPtRecovsPtGen_pfx;
   TH2F* fHistAssocPtRecovsPtGen;
+  TH2F* fHistAssocPtRecovsPtGenInt1;
+  TH2F* fHistAssocPtRecovsPtGenInt2;
   TProfile *fHistAssocPtRecovsPtGen_pfx;
   TH2F* fHistTriggerPtRecovsPtGen_PtBins;
   TH2F* fHistAssocPtRecovsPtGen_PtBins;
@@ -1183,7 +1231,17 @@ if (listRisoluzione){
   fHistTriggerPtRecovsPtGen = (TH2F*) listRisoluzione->FindObject("fHistTriggerPtRecovsPtGen");
   if (!fHistTriggerPtRecovsPtGen) {cout << "manca istogramma pt reco vs pt gen , non posso proseguire " << endl; return;}
   fHistTriggerPtRecovsPtGen_pfx = (TProfile*) fHistTriggerPtRecovsPtGen->ProfileX("fHistTriggerPtRecovsPtGen_pfx");
-  fHistAssocPtRecovsPtGen = (TH2F*) listRisoluzione->FindObject("fHistAssocPtRecovsPtGen");
+  if (type==0 || type==2)  fHistAssocPtRecovsPtGen = (TH2F*) listRisoluzione->FindObject("fHistAssocPtRecovsPtGenNeg");
+  else if (type==1 || type==3)  fHistAssocPtRecovsPtGen = (TH2F*) listRisoluzione->FindObject("fHistAssocPtRecovsPtGenPos");
+  else  if (type==4 || type==5) {
+    fHistAssocPtRecovsPtGenInt1 = (TH2F*) listRisoluzione->FindObject("fHistAssocPtRecovsPtGenPos");
+    fHistAssocPtRecovsPtGenInt2 = (TH2F*) listRisoluzione->FindObject("fHistAssocPtRecovsPtGenNeg");
+    fHistAssocPtRecovsPtGen = (TH2F*)     fHistAssocPtRecovsPtGenInt2->Clone("fHistAssocPtRecovsPtGen");
+    fHistAssocPtRecovsPtGen->Add(fHistAssocPtRecovsPtGenInt1);
+  }
+  else  if (type==6 || type==7) {
+    fHistAssocPtRecovsPtGen= (TH2F*) listRisoluzione->FindObject("fHistAssocPtRecovsPtGen");
+  }
   if (!fHistAssocPtRecovsPtGen) {cout << "manca istogramma pt reco vs pt gen per associati, non posso proseguire " << endl; return;}
   fHistAssocPtRecovsPtGen_pfx = (TProfile*) fHistAssocPtRecovsPtGen->ProfileX("fHistAssocPtRecovsPtGen_pfx");
 
@@ -1354,7 +1412,7 @@ if (listRisoluzione){
     cout << m << endl;
     for(Int_t y=0; y< 3; y++){
       for(Int_t t=0; t< 2; t++){
-	//	fHistResolution_1D[m][y][t]->Write();
+	fHistResolution_1D[m][y][t]->Write();
       }
     }
 
@@ -1401,7 +1459,7 @@ if (listRisoluzione){
       if (m==2) cout << "Phi resolution" << endl;
       for (Int_t molt=0; molt < nummolt+1; molt++){
 	if (ResoHisto=="3D")	cout << " Molt class: " << SmoltLegend[molt] << ", Mean: "<<      fHistResolution_1D[molt][m][t]->GetMean() << " +- " << fHistResolution_1D[molt][m][t]->GetMeanError()/sqrt(fHistResolution_1D[molt][m][t]->GetEntries()) << " RMS: "<< fHistResolution_1D[molt][m][t]->GetRMS()<< endl ;
-	else cout << " p_{T}^{Trig, min}: " << ptjminBis[molt] << ", Mean: "<<      fHistResolution_1D[molt][m][t]->GetMean()<< "+- " << fHistResolution_1D[molt][m][t]->GetMeanError()/sqrt(fHistResolution_1D[molt][m][t]->GetEntries()) << " RMS: "<< fHistResolution_1D[molt][m][t]->GetRMS()<< endl ;
+	else cout << " p_{T}^{Trig, min}: " << ptjminBisFixed[molt] << ", Mean: "<<      fHistResolution_1D[molt][m][t]->GetMean()<< "+- " << fHistResolution_1D[molt][m][t]->GetMeanError()/sqrt(fHistResolution_1D[molt][m][t]->GetEntries()) << " RMS: "<< fHistResolution_1D[molt][m][t]->GetRMS()<< endl ;
       }
     }
   }
