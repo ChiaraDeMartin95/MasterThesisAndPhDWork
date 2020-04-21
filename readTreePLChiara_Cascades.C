@@ -15,19 +15,23 @@
 #include <TTree.h>
 #include <TLatex.h>
 #include <TFile.h>
-void readTreePLChiara_Cascades(Int_t type=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t sysV0=0,Int_t rap=0, bool isMC = 0,Bool_t isEfficiency=1,Int_t sysTrigger=0,
+#include <TLine.h>
+
+void readTreePLChiara_Cascades(bool isMC=1, Int_t type=2, Bool_t ishhCorr=0, Float_t PtTrigMin=3.0, Int_t sysV0=0,Int_t rap=1,Bool_t isEfficiency=1,Int_t sysTrigger=0,
 			    //TString PathIn ="./AnalysisResults2018d8_allrunswMult_MC.root", Int_t type=0 //type = 0 per K0short
-TString year="2016k", TString year0="2016", TString Path1 =""	    
+TString year="2016k", TString year0="2016",  TString Path1 ="_New"	    
 			    )
 {
+  if (isMC==1) year="2018f1_extra";
+  else if (isMC==0) year ="2016k";
   if (type>1) {
     cout << "type=0 or 1 for Xi " << endl;
-    return; 
+    //    return; 
   }
 
-  if (sysV0>9) {
-    cout << "sysV0 must be smaller than 10" << endl;
-return;
+  if (sysV0>20) {
+    cout << "sysV0 must be smaller than...check" << endl;
+    //return;
   }
   //2016k_onlyTriggerWithHighestPt
   //  if (sysV0>6) return;
@@ -38,24 +42,55 @@ return;
   // 0: default cuts Fiorella Fionda 
   // 1: fSignTreeVariableV0CosineOfPointingAngleSpecial; 0.99
   // 2: fSignTreeVariableCascCosineOfPointingAngle;      0.99
-  // 3: fSignTreeVariableDcaV0ToPrimVertex;              0.15
-  // 4: fSignTreeVariableDcaMesonToPrimVertex;           0.30
-  // 5: fSignTreeVariableDcaBaryonToPrimVertex           0.11
-  // 6: fSignTreeVariableDcaBachToPrimVertex;            0.17
+  // 3: fSignTreeVariableDcaV0ToPrimVertex;              0.15 //
+  // 4: fSignTreeVariableDcaMesonToPrimVertex;           0.30 //
+  // 5: fSignTreeVariableDcaBaryonToPrimVertex           0.11 //
+  // 6: fSignTreeVariableDcaBachToPrimVertex;            0.17 //
   // 7: fSignTreeVariableDcaV0Daughters;                 1
   // 8: fSignTreeVariableDcaCascDaughters;               0.8
   // 9: fSignTreeVariableInvMassLambda;                  0.006
+  // Other "mixed" selections:
+  //10: 2+8+9
+  //11:   2( 0.995) + 8 + 9
+  //12:   2( 0.99) + 8 + 9 + 1 (0.99)
+  //13:   2( 0.99) + 8 + 9 + 1 (0.995)
+  //14:   2( 0.995) + 8 + 9 + 1 (0.995)                +50% , eff 89% 
+  //15:   2( 0.992) + 8 + 9
+  //16:   2( 0.99) + 8(0.6) + 9 
+  //17:   2( 0.99) + 8 + 9 (0.005) 
+  //18:   2( 0.99) + 8(0.6) + 9 (0.005) 
+  //19:   2( 0.995) + 8(0.6) + 9 (0.005)               +50% , eff 91% -> scelgo questa 
+  //20:   2( 0.995) + 8(0.6) + 9 (0.005) + 1 (0.995)   +52% , eff 88% 
 
-  Float_t RapCasc[2]={100, 0.5};
-  Float_t V0CosineOfPointingAngleSpecial[2]={0.97, 0.97}; 
-  Float_t CascCosineOfPointingAngle[2]={0.97, 0.97};      
-  Float_t DcaV0ToPrimVertex[2]={0.06, 0.06};              
-  Float_t DcaMesonToPrimVertex[2]={0.04, 0.04};           
-  Float_t DcaBaryonToPrimVertex[2]={0.03, 0.03};           
-  Float_t DcaBachToPrimVertex[2]={0.04, 0.04};                       
-  Float_t DcaV0Daughters[2]={1.5, 1.5};                      
-  Float_t DcaCascDaughters[2]={1.3, 1.3};                 
-  Float_t InvMassLambda[2]={0.008, 0.008};       
+  Float_t RapCasc[2]={1., 0.5};
+  Float_t V0CosineOfPointingAngleSpecial[4]={0.97, 0.97, 0.97, 0.97}; 
+  Float_t CascCosineOfPointingAngle[4]={0.97, 0.97, 0.97, 0.97};      
+  Float_t DcaV0ToPrimVertex[4]={0.06, 0.06, 0.06, 0.06};              
+  Float_t DcaMesonToPrimVertex[4]={0.04, 0.04, 0.04, 0.04};           
+  Float_t DcaBaryonToPrimVertex[4]={0.03, 0.03, 0.03, 0.03};           
+  Float_t DcaBachToPrimVertex[4]={0.04, 0.04, 0.04, 0.04};                       
+  Float_t DcaBachToPrimVertexLimSup[4]={100, 100,5, 5};                       
+  Float_t DcaV0Daughters[4]={1.5, 1.5, 1.5, 1.5};                      
+  Float_t DcaCascDaughters[4]={1.3, 1.3, 1.3, 1.3};                 
+  Float_t InvMassLambda[4]={0.008, 0.008, 0.008, 0.008};       
+  Float_t V0Lifetime[4]={80, 30, 80, 30};
+  Float_t XiRejection[4]={0,0, 0.008, 0.008};
+
+  //the best selections for Omegas according to a study integrated  in molteplicity and pT are in sysV0==1
+
+  if (type>1 && sysV0==1) {
+    for (Int_t i =2; i<4; i++){
+      V0CosineOfPointingAngleSpecial[i]=0.97;
+    CascCosineOfPointingAngle[i]=0.995;
+    DcaBachToPrimVertexLimSup[i]=3;
+    DcaCascDaughters[i]=1.0;
+    InvMassLambda[i]=0.006;
+    XiRejection[i]=0.010;
+    if (i==2)    V0Lifetime[i]= 30;
+    else if (i==3) V0Lifetime[i]=15;
+    }
+    
+  }
 
   if (sysV0==1) {
     V0CosineOfPointingAngleSpecial[0]=0.99; 
@@ -68,7 +103,7 @@ return;
   }
   if (sysV0==3) {
   DcaV0ToPrimVertex[0]=0.15;
-  DcaV0ToPrimVertex[1]=0.10;
+  DcaV0ToPrimVertex[1]=0.15;
   }
   if (sysV0==4) {
   DcaMesonToPrimVertex[0]=0.30;
@@ -76,11 +111,13 @@ return;
   }
   if (sysV0==5) {
   DcaBaryonToPrimVertex[0]=0.11;
-  DcaBaryonToPrimVertex[1]=0.10;
+  //  DcaBaryonToPrimVertex[1]=0.10;
+  DcaBaryonToPrimVertex[1]=0.11;
   }
   if (sysV0==6) {
   DcaBachToPrimVertex[0]=0.17;                       
-  DcaBachToPrimVertex[1]=0.10;                       
+  //DcaBachToPrimVertex[1]=0.10;                       
+  DcaBachToPrimVertex[1]=0.17;                       
   }
   if (sysV0==7) {
   DcaV0Daughters[0]=1.;
@@ -88,20 +125,127 @@ return;
   }
   if (sysV0==8) {
   DcaCascDaughters[0]=0.8;
-  DcaCascDaughters[1]=0.6;
+  DcaCascDaughters[1]=0.8;
   }
   if (sysV0==9) {
   InvMassLambda[0]=0.006;
   InvMassLambda[1]=0.006;
   }
+  if (sysV0==10) {
+  InvMassLambda[0]=0.006;
+  InvMassLambda[1]=0.006;
+  DcaCascDaughters[0]=0.8;
+  DcaCascDaughters[1]=0.8;
+  CascCosineOfPointingAngle[0]=0.99;
+  CascCosineOfPointingAngle[1]=0.99;
+  }
+  if (sysV0==11) {
+  InvMassLambda[0]=0.006;
+  InvMassLambda[1]=0.006;
+  DcaCascDaughters[0]=0.8;
+  DcaCascDaughters[1]=0.8;
+  CascCosineOfPointingAngle[0]=0.995;
+  CascCosineOfPointingAngle[1]=0.995;
+  }
+  if (sysV0==12) {
+  InvMassLambda[0]=0.006;
+  InvMassLambda[1]=0.006;
+  DcaCascDaughters[0]=0.8;
+  DcaCascDaughters[1]=0.8;
+  CascCosineOfPointingAngle[0]=0.99;
+  CascCosineOfPointingAngle[1]=0.99;
+    V0CosineOfPointingAngleSpecial[0]=0.99; 
+    V0CosineOfPointingAngleSpecial[1]=0.99; 
+  }
+
+  if (sysV0==13) {
+  InvMassLambda[0]=0.006;
+  InvMassLambda[1]=0.006;
+  DcaCascDaughters[0]=0.8;
+  DcaCascDaughters[1]=0.8;
+  CascCosineOfPointingAngle[0]=0.99;
+  CascCosineOfPointingAngle[1]=0.99;
+    V0CosineOfPointingAngleSpecial[0]=0.995; 
+    V0CosineOfPointingAngleSpecial[1]=0.995; 
+
+  }
+  if (sysV0==14) {
+  InvMassLambda[0]=0.006;
+  InvMassLambda[1]=0.006;
+  DcaCascDaughters[0]=0.8;
+  DcaCascDaughters[1]=0.8;
+  CascCosineOfPointingAngle[0]=0.995;
+  CascCosineOfPointingAngle[1]=0.995;
+    V0CosineOfPointingAngleSpecial[0]=0.995; 
+    V0CosineOfPointingAngleSpecial[1]=0.995; 
+
+  }
+  if (sysV0==15) {
+  InvMassLambda[0]=0.006;
+  InvMassLambda[1]=0.006;
+  DcaCascDaughters[0]=0.8;
+  DcaCascDaughters[1]=0.8;
+  CascCosineOfPointingAngle[0]=0.992;
+  CascCosineOfPointingAngle[1]=0.992;
+  }
+
+  if (sysV0==16) {
+  InvMassLambda[0]=0.006;
+  InvMassLambda[1]=0.006;
+  DcaCascDaughters[0]=0.6;
+  DcaCascDaughters[1]=0.6;
+  CascCosineOfPointingAngle[0]=0.99;
+  CascCosineOfPointingAngle[1]=0.99;
+  }
+  if (sysV0==17) {
+  InvMassLambda[0]=0.005;
+  InvMassLambda[1]=0.005;
+  DcaCascDaughters[0]=0.8;
+  DcaCascDaughters[1]=0.8;
+  CascCosineOfPointingAngle[0]=0.99;
+  CascCosineOfPointingAngle[1]=0.99;
+  }
+
+  if (sysV0==18) {
+  InvMassLambda[0]=0.005;
+  InvMassLambda[1]=0.005;
+  DcaCascDaughters[0]=0.6;
+  DcaCascDaughters[1]=0.6;
+  CascCosineOfPointingAngle[0]=0.99;
+  CascCosineOfPointingAngle[1]=0.99;
+  }
+
+  if (sysV0==19) {
+  InvMassLambda[0]=0.005;
+  InvMassLambda[1]=0.005;
+  DcaCascDaughters[0]=0.6;
+  DcaCascDaughters[1]=0.6;
+  CascCosineOfPointingAngle[0]=0.995;
+  CascCosineOfPointingAngle[1]=0.995;
+  }
+
+  if (sysV0==20) {
+  InvMassLambda[0]=0.005;
+  InvMassLambda[1]=0.005;
+  DcaCascDaughters[0]=0.6;
+  DcaCascDaughters[1]=0.6;
+  CascCosineOfPointingAngle[0]=0.995;
+  CascCosineOfPointingAngle[1]=0.995;
+    V0CosineOfPointingAngleSpecial[0]=0.995; 
+    V0CosineOfPointingAngleSpecial[1]=0.995; 
+
+  }
+
 
   const Int_t numtipo=4;
   TString tipo[numtipo]={"XiNeg", "XiPos", "OmegaPos", "OmegaNeg"};
   Int_t CascadesPDGCode[numtipo]={3312, -3312, 3334, -3334};
   Float_t LimInfHisto[numtipo]={1.28, 1.28, 1.62, 1.62};
   Float_t LimSupHisto[numtipo]={1.36, 1.36, 1.72, 1.72};
-  TString PathIn="./FinalOutput/AnalysisResults";
-  TString PathOut="./FinalOutput/DATA" + year0 + "/histo/AngularCorrelation";
+  //  TString PathIn="./FinalOutput/AnalysisResults";
+    TString PathIn="./AnalysisResultsFolder/AnalysisResults";
+    //  TString PathOut="./FinalOutput/DATA" + year0 + "/histo/AngularCorrelation";
+      TString PathOut="./OmegaStudy/AngularCorrelation";
   PathIn+=year;
   PathOut+=year;  
   
@@ -124,7 +268,9 @@ return;
   PathOut +=Form("_MassDistr_SysT%i_SysV0%i_PtMin%.1f_Rap%i",sysTrigger, sysV0, PtTrigMin, rap); 
   PathOut+= ".root";
 
+  cout << PathIn << endl;
   TFile *fin = new TFile(PathIn);
+  if (!fin) return;
   TDirectoryFile *d = (TDirectoryFile*)fin->Get("MyTask");
   TTree *tSign = (TTree *)d->Get("fSignalTree");
   TTree *tBkg  = (TTree *)d->Get("fBkgTree");
@@ -376,12 +522,12 @@ return;
 
   /*-----------------------Pt Trigger  --------------------------- */
   /*
-  TH1D *hSign_PtTrigger       = new TH1D("hSign_PtTrigger",       "hSign_PtTrigger",       300, 0, 30);
+  TH1D *hSign_PtTrigger       = new TH1D("hSign_PtTrigger",       "hSign_PtTrigger",       200, 0, 20);
   hSign_PtTrigger->GetXaxis()->SetTitle("p_{T} (Gev/c)");
   hSign_PtTrigger->GetXaxis()->SetTitleSize(0.05);
   hSign_PtTrigger->GetXaxis()->SetLabelSize(0.05);
   hSign_PtTrigger->GetYaxis()->SetLabelSize(0.05);
-  TH1D *hBkg_PtTrigger         = new TH1D("hBkg_PtTrigger",        "hBkg_PtTrigger",        300, 0, 30);
+  TH1D *hBkg_PtTrigger         = new TH1D("hBkg_PtTrigger",        "hBkg_PtTrigger",        200, 0, 20);
   hBkg_PtTrigger->GetXaxis()->SetTitle("p_{T} (Gev/c)");
   hBkg_PtTrigger->GetXaxis()->SetTitleSize(0.05);
   hBkg_PtTrigger->GetXaxis()->SetLabelSize(0.05);
@@ -395,8 +541,7 @@ return;
   TH2D *hMassvsPt_SEbins[nummolt+1][numzeta][numPtTrigger];
   TH2D *hMassvsPt_SEbins_true[nummolt+1][numzeta][numPtTrigger];
   TH2D *hDeltaEtaDeltaPhi_SEbins[nummolt+1][numzeta][numPtV0][numPtTrigger];
-  TH1F *hXiAfterCuts= new TH1F ("hXiAfterCuts", "hXiAfterCuts", 21,0.5, 21.5);
-
+  TH1F *hXiAfterCuts= new TH1F ("hXiAfterCuts", "hXiAfterCuts", 22,0.5, 22.5);
   hXiAfterCuts->GetXaxis()->SetBinLabel(17,"All Xi");
   hXiAfterCuts->GetXaxis()->SetBinLabel(1,"NumberTPCClusters");
   hXiAfterCuts->GetXaxis()->SetBinLabel(2,"PID pos/neg");
@@ -413,14 +558,37 @@ return;
   hXiAfterCuts->GetXaxis()->SetBinLabel(13,"Invmass Lambda");
   hXiAfterCuts->GetXaxis()->SetBinLabel(14,"V0 lifetime");
   hXiAfterCuts->GetXaxis()->SetBinLabel(15,"Casc lifetime");
-  hXiAfterCuts->GetXaxis()->SetBinLabel(16,"Eta casc < 0.8");
-  hXiAfterCuts->GetXaxis()->SetBinLabel(17,"Rapidity");
+  hXiAfterCuts->GetXaxis()->SetBinLabel(16,"Eta casc < 0.8 (not)");
+  hXiAfterCuts->GetXaxis()->SetBinLabel(17,"Rapidity(not)");
   hXiAfterCuts->GetXaxis()->SetBinLabel(18,"Mass cuts");
-  hXiAfterCuts->GetXaxis()->SetBinLabel(19,"Trues Casc");
+  hXiAfterCuts->GetXaxis()->SetBinLabel(19,"Trues Casc sign selected");
   hXiAfterCuts->GetXaxis()->SetBinLabel(20,"All");
-  hXiAfterCuts->GetXaxis()->SetBinLabel(21,"Sign selected");
+  hXiAfterCuts->GetXaxis()->SetBinLabel(21,"Sign selected (not applied)");
+  hXiAfterCuts->GetXaxis()->SetBinLabel(22,"DCA Bach LimSup");
 
-  TH3F *hXiTrueSelected= new TH3F ("hXiTrueSelected", "hXiTrueSelected", 100,0, 100, 300, 0, 30, 80, LimInfHisto[type], LimSupHisto[type]);
+  TH3F *hXiTrueAfterCuts= new TH3F ("hXiTrueAfterCuts", "hXiTrueAfterCuts", 22,0.5, 22.5, 200, -20, 20, 8, -2, 2);
+  hXiTrueAfterCuts->GetXaxis()->SetBinLabel(1,"NumberTPCClusters");
+  hXiTrueAfterCuts->GetXaxis()->SetBinLabel(2,"PID pos/neg");
+  hXiTrueAfterCuts->GetXaxis()->SetBinLabel(3,"PID Bach");
+  hXiTrueAfterCuts->GetXaxis()->SetBinLabel(4,"DCA pos/neg to PV");
+  hXiTrueAfterCuts->GetXaxis()->SetBinLabel(5,"DCA V0 to PV");
+  hXiTrueAfterCuts->GetXaxis()->SetBinLabel(6,"DCA V0 Daught.");
+  hXiTrueAfterCuts->GetXaxis()->SetBinLabel(7,"DCA Casc Daught.");
+  hXiTrueAfterCuts->GetXaxis()->SetBinLabel(8,"DCA Bach to PV");
+  hXiTrueAfterCuts->GetXaxis()->SetBinLabel(9,"Radius casc.");
+  hXiTrueAfterCuts->GetXaxis()->SetBinLabel(10,"Radius V0");
+  hXiTrueAfterCuts->GetXaxis()->SetBinLabel(11,"CosinePA V0");
+  hXiTrueAfterCuts->GetXaxis()->SetBinLabel(12,"CosinePA Casc");
+  hXiTrueAfterCuts->GetXaxis()->SetBinLabel(13,"Invmass Lambda");
+  hXiTrueAfterCuts->GetXaxis()->SetBinLabel(14,"V0 lifetime");
+  hXiTrueAfterCuts->GetXaxis()->SetBinLabel(15,"Casc lifetime");
+  hXiTrueAfterCuts->GetXaxis()->SetBinLabel(16,"Eta casc < 0.8(not)");
+  hXiTrueAfterCuts->GetXaxis()->SetBinLabel(17,"Rapidity(not)");
+  hXiTrueAfterCuts->GetXaxis()->SetBinLabel(18,"Mass cuts");
+  hXiTrueAfterCuts->GetXaxis()->SetBinLabel(19,"All");
+  hXiTrueAfterCuts->GetXaxis()->SetBinLabel(22,"DCABach LimSup");
+
+  TH3F *hXiTrueSelected= new TH3F ("hXiTrueSelected", "hXiTrueSelected", 100,0, 100, 200, 0, 20, 80, LimInfHisto[type], LimSupHisto[type]);
   hXiTrueSelected->SetTitle("p_{T} and mult.class distribution of selected true Xi");
   hXiTrueSelected->GetXaxis()->SetTitle("Multiplicity class");
   hXiTrueSelected->GetYaxis()->SetTitle("p_{T, #Xi}");
@@ -432,7 +600,7 @@ return;
   TH1F *hXiAfterCutsBkg= new TH1F ("hXiAfterCutsBkg", "PDG code della mamma del bachelor per le non-Xi", 7200,-3600, 3600);
 
 
-  TH3F *hXiFalseSelected = new TH3F ("hXiFalseSelected", "hXiFalseSelected", 100,0, 100, 300, 0, 30, 80, LimInfHisto[type], LimSupHisto[type]);
+  TH3F *hXiFalseSelected = new TH3F ("hXiFalseSelected", "hXiFalseSelected", 100,0, 100, 200, 0, 20, 80, LimInfHisto[type], LimSupHisto[type]);
   hXiFalseSelected->SetTitle("p_{T} and mult.class distribution of selected non-Xi");
   hXiFalseSelected->GetXaxis()->SetTitle("Multiplicity class");
   hXiFalseSelected->GetYaxis()->SetTitle("p_{T, #Xi}");
@@ -440,7 +608,7 @@ return;
 
   TH1F *hXiFalseSelected1D = new TH1F ("hXiFalseSelected1D", "hXiFalseSelected1D",80, LimInfHisto[type], LimSupHisto[type]);
   hXiFalseSelected1D->SetLineColor(kBlue);
-  TH3F *hXiFalseSelectedV0Particle = new TH3F ("hXiFalseSelectedV0Particle", "Distribuzione per candidate non-Xi con pos e neg da stessa mamma", 100,0, 100, 300, 0, 30, 80, LimInfHisto[type], LimSupHisto[type]);
+  TH3F *hXiFalseSelectedV0Particle = new TH3F ("hXiFalseSelectedV0Particle", "Distribuzione per candidate non-Xi con pos e neg da stessa mamma", 100,0, 100, 200, 0, 20, 80, LimInfHisto[type], LimSupHisto[type]);
   hXiFalseSelectedV0Particle->SetTitle("p_{T} and mult.class distribution of selected non-Xi");
   hXiFalseSelectedV0Particle->GetXaxis()->SetTitle("Multiplicity class");
   hXiFalseSelectedV0Particle->GetYaxis()->SetTitle("p_{T, #Xi}");
@@ -448,7 +616,7 @@ return;
 
   TH1F *hXiFalseSelectedV0Particle1D = new TH1F ("hXiFalseSelectedV0Particle1D", "hXiFalseSelectedV0Particle1D",80, LimInfHisto[type], LimSupHisto[type]);
 
-  TH3F *hXiSelected= new TH3F ("hXiSelected", "hXiSelected", 100,0, 100, 300, 0, 30, 80, LimInfHisto[type], LimSupHisto[type]);
+  TH3F *hXiSelected= new TH3F ("hXiSelected", "hXiSelected", 100,0, 100, 200, 0, 20, 80, LimInfHisto[type], LimSupHisto[type]);
   hXiSelected->SetTitle("p_{T} and mult.class distribution of selected true Xi");
   hXiSelected->GetXaxis()->SetTitle("Multiplicity class");
   hXiSelected->GetYaxis()->SetTitle("p_{T, #Xi}");
@@ -456,6 +624,8 @@ return;
 
   TH1F *hXiSelectedPhi1D = new TH1F ("hXiSelectedPhi1D", "hXiSelectedPhi1D",100,0, 2*TMath::Pi());
   TH1F *hXiSelectedEta1D = new TH1F ("hXiSelectedEta1D", "hXiSelectedEta1D",100,-1.2, 1.2);
+  TH1F *hInvMassV0FromXiPlus = new TH1F ("hInvMassV0FromXiPlus", "hInvMassV0FromXiPlus", 500, 0, 100);
+  TH1F *hInvMassV0FromXiMinus = new TH1F ("hInvMassV0FromXiMinus", "hInvMassV0FromXiMinus", 500, 0, 100);
 
   //Form("hMassvsPt_"+tipo[type]+"_%i",molt
   for(Int_t m=0; m<nummolt+1; m++){
@@ -542,27 +712,43 @@ return;
       }
       */
       //******************* some other cuts for sys studies**************************
+      Float_t       fSignTreeVariableRap=0;
+      Float_t      fSignTreeVariablePtCascWithSign=-999;
+      Bool_t isTrueCascPosOrNeg;
+      if (type<=1) isTrueCascPosOrNeg=((fSignTreeVariablePDGCode==CascadesPDGCode[0] || fSignTreeVariablePDGCode==CascadesPDGCode[1]) &&  fSignTreeVariableIsPrimaryXi==1);
+      else isTrueCascPosOrNeg=((fSignTreeVariablePDGCode==CascadesPDGCode[2] || fSignTreeVariablePDGCode==CascadesPDGCode[3])&& fSignTreeVariableIsPrimaryOmega==1);
       if (!ishhCorr){
+	  if (fSignTreeVariableChargeCasc ==-1) fSignTreeVariablePtCascWithSign= -fSignTreeVariablePtCasc;
+	  else if (fSignTreeVariableChargeCasc ==1) fSignTreeVariablePtCascWithSign= fSignTreeVariablePtCasc;
+	  if (type<=1) fSignTreeVariableRap=fSignTreeVariableRapXi;
+	  else fSignTreeVariableRap=fSignTreeVariableRapOmega;
 	hXiAfterCuts->Fill(20);
-	 if ((type==0 || type==2) && fSignTreeVariableChargeCasc==1) continue; //type zero seleziona solo cascades negative
-	 if ((type==1 || type==3) && fSignTreeVariableChargeCasc==-1) continue; //type uno seleziona solo cascades positive
+	//	if (fSignTreeVariablePDGCode==CascadesPDGCode[type])	cout << isTrueCascPosOrNeg << " "  << fSignTreeVariablePDGCode<< "  " << fSignTreeVariableIsPrimaryOmega << endl;
+	if (isTrueCascPosOrNeg)	hXiTrueAfterCuts->Fill(19, fSignTreeVariablePtCascWithSign, fSignTreeVariableRap);
+        // if ((type==0 || type==2) && fSignTreeVariableChargeCasc==1) continue; //type zero seleziona solo cascades negative
+	//  if ((type==1 || type==3) && fSignTreeVariableChargeCasc==-1) continue; //type uno seleziona solo cascades positive
 	hXiAfterCuts->Fill(21);
+
 	if (fSignTreeVariableLeastNbrClusters<70) continue;
+	if (isTrueCascPosOrNeg)	hXiTrueAfterCuts->Fill(1,  fSignTreeVariablePtCascWithSign, fSignTreeVariableRap);
 	hXiAfterCuts->Fill(1);
+
 	if (fSignTreeVariableChargeCasc==1){
-	  if (fSignTreeVariablePosNSigmaPion>4) continue;
-	  if (fSignTreeVariableNegNSigmaProton>4) continue;
+	  if (fSignTreeVariablePosNSigmaPion>3) continue;
+	  if (fSignTreeVariableNegNSigmaProton>3) continue;
 	}
 	if (fSignTreeVariableChargeCasc==-1){
-	  if (fSignTreeVariablePosNSigmaProton>4) continue;
-	  if (fSignTreeVariableNegNSigmaPion>4) continue;
-	}
+	  if (fSignTreeVariablePosNSigmaProton>3) continue;
+	  if (fSignTreeVariableNegNSigmaPion>3) continue;
+	}	
 	hXiAfterCuts->Fill(2);
+	if (isTrueCascPosOrNeg)	hXiTrueAfterCuts->Fill(2,  fSignTreeVariablePtCascWithSign, fSignTreeVariableRap);
 	
 	if ((type==0 || type==1) && fSignTreeVariableBachNSigmaPion>4) continue;
 	if ((type==2 || type==3) && fSignTreeVariableBachNSigmaKaon>4) continue;
-	
 	hXiAfterCuts->Fill(3);
+	if (isTrueCascPosOrNeg)	hXiTrueAfterCuts->Fill(3, fSignTreeVariablePtCascWithSign, fSignTreeVariableRap);
+
 	if (fSignTreeVariableChargeCasc==1){
 	  if (fSignTreeVariableDcaPosToPrimVertex<DcaMesonToPrimVertex[type]) continue; //mesone  def 0.04, 0.30 tight
 	  if (fSignTreeVariableDcaNegToPrimVertex<DcaBaryonToPrimVertex[type]) continue; //barione def 0.03, 0.11 tight
@@ -574,49 +760,89 @@ return;
 	}
 	
 	hXiAfterCuts->Fill(4);
+	if (isTrueCascPosOrNeg)	hXiTrueAfterCuts->Fill(4, fSignTreeVariablePtCascWithSign, fSignTreeVariableRap);
 	// if (fSignTreeVariableDcaXiToPrimVertex) continue;
 	// if (fSignTreeVariableXYDcaXiToPrimVertex) continue;
 	//  if (fSignTreeVariableZDcaXiToPrimVertex) continue;
+
 	if (fSignTreeVariableDcaV0ToPrimVertex<DcaV0ToPrimVertex[type]) continue; 
 	hXiAfterCuts->Fill(5);
+	if (isTrueCascPosOrNeg)	hXiTrueAfterCuts->Fill(5, fSignTreeVariablePtCascWithSign, fSignTreeVariableRap);
+
 	if (fSignTreeVariableDcaV0Daughters>DcaV0Daughters[type]) continue; 
 	hXiAfterCuts->Fill(6);
+	if (isTrueCascPosOrNeg)	hXiTrueAfterCuts->Fill(6, fSignTreeVariablePtCascWithSign, fSignTreeVariableRap);
+
 	if (fSignTreeVariableDcaCascDaughters>DcaCascDaughters[type]) continue; 
 	hXiAfterCuts->Fill(7);
+	if (isTrueCascPosOrNeg)	hXiTrueAfterCuts->Fill(7, fSignTreeVariablePtCascWithSign, fSignTreeVariableRap);
+
 	if (fSignTreeVariableDcaBachToPrimVertex<DcaBachToPrimVertex[type]) continue; 
 	hXiAfterCuts->Fill(8);
-	
+	if (isTrueCascPosOrNeg)	hXiTrueAfterCuts->Fill(8, fSignTreeVariablePtCascWithSign, fSignTreeVariableRap);
+	if (fSignTreeVariableDcaBachToPrimVertex>DcaBachToPrimVertexLimSup[type]) continue; 
+	hXiAfterCuts->Fill(22);
+	if (isTrueCascPosOrNeg)	hXiTrueAfterCuts->Fill(20, fSignTreeVariablePtCascWithSign, fSignTreeVariableRap);
+
 	if(fSignTreeVariableCascRadius<0.6 && (type ==0 || type==1)) continue;
 	if(fSignTreeVariableCascRadius<0.5 && (type ==2 || type==3)) continue;
 	hXiAfterCuts->Fill(9);
+	if (isTrueCascPosOrNeg)	hXiTrueAfterCuts->Fill(9, fSignTreeVariablePtCascWithSign, fSignTreeVariableRap);
+
 	if(fSignTreeVariableV0Radius<1.2  && (type ==0 || type==1)) continue;
 	if(fSignTreeVariableV0Radius<1.1  && (type ==2 || type==3)) continue;
 	hXiAfterCuts->Fill(10);
+	if (isTrueCascPosOrNeg)	hXiTrueAfterCuts->Fill(10, fSignTreeVariablePtCascWithSign, fSignTreeVariableRap);
 
 	//  if (fSignTreeVariableV0CosineOfPointingAngle) continue;
 	if (fSignTreeVariableV0CosineOfPointingAngleSpecial<V0CosineOfPointingAngleSpecial[type]) continue; 
 	hXiAfterCuts->Fill(11);
+	if (isTrueCascPosOrNeg)	hXiTrueAfterCuts->Fill(11, fSignTreeVariablePtCascWithSign, fSignTreeVariableRap);
+
 	if (fSignTreeVariableCascCosineOfPointingAngle<CascCosineOfPointingAngle[type]) continue; 
 	hXiAfterCuts->Fill(12);
+	if (isTrueCascPosOrNeg)	hXiTrueAfterCuts->Fill(12, fSignTreeVariablePtCascWithSign, fSignTreeVariableRap);
   
 	if (TMath::Abs(fSignTreeVariableInvMassLambda - massLambda) > InvMassLambda[type]) continue;
-	if (TMath::Abs(fSignTreeVariableInvMassXi - massXi) < 0.008   && (type ==2 || type==3)) continue;
+	if (TMath::Abs(fSignTreeVariableInvMassXi - massXi) < XiRejection[type]   && (type ==2 || type==3)) continue;
 	if (TMath::Abs(fSignTreeVariableInvMassOmega - massOmega) < 0.005   && (type ==0 || type==1)) continue;
 	hXiAfterCuts->Fill(13);
-	//  if (fSignTreeVariableRapXi) continue;
-	//  if (fSignTreeVariableRapOmega) continue;
-	if (fSignTreeVariableV0Lifetime>30) continue;
+	if (isTrueCascPosOrNeg)	hXiTrueAfterCuts->Fill(13, fSignTreeVariablePtCascWithSign, fSignTreeVariableRap);
+
+	// if (fSignTreeVariableChargeCasc==1)	hInvMassV0FromXiPlus->Fill(fSignTreeVariableV0Lifetime);
+	// if (fSignTreeVariableChargeCasc==-1)	hInvMassV0FromXiMinus->Fill(fSignTreeVariableV0Lifetime);
+	if(type==0 || type==1){
+	  if (fSignTreeVariablePDGCode==CascadesPDGCode[0]) hInvMassV0FromXiMinus->Fill(fSignTreeVariableV0Lifetime);
+	  else if (fSignTreeVariablePDGCode==CascadesPDGCode[1]) hInvMassV0FromXiPlus->Fill(fSignTreeVariableV0Lifetime);
+	}
+	else if (type==2 || type==3){
+	  if (fSignTreeVariablePDGCode==CascadesPDGCode[2]) hInvMassV0FromXiMinus->Fill(fSignTreeVariableV0Lifetime);
+	  else if (fSignTreeVariablePDGCode==CascadesPDGCode[3]) hInvMassV0FromXiPlus->Fill(fSignTreeVariableV0Lifetime);
+	}
+
+	if (fSignTreeVariableV0Lifetime>V0Lifetime[type]) continue;
 	hXiAfterCuts->Fill(14);
+	if (isTrueCascPosOrNeg)	hXiTrueAfterCuts->Fill(14, fSignTreeVariablePtCascWithSign, fSignTreeVariableRap);
+
 	if (fSignTreeVariablectau> 3*ctauCasc[type]) continue;
 	hXiAfterCuts->Fill(15);
-	if (TMath::Abs(fSignTreeVariableEtaCasc)>= 0.8) continue;
+	if (isTrueCascPosOrNeg)	hXiTrueAfterCuts->Fill(15, fSignTreeVariablePtCascWithSign, fSignTreeVariableRap);
+
+	//	if (TMath::Abs(fSignTreeVariableEtaCasc)>= 0.8) continue;
 	hXiAfterCuts->Fill(16);
-	if (TMath::Abs(fSignTreeVariableRapXi)>= RapCasc[rap]) continue;
+	if (isTrueCascPosOrNeg)	hXiTrueAfterCuts->Fill(16, fSignTreeVariablePtCascWithSign, fSignTreeVariableRap);
 	hXiAfterCuts->Fill(17);
+	if (isTrueCascPosOrNeg)	hXiTrueAfterCuts->Fill(17, fSignTreeVariablePtCascWithSign, fSignTreeVariableRap);
+
 	if ((fSignTreeVariableInvMassXi< 1.28 || fSignTreeVariableInvMassXi> 1.36) && (type==0 || type==1)) continue;
 	if ((fSignTreeVariableInvMassOmega< 1.62 || fSignTreeVariableInvMassOmega> 1.72) && (type==2 || type==3)) continue;
-
 	hXiAfterCuts->Fill(18);
+	if (isTrueCascPosOrNeg)	hXiTrueAfterCuts->Fill(18, fSignTreeVariablePtCascWithSign, fSignTreeVariableRap);
+
+	  if ((type==0 || type==1) && TMath::Abs(fSignTreeVariableRapXi)> RapCasc[rap]) continue;
+	  if ((type==3 || type==4) && TMath::Abs(fSignTreeVariableRapOmega)> RapCasc[rap]) continue;
+        if ((type==0 || type==2) && fSignTreeVariableChargeCasc==1) continue; //type zero seleziona solo cascades negative
+	if ((type==1 || type==3) && fSignTreeVariableChargeCasc==-1) continue; //type uno seleziona solo cascades positive
 
 	if (type==0 || type==1)  hXiSelected->Fill(fSignTreeVariableMultiplicity,fSignTreeVariablePtCasc,  fSignTreeVariableInvMassXi);
 	if (type==2 || type==3)  hXiSelected->Fill(fSignTreeVariableMultiplicity,fSignTreeVariablePtCasc,  fSignTreeVariableInvMassOmega);
@@ -833,6 +1059,35 @@ XS	}
 //corr  cout << "Pt Min delle particelle trigger " << PtTrigMin<< endl;
 //corr  cout << "signal pairs trigger-associated after Pt min cut " << 	CounterSignPairsAfterPtMinCut << endl;
 //corr  cout << "bkg pairs trigger-associated after Pt min cut " << 	CounterBkgPairsAfterPtMinCut << endl;
+
+  TCanvas *canvas = new TCanvas("canvas", "canvas",1500,800);
+  TLine *line[numPtV0] ;
+  canvas->Divide(4,2);
+  for(Int_t m=0; m<nummolt+1; m++){
+    if (m!=nummolt) continue;
+    for(Int_t z=0; z<numzeta; z++){
+      for(Int_t tr=0; tr<numPtTrigger; tr++){
+	for(Int_t v=0; v<numPtV0; v++){
+	  canvas->cd(v+1);
+	  line[v] = new TLine (massOmega, 0, massOmega, 	  1.2*hInvMassK0Short_SEbins[m][z][v][tr]->GetMaximum());
+	  hInvMassK0Short_SEbins[m][z][v][tr]->GetYaxis()->SetRangeUser(0, 1.2*hInvMassK0Short_SEbins[m][z][v][tr]->GetMaximum());
+	  hInvMassK0Short_SEbins[m][z][v][tr]->Draw();
+	   line[v]->Draw("same");
+	}
+      }
+    }
+  }
+
+  Float_t PtCascMin =0;
+  Float_t PtCascMax =0;
+  if (type==0 || type==2) {PtCascMin=0.00001; PtCascMax = 20;}
+else  if (type==1 || type==3) {PtCascMin=-20; PtCascMax = -0.00001;}
+  hXiTrueAfterCuts->GetZaxis()->SetRange(  hXiTrueAfterCuts->GetZaxis()->FindBin(-RapCasc[rap]+0.0001),   hXiTrueAfterCuts->GetZaxis()->FindBin(RapCasc[rap]-0.0001));
+  TH2F * hXiTrueAfterCuts2D =(TH2F*) hXiTrueAfterCuts->Project3D("yxo" );
+  TH1F * hXiTrueAfterCutsProj =(TH1F*) hXiTrueAfterCuts2D->ProjectionX("hXiTrueAfterCutsProj", hXiTrueAfterCuts2D->GetYaxis()->FindBin(PtCascMin), hXiTrueAfterCuts2D->GetYaxis()->FindBin(PtCascMax) );
+  for (Int_t b=1; b <=	hXiAfterCuts->GetNbinsX(); b++){
+    cout << "\npercentage of Xi after cut " 	<<hXiAfterCuts->GetXaxis()->GetBinLabel(b) << ": " <<   " cut " <<	hXiTrueAfterCutsProj->GetXaxis()->GetBinLabel(b) << "  " <<	hXiAfterCuts->GetBinContent(b)/hXiAfterCuts->GetBinContent(20) << "  " << hXiTrueAfterCutsProj->GetBinContent(b)/hXiTrueAfterCutsProj->GetBinContent(19)<< endl;
+  }
   cout << "partendo dal file " << PathIn << " ho creato il file " << PathOut<< endl;
   cout << CascadesPDGCode[type]<< endl;
 }
