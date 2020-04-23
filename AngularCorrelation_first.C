@@ -17,7 +17,7 @@
 #include <TFile.h>
 #include <TLegend.h>
 
-void AngularCorrelation_first(Bool_t ishhCorr=0,Float_t ptjmin=3., Int_t sysV0=0, Int_t sysTrigger=0,Int_t sys=0,Int_t type=0, Bool_t isMC=0, Bool_t isEfficiency=1,   TString year0 = "2016",TString year="2016k", TString yearMC="2018f1_extra",  TString Path1 ="", TString Path2 ="",TString Path3="_15runs_6thtry", TString Dir ="FinalOutput/",  Float_t ptjmax=30, Int_t rebin=1,  Int_t rebinx=2,  Int_t rebiny=2, Bool_t MasterThesisAnalysis=0, Float_t PtTrigMinFit=3.){ 
+void AngularCorrelation_first(Bool_t ishhCorr=0,Float_t ptjmin=3., Int_t sysV0=0, Int_t sysTrigger=0,Int_t sys=0,Int_t type=0, Bool_t isMC=1, Bool_t isEfficiency=1,   TString year0 = "2016",TString year="2018f1_extra_onlyTriggerWithHighestPt", TString yearMC="2018f1_extra_onlyTriggerWithHighestPt",  TString Path1 ="", TString Dir ="FinalOutput/",  Float_t ptjmax=30, Int_t rebin=1,  Int_t rebinx=2,  Int_t rebiny=2, Bool_t MasterThesisAnalysis=0, Float_t PtTrigMinFit=3., Bool_t isEnlargedDeltaEtaPhi=1){ 
 
   //masterthesis analysis è usato quando devo fare analisi presentata per la tesi
   if (!ishhCorr && (((year!="2016k_onlyTriggerWithHighestPt"&& year!="2018f1_extra_onlyTriggerWithHighestPt") || yearMC!="2018f1_extra_onlyTriggerWithHighestPt"))) {
@@ -40,12 +40,18 @@ void AngularCorrelation_first(Bool_t ishhCorr=0,Float_t ptjmin=3., Int_t sysV0=0
   if (sys==2) sysang=2;
 
   Float_t JetValue=0.4;
-  Float_t JetValueDefault=0.4; //questo valore è indipendente dalla scelta del valore di sys
-  if (ishhCorr) JetValueDefault =1.;
-  if (sys==0 && !ishhCorr) JetValue=0.4;
-  if ((sys==0 || sys==5) && ishhCorr) JetValue=1.;
-  if (sys==4 && !ishhCorr) JetValue=0.5;
-  if (sys==4 && ishhCorr) JetValue=0.9;
+  Float_t JetValueDefault=0.4; //questo valore è indipendente dalla scelta del valore di sys ed è il valore per cui viene diviso lo yield nel jet, in modo da essere confrontatato con lo yield OJ e JOJ
+
+  if (ishhCorr || (!ishhCorr && isEnlargedDeltaEtaPhi)) {//rendo ampiezza Jet uguale per hh e hK0s (l'output di hK0s è nel file DeltaEtaPhiEnlarged)
+    JetValueDefault =1.;
+    if ((sys==0 || sys==5)) JetValue=1.;
+    else  if (sys==4) JetValue=0.9;
+  }
+  else {
+    if (sys==4) JetValue=0.5;
+  }
+
+
   Float_t BulkLowValue=0.5;
   Float_t BulkUpValue=1.1;
   Float_t InclusiveUpValue=1.1;
@@ -70,40 +76,44 @@ void AngularCorrelation_first(Bool_t ishhCorr=0,Float_t ptjmin=3., Int_t sysV0=0
   */
 
   Dir+="DATA"+year0;
-  TString file = year+Path1;
-  TString file2 = year+Path1;
+  TString file = year;
+  TString file2 = year;
+  if (isMC) file += "_MCEff";
+  file +=Path1; 
   if (ishhCorr) {
     file2+="_hhCorr";
+    file+="_hhCorr";
     if (isMC)     file2+="_MCEff";
   }
-  if(isMC && isEfficiency) file = year + "_MCEff" + Path2;
-  if(isMC && !isEfficiency) file = yearMC + "_MCTruth" + Path3;
-  TString fileMC = yearMC +Path2;
+  file2+=Path1;
+  //  if(isMC && isEfficiency) file = year + "_MCEff";
+  if(isMC && !isEfficiency) file = yearMC + "_MCTruth";
+  TString fileMC = yearMC;
   Int_t MC=0;
   if (isMC) MC=1;
 
+  cout << " file " << file << endl;
   TString PathIn;
   if (isMC && !isEfficiency) PathIn= Dir+"/histo/AngularCorrelation" + file + ".root";
   else{
     PathIn= Dir+"/histo/AngularCorrelation" + file + Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f", sysTrigger, sysV0, sysang, PtTrigMin)+".root";
-
-    if (ishhCorr)     PathIn= Dir+"/histo/AngularCorrelation" + file + Form("_hhCorr_SysT%i_SysV0%i_Sys%i_PtMin%.1f", sysTrigger, sysV0, sysang, PtTrigMin)+".root";
   }
   if (MasterThesisAnalysis){
     PathIn= Dir+"/histo/AngularCorrelation" + file + Form("_SysT%i_SysV0%i_Sys%i", sysTrigger, sysV0, sysang)+".root";
   }
  
   TString PathInBis =  "FinalOutput/AnalysisResults" + file  + ".root";
-  if (ishhCorr) PathInBis="FinalOutput/AnalysisResults" + file2  + ".root";
+  if (ishhCorr) PathInBis="FinalOutput/AnalysisResults" + file2  + ".root"; 
 
-  TString PathInEfficiency = Dir+ "/Efficiency/Efficiency" +fileMC  +Form("_SysT%i_SysV0%i_PtMin%.1f", sysTrigger, sysV0, PtTrigMin)+".root";
-  if (ishhCorr) PathInEfficiency = Dir+ "/Efficiency/Efficiency" +fileMC  +Form("_hhCorr_SysT%i_SysV0%i_PtMin%.1f", sysTrigger, sysV0, PtTrigMin)+".root";
+  TString PathInEfficiency = Dir+ "/Efficiency/Efficiency" +fileMC +Path1+ +Form("_SysT%i_SysV0%i_PtMin%.1f", sysTrigger, sysV0, PtTrigMin)+".root";
+  if (ishhCorr) PathInEfficiency = Dir+ "/Efficiency/Efficiency" +fileMC  +"_hhCorr" + Path1+ Form("_SysT%i_SysV0%i_PtMin%.1f", sysTrigger, sysV0, PtTrigMin)+".root";
   if (MasterThesisAnalysis) PathInEfficiency = Dir+ "/Efficiency/Efficiency" +fileMC  +Form("_MCEff_Efficiency_SysT%i_SysV0%i", sysTrigger, sysV0)+".root";
   TString PathOut1;
   if (isMC && !isEfficiency) PathOut1=Dir+"/histo/AngularCorrelation" + file  +"_Output.root";
   else {
     PathOut1 = Dir+"/histo/AngularCorrelation" + file  + Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f", sysTrigger, sysV0, sys, PtTrigMin)+"_Output.root";
-    if (ishhCorr) PathOut1 = Dir+"/histo/AngularCorrelation" + file  + Form("_hhCorr_SysT%i_SysV0%i_Sys%i_PtMin%.1f", sysTrigger, sysV0, sys, PtTrigMin)+"_Output.root";
+    if (isEnlargedDeltaEtaPhi)    PathOut1 = Dir+"/histo/AngularCorrelation" + file  + Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f", sysTrigger, sysV0, sys, PtTrigMin)+"_DeltaEtaPhiEnlarged_Output.root";
+    //    PathOut1 = Dir+"/histo/AngularCorrelation" + file  + Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f", sysTrigger, sysV0, sys, PtTrigMin)+"_Output.root";
     if (MasterThesisAnalysis)    PathOut1 = Dir+"/histo/AngularCorrelation" + file  + Form("_SysT%i_SysV0%i_Sys%i", sysTrigger, sysV0, sys)+"_Output.root";
   }
   TString PathInMass= Dir+"/invmass_distribution_thesis/invmass_distribution_";
@@ -227,7 +237,17 @@ void AngularCorrelation_first(Bool_t ishhCorr=0,Float_t ptjmin=3., Int_t sysV0=0
 
   Bool_t isProjectionPhi[nummolt+1][numzeta][numPtV0][numPtTrigger];
   TString Proj[3]={"|#Delta#eta| < 0.4, ", "0.5 < |#Delta#eta| < 1.1, ", ""};
-
+  if (ishhCorr || !ishhCorr){
+    Proj[0]= "|#Delta#eta| < 1, ";
+    if (sys==4)     Proj[0]= "|#Delta#eta| < 0.9, ";
+  }
+  if (ishhCorr ){
+    Proj[1]= "1.05 < |#Delta#eta| < 1.3, ";
+    if (sys==5)     Proj[1]= "1.15 < |#Delta#eta| < 1.4, ";
+  }
+  else {
+    if (sys==5)     Proj[1]= "0.7 < |#Delta#eta| < 1.1, ";
+  }
   TString TitleString[nummolt+1][numPtV0][2];
   TString TitleStringBis[nummolt+1][numPtV0];
   TString TitleStringTris[numPtV0];
@@ -542,6 +562,11 @@ void AngularCorrelation_first(Bool_t ishhCorr=0,Float_t ptjmin=3., Int_t sysV0=0
 	  if (!isMC || (isMC && isEfficiency)){
 	    if((HistoTriggerEfficiency->GetBinContent(m+1))!=0 && (fHistV0EfficiencyPtBins[m]->GetBinContent(v+1))!=0 ){
 
+	      //setto errore all'istogramma scalato 
+	      // sqrt(pow(hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSub_EffCorr[m][z][v][tr]->GetBinError(),2)/	     pow( hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSub_EffCorr[m][z][v][tr]->GetBinContent(),2) + pow(,2)) * (hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSub_EffCorr[m][z][v][tr]->GetBinContent()/fHistV0EfficiencyPtBins[m]->GetBinContent(v+1));
+
+
+	      //
 	      hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSub_EffCorr[m][z][v][tr]->Scale(1./fHistV0EfficiencyPtBins[m]->GetBinContent(v+1)*(1-HistContV0PtBins[m]->GetBinContent(v+1)));
 	      hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_EffCorr[m][z][v][tr]->Scale(1./fHistV0EfficiencyPtBins[m]->GetBinContent(v+1)*(1-HistContV0PtBins[m]->GetBinContent(v+1)));
 	      hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Bulk_EffCorr[m][z][v][tr]->Scale(1./fHistV0EfficiencyPtBins[m]->GetBinContent(v+1)*(1-HistContV0PtBins[m]->GetBinContent(v+1)));
