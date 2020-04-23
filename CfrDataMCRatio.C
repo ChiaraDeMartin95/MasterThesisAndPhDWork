@@ -18,12 +18,12 @@
 #include <TFile.h>
 #include <TSpline.h>
 
-void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2016", Int_t ishhCorr=0, Bool_t MasterThesis=0, Bool_t isSE=0, Int_t NumberOfRegions=3,   Float_t ScaleFactorJet = 0.84/2.08*2.13628/2.63894, Float_t ScaleFactorPions=1./0.8767, Bool_t EtaPhiEnlargedStudy=1 ){
+void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2016", Int_t ishhCorr=0, Bool_t MasterThesis=0, Bool_t isSE=0, Int_t NumberOfRegions=6,   Float_t ScaleFactorJet = 0.84/2.08*2.13628/2.63894, Float_t ScaleFactorPions=1./0.8767, Bool_t EtaPhiEnlargedStudy=1 ){
   //if isSE is true the ratio of K0s to hadrons is computed, in order to study the strangeness enhancement effect
 
   if (!EtaPhiEnlargedStudy) {
     cout << "you are using the K0s results obtained from a reduced DeltaEta and DeltaPhi regions with respect to the regions used in hhCorrelation. Are you sure you want to continue?" << endl;
-    return;
+    //    return;
   }
 
   const Int_t NumberTypeAnalysis=6; 
@@ -63,12 +63,15 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
   TFile *fileout;
 
   TString ishhCorrOrNot[3]= {"", "_hhCorr_New", "SE_New"}; 
-  TString nomefileoutput = "CfrDataMCRatioOutput/CfrDataMCRatioOutput" + ishhCorrOrNot[ishhCorr]+ Form("_PtTrigMin%.1f_NumberOfRegions%i.root", PtTrigMin, NumberOfRegions);
-  if (isSEBis==1) nomefileoutput ="CfrDataMCRatioOutput/CfrDataMCRatioOutput_" + ishhCorrOrNot[2]+Form("_PtTrigMin%.1f_NumberOfRegions%i.root", PtTrigMin, NumberOfRegions);
+  TString nomefileoutput = "CfrDataMCRatioOutput/CfrDataMCRatioOutput" + ishhCorrOrNot[ishhCorr]+ Form("_PtTrigMin%.1f_NumberOfRegions%i", PtTrigMin, NumberOfRegions);
+  if (isSEBis==1) nomefileoutput ="CfrDataMCRatioOutput/CfrDataMCRatioOutput_" + ishhCorrOrNot[2]+Form("_PtTrigMin%.1f_NumberOfRegions%i", PtTrigMin, NumberOfRegions);
   if (EtaPhiEnlargedStudy){
-    nomefileoutput = "CfrDataMCRatioOutput/CfrDataMCRatioOutput" + ishhCorrOrNot[ishhCorr]+ Form("_PtTrigMin%.1f_DeltaEtaPhiEnlarged_NumberOfRegions%i.root", PtTrigMin, NumberOfRegions);
-    if (isSEBis==1) nomefileoutput ="CfrDataMCRatioOutput/CfrDataMCRatioOutput_" + ishhCorrOrNot[2]+Form("_PtTrigMin%.1f_DeltaEtaPhiEnlarged_NumberOfRegions%i.root", PtTrigMin, NumberOfRegions);
+    nomefileoutput = "CfrDataMCRatioOutput/CfrDataMCRatioOutput" + ishhCorrOrNot[ishhCorr]+ Form("_PtTrigMin%.1f_DeltaEtaPhiEnlarged_NumberOfRegions%i", PtTrigMin, NumberOfRegions);
+    if (isSEBis==1) nomefileoutput ="CfrDataMCRatioOutput/CfrDataMCRatioOutput_" + ishhCorrOrNot[2]+Form("_PtTrigMin%.1f_DeltaEtaPhiEnlarged_NumberOfRegions%i", PtTrigMin, NumberOfRegions);
   }
+
+  TString  nomefileoutputPDF=nomefileoutput;
+  nomefileoutput += ".root";
   cout << "nome file output " << nomefileoutput << endl;
   fileout = new TFile (nomefileoutput, "RECREATE");
   const Int_t nummolt=5;
@@ -150,6 +153,7 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
   TH1D*  fHistYieldvsErrErrSoloStatMB_SE[6][6];
   TH1D*  fHistYieldvsErrErrSoloSistMB_SE[6][6];
 
+  TGraph*  fGraphYieldDatiPubblicati;
   TH1D*    fHistYieldDatiPubblicati;
   TH1D*    fHistYieldErroriDatiPubblicati;
   TH1D*    fHistYieldDatiPubblicatiSE;
@@ -173,6 +177,7 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
   dirSE13TeV  = (TDirectoryFile*)filedatipubblSE13TeV->Get("Table 18");
   if (!dir || !dirSE || !dirSE13TeV) return;
   cout << " I got the directory where published data are stored " << endl;
+  fGraphYieldDatiPubblicati=(TGraph*)dir->Get("Graph1D_y1");
   fHistYieldDatiPubblicati=(TH1D*)dir->Get("Hist1D_y1");
   fHistYieldErroriDatiPubblicati=(TH1D*)dir->Get("Hist1D_y1_e2"); //this is only the total systematic error (the statistic is 1/10 and the uncorrelated systematic is approx half)
   fHistYieldDatiPubblicatiSE=(TH1D*)dirSE->Get("Hist1D_y1");
@@ -294,8 +299,9 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
       fHistYieldvsErrErrSoloStatMB[j][l]=(TH1D*)filein[ishhCorr]->Get("fHistYieldvsErrErrSoloStatMB");
       fHistYieldvsErrErrSoloSistMB[j][l]=(TH1D*)filein[ishhCorr]->Get("fHistYieldvsErrErrSoloSistMB");
 
-      if (l==0 && EtaPhiEnlargedStudy && ishhCorr==0){ //in order to compare results from EtaPhiEnlarged Study for hK0s (DeltaEtaJet < 1, DeltaPhi < 1.1) to default results (DeltaEtaJet < 0.4, DeltaPhi < 1), the production in the jet should be rescaled  
+      if (l==0 && EtaPhiEnlargedStudy && ishhCorr==0 && !isSEBis){ //in order to compare results from EtaPhiEnlarged Study for hK0s (DeltaEtaJet < 1, DeltaPhi < 1.1) to default results (DeltaEtaJet < 0.4, DeltaPhi < 1), the production in the jet should be rescaled  
 	cout << "I'm scaling " << endl;
+	/*
 	  fHistYieldvsErrSoloSistMB[j][l]   ->Scale(1./ScaleFactorJet);
 	  fHistYieldvsErrSoloStatMB[j][l]   ->Scale(1./ScaleFactorJet);
 	  fHistYieldvsErrSoloStat[j][l]     ->Scale(1./ScaleFactorJet);
@@ -306,7 +312,7 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
 	  fHistYieldvsErrErrSoloSist[j][l]  ->Scale(1./ScaleFactorJet);
 	  fHistYieldvsErrErrSoloStatMB[j][l]->Scale(1./ScaleFactorJet);
 	  fHistYieldvsErrErrSoloSistMB[j][l]->Scale(1./ScaleFactorJet);
-
+	*/
 	  }
 
       cout << "isSE " << isSEBis << endl;
@@ -400,7 +406,10 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
       if (j==1)      fHistYieldvsErrSoloStat[j][l]->SetMarkerStyle(MarkerMC[l]);
       fHistYieldvsErrSoloStat[j][l]->SetLineColor(Color[l]);
       if (ishhCorr)      fHistYieldvsErrSoloStat[j][l]->GetYaxis()->SetRangeUser(0.0001,7);
-      else if (!ishhCorr && !isSEBis)fHistYieldvsErrSoloStat[j][l]->GetYaxis()->SetRangeUser(0.0001,0.35);
+      else if (!ishhCorr && !isSEBis){
+	fHistYieldvsErrSoloStat[j][l]->GetYaxis()->SetRangeUser(0.0001,0.35);
+	if (l==3) 	fHistYieldvsErrSoloStat[j][l]->GetYaxis()->SetRangeUser(0.0001,5);
+      }
       else fHistYieldvsErrSoloStat[j][l]->GetYaxis()->SetRangeUser(0.0001,0.14);
       fHistYieldvsErrSoloStat[j][l]->GetXaxis()->SetRangeUser(0,25);
       fHistYieldvsErrSoloStat[j][l]->SetMarkerSize(msize);
@@ -419,7 +428,10 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
       fHistYieldvsErrSoloSist[j][l]->SetLineColor(Color[l]);
       fHistYieldvsErrSoloSist[j][l]->SetFillStyle(0);
       if (ishhCorr)      fHistYieldvsErrSoloSist[j][l]->GetYaxis()->SetRangeUser(0.0001,7);
-      else if (!ishhCorr && !isSEBis)fHistYieldvsErrSoloSist[j][l]->GetYaxis()->SetRangeUser(0.0001,0.35);
+      else if (!ishhCorr && !isSEBis){
+	fHistYieldvsErrSoloStat[j][l]->GetYaxis()->SetRangeUser(0.0001,0.35);
+	if (l==3) 	fHistYieldvsErrSoloStat[j][l]->GetYaxis()->SetRangeUser(0.0001,5);
+      }
       else fHistYieldvsErrSoloSist[j][l]->GetYaxis()->SetRangeUser(0.0001,0.14);
 
       fHistYieldvsErrSoloSist[j][l]->GetXaxis()->SetRangeUser(0,25);
@@ -431,7 +443,7 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
       if(j==1)    legendtype[l]->AddEntry(fHistYieldvsErrSoloStatMB[j][l], "stat. ", "el");
       if(j==1)    legendtype[l]->AddEntry(fHistYieldvsErrSoloSistMB[j][l], "syst. ", "f");
       if(j==1)    legend[l]->Draw();
-      if(j==1)    legendtype[l]->Draw();
+      //      if(j==1)    legendtype[l]->Draw();
 
 
     }
@@ -439,6 +451,7 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
 
     // for(Int_t l=0; l<NumberOfRegions; l++){
     fileout->WriteTObject(canvas[l]);
+    canvas[l]->SaveAs(nomefileoutputPDF+".pdf(");
     //   fileout->WriteTObject(canvaserr[l]);
     // }
 
@@ -493,7 +506,7 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
         
       legendbis[l]->AddEntry(   fHistYieldvsErrSoloStatRatio[l][j], JetOrNot[j]+DATAorMC[l], "pl");
       if(j==0)legendbis[l]->Draw();
-      if(j==0)legendtype[l]->Draw();
+      //      if(j==0)legendtype[l]->Draw();
       // fHistYieldvsErrSoloSist[l][j]->SetMarkerColor(Color[j]);
       // fHistYieldvsErrSoloSist[l][j]->Draw("samee");
     }
@@ -508,6 +521,8 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
 	fHistYieldDatiPubblicati->SetBinError(k,     fHistYieldErroriDatiPubblicati->GetBinContent(k));
       }
       fHistYieldDatiPubblicati->Scale(1.6);
+      for (int i=0;i< fGraphYieldDatiPubblicati->GetN();i++)  fGraphYieldDatiPubblicati->GetY()[i] *= 1.6; //I'm scaling the TGraph
+
       for(Int_t k=1; k <= fHistYieldDatiPubblicatiSE->GetNbinsX(); k++){
 	fHistYieldDatiPubblicatiSE->SetBinError(k,     fHistYieldErroriDatiPubblicatiSE->GetBinContent(k));
       }
@@ -526,7 +541,8 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
 
   TSpline3 *splinePub;
   if (isSEBis)  splinePub = new TSpline3( fHistYieldDatiPubblicatiSE13TeV, "splineK0sPionRatio");
-  else splinePub = new TSpline3( fHistYieldDatiPubblicati, "splineK0s");
+  else splinePub = new TSpline3("splineK0s", fGraphYieldDatiPubblicati);
+  splinePub->SetLineColor(909);
   TF1 * PublishedDataFit= new TF1( "PublishedDataFit","pol1", 2, 25);
   cout << "\n fit of K0s yield at 13 TeV " << endl;
   fHistYieldDatiPubblicati->Fit(PublishedDataFit,"R");
@@ -537,7 +553,10 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
     canvasnotratio[l] = new TCanvas(Form("canvasnotratio%i", l), "Yield_"+DATAorMC[l], 1300, 1000);
     cout << l << endl;
     for(Int_t j=0; j<NumberOfRegions; j++){
-      if (!ishhCorr && !isSEBis)     fHistYieldvsErrSoloStat[l][j]->GetYaxis()->SetRangeUser(0, 0.35);
+      if (!ishhCorr && !isSEBis)  {
+	fHistYieldvsErrSoloStat[l][j]->GetYaxis()->SetRangeUser(0, 0.35);
+	if (j==3) fHistYieldvsErrSoloStat[l][j]->GetYaxis()->SetRangeUser(0, 5);
+      }
       else if (ishhCorr)       fHistYieldvsErrSoloStat[l][j]->GetYaxis()->SetRangeUser(0, 7);
       else {
 	fHistYieldvsErrSoloStat[l][j]->Scale(ScaleFactorPions);
@@ -562,7 +581,11 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
       cout << "pol1 fit for " << DATAorMC[l] << " region " << j << endl;
       if (isSEBis)       fHistYieldvsErrSoloStat[l][j]->Fit(pol1[l][j], "R0");
               
-      if (!ishhCorr && !isSEBis)     fHistYieldvsErrSoloSist[l][j]->GetYaxis()->SetRangeUser(0, 0.35);
+      if (!ishhCorr && !isSEBis)  {
+	fHistYieldvsErrSoloStat[l][j]->GetYaxis()->SetRangeUser(0, 0.35);
+	if (j==3) fHistYieldvsErrSoloStat[l][j]->GetYaxis()->SetRangeUser(0, 5);
+      }
+
       else if (ishhCorr)       fHistYieldvsErrSoloSist[l][j]->GetYaxis()->SetRangeUser(0, 7);
       else {
 	fHistYieldvsErrSoloSist[l][j]->Scale(ScaleFactorPions);
@@ -579,7 +602,7 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
 
       if (!ishhCorr && !isSEBis && l==0 &&NumberOfRegions!=3 && j==0) {
 	fHistYieldDatiPubblicati->Draw("same");
-	splinePub->Draw("same");
+	//	splinePub->Draw("same");
 	PublishedDataFit->Draw("same");
 	legendbis[l]->AddEntry(  fHistYieldDatiPubblicati , "13 TeV |y| < 0.5 (err. syst.total)", "pl");
       }
@@ -588,12 +611,13 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
 	fHistYieldDatiPubblicatiSE13TeV->Draw("same");
 	legendbis[l]->AddEntry(  fHistYieldDatiPubblicatiSE , "7 TeV |y| < 0.5 (err. syst.uncorr)", "pl");
 	legendbis[l]->AddEntry(  fHistYieldDatiPubblicatiSE13TeV , "13 TeV |y| < 0.5 (err. syst.uncorr)", "pl");
-	splinePub->Draw("same");
+	//	splinePub->Draw("same");
       }
       if(j==0)legendbis[l]->Draw();
-      if(j==0)legendtype[l]->Draw();
+      //      if(j==0)legendtype[l]->Draw();
     }
     canvasnotratio[l]->SaveAs("FinalOutput/DATA2016/CfrDataMCRatioOutput/Yield"+DATAorMC[l]+hhCorr[WhatKindOf]+Form("NumberRegions%i_PtMin%.1f.pdf",NumberOfRegions, PtTrigMin));
+    canvasnotratio[l]->SaveAs(nomefileoutputPDF+".pdf");
     //  if (MasterThesis)         canvasnotratio[l]->SaveAs("FinalOutput/DATA2016/Yield"+DATAorMC[l]+".pdf");
   }
 
@@ -776,21 +800,27 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
 	if ((   HistRatioToPublishedl[l]->GetBinContent(b))!=0){
 	  if (isSEBis)	  HistRatioToPublishedl[l]->SetBinContent(b,fHistYieldvsErrSoloStat[l][2]->GetBinContent(b)/splinePub->Eval(   HistRatioToPublishedl[l]->GetBinCenter(b)));
 	  else 	if (!ishhCorr)  HistRatioToPublishedl[l]->SetBinContent(b,fHistYieldvsErrSoloStat[l][3]->GetBinContent(b)/PublishedDataFit->Eval(   HistRatioToPublishedl[l]->GetBinCenter(b)));
-	cout <<"spline eval " << splinePub->Eval(   HistRatioToPublishedl[l]->GetBinCenter(b))<<  " bin content of hist ratio " << HistRatioToPublishedl[l]->GetBinContent(b)<< endl;
+	  cout <<"spline eval " << splinePub->Eval(   HistRatioToPublishedl[l]->GetBinCenter(b))<<   " fit eval " <<  PublishedDataFit->Eval(   HistRatioToPublishedl[l]->GetBinCenter(b))<< " bin content of hist ratio " << HistRatioToPublishedl[l]->GetBinContent(b)<< endl;
 	}
+
       }
       canvasComparison->cd(1);
       if (isSEBis)  {
+	fHistYieldvsErrSoloStat[l][2]->SetMarkerSize(1);
 	fHistYieldvsErrSoloStat[l][2]->Draw("");
 	fHistYieldDatiPubblicatiSE->Draw("same");
+	//	splinePub->Draw("same");
       }
       else if (!ishhCorr){
 	fHistYieldvsErrSoloStat[l][3]->GetYaxis()->SetRangeUser(0,7);
 	fHistYieldvsErrSoloStat[l][3]->Draw("");
-	fHistYieldDatiPubblicati->Draw("same");
-
+	//	fHistYieldDatiPubblicati->Draw("same");
+	fGraphYieldDatiPubblicati->Draw("same");
+	//	splinePub->Draw("same");
       }
       canvasComparison->cd(2);
+      HistRatioToPublishedl[l]->SetMarkerSize(1);
+      HistRatioToPublishedl[l]->GetYaxis()->SetRangeUser(0.9,3);
       if (l==0)      HistRatioToPublishedl[l]->Draw(""); //I only compare data
     }//end loop on DataMC
   }//end if on numberofregions
@@ -800,6 +830,7 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
   //  canvaserrall[0] ->SaveAs("FinalOutput/DATA2016/RelErrAllDATA0" +hhCorr[WhatKindOf]+Form("_PtMin%.1f.pdf", PtTrigMin)); 
   //  if (MasterThesis)  canvaserrall[0] ->SaveAs("FinalOutput/DATA2016/RelErrAllDATA0.pdf"); 
   //canvaserrall[1] ->SaveAs(Form("FinalOutput/DATA2016/RelErrAllDATA1_PtMin%.1f.pdf", PtTrigMin)); 
+  canvasComparison->SaveAs(nomefileoutputPDF+".pdf)");
   fileout->WriteTObject(canvasComparison);
   for(Int_t l=DataOrMCMin; l<DataOrMCMax; l++){
     //  fileout->WriteTObject(canvasratiobis[l]);
@@ -809,6 +840,7 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
     fileout->WriteTObject(fHistYieldvsErrSoloStat[0][0]);
   fileout->Close();
   cout << "\n\n ho creato il file " << nomefileoutput << endl;
+  cout << "e il file pdf " << nomefileoutputPDF+".pdf" << endl;
   cout << "name of saved histo " <<     fHistYieldvsErrSoloStat[0][0]->GetName()<< endl;
   if (isSEBis){
     cout << "\n\n***************************************************************"<< endl;
