@@ -1413,7 +1413,7 @@ void AliAnalysisTaskCorrelationhCasc::UserCreateOutputObjects()
   fOutputList4->Add(fHistAssocPtRecovsPtGenPos);
   fOutputList4->Add(fHistAssocPtRecovsPtGenNeg);
   fOutputList4->Add(fHistAssocPxRecovsPxGenPos);
-  fOutputList4->Add(fHistAssocPxRecovsPxGenNeg);
+ fOutputList4->Add(fHistAssocPxRecovsPxGenNeg);
   fOutputList4->Add(fHistAssocPyRecovsPyGenPos);
   fOutputList4->Add(fHistAssocPyRecovsPyGenNeg);
   fOutputList4->Add(fHistAssocPzRecovsPzGenPos);
@@ -1423,9 +1423,9 @@ void AliAnalysisTaskCorrelationhCasc::UserCreateOutputObjects()
   fOutputList4->Add(fHistTriggerPtRecovsPtGenPion);
   fOutputList4->Add(fHistTriggerPtRecovsPtGenProton);
   fOutputList4->Add(fHistTriggerPtRecovsPtGenKaon);
-  fOutputList4->Add(fHistPhi);
-  fOutputList4->Add(fHistEta);
-  fOutputList4->Add(fHistTheta);
+//  fOutputList4->Add(fHistPhi);
+//  fOutputList4->Add(fHistEta);
+//  fOutputList4->Add(fHistTheta);
 
   PostData(1, fOutputList);  
   PostData(2, fSignalTree);       
@@ -2293,22 +2293,15 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
     posXi[1] = xi->DecayVertexXiY();
     posXi[2] = xi->DecayVertexXiZ();
 
-    cout << "charge  "<< xi->ChargeXi()<< endl;
-    cout << "SV: px "  <<XiP[0] << " py " << XiP[1] <<" pz "<< XiP[2] << endl;
+    //    cout << "charge  "<< xi->ChargeXi()<< endl;
+    //    cout << "SV: px "  <<XiP[0] << " py " << XiP[1] <<" pz "<< XiP[2] << endl;
     Propagate(lBestPrimaryVtxPos, posXi, XiP, b, xi->ChargeXi());
-    cout << "PV: px "  <<XiP[0] << " py " << XiP[1] <<" pz "<< XiP[2] << endl;
+    //    cout << "PV: px "  <<XiP[0] << " py " << XiP[1] <<" pz "<< XiP[2] << endl;
     lPhiXi  = TMath::Pi()+TMath::ATan2(-XiP[1],-XiP[0]);
 
-    cout << lPhiXiDef << " Phi new way (PV?)" << lPhiXi  << " phimy way (SV?) " <<  lPhiXiMy<< endl;
-    cout << lThetaXiDef << " theta My way " << lThetaXi  << endl;
-    cout << lEtaXiDef << " eta My way " << lEtaXi  << endl;
-
-    //    xi->SetPhi(GetMomentum.Phi());
-    //    cout << "phi oton way " << xi->Phi() << endl;
     if (xi->ChargeXi()>0)    fHistPhi->Fill(lPhiXiMy, lPhiXi);
     fHistTheta->Fill(lThetaXiDef, lThetaXi);
     fHistEta->Fill(lEtaXiDef, lEtaXi);
-    //    fHistPhi->Fill(lPhiXiOldStyle);
 
     //info about daughter tracks
     AliAODTrack *pTrackXi    = dynamic_cast<AliAODTrack*>( xi->GetDaughter(0) );
