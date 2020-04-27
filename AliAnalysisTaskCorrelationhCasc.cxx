@@ -121,7 +121,6 @@ AliAnalysisTaskCorrelationhCasc::AliAnalysisTaskCorrelationhCasc() :AliAnalysisT
   fHistMultvsV0MC(0),
   fHistTriggerNotLeading(0),
   fHistTriggerNotLeadingMC(0),
-  fHistMassvsPt(0),
   fHistMassvsPt_tagli(0x0),
   fHistMultvsTriggerBefAll(0),
   fHistMultvsTriggerMCTruthBefAll(0),
@@ -304,7 +303,6 @@ AliAnalysisTaskCorrelationhCasc::AliAnalysisTaskCorrelationhCasc(const char* nam
   fHistMultvsV0MC(0),
   fHistTriggerNotLeading(0),
   fHistTriggerNotLeadingMC(0),
-  fHistMassvsPt(0),
   fHistMassvsPt_tagli(0x0),
   fHistMultvsTriggerBefAll(0),
   fHistMultvsTriggerMCTruthBefAll(0),
@@ -928,14 +926,10 @@ void AliAnalysisTaskCorrelationhCasc::UserCreateOutputObjects()
   fHistSecondParticleTruth->GetXaxis()->SetTitle("Number (reco true)");
   fHistSecondParticleTruth->GetYaxis()->SetTitle("Number (MC)");
 
-  fHistMassvsPt = new TH2F *[6];
   fHistMassvsPt_tagli = new TH2F *[6];
 
   for(Int_t j=0; j<6; j++){
-    fHistMassvsPt[j] = new TH2F(Form("fHistMassvsPt_" +fV0+ "_%i",j),Form("fHistMassvsPt_"+fV0 + "_%i"+" (cuts on PID, eta and track quality of daughters + eta V0) ",j),400,lLimInfMass,lLimSupMass,160,-16,16); 
     fHistMassvsPt_tagli[j] = new TH2F(Form("fHistMassvsPt_" +fV0+ "_tagli_%i",j),Form("fHistMassvsPt_" +fV0+ "_tagli_%i" + " (all selections on V0 applied)",j),400,lLimInfMass,lLimSupMass,160,-16,16);
-    fHistMassvsPt[j]->GetXaxis()->SetTitle("Invariant mass of V0 candidate");
-    fHistMassvsPt[j]->GetYaxis()->SetTitle("p_{T} of V0 candidate");   
     fHistMassvsPt_tagli[j]->GetXaxis()->SetTitle("Invariant mass of V0 candidate");
     fHistMassvsPt_tagli[j]->GetYaxis()->SetTitle("p_{T} of V0 candidate");   
   }
@@ -1313,8 +1307,8 @@ void AliAnalysisTaskCorrelationhCasc::UserCreateOutputObjects()
   fOutputList->Add(fHist_multiplicity); 
   fOutputList->Add(fHist_multiplicity_EvwTrigger);
   fOutputList->Add(fHistMultiplicityVsVertexZ);
-  fOutputList->Add(fHistFractionSharedTPCClusters);
-  fOutputList->Add(fHistGoldenCut);
+  //  fOutputList->Add(fHistFractionSharedTPCClusters);
+  //  fOutputList->Add(fHistGoldenCut);
   fOutputList->Add(fHistMultvsTriggerBefAll);
   fOutputList->Add(fHistMultvsTriggerMCTruthBefAll);
   fOutputList->Add(fHistMultvsTriggerAll);
@@ -1360,7 +1354,6 @@ void AliAnalysisTaskCorrelationhCasc::UserCreateOutputObjects()
 
 
   for(Int_t j=0; j < 6; j++){
-    fOutputList->Add(fHistMassvsPt[j]);
     fOutputList->Add(fHistMassvsPt_tagli[j]);
     
     for(Int_t i=0; i<1; i++){  
@@ -1846,13 +1839,13 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
     if (nClustersTPC!=0) {
       fracClustersTPCShared = Float_t(nClustersTPCShared)/Float_t(nClustersTPC);
     }
-    fHistFractionSharedTPCClusters->Fill(fracClustersTPCShared);
+    //    fHistFractionSharedTPCClusters->Fill(fracClustersTPCShared);
     //  if (fracClustersTPCShared > 0.2) continue;
     //    fHistTrack->Fill(9);
 
 
     //Golden cut (not applied)
-    fHistGoldenCut->Fill(track->GetChi2TPCConstrainedVsGlobal());
+    //    fHistGoldenCut->Fill(track->GetChi2TPCConstrainedVsGlobal());
     //  if ((track->GetChi2TPCConstrainedVsGlobal())>36) continue;
     //    fHistTrack->Fill(7);
 
@@ -2721,13 +2714,6 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
       lInvMassCasc = lInvMassOmega;
       lRapCasc =lRapOmega;
     }
-
-    for (Int_t m =0; m<5;m++){
-      if(lPercentiles>=moltep[m] && lPercentiles<moltep[m+1]){
-	fHistMassvsPt[m]->Fill(lInvMassCasc, lXiTransvMom*lChargeXi);
-      }
-    }
-    fHistMassvsPt[5]->Fill(lInvMassCasc, lXiTransvMom*lChargeXi);
 
     if(fReadMCTruth){
       if (fMCEvent){

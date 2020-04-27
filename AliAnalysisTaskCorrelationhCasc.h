@@ -133,7 +133,6 @@ class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE
   TH2F *                  fHistMultvsV0MC; 		  //!
   TH3F*                   fHistTriggerNotLeading; 	  //!
   TH3F*                   fHistTriggerNotLeadingMC;       //!  
-  TH2F**                  fHistMassvsPt;                    //!           
   TH2F**                  fHistMassvsPt_tagli;              //!           
   TH2F*                   fHistMultvsTriggerBefAll; 	    //!
   TH2F*                   fHistMultvsTriggerMCTruthBefAll;  //!
