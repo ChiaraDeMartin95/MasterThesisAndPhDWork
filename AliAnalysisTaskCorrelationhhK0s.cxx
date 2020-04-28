@@ -190,7 +190,7 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s() :AliAnalysisT
   fHistPrimaryV0(0),
   fminPtj(2), 
   fmaxPtj(10), 
-  fV0("kK0s"),  
+  fV0("K0s"),  
   fminPtV0(0), 
   fmaxPtV0(30),  
   fminPthAssoc(0), 
@@ -386,7 +386,7 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s(const char* nam
   fHistPrimaryV0(0),
   fminPtj(2), 
   fmaxPtj(10), 
-  fV0("kK0s"),  
+  fV0("K0s"),  
   fminPtV0(0), 
   fmaxPtV0(30),  
   fminPthAssoc(0), 
@@ -2382,7 +2382,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
     Float_t nsigmaTPC=3;
     Float_t nsigmaTOF=3;
     Float_t kMaxTPCSigmaPion=3;
-    Double_t rapidityV0[2]={0};
+    Double_t rapidityV0=0;
     Double_t EV0[2]={0};
     bool goodPiPlus=kFALSE;
     bool goodPiMinus=kFALSE;
@@ -2392,13 +2392,13 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
     bool goodPiMinusTOF=kFALSE;
     Float_t kMaxTOFSigmaPion=3;
     Float_t kTOFLow[2]={1000, 1000}; 
-    Float_t kMaxDCA[2]={0.5, 1000};
-    Float_t kMinCosAngle[2]={0.995, 0.997};
+    Float_t kMaxDCA[2]={0.6, 1000}; //was 0.5 for K0s
+    Float_t kMinCosAngle[2]={0.97, 0.997}; //was 0.995 for K0s
     Float_t kMaxDCADaughters[2]={1, 1};
-    Float_t kMinDCAPrimary[2]={0.06, 0.06};
+    Float_t kMinDCAPrimary[2]={0.05, 0.06}; //was 0.06 for K0s
     Float_t kMinDL[2]={0.5, 0.5};
     Float_t kMinRadius[2]={0.5, 0.5};
-    Float_t kctauval[2]={20, 30};
+    Float_t kctauval[2]={40, 30}; //was 20 for K0s
     Float_t kctau[2]={0, 0};
     Float_t Mass[2]={0.497611, 1.115683};
     Int_t ParticleType=0;
@@ -2424,8 +2424,8 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
     Double_t MassElectron= 0.0005109989461;
     Double_t massLambda = 1.115683;
     Int_t isaK0s=0;
-    if(fV0=="kK0s") ParticleType =0;
-    if(fV0=="kLambda") ParticleType=1;
+    if(fV0=="K0s") ParticleType =0;
+    if(fV0=="Lambda") ParticleType=1;
 
     //MC generated V0
     isV0=kTRUE;
@@ -2440,7 +2440,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
     // cout << "\n \n  here I start the loop on v0s " << endl;
     for(Int_t i(0); i < V0Tracks; i++) {       
       isaK0s=0; //it will be put to 1 for true K0s in MC
-      rapidityV0[2]={0};    
+      rapidityV0=0;
       EV0[2]={0};
       kctau[2]={0};
       goodPiPlus=kFALSE;
@@ -2498,7 +2498,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
       if(ParticleType==0) EV0[ParticleType]= TMath::Sqrt(pow(v0->MassK0Short(),2)+ pow( v0->Px(),2)+ pow( v0->Py(),2)+ pow( v0->Pz(),2));
       if(ParticleType==1) EV0[ParticleType]= TMath::Sqrt(pow(v0->MassLambda(),2)+ pow( v0->Px(),2)+ pow( v0->Py(),2)+ pow( v0->Pz(),2));
 
-      rapidityV0[ParticleType]  = 0.5*TMath::Log(( EV0[ParticleType] + v0->Pz()) / (EV0[ParticleType]   - v0->Pz()) );
+      rapidityV0  = 0.5*TMath::Log(( EV0[ParticleType] + v0->Pz()) / (EV0[ParticleType]   - v0->Pz()) );
     
       fTreeVariablePtV0=TMath::Sqrt( pow( v0->Px(),2)+ pow( v0->Py(),2));
       fTreeVariableInvMassK0s=v0->MassK0Short();    
@@ -2802,7 +2802,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	      //
 	      }
 
-	      if (TMath::Abs(rapidityV0[0])< 0.5){
+	      if (TMath::Abs(rapidityV0)< 0.5){
 	      fHistSelectedV0PtTMaxPhi[0]->Fill(ptTriggerMassimoDati, v0->Phi(), lPercentiles);
 	      fHistSelectedV0PtTMaxEta[0]->Fill(ptTriggerMassimoDati, v0->Eta(), lPercentiles);
 	      fHistSelectedV0PtPtTMax[0]->Fill(v0->Pt(),ptTriggerMassimoDati , lPercentiles);
@@ -2820,14 +2820,14 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	      if(lPercentiles>=moltep[m] && lPercentiles<moltep[m+1]){
 		for(Int_t p=1; p<=4; p++){
 		  if (labelPrimOrSecV0==p) {
-		    if (TMath::Abs(rapidityV0[0])< 0.5)		    fHistPrimaryV0[m][0]->Fill(p, v0->Pt(), ptTriggerMassimoDati);   
+		    if (TMath::Abs(rapidityV0)< 0.5)		    fHistPrimaryV0[m][0]->Fill(p, v0->Pt(), ptTriggerMassimoDati);   
 		  }
 		}
 	      }
 	    }
 	    for(Int_t p=1; p<=4; p++){
 	      if (labelPrimOrSecV0==p){
-		if (TMath::Abs(rapidityV0[0])< 0.5)		fHistPrimaryV0[5][0]->Fill(p, v0->Pt(), ptTriggerMassimoDati);
+		if (TMath::Abs(rapidityV0)< 0.5)		fHistPrimaryV0[5][0]->Fill(p, v0->Pt(), ptTriggerMassimoDati);
 	      }
 	    }
 	  }
@@ -2851,7 +2851,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	fEvt->fReconstructedSecond[NumberSecondParticle-1].sInvMassAntiLambda = v0->MassAntiLambda();
 	fEvt->fReconstructedSecond[NumberSecondParticle-1].sCosPointingAngle  = v0->CosPointingAngle(lBestPrimaryVtxPos);
 	fEvt->fReconstructedSecond[NumberSecondParticle-1].sDcaV0ToPV    = v0->DcaV0ToPrimVertex();
-	fEvt->fReconstructedSecond[NumberSecondParticle-1].sRap          = rapidityV0[0];
+	fEvt->fReconstructedSecond[NumberSecondParticle-1].sRap          = rapidityV0;
 	fEvt->fReconstructedSecond[NumberSecondParticle-1].sPt           = v0->Pt();
 	fEvt->fReconstructedSecond[NumberSecondParticle-1].sctau         = kctau[ParticleType];
 	fEvt->fReconstructedSecond[NumberSecondParticle-1].sEta          = v0->Eta();
