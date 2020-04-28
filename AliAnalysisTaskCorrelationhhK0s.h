@@ -10,7 +10,7 @@ class AliAODMCParticle;
 class AliCentrality;
 #include "AliAnalysisTaskSE.h"
 #include "AliAnalysisCorrelationEventCollection.h"
-#include "AliEventCuts.h"
+//#include "AliEventCuts.h"
 
 class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE  
 {
@@ -55,7 +55,7 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
   AliAODEvent*            fAOD;             //! input event
   AliPIDResponse *        fPIDResponse;     //!PID response object 
   //  AliMultSelection *      fMultSelection;   //! 
-  AliEventCuts            fEventCuts; //! 
+  //  AliEventCuts            fEventCuts; //! 
   
   TList*                  fOutputList;      //! output list
   TTree*                  fSignalTree;      //! output tree
@@ -83,11 +83,6 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
   Int_t                    fYear;
 
   TH1F*                   fHistPt;                   //! 
-  TH2F *                  fHistTriggerNCrvsLength3;  //!
-  TH2F *                  fHistTriggerNCrvsLength5;  //!
-  TH2F *                  fHistTriggerNCrvsLength35; //!
-
-  TH1F*                   fHistPtTriggerParticle;    //! 
   TH1F*                   fHistDCAxym1;              //! 
   TH1F*                   fHistDCAxym2;              //! 
   TH1F*                   fHistDCAzm1;               //! 
@@ -203,8 +198,6 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
   TH2F*  fHistResolutionTriggerEta; 	    //!
   TH2F*  fHistResolutionTriggerPhiPhi; 	    //!
   TH2F*  fHistResolutionTriggerPhiEta; 	    //!
-  TH2F*  fHistResolutionTriggerPhiPt; 	    //!
-  TH2F*  fHistResolutionTriggerPhiPdgCode;  //!
   TH2F*  fHistResolutionV0Pt; 		    //!
   TH2F*  fHistResolutionV0Phi; 		    //!
   TH2F*  fHistResolutionV0PhivsPt; 	    //!
