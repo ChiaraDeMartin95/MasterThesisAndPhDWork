@@ -38,7 +38,7 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
 
   Float_t GetLengthInActiveZone( AliAODTrack *gt, Float_t deltaY, Float_t deltaZ, Float_t b );
 
-  void ProcessMCParticles(Bool_t Generated, AliAODTrack* track, Int_t& labelPrimOrSec, Float_t lPercentiles, Bool_t isV0, Double_t ZAtDCA, Float_t PtTriggMax, Bool_t fIshhCorr, AliAODTrack* globaltrack);
+  void ProcessMCParticles(Bool_t Generated, AliAODTrack* track, Int_t& labelPrimOrSec, Float_t lPercentiles, Bool_t isV0, Double_t ZAtDCA, Float_t PtTriggMax, Bool_t fIshhCorr);
   Double_t CalculateDeltaTheta( Double_t theta1, Double_t theta2 ); 
   Double_t CalculateDeltaPhi( Double_t phi1, Double_t phi2 ) ; 
   Double_t CalculateDeltaEta( Double_t eta1, Double_t eta2 ) ; 
@@ -93,8 +93,6 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
   TH2F*                   fHistPtTMaxBefAllCfrDataMC; //!
   TH1F*                   fHistPtTMinBefAll;          //! 
   TH1F*                   fHistPtTMinBefAllMC;        //! 
-  TH1F*                   fHistPtTMaxBefAll;          //! 
-  TH1F*                   fHistPtTMaxBefAllMC;        //! 
   TH2F*                   fHistPtvsMult;              //! 
   TH2F*                   fHistPtvsMultBefAll;        //! 
   TH2F*                   fHistPtMaxvsMult;           //! 
@@ -228,6 +226,7 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
   Double_t fTreeVariableDCAz;			       
   Double_t fTreeVariableDCAxy;
   Double_t fTreeVariableChargeAssoc;			       
+  Double_t fTreeVariableSkipAssoc;			       
   Double_t fTreeVariableAssocDCAz;			       
   Double_t fTreeVariableAssocDCAxy;			       
   Double_t fTreeVariableRapK0Short;		       	      
