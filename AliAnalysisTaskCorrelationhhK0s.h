@@ -34,6 +34,7 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
   void SetEtaV0Assoc(Float_t EtaV0Assoc){fEtaV0Assoc = EtaV0Assoc;}
   void SetFilterBit(Int_t FilterBitValue){fFilterBitValue = FilterBitValue;}
   void SetYear (Int_t year = 2010) { fYear = year;}
+  void SetAssocParticle (TString AssocParticle = "K0s") { fV0 = AssocParticle;}
 
   Float_t GetLengthInActiveZone( AliAODTrack *gt, Float_t deltaY, Float_t deltaZ, Float_t b );
 
@@ -193,8 +194,6 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
 					   
   TH2F*  fHistResolutionTriggerPt; 	    //!
   TH2F*  fHistResolutionTriggerPhi; 	    //!
-  TH2F*  fHistResolutionTriggerPtvsPhiPart; //!
-  TH2F*  fHistResolutionTriggerPtvsEtaPart; //!
   TH2F*  fHistResolutionTriggerEta; 	    //!
   TH2F*  fHistResolutionTriggerPhiPhi; 	    //!
   TH2F*  fHistResolutionTriggerPhiEta; 	    //!
