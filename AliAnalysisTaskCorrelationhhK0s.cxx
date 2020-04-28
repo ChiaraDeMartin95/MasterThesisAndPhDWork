@@ -474,7 +474,7 @@ AliAnalysisTaskCorrelationhhK0s::~AliAnalysisTaskCorrelationhhK0s()
   
 }
   
-void AliAnalysisTaskCorrelationhhK0s::ProcessMCParticles(Bool_t Generated, AliAODTrack *track, Int_t& labelPrimOrSec, Float_t lPercentiles, Bool_t isV0, Double_t ZAtDCA, Float_t PtTriggMax, Bool_t ishhCorr,  AliAODTrack *globaltrack)
+void AliAnalysisTaskCorrelationhhK0s::ProcessMCParticles(Bool_t Generated, AliAODTrack *track, Int_t& labelPrimOrSec, Float_t lPercentiles, Bool_t isV0, Double_t ZAtDCA, Float_t PtTriggMax, Bool_t ishhCorr)
 {
 
   Float_t moltep[6]={0,5,10,30,50,100};  //V0M multiplicity intervals
@@ -1283,7 +1283,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
 
   fHistPrimaryTrigger= new TH2F **[6];
   for(Int_t j=0; j<6; j++){
-    fHistPrimaryTrigger[j]=new TH2F*[3];
+    fHistPrimaryTrigger[j]=new TH2F*[1];
     for(Int_t i=0; i<1; i++){
       fHistPrimaryTrigger[j][i]=new TH2F(Form("fHistPrimaryTrigger_%i_cut%i", j,i), "Trigger MC (selected)", 4, 0.5, 4.5, 100, 0,30 );
       fHistPrimaryTrigger[j][i]->GetXaxis()->SetBinLabel(1,"Primary selected triggers");
@@ -1295,8 +1295,8 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
 
   fHistPrimaryV0= new TH3F**[6];
   for(Int_t j=0; j<6; j++){
-    fHistPrimaryV0[j]=new TH3F*[7];
-    for(Int_t i=0; i<7; i++){
+    fHistPrimaryV0[j]=new TH3F*[1];
+    for(Int_t i=0; i<1; i++){
       fHistPrimaryV0[j][i]=new TH3F(Form("fHistPrimaryV0_%i_cut%i",j,i), "V0 MC (K0s, selected)", 4, 0.5, 4.5, 160, 0, 16, 60, 0, 30);
       fHistPrimaryV0[j][i]->GetXaxis()->SetBinLabel(1,"Primary selected V0s");
       fHistPrimaryV0[j][i]->GetXaxis()->SetBinLabel(2,"Secondary from w-decay selected V0s"); 
@@ -1659,7 +1659,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   if(fReadMCTruth){
     fMCEvent= MCEvent();
     if (fMCEvent){
-      ProcessMCParticles(Generated, track, labelPrimOrSec, lPercentiles, isV0, 0, 0, fIshhCorr, globaltrack);
+      ProcessMCParticles(Generated, track, labelPrimOrSec, lPercentiles, isV0, 0, 0, fIshhCorr);
     }
   }
   
@@ -2108,8 +2108,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   isV0=kFALSE;
   if(fReadMCTruth){
     if(fMCEvent){
-      if (fFilterBitValue==128) ProcessMCParticles(Generated, trackPtTMax, labelPrimOrSec, lPercentiles, isV0, dzgPtTMax,0, fIshhCorr, globaltrackPtTMax);
-      else ProcessMCParticles(Generated, trackPtTMax, labelPrimOrSec, lPercentiles, isV0, dzgPtTMax,0, fIshhCorr, trackPtTMax);
+      ProcessMCParticles(Generated, trackPtTMax, labelPrimOrSec, lPercentiles, isV0, dzgPtTMax,0, fIshhCorr);
     }
   }
   //***********************************************************************************************************
@@ -2142,7 +2141,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 
     if(fReadMCTruth){
       if (fMCEvent){
-	ProcessMCParticles(Generated, trackPtTMax, labelPrimOrSec, lPercentiles, isV0, 0, ptTriggerMassimoDati, fIshhCorr, globaltrack);
+	ProcessMCParticles(Generated, trackPtTMax, labelPrimOrSec, lPercentiles, isV0, 0, ptTriggerMassimoDati, fIshhCorr);
       }
     }
 
@@ -2268,17 +2267,19 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	    fHistResolutionV0PtvsPt->Fill(track->Pt()- particle->Pt(), track->Pt());
 	    fHistResolutionV0Eta->Fill(track->Eta()- particle->Eta(), ptTriggerMassimoDati);
 	    //
+	    /*
 	    fHistSelectedV0PtTMaxPhi[5]->Fill(ptTriggerMassimoDati, track->Phi(), lPercentiles);
 	    fHistSelectedV0PtTMaxEta[5]->Fill(ptTriggerMassimoDati, track->Eta(), lPercentiles);
 	    fHistSelectedV0PtPtTMax[5]->Fill(track->Pt(),ptTriggerMassimoDati , lPercentiles);
 	    fHistSelectedGenV0PtPtTMax[5]->Fill(particle->Pt(),ptTriggerMassimoDati , lPercentiles);
-
+	    */
 	    if(  (TMath::Abs(dzglobal[1]) < 1.)) {
-	      fHistSelectedV0PtTMaxPhi[1]->Fill(ptTriggerMassimoDati, track->Phi(), lPercentiles);
-	      fHistSelectedV0PtTMaxEta[1]->Fill(ptTriggerMassimoDati, track->Eta(), lPercentiles);
-	      fHistSelectedV0PtPtTMax[1]->Fill(track->Pt(),ptTriggerMassimoDati , lPercentiles);
-	      fHistSelectedGenV0PtPtTMax[1]->Fill(particle->Pt(),ptTriggerMassimoDati , lPercentiles);
-	    }  
+	      fHistSelectedV0PtTMaxPhi[0]->Fill(ptTriggerMassimoDati, track->Phi(), lPercentiles);
+	      fHistSelectedV0PtTMaxEta[0]->Fill(ptTriggerMassimoDati, track->Eta(), lPercentiles);
+	      fHistSelectedV0PtPtTMax[0]->Fill(track->Pt(),ptTriggerMassimoDati , lPercentiles);
+	      fHistSelectedGenV0PtPtTMax[0]->Fill(particle->Pt(),ptTriggerMassimoDati , lPercentiles);
+	    } 
+	    /* 
 	    if(  (TMath::Abs(dzglobal[1]) < 2.)) {
 	      fHistSelectedV0PtTMaxPhi[0]->Fill(ptTriggerMassimoDati, track->Phi(), lPercentiles);
 	      fHistSelectedV0PtTMaxEta[0]->Fill(ptTriggerMassimoDati, track->Eta(), lPercentiles);
@@ -2291,7 +2292,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	      fHistSelectedV0PtPtTMax[2]->Fill(track->Pt(),ptTriggerMassimoDati , lPercentiles);
 	      fHistSelectedGenV0PtPtTMax[2]->Fill(particle->Pt(),ptTriggerMassimoDati , lPercentiles);
 	    } 
-	    	       
+	    */	       
 	    labelPrimOrSecV0=1;
 	    NumberSecondParticleRecoTrue++;
 	  }
@@ -2305,14 +2306,8 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	    if(lPercentiles>=moltep[m] && lPercentiles<moltep[m+1]){
 	      for(Int_t p=1; p<=4; p++){
 		if (labelPrimOrSecV0==p) {
-		  if(  (TMath::Abs(dzglobal[1]) < 2.)) {
-		    fHistPrimaryV0[m][0]->Fill(p, track->Pt(), ptTriggerMassimoDati);   
-		  }
 		  if(  (TMath::Abs(dzglobal[1]) < 1.)) {
-		    fHistPrimaryV0[m][1]->Fill(p, track->Pt(), ptTriggerMassimoDati);   
-		  }
-		  if(  (TMath::Abs(dzglobal[1]) < 0.5)) {
-		    fHistPrimaryV0[m][2]->Fill(p, track->Pt(), ptTriggerMassimoDati);   
+		    fHistPrimaryV0[m][0]->Fill(p, track->Pt(), ptTriggerMassimoDati);   
 		  }
 		}
 	      }
@@ -2321,14 +2316,8 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 
 	  for(Int_t p=1; p<=4; p++){
 	    if (labelPrimOrSecV0==p){
-	      if(  (TMath::Abs(dzglobal[1]) < 2.)) {
-		fHistPrimaryV0[5][0]->Fill(p, track->Pt(), ptTriggerMassimoDati);   
-	      }
 	      if(  (TMath::Abs(dzglobal[1]) < 1.)) {
-		fHistPrimaryV0[5][1]->Fill(p, track->Pt(), ptTriggerMassimoDati);   
-	      }
-	      if(  (TMath::Abs(dzglobal[1]) < 0.5)) {
-		fHistPrimaryV0[5][2]->Fill(p, track->Pt(), ptTriggerMassimoDati);   
+		fHistPrimaryV0[5][0]->Fill(p, track->Pt(), ptTriggerMassimoDati);   
 	      }
 	    }
 	  }
@@ -2455,7 +2444,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 
     if(fReadMCTruth){
       if (fMCEvent){
-	ProcessMCParticles(Generated, track, labelPrimOrSec, lPercentiles, isV0, 0, ptTriggerMassimoDati, fIshhCorr, globaltrack);
+	ProcessMCParticles(Generated, track, labelPrimOrSec, lPercentiles, isV0, 0, ptTriggerMassimoDati, fIshhCorr);
       }
     }
   
@@ -2887,56 +2876,14 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	      if(lPercentiles>=moltep[m] && lPercentiles<moltep[m+1]){
 		for(Int_t p=1; p<=4; p++){
 		  if (labelPrimOrSecV0==p) {
-		    fHistPrimaryV0[m][5]->Fill(p, v0->Pt(), ptTriggerMassimoDati);   
-		    if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.005 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.005) {
-		      fHistPrimaryV0[m][0]->Fill(p, v0->Pt(), ptTriggerMassimoDati);   
-		      if(v0->CosPointingAngle(lBestPrimaryVtxPos) > 0.997){
-			fHistPrimaryV0[m][1]->Fill(p, v0->Pt(), ptTriggerMassimoDati);
-		      } 
-		      if(kctau[ParticleType]<0.4*kctauval[ParticleType]){
-			fHistPrimaryV0[m][2]->Fill(p, v0->Pt(), ptTriggerMassimoDati);
-		      } 
-		      if(TMath::Abs(rapidityV0[0])<0.5){
-			fHistPrimaryV0[m][3]->Fill(p, v0->Pt(), ptTriggerMassimoDati);
-		      } 
-		      if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.010 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.010) {
-			fHistPrimaryV0[m][4]->Fill(p, v0->Pt(), ptTriggerMassimoDati);
-		      } 
-		      // if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.005 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.005) {
-		      //   fHistPrimaryV0[m][5]->Fill(p, v0->Pt());
-		      // } 
-		      if(v0Dca< 0.3){
-			fHistPrimaryV0[m][6]->Fill(p, v0->Pt(), ptTriggerMassimoDati);
-		      } 
-		    }
+		    fHistPrimaryV0[m][0]->Fill(p, v0->Pt(), ptTriggerMassimoDati);   
 		  }
 		}
 	      }
 	    }
 	    for(Int_t p=1; p<=4; p++){
 	      if (labelPrimOrSecV0==p){
-		fHistPrimaryV0[5][5]->Fill(p, v0->Pt(), ptTriggerMassimoDati);
-		if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.005 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.005) {
-		  fHistPrimaryV0[5][0]->Fill(p, v0->Pt(), ptTriggerMassimoDati);
-		  if(v0->CosPointingAngle(lBestPrimaryVtxPos) > 0.997){
-		    fHistPrimaryV0[5][1]->Fill(p, v0->Pt(), ptTriggerMassimoDati);
-		  } 
-		  if(kctau[ParticleType]<0.4*kctauval[ParticleType]){
-		    fHistPrimaryV0[5][2]->Fill(p, v0->Pt(), ptTriggerMassimoDati);
-		  } 
-		  if(TMath::Abs(rapidityV0[0])<0.5){
-		    fHistPrimaryV0[5][3]->Fill(p, v0->Pt(), ptTriggerMassimoDati);
-		  } 
-		  if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.010 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.010) {
-		    fHistPrimaryV0[5][4]->Fill(p, v0->Pt(), ptTriggerMassimoDati);
-		  } 
-		  // if(TMath::Abs((v0->MassLambda() - massLambda))>= 0.005 && TMath::Abs((v0->MassAntiLambda() - massLambda))>= 0.005) {
-		  // 	fHistPrimaryV0[5][5]->Fill(p, v0->Pt());
-		  // } 
-		  if(v0Dca< 0.3){
-		    fHistPrimaryV0[5][6]->Fill(p, v0->Pt(), ptTriggerMassimoDati);
-		  } 
-		}
+		fHistPrimaryV0[5][0]->Fill(p, v0->Pt(), ptTriggerMassimoDati);
 	      }
 	    }
 	  }
