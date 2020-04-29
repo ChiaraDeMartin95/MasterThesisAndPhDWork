@@ -33,7 +33,6 @@ Double_t fretta(Double_t *x, Double_t *par)
 {
   Float_t LimInf=0;
   Float_t LimSup=0;
-  //if (par[2]==0) {LimInf=0.474; LimSup=0.520;}
   if (par[2]==0) {LimInf=0.47; LimSup=0.530;}
   else if (par[2]==4 || par[2]==5 || par[2]==8) {LimInf=1.310; LimSup=1.335;}
   if (reject && x[0] > LimInf && x[0] < LimSup) {
@@ -48,7 +47,10 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
 }
 
 
-void histos_exercise_AllParticles(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=3,Float_t PtTrigMax=15,  Int_t rap=0,Int_t type=0, Int_t sysTrigger=0, Int_t sysV0=0, Int_t syst=0, Double_t nsigmamax=9, TString year0="2016", TString year="2018f1_extra_onlyTriggerWithHighestPt"/*"2018f1_extra_hXi_65runs"*/, Bool_t isMC=1, Bool_t isEfficiency=1, TString path1=""){
+void histos_exercise_AllParticles( Float_t PtTrigMin=0.15,Float_t PtTrigMax=15, Bool_t SkipAssoc=1, Int_t rap=0,Int_t type=8, Int_t sysTrigger=0, Int_t sysV0=0, Int_t syst=0, Double_t nsigmamax=9, TString year0="2016", TString year=/*"2018f1_extra_onlyTriggerWithHighestPt"*/"2016k_hXi", Bool_t isMC=0, Bool_t isEfficiency=1, TString path1="", Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1){
+
+  //a reminder of the particles:
+  //  TString tipo[num_tipo]={"kK0s", "Lambda", "AntiLambda","LambdaAntiLambda", "XiNeg", "XiPos", "OmegaNeg", "OmegaPlus", "Xi", "Omega"};
 
   //isSignalFromIntegral permette di scegliere tra l'utilizzo di S = integral fit function o S = entries- integral bkg function
   //IsBkgPParab = fit con pl2 per fondo if kTRUE, fit con pol1 per fodno if kFALSE
@@ -186,17 +188,18 @@ void histos_exercise_AllParticles(Bool_t isSignalFromIntegral=0, Bool_t isBkgPar
   TCanvas *canv[mult+1];
     Int_t     NEvents[mult+1];
     TString Srap[2] = {"_Eta0.8", "_y0.5"};
+    TString    SSkipAssoc[2]={"_AllAssoc", ""};
     for(Int_t molt=0; molt<mult+1; molt++){
-            if (molt < mult) continue;
-//      TString nome_file_1 ="FinalOutput/DATA"+year0+"/histo/AngularCorrelation"+year;
-      TString nome_file_1 ="AngularCorrelation"+year; //local
+      //            if (molt < mult) continue;
+      //      TString nome_file_1 ="FinalOutput/DATA"+year0+"/histo/AngularCorrelation"+year;
+            TString nome_file_1 ="hXi2016k/AngularCorrelation"+year; //local
       TString nome_file_output[NsysTrigger][NsysV0];
       TString nome_file_analysis;
-//      nome_file_analysis="FinalOutput/AnalysisResults"+year+".root";
+      //      nome_file_analysis="FinalOutput/AnalysisResults"+year+".root";
       nome_file_analysis="AnalysisResultsFolder/AnalysisResults"+year+".root"; //local
-      //      if (isMC && isEfficiency) nome_file_analysis="FinalOutput/AnalysisResults"+year+"_MCEff.root";
-      if (isMC && isEfficiency) nome_file_analysis="AnalysisResultsFolder/AnalysisResults"+year+"_MCEff.root"; //local
-//      nome_file_output[sysTrigger][sysV0] ="FinalOutput/DATA"+year0+"/invmass_distribution_thesis/invmass_distribution";
+      if (isMC && isEfficiency) nome_file_analysis="FinalOutput/AnalysisResults"+year+"_MCEff.root";
+      //      if (isMC && isEfficiency) nome_file_analysis="AnalysisResultsFolder/AnalysisResults"+year+"_MCEff.root"; //local
+      //nome_file_output[sysTrigger][sysV0] ="FinalOutput/DATA"+year0+"/invmass_distribution_thesis/invmass_distribution";
       nome_file_output[sysTrigger][sysV0] ="invmass_distribution"; //local
 
       if(isMC && isEfficiency){
@@ -212,10 +215,11 @@ void histos_exercise_AllParticles(Bool_t isSignalFromIntegral=0, Bool_t isBkgPar
 
       nome_file_1+=path1;
       if (type!=0){
+	nome_file_1+=SSkipAssoc[SkipAssoc];
 	nome_file_1 +=Srap[rap];
       }
       nome_file_1 +=Form("_MassDistr_SysT%i_SysV0%i_PtMin%.1f.root",sysTrigger, sysV0, PtTrigMin);
-      nome_file_output[sysTrigger][sysV0] +=Form(year+"_"+tipo[type]+Srap[rap]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f.root", molt, sysTrigger, sysV0, syst,PtTrigMin);
+      nome_file_output[sysTrigger][sysV0] +=Form(year+"_"+tipo[type]+Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f.root", molt, sysTrigger, sysV0, syst,PtTrigMin);
       
       cout << "questo è il nome del file prodotto dal task (nome_file_analysis) " << nome_file_analysis << endl;
       cout << "questo è il nome del file " << nome_file_1 << endl;
@@ -379,7 +383,7 @@ void histos_exercise_AllParticles(Bool_t isSignalFromIntegral=0, Bool_t isBkgPar
       isto_tagli[j]->Rebin(rebin[type][molt][j]);
       isto_tagli_true[j]->Rebin(rebin[type][molt][j]);
       isto_tagli_false[j]->Rebin(rebin[type][molt][j]);
-      if ((type ==4 || type==5 || type ==8) && j>=5){
+      if ((type ==4 || type==5 || type ==8) && (j>=5 || j==1)){
       isto_tagli[j]->Rebin(2);
       isto_tagli_true[j]->Rebin(2);
       isto_tagli_false[j]->Rebin(2);
@@ -670,7 +674,7 @@ void histos_exercise_AllParticles(Bool_t isSignalFromIntegral=0, Bool_t isBkgPar
 
 	canv[molt]->cd(j+1);
 	//	gPad->SetLogy();
-		isto_tagli[j]->GetYaxis()->SetRangeUser(0,0.02*isto_tagli[j]->GetMaximum());
+	//		isto_tagli[j]->GetYaxis()->SetRangeUser(0,0.02*isto_tagli[j]->GetMaximum());
 	isto_tagli[j]->DrawCopy();
 	cout << "\n\n\n\n ho salvato canvas con istogramma per m "<< molt <<" e pt " << j << " \n\n\n" << endl;
 	TMatrixDSym cov =   fFitResultPtr0[j]->GetCovarianceMatrix();
@@ -802,7 +806,7 @@ void histos_exercise_AllParticles(Bool_t isSignalFromIntegral=0, Bool_t isBkgPar
 	isto_tagli[j]-> Fit(functions1[j], "RB+");
 	//isto[j]-> Write();
 	isto_tagli[j]->GetXaxis()->SetRangeUser(min_histo[type],max_histo[type]);
-	isto_tagli[j]->GetYaxis()->SetRangeUser(0,0.004*isto_tagli[j]->GetMaximum());
+	//	isto_tagli[j]->GetYaxis()->SetRangeUser(0,0.004*isto_tagli[j]->GetMaximum());
 	canvas[j]->cd();
 	isto_tagli[j]->Draw("");
 	legend[j]->AddEntry(total[j],"Total", "l");
