@@ -15,19 +15,22 @@
 #include <TSpline.h>
 
 
-void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=3.0, Int_t type=4, Int_t sysTrigger=0, Int_t sysV0=11, Int_t sys=0, TString yearMC="2018f1_extra", TString yeardati="2016k", TString year="2016k18f1_extra", TString year0="2016", Bool_t isParticleStudy=1, Bool_t isSystV0Analysis=0, Int_t rap=1, TString Path1="_New"){ 
+void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=3.0, Int_t type=4, Int_t sysTrigger=0, Int_t sysV0=11, Int_t sys=0, TString yearMC="2016kl", TString yeardati="Run2DataRed_hXi", TString year="Run2DataRed_hXi", TString year0="2016", Bool_t isParticleStudy=1, Bool_t isSystV0Analysis=0, Int_t rap=0, TString Path1="", Bool_t SkipAssoc=1){ 
 
 
   //isSystV0Analysis=1 if I want to compare different selections used to identify the particle for a given multiplcity (to be chosen!); =0 if I want to compare diffrerent multiplcity ranges (but same selections)
   Int_t chosenmolt=5; //choose the multiplicity you desire
   const Int_t numsysV0=21; 
   const Int_t mult=5; //numero intervalli molteplicita'
-  const Int_t num_tipo=8; //numero tipologie di particelle
+  const Int_t num_tipo=12; //numero tipologie di particelle
   const Int_t num_isto=12; //numero di istogrammi di tipologia diversa per dati veri
   const Int_t num_isto_MC=13; //numero di istogrammi di tipologia diversa per MC
   const Int_t num_isto_cfr=2; //numero di istogrammi di confronto dati/MC
   const Int_t num_isto_lambda=1; //numero di istogrammi di confronto lambda/antilambda
   const Int_t num_tagli=3;
+
+  TString Srap[2] = {"_Eta0.8", "_y0.5"};
+  TString    SSkipAssoc[2]={"_AllAssoc", ""};
 
   TString isDataorMC[2]={"Data", "MC"};
   TString StringSystV0Analysis[2]={"", "_SystV0Analysis"};
@@ -36,11 +39,11 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
   TString MassFixedPDG[2]={"", "isMeanFixedPDG_"};
   Int_t num_isto_finale=num_isto;
   if (isParticleStudy) num_isto_finale=num_isto+1;
-  TString tipo2[num_tipo]={"K^{0}_{s}", "#Lambda","#bar{#Lambda}", "#Lambda + #bar{#Lambda}", "#Xi^{-}", "#Xi^{+}", "#Omega^{-}", "#Omega^{+}"};
-  TString tipoNotSign[num_tipo]={"K^{0}_{s}", "#Lambda","#bar{#Lambda}", "#Lambda + #bar{#Lambda}", "#Xi", "#Xi", "#Omega", "#Omega"};
-  TString tipo[num_tipo]={"K0s", "Lambda", "AntiLambda", "LambdaAntiLambda", "XiNeg", "XiPos", "OmegaNeg", "OmegaPos"};
-  TString tipobis[num_tipo]={"kK0s", "Lambda", "AntiLambda", "LambdaAntiLambda", "XiNeg", "XiPos", "OmegaNeg", "OmegaPos"};
-  TString SParticleType[num_tipo]={"", "Lambda", "AntiLambda", "LambdaAntiLambda", "XiNeg", "XiPos", "OmegaNeg", "OmegaPos"};
+  TString tipo2[num_tipo]={"K^{0}_{s}", "#Lambda","#bar{#Lambda}", "#Lambda + #bar{#Lambda}", "#Xi^{-}", "#Xi^{+}", "#Omega^{-}", "#Omega^{+}", "#Xi", "#Omega"};
+  TString tipoNotSign[num_tipo]={"K^{0}_{s}", "#Lambda","#bar{#Lambda}", "#Lambda + #bar{#Lambda}", "#Xi", "#Xi", "#Omega", "#Omega", "#Xi", "#Omega"};
+  TString tipo[num_tipo]={"K0s", "Lambda", "AntiLambda", "LambdaAntiLambda", "XiNeg", "XiPos", "OmegaNeg", "OmegaPos", "Xi", "Omega"};
+  TString tipobis[num_tipo]={"kK0s", "Lambda", "AntiLambda", "LambdaAntiLambda", "XiNeg", "XiPos", "OmegaNeg", "OmegaPos", "Xi", "Omega"};
+  TString SParticleType[num_tipo]={"", "Lambda", "AntiLambda", "LambdaAntiLambda", "XiNeg", "XiPos", "OmegaNeg", "OmegaPos", "Xi", "Omega"};
   TString tipo_histo[num_isto+1]={"sigma", "mean", "chis", "SB", "S","SEffCorr", "SSB","SRatioCentral", "BRatioCentral", "BRatioSide", "BDoubleRatio", "Efficiency", "EfficiencyRelError"};
   TString nomi[num_isto+1]={"Invariant mass resolution", 
 			    tipo2[type]+" mass",
@@ -91,21 +94,16 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
   TString innamecompleto[20];
 
   innameMC+="_MCEff";
-  if (type>=4){
-    innameMC+="_Cascades";
-    innamedati+="_Cascades";
-    innameMC+=Path1;
-    innamedati+=Path1;
-
-  }
+  innameMC+=Path1;
+  innamedati+=Path1;
 
   innamedati+="_"+yeardati; 
   innameMC+="_"+yearMC; 
   TString innamedataorMC[2]={innamedati, innameMC};
   cout << "input file name (dati)" << innamedati << endl;
   cout << "input file name (MC)  " << innameMC << endl;
-  TString outname="FinalOutput/DATA"+year0 + "/invmass_distribution_thesis/confronto_histogrammi_"+year +"_" +SParticleType[type]+Path1 + "_" +MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+StringSystV0Analysis[isSystV0Analysis]+Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f.root",sysTrigger, sysV0, sys, PtTrigMin);
-  if (type>=4) outname="FinalOutput/DATA"+year0 + "/invmass_distribution_thesis/confronto_histogrammi_"+year +"_" +SParticleType[type]+Path1 + "_" +MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+StringSystV0Analysis[isSystV0Analysis]+Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f_Rap%i.root",sysTrigger, sysV0, sys, PtTrigMin, rap);
+  TString outname="FinalOutput/DATA"+year0 + "/invmass_distribution_thesis/confronto_histogrammi_"+year +"_" +tipobis[type]+Path1 + Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+StringSystV0Analysis[isSystV0Analysis]+Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f.root",sysTrigger, sysV0, sys, PtTrigMin);
+
   TFile *outfile = new TFile(outname, "RECREATE");
   cout << "output file name " << outname << endl;
 
@@ -149,13 +147,13 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
   //  Float_t min_range[num_tipo][num_isto+1]= {{0., 0.491,0, 0,0.92,0,0.000001,0,0},{0., 1.112,0, 0,0,0,0.000001,0,0}, {0., 1.112,0, 0,0,0,0.000001,0,0}, {0., 1.112,0, 0,0,0,0.00001,0,0},  {0., 1.32,0, 0,0,0,0.00001,0,0},  {0., 1.32,0, 0,0,0,0.00001,0,0},  {0., 1.665,0, 0,0,0,0.00001,0,0},  {0., 1.665,0, 0,0,0,0.00001,0,0} };
   //for first 4 brackets (K0s and Lambda) use this!
 
-  Float_t min_range[num_tipo][num_isto+1]= {{0., 0.491,0, 0,0,0,0,0.92,0,0.000001,0,0,-0.001},{0., 1.112,0, 0,0,0,0,0,0,0.000001,0,0,-0.001}, {0., 1.112,0, 0,0,0,0,0,0,0.000001,0,0,-0.001}, {0., 1.112,0, 0,0,0,0,0,0.00001,0,0,-0.001},  {0., 1.32,0, 0,0,0,0.8,0.8,0,0.00001,0,0,-0.011},  {0., 1.32,0, 0,0,0,0.8,0.8,0,0.00001,0,0,-0.01},  {0., 1.665,0, 0,0,0,0,0,0,0.00001,0,0,-0.01},  {0., 1.665,0, 0,0,0,0,0,0,0.00001,0,0,-0.01 }};
-  Float_t max_range[num_tipo][num_isto+1]= {{0.012, 0.505,8, 500,367,367,1,250000,100,100,2,1, 0.001},{0.01, 1.119,45, 40,367,367,1.2,400000,0.04,60000,2,1,0.01}, {0.01, 1.119,45, 40,367,367,1.2,400000,0.04, 60000,2,1,0.01}, {0.003, 1.119,30, 20,367,367,1.2, 800000,0.09,60000,2,1,0.01}, {0.005, 1.325,3,20, 0.003,0.04, 1,1.5,5,5,2,0.3,0.1}, {0.005, 1.325,3, 20, 0.003,0.04,1,1.5,5,5,2,0.3,0.1}, {0.006, 1.678,8, 20, 20,500,1,250000,100,100,1,1,0.01}, {0.012, 1.678,8, 20,20, 500,1,250000,100,100,1,1,0.01}};
+  Float_t min_range[num_tipo][num_isto+1]= {{0., 0.491,0, 0,0,0,0,0.92,0,0.000001,0,0,-0.001},{0., 1.112,0, 0,0,0,0,0,0,0.000001,0,0,-0.001}, {0., 1.112,0, 0,0,0,0,0,0,0.000001,0,0,-0.001}, {0., 1.112,0, 0,0,0,0,0,0.00001,0,0,-0.001},  {0., 1.32,0, 0,0,0,0.8,0.8,0,0.00001,0,0,-0.011},  {0., 1.32,0, 0,0,0,0.8,0.8,0,0.00001,0,0,-0.01},  {0., 1.665,0, 0,0,0,0,0,0,0.00001,0,0,-0.01},  {0., 1.665,0, 0,0,0,0,0,0,0.00001,0,0,-0.01 }, {0., 1.32,0, 0,0,0,0.8,0.8,0,0.00001,0,0,-0.011},  {0., 1.665,0, 0,0,0,0,0,0,0.00001,0,0,-0.01 }};
+  Float_t max_range[num_tipo][num_isto+1]= {{0.012, 0.505,8, 500,367,367,1,250000,100,100,2,1, 0.001},{0.01, 1.119,45, 40,367,367,1.2,400000,0.04,60000,2,1,0.01}, {0.01, 1.119,45, 40,367,367,1.2,400000,0.04, 60000,2,1,0.01}, {0.003, 1.119,30, 20,367,367,1.2, 800000,0.09,60000,2,1,0.01}, {0.005, 1.325,3,20, 0.003,0.04, 1,1.5,5,5,2,0.3,0.1}, {0.005, 1.325,3, 20, 0.003,0.04,1,1.5,5,5,2,0.3,0.1}, {0.006, 1.678,8, 20, 20,500,1,250000,100,100,1,1,0.01}, {0.012, 1.678,8, 20,20, 500,1,250000,100,100,1,1,0.01}, {0.005, 1.325,3, 20, 0.003,0.04,1,1.5,5,5,2,0.3,0.1} ,{0.012, 1.678   ,8, 20,20, 500,1,250000,100,100,1,1,0.01}};
 
   Float_t canvas_size1[num_isto+1]={800, 800, 1400, 1400, 800,800, 1400, 800, 800, 800};
   Float_t canvas_size2[num_isto+1]={600, 600, 500, 500, 600, 1000, 500, 1000, 1000, 1000};
 
-  Float_t massParticle[num_tipo]= {0.497611, 1.115683, 1.115683, 1.115683, 1.32171, 1.32171, 1.67245, 1.67245};
+  Float_t massParticle[num_tipo]= {0.497611, 1.115683, 1.115683, 1.115683, 1.32171, 1.32171, 1.67245, 1.67245, 1.32171, 1.67245};
   TString Title[2];
 
   TF1 *retta = new TF1("retta", "pol0", 0,10);
@@ -266,10 +264,11 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
       cout <<"Particle Type " <<  tipo[ParticleType] << endl; 
       counterParticleType++; 
      
-      for(Int_t dataorMC=0; dataorMC<2; dataorMC++){
+      for(Int_t dataorMC=0; dataorMC<1; dataorMC++){
 	cout << "data or MC " << dataorMC << endl;
 
 	if (dataorMC==0 && j>=num_isto_finale-6) continue;
+	if (dataorMC==0 && tipo_histo[j]=="SEffCorr") continue;
 	hs[j] = new THStack(Form("hs%i",j),"");
 	hs_ratio[j] = new THStack(Form("hs_ratio%i",j),"");
 	Title[ParticleType-type]=isDataorMC[dataorMC]+"  "+ tipobis[ParticleType];
@@ -293,16 +292,15 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
 	  Icounter++;
 	  //if multiplicity dependence is analyzed*****************
 	  if (!isSystV0Analysis){
-	    innamecompleto[i]= Form(innamedataorMC[dataorMC]+"_" +tipobis[ParticleType]+ "_" +MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f.root", i, sysTrigger, sysV0, sys, PtTrigMin);
-	    if (type>=4) innamecompleto[i]= Form(innamedataorMC[dataorMC]+"_" +tipobis[ParticleType]+ "_" +MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f_Rap%i.root", i, sysTrigger, sysV0, sys, PtTrigMin, rap);
+	    innamecompleto[i]= Form(innamedataorMC[dataorMC]+"_" +tipobis[ParticleType] +Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f.root", i, sysTrigger, sysV0, sys, PtTrigMin);
+
 	  }
 	  //	  cout <<"fileinput completo " <<  innamecompleto[i]<< endl;
 	  //*******************************************************
 
 	  //if particle selection dependence is analyzed*****************
 	  if (isSystV0Analysis){
-	    innamecompleto[i] = Form(innamedataorMC[dataorMC]+"_" +tipobis[ParticleType]+ "_" +MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f.root", chosenmolt, sysTrigger, i, sys, PtTrigMin); 
-	    if (type>=4)		  innamecompleto[i] = Form(innamedataorMC[dataorMC]+"_" +tipobis[ParticleType]+ "_" +MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f_Rap%i.root", chosenmolt, sysTrigger, i, sys, PtTrigMin, rap); 
+	    innamecompleto[i]= Form(innamedataorMC[dataorMC]+"_" +tipobis[ParticleType]+Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f.root", chosenmolt, sysTrigger, i, sys, PtTrigMin);
 
 	  }
 	 
