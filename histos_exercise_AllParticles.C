@@ -47,7 +47,7 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
 }
 
 
-void histos_exercise_AllParticles( Float_t PtTrigMin=0.15,Float_t PtTrigMax=15, Bool_t SkipAssoc=1, Int_t rap=0,Int_t type=8, Int_t sysTrigger=0, Int_t sysV0=0, Int_t syst=0, Double_t nsigmamax=9, TString year0="2016", TString year=/*"2018f1_extra_onlyTriggerWithHighestPt"*/"2016k_hXi", Bool_t isMC=0, Bool_t isEfficiency=1, TString path1="", Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1){
+void histos_exercise_AllParticles( Float_t PtTrigMin=3,Float_t PtTrigMax=15, Bool_t SkipAssoc=1, Int_t rap=0,Int_t type=8, Int_t sysTrigger=0, Int_t sysV0=0, Int_t syst=0, Double_t nsigmamax=9, TString year0="2016", TString year=/*"2018f1_extra_onlyTriggerWithHighestPt"*/"Run2DataRed_hXi", Bool_t isMC=0, Bool_t isEfficiency=1, TString path1="", Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1,   Double_t sigmacentral=4, Double_t nsigmamin=5){
 
   //a reminder of the particles:
   //  TString tipo[num_tipo]={"kK0s", "Lambda", "AntiLambda","LambdaAntiLambda", "XiNeg", "XiPos", "OmegaNeg", "OmegaPlus", "Xi", "Omega"};
@@ -73,9 +73,6 @@ void histos_exercise_AllParticles( Float_t PtTrigMin=0.15,Float_t PtTrigMax=15, 
     cout << "syst conflicting " << endl;
     return;
   }
-
-  Double_t sigmacentral=4; //it was 3 for kaons
-  Double_t nsigmamin=5; //it was four for kaons
   
   if (syst==1) {
     nsigmamin=6;
@@ -191,16 +188,16 @@ void histos_exercise_AllParticles( Float_t PtTrigMin=0.15,Float_t PtTrigMax=15, 
     TString    SSkipAssoc[2]={"_AllAssoc", ""};
     for(Int_t molt=0; molt<mult+1; molt++){
       //            if (molt < mult) continue;
-      //      TString nome_file_1 ="FinalOutput/DATA"+year0+"/histo/AngularCorrelation"+year;
-            TString nome_file_1 ="hXi2016k/AngularCorrelation"+year; //local
+      TString nome_file_1 ="FinalOutput/DATA"+year0+"/histo/AngularCorrelation"+year;
+      //            TString nome_file_1 ="hXi2016k/AngularCorrelation"+year; //local
       TString nome_file_output[NsysTrigger][NsysV0];
       TString nome_file_analysis;
-      //      nome_file_analysis="FinalOutput/AnalysisResults"+year+".root";
-      nome_file_analysis="AnalysisResultsFolder/AnalysisResults"+year+".root"; //local
-      if (isMC && isEfficiency) nome_file_analysis="FinalOutput/AnalysisResults"+year+"_MCEff.root";
-      //      if (isMC && isEfficiency) nome_file_analysis="AnalysisResultsFolder/AnalysisResults"+year+"_MCEff.root"; //local
-      //nome_file_output[sysTrigger][sysV0] ="FinalOutput/DATA"+year0+"/invmass_distribution_thesis/invmass_distribution";
-      nome_file_output[sysTrigger][sysV0] ="invmass_distribution"; //local
+      nome_file_analysis="FinalOutput/AnalysisResults"+year+".root";
+      //nome_file_analysis="AnalysisResultsFolder/AnalysisResults"+year+".root"; //local
+      //if (isMC && isEfficiency) nome_file_analysis="FinalOutput/AnalysisResults"+year+"_MCEff.root";
+      if (isMC && isEfficiency) nome_file_analysis="AnalysisResultsFolder/AnalysisResults"+year+"_MCEff.root"; //local
+      nome_file_output[sysTrigger][sysV0] ="FinalOutput/DATA"+year0+"/invmass_distribution_thesis/invmass_distribution";
+      //nome_file_output[sysTrigger][sysV0] ="invmass_distribution"; //local
 
       if(isMC && isEfficiency){
 	nome_file_1+="_MCEff";
@@ -298,6 +295,8 @@ void histos_exercise_AllParticles( Float_t PtTrigMin=0.15,Float_t PtTrigMax=15, 
     TF1 **bkgparab = new TF1*[num_histo];
     TF1 **total= new TF1*[num_histo];
     TF1 **totalbis =new TF1*[num_histo]; //mi serve solo per calcolare errore del bkg
+    TH1F *histo_LLsideB = new TH1F ("histo_LLsideB","Lower Limit of the sideband vs Pt", num_histo, binl);
+    TH1F *histo_ULsideB = new TH1F ("histo_ULsideB","Upper Limit of the sideband vs Pt", num_histo, binl);
     TH1F *histo_sigma = new TH1F ("histo_sigma","Sigma vs Pt", num_histo, binl);
     TH1F *histo_mean = new TH1F ("histo_mean","Mean vs Pt", num_histo, binl);
     TH1F *histo_chis = new TH1F ("histo_chis","ChiSquare/dof vs Pt", num_histo, binl);
@@ -319,6 +318,10 @@ void histos_exercise_AllParticles( Float_t PtTrigMin=0.15,Float_t PtTrigMax=15, 
 
 
     //histo_mean->GetYaxis()->SetRangeUser(lim_inf[type], lim_sup[type]);
+    histo_LLsideB->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+    histo_LLsideB->GetYaxis()->SetTitle("Lower limit (GeV/c^{2})");
+    histo_ULsideB->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+    histo_ULsideB->GetYaxis()->SetTitle("Upper limit (GeV/c^{2})");
     histo_sigma->GetXaxis()->SetTitle("p_{T} (GeV/c)");
     histo_sigma->GetYaxis()->SetTitle("#sigma (GeV/c^{2})");
     histo_mean->GetXaxis()->SetTitle("p_{T} (GeV/c)");
@@ -343,6 +346,8 @@ void histos_exercise_AllParticles( Float_t PtTrigMin=0.15,Float_t PtTrigMax=15, 
     histo_signal_int->GetYaxis()->SetTitle("Signal integral/#events (GeV/c^{2})");
     histo_signal_int_pure->GetXaxis()->SetTitle("p_{T} (GeV/c)");
     histo_signal_int_pure->GetYaxis()->SetTitle("Signal integral (GeV/c^{2})");
+    histo_LLsideB->GetYaxis()->SetTitleOffset(1.2);
+    histo_ULsideB->GetYaxis()->SetTitleOffset(1.2);
     histo_sigma->GetYaxis()->SetTitleOffset(1.2);
     histo_mean->GetYaxis()->SetTitleOffset(1.2);
     histo_chis->GetYaxis()->SetTitleOffset(1.2);
@@ -364,13 +369,13 @@ void histos_exercise_AllParticles( Float_t PtTrigMin=0.15,Float_t PtTrigMax=15, 
 	liminf[type]=1.29;
 	limsup[type]=1.352;
 	min_histo[type]=1.29;
-	max_histo[type]=1.352;
+	max_histo[type]=1.349;
 	}
       }
       if (type==0){
 	liminf[type]=0.46;//where the bkg and total fit is performed (the 2 gaussian fit is performed in the min_range_histo range
 	limsup[type]=0.54;
-	min_histo[type]=0.455; //where final bkg function is displayed
+	min_histo[type]=0.455; //where final bkg function is displayed and sideband integral is calculated
 	max_histo[type]=0.54;
     }
 
@@ -950,6 +955,10 @@ void histos_exercise_AllParticles( Float_t PtTrigMin=0.15,Float_t PtTrigMax=15, 
 	
 	//	if((total[j]->GetChisquare()/total[j]->GetNDF())<=3. && mean[j]>lim_inf_mean[type] && mean[j]<lim_sup_mean[type] && bin_contentSB1[j]>0 && sigma[j]<lim_sup_sigma[type] && errsigma[j]<lim_sup_errsigma[type] && errmean[j]<lim_sup_errmean[type]){
 	if( isSignalFromIntegral && mean[j]>lim_inf_mean[type] && mean[j]<lim_sup_mean[type] && bin_contentSB1[j]>0 && sigma[j]<lim_sup_sigma[type] && errsigma[j]<lim_sup_errsigma[type] && errmean[j]<lim_sup_errmean[type]){
+	  histo_LLsideB->SetBinContent(j+1,min_histo[type]);
+	  histo_LLsideB->SetBinError(j+1,0);
+	  histo_ULsideB->SetBinContent(j+1,max_histo[type]);
+	  histo_ULsideB->SetBinError(j+1,0);
 	  histo_SB->SetBinContent(j+1,bin_contentSB1[j]);
 	  histo_SB->SetBinError(j+1, errSB1[j]);
 	  histo_SSB->SetBinContent(j+1,bin_contentSSB1[j]);
@@ -960,6 +969,7 @@ void histos_exercise_AllParticles( Float_t PtTrigMin=0.15,Float_t PtTrigMax=15, 
 	  histo_Bcentral->SetBinError(j+1, errb[j]);
 	  histo_Bside->SetBinContent(j+1,bside[j]);
 	  histo_Bside->SetBinError(j+1, errbside[j]);
+	  if (isMC && isEfficiency) {
 	  histo_BcentralFalse->SetBinContent(j+1,entries_range_false[j]*isto_tagli[j]->GetBinWidth(1));
 	  histo_BcentralFalse->SetBinError(j+1, err_range_false[j]*isto_tagli[j]->GetBinWidth(1));
 	  histo_BsideFalse->SetBinContent(j+1,entries_sideband_false[j]*isto_tagli[j]->GetBinWidth(1));
@@ -975,6 +985,7 @@ void histos_exercise_AllParticles( Float_t PtTrigMin=0.15,Float_t PtTrigMax=15, 
 	  histo_BRatioSide->SetBinError(j+1,0);
 	  histo_BDoubleRatio->SetBinError(j+1,0);
 	  histo_SRatioCentral->SetBinError(j+1, sqrt(pow(sigmas1[j]/st[j],2) + 1./entries_range_true[j])*st[j]/entries_range_true[j]/isto_tagli[j]->GetBinWidth(1));
+	  }
 	  histo_signal_int->SetBinContent(j+1,st[j]/isto_tagli[j]->GetBinWidth(1)/events);
 	  histo_signal_int->SetBinError(j+1,sigmas1[j]/isto_tagli[j]->GetBinWidth(1)/events);
 	  histo_signal_int_pure->SetBinContent(j+1,st[j]/isto_tagli[j]->GetBinWidth(1));
@@ -985,6 +996,10 @@ void histos_exercise_AllParticles( Float_t PtTrigMin=0.15,Float_t PtTrigMax=15, 
 	  //	} else if((total[j]->GetChisquare()/total[j]->GetNDF())>3. && mean[j]>lim_inf_mean[type] && mean[j]<lim_sup_mean[type] && bin_contentSB2[j]>0 && sigma[j]<lim_sup_sigma[type] && errsigma[j]<lim_sup_errsigma[type] && errmean[j]<lim_sup_errmean[type]){
 	} 
 	else if(!isSignalFromIntegral && mean[j]>lim_inf_mean[type] && mean[j]<lim_sup_mean[type] && bin_contentSB2[j]>0 && sigma[j]<lim_sup_sigma[type] && errsigma[j]<lim_sup_errsigma[type] && errmean[j]<lim_sup_errmean[type]){
+	  histo_LLsideB->SetBinContent(j+1,min_histo[type]);
+	  histo_LLsideB->SetBinError(j+1,0);
+	  histo_ULsideB->SetBinContent(j+1,max_histo[type]);
+	  histo_ULsideB->SetBinError(j+1,0);
 	  histo_SB->SetBinContent(j+1,bin_contentSB2[j]);
 	  histo_SB->SetBinError(j+1,errSB2[j]);
 	  histo_SSB->SetBinContent(j+1,bin_contentSSB2[j]);
@@ -995,6 +1010,7 @@ void histos_exercise_AllParticles( Float_t PtTrigMin=0.15,Float_t PtTrigMax=15, 
 	  histo_Bcentral->SetBinError(j+1, errb[j]);
 	  histo_Bside->SetBinContent(j+1,bside[j]);
 	  histo_Bside->SetBinError(j+1, errbside[j]);
+	  if (isMC && isEfficiency) {
 	  histo_BcentralFalse->SetBinContent(j+1,entries_range_false[j]*isto_tagli[j]->GetBinWidth(1));
 	  histo_BcentralFalse->SetBinError(j+1, err_range_false[j]*isto_tagli[j]->GetBinWidth(1));
 	  histo_BsideFalse->SetBinContent(j+1,entries_sideband_false[j]*isto_tagli[j]->GetBinWidth(1));
@@ -1010,6 +1026,7 @@ void histos_exercise_AllParticles( Float_t PtTrigMin=0.15,Float_t PtTrigMax=15, 
 	  histo_BDoubleRatio->SetBinError(j+1,0);
 	  histo_SRatioCentral->SetBinError(j+1, sqrt(pow(sigmas1[j]/st[j],2) + 1./entries_range_true[j])*st[j]/entries_range_true[j]/isto_tagli[j]->GetBinWidth(1));
 	  histo_FracStrangePeak->SetBinError(j+1,0);
+	  }
 	  histo_signal_int->SetBinContent(j+1,(tot[j]-b[j])/isto_tagli[j]->GetBinWidth(1)/events);
 	  histo_signal_int->SetBinError(j+1,errS2[j]/isto_tagli[j]->GetBinWidth(1)/events);
 	  histo_signal_int_pure->SetBinContent(j+1,(tot[j]-b[j])/isto_tagli[j]->GetBinWidth(1));
@@ -1029,6 +1046,10 @@ cout << functions1[j]->Integral(functions1[j]->GetParameter(1)-sigmacentral*func
 	  cout << "caso C " << endl;
 	  cout << "S su B varra' zero perche  condizioni non sono soddisfatte " << endl; 
 	  cout << "reduced chi " << total[j]->GetChisquare()/total[j]->GetNDF()<< "\nmean " << mean[j] << " >? " << lim_inf_mean[type] << " <? " <<lim_sup_mean[type] <<"\ntotale in central region from bin counting " << tot[j] << "\nB in central region from integral " << b[j] << " \n S/B " <<bin_contentSB2[j]<< "\n sigma " << sigma[j] << " <? " << lim_sup_sigma[type] << "\nerr sigma " << errsigma[j] << " <? " << lim_sup_errsigma[type] << "\nerr mean " << errmean[j] << " <? " << lim_sup_errmean[type] << endl;
+	  histo_LLsideB->SetBinContent(j+1,0);
+	  histo_LLsideB->SetBinError(j+1,0);
+	  histo_ULsideB->SetBinContent(j+1,0);
+	  histo_ULsideB->SetBinError(j+1,0);
 	  histo_SB->SetBinContent(j+1,0);
 	  histo_SB->SetBinError(j+1,0);
 	  histo_SSB->SetBinContent(j+1,0);
@@ -1039,6 +1060,7 @@ cout << functions1[j]->Integral(functions1[j]->GetParameter(1)-sigmacentral*func
 	  histo_Bcentral->SetBinError(j+1, 0);
 	  histo_Bside->SetBinContent(j+1,0);
 	  histo_Bside->SetBinError(j+1, 0);
+	  if (isMC && isEfficiency) {
 	  histo_BcentralFalse->SetBinContent(j+1,0);
 	  histo_BcentralFalse->SetBinError(j+1, 0);
 	  histo_BsideFalse->SetBinContent(j+1,0);
@@ -1053,6 +1075,7 @@ cout << functions1[j]->Integral(functions1[j]->GetParameter(1)-sigmacentral*func
 	  histo_BDoubleRatio->SetBinError(j+1,0);
 	  histo_SRatioCentral->SetBinError(j+1,0);
 	  histo_FracStrangePeak->SetBinError(j+1,0);
+	  }
 	  histo_signal_int->SetBinContent(j+1,0);
 	  histo_signal_int->SetBinError(j+1,0);
 	  histo_signal_int_pure->SetBinContent(j+1,0);
@@ -1096,6 +1119,8 @@ cout << functions1[j]->Integral(functions1[j]->GetParameter(1)-sigmacentral*func
     }
 
     //  event_multiplicity->Write();
+    histo_LLsideB->Write();
+    histo_ULsideB->Write();
     histo_sigma->Write();
     histo_mean->Write();
     histo_chis->Write();
