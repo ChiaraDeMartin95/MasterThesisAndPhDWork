@@ -295,8 +295,10 @@ void histos_exercise_AllParticles( Float_t PtTrigMin=3,Float_t PtTrigMax=15, Boo
     TF1 **bkgparab = new TF1*[num_histo];
     TF1 **total= new TF1*[num_histo];
     TF1 **totalbis =new TF1*[num_histo]; //mi serve solo per calcolare errore del bkg
-    TH1F *histo_LLsideB = new TH1F ("histo_LLsideB","Lower Limit of the sideband vs Pt", num_histo, binl);
-    TH1F *histo_ULsideB = new TH1F ("histo_ULsideB","Upper Limit of the sideband vs Pt", num_histo, binl);
+    TH1F *histo_LLsideB = new TH1F ("histo_LLsideB","Lower Limit of the left sideband vs Pt", num_histo, binl);
+    TH1F *histo_ULsideB = new TH1F ("histo_ULsideB","Upper Limit of the right sideband vs Pt", num_histo, binl);
+    TH1F *histo_NSigmasideB = new TH1F ("histo_NSigmasideB","Central limits (in nsigma) of both sidebands vs Pt", num_histo, binl);
+    TH1F *histo_NSigmaPeak = new TH1F ("histo_NSigmaPeak","Limits (in nsigma) of peak region vs Pt", num_histo, binl);
     TH1F *histo_sigma = new TH1F ("histo_sigma","Sigma vs Pt", num_histo, binl);
     TH1F *histo_mean = new TH1F ("histo_mean","Mean vs Pt", num_histo, binl);
     TH1F *histo_chis = new TH1F ("histo_chis","ChiSquare/dof vs Pt", num_histo, binl);
@@ -322,6 +324,10 @@ void histos_exercise_AllParticles( Float_t PtTrigMin=3,Float_t PtTrigMax=15, Boo
     histo_LLsideB->GetYaxis()->SetTitle("Lower limit (GeV/c^{2})");
     histo_ULsideB->GetXaxis()->SetTitle("p_{T} (GeV/c)");
     histo_ULsideB->GetYaxis()->SetTitle("Upper limit (GeV/c^{2})");
+    histo_NSigmasideB->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+    histo_NSigmasideB->GetYaxis()->SetTitle("Nsigma");
+    histo_NSigmaPeak ->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+    histo_NSigmaPeak ->GetYaxis()->SetTitle("Nsigma");
     histo_sigma->GetXaxis()->SetTitle("p_{T} (GeV/c)");
     histo_sigma->GetYaxis()->SetTitle("#sigma (GeV/c^{2})");
     histo_mean->GetXaxis()->SetTitle("p_{T} (GeV/c)");
@@ -959,6 +965,10 @@ void histos_exercise_AllParticles( Float_t PtTrigMin=3,Float_t PtTrigMax=15, Boo
 	  histo_LLsideB->SetBinError(j+1,0);
 	  histo_ULsideB->SetBinContent(j+1,max_histo[type]);
 	  histo_ULsideB->SetBinError(j+1,0);
+	  histo_NSigmasideB->SetBinContent(j+1,nsigmamin);
+	  histo_NSigmasideB->SetBinError(j+1,0);
+	  histo_NSigmaPeak ->SetBinContent(j+1,sigmacentral);
+	  histo_NSigmaPeak ->SetBinError(j+1,0);
 	  histo_SB->SetBinContent(j+1,bin_contentSB1[j]);
 	  histo_SB->SetBinError(j+1, errSB1[j]);
 	  histo_SSB->SetBinContent(j+1,bin_contentSSB1[j]);
@@ -1000,6 +1010,10 @@ void histos_exercise_AllParticles( Float_t PtTrigMin=3,Float_t PtTrigMax=15, Boo
 	  histo_LLsideB->SetBinError(j+1,0);
 	  histo_ULsideB->SetBinContent(j+1,max_histo[type]);
 	  histo_ULsideB->SetBinError(j+1,0);
+	  histo_NSigmasideB->SetBinContent(j+1,nsigmamin);
+	  histo_NSigmasideB->SetBinError(j+1,0);
+	  histo_NSigmaPeak ->SetBinContent(j+1,sigmacentral);
+	  histo_NSigmaPeak ->SetBinError(j+1,0);
 	  histo_SB->SetBinContent(j+1,bin_contentSB2[j]);
 	  histo_SB->SetBinError(j+1,errSB2[j]);
 	  histo_SSB->SetBinContent(j+1,bin_contentSSB2[j]);
@@ -1050,6 +1064,10 @@ cout << functions1[j]->Integral(functions1[j]->GetParameter(1)-sigmacentral*func
 	  histo_LLsideB->SetBinError(j+1,0);
 	  histo_ULsideB->SetBinContent(j+1,0);
 	  histo_ULsideB->SetBinError(j+1,0);
+	  histo_NSigmasideB->SetBinContent(j+1,0);
+	  histo_NSigmasideB->SetBinError(j+1,0);
+	  histo_NSigmaPeak ->SetBinContent(j+1,0);
+	  histo_NSigmaPeak ->SetBinError(j+1,0);
 	  histo_SB->SetBinContent(j+1,0);
 	  histo_SB->SetBinError(j+1,0);
 	  histo_SSB->SetBinContent(j+1,0);
@@ -1121,6 +1139,8 @@ cout << functions1[j]->Integral(functions1[j]->GetParameter(1)-sigmacentral*func
     //  event_multiplicity->Write();
     histo_LLsideB->Write();
     histo_ULsideB->Write();
+    histo_NSigmasideB->Write();
+    histo_NSigmaPeak ->Write();
     histo_sigma->Write();
     histo_mean->Write();
     histo_chis->Write();
