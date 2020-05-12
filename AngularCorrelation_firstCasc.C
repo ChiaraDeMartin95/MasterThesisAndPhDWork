@@ -404,12 +404,15 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0,Float_t ptjmin=3, Int_t sysV
 	    cout << "I divide " << endl;
 	    if (!ishhCorr)	    hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb], hDeltaEtaDeltaPhi_ME_normbins[5][z][v][tr][0]);
 	    if (ishhCorr)	    hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb], hDeltaEtaDeltaPhi_ME_normbins[5][z][v][tr][0]);
-	    cout << "I have divided " << endl;
+	    cout << "I have divided " << endl; //error are propagated assuming non correlated histograms
 	    hDeltaEtaDeltaPhi_ACbins_Error[m][z][v][tr][sb]=(TH2D*)hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]-> Clone(nameME[m][z][v][tr][sb]+"_AC_RelError");
 
 	    for (Int_t j=1; j<=hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb]->GetNbinsX(); j++){
 	      for (Int_t l=1; l<=hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb]->GetNbinsY(); l++){
 	      Int_t Binuniv=  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb]->GetBin(j,l);
+	      //	      cout <<	      hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb]->GetBinContent(Binuniv) << " +-  " << 	      hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb]->GetBinError(Binuniv) << endl;
+	      //	      cout <<	      hDeltaEtaDeltaPhi_ME_normbins[5][z][v][tr][0]->GetBinContent(Binuniv) << " +-  " << 	      hDeltaEtaDeltaPhi_ME_normbins[5][z][v][tr][0]->GetBinError(Binuniv) << endl;
+	      //	      cout <<	      hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetBinContent(Binuniv) << " +-  " << 	      hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetBinError(Binuniv) << endl;
 	      hDeltaEtaDeltaPhi_ACbins_Error[m][z][v][tr][sb]->SetBinContent(Binuniv,         hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetBinError(Binuniv)/  hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetBinContent(Binuniv));
 	      hDeltaEtaDeltaPhi_ACbins_Error[m][z][v][tr][sb]->SetBinError(Binuniv,0);
 	      }
