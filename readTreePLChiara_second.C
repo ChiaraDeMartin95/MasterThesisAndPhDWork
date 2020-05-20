@@ -15,7 +15,7 @@
 #include <TTree.h>
 #include <TLatex.h>
 #include <TFile.h>
-void readTreePLChiara_second(Bool_t ishhCorr=1, Float_t PtTrigMin=3.0,Float_t PtTrigMinFit=3.0, Int_t sysTrigger=0, Int_t sysV0=0,Int_t syst=0,bool isMC = 1, Bool_t isEfficiency=1,TString year0="2016", TString year="2018f1_extra",  TString Path1 ="", Int_t type=0, Double_t ptjmax =30, Double_t nsigmamax=10, Bool_t isSigma=kFALSE){
+void readTreePLChiara_second(Bool_t ishhCorr=1, Float_t PtTrigMin=3.0,Float_t PtTrigMinFit=3.0, Int_t sysTrigger=0, Int_t sysV0=0,Int_t syst=0,bool isMC = 0, Bool_t isEfficiency=1,TString year0="2016", TString year="2016k_NewSame",  TString Path1 ="", Int_t type=0, Double_t ptjmax =15, Double_t nsigmamax=10, Bool_t isSigma=kFALSE){
 
   cout << isMC << endl;
   cout << " Pt Trigg Min è = " << PtTrigMin << endl;
@@ -61,6 +61,9 @@ void readTreePLChiara_second(Bool_t ishhCorr=1, Float_t PtTrigMin=3.0,Float_t Pt
   PathOut+=year;  
   // PathInMass+=year;
   
+  if (ishhCorr){
+    PathIn+="_hhCorr";
+  }
   if(isMC && isEfficiency){ 
     PathIn+="_MCEff";
     PathOut+="_MCEff";
@@ -72,7 +75,7 @@ void readTreePLChiara_second(Bool_t ishhCorr=1, Float_t PtTrigMin=3.0,Float_t Pt
   }
  
   PathIn+=Path1;
-  //PathInMass+=Path1;
+  PathInMass+=Path1;
   PathIn+=".root";
   PathOut+=Path1;
   if (!ishhCorr && (!isMC ||(isMC && isEfficiency))) PathOut +=Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f",sysTrigger, sysV0, syst, PtTrigMin); 
@@ -87,7 +90,7 @@ void readTreePLChiara_second(Bool_t ishhCorr=1, Float_t PtTrigMin=3.0,Float_t Pt
 
   const Int_t nummolt=5;
   const Int_t numzeta=1;
-  const Int_t numPtV0=7;
+  const Int_t numPtV0=8;
   const Int_t numPtTrigger=1;
   
  
@@ -95,8 +98,16 @@ void readTreePLChiara_second(Bool_t ishhCorr=1, Float_t PtTrigMin=3.0,Float_t Pt
   Double_t Nmolt[nummolt+1]={0, 5, 10, 30, 50, 100};
   TString Szeta[numzeta]={""};
   //  Double_t Nzeta[numzeta+1]={};
-  TString SPtV0[numPtV0]={"0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8"};
-  Double_t NPtV0[numPtV0+1]={0,1,1.5, 2,2.5,3,4,8};
+  TString SPtV0[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8"};
+  if (type>0)SPtV0[1]={"0.5-1"};
+  if (ishhCorr)SPtV0[1]={"0.1-1"};
+  Double_t NPtV0[numPtV0+1]={0,0,1,1.5,2,2.5,3,4,8};
+  if (type>0) NPtV0[1]=0.5;
+  if (ishhCorr)NPtV0[1]=0.1;
+  TString SNPtV0[numPtV0+1]={"0.0","0.0","1.0","1.5","2.0","2.5","3.0","4.0","8.0"};
+  if (type>0) SNPtV0[1]={"0.5"};
+  if (ishhCorr) SNPtV0[1]={"0.1"};
+
   //  TString SPtTrigger[numPtTrigger]={"2-10"};
   Double_t NPtTrigger[numPtTrigger+1]={PtTrigMin,ptjmax};
 
@@ -116,7 +127,7 @@ void readTreePLChiara_second(Bool_t ishhCorr=1, Float_t PtTrigMin=3.0,Float_t Pt
       fileMassSigma= new TFile(PathInMassDef);
       histoSigma=(TH1F*)fileMassSigma->Get("histo_sigma");
       histoMean=(TH1F*)fileMassSigma->Get("histo_mean");
-      for(Int_t v=0; v<numPtV0; v++){
+      for(Int_t v=1; v<numPtV0; v++){
 	mass[type][m][v]=histoMean->GetBinContent(v+1);
 	sigma[type][m][v]=histoSigma->GetBinContent(v+1);
 	cout <<"mult interval " <<  m << " PtV0 interval " << v << " mean " << mass[type][m][v] << " sigma "<< sigma[type][m][v] << endl;
@@ -197,9 +208,9 @@ void readTreePLChiara_second(Bool_t ishhCorr=1, Float_t PtTrigMin=3.0,Float_t Pt
   tSign->SetBranchAddress("fTreeVariablePhiTrigger"                ,&fSignTreeVariablePhiTrigger);		       
   tSign->SetBranchAddress("fTreeVariableDCAz"                      ,&fSignTreeVariableDCAz);			       
   tSign->SetBranchAddress("fTreeVariableDCAxy"                     ,&fSignTreeVariableDCAxy);		
-  // tSign->SetBranchAddress("fTreeVariableChargeAssoc"             ,&fSignTreeVariableChargeAssoc);		       	   
-  // tSign->SetBranchAddress("fTreeVariableAssocDCAz"                      ,&fSignTreeVariableAssocDCAz);			       
-  // tSign->SetBranchAddress("fTreeVariableAssocDCAxy"                     ,&fSignTreeVariableAssocDCAxy);		       
+  tSign->SetBranchAddress("fTreeVariableChargeAssoc"             ,&fSignTreeVariableChargeAssoc);		       	   
+  tSign->SetBranchAddress("fTreeVariableAssocDCAz"                      ,&fSignTreeVariableAssocDCAz);			       
+  tSign->SetBranchAddress("fTreeVariableAssocDCAxy"                     ,&fSignTreeVariableAssocDCAxy);		       
   tSign->SetBranchAddress("fTreeVariableisPrimaryTrigger"          ,&fSignTreeVariableisPrimaryTrigger);			       
   tSign->SetBranchAddress("fTreeVariableisPrimaryV0"               ,&fSignTreeVariableisPrimaryV0);			       
   tSign->SetBranchAddress("fTreeVariableRapK0Short"                ,&fSignTreeVariableRapK0Short);		       
@@ -244,9 +255,9 @@ void readTreePLChiara_second(Bool_t ishhCorr=1, Float_t PtTrigMin=3.0,Float_t Pt
   tBkg->SetBranchAddress("fTreeVariablePhiTrigger"                ,&fBkgTreeVariablePhiTrigger);		       
   tBkg->SetBranchAddress("fTreeVariableDCAz"                      ,&fBkgTreeVariableDCAz);			       
   tBkg->SetBranchAddress("fTreeVariableDCAxy"                     ,&fBkgTreeVariableDCAxy);	
-  // tBkg->SetBranchAddress("fTreeVariableChargeAssoc"             ,&fBkgTreeVariableChargeAssoc);		       
-  // tBkg->SetBranchAddress("fTreeVariableAssocDCAz"                      ,&fBkgTreeVariableAssocDCAz);			       
-  // tBkg->SetBranchAddress("fTreeVariableAssocDCAxy"                     ,&fBkgTreeVariableAssocDCAxy);				       
+  tBkg->SetBranchAddress("fTreeVariableChargeAssoc"             ,&fBkgTreeVariableChargeAssoc);		       
+  tBkg->SetBranchAddress("fTreeVariableAssocDCAz"                      ,&fBkgTreeVariableAssocDCAz);			       
+  tBkg->SetBranchAddress("fTreeVariableAssocDCAxy"                     ,&fBkgTreeVariableAssocDCAxy);				       
   tBkg->SetBranchAddress("fTreeVariableisPrimaryTrigger"          ,&fBkgTreeVariableisPrimaryTrigger);			       
   tBkg->SetBranchAddress("fTreeVariableisPrimaryV0"               ,&fBkgTreeVariableisPrimaryV0);
   tBkg->SetBranchAddress("fTreeVariableRapK0Short"                ,&fBkgTreeVariableRapK0Short);		       
@@ -301,6 +312,23 @@ void readTreePLChiara_second(Bool_t ishhCorr=1, Float_t PtTrigMin=3.0,Float_t Pt
   TH1D *hSign_PtTrigger[nummolt+1][numzeta];
   TH1D *hSign_PtV0[nummolt+1][numzeta];
 
+  const   Int_t numDeltaEta=4;
+  TString SDeltaEta[numDeltaEta]={"_|DeltaEta|<1.6","_|DeltaEta|<1.4", "_|DeltaEta|<1.1","_|DeltaEta|<0.8" };
+  Float_t DeltaEtaLimit[numDeltaEta]={1.6, 1.4, 1.1, 0.8};
+  TH1D *hSign_EtaV0[nummolt+1][numDeltaEta];
+  TH1D *hSign_EtaV0MidRap[nummolt+1][numDeltaEta];
+  TH1D *hSign_RapV0[nummolt+1][numDeltaEta];
+  TH2D *hSign_DeltaEtaEtaV0[nummolt+1];
+
+  for(Int_t m=0; m<nummolt+1; m++){
+    hSign_DeltaEtaEtaV0[m]=new TH2D("hSign_DeltaEtaEtaV0_"+Smolt[m], "hSign_DeltaEtaEtaV0_"+Smolt[m], 100, -2, 2, 100, -2, 2);
+    for (Int_t DeltaEta=0; DeltaEta< numDeltaEta; DeltaEta++){
+      hSign_EtaV0[m][DeltaEta]=new TH1D("hSign_EtaV0_"+Smolt[m]+Form("_%i",DeltaEta), "hSign_EtaV0_"+Smolt[m]+SDeltaEta[DeltaEta], 100, -2, 2);
+      hSign_RapV0[m][DeltaEta]=new TH1D("hSign_RapV0_"+Smolt[m]+Form("_%i",DeltaEta), "hSign_RapV0_"+Smolt[m]+SDeltaEta[DeltaEta], 100, -2, 2);
+      hSign_EtaV0MidRap[m][DeltaEta]=new TH1D("hSign_EtaV0_MidRap_"+Smolt[m]+Form("_%i",DeltaEta), "hSign_EtaV0_MidRap_"+Smolt[m]+SDeltaEta[DeltaEta], 100, -2, 2);
+    }
+  }
+
   for(Int_t m=0; m<nummolt+1; m++){
     for(Int_t z=0; z<numzeta; z++){
       hSign_PtTrigger[m][z]=new TH1D("hSign_PtTrigger"+Smolt[m], "hSign_PtTrigger"+Smolt[m], 300,0,30);
@@ -315,7 +343,7 @@ void readTreePLChiara_second(Bool_t ishhCorr=1, Float_t PtTrigMin=3.0,Float_t Pt
       hSign_PtV0[m][z]->GetYaxis()->SetLabelSize(0.05);
 
       for(Int_t tr=0; tr<numPtTrigger; tr++){
-	for(Int_t v=0; v<numPtV0; v++){
+	for(Int_t v=1; v<numPtV0; v++){
 	  nameSE[m][z][v][tr]="SE_";
 	  namemassSE[m][z][v][tr]="InvMassSE_";
 	  nameSE[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
@@ -363,7 +391,7 @@ void readTreePLChiara_second(Bool_t ishhCorr=1, Float_t PtTrigMin=3.0,Float_t Pt
       hBkg_PtV0[m][z]->GetYaxis()->SetLabelSize(0.05);
 
       for(Int_t tr=0; tr<numPtTrigger; tr++){
-	for(Int_t v=0; v<numPtV0; v++){
+	for(Int_t v=1; v<numPtV0; v++){
 	  nameME[m][z][v][tr]="ME_";
 	  namemassME[m][z][v][tr]="InvMassME_";
 	  nameME[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
@@ -397,7 +425,17 @@ void readTreePLChiara_second(Bool_t ishhCorr=1, Float_t PtTrigMin=3.0,Float_t Pt
   Bool_t MassLimit=kFALSE;
 
   dirSign->cd();
-  for(Int_t k = 0; k<EntriesSign; k++){
+  cout << "\n\n I will process " << EntriesSign << " entries for theSE correlation " << endl;
+   for(Int_t k = 0; k<EntriesSign; k++){
+  //  for(Int_t k = 0; k<1000000; k++){
+    for (Int_t l=0; l<10000; l++){
+      //      if (k ==100000*l) cout << "k = " << k << " over a total of " << EntriesSign << endl;
+      if (k ==100000*l) {
+	Float_t kFloat= k;
+	cout << "PtTrigMin = " << PtTrigMin << " sysV0 " << sysV0 << " SE, processing..." << kFloat/EntriesSign << endl;
+      }
+    }
+
     tSign->GetEntry(k);
     if(isMC==0 || (isMC==1 && isEfficiency==1)){
 
@@ -460,9 +498,17 @@ void readTreePLChiara_second(Bool_t ishhCorr=1, Float_t PtTrigMin=3.0,Float_t Pt
     for(Int_t m=0; m<nummolt+1; m++){
       if(m< nummolt) BoolVar = fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1];
       else BoolVar=kTRUE;
+      for (Int_t DeltaEta=0; DeltaEta<numDeltaEta; DeltaEta++){
+	hSign_DeltaEtaEtaV0[m]->Fill(fSignTreeVariableEtaV0, fSignTreeVariableDeltaEta);
+	if (BoolVar && TMath::Abs(fSignTreeVariableDeltaEta) < DeltaEtaLimit[DeltaEta]){
+	    hSign_EtaV0[m][DeltaEta]->Fill(fSignTreeVariableEtaV0);
+	    hSign_RapV0[m][DeltaEta]->Fill(fSignTreeVariableRapK0Short);
+	    if (TMath::Abs(fSignTreeVariableRapK0Short) < 0.5)	    hSign_EtaV0MidRap[m][DeltaEta]->Fill(fSignTreeVariableEtaV0);
+	}
+      }
       for(Int_t z=0; z<numzeta; z++){
 	for(Int_t tr=0; tr<numPtTrigger; tr++){
-	  for(Int_t v=0; v<numPtV0; v++){
+	  for(Int_t v=1; v<numPtV0; v++){
 	    if((isMC && !isEfficiency) || ishhCorr) {
 	      BoolMC = kTRUE;
 	      MassLimit=kTRUE;
@@ -498,7 +544,17 @@ void readTreePLChiara_second(Bool_t ishhCorr=1, Float_t PtTrigMin=3.0,Float_t Pt
 
   cout << "ciao " << endl;
   dirBkg->cd();
+  cout << "\n\n I will process " << EntriesBkg << " entries for theSE correlation " << endl;
   for(Int_t k = 0; k<EntriesBkg; k++){
+  //  for(Int_t k = 0; k<1000000; k++){
+    for (Int_t l=0; l<10000; l++){
+      //if (k ==100000*l) cout << "k = " << k << " over a total of " << EntriesBkg << endl;
+      if (k ==100000*l) {
+	Float_t kFloat= k;
+	cout << "PtTrigMin "<< PtTrigMin << " sysV0 "<< sysV0 << " ME processing..." << kFloat/EntriesBkg << endl;
+      }
+    }
+
     tBkg->GetEntry(k);
     if(isMC==0 || (isMC==1 && isEfficiency==1)){
       //************cuts on pT trigger min*********************************
@@ -565,7 +621,7 @@ void readTreePLChiara_second(Bool_t ishhCorr=1, Float_t PtTrigMin=3.0,Float_t Pt
       else BoolVar=kTRUE;
       for(Int_t z=0; z<numzeta; z++){
 	for(Int_t tr=0; tr<numPtTrigger; tr++){
-	  for(Int_t v=0; v<numPtV0; v++){
+	  for(Int_t v=1; v<numPtV0; v++){
 
 	    if((isMC && !isEfficiency) || ishhCorr) {
 	      BoolMC = kTRUE;
