@@ -21,7 +21,7 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
   return sqrt(((Double_t)k+1)*((Double_t)k+2)/(n+2)/(n+3) - pow((Double_t)(k+1),2)/pow(n+2,2));
 }
 
-void Efficiency(Bool_t ishhCorr =0, Int_t type=0, TString ResoHisto="2D", Float_t ptjmin=3,Float_t ptjmax=30, Int_t sysTrigger=0, Int_t sysV0=0, TString data="2018f1_extra_onlyTriggerWithHighestPt", TString year0="2016", TString path1=""/*"_New"*/ /*"_10runs_FB128_TrackLengthCut"*/){
+void Efficiency(Bool_t ishhCorr =1, Int_t type=0, TString ResoHisto="2D", Float_t ptjmin=3,Float_t ptjmax=15, Int_t sysTrigger=0, Int_t sysV0=0, TString data="2018f1_extra_NewSame", TString year0="2016", TString path1="" /*"_New"*/ /*"_10runs_FB128_TrackLengthCut"*/){
 
 
   if (sysTrigger> 3) return;
@@ -44,16 +44,15 @@ void Efficiency(Bool_t ishhCorr =0, Int_t type=0, TString ResoHisto="2D", Float_
   PathInBis+=data;
   if (!ishhCorr) PathInBis+="_MCEff"+path1+".root";
   if (ishhCorr) {
-
-    PathInBis+="_hhCorr_MCEff";
     PathInBis+=path1;
+    PathInBis+="_hhCorr_MCEff";
     //    PathInBis+= "_MCEff.root";
     PathInBis+= ".root";
   }
   cout << PathInBis << endl;
   //  TString PathInBis =  "AnalysisResults.root";
   TString PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + path1 +Form("_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
-  if (ishhCorr) PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + "_hhCorr" + path1 + Form("_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
+  if (ishhCorr) PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file +path1+ "_hhCorr"  + Form("_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
 
   TFile *fileinbis = new TFile(PathInBis);
   if (!fileinbis){
@@ -74,7 +73,7 @@ void Efficiency(Bool_t ishhCorr =0, Int_t type=0, TString ResoHisto="2D", Float_
   }
   const Int_t nummolt=5;
   const Int_t numzeta=1;
-  const Int_t numPtV0=7;
+  const Int_t numPtV0=8;
   const Int_t numPtTrigger=19;
   const Int_t numtipo=2;
   const Int_t numSelTrigger=3;
@@ -92,10 +91,17 @@ void Efficiency(Bool_t ishhCorr =0, Int_t type=0, TString ResoHisto="2D", Float_
   Double_t Nmolt[nummolt+1]={0,5,10,30,50,100}; 
   TString Szeta[numzeta]={""};
   //  Double_t Nzeta[numzeta+1]={};
-  //  TString SPtV0[numPtV0]={"0-1", "1-2", "2-3", "3-4", "4-8"};
-  TString SPtV0[numPtV0]={"0-1", "1-1.5","1.5-2", "2-2.5","2.5,3", "3-4", "4-8"};
-  //  Double_t NPtV0[numPtV0+1]={0,1,2,3,4,8};
-  Double_t NPtV0[numPtV0+1]={0,1,1.5,2,2.5,3,4,8};
+
+  TString SPtV0[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8"};
+  if (type>0)SPtV0[1]={"0.5-1"};
+  if (ishhCorr)SPtV0[1]={"0.1-1"};
+  Double_t NPtV0[numPtV0+1]={0,0,1,1.5,2,2.5,3,4,8};
+  if (type>0) NPtV0[1]=0.5;
+  if (ishhCorr)NPtV0[1]=0.1;
+  TString SNPtV0[numPtV0+1]={"0.0","0.0","1.0","1.5","2.0","2.5","3.0","4.0","8.0"};
+  if (type>0) SNPtV0[1]={"0.5"};
+  if (ishhCorr) SNPtV0[1]={"0.1"};
+
   Double_t NPtTrigger[numPtTrigger+1]={0,0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 8.0, 10.0, 13.0, 20.0, 30.0};
   //  Int_t Marker[nummolt+1]={7,4,20,22,29, 35};
   Int_t Marker[nummolt+1]={7,20,20,22,29,25};
@@ -731,7 +737,7 @@ void Efficiency(Bool_t ishhCorr =0, Int_t type=0, TString ResoHisto="2D", Float_
     Float_t NumberOfSelectedGen;
     Float_t NumberOfGenerated;
     cout << "\n V0 efficiency in Pt bins " << endl;
-    for(Int_t j=0; j<numPtV0; j++){
+    for(Int_t j=1; j<numPtV0; j++){
       NumberOfSelected=0;
       NumberOfSelectedGen=0;
       NumberOfGenerated=0;
@@ -1005,7 +1011,7 @@ void Efficiency(Bool_t ishhCorr =0, Int_t type=0, TString ResoHisto="2D", Float_
 
     cout << "\n\n contamination factor for V0 particles in Pt bins " << endl;
     //histo contamination factor for V0 particles in pt bins of V0 particle (bins used in analysis)
-    for(Int_t binpt=0; binpt<numPtV0; binpt++){
+    for(Int_t binpt=1; binpt<numPtV0; binpt++){
       num=0;
       denom=0;
       for(Int_t pt=HistContV0[molt]->GetYaxis()->FindBin(NPtV0[binpt]+0.0001); pt<HistContV0[molt]->GetYaxis()->FindBin(NPtV0[binpt+1]-0.0001); pt++){
@@ -1110,8 +1116,8 @@ if (listRisoluzione){
 
   //Large bins TProfile for assoc particles
   fHistAssocPtRecovsPtGen_PtBins = new TH2F("fHistAssocPtRecovsPtGen_PtBins", "fHistAssocPtRecovsPtGen_PtBins", numPtV0, NPtV0, numPtV0, NPtV0);
-  for (Int_t pTAssoc=0; pTAssoc<numPtV0; pTAssoc++){
-  for (Int_t pTAssoc1=0; pTAssoc1<numPtV0; pTAssoc1++){
+  for (Int_t pTAssoc=1; pTAssoc<numPtV0; pTAssoc++){
+  for (Int_t pTAssoc1=1; pTAssoc1<numPtV0; pTAssoc1++){
   CountForTProfile=0;   
   //    cout << "\n\npTAssoc " << pTAssoc << " " << pTAssoc1<< " " << CountForTProfile<<  endl;
   for(Int_t i=fHistAssocPtRecovsPtGen->GetXaxis()->FindBin(NPtV0[pTAssoc]+0.001); i<=fHistAssocPtRecovsPtGen->GetXaxis()->FindBin(NPtV0[pTAssoc+1]-0.001); i++ ){
