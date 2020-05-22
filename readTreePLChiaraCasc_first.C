@@ -15,8 +15,9 @@
 #include <TTree.h>
 #include <TLatex.h>
 #include <TFile.h>
-void readTreePLChiaraCasc_first( Int_t type=0 /*type = 0 for XiMinus, =1, for XiPlus, =2 for OmegaMinus, =3 for OmegaPlus */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=0.150, Float_t ptjmax=15, Int_t sysV0=0, bool isMC = 0,Bool_t isEfficiency=1,Int_t sysTrigger=0,			    TString year="2016k_hXi", TString year0="2016", TString Path1 ="")
+void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus, =2 for OmegaMinus, =3 for OmegaPlus */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, Int_t sysV0=0, bool isMC = 0,Bool_t isEfficiency=1,Int_t sysTrigger=0,			    TString year="Run2DataRed_hXi", TString year0="2016", TString Path1 ="")
 {
+
   //rap=0 : no rapidity window chsen for cascade, |Eta| < 0.8; rap=1 |y| < 0.5
   if (ishhCorr) {
     cout << "This macro should not be run is hh correlation is studied; go directly to readTreePLChiara_second " << endl;
@@ -36,9 +37,10 @@ void readTreePLChiaraCasc_first( Int_t type=0 /*type = 0 for XiMinus, =1, for Xi
   TString Srap[2] = {"_Eta0.8", "_y0.5"};
   TString PathIn="./FinalOutput/AnalysisResults";
   TString PathOut="./FinalOutput/DATA" + year0 + "/histo/AngularCorrelation";
+
   PathIn+=year;
   PathOut+=year;  
-  
+
   if(isMC && isEfficiency){
     PathIn+="_MCEff";
     PathOut+="_MCEff";
@@ -48,7 +50,7 @@ void readTreePLChiaraCasc_first( Int_t type=0 /*type = 0 for XiMinus, =1, for Xi
     PathOut+="_MCTruth";
   }
  
-  PathIn+=Path1;
+  //  PathIn+=Path1;
   PathIn+=".root";
   PathOut+="_";
   PathOut+=Path1;
@@ -176,18 +178,18 @@ void readTreePLChiaraCasc_first( Int_t type=0 /*type = 0 for XiMinus, =1, for Xi
     hMultiplicityBefAll=(TH1F*)  hMultiplicity2DBefAll->ProjectionY("fHistPtMaxvsMult1DBefAll",     hMultiplicity2DBefAll->GetXaxis()->FindBin(PtTrigMin+0.0001),  hMultiplicity2DBefAll->GetXaxis()->FindBin(ptjmax-0.0001));
     ACcounter[5]= hMultiplicity->GetEntries();
 
-    cout <<"total number of events with NT>0  " << hMultiplicityBefAll->GetEntries() << " " <<   (Float_t)hMultiplicityBefAll->GetEntries()/TotEvtINT7 << endl;
-    cout <<"\ntotal number of events used in the AC (no selections on topo var and on skipAssoc!) " << hMultiplicity->GetEntries() << endl;
+      cout <<"total number of events with NT>0  " << hMultiplicityBefAll->GetEntries() << " " <<   (Float_t)hMultiplicityBefAll->GetEntries()/TotEvtINT7 << endl;
+      cout <<"\ntotal number of events used in the AC (no selections on topo var and on skipAssoc!) " << hMultiplicity->GetEntries() << endl;
 
     for (Int_t m=0; m< nummolt; m++){ 
       hMultvsNumberAssoc_Proj[m] = (TH1F*)       hMultvsNumberAssoc->ProjectionX(Form("hMultvsNumberAssoc_%i", m), hMultvsNumberAssoc->GetYaxis()->FindBin(Nmolt[m]+0.001), hMultvsNumberAssoc->GetYaxis()->FindBin(Nmolt[m+1]-0.001));
 
-      cout << " m " << m << endl;
+       cout << " m " << m << endl;
       ACcounter[m] =0;
       for (Int_t b= hMultiplicity->GetXaxis()->FindBin(Nmolt[m]+0.001); b <=  hMultiplicity->GetXaxis()->FindBin(Nmolt[m+1]-0.001); b++){
 	ACcounter[m] +=  hMultiplicity->GetBinContent(b);
       }
-      cout << "fraction of events in mult bin (for ptTrig> PtTrigMin) " << Smolt[m] << ": " << ACcounter[m]/ACcounter[5] <<  " ~average V0 number (for pTTrig> 0.150 GeV usually) " <<     hMultvsNumberAssoc_Proj[m]->GetMean() <<endl;
+   cout << "fraction of events in mult bin (for ptTrig> PtTrigMin) " << Smolt[m] << ": " << ACcounter[m]/ACcounter[5] <<  " ~average V0 number (for pTTrig> 0.150 GeV usually) " <<     hMultvsNumberAssoc_Proj[m]->GetMean() <<endl;
     }
     
   }
@@ -349,7 +351,7 @@ void readTreePLChiaraCasc_first( Int_t type=0 /*type = 0 for XiMinus, =1, for Xi
 	  nameSE[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
 	  namemassSE[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
 	  hInvMassK0Short_SEbins[m][z][v][tr]= new TH1D(namemassSE[m][z][v][tr], namemassSE[m][z][v][tr],100, LimInfMass[type], LimSupMass[type]);
-	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]= new TH2D(nameSE[m][z][v][tr], nameSE[m][z][v][tr],   50, -1.5, 1.5, 100,  -0.5*TMath::Pi(), 1.5*TMath::Pi());
+	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]= new TH2D(nameSE[m][z][v][tr], nameSE[m][z][v][tr],   56, -1.5, 1.5, 104,  -0.5*TMath::Pi(), 1.5*TMath::Pi()); 
 	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetXaxis()->SetTitle("#Delta #eta");
 	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetYaxis()->SetTitle("#Delta #phi (rad)");
 	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetXaxis()->SetTitleSize(0.05);
@@ -380,7 +382,7 @@ void readTreePLChiaraCasc_first( Int_t type=0 /*type = 0 for XiMinus, =1, for Xi
 	  nameME[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
 	  namemassME[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
 	  hInvMassK0Short_MEbins[m][z][v][tr]= new TH1D(namemassME[m][z][v][tr], namemassME[m][z][v][tr],   100, LimInfMass[type], LimSupMass[type]);
-	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]= new TH2D(nameME[m][z][v][tr], nameME[m][z][v][tr],  50, -1.5, 1.5, 100,  -0.5*TMath::Pi(), 1.5*TMath::Pi());
+	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]= new TH2D(nameME[m][z][v][tr], nameME[m][z][v][tr],  56, -1.5, 1.5, 104,  -0.5*TMath::Pi(), 1.5*TMath::Pi());
 	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetXaxis()->SetTitle("#Delta #eta");
 	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetYaxis()->SetTitle("#Delta #phi (rad)");
 	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetXaxis()->SetTitleSize(0.05);
@@ -406,6 +408,8 @@ void readTreePLChiaraCasc_first( Int_t type=0 /*type = 0 for XiMinus, =1, for Xi
   for(Int_t k = 0; k<EntriesSign; k++){
     tSign->GetEntry(k);  
 
+    fSignTreeVariableDeltaEta=fSignTreeVariableEtaV0-fSignTreeVariableEtaTrigger;
+
     //charge selection
     if ((type==0 || type ==2) && fSignTreeVariableChargeAssoc==1) continue;
     else if ((type==1 || type ==3) && fSignTreeVariableChargeAssoc==-1) continue;
@@ -416,7 +420,7 @@ void readTreePLChiaraCasc_first( Int_t type=0 /*type = 0 for XiMinus, =1, for Xi
     else if (type==2 || type==3 || type==5)      fSignTreeVariableInvMassCasc= fSignTreeVariableInvMassOmega;
     
     //rapidity selection
-    if (israp==0 && TMath::Abs(fSignTreeVariableEtaV0)>0.8)continue;
+    if (israp==0 && TMath::Abs(fSignTreeVariableEtaV0)>0.8)continue; 
     else if (israp==1 && TMath::Abs(fSignTreeVariableRapAssoc)>0.5)continue;
 
     //definition of true cascade
@@ -458,6 +462,7 @@ void readTreePLChiaraCasc_first( Int_t type=0 /*type = 0 for XiMinus, =1, for Xi
     CounterSignPairsAfterPtMinCut++;  
     //**********************************************************************************************
 
+    fSignTreeVariableDeltaPhi= -fSignTreeVariableDeltaPhi;
     if (fSignTreeVariableDeltaPhi >  (1.5*TMath::Pi())) fSignTreeVariableDeltaPhi -= 2.0*TMath::Pi();
     if (fSignTreeVariableDeltaPhi < (-0.5*TMath::Pi())) fSignTreeVariableDeltaPhi += 2.0*TMath::Pi();
 
@@ -536,13 +541,13 @@ void readTreePLChiaraCasc_first( Int_t type=0 /*type = 0 for XiMinus, =1, for Xi
     }
   }
 
-  cout << MoltSel<< endl;
   dirBkg->cd();
 
   Float_t     fBkgTreeVariableInvMassCasc= 0;
   for(Int_t k = 0; k<EntriesBkg; k++){
     // for(Int_t k = 0; k<1; k++){
     tBkg->GetEntry(k);
+    fBkgTreeVariableDeltaEta=fBkgTreeVariableEtaV0-fBkgTreeVariableEtaTrigger;
 
     //charge selection
     if ((type==0 || type ==2) && fBkgTreeVariableChargeAssoc==1) continue;
@@ -594,6 +599,7 @@ void readTreePLChiaraCasc_first( Int_t type=0 /*type = 0 for XiMinus, =1, for Xi
     CounterBkgPairsAfterPtMinCut++;  
     //**********************************************************************************************
 
+    fBkgTreeVariableDeltaPhi= -fBkgTreeVariableDeltaPhi;
     if (fBkgTreeVariableDeltaPhi >  (1.5*TMath::Pi())) fBkgTreeVariableDeltaPhi -= 2.0*TMath::Pi();
     if (fBkgTreeVariableDeltaPhi < (-0.5*TMath::Pi())) fBkgTreeVariableDeltaPhi += 2.0*TMath::Pi();
  
@@ -624,18 +630,19 @@ void readTreePLChiaraCasc_first( Int_t type=0 /*type = 0 for XiMinus, =1, for Xi
 
    
   fout->Write();
+  
   cout << "Pt Min delle particelle trigger " << PtTrigMin<< endl;
 
-  cout << "\nsignal pairs trigger-associated (after all selections, included Pt min cut) " << 	CounterSignPairsAfterPtMinCut <<" true: " <<   TrueCounterSignPairsAfterPtMinCut << " -> all entries in sign Tree were : " <<   EntriesSign << " " <<(Float_t)CounterSignPairsAfterPtMinCut/EntriesSign << "% " <<  endl;
-  cout << "bkg pairs trigger-associated (after all selections, included Pt min cut) " << 	CounterBkgPairsAfterPtMinCut << " true: " <<   TrueCounterBkgPairsAfterPtMinCut << " -> all entries in sign Tree were : " <<   EntriesBkg << " " <<(Float_t)CounterBkgPairsAfterPtMinCut/EntriesBkg << "% " <<  endl;
+  cout << "\nsignal pairs trigger-associated (after all selections, included Pt min cut) " << 	CounterSignPairsAfterPtMinCut <<" true: " <<   TrueCounterSignPairsAfterPtMinCut << " -> all entries in sign Tree were : " <<   EntriesSign << " " <<(Float_t)CounterSignPairsAfterPtMinCut/EntriesSign << endl;
+  cout << "bkg pairs trigger-associated (after all selections, included Pt min cut) " << 	CounterBkgPairsAfterPtMinCut << " true: " <<   TrueCounterBkgPairsAfterPtMinCut << " -> all entries in sign Tree were : " <<   EntriesBkg << " " <<(Float_t)CounterBkgPairsAfterPtMinCut/EntriesBkg <<  endl;
 
   for (Int_t m=0; m< nummolt; m++){
     cout << m << endl;  
-    cout << "signal pairs trigger-associated (after all selections, included Pt min cut) " << 	CounterSignPairsAfterPtMinCutMult[m] << ", " << (Float_t)CounterSignPairsAfterPtMinCutMult[m]/CounterSignPairsAfterPtMinCut<< "%"<<endl;
-    cout << "bkgal pairs trigger-associated (after all selections, included Pt min cut) " << 	CounterBkgPairsAfterPtMinCutMult[m] << ", " << (Float_t)CounterBkgPairsAfterPtMinCutMult[m]/CounterBkgPairsAfterPtMinCut<< "%"<<endl;
+    cout << "signal pairs trigger-associated (after all selections, included Pt min cut) " << 	CounterSignPairsAfterPtMinCutMult[m] << ", " << (Float_t)CounterSignPairsAfterPtMinCutMult[m]/CounterSignPairsAfterPtMinCut<<endl;
+    cout << "bkgal pairs trigger-associated (after all selections, included Pt min cut) " << 	CounterBkgPairsAfterPtMinCutMult[m] << ", " << (Float_t)CounterBkgPairsAfterPtMinCutMult[m]/CounterBkgPairsAfterPtMinCut<<endl;
   }
 
-  cout << "\nsignal pairs trigger-associated (after all selections, included Pt min cut) " << 	CounterSignPairsAfterPtMinCut <<" percentage of INT7 events with at least one selected V0 (calculated assuming 1V0 per event in which there is a V0) "<<(Float_t)CounterSignPairsAfterPtMinCut/TotEvtINT7 << "% " <<  endl;
+  cout << "\nsignal pairs trigger-associated (after all selections, included Pt min cut) " << 	CounterSignPairsAfterPtMinCut <<" percentage of INT7 events with at least one selected V0 (calculated assuming 1V0 per event in which there is a V0) "<<(Float_t)CounterSignPairsAfterPtMinCut/TotEvtINT7  <<  endl;
 
   cout << "entries of V0 selected histogram (all Casc primary true ) "<<  fHistSelectedV0PtTMaxPhi->GetEntries()<< endl;
   cout << "entries of V0 primary histogram (all Casc true ) "<<  fHistPrimaryV0[5]->GetEntries()<< endl;
@@ -646,5 +653,26 @@ void readTreePLChiaraCasc_first( Int_t type=0 /*type = 0 for XiMinus, =1, for Xi
   //  cout << "average pT trigger particles in events with NT>0  " << << endl;
   cout << "\n\npartendo dal file " << PathIn << " ho creato il file " << PathOut<< endl;
 
+  cout <<"\n\nINT7     " << " Ev. NT>0    " << "NV0/INT7  " << "<pT,Xi>  " << "<pT,Trig>   " << "SE pairs   " << "ME pairs   " << "Mult. distr                   " << "NV0/ev mult " << endl;  
+  cout << std::setprecision(2);
+  cout << "    " << TotEvtINT7;
+  cout << "    " <<   (Float_t)hMultiplicityBefAll->GetEntries()/TotEvtINT7;
+  cout << "    " <<(Float_t)CounterSignPairsAfterPtMinCut/TotEvtINT7;
+  cout << std::setprecision(3);
+  cout << "    " << hSign_PtAssoc->GetMean();
+  cout << "    " <<hSign_PtTrigger->GetMean();
+  cout << std::setprecision(2);
+  cout << "      " <<(Float_t)CounterSignPairsAfterPtMinCut/EntriesSign;
+  cout << "      " <<(Float_t)CounterBkgPairsAfterPtMinCut/EntriesBkg;
+  cout << "      " ;
+  for (Int_t m=0; m<nummolt; m++){
+    if (m<nummolt-1)    cout << ACcounter[m]/ACcounter[5]<< "-";
+    else     cout << ACcounter[m]/ACcounter[5]<< "      ";
+  }
+  cout << std::setprecision(3);
+  for (Int_t m=0; m<nummolt; m++){
+    if (m<nummolt-1)    cout <<  hMultvsNumberAssoc_Proj[m]->GetMean() <<"-";
+    else    cout <<  hMultvsNumberAssoc_Proj[m]->GetMean() <<endl;
+  }
 }
 
