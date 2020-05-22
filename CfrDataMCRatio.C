@@ -18,9 +18,9 @@
 #include <TFile.h>
 #include <TSpline.h>
 
-void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2016", Int_t ishhCorr=0, Bool_t MasterThesis=0, Bool_t isSE=0, Int_t NumberOfRegions=6,   Float_t ScaleFactorJet = 0.84/2.08*2.13628/2.63894, Float_t ScaleFactorPions=1./0.8767, Bool_t EtaPhiEnlargedStudy=1 ){
+void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=0, TString year0="2016", Int_t ishhCorr=0, Bool_t MasterThesis=0, Bool_t isSE=0, Int_t NumberOfRegions=6,  Int_t israp=0, Int_t type=8,   Float_t ScaleFactorJet = 1.56/2.08, Float_t ScaleFactorPions=1./0.8767, Bool_t EtaPhiEnlargedStudy=0,TString year="Run2DataRed_hXi" , TString yearhh="2016k", Bool_t SkipAssoc=1){
   //if isSE is true the ratio of K0s to hadrons is computed, in order to study the strangeness enhancement effect
-
+  //by default for the hhCorr the "New" results are taken (they are the correct ones!)
   if (!EtaPhiEnlargedStudy) {
     cout << "you are using the K0s results obtained from a reduced DeltaEta and DeltaPhi regions with respect to the regions used in hhCorrelation. Are you sure you want to continue?" << endl;
     //    return;
@@ -28,7 +28,8 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
 
   const Int_t NumberTypeAnalysis=6; 
   Int_t WhatKindOf=0;
-  //  Float_t ScaleFactorJet = 0.84/2.08; //DeltaEta(hK0s) =~ 0.8; DeltaEta(hh) =~ 2; The TOTAL in-jet production for hh and hK0s should be compared: this is why we need this scale factor!
+  //  Float_t ScaleFactorJet = 0.84/2.08; //DeltaEta(hK0s) =~ 0.8; DeltaEta(hh) =~ 2; The TOTAL in-jet production for hh and hK0s should be compared: this is why we need this scale factor! This is only applied when the hK0s and hh correlation use different DeltraEtaPhi widths, and therefore IS NOT APPLIED isEnlargedStudy is chosen (the values is set to one in the following)
+  //->for K0s not enlarged =0.84/2.08*2.13628/2.63894;
   //ScaleFactorPions mi dice la percentuale di pioni sul totale di particelle associate: è l'84% se pT, Trig, min > 3 GeV/c (questo per hhCorr, per hhCorr_New è 87.7%)
 
   if (NumberOfRegions>6) {cout << "There are only 6 different region " << endl; return;}
@@ -57,14 +58,30 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
   else   if (isDataOrMC==1) {DataOrMCMin=1; DataOrMCMax=2;} 
   else {DataOrMCMin=0; DataOrMCMax=2;}
 
+  gStyle->SetOptStat(0);
+
   TString PathIn[2];
   TString PathOut;
   TFile *filein[2];
   TFile *fileout;
 
+
+  TString Srap[2] = {"_Eta0.8", "_y0.5"};
+  TString SSkipAssoc[2] = {"_AllAssoc", ""};
   TString ishhCorrOrNot[3]= {"", "_hhCorr_New", "SE_New"}; 
-  TString nomefileoutput = "CfrDataMCRatioOutput/CfrDataMCRatioOutput" + ishhCorrOrNot[ishhCorr]+ Form("_PtTrigMin%.1f_NumberOfRegions%i", PtTrigMin, NumberOfRegions);
-  if (isSEBis==1) nomefileoutput ="CfrDataMCRatioOutput/CfrDataMCRatioOutput_" + ishhCorrOrNot[2]+Form("_PtTrigMin%.1f_NumberOfRegions%i", PtTrigMin, NumberOfRegions);
+  const Int_t numtipo=10;
+  TString tipo[numtipo]={"kK0s", "Lambda", "AntiLambda","LambdaAntiLambda", "XiNeg", "XiPos", "OmegaNeg", "OmegaPlus", "Xi", "Omega"};
+
+  TString nomefileoutput1 = "CfrDataMCRatioOutput/CfrDataMCRatioOutput" + year;
+  if( type>0){
+     nomefileoutput1 +="_"+tipo[type];
+     nomefileoutput1 +=Srap[israp];
+     nomefileoutput1 +=SSkipAssoc[SkipAssoc];
+  }
+
+  TString   nomefileoutput =nomefileoutput1+ishhCorrOrNot[ishhCorr]+ Form("_PtTrigMin%.1f_NumberOfRegions%i", PtTrigMin, NumberOfRegions);
+  if (isSEBis==1) nomefileoutput =nomefileoutput1+ ishhCorrOrNot[2]+Form("_PtTrigMin%.1f_NumberOfRegions%i", PtTrigMin, NumberOfRegions);
+
   if (EtaPhiEnlargedStudy){
     nomefileoutput = "CfrDataMCRatioOutput/CfrDataMCRatioOutput" + ishhCorrOrNot[ishhCorr]+ Form("_PtTrigMin%.1f_DeltaEtaPhiEnlarged_NumberOfRegions%i", PtTrigMin, NumberOfRegions);
     if (isSEBis==1) nomefileoutput ="CfrDataMCRatioOutput/CfrDataMCRatioOutput_" + ishhCorrOrNot[2]+Form("_PtTrigMin%.1f_DeltaEtaPhiEnlarged_NumberOfRegions%i", PtTrigMin, NumberOfRegions);
@@ -78,13 +95,13 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
   const Int_t numzeta=1;
   const Int_t numPtV0=7;
   const Int_t numPtTrigger=1;
-  const Int_t numtipo=2;
   const Int_t numSelTrigger=3;
   const Int_t numSelV0=6;
   const Int_t numSysTrigger = 3;
   const Int_t numSysV0 = 7;
   const Int_t numPeriod=2;
   //colori e marker diversi per jet, OJ, J+OJ *********************************
+
   Float_t Color[NumberTypeAnalysis]={1,801,2, 909,881,  868};
   if (NumberOfRegions==3) {
     Color[0]=2;
@@ -104,7 +121,6 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
   TString SysErrMB[2]={"syst. DATA 0-100 %", "syst. MC 0-100 %"};
   TString StatErrMB[2]={"stat. DATA 0-100 %", "stat. MC 0-100 %"};
   TString DATAorMC[2]={"DATA", "MC"};
-  TString tipo[numtipo]={"kK0s", "bo"};
   TString Smolt[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "all"};
   TString SmoltBis[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "_all"};
   Double_t Nmolt[nummolt+1]={0,5,10,30,50,100}; 
@@ -123,6 +139,73 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
   TF1* pol1[2][NumberOfRegions];
 
   Double_t   mult[nummolt+1]={21.2, 16.17, 11.4625, 7.135, 3.33, 6.94};
+
+  //cfr spettri pubblicati per le Xi
+  cout << "\nprendo histo per confronto con dati pubblicati " << endl;
+  TFile *filedatipubblicati = new TFile("HEPData-1583750454-v1-Table_3.root", "");
+  if (!filedatipubblicati) {cout << "file dati pubblicati not there " << endl; return;}
+  TDirectoryFile *dirspectra = (TDirectoryFile*)filedatipubblicati->Get("Table 3");
+  if (!dirspectra)  {cout << "directory dati pubblicati not there " << endl; return;}
+
+  TH1F* hspectrum[11];
+  TH1F* hspectrum1[11];
+  TH1F* hspectrum2[11];
+  TH1F* hspectrum3[11];
+  TH1F* hspectrumetot[11];
+  TH1F* hspectrumCfr[6];
+  TSpline3 *splineFio[6];
+
+  for (Int_t i=0; i<11; i++){
+    hspectrum[i] = (TH1F*)dirspectra->Get(Form("Hist1D_y%i", i+1));
+    hspectrum1[i] = (TH1F*)dirspectra->Get(Form("Hist1D_y%i_e1", i+1));
+    hspectrum2[i] = (TH1F*)dirspectra->Get(Form("Hist1D_y%i_e2", i+1));
+    hspectrum3[i] = (TH1F*)dirspectra->Get(Form("Hist1D_y%i_e3", i+1));
+
+    if (!hspectrum[i] ||     !hspectrum1[i] || !hspectrum2[i]|| !hspectrum3[i] ) { cout << "histo is missing " << endl; return;}
+    hspectrumetot[i]= (TH1F*)    hspectrum3[i]->Clone(Form("Hist1D_y%i_etot", i+1));
+
+    //    cout << " I clone a histo " << endl;                                                                                                     
+    if (i<=nummolt)    hspectrumCfr[i] = (TH1F*)hspectrum[i]->Clone(Form("Spectrum_mult%i",i+1));
+    //    cout << " I clone a histo " << endl;                                                                                                     
+    for (Int_t b=1; b<= hspectrumCfr[0]->GetNbinsX();b++){
+      hspectrumetot[i]->SetBinContent(b,   sqrt(pow(hspectrum1[i]->GetBinContent(b),2) + pow(hspectrum2[i]->GetBinContent(b),2) + pow(hspectrum3[i]->GetBinContent(b),2)) );
+    }
+  }
+  for (Int_t b=1; b<= hspectrumCfr[0]->GetNbinsX();b++){
+    hspectrumCfr[0]->SetBinContent(b,1./5 * (hspectrum[0]->GetBinContent(b)+ hspectrum[1]->GetBinContent(b)*4));
+    hspectrumCfr[0]->SetBinError(b, sqrt(pow(hspectrumetot[0]->GetBinContent(b) * 1./5,2) + pow(hspectrumetot[1]->GetBinContent(b)*4./5,2)));
+
+    hspectrumCfr[1]->SetBinContent(b,hspectrum[2]->GetBinContent(b));
+    hspectrumCfr[1]->SetBinError(b, hspectrumetot[2]->GetBinContent(b));
+
+    hspectrumCfr[2]->SetBinContent(b,1./20 * (hspectrum[3]->GetBinContent(b)*5+ hspectrum[4]->GetBinContent(b)*5 + hspectrum[5]->GetBinContent(b)*10));
+    hspectrumCfr[2]->SetBinError(b, sqrt(pow(hspectrumetot[3]->GetBinContent(b)*5./20,2) + pow(hspectrumetot[4]->GetBinContent(b)*5./20,2) + pow(hspectrumetot[5]->GetBinContent(b)*10./20,2)));
+
+    hspectrumCfr[3]->SetBinContent(b,1./20 * (hspectrum[6]->GetBinContent(b)*10+ hspectrum[7]->GetBinContent(b)*10));
+    hspectrumCfr[3]->SetBinError(b, sqrt(pow(hspectrumetot[6]->GetBinContent(b) * 10./20,2) + pow(hspectrumetot[7]->GetBinContent(b)*10./20,2)));
+
+    hspectrumCfr[4]->SetBinContent(b,1./50 * (hspectrum[8]->GetBinContent(b)*20+ hspectrum[9]->GetBinContent(b)*30));
+    hspectrumCfr[4]->SetBinError(b, sqrt(pow(hspectrumetot[8]->GetBinContent(b) * 20./50,2) + pow(hspectrumetot[9]->GetBinContent(b)*30./50,2)));
+
+    hspectrumCfr[5]->SetBinContent(b,hspectrum[10]->GetBinContent(b));
+    hspectrumCfr[5]->SetBinError(b, hspectrumetot[10]->GetBinContent(b));
+  }
+
+  for (Int_t i=0; i<6; i++){
+    //   hspectrumCfr[i]->Scale(1./2.); this was to consider only Xi+ or Xi-
+    splineFio[i] = new TSpline3(hspectrumCfr[i],Form("splineFio_%i",i));
+  }
+  //************************************                                       
+
+  TH1F*  fHistSpectrum_inclusiveMyWay[2][NumberOfRegions];
+  TH1F * fHistSpectrum_master[2][NumberOfRegions][nummolt+1];
+  TH1F * fHistSpectrum_scaled[2][NumberOfRegions][nummolt+1];
+  TCanvas * canvasSpectrum[3];
+  for (Int_t i=0; i<3; i++){
+    canvasSpectrum[i] = new TCanvas(Form("canvasSpectrum_%i", i), Form("canvasSpectrum_%i", i), 800, 500);
+    canvasSpectrum[i]->Divide(3,2);
+    gPad->SetLeftMargin(0.0015);
+  }
 
   TH1D*  fHistYieldvsErrSoloStat[6][6];
   TH1D*  fHistYieldvsErrSoloSist[6][6];
@@ -177,13 +260,15 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
   dirSE13TeV  = (TDirectoryFile*)filedatipubblSE13TeV->Get("Table 18");
   if (!dir || !dirSE || !dirSE13TeV) return;
   cout << " I got the directory where published data are stored " << endl;
-  fGraphYieldDatiPubblicati=(TGraph*)dir->Get("Graph1D_y1");
-  fHistYieldDatiPubblicati=(TH1D*)dir->Get("Hist1D_y1");
-  fHistYieldErroriDatiPubblicati=(TH1D*)dir->Get("Hist1D_y1_e2"); //this is only the total systematic error (the statistic is 1/10 and the uncorrelated systematic is approx half)
+  TString yParticle="y1";
+  if(type==4 || type==5 || type==8) yParticle="y3";
+  fGraphYieldDatiPubblicati=(TGraph*)dir->Get("Graph1D_"+yParticle);
+  fHistYieldDatiPubblicati=(TH1D*)dir->Get("Hist1D_"+yParticle);
+  fHistYieldErroriDatiPubblicati=(TH1D*)dir->Get("Hist1D_"+yParticle+"_e2"); //this is only the total systematic error (the statistic is 1/10 and the uncorrelated systematic is approx half)
   fHistYieldDatiPubblicatiSE=(TH1D*)dirSE->Get("Hist1D_y1");
   fHistYieldErroriDatiPubblicatiSE=(TH1D*)dirSE->Get("Hist1D_y1_e3"); //uncorrelated systematic error (the statistical error is ~10 times smaller
-  fHistYieldDatiPubblicatiSE13TeV=(TH1D*)dirSE13TeV->Get("Hist1D_y1");
-  fHistYieldErroriDatiPubblicatiSE13TeV=(TH1D*)dirSE13TeV->Get("Hist1D_y1_e3"); //uncorrelated systematic error (the statistical error is ~10 times smaller
+  fHistYieldDatiPubblicatiSE13TeV=(TH1D*)dirSE13TeV->Get("Hist1D_"+yParticle);
+  fHistYieldErroriDatiPubblicatiSE13TeV=(TH1D*)dirSE13TeV->Get("Hist1D_"+yParticle+"_e3"); //uncorrelated systematic error (the statistical error is ~10 times smaller
   cout << " I got the histos  where published data are stored " << endl;
   TLegend* legend[NumberTypeAnalysis];
   TLegend* legendtype[NumberTypeAnalysis];
@@ -206,24 +291,44 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
   TString  PathInAllButJet[2];
   TString  PathInAllButJetMC[2];
 
+  Float_t DeltaPhiWidth[NumberOfRegions]={0};
+  Float_t DeltaEtaWidth[NumberOfRegions]={0};
+  DeltaPhiWidth[0]= 2.01062;
+  DeltaEtaWidth[0]= 2*0.78;
+  DeltaPhiWidth[4]= 2;
+  DeltaPhiWidth[1]= 2*TMath::Pi()-DeltaPhiWidth[4];
+
   TString  hhCorr[3]={"", "_New_hhCorr", "_SE_New"}; //"_New_hhCorr"
   cout << "I'm getting the files " << endl;
   for(Int_t ishhCorrLoop=MinLoop; ishhCorrLoop<MaxLoop; ishhCorrLoop++){
     if (!MasterThesis){
 
-      PathInJet[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_JetData_PtMin%.1f.root", PtTrigMin);	 
-      PathInJetMC[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_JetMC_PtMin%.1f.root", PtTrigMin);	 
-      PathInBulk[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_BulkData_PtMin%.1f.root", PtTrigMin); 	 
-      PathInBulkMC[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_BulkMC_PtMin%.1f.root", PtTrigMin);
-      PathInAll[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_AllData_PtMin%.1f.root", PtTrigMin); 	 
-      PathInAllMC[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_AllMC_PtMin%.1f.root", PtTrigMin);  
+      TString      stringout = "FinalOutput/DATA"+year0+"/SystematicAnalysis" ;
+      if (ishhCorrLoop==0){
+	stringout += year ; //+Path1; 
+      }
+      else      if (ishhCorrLoop==1){
+	stringout += yearhh ; //+Path1; 
+      }
+      if(ishhCorrLoop==0 && type>0){
+	stringout +="_"+tipo[type];
+	stringout +=Srap[israp];
+	stringout+=SSkipAssoc[SkipAssoc];
+      }
 
-      PathInAllNS[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_AllNSData_PtMin%.1f.root", PtTrigMin); 	 
-      PathInAllNSMC[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_AllNSMC_PtMin%.1f.root", PtTrigMin);  
-      PathInAwaySide[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_AwaySideData_PtMin%.1f.root", PtTrigMin); 	 
-      PathInAwaySideMC[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_AwaySideMC_PtMin%.1f.root", PtTrigMin);  
-      PathInAllButJet[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_AllButJetData_PtMin%.1f.root", PtTrigMin); 	
-      PathInAllButJetMC[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_AllButJetMC_PtMin%.1f.root", PtTrigMin);
+      PathInJet[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_JetData_PtMin%.1f.root", PtTrigMin);	 
+      PathInJetMC[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_JetMC_PtMin%.1f.root", PtTrigMin);	 
+      PathInBulk[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_BulkData_PtMin%.1f.root", PtTrigMin); 	 
+      PathInBulkMC[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_BulkMC_PtMin%.1f.root", PtTrigMin);
+      PathInAll[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_AllData_PtMin%.1f.root", PtTrigMin); 	 
+      PathInAllMC[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_AllMC_PtMin%.1f.root", PtTrigMin);  
+
+      PathInAllNS[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_AllNSData_PtMin%.1f.root", PtTrigMin); 	 
+      PathInAllNSMC[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_AllNSMC_PtMin%.1f.root", PtTrigMin);  
+      PathInAwaySide[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_AwaySideData_PtMin%.1f.root", PtTrigMin); 	 
+      PathInAwaySideMC[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_AwaySideMC_PtMin%.1f.root", PtTrigMin);  
+      PathInAllButJet[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_AllButJetData_PtMin%.1f.root", PtTrigMin); 	
+      PathInAllButJetMC[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_AllButJetMC_PtMin%.1f.root", PtTrigMin);
 
       if (ishhCorrLoop==0 && EtaPhiEnlargedStudy){
       PathInJet[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_JetData_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin);	 
@@ -257,6 +362,7 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
   cout << "These are the input files for K0s: " << PathInJet[0]<< endl;
   cout << "I'm getting the histos " << endl;
   //**************** prendo gli istogrammi **********************************************
+  TLegend *  legendRegion=new TLegend(0.7,0.7, 0.9, 0.9);
   for(Int_t l=0; l<NumberOfRegions; l++){ //loop sulla region (jet, OJ, inclusive)
     for(Int_t j=DataOrMCMin; j<DataOrMCMax; j++){ //loop data or MC
       cout << " region " << l << "data/MC " << j << endl;
@@ -288,6 +394,57 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
 
 	filein[ishhCorrLoop]=new TFile(PathIn[ishhCorrLoop], "");
       }
+
+
+      //************************** Drawing the pt spectra
+      for (Int_t m=0; m< nummolt+1; m++){
+      fHistSpectrum_master[j][l][m] = (TH1F*) filein[ishhCorr]->Get(Form("fHistSpectrum_master_%i",m));
+      if (!fHistSpectrum_master[j][l][m]) return;
+      fHistSpectrum_master[j][l][m]->SetLineColor(Color[l]);
+      fHistSpectrum_master[j][l][m]->SetMarkerColor(Color[l]);
+      fHistSpectrum_scaled[j][l][m]= (TH1F*)fHistSpectrum_master[j][l][m]->Clone(Form("fHistSpectrum_Scaled_%i",m));
+      if (m==0 && j==0) legendRegion->AddEntry(  fHistSpectrum_master[j][l][m], Region[l], "pl");
+      if (type==4 || type==5 || type==8)       fHistSpectrum_master[j][l][m]->GetYaxis()->SetRangeUser(0,0.01);
+      canvasSpectrum[0]->cd(m+1);
+
+      if (l!=3)      fHistSpectrum_master[j][l][m]->Draw("same ep");
+      if (j==0 && l==0) legendRegion->Draw("");
+      if (l==3 && (type==4 || type==5 || type==8))       fHistSpectrum_master[j][l][m]->GetYaxis()->SetRangeUser(0,0.15);
+      fHistSpectrum_master[j][l][m]->GetXaxis()->SetRangeUser(0,8);
+      hspectrumCfr[m]->Sumw2();
+      if (j==0 && l==0)      hspectrumCfr[m]->Scale(1.6);
+      hspectrumCfr[m]->GetYaxis()->SetRangeUser(0,0.15);
+      hspectrumCfr[m]->GetXaxis()->SetRangeUser(0,8);
+
+      canvasSpectrum[1]->cd(m+1);
+      if (type==4 || type==5 || type==8)      hspectrumCfr[m]->Draw("same ep");
+      if (l==3)      fHistSpectrum_master[j][l][m]->Draw("same ep");
+
+      if (l==0) {
+       fHistSpectrum_scaled[j][l][m]->Scale(DeltaPhiWidth[l]*DeltaEtaWidth[l]);
+	fHistSpectrum_inclusiveMyWay[j][m]=  (TH1F*)  fHistSpectrum_scaled[j][l][m] ->Clone(Form("fHistSpectrum_InclusiveMyWay_%i",m));
+      fHistSpectrum_scaled[j][l][m]->Draw("same ep");
+      }
+      if (l==1){
+      fHistSpectrum_scaled[j][l][m]->Scale(DeltaPhiWidth[l]*3.2);
+      fHistSpectrum_scaled[j][l][m]->Draw("same ep");
+      fHistSpectrum_inclusiveMyWay[j][m]->Add(fHistSpectrum_scaled[j][l][m]);
+      }
+      if (l==4){
+      fHistSpectrum_scaled[j][l][m]->Scale(DeltaPhiWidth[l]*3.2);
+      fHistSpectrum_scaled[j][l][m]->Draw("same ep");
+      fHistSpectrum_inclusiveMyWay[j][m]->Add(fHistSpectrum_scaled[j][l][m]);
+      fHistSpectrum_inclusiveMyWay[j][m]->SetLineColor(881);
+      fHistSpectrum_inclusiveMyWay[j][m]->SetMarkerColor(881);
+      fHistSpectrum_inclusiveMyWay[j][m]->GetXaxis()->SetRangeUser(0,8);
+      fHistSpectrum_inclusiveMyWay[j][m]->Draw("same ep");
+      }
+
+      }
+
+
+      //**************************
+
       fHistYieldvsErrSoloSistMB[j][l]=   (TH1D*)filein[ishhCorr]->Get("fHistYieldvsErrSoloSistMB");   
       fHistYieldvsErrSoloStatMB[j][l]=   (TH1D*)filein[ishhCorr]->Get("fHistYieldvsErrSoloStatMB");   
       fHistYieldvsErrSoloStat[j][l]=     (TH1D*)filein[ishhCorr]->Get("fHistYieldvsErrSoloStat");	    
@@ -374,12 +531,14 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
 
     }//Data or MC
   } //end loop number of regions
-
-
-
-
-  
   cout << "...Done\n\n" << endl;
+
+  //drawin the pt spectra
+
+    fileout->WriteTObject(canvasSpectrum[0]);
+    fileout->WriteTObject(canvasSpectrum[1]);
+    canvasSpectrum[0]->SaveAs(nomefileoutputPDF+".pdf(");
+    canvasSpectrum[1]->SaveAs(nomefileoutputPDF+".pdf");
 
   //********cfr data MC separatamente per J, OJ, J+OJ*********************************************************
   cout << "I'm comparing data to MC " << endl;
@@ -411,6 +570,7 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
 	if (l==3) 	fHistYieldvsErrSoloStat[j][l]->GetYaxis()->SetRangeUser(0.0001,5);
       }
       else fHistYieldvsErrSoloStat[j][l]->GetYaxis()->SetRangeUser(0.0001,0.14);
+      if (!ishhCorr && !isSE && (type==4 || type==5 || type==8))  fHistYieldvsErrSoloStat[j][l]->GetYaxis()->SetRangeUser(0.0001,0.02);
       fHistYieldvsErrSoloStat[j][l]->GetXaxis()->SetRangeUser(0,25);
       fHistYieldvsErrSoloStat[j][l]->SetMarkerSize(msize);
       if (l==2)    fHistYieldvsErrSoloStat[j][l]->SetMarkerSize(3);
@@ -433,6 +593,8 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
 	if (l==3) 	fHistYieldvsErrSoloStat[j][l]->GetYaxis()->SetRangeUser(0.0001,5);
       }
       else fHistYieldvsErrSoloSist[j][l]->GetYaxis()->SetRangeUser(0.0001,0.14);
+      if (!ishhCorr && !isSE && (type==4 || type==5 || type==8))  fHistYieldvsErrSoloStat[j][l]->GetYaxis()->SetRangeUser(0.0001,0.02);
+      if (!ishhCorr && !isSE && (type==4 || type==5 || type==8))  fHistYieldvsErrSoloSist[j][l]->GetYaxis()->SetRangeUser(0.0001,0.02);
 
       fHistYieldvsErrSoloSist[j][l]->GetXaxis()->SetRangeUser(0,25);
       fHistYieldvsErrSoloSist[j][l]->SetMarkerSize(msize);
@@ -451,7 +613,7 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
 
     // for(Int_t l=0; l<NumberOfRegions; l++){
     fileout->WriteTObject(canvas[l]);
-    canvas[l]->SaveAs(nomefileoutputPDF+".pdf(");
+    canvas[l]->SaveAs(nomefileoutputPDF+".pdf");
     //   fileout->WriteTObject(canvaserr[l]);
     // }
 
@@ -534,10 +696,10 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
     //    fHistYieldDatiPubblicati->Scale(1.6/2*2.2);
     fHistYieldDatiPubblicatiSE->Sumw2();
     fHistYieldDatiPubblicatiSE->SetLineColor(801);
-    fHistYieldDatiPubblicatiSE->Scale(0.5); // i dati pubblicati sono relativi a 2*Nk0s/(Npi+ + Npi-)
+    if(type==0)    fHistYieldDatiPubblicatiSE->Scale(0.5); // i dati pubblicati sono relativi a 2*Nk0s/(Npi+ + Npi-)
     fHistYieldDatiPubblicatiSE13TeV->Sumw2();
     fHistYieldDatiPubblicatiSE13TeV->SetLineColor(881);
-    fHistYieldDatiPubblicatiSE13TeV->Scale(0.5); // i dati pubblicati sono relativi a 2*Nk0s/(Npi+ + Npi-)
+    if(type==0)    fHistYieldDatiPubblicatiSE13TeV->Scale(0.5); // i dati pubblicati sono relativi a 2*Nk0s/(Npi+ + Npi-)
 
   TSpline3 *splinePub;
   if (isSEBis)  splinePub = new TSpline3( fHistYieldDatiPubblicatiSE13TeV, "splineK0sPionRatio");
@@ -545,7 +707,7 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
   splinePub->SetLineColor(909);
   TF1 * PublishedDataFit= new TF1( "PublishedDataFit","pol1", 2, 25);
   cout << "\n fit of K0s yield at 13 TeV " << endl;
-  fHistYieldDatiPubblicati->Fit(PublishedDataFit,"R");
+  fHistYieldDatiPubblicati->Fit(PublishedDataFit,"R+");
 
   TCanvas *canvasnotratio[2];
   for(Int_t l=DataOrMCMin; l<DataOrMCMax; l++){ //loop data or MC
@@ -562,6 +724,7 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
 	fHistYieldvsErrSoloStat[l][j]->Scale(ScaleFactorPions);
 	fHistYieldvsErrSoloStat[l][j]->GetYaxis()->SetRangeUser(0,0.1);
       }
+      if (!ishhCorr && !isSE && (type==4 || type==5 || type==8))  fHistYieldvsErrSoloStat[l][j]->GetYaxis()->SetRangeUser(0.0001,0.02);
       fHistYieldvsErrSoloStat[l][j]->GetXaxis()->SetRangeUser(0,25);
       // fHistYieldvsErrSoloStat[l][j]->SetMarkerColor(Color[j]);
       fHistYieldvsErrSoloStat[l][j]->SetMarkerStyle(MarkerOrigin[j]);
@@ -580,7 +743,8 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
       if (isSEBis)       fHistYieldvsErrSoloStat[l][j]->Fit(pol0[l][j], "R0");
       cout << "pol1 fit for " << DATAorMC[l] << " region " << j << endl;
       if (isSEBis)       fHistYieldvsErrSoloStat[l][j]->Fit(pol1[l][j], "R0");
-              
+
+
       if (!ishhCorr && !isSEBis)  {
 	fHistYieldvsErrSoloStat[l][j]->GetYaxis()->SetRangeUser(0, 0.35);
 	if (j==3) fHistYieldvsErrSoloStat[l][j]->GetYaxis()->SetRangeUser(0, 5);
@@ -591,6 +755,8 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
 	fHistYieldvsErrSoloSist[l][j]->Scale(ScaleFactorPions);
 	fHistYieldvsErrSoloSist[l][j]->GetYaxis()->SetRangeUser(0,0.1);
       }
+      if (!ishhCorr && !isSE && (type==4 || type==5 || type==8))  fHistYieldvsErrSoloStat[l][j]->GetYaxis()->SetRangeUser(0.0001,0.02);
+      if (!ishhCorr && !isSE && (type==4 || type==5 || type==8))  fHistYieldvsErrSoloSist[l][j]->GetYaxis()->SetRangeUser(0.0001,0.02);
       fHistYieldvsErrSoloSist[l][j]->GetXaxis()->SetRangeUser(0,25);
       // fHistYieldvsErrSoloSist[l][j]->SetMarkerColor(Color[j]);
       fHistYieldvsErrSoloSist[l][j]->SetMarkerStyle(MarkerOrigin[j]);
@@ -621,11 +787,12 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
     //  if (MasterThesis)         canvasnotratio[l]->SaveAs("FinalOutput/DATA2016/Yield"+DATAorMC[l]+".pdf");
   }
 
-  //    TCanvas *canvasCfrDatiPubblicati;
-  // canvasCfrDatiPubblicati = new TCanvas("canvasCfrDatiPubblicati", "YieldNotScaled", 1300, 1000);
-  //fHistYieldvsErrSoloSist[0][5]->Draw("samee2");
-  // fHistYieldvsErrSoloStat[0][5]->Draw("samee");
-
+  /*
+    TCanvas *canvasCfrDatiPubblicati;
+    canvasCfrDatiPubblicati = new TCanvas("canvasCfrDatiPubblicati", "YieldNotScaled", 1300, 1000);
+    fHistYieldvsErrSoloSist[0][5]->Draw("samee2");
+    fHistYieldvsErrSoloStat[0][5]->Draw("samee");
+  */
   cout << "\n\n\ndisegno errori relativi in tre canvas (1. JET, 2. OJ 3.J+OJ)" << endl;
   TCanvas *canvaserr[NumberTypeAnalysis];
 
@@ -812,7 +979,11 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
 	//	splinePub->Draw("same");
       }
       else if (!ishhCorr){
+	//	fHistYieldvsErrSoloStat[l][3]->SetLineColor(418);
+	//fHistYieldvsErrSoloStat[l][3]->SetMarkerColor(418);
+	//fHistYieldvsErrSoloStat[l][3]->SetMarkerSize(1);
 	fHistYieldvsErrSoloStat[l][3]->GetYaxis()->SetRangeUser(0,7);
+	if (!ishhCorr && !isSE && (type==4 || type==5 || type==8))  fHistYieldvsErrSoloStat[l][3]->GetYaxis()->SetRangeUser(0.0001,0.3);
 	fHistYieldvsErrSoloStat[l][3]->Draw("");
 	//	fHistYieldDatiPubblicati->Draw("same");
 	fGraphYieldDatiPubblicati->Draw("same");
@@ -820,6 +991,7 @@ void CfrDataMCRatio(Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="20
       }
       canvasComparison->cd(2);
       HistRatioToPublishedl[l]->SetMarkerSize(1);
+      //      HistRatioToPublishedl[l]->SetMarkerColor(418);
       HistRatioToPublishedl[l]->GetYaxis()->SetRangeUser(0.9,3);
       if (l==0)      HistRatioToPublishedl[l]->Draw(""); //I only compare data
     }//end loop on DataMC
