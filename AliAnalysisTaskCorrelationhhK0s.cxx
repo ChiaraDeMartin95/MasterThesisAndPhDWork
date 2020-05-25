@@ -2133,7 +2133,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   fHistTrack->AddBinContent(15, NumberFirstParticleMC);
   if (fReadMCTruth && !isEfficiency)  fHistTriggerCompositionMCTruth->Fill(TriggerPdgCode,1,ptTriggerMassimoMC);
     
-
+  Int_t hAssocPDGCode=0;
   Int_t labelPrimOrSecV0=0;
   //*****************************************************************************************************
   //***********************this part is executed only if hh correlation analysis is chosen***************
@@ -2237,6 +2237,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
       NumberSecondParticle++;
 
       //I fill histograms with associated charged particles which have been selected****************
+      labelPrimOrSecV0=0;
       if(fReadMCTruth){
 	if (fMCEvent){
 	  AODMCTrackArray = dynamic_cast<TClonesArray*>(fAOD->FindListObject(AliAODMCParticle::StdBranchName()));
@@ -2247,6 +2248,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	
 	  AliAODMCParticle* particle = static_cast<AliAODMCParticle*>(AODMCTrackArray->At(TMath::Abs(track->GetLabel())));
 
+	  V0PDGCode= particle->GetPdgCode();
 	  if(! (particle->IsPhysicalPrimary())){
 	    fHistAssocPtRecovsPtGenNotPrim->Fill(particle->Pt(), track->Pt());
 	  }
@@ -2319,7 +2321,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	fEvt->fReconstructedSecond[NumberSecondParticle-1].sDCAz         = dzglobal[1];
 	fEvt->fReconstructedSecond[NumberSecondParticle-1].sDCAxy        = dzglobal[0];
 	fEvt->fReconstructedSecond[NumberSecondParticle-1].isP           = labelPrimOrSecV0;
-	fEvt->fReconstructedSecond[NumberSecondParticle-1].sPDGcode      =0 ;
+	fEvt->fReconstructedSecond[NumberSecondParticle-1].sPDGcode      =hAssocPDGCode;
 	fEvt->fReconstructedSecond[NumberSecondParticle-1].sAssocOrNot     = skipAssoc;
 
 	fHistPthAssoc->Fill(track->Pt());
@@ -2777,6 +2779,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 
       NumberSecondParticle++;
 
+      labelPrimOrSecV0=0;
       if(fReadMCTruth){
 	if (fMCEvent){
 	  V0PDGCode=0;
@@ -3215,32 +3218,34 @@ void AliAnalysisTaskCorrelationhhK0s::DoPairsh1h2 ( const Float_t lPercentiles, 
 	  fTreeVariableDCAz		      =	fEvt->fReconstructedFirst[i].fDCAz;             
 	  fTreeVariableDCAxy		      =	fEvt->fReconstructedFirst[i].fDCAxy;   
 	  fTreeVariablePDGCodeTrigger         = fEvt->fReconstructedFirst[i].fPDGcode ;
-	  fTreeVariableChargeAssoc            = fEvt->fReconstructedSecond[j].sCharge;		       
-	  fTreeVariableAssocDCAz	      =	fEvt->fReconstructedSecond[j].sDCAz;             
-	  fTreeVariableAssocDCAxy	      =	fEvt->fReconstructedSecond[j].sDCAxy;                         
-	  fTreeVariableRapK0Short	      =	fEvt->fReconstructedSecond[j].sRap;     	      
-	  fTreeVariableDcaV0ToPrimVertex      = fEvt->fReconstructedSecond[j].sDcaV0ToPV;	       	      
-	  fTreeVariableDcaPosToPrimVertex     = fEvt->fReconstructedSecond[j].sDcaPosV0; 	       	      
-	  fTreeVariableDcaNegToPrimVertex     = fEvt->fReconstructedSecond[j].sDcaNegV0;  	       	      
-	  fTreeVariableV0CosineOfPointingAngle= fEvt->fReconstructedSecond[j].sCosPointingAngle;      
-	  fTreeVariablePtV0		      = fEvt->fReconstructedSecond[j].sPt;     
-	  fTreeVariablectau		      = fEvt->fReconstructedSecond[j].sctau;     
-	  fTreeVariableInvMassK0s	      =	fEvt->fReconstructedSecond[j].sInvMassK0s;   
-	  fTreeVariableInvMassAntiLambda      =	fEvt->fReconstructedSecond[j].sInvMassAntiLambda;   
-	  fTreeVariableInvMassLambda	      =	fEvt->fReconstructedSecond[j].sInvMassLambda;   
-	  fTreeVariableEtaV0		      =	fEvt->fReconstructedSecond[j].sEta;    
-	  fTreeVariablePhiV0		      =	fEvt->fReconstructedSecond[j].sPhi;   
-	  fTreeVariablePtArmenteros           = fEvt->fReconstructedSecond[j].sPtArmV0;     
-	  fTreeVariableAlpha	              = fEvt->fReconstructedSecond[j].sAlphaV0;  
+	  fTreeVariableisPrimaryTrigger       = fEvt->fReconstructedFirst[i].isP;
+
+	  fTreeVariableChargeAssoc            = (fEvt+eventNumber)->fReconstructedSecond[j].sCharge;		       
+	  fTreeVariableAssocDCAz	      =	(fEvt+eventNumber)->fReconstructedSecond[j].sDCAz;             
+	  fTreeVariableAssocDCAxy	      =	(fEvt+eventNumber)->fReconstructedSecond[j].sDCAxy;                         
+	  fTreeVariableRapK0Short	      =	(fEvt+eventNumber)->fReconstructedSecond[j].sRap;     	      
+	  fTreeVariableDcaV0ToPrimVertex      = (fEvt+eventNumber)->fReconstructedSecond[j].sDcaV0ToPV;	       	      
+	  fTreeVariableDcaPosToPrimVertex     = (fEvt+eventNumber)->fReconstructedSecond[j].sDcaPosV0; 	       	      
+	  fTreeVariableDcaNegToPrimVertex     = (fEvt+eventNumber)->fReconstructedSecond[j].sDcaNegV0;  	       	      
+	  fTreeVariableV0CosineOfPointingAngle= (fEvt+eventNumber)->fReconstructedSecond[j].sCosPointingAngle;      
+	  fTreeVariablePtV0		      = (fEvt+eventNumber)->fReconstructedSecond[j].sPt;     
+	  fTreeVariablectau		      = (fEvt+eventNumber)->fReconstructedSecond[j].sctau;     
+	  fTreeVariableInvMassK0s	      =	(fEvt+eventNumber)->fReconstructedSecond[j].sInvMassK0s;   
+	  fTreeVariableInvMassAntiLambda      =	(fEvt+eventNumber)->fReconstructedSecond[j].sInvMassAntiLambda;   
+	  fTreeVariableInvMassLambda	      =	(fEvt+eventNumber)->fReconstructedSecond[j].sInvMassLambda;   
+	  fTreeVariableEtaV0		      =	(fEvt+eventNumber)->fReconstructedSecond[j].sEta;    
+	  fTreeVariablePhiV0		      =	(fEvt+eventNumber)->fReconstructedSecond[j].sPhi;   
+	  fTreeVariablePtArmenteros           = (fEvt+eventNumber)->fReconstructedSecond[j].sPtArmV0;     
+	  fTreeVariableAlpha	              = (fEvt+eventNumber)->fReconstructedSecond[j].sAlphaV0;  
+	  fTreeVariablePDGCodeAssoc           = (fEvt+eventNumber)->fReconstructedSecond[j].sPDGcode;
+	  fTreeVariableisPrimaryV0            =  (fEvt+eventNumber)->fReconstructedSecond[j].isP;
+	  fTreeVariableSkipAssoc              =  (fEvt+eventNumber)->fReconstructedSecond[j].sAssocOrNot ;
+
 	  fTreeVariableDeltaEta	       	      =deta;  
 	  fTreeVariableDeltaPhi		      =dphi;
 	  fTreeVariableDeltaTheta             =dtheta;      
 	  fTreeVariableMultiplicity	      = lPercentiles;
 	  fTreeVariableZvertex                = lBestPrimaryVtxPos;
-	  fTreeVariablePDGCodeAssoc           = fEvt->fReconstructedSecond[j].sPDGcode;
-	  fTreeVariableisPrimaryTrigger       =  fEvt->fReconstructedFirst[i].isP;
-	  fTreeVariableisPrimaryV0            =  fEvt->fReconstructedSecond[j].isP;
-	  fTreeVariableSkipAssoc              =  fEvt->fReconstructedSecond[j].sAssocOrNot ;
 
        
 	  fBkgTree->Fill();  
