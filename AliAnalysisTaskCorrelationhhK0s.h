@@ -10,7 +10,7 @@ class AliAODMCParticle;
 class AliCentrality;
 #include "AliAnalysisTaskSE.h"
 #include "AliAnalysisCorrelationEventCollection.h"
-//#include "AliEventCuts.h"
+#include "AliEventCuts.h"
 
 class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE  
 {
@@ -56,7 +56,7 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
   AliAODEvent*            fAOD;             //! input event
   AliPIDResponse *        fPIDResponse;     //!PID response object 
   //  AliMultSelection *      fMultSelection;   //! 
-  //  AliEventCuts            fEventCuts; //! 
+  AliEventCuts            fEventCuts; //! 
   
   TList*                  fOutputList;      //! output list
   TTree*                  fSignalTree;      //! output tree
@@ -141,7 +141,6 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
   TH2F *                  fHistMultvsV0MC; 		  //!
   TH3F*                   fHistTriggerNotLeading; 	  //!
   TH3F*                   fHistTriggerNotLeadingMC;       //!  
-  TH2F**                  fHistMassvsPt;                    //!           
   TH2F**                  fHistMassvsPt_tagli;              //!           
   TH2F*                   fHistMultvsTriggerBefAll; 	    //!
   TH2F*                   fHistMultvsTriggerMCTruthBefAll;  //!
@@ -220,18 +219,18 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
 
   //tree leaf
   Double_t fTreeVariablePtTrigger;		       
-  Double_t fTreeVariableChargeTrigger;		       
+  Int_t    fTreeVariableChargeTrigger;		       
   Double_t fTreeVariableEtaTrigger; 		       
   Double_t fTreeVariablePhiTrigger;		       
   Double_t fTreeVariableDCAz;			       
   Double_t fTreeVariableDCAxy;
-  Double_t fTreeVariableChargeAssoc;			       
-  Double_t fTreeVariableSkipAssoc;			       
+  Int_t    fTreeVariableChargeAssoc;			       
+  Bool_t   fTreeVariableSkipAssoc;			       
   Double_t fTreeVariableAssocDCAz;			       
   Double_t fTreeVariableAssocDCAxy;			       
   Double_t fTreeVariableRapK0Short;		       	      
-  Double_t fTreeVariableisPrimaryTrigger;
-  Double_t fTreeVariableisPrimaryV0;
+  Int_t    fTreeVariableisPrimaryTrigger;
+  Int_t    fTreeVariableisPrimaryV0;
   Double_t fTreeVariableDcaV0ToPrimVertex ;	       	      
   Double_t fTreeVariableDcaPosToPrimVertex;	       	      
   Double_t fTreeVariableDcaNegToPrimVertex;	       	      
@@ -251,8 +250,8 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
 
   Double_t fTreeVariableMultiplicity;                   
   Double_t fTreeVariableZvertex;
-  Double_t fTreeVariablePDGCodeTrigger;
-  Double_t fTreeVariablePDGCodeAssoc;
+  Int_t    fTreeVariablePDGCodeTrigger;
+  Int_t    fTreeVariablePDGCodeAssoc;
 
   bool FifoShiftok;	                        		      
 
