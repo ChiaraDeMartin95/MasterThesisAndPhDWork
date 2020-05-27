@@ -15,7 +15,7 @@
 #include <TTree.h>
 #include <TLatex.h>
 #include <TFile.h>
-void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus, =2 for OmegaMinus, =3 for OmegaPlus */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, Int_t sysV0=0, bool isMC = 0,Bool_t isEfficiency=1,Int_t sysTrigger=0,			    TString year="Run2DataRed_hXi", TString year0="2016", TString Path1 ="")
+void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus, =2 for OmegaMinus, =3 for OmegaPlus */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, Int_t sysV0=0, bool isMC = 0,Bool_t isEfficiency=1,Int_t sysTrigger=0,			    TString year="Run2DataRed_hXi"/*"2016kl_hXi"*//*"2016k_hXi_MECorr_25runs"*/, TString year0="2016", TString Path1 ="Prova")
 {
 
   //rap=0 : no rapidity window chsen for cascade, |Eta| < 0.8; rap=1 |y| < 0.5
@@ -259,9 +259,18 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
   Int_t EntriesBkg  = 0; 
   
   TFile *fout = new TFile(PathOut,"RECREATE");
-  TDirectory  *dirSign= fout->mkdir("SE");
-  TDirectory  *dirBkg= fout->mkdir("ME");
 
+  TH1F * HistoInfo = new TH1F("HistoInfo", "HistoInfo",20,0.5, 20.5);
+  HistoInfo->GetXaxis()->SetBinLabel(1, "% Ev. NT>0");
+  HistoInfo->GetXaxis()->SetBinLabel(2, "NV0/NInt7");
+  HistoInfo->GetXaxis()->SetBinLabel(3, "<p_{T,Xi}>");
+  HistoInfo->GetXaxis()->SetBinLabel(4,"<p_{T,Trig}>");
+  HistoInfo->GetXaxis()->SetBinLabel(5,"SE pairs");
+  HistoInfo->GetXaxis()->SetBinLabel(6,"ME pairs");
+  for (Int_t m=0; m< nummolt; m++){
+    HistoInfo->GetXaxis()->SetBinLabel(7+m,Form("SEpairs Mult distr m%i",m));
+    HistoInfo->GetXaxis()->SetBinLabel(12+m, Form("NV0/ACev m%i",m));
+  }
 
   //------------------Histograms os selected particles (V0) for future efficiency calculation ----------------
   TH3F*    fHistSelectedV0PtTMaxPhi=new TH3F(Form("fHistSelectedV0PtTMaxPhi_%i", sysV0), "p^{Trigg, Max}_{T} and #phi distribution of selected V0 particles (Casc, primary, events w T>0)", 120, -30, 30, 400,0, 2*TMath::Pi() ,  100, 0, 100);
@@ -403,11 +412,15 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
   Float_t     fSignTreeVariableInvMassCasc= 0;
   Bool_t isCascTrue=kFALSE;
 
-  dirSign->cd();
   // cout << "  entries Sign: " << EntriesSign<<endl;
+  Int_t l=0;
   for(Int_t k = 0; k<EntriesSign; k++){
+    if (k>1000) continue;
     tSign->GetEntry(k);  
-
+    if (k==10000*l){
+      l++;     
+      cout << "SE ----" << (Float_t)k/EntriesSign<< endl;
+    }
     fSignTreeVariableDeltaEta=fSignTreeVariableEtaV0-fSignTreeVariableEtaTrigger;
 
     //charge selection
@@ -541,12 +554,17 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
     }
   }
 
-  dirBkg->cd();
 
   Float_t     fBkgTreeVariableInvMassCasc= 0;
+  l=0;
   for(Int_t k = 0; k<EntriesBkg; k++){
     // for(Int_t k = 0; k<1; k++){
+    if (k>1000) continue;
     tBkg->GetEntry(k);
+    if (k==10000*l){
+      l++;     
+      cout << "ME ----" << (Float_t)k/EntriesBkg<< endl;
+    }
     fBkgTreeVariableDeltaEta=fBkgTreeVariableEtaV0-fBkgTreeVariableEtaTrigger;
 
     //charge selection
@@ -629,7 +647,7 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
   }
 
    
-  fout->Write();
+
   
   cout << "Pt Min delle particelle trigger " << PtTrigMin<< endl;
 
@@ -674,5 +692,20 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
     if (m<nummolt-1)    cout <<  hMultvsNumberAssoc_Proj[m]->GetMean() <<"-";
     else    cout <<  hMultvsNumberAssoc_Proj[m]->GetMean() <<endl;
   }
+
+  HistoInfo->SetBinContent(1,(Float_t)hMultiplicityBefAll->GetEntries()/TotEvtINT7);
+  HistoInfo->SetBinContent(2,(Float_t)CounterSignPairsAfterPtMinCut/TotEvtINT7);
+  HistoInfo->SetBinContent(3,hSign_PtAssoc->GetMean());
+  HistoInfo->SetBinContent(4,hSign_PtTrigger->GetMean());
+  HistoInfo->SetBinContent(5,(Float_t)CounterSignPairsAfterPtMinCut/EntriesSign);
+  HistoInfo->SetBinContent(6,(Float_t)CounterBkgPairsAfterPtMinCut/EntriesBkg);
+  for (Int_t m=0; m< nummolt; m++){
+  HistoInfo->SetBinContent(7+m,(Float_t)CounterSignPairsAfterPtMinCutMult[m]/CounterSignPairsAfterPtMinCut);
+  HistoInfo->SetBinContent(12+m, hMultvsNumberAssoc_Proj[m]->GetMean());
+  }
+
+  fout->Write();
+
+
 }
 
