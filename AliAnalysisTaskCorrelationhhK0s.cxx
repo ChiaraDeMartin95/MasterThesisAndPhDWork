@@ -1089,7 +1089,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   
   fHistGeneratedV0PtTMaxPhi=new TH3F*[2];
   for(Int_t j=0; j<2; j++){
-    fHistGeneratedV0PtTMaxPhi[j]=new TH3F(Form("fHistGeneratedV0PtTMaxPhi_%i",j), "p^{Trigg, Max}_{T} and #phi distribution of generated V0 particles (K0s, primary, events w T>0)", 300, 0, 30, 400,0, 2*TMath::Pi(),  100, 0, 100 );
+    fHistGeneratedV0PtTMaxPhi[j]=new TH3F(Form("fHistGeneratedV0PtTMaxPhi_%i",j), "p^{Trigg, Max}_{T} and #phi distribution of generated V0 particles (K0s, primary, events w T>0)", 600, -30, 30, 400,0, 2*TMath::Pi(),  100, 0, 100 );
     fHistGeneratedV0PtTMaxPhi[j]->GetXaxis()->SetTitle("p^{Trigg, Max}_{T}");
     fHistGeneratedV0PtTMaxPhi[j]->GetYaxis()->SetTitle("#phi");
   }
@@ -1103,7 +1103,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   
   fHistGeneratedV0PtTMaxEta=new TH3F*[2];
   for(Int_t j=0; j<2; j++){
-    fHistGeneratedV0PtTMaxEta[j]=new TH3F(Form("fHistGeneratedV0PtTMaxEta_%i",j), "p^{Trigg, Max}_{T} and #eta distribution of generated V0 particles (K0s, primary, events w T>0)", 300, 0, 30, 400,-1.2,1.2,  100, 0, 100 );
+    fHistGeneratedV0PtTMaxEta[j]=new TH3F(Form("fHistGeneratedV0PtTMaxEta_%i",j), "p^{Trigg, Max}_{T} and #eta distribution of generated V0 particles (K0s, primary, events w T>0)", 600,-30, 30, 400,-1.2,1.2,  100, 0, 100 );
     fHistGeneratedV0PtTMaxEta[j]->GetXaxis()->SetTitle("p^{Trigg, Max}_{T}");
     fHistGeneratedV0PtTMaxEta[j]->GetYaxis()->SetTitle("#eta");
   }
@@ -1117,7 +1117,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
 
   fHistGeneratedV0PtPtTMax=new TH3F*[2];
   for(Int_t j=0; j<2; j++){
-    fHistGeneratedV0PtPtTMax[j]=new TH3F(Form("fHistGeneratedV0PtPtTMax_%i",j), "p_{T} and p^{Trigg, Max}_{T} distribution of generated V0 particles (K0s, primary, events w T>0)", 300, 0, 30, 60, 0, 30,  100, 0, 100 );
+    fHistGeneratedV0PtPtTMax[j]=new TH3F(Form("fHistGeneratedV0PtPtTMax_%i",j), "p_{T} and p^{Trigg, Max}_{T} distribution of generated V0 particles (K0s, primary, events w T>0)", 600, -30, 30, 60, 0, 30,  100, 0, 100 );
     fHistGeneratedV0PtPtTMax[j]->GetXaxis()->SetTitle("p_{T}");
     fHistGeneratedV0PtPtTMax[j]->GetYaxis()->SetTitle("p^{Trigg, Max}_{T}");
   }
@@ -2759,6 +2759,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	  if(PdgPos==211 && PdgNeg==-211 && PdgMotherPos == 310 &&  PdgMotherNeg == 310 && labelMotherPos==labelMotherNeg){
 	    V0PDGCode=PdgMotherPos;
 	    if(MotherPos->IsPhysicalPrimary()){
+
 	      isaK0s=1;
 	      //c cout <<"selected v0 Pt " <<  v0->Pt() << endl;
 	      /* 3D histos
@@ -2769,6 +2770,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 		 fHistResolutionV0Eta->Fill(v0->Eta()- MotherPos->Eta(), lPercentiles, ptTriggerMassimoDati);
 	      */
 	      //2D histos
+	      fHistAssocPtRecovsPtGen->Fill(MotherPos->Pt(), v0->Pt());
 	      if(!skipV0){
 	      fHistResolutionV0Pt->Fill(v0->Pt()- MotherPos->Pt(), ptTriggerMassimoDati);
 	      fHistResolutionV0Phi->Fill(v0->Phi()- MotherPos->Phi(), ptTriggerMassimoDati);
@@ -2792,6 +2794,8 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	    else if(MotherPos->IsSecondaryFromMaterial())      labelPrimOrSecV0=3;
 	    else labelPrimOrSecV0=4;
 	    
+	    if(!MotherPos->IsPhysicalPrimary())      fHistAssocPtRecovsPtGenNotPrim->Fill(MotherPos->Pt(), v0->Pt());
+
 	    for (Int_t m =0; m<5;m++){
 	      if(lPercentiles>=moltep[m] && lPercentiles<moltep[m+1]){
 		for(Int_t p=1; p<=4; p++){

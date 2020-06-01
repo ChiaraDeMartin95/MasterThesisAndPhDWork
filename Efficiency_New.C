@@ -21,7 +21,7 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
   return sqrt(((Double_t)k+1)*((Double_t)k+2)/(n+2)/(n+3) - pow((Double_t)(k+1),2)/pow(n+2,2));
 }
 
-void Efficiency_New(Bool_t ishhCorr =0, Int_t type=4, Int_t israp=1, TString ResoHisto="2D",   Float_t ptjmin=0.150,  Float_t ptjmax=15, Int_t sysTrigger=0, Int_t sysV0=0, TString data="2018f1_extra_hXi_25runs_Quater", TString year0="2016", TString path1=""/*"_New"*/ /*"_10runs_FB128_TrackLengthCut"*/){
+void Efficiency_New(Bool_t ishhCorr =0, Int_t type=6, Int_t israp=1, TString ResoHisto="2D",Bool_t SkipAssoc=1 ,   Float_t ptjmin=3,  Float_t ptjmax=15, Int_t sysTrigger=0, Int_t sysV0=0, TString data="2018f1_extra_hK0s_30runs_150MeV", TString year0="2016", TString path1=""/*"_New"*/ /*"_10runs_FB128_TrackLengthCut"*/){
 
   //  if (type==6 && israp!=0) return; //so far I haven't appended any info on the rapidity to efficiency output files for K0s; if I decide to do as ofr the cascade, just remove this line
 
@@ -46,7 +46,7 @@ void Efficiency_New(Bool_t ishhCorr =0, Int_t type=4, Int_t israp=1, TString Res
   const Int_t numtipo = 8; 
 
   TString tipo[numtipo]={"XiNeg", "XiPos", "OmegaNeg", "OmegaPos", "Xi", "Omega", "K0s", "h"};
-  TString tipoPart[numtipo]={"Xi", "Xi", "Omega", "Omega", "Xi", "Omega", "K0s", "h"};
+  TString tipoPart[numtipo]={"Xi", "Xi", "Omega", "Omega", "Xi", "Omega", "", "h"};
   TString Srap[2] = {"_Eta0.8", "_y0.5"};
 
   TString file = "Efficiency";
@@ -64,8 +64,10 @@ void Efficiency_New(Bool_t ishhCorr =0, Int_t type=4, Int_t israp=1, TString Res
   }
   cout << PathInBis << endl;
   //  TString PathInBis =  "AnalysisResults.root";
-  TString PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + path1 + tipo[type]+Srap[israp]+Form("_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
+  TString PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + path1 + "_"+tipo[type]+Srap[israp]+Form("_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
+  if (!ishhCorr && !SkipAssoc)PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + path1 + "_"+tipo[type]+Srap[israp]+Form("_AllAssoc_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
   if (ishhCorr) PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + "_hhCorr" + path1 +Srap[israp]+ Form("_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
+  if (ishhCorr &&!SkipAssoc) PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + "_hhCorr" + path1 +Srap[israp]+ Form("_AllAssoc_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
   cout << "new input file " << endl;
 
   cout << PathInBis << endl;
@@ -82,6 +84,7 @@ void Efficiency_New(Bool_t ishhCorr =0, Int_t type=4, Int_t israp=1, TString Res
   PathInSel+=path1;
   PathInSel +=tipo[type];
   PathInSel +=Srap[israp];
+  if (!SkipAssoc)  PathInSel +="_AllAssoc";
   PathInSel +=Form("_MassDistr_SysT%i_SysV0%i_PtMin%.1f",sysTrigger, sysV0, PtTrigMin);
   PathInSel+= ".root";
   cout << "fileinputSel :" << PathInSel << endl;
@@ -199,7 +202,7 @@ void Efficiency_New(Bool_t ishhCorr =0, Int_t type=4, Int_t israp=1, TString Res
   if (!fHistSelectedTriggerPtEta) {cout << "histo sel not found " << endl; return;}
 
   TH3D*   fHistSelectedGenTriggerPtPhi;
-  if ((TH3D*)list3->FindObject("fHistSelectedGenTriggerPtPhi")) {
+  if ((TH3D*)list3->FindObject(Form("fHistSelectedGenTriggerPtPhi_%i", sysTrigger))) {
       fHistSelectedGenTriggerPtPhi=  (TH3D*)list3->FindObject(Form("fHistSelectedGenTriggerPtPhi_%i", sysTrigger));
     }
     else {
@@ -223,8 +226,9 @@ void Efficiency_New(Bool_t ishhCorr =0, Int_t type=4, Int_t israp=1, TString Res
 
     TH3D*   fHistSelectedGenV0PtPtTMax;
 
-    if ( (TH3D*)list2->FindObject("fHistSelectedGenV0PtPtTMax")) { 
-      fHistSelectedGenV0PtPtTMax=  (TH3D*)list2->FindObject(Form("fHistSelectedGenV0PtPtTMax", sysV0hh));
+ 
+    if ( (TH3D*)list2->FindObject("fHistSelectedGenV0PtPtTMax")) { //I don't want it to take this histogram, it's not the correct one since it's taken from the output of the task and not all selections were applied
+	fHistSelectedGenV0PtPtTMax=  (TH3D*)list2->FindObject(Form("fHistSelectedGenV0PtPtTMax", sysV0));
     } else {
       cout << " fHistSelectedGenV0PtPtTMax non esiste " << endl;
       fHistSelectedGenV0PtPtTMax=  (TH3D*)fHistSelectedV0PtPtTMax->Clone(Form("fHistSelectedGenV0PtPtTMax", sysV0hh));
@@ -718,19 +722,20 @@ void Efficiency_New(Bool_t ishhCorr =0, Int_t type=4, Int_t israp=1, TString Res
   fHistGenerated_1D_V0Phi[molt]->Add((TH1D*)fHistGenerated_2D_V0PtTMaxPhi[molt]->ProjectionY("fHistGenerated_1D_V0Phi_"+ Smolt[molt],fHistSelected_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(ptjminGen+0.0001) ,fHistSelected_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(-ptjmin-0.0001)));
   cout <<     fHistGenerated_1D_V0Phi[molt]->GetEntries() << endl;
 */
-    if (type>=4){
+    if (type>=4 && type!=6){
     fHistGenerated_1D_V0Phi_Int1[molt]=(TH1D*)fHistGenerated_2D_V0PtTMaxPhi[molt]->ProjectionY("fHistGenerated_1D_V0Phi_Int1"+ Smolt[molt],fHistSelected_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(ptjmin+0.0001) ,fHistSelected_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(ptjmaxGen-0.0001));
     fHistGenerated_1D_V0Phi_Int2[molt]=(TH1D*)fHistGenerated_2D_V0PtTMaxPhi[molt]->ProjectionY("fHistGenerated_1D_V0Phi_Int2"+ Smolt[molt],fHistSelected_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(ptjminGen+0.0001) ,fHistSelected_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(-ptjmin-0.0001));
     fHistGenerated_1D_V0Phi[molt]=(TH1D*)     fHistGenerated_1D_V0Phi_Int2[molt]->Clone("fHistGenerated_1D_V0Phi_"+ Smolt[molt]);
     fHistGenerated_1D_V0Phi[molt]->Add(fHistGenerated_1D_V0Phi_Int1[molt]);
     }
     else {
-    fHistGenerated_1D_V0Phi[molt]=(TH1D*)fHistGenerated_2D_V0PtTMaxPhi[molt]->ProjectionY("fHistGenerated_1D_V0Phi"+ Smolt[molt],fHistSelected_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(ptjminGen+0.0001) ,fHistSelected_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(ptjmaxGen-0.0001));
+    fHistGenerated_1D_V0Phi[molt]=(TH1D*)fHistGenerated_2D_V0PtTMaxPhi[molt]->ProjectionY("fHistGenerated_1D_V0Phi"+ Smolt[molt],fHistGenerated_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(ptjminGen+0.0001) ,fHistGenerated_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(ptjmaxGen-0.0001));
     }
     fHistV0EfficiencyPhi[molt] ->Divide(  fHistSelected_1D_V0Phi[molt],  fHistGenerated_1D_V0Phi[molt]);
   
     canvasEff->cd(5);
     fHistV0EfficiencyPhi[molt]->GetYaxis()->SetRangeUser(0.00001,0.2);
+    if (type==6)     fHistV0EfficiencyPhi[molt]->GetYaxis()->SetRangeUser(0.00001,1);
     if (ishhCorr)   fHistV0EfficiencyPhi[molt]->GetYaxis()->SetRangeUser(0.00001,1);
     fHistV0EfficiencyPhi[molt]->SetMarkerStyle(Marker[molt]);
     fHistV0EfficiencyPhi[molt]->GetYaxis()->SetTitle("#epsilon_{Assoc}");
@@ -787,7 +792,7 @@ void Efficiency_New(Bool_t ishhCorr =0, Int_t type=4, Int_t israp=1, TString Res
     fHistSelected_1D_V0Pt[molt]=(TH1D*)fHistSelected_2D_V0PtPtTMax[molt]->ProjectionX("fHistSelected_1D_V0Pt_"+ Smolt[molt],fHistSelected_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(ptjminGen+0.0001) ,fHistSelected_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(ptjmaxGen-0.0001));
     fHistSelectedGen_1D_V0Pt[molt]=(TH1D*)fHistSelectedGen_2D_V0PtPtTMax[molt]->ProjectionX("fHistSelectedGen_1D_V0Pt_"+ Smolt[molt],fHistSelectedGen_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(ptjminGen+0.0001) ,fHistSelectedGen_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(ptjmaxGen-0.0001));
 
-    if (type>=4){
+    if (type>=4 && type!=6){
     fHistGenerated_1D_V0Pt_Int1[molt]=(TH1D*)fHistGenerated_2D_V0PtPtTMax[molt]->ProjectionX("fHistGenerated_1D_V0Pt_Int1"+ Smolt[molt],fHistGenerated_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(ptjmin+0.0001) ,fHistGenerated_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(ptjmaxGen-0.0001));
     fHistGenerated_1D_V0Pt_Int2[molt]=(TH1D*)fHistGenerated_2D_V0PtPtTMax[molt]->ProjectionX("fHistGenerated_1D_V0Pt_Int2"+ Smolt[molt],fHistGenerated_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(ptjminGen+0.0001) ,fHistGenerated_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(-ptjmin-0.0001));
     fHistGenerated_1D_V0Pt[molt]=(TH1D*)    fHistGenerated_1D_V0Pt_Int2[molt]->Clone("fHistGenerated_1D_V0Pt_"+ Smolt[molt]);
@@ -863,6 +868,7 @@ cout << "sel2D " <<     fHistSelected_1D_V0Pt[molt]->GetNbinsX() << endl;
     }
     canvasUsed->cd(2);
     fHistV0EfficiencyPtBins[molt]->GetYaxis()->SetRangeUser(0,0.25);
+    if (type==6)    fHistV0EfficiencyPtBins[molt]->GetYaxis()->SetRangeUser(0,0.5);
     if (ishhCorr)     fHistV0EfficiencyPtBins[molt]->GetYaxis()->SetRangeUser(0,1);
     fHistV0EfficiencyPtBins[molt]->SetMarkerStyle(Marker[molt]);
     fHistV0EfficiencyPtBins[molt]->GetYaxis()->SetTitle("#epsilon_{Assoc}");
@@ -875,6 +881,7 @@ cout << "sel2D " <<     fHistSelected_1D_V0Pt[molt]->GetNbinsX() << endl;
     if(molt ==nummolt)     legend->Draw();
 
     fHistV0EfficiencyGenPtBins[molt]->GetYaxis()->SetRangeUser(0,0.25);
+    if (type==6)    fHistV0EfficiencyGenPtBins[molt]->GetYaxis()->SetRangeUser(0,0.5);
     if (ishhCorr)     fHistV0EfficiencyGenPtBins[molt]->GetYaxis()->SetRangeUser(0,1);
     fHistV0EfficiencyGenPtBins[molt]->SetMarkerStyle(Marker[molt]);
     fHistV0EfficiencyGenPtBins[molt]->GetYaxis()->SetTitle("#epsilon_{Assoc}");
@@ -927,19 +934,20 @@ cout << "sel2D " <<     fHistSelected_1D_V0Pt[molt]->GetNbinsX() << endl;
 
     fHistSelected_1D_V0Eta[molt]=(TH1D*)fHistSelected_2D_V0PtTMaxEta[molt]->ProjectionY("fHistSelected_1D_V0Eta_"+ Smolt[molt], fHistSelected_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(ptjminGen+0.0001) ,fHistSelected_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(ptjmaxGen-0.0001));//***
 
-    if (type>=4){
-    fHistGenerated_1D_V0Eta_Int1[molt]=(TH1D*)fHistGenerated_2D_V0PtTMaxEta[molt]->ProjectionY("fHistGenerated_1D_V0Eta_Int1"+ Smolt[molt],fHistSelected_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(ptjmin+0.0001) ,fHistSelected_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(ptjmaxGen-0.0001));
-    fHistGenerated_1D_V0Eta_Int2[molt]=(TH1D*)fHistGenerated_2D_V0PtTMaxEta[molt]->ProjectionY("fHistGenerated_1D_V0Eta_Int2"+ Smolt[molt],fHistSelected_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(ptjminGen+0.0001) ,fHistSelected_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(-ptjmin-0.0001));
+    if (type>=4 && type!=6){
+    fHistGenerated_1D_V0Eta_Int1[molt]=(TH1D*)fHistGenerated_2D_V0PtTMaxEta[molt]->ProjectionY("fHistGenerated_1D_V0Eta_Int1"+ Smolt[molt],fHistGenerated_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(ptjmin+0.0001) ,fHistGenerated_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(ptjmaxGen-0.0001));
+    fHistGenerated_1D_V0Eta_Int2[molt]=(TH1D*)fHistGenerated_2D_V0PtTMaxEta[molt]->ProjectionY("fHistGenerated_1D_V0Eta_Int2"+ Smolt[molt],fHistGenerated_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(ptjminGen+0.0001) ,fHistGenerated_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(-ptjmin-0.0001));
     fHistGenerated_1D_V0Eta[molt]=(TH1D*)fHistGenerated_1D_V0Eta_Int2[molt]->Clone("fHistGenerated_1D_V0Eta_"+ Smolt[molt]);
     fHistGenerated_1D_V0Eta[molt]->Add(fHistGenerated_1D_V0Eta_Int1[molt]);
     }
     else {
-    fHistGenerated_1D_V0Eta[molt]=(TH1D*)fHistGenerated_2D_V0PtTMaxEta[molt]->ProjectionY("fHistGenerated_1D_V0Eta"+ Smolt[molt],fHistSelected_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(ptjminGen+0.0001) ,fHistSelected_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(ptjmaxGen-0.0001));
+    fHistGenerated_1D_V0Eta[molt]=(TH1D*)fHistGenerated_2D_V0PtTMaxEta[molt]->ProjectionY("fHistGenerated_1D_V0Eta"+ Smolt[molt],fHistGenerated_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(ptjminGen+0.0001) ,fHistGenerated_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(ptjmaxGen-0.0001));
     }
 
     fHistV0EfficiencyEta[molt] ->Divide(  fHistSelected_1D_V0Eta[molt],  fHistGenerated_1D_V0Eta[molt]);
     canvasEff->cd(6);
     fHistV0EfficiencyEta[molt]->GetYaxis()->SetRangeUser(0.001,0.2);
+    if (type==6)     fHistV0EfficiencyEta[molt]->GetYaxis()->SetRangeUser(0.001,1);
     if (ishhCorr)   fHistV0EfficiencyEta[molt]->GetYaxis()->SetRangeUser(0,1);
     fHistV0EfficiencyEta[molt]->GetYaxis()->SetTitle("#epsilon_{Assoc}");
     fHistV0EfficiencyEta[molt]->GetXaxis()->SetTitleOffset(0.85);
@@ -1047,6 +1055,30 @@ cout << "sel2D " <<     fHistSelected_1D_V0Pt[molt]->GetNbinsX() << endl;
 	    }
 	  }
 	}
+	if (type==6) {
+	  if (t==1){
+	    if (m==0){
+	      fHistResolution_1D[molt][m][t]->GetXaxis()->SetRangeUser(-0.2, 0.2);
+	      fHistResolution_1D[molt][m][t]->GetYaxis()->SetRangeUser(0, 0.5);
+	    }
+	    else if (m==1 || m==2) {
+	      fHistResolution_1D[molt][m][t]->Rebin(2);
+	      fHistResolution_1D[molt][m][t]->GetXaxis()->SetRangeUser(-0.03, 0.03);
+	      fHistResolution_1D[molt][m][t]->GetYaxis()->SetRangeUser(0, 0.5);
+	    }
+	  }
+	  else if (t==0){
+	    if (m==0){
+	      fHistResolution_1D[molt][m][t]->GetXaxis()->SetRangeUser(-0.2, 0.2);
+	      fHistResolution_1D[molt][m][t]->GetYaxis()->SetRangeUser(0, 0.5);
+	    }
+	    else   if (m==1 || m==2 ) {
+	      fHistResolution_1D[molt][m][t]->GetXaxis()->SetRangeUser(-0.03, 0.03);
+	      fHistResolution_1D[molt][m][t]->GetYaxis()->SetRangeUser(0, 0.5);
+	    }
+	  }
+	}
+
 	if (m==0 && t==0){
 	  //	  fHistResolution_1D[molt][m][t]->GetXaxis()->SetRangeUser(-0.5, 0.5);
 	  //	  fHistResolution_1D[molt][m][t]->GetYaxis()->SetRangeUser(0, 0.1);
@@ -1382,6 +1414,8 @@ if (listRisoluzione){
       
     fHistSelected_2D_V0PtPtTMax[m]->Write();
     fHistGenerated_2D_V0PtPtTMax[m]->Write();
+    fHistSelected_2D_V0PtTMaxPhi[m]->Write();
+    fHistGenerated_2D_V0PtTMaxPhi[m]->Write();
     fHistV0EfficiencyPtPhi[m]->Write();
     fHistV0EfficiencyPtEta[m]->Write();
     fHistSelected_1D_V0Pt[m]->Write();
@@ -1487,7 +1521,7 @@ if (listRisoluzione){
   }
 
   cout << "******************************************************************"<< endl;
-  cout << "partendo dai file "  << PathInBis << " ho creato: "<< endl;
+  cout << "partendo dai file "  << PathInBis << "e " << PathInSel << "  ho creato: "<< endl;
   cout << "il file " << PathOut2 << endl;
 
   cout << "\n\n Run it for sysV0=0,..,6 if !ishhCorr, else for sysV0=0,1,2" << endl;

@@ -1,0 +1,781 @@
+#include "Riostream.h"
+#include "TTimer.h"
+#include "TROOT.h"
+#include "TStyle.h"
+#include "TMath.h"
+#include "TFile.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include <TH3F.h>
+#include "TNtuple.h"
+#include "TCanvas.h"
+#include "TPad.h"
+#include "TF1.h"
+#include "TProfile.h"
+#include <TTree.h>
+#include <TLatex.h>
+#include <TFile.h>
+void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAssoc=0, Int_t israp=1, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=0.15,Float_t PtTrigMinFit=0.15, Int_t sysTrigger=0, Int_t sysV0=0,Int_t syst=0,bool isMC = 0, Bool_t isEfficiency=0,TString year0="2016", TString year="2016k_hK0s_30runs_150MeV",  TString Path1 ="",  Double_t ptjmax =15, Double_t nsigmamax=10, Bool_t isSigma=kFALSE){
+
+  //isMeanFixedPDG and isBkgParab are characteristics of the fit to the inv mass distributions 
+  cout << isMC << endl;
+  cout << " Pt Trigg Min è = " << PtTrigMin << endl;
+
+  if (israp>1) return;
+  if (type>3) {cout << "type value not allowed" << endl; return;}
+  //lista degli effetti  sistematici studiati in questa macro
+  //sys=1 nsigmamin=5 (def:4)
+  //sys=2 sigmacentral =4 (def:3)
+  if (sysV0>6) return;
+
+  if (syst!=0 && syst!=1 && syst!=2) {
+    cout << "syst should be changed " << endl;
+    return;
+  }
+  if((sysV0!=0||sysTrigger!=0) && syst!=0){
+    cout << "syst conflicting " << endl;
+    return;
+  }
+
+
+  Double_t massK0s = 0.497611;
+  Double_t massLambda = 1.115683;
+  const Float_t ctauK0s=2.6844;
+
+  TString file;
+
+  const Int_t numtipo=4;
+  TString tipo[numtipo]={"K0s", "Lambda", "AntiLambda", "LambdaAntiLambda"};
+  TString Srap[2] = {"_Eta0.8", "_y0.5"};
+  TString SSkipAssoc[2] = {"_AllAssoc", ""};
+  Float_t ctauCasc[numtipo] = {2.6844,7.89, 7.89, 7.89};
+  Float_t PDGCode[numtipo-1] = {310, 3122, -3122};
+
+  TString BkgType[2]={"BkgRetta", "BkgParab"};
+  TString MassFixedPDG[2]={"", "isMeanFixedPDG_"};
+
+  TString PathIn="FinalOutput/AnalysisResults";
+  TString PathOut="FinalOutput/DATA" + year0 + "/histo/AngularCorrelation";
+  TString PathInMass= "FinalOutput/DATA" + year0 + "/invmass_distribution_thesis/invmass_distribution";
+  TString PathInMassDef;
+  PathIn+=year;
+  PathOut+=year;  
+  // PathInMass+=year;
+  
+  if(isMC && isEfficiency){ 
+    PathIn+="_MCEff";
+    PathOut+="_MCEff";
+    PathInMass+="_MCEff";
+  }
+  if(isMC && !isEfficiency){
+    PathIn+="_MCTruth";
+    PathOut+="_MCTruth";
+  }
+ 
+  //  PathIn+=Path1; //change
+  PathInMass+=Path1;
+  PathIn+=".root";
+
+
+  PathOut+=Path1+"Bis";
+  PathOut+="_"; 
+ PathOut +=tipo[type];
+  PathOut +=Srap[israp];
+  PathOut +=SSkipAssoc[SkipAssoc];
+  if ((!isMC ||(isMC && isEfficiency))) PathOut +=Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f",sysTrigger, sysV0, syst, PtTrigMin); 
+  PathOut+= ".root";
+
+  cout << "file di input " << PathIn << endl;
+  TFile *fin = new TFile(PathIn);
+  TFile *fileMassSigma;
+  TString dirinputtype[4] = {"", "Lambda", "Lambda", "Lambda"};
+  TDirectoryFile *d = (TDirectoryFile*)fin->Get("MyTask"+dirinputtype[type]);
+  TTree *tSign = (TTree *)d->Get("fSignalTree");
+  TTree *tBkg  = (TTree *)d->Get("fBkgTree");
+
+  const Int_t nummolt=5;
+  const Int_t numzeta=1;
+  const Int_t numPtV0=8;
+  const Int_t numPtTrigger=1;
+  
+  Float_t LimInfMass[numtipo][nummolt+1][numPtV0]={0};
+  Float_t LimSupMass[numtipo][nummolt+1][numPtV0]={0}; 
+  TString Smolt[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "_all"};
+  Double_t Nmolt[nummolt+1]={0, 5, 10, 30, 50, 100};
+  TString Szeta[numzeta]={""};
+
+  TString SPtV0[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8"};
+  if (type>0)SPtV0[1]={"0.5-1"};
+  if (ishhCorr){
+    SPtV0[0]={"0-0.5"};
+    SPtV0[1]={"0.5-1"};
+  }
+  Double_t NPtV0[numPtV0+1]={0,0,1,1.5,2,2.5,3,4,8};
+  if (type>0) NPtV0[1]=0.5;
+  if (ishhCorr) {
+    NPtV0[0]=0.1;
+    NPtV0[1]=0.5;
+  }
+  TString SNPtV0[numPtV0+1]={"0.0","0.0","1.0","1.5","2.0","2.5","3.0","4.0","8.0"};
+  if (type>0) SNPtV0[1]={"0.5"};
+  if (ishhCorr){
+    SNPtV0[0]={"0.1"};
+    SNPtV0[1]={"0.5"};
+  }
+
+  //  TString SPtTrigger[numPtTrigger]={"2-10"};
+  Double_t NPtTrigger[numPtTrigger+1]={PtTrigMin,ptjmax};
+
+
+  Double_t sigma[numtipo][nummolt+1][numPtV0];
+  Double_t mass[numtipo][nummolt+1][numPtV0];
+  Double_t nsigmamin[numtipo][nummolt+1][numPtV0];
+  Double_t sigmacentral[numtipo][nummolt+1][numPtV0];
+  Double_t meansigma;
+  Double_t meanmass;
+  TH1F* histoSigma;
+  TH1F* histoMean;
+  TH1F* histo_ULsideB;
+  TH1F* histo_LLsideB;
+  TH1F* histo_NSigmaPeak;
+  TH1F* histo_NSigmasideB;
+
+  if(isMC==0 || (isMC==1 && isEfficiency==1)){
+    for(Int_t m=0; m<nummolt+1; m++){
+      //      PathInMassDef=PathInMass+ "_"+year+"_"+tipo[type]+Form("_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f.root", m, sysTrigger, sysV0, syst, PtTrigMin);
+      PathInMassDef=PathInMass+ "_"+year+"_"+tipo[type]+Srap[israp]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG] + BkgType[isBkgParab] +Form("_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f.root", m, sysTrigger, sysV0, syst,PtTrigMinFit);
+      fileMassSigma= new TFile(PathInMassDef);
+      histoSigma=(TH1F*)fileMassSigma->Get("histo_sigma");
+      histoMean=(TH1F*)fileMassSigma->Get("histo_mean");
+      histo_ULsideB=(TH1F*)fileMassSigma->Get("histo_ULsideB");
+      histo_LLsideB=(TH1F*)fileMassSigma->Get("histo_LLsideB");
+      histo_NSigmasideB=(TH1F*)fileMassSigma->Get("histo_NSigmasideB");
+      histo_NSigmaPeak=(TH1F*)fileMassSigma->Get("histo_NSigmaPeak");
+      for(Int_t v=1; v<numPtV0; v++){
+      sigmacentral[type][m][v]=      histo_NSigmaPeak->GetBinContent(v+1);
+      nsigmamin[type][m][v]=      histo_NSigmasideB->GetBinContent(v+1);
+	mass[type][m][v]=histoMean->GetBinContent(v+1);
+	sigma[type][m][v]=histoSigma->GetBinContent(v+1);
+	LimSupMass[type][m][v]=histo_ULsideB->GetBinContent(v+1);
+	LimInfMass[type][m][v]=histo_LLsideB->GetBinContent(v+1);
+	cout <<"mult interval " <<  m << " PtV0 interval " << v << " mean " << mass[type][m][v] << " sigma "<< sigma[type][m][v] << endl;
+      }
+    }
+  }
+  Double_t     fSignTreeVariablePtTrigger;
+  Int_t        fSignTreeVariableChargeTrigger;
+  Double_t     fSignTreeVariableEtaTrigger;
+  Double_t     fSignTreeVariablePhiTrigger;
+  Double_t     fSignTreeVariableDCAz;
+  Double_t     fSignTreeVariableDCAxy;
+  Int_t        fSignTreeVariableisPrimaryTrigger;
+  Int_t        fSignTreeVariablePDGCodeTrigger;
+  Int_t        fSignTreeVariableChargeAssoc;
+  Int_t        fSignTreeVariableisPrimaryV0;
+  Int_t        fSignTreeVariablePDGCodeAssoc;
+  Double_t     fSignTreeVariableRapK0Short;
+  Bool_t        fSignTreeVariableSkipAssoc;
+  Double_t     fSignTreeVariablePtV0;
+  Double_t     fSignTreeVariableEtaV0;
+  Double_t     fSignTreeVariablePhiV0;
+  Double_t     fSignTreeVariableAssocDCAz;
+  Double_t     fSignTreeVariableAssocDCAxy;
+  Double_t     fSignTreeVariableDcaV0ToPrimVertex;
+  Double_t     fSignTreeVariableDcaPosToPrimVertex;
+  Double_t     fSignTreeVariableDcaNegToPrimVertex;
+  Double_t     fSignTreeVariableV0CosineOfPointingAngle;
+  Double_t     fSignTreeVariablectau;
+  Double_t     fSignTreeVariableInvMassK0s;
+  Double_t     fSignTreeVariableInvMassLambda;
+  Double_t     fSignTreeVariableInvMassAntiLambda;
+  Double_t     fSignTreeVariablePtArmenteros;
+  Double_t     fSignTreeVariableAlpha;
+  Double_t     fSignTreeVariableDeltaEta;
+  Double_t     fSignTreeVariableDeltaPhi;
+  Double_t     fSignTreeVariableDeltaTheta;
+  Double_t     fSignTreeVariableMultiplicity;
+  Double_t     fSignTreeVariableZvertex;
+
+  Double_t     fBkgTreeVariablePtTrigger;
+  Int_t        fBkgTreeVariableChargeTrigger;
+  Double_t     fBkgTreeVariableEtaTrigger;
+  Double_t     fBkgTreeVariablePhiTrigger;
+  Double_t     fBkgTreeVariableDCAz;
+  Double_t     fBkgTreeVariableDCAxy;
+  Int_t        fBkgTreeVariableisPrimaryTrigger;
+  Int_t        fBkgTreeVariablePDGCodeTrigger;
+  Int_t        fBkgTreeVariableChargeAssoc;
+  Int_t        fBkgTreeVariableisPrimaryV0;
+  Int_t        fBkgTreeVariablePDGCodeAssoc;
+  Double_t     fBkgTreeVariableRapK0Short;
+  Bool_t        fBkgTreeVariableSkipAssoc;
+  Double_t     fBkgTreeVariablePtV0;
+  Double_t     fBkgTreeVariableEtaV0;
+  Double_t     fBkgTreeVariablePhiV0;
+  Double_t     fBkgTreeVariableAssocDCAz;
+  Double_t     fBkgTreeVariableAssocDCAxy;
+  Double_t     fBkgTreeVariableDcaV0ToPrimVertex;
+  Double_t     fBkgTreeVariableDcaPosToPrimVertex;
+  Double_t     fBkgTreeVariableDcaNegToPrimVertex;
+  Double_t     fBkgTreeVariableV0CosineOfPointingAngle;
+  Double_t     fBkgTreeVariablectau;
+  Double_t     fBkgTreeVariableInvMassK0s;
+  Double_t     fBkgTreeVariableInvMassLambda;
+  Double_t     fBkgTreeVariableInvMassAntiLambda;
+  Double_t     fBkgTreeVariablePtArmenteros;
+  Double_t     fBkgTreeVariableAlpha;
+  Double_t     fBkgTreeVariableDeltaEta;
+  Double_t     fBkgTreeVariableDeltaPhi;
+  Double_t     fBkgTreeVariableDeltaTheta;
+  Double_t     fBkgTreeVariableMultiplicity;
+  Double_t     fBkgTreeVariableZvertex;
+ 
+  //Signal
+  tSign->SetBranchAddress("fTreeVariablePtTrigger"                 ,&fSignTreeVariablePtTrigger);
+  tSign->SetBranchAddress("fTreeVariableChargeTrigger"             ,&fSignTreeVariableChargeTrigger);
+  tSign->SetBranchAddress("fTreeVariableEtaTrigger"                ,&fSignTreeVariableEtaTrigger);
+  tSign->SetBranchAddress("fTreeVariablePhiTrigger"                ,&fSignTreeVariablePhiTrigger);
+  tSign->SetBranchAddress("fTreeVariableDCAz"                      ,&fSignTreeVariableDCAz);
+  tSign->SetBranchAddress("fTreeVariableDCAxy"                     ,&fSignTreeVariableDCAxy);
+  tSign->SetBranchAddress("fTreeVariableisPrimaryTrigger"          ,&fSignTreeVariableisPrimaryTrigger);
+  tSign->SetBranchAddress("fTreeVariablePDGCodeTrigger"            ,&fSignTreeVariablePDGCodeTrigger);
+
+  tSign->SetBranchAddress("fTreeVariableisPrimaryV0"               ,&fSignTreeVariableisPrimaryV0);
+  tSign->SetBranchAddress("fTreeVariableChargeAssoc"               ,&fSignTreeVariableChargeAssoc);
+  tSign->SetBranchAddress("fTreeVariablePDGCodeAssoc"              ,&fSignTreeVariablePDGCodeAssoc);
+  tSign->SetBranchAddress("fTreeVariableSkipAssoc"                 ,&fSignTreeVariableSkipAssoc);
+  tSign->SetBranchAddress("fTreeVariablePtV0"                      ,&fSignTreeVariablePtV0);
+  tSign->SetBranchAddress("fTreeVariableEtaV0"                     ,&fSignTreeVariableEtaV0);
+  tSign->SetBranchAddress("fTreeVariablePhiV0"                     ,&fSignTreeVariablePhiV0);
+  tSign->SetBranchAddress("fTreeVariableAssocDCAz"                 ,&fSignTreeVariableAssocDCAz);
+  tSign->SetBranchAddress("fTreeVariableAssocDCAxy"                ,&fSignTreeVariableAssocDCAxy);
+
+  tSign->SetBranchAddress("fTreeVariableRapK0Short"                ,&fSignTreeVariableRapK0Short);
+  tSign->SetBranchAddress("fTreeVariableDcaV0ToPrimVertex"         ,&fSignTreeVariableDcaV0ToPrimVertex);
+  tSign->SetBranchAddress("fTreeVariableDcaPosToPrimVertex"        ,&fSignTreeVariableDcaPosToPrimVertex);
+  tSign->SetBranchAddress("fTreeVariableDcaNegToPrimVertex"        ,&fSignTreeVariableDcaNegToPrimVertex);
+  tSign->SetBranchAddress("fTreeVariableV0CosineOfPointingAngle"   ,&fSignTreeVariableV0CosineOfPointingAngle);
+  tSign->SetBranchAddress("fTreeVariablectau"                      ,&fSignTreeVariablectau);
+  tSign->SetBranchAddress("fTreeVariableInvMassK0s"                ,&fSignTreeVariableInvMassK0s);
+  tSign->SetBranchAddress("fTreeVariableInvMassLambda"             ,&fSignTreeVariableInvMassLambda);
+  tSign->SetBranchAddress("fTreeVariableInvMassAntiLambda"         ,&fSignTreeVariableInvMassAntiLambda);
+  tSign->SetBranchAddress("fTreeVariablePtArmenteros"              ,&fSignTreeVariablePtArmenteros);
+  tSign->SetBranchAddress("fTreeVariableAlpha"                     ,&fSignTreeVariableAlpha);
+
+  tSign->SetBranchAddress("fTreeVariableDeltaEta"                  ,&fSignTreeVariableDeltaEta);
+  tSign->SetBranchAddress("fTreeVariableDeltaPhi"                  ,&fSignTreeVariableDeltaPhi);
+  tSign->SetBranchAddress("fTreeVariableDeltaTheta"                ,&fSignTreeVariableDeltaTheta);
+  tSign->SetBranchAddress("fTreeVariableMultiplicity"              ,&fSignTreeVariableMultiplicity);
+  tSign->SetBranchAddress("fTreeVariableZvertex"                   ,&fSignTreeVariableZvertex);
+
+  //BackGround                                                                                                           
+  tBkg->SetBranchAddress("fTreeVariablePtTrigger"                 ,&fBkgTreeVariablePtTrigger);
+  tBkg->SetBranchAddress("fTreeVariableChargeTrigger"             ,&fBkgTreeVariableChargeTrigger);
+  tBkg->SetBranchAddress("fTreeVariableEtaTrigger"                ,&fBkgTreeVariableEtaTrigger);
+  tBkg->SetBranchAddress("fTreeVariablePhiTrigger"                ,&fBkgTreeVariablePhiTrigger);
+  tBkg->SetBranchAddress("fTreeVariableDCAz"                      ,&fBkgTreeVariableDCAz);
+  tBkg->SetBranchAddress("fTreeVariableDCAxy"                     ,&fBkgTreeVariableDCAxy);
+  tBkg->SetBranchAddress("fTreeVariableisPrimaryTrigger"          ,&fBkgTreeVariableisPrimaryTrigger);
+  tBkg->SetBranchAddress("fTreeVariablePDGCodeTrigger"            ,&fBkgTreeVariablePDGCodeTrigger);
+
+  tBkg->SetBranchAddress("fTreeVariableisPrimaryV0"               ,&fBkgTreeVariableisPrimaryV0);
+  tBkg->SetBranchAddress("fTreeVariableChargeAssoc"               ,&fBkgTreeVariableChargeAssoc);
+  tBkg->SetBranchAddress("fTreeVariablePDGCodeAssoc"              ,&fBkgTreeVariablePDGCodeAssoc);
+  tBkg->SetBranchAddress("fTreeVariableSkipAssoc"                 ,&fBkgTreeVariableSkipAssoc);
+  tBkg->SetBranchAddress("fTreeVariablePtV0"                      ,&fBkgTreeVariablePtV0);
+  tBkg->SetBranchAddress("fTreeVariableEtaV0"                     ,&fBkgTreeVariableEtaV0);
+  tBkg->SetBranchAddress("fTreeVariablePhiV0"                     ,&fBkgTreeVariablePhiV0);
+
+  tBkg->SetBranchAddress("fTreeVariableAssocDCAz"                 ,&fBkgTreeVariableAssocDCAz);
+  tBkg->SetBranchAddress("fTreeVariableAssocDCAxy"                ,&fBkgTreeVariableAssocDCAxy);
+
+  tBkg->SetBranchAddress("fTreeVariableRapK0Short"                ,&fBkgTreeVariableRapK0Short);
+  tBkg->SetBranchAddress("fTreeVariableDcaV0ToPrimVertex"         ,&fBkgTreeVariableDcaV0ToPrimVertex);
+  tBkg->SetBranchAddress("fTreeVariableDcaPosToPrimVertex"        ,&fBkgTreeVariableDcaPosToPrimVertex);
+  tBkg->SetBranchAddress("fTreeVariableDcaNegToPrimVertex"        ,&fBkgTreeVariableDcaNegToPrimVertex);
+  tBkg->SetBranchAddress("fTreeVariableV0CosineOfPointingAngle"   ,&fBkgTreeVariableV0CosineOfPointingAngle);
+  tBkg->SetBranchAddress("fTreeVariablectau"                      ,&fBkgTreeVariablectau);
+  tBkg->SetBranchAddress("fTreeVariableInvMassK0s"                ,&fBkgTreeVariableInvMassK0s);
+  tBkg->SetBranchAddress("fTreeVariableInvMassLambda"             ,&fBkgTreeVariableInvMassLambda);
+  tBkg->SetBranchAddress("fTreeVariableInvMassAntiLambda"         ,&fBkgTreeVariableInvMassAntiLambda);
+  tBkg->SetBranchAddress("fTreeVariablePtArmenteros"              ,&fBkgTreeVariablePtArmenteros);
+  tBkg->SetBranchAddress("fTreeVariableAlpha"                     ,&fBkgTreeVariableAlpha);
+
+  tBkg->SetBranchAddress("fTreeVariableDeltaEta"                  ,&fBkgTreeVariableDeltaEta);
+  tBkg->SetBranchAddress("fTreeVariableDeltaPhi"                  ,&fBkgTreeVariableDeltaPhi);
+  tBkg->SetBranchAddress("fTreeVariableDeltaTheta"                ,&fBkgTreeVariableDeltaTheta);
+
+  tBkg->SetBranchAddress("fTreeVariableMultiplicity"              ,&fBkgTreeVariableMultiplicity);
+  tBkg->SetBranchAddress("fTreeVariableZvertex"                   ,&fBkgTreeVariableZvertex);
+                                                            
+
+  Int_t EntriesSign = 0; 
+  Int_t EntriesBkg  = 0; 
+
+  
+  TFile *fout = new TFile(PathOut,"RECREATE");
+  TDirectory  *dirSign= fout->mkdir("SE");
+  TDirectory  *dirBkg= fout->mkdir("ME");
+
+  /*-----------------------DeltaEtaDeltaPhi in bin di molteplicita/ZVertex/pTV)/pTTrigger------------- */
+  TString nameSE[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TString namemassSE[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH2D *hDeltaEtaDeltaPhi_SEbins[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH2D *hDeltaEtaDeltaPhi_SEbins_sidebands[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH1D *hSign_PtTrigger[nummolt+1][numzeta];
+  TH1D *hSign_PtV0[nummolt+1][numzeta];
+
+  const   Int_t numDeltaEta=4;
+  TString SDeltaEta[numDeltaEta]={"_|DeltaEta|<1.6","_|DeltaEta|<1.4", "_|DeltaEta|<1.1","_|DeltaEta|<0.8" };
+  Float_t DeltaEtaLimit[numDeltaEta]={1.6, 1.4, 1.1, 0.8};
+  TH1D *hSign_EtaV0[nummolt+1][numDeltaEta];
+  TH1D *hSign_EtaV0MidRap[nummolt+1][numDeltaEta];
+  TH1D *hSign_RapV0[nummolt+1][numDeltaEta];
+  TH2D *hSign_DeltaEtaEtaV0[nummolt+1];
+  TH2D *hSign_DeltaEtaEtaTrigger[nummolt+1];
+
+  for(Int_t m=0; m<nummolt+1; m++){
+    hSign_DeltaEtaEtaV0[m]=new TH2D("hSign_DeltaEtaEtaV0_"+Smolt[m], "hSign_DeltaEtaEtaV0_"+Smolt[m], 100, -2, 2, 100, -2, 2);
+    hSign_DeltaEtaEtaTrigger[m]=new TH2D("hSign_DeltaEtaEtaTrigger_"+Smolt[m], "hSign_DeltaEtaEtaTrigger_"+Smolt[m], 100, -2, 2, 100, -2, 2);
+    for (Int_t DeltaEta=0; DeltaEta< numDeltaEta; DeltaEta++){
+      hSign_EtaV0[m][DeltaEta]=new TH1D("hSign_EtaV0_"+Smolt[m]+Form("_%i",DeltaEta), "hSign_EtaV0_"+Smolt[m]+SDeltaEta[DeltaEta], 100, -2, 2);
+      hSign_RapV0[m][DeltaEta]=new TH1D("hSign_RapV0_"+Smolt[m]+Form("_%i",DeltaEta), "hSign_RapV0_"+Smolt[m]+SDeltaEta[DeltaEta], 100, -2, 2);
+      hSign_EtaV0MidRap[m][DeltaEta]=new TH1D("hSign_EtaV0_MidRap_"+Smolt[m]+Form("_%i",DeltaEta), "hSign_EtaV0_MidRap_"+Smolt[m]+SDeltaEta[DeltaEta], 100, -2, 2);
+    }
+  }
+
+  for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t z=0; z<numzeta; z++){
+      hSign_PtTrigger[m][z]=new TH1D("hSign_PtTrigger"+Smolt[m], "hSign_PtTrigger"+Smolt[m], 300,0,30);
+      hSign_PtV0[m][z]=new TH1D("hSign_PtV0"+Smolt[m], "hSign_PtV0"+Smolt[m], 300,0,30);
+      hSign_PtTrigger[m][z]->GetXaxis()->SetTitle("p_{T} (Gev/c)");
+      hSign_PtTrigger[m][z]->GetXaxis()->SetTitleSize(0.05);
+      hSign_PtTrigger[m][z]->GetXaxis()->SetLabelSize(0.05);
+      hSign_PtTrigger[m][z]->GetYaxis()->SetLabelSize(0.05);
+      hSign_PtV0[m][z]->GetXaxis()->SetTitle("p_{T} (Gev/c)");
+      hSign_PtV0[m][z]->GetXaxis()->SetTitleSize(0.05);
+      hSign_PtV0[m][z]->GetXaxis()->SetLabelSize(0.05);
+      hSign_PtV0[m][z]->GetYaxis()->SetLabelSize(0.05);
+
+      for(Int_t tr=0; tr<numPtTrigger; tr++){
+	for(Int_t v=1; v<numPtV0; v++){
+	  nameSE[m][z][v][tr]="SE_";
+	  namemassSE[m][z][v][tr]="InvMassSE_";
+	  nameSE[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
+	  namemassSE[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
+	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]= new TH2D(nameSE[m][z][v][tr], nameSE[m][z][v][tr],   56, -1.5, 1.5, 104,  -0.5*TMath::Pi(), 1.5*TMath::Pi());
+	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetXaxis()->SetTitle("#Delta #eta");
+	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetYaxis()->SetTitle("#Delta #phi (rad)");
+	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetXaxis()->SetTitleSize(0.05);
+	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetYaxis()->SetTitleSize(0.05);
+	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetYaxis()->SetTitleOffset(1.5);
+	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetXaxis()->SetLabelSize(0.05);
+	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetYaxis()->SetLabelSize(0.05);
+	  hDeltaEtaDeltaPhi_SEbins_sidebands[m][z][v][tr]= new TH2D(nameSE[m][z][v][tr]+"_SB", nameSE[m][z][v][tr]+"_SB",   56, -1.5, 1.5, 104,  -0.5*TMath::Pi(), 1.5*TMath::Pi());
+	  hDeltaEtaDeltaPhi_SEbins_sidebands[m][z][v][tr]->GetXaxis()->SetTitle("#Delta #eta");
+	  hDeltaEtaDeltaPhi_SEbins_sidebands[m][z][v][tr]->GetYaxis()->SetTitle("#Delta #phi (rad)");
+	  hDeltaEtaDeltaPhi_SEbins_sidebands[m][z][v][tr]->GetXaxis()->SetTitleSize(0.05);
+	  hDeltaEtaDeltaPhi_SEbins_sidebands[m][z][v][tr]->GetYaxis()->SetTitleSize(0.05);
+	  hDeltaEtaDeltaPhi_SEbins_sidebands[m][z][v][tr]->GetYaxis()->SetTitleOffset(1.5);
+	  hDeltaEtaDeltaPhi_SEbins_sidebands[m][z][v][tr]->GetXaxis()->SetLabelSize(0.05);
+	  hDeltaEtaDeltaPhi_SEbins_sidebands[m][z][v][tr]->GetYaxis()->SetLabelSize(0.05);
+
+	}
+      }
+    }
+  }
+
+  TString nameME[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TString namemassME[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH2D *hDeltaEtaDeltaPhi_MEbins[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH2D *hDeltaEtaDeltaPhi_MEbins_sidebands[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH1D *hBkg_PtTrigger[nummolt+1][numzeta];
+  TH1D *hBkg_PtV0[nummolt+1][numzeta];
+
+  TH1D *hBkg_EtaV0[nummolt+1][numDeltaEta];
+  TH1D *hBkg_EtaV0MidRap[nummolt+1][numDeltaEta];
+  TH1D *hBkg_RapV0[nummolt+1][numDeltaEta];
+  TH2D *hBkg_DeltaEtaEtaV0[nummolt+1];
+  TH2D *hBkg_DeltaEtaEtaTrigger[nummolt+1];
+
+
+  for(Int_t m=0; m<nummolt+1; m++){
+    hBkg_DeltaEtaEtaV0[m]=new TH2D("hBkg_DeltaEtaEtaV0_"+Smolt[m], "hBkg_DeltaEtaEtaV0_"+Smolt[m], 100, -2, 2, 100, -2, 2);
+    hBkg_DeltaEtaEtaTrigger[m]=new TH2D("hBkg_DeltaEtaEtaTrigger_"+Smolt[m], "hBkg_DeltaEtaEtaTrigger_"+Smolt[m], 100, -2, 2, 100, -2, 2);
+    for (Int_t DeltaEta=0; DeltaEta< numDeltaEta; DeltaEta++){
+      hBkg_EtaV0[m][DeltaEta]=new TH1D("hBkg_EtaV0_"+Smolt[m]+Form("_%i",DeltaEta), "hBkg_EtaV0_"+Smolt[m]+SDeltaEta[DeltaEta], 100, -2, 2);
+      hBkg_RapV0[m][DeltaEta]=new TH1D("hBkg_RapV0_"+Smolt[m]+Form("_%i",DeltaEta), "hBkg_RapV0_"+Smolt[m]+SDeltaEta[DeltaEta], 100, -2, 2);
+      hBkg_EtaV0MidRap[m][DeltaEta]=new TH1D("hBkg_EtaV0_MidRap_"+Smolt[m]+Form("_%i",DeltaEta), "hBkg_EtaV0_MidRap_"+Smolt[m]+SDeltaEta[DeltaEta], 100, -2, 2);
+    }
+  }
+
+  for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t z=0; z<numzeta; z++){
+      hBkg_PtTrigger[m][z]=new TH1D("hBkg_PtTrigger"+Smolt[m], "hBkg_PtTrigger"+Smolt[m], 300,0,30);
+      hBkg_PtV0[m][z]=new TH1D("hBkg_PtV0"+Smolt[m], "hBkg_PtV0"+Smolt[m], 300,0,30);
+      hBkg_PtTrigger[m][z]->GetXaxis()->SetTitle("p_{T} (Gev/c)");
+      hBkg_PtTrigger[m][z]->GetXaxis()->SetTitleSize(0.05);
+      hBkg_PtTrigger[m][z]->GetXaxis()->SetLabelSize(0.05);
+      hBkg_PtTrigger[m][z]->GetYaxis()->SetLabelSize(0.05);
+      hBkg_PtV0[m][z]->GetXaxis()->SetTitle("p_{T} (Gev/c)");
+      hBkg_PtV0[m][z]->GetXaxis()->SetTitleSize(0.05);
+      hBkg_PtV0[m][z]->GetXaxis()->SetLabelSize(0.05);
+      hBkg_PtV0[m][z]->GetYaxis()->SetLabelSize(0.05);
+
+      for(Int_t tr=0; tr<numPtTrigger; tr++){
+	for(Int_t v=1; v<numPtV0; v++){
+	  nameME[m][z][v][tr]="ME_";
+	  namemassME[m][z][v][tr]="InvMassME_";
+	  nameME[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
+	  namemassME[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
+	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]= new TH2D(nameME[m][z][v][tr], nameME[m][z][v][tr],  56, -1.5, 1.5, 104,  -0.5*TMath::Pi(), 1.5*TMath::Pi());
+	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetXaxis()->SetTitle("#Delta #eta");
+	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetYaxis()->SetTitle("#Delta #phi (rad)");
+	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetXaxis()->SetTitleSize(0.05);
+	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetYaxis()->SetTitleSize(0.05);
+	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetYaxis()->SetTitleOffset(1.5);
+	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetXaxis()->SetLabelSize(0.05);
+	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetYaxis()->SetLabelSize(0.05);
+	  hDeltaEtaDeltaPhi_MEbins_sidebands[m][z][v][tr]= new TH2D(nameME[m][z][v][tr]+"_SB", nameME[m][z][v][tr]+"_SB",  56, -1.5, 1.5, 104,  -0.5*TMath::Pi(), 1.5*TMath::Pi());
+	  hDeltaEtaDeltaPhi_MEbins_sidebands[m][z][v][tr]->GetYaxis()->SetTitle("#Delta #phi (rad)");
+	  hDeltaEtaDeltaPhi_MEbins_sidebands[m][z][v][tr]->GetXaxis()->SetTitleSize(0.05);
+	  hDeltaEtaDeltaPhi_MEbins_sidebands[m][z][v][tr]->GetYaxis()->SetTitleSize(0.05);
+	  hDeltaEtaDeltaPhi_MEbins_sidebands[m][z][v][tr]->GetYaxis()->SetTitleOffset(1.5);
+	  hDeltaEtaDeltaPhi_MEbins_sidebands[m][z][v][tr]->GetXaxis()->SetLabelSize(0.05);
+	  hDeltaEtaDeltaPhi_MEbins_sidebands[m][z][v][tr]->GetYaxis()->SetLabelSize(0.05);
+
+	}
+      }
+    }
+  }
+
+  EntriesSign =  tSign->GetEntries();
+  EntriesBkg  =  tBkg ->GetEntries();
+     
+  Bool_t BoolVar=kFALSE;
+  Bool_t BoolMC=kFALSE;
+  Bool_t MassLimit=kFALSE;
+  Float_t     fSignTreeVariableInvMass= 0;
+  Bool_t isParticleTrue=kFALSE;
+  Int_t fSignTreeVariablePAPAssoc=0;
+
+  dirSign->cd();
+  cout << "\n\n I will process " << EntriesSign << " entries for theSE correlation " << endl;
+  for(Int_t k = 0; k<EntriesSign; k++){
+    //    if (k>1000000) continue;
+        tSign->GetEntry(k);
+	//  for(Int_t k = 0; k<1000000; k++){
+    for (Int_t l=0; l<10000; l++){
+      //      if (k ==100000*l) cout << "k = " << k << " over a total of " << EntriesSign << endl;
+      if (k ==100000*l) {
+	Float_t kFloat= k;
+	//	cout << " etav0:" << fSignTreeVariableEtaV0 <<  " etatrigger: " << fSignTreeVariableEtaTrigger << " deltaeta: " << fSignTreeVariableDeltaEta << "  new: " << fSignTreeVariableEtaV0-fSignTreeVariableEtaTrigger <<  endl;
+	//	cout << " phiv0:" << fSignTreeVariablePhiV0 <<  " phitrigger: " << fSignTreeVariablePhiTrigger << " deltaphi: " << fSignTreeVariableDeltaPhi << "  new: " << fSignTreeVariablePhiV0-fSignTreeVariablePhiTrigger <<  endl;
+	cout << "PtTrigMin = " << PtTrigMin << " sysV0 " << sysV0 << " SE, processing..." << kFloat/EntriesSign << endl;
+      }
+    }
+
+
+    //charge selection: not done, since both K0s and Lambdas have charge =0
+    /*
+      if ((type==0 || type ==2) && fSignTreeVariableChargeAssoc==1) continue;
+      else if ((type==1 || type ==3) && fSignTreeVariableChargeAssoc==-1) continue;
+    */
+
+    //particle - antiparticle selection
+    if (type==0 || type ==1) fSignTreeVariablePAPAssoc=1;
+    else if (type==2)  fSignTreeVariablePAPAssoc=-1;
+    //else ?
+
+    //inv mass definition
+    fSignTreeVariableInvMass= 0;
+    if (type==0)     fSignTreeVariableInvMass= fSignTreeVariableInvMassK0s;
+    else if (type==2)      fSignTreeVariableInvMass= fSignTreeVariableInvMassLambda;
+    else if (type==3)      fSignTreeVariableInvMass= fSignTreeVariableInvMassAntiLambda;
+    //    else ?
+
+    //rapidity selection
+    if (israp==0 && TMath::Abs(fSignTreeVariableEtaV0)>0.8)continue; 
+    else if (israp==1 && TMath::Abs(fSignTreeVariableRapK0Short)>0.5)continue;
+
+    //definition of true particle
+    if (type<=2) isParticleTrue= (fSignTreeVariablePDGCodeAssoc==PDGCode[type] );
+    else if (type==3) isParticleTrue= ((fSignTreeVariablePDGCodeAssoc==PDGCode[1]) ||(fSignTreeVariablePDGCodeAssoc==PDGCode[1])  );
+   
+    if (SkipAssoc){    if (fSignTreeVariableSkipAssoc==1) continue;}
+
+    if(isMC==0 || (isMC==1 && isEfficiency==1)){
+
+      //************cuts on pT trigger min*********************************
+      if(TMath::Abs(fSignTreeVariablePtTrigger)<PtTrigMin) continue;
+      if(TMath::Abs(fSignTreeVariablePtTrigger)>ptjmax) continue;
+
+      //cuts on DCAz trigger*******************
+      if(sysTrigger==0){
+	if(TMath::Abs(fSignTreeVariableDCAz)>1) continue;
+      }
+      if(sysTrigger==1){
+	if(TMath::Abs(fSignTreeVariableDCAz)>2) continue;
+      }
+      if(sysTrigger==2){
+	if(TMath::Abs(fSignTreeVariableDCAz)>0.5) continue;
+      }
+
+      //******************* some other cuts for sys studies**************************
+      if (!ishhCorr){
+	if (sysV0==0){
+	
+	  //the values are valid for K0s
+	  if (type==0){
+	    if(TMath::Abs((fSignTreeVariableInvMassLambda - massLambda))<= 0.005) continue;
+	    if(TMath::Abs((fSignTreeVariableInvMassAntiLambda - massLambda))<= 0.005) continue;
+	  }
+	  if(fSignTreeVariableV0CosineOfPointingAngle<0.995)            continue;
+	  if(fSignTreeVariableDcaNegToPrimVertex < 0.06)      continue;
+	  if(fSignTreeVariableDcaPosToPrimVertex < 0.06)      continue;
+	  if(fSignTreeVariableDcaV0ToPrimVertex > 0.5)                               continue;
+	  if(fSignTreeVariablectau> 20)                   continue;
+
+	}
+      }
+      else if (ishhCorr){
+	if(sysV0==0){
+	  if(TMath::Abs(fSignTreeVariableAssocDCAz)>1) continue;
+	}
+	if(sysV0==1){
+	  if(TMath::Abs(fSignTreeVariableAssocDCAz)>2) continue;
+	}
+	if(sysV0==2){
+	  if(TMath::Abs(fSignTreeVariableAssocDCAz)>0.5) continue;
+	}
+      }
+    }
+
+    //**********************************************************************************************
+
+    fSignTreeVariableDeltaPhi = fSignTreeVariablePhiV0-fSignTreeVariablePhiTrigger; 
+    if (fSignTreeVariableDeltaPhi >  (1.5*TMath::Pi())) fSignTreeVariableDeltaPhi -= 2.0*TMath::Pi();
+    if (fSignTreeVariableDeltaPhi < (-0.5*TMath::Pi())) fSignTreeVariableDeltaPhi += 2.0*TMath::Pi();
+
+    for(Int_t m=0; m<nummolt+1; m++){
+      if(m< nummolt) BoolVar = fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1];
+      else BoolVar=kTRUE;
+	hSign_DeltaEtaEtaV0[m]->Fill(fSignTreeVariableEtaV0, fSignTreeVariableDeltaEta);
+	hSign_DeltaEtaEtaTrigger[m]->Fill(fSignTreeVariableEtaTrigger, fSignTreeVariableDeltaEta);
+      for (Int_t DeltaEta=0; DeltaEta<numDeltaEta; DeltaEta++){
+	if (BoolVar && TMath::Abs(fSignTreeVariableDeltaEta) < DeltaEtaLimit[DeltaEta]){
+	  hSign_EtaV0[m][DeltaEta]->Fill(fSignTreeVariableEtaV0);
+	  hSign_RapV0[m][DeltaEta]->Fill(fSignTreeVariableRapK0Short);
+	  if (TMath::Abs(fSignTreeVariableRapK0Short) < 0.5)	    hSign_EtaV0MidRap[m][DeltaEta]->Fill(fSignTreeVariableEtaV0);
+	}
+      }
+      for(Int_t z=0; z<numzeta; z++){
+	for(Int_t tr=0; tr<numPtTrigger; tr++){
+	  for(Int_t v=1; v<numPtV0; v++){
+	    /* defined above in a less error-prone way
+	    if (type==4 || type==5 || type==8){
+	      LimInfMass[type]=1.30;
+	      LimSupMass[type]=1.342;
+
+	      if (v >4)  {
+	      LimInfMass[type]=1.29;
+	      LimSupMass[type]=1.349;
+	      }
+	    }
+	    */
+	    if((isMC && !isEfficiency)) {
+	      BoolMC = kTRUE;
+	      MassLimit=kTRUE;
+	    }
+	    else {
+	      BoolMC =TMath::Abs((fSignTreeVariableInvMass - mass[type][m][v]))<sigmacentral[type][m][v]*sigma[type][m][v]; 
+	      if(isSigma) MassLimit=(TMath::Abs((fSignTreeVariableInvMass - mass[type][m][v]))>nsigmamin[type][m][v]*sigma[type][m][v] && TMath::Abs((fSignTreeVariableInvMass - mass[type][m][v]))<nsigmamax*sigma[type][m][v]);
+	      if(!isSigma)MassLimit=(TMath::Abs((fSignTreeVariableInvMass - mass[type][m][v]))>nsigmamin[type][m][v]*sigma[type][m][v] && fSignTreeVariableInvMass>LimInfMass[type][m][v] && fSignTreeVariableInvMass<LimSupMass[type][m][v]);
+	    }	    
+	    if(BoolMC && BoolVar && fSignTreeVariablePtV0>=NPtV0[v]&& fSignTreeVariablePtV0<NPtV0[v+1]){
+	      hSign_PtTrigger[m][z]->Fill(fSignTreeVariablePtTrigger);
+	      hSign_PtV0[m][z]->Fill(fSignTreeVariablePtV0);
+	    }	  
+	    if(BoolVar && fSignTreeVariablePtTrigger>=NPtTrigger[tr] && fSignTreeVariablePtTrigger<NPtTrigger[tr+1] && fSignTreeVariablePtV0>=NPtV0[v]&& fSignTreeVariablePtV0<NPtV0[v+1]){
+	      if(BoolMC){
+		hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
+	      }
+	      if((!isMC || (isMC &&isEfficiency))&& MassLimit){
+		hDeltaEtaDeltaPhi_SEbins_sidebands[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
+	      }
+
+	    }
+	  }
+	}
+      }
+    }
+  }
+
+
+  BoolVar=kFALSE;
+  BoolMC=kFALSE;
+  MassLimit=kFALSE;
+
+  Float_t     fBkgTreeVariableInvMass= 0;
+  cout << "ciao " << endl;
+  dirBkg->cd();
+  cout << "\n\n I will process " << EntriesBkg << " entries for theSE correlation " << endl;
+  for(Int_t k = 0; k<EntriesBkg; k++){
+    //      if (k>1000000) continue;
+
+      tBkg->GetEntry(k);     
+    //  for(Int_t k = 0; k<1000000; k++){
+    for (Int_t l=0; l<10000; l++){
+      //if (k ==100000*l) cout << "k = " << k << " over a total of " << EntriesBkg << endl;
+      if (k ==100000*l) {
+	Float_t kFloat= k;
+	//	cout << " etav0:" << fBkgTreeVariableEtaV0 <<  " etatrigger: " << fBkgTreeVariableEtaTrigger << " deltaeta: " << fBkgTreeVariableDeltaEta << "  new: " << fBkgTreeVariableEtaV0-fBkgTreeVariableEtaTrigger <<  endl;
+	//	cout << " phiv0:" << fBkgTreeVariablePhiV0 <<  " phitrigger: " << fBkgTreeVariablePhiTrigger << " deltaphi: " << fBkgTreeVariableDeltaPhi << "  new: " << fBkgTreeVariablePhiV0-fBkgTreeVariablePhiTrigger <<  endl;
+	cout << "PtTrigMin "<< PtTrigMin << " sysV0 "<< sysV0 << " ME processing..." << kFloat/EntriesBkg << endl;
+      }
+    }
+
+
+    //charge selection
+    /*
+      if ((type==0 || type ==2) && fBkgTreeVariableChargeAssoc==1) continue;
+      else if ((type==1 || type ==3) && fBkgTreeVariableChargeAssoc==-1) continue;
+    */
+    //inv mass definition
+    fBkgTreeVariableInvMass= 0;
+    if (type==0)     fBkgTreeVariableInvMass= fBkgTreeVariableInvMassK0s;
+    else if (type==2)      fBkgTreeVariableInvMass= fBkgTreeVariableInvMassLambda;
+    else if (type==3)      fBkgTreeVariableInvMass= fBkgTreeVariableInvMassAntiLambda;
+
+    //rapidity selection
+    if (israp==0 && TMath::Abs(fBkgTreeVariableEtaV0)>0.8)continue;
+    else if (israp==1 && TMath::Abs(fBkgTreeVariableRapK0Short)>0.5)continue;
+
+    //definition of true particle
+    if (type<=2) isParticleTrue= (fBkgTreeVariablePDGCodeAssoc==PDGCode[type] );
+    else if (type==3) isParticleTrue= ((fBkgTreeVariablePDGCodeAssoc==PDGCode[1]) ||(fBkgTreeVariablePDGCodeAssoc==PDGCode[1])  );
+ 
+    if (SkipAssoc){    if (fBkgTreeVariableSkipAssoc==1) continue;}
+
+    if(isMC==0 || (isMC==1 && isEfficiency==1)){
+      //************cuts on pT trigger min*********************************
+      if(TMath::Abs(fBkgTreeVariablePtTrigger)<PtTrigMin) continue;
+      if(TMath::Abs(fBkgTreeVariablePtTrigger)>ptjmax) continue;
+
+      //cuts on DCAz trigger*******************
+      if(sysTrigger==0){
+	if(TMath::Abs(fBkgTreeVariableDCAz)>1) continue;
+      }
+      if(sysTrigger==1){
+	if(TMath::Abs(fBkgTreeVariableDCAz)>2) continue;
+      }
+      if(sysTrigger==2){
+	if(TMath::Abs(fBkgTreeVariableDCAz)>0.5) continue;
+      }
+
+      //******************* some other cuts for sys studies **************************
+      if (!ishhCorr){
+	if (sysV0==0){
+	  //the values are valid for K0s
+	  if (type==0){
+	    if(TMath::Abs((fBkgTreeVariableInvMassLambda - massLambda))<= 0.005) continue;
+	    if(TMath::Abs((fBkgTreeVariableInvMassAntiLambda - massLambda))<= 0.005) continue;
+	  }
+	  if(fBkgTreeVariableV0CosineOfPointingAngle<0.995)            continue;
+	  if(fBkgTreeVariableDcaNegToPrimVertex < 0.06)      continue;
+	  if(fBkgTreeVariableDcaPosToPrimVertex < 0.06)      continue;
+	  if(fBkgTreeVariableDcaV0ToPrimVertex > 0.5)                               continue;
+	  if(fBkgTreeVariablectau> 20)                   continue;
+
+	}
+      }
+      else if (ishhCorr){
+	if(sysV0==0){
+	  if(TMath::Abs(fBkgTreeVariableAssocDCAz)>1) continue;
+	}
+	if(sysV0==1){
+	  if(TMath::Abs(fBkgTreeVariableAssocDCAz)>2) continue;
+	}
+	if(sysV0==2){
+	  if(TMath::Abs(fBkgTreeVariableAssocDCAz)>0.5) continue;
+	}
+      }
+
+    }
+
+    //**********************************************************************************************
+
+    Double_t fBkgTreeVariableDeltaPhiMinus = -fBkgTreeVariableDeltaPhi ;
+    fBkgTreeVariableDeltaPhi = fBkgTreeVariablePhiV0-fBkgTreeVariablePhiTrigger; 
+
+    if (fBkgTreeVariableDeltaPhi >  (1.5*TMath::Pi())) fBkgTreeVariableDeltaPhi -= 2.0*TMath::Pi();
+    if (fBkgTreeVariableDeltaPhi < (-0.5*TMath::Pi())) fBkgTreeVariableDeltaPhi += 2.0*TMath::Pi();
+
+    /*
+    cout << " deltaphi: " << fBkgTreeVariableDeltaPhi << "  new: " << fBkgTreeVariablePhiV0-fBkgTreeVariablePhiTrigger <<  endl;
+
+    if (fBkgTreeVariableDeltaPhiMinus >  (1.5*TMath::Pi())) fBkgTreeVariableDeltaPhiMinus -= 2.0*TMath::Pi();
+    if (fBkgTreeVariableDeltaPhiMinus < (-0.5*TMath::Pi())) fBkgTreeVariableDeltaPhiMinus += 2.0*TMath::Pi();
+
+    cout << " New: deltaphi: " << fBkgTreeVariableDeltaPhiMinus << "  new: " << fBkgTreeVariablePhiV0-fBkgTreeVariablePhiTrigger <<  endl;
+    */
+    for(Int_t m=0; m<nummolt+1; m++){
+      if(m< nummolt) BoolVar =  fBkgTreeVariableMultiplicity>=Nmolt[m] && fBkgTreeVariableMultiplicity<Nmolt[m+1];
+      else BoolVar=kTRUE;
+	hBkg_DeltaEtaEtaV0[m]->Fill(fBkgTreeVariableEtaV0, fBkgTreeVariableDeltaEta);
+	hBkg_DeltaEtaEtaTrigger[m]->Fill(fBkgTreeVariableEtaTrigger, fBkgTreeVariableDeltaEta);
+      for (Int_t DeltaEta=0; DeltaEta<numDeltaEta; DeltaEta++){
+	if (BoolVar && TMath::Abs(fBkgTreeVariableDeltaEta) < DeltaEtaLimit[DeltaEta]){
+	  hBkg_EtaV0[m][DeltaEta]->Fill(fBkgTreeVariableEtaV0);
+	  hBkg_RapV0[m][DeltaEta]->Fill(fBkgTreeVariableRapK0Short);
+	  if (TMath::Abs(fBkgTreeVariableRapK0Short) < 0.5)	    hBkg_EtaV0MidRap[m][DeltaEta]->Fill(fBkgTreeVariableEtaV0);
+	}
+      }
+
+      for(Int_t z=0; z<numzeta; z++){
+	for(Int_t tr=0; tr<numPtTrigger; tr++){
+	  for(Int_t v=1; v<numPtV0; v++){
+
+	    /*	    if (type==4 || type==5 || type==8){
+	      LimInfMass[type]=1.30;
+	      LimSupMass[type]=1.342;
+
+	      if (v >4)  {
+	      LimInfMass[type]=1.29;
+	      LimSupMass[type]=1.352;
+	      }
+	    }*/
+	    if((isMC && !isEfficiency) ) {
+	      BoolMC = kTRUE;
+	      MassLimit=kTRUE;
+	    }
+	    else {
+	      BoolMC =TMath::Abs((fBkgTreeVariableInvMass - mass[type][m][v]))<sigmacentral[type][m][v]*sigma[type][m][v]; 
+	      if(isSigma) MassLimit=(TMath::Abs((fBkgTreeVariableInvMass - mass[type][m][v]))>nsigmamin[type][m][v]*sigma[type][m][v] && TMath::Abs((fBkgTreeVariableInvMass - mass[type][m][v]))<nsigmamax*sigma[type][m][v]);
+	      if(!isSigma)MassLimit=(TMath::Abs((fBkgTreeVariableInvMass - mass[type][m][v]))>nsigmamin[type][m][v]*sigma[type][m][v] && fBkgTreeVariableInvMass>LimInfMass[type][m][v] && fBkgTreeVariableInvMass<LimSupMass[type][m][v]);
+	    }	    
+ 
+	    if(BoolMC && BoolVar &&  fBkgTreeVariablePtV0>=NPtV0[v]&& fBkgTreeVariablePtV0<NPtV0[v+1]){
+	      hBkg_PtTrigger[m][z]->Fill(fBkgTreeVariablePtTrigger);
+	      hBkg_PtV0[m][z]->Fill(fBkgTreeVariablePtV0);
+	    }	  
+	    if(BoolVar && fBkgTreeVariablePtTrigger>=NPtTrigger[tr] && fBkgTreeVariablePtTrigger<NPtTrigger[tr+1] && fBkgTreeVariablePtV0>=NPtV0[v]&& fBkgTreeVariablePtV0<NPtV0[v+1]){
+	      if(BoolMC){
+		hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->Fill(fBkgTreeVariableDeltaEta, fBkgTreeVariableDeltaPhi);
+	      }
+	      if((!isMC || (isMC &&isEfficiency)) && MassLimit){
+		hDeltaEtaDeltaPhi_MEbins_sidebands[m][z][v][tr]->Fill(fBkgTreeVariableDeltaEta, fBkgTreeVariableDeltaPhi);
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+
+  cout << "ciao " << endl;
+  fout->Write();
+
+  cout << "partendo dal file " << PathIn << " e " << PathInMassDef << " (per le diverse molteplicità) ho creato il file " << PathOut<< endl;
+}
+
