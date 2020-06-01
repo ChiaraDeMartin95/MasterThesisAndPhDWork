@@ -92,10 +92,9 @@ class AliAnalysisTaskCascades : public AliAnalysisTaskSE
 Double_t   fRunNumber; //!
 Double_t   fBunchCrossNumber; //!
   TH1F*                   fHistEventV0;   //!
-  TH2F*                   fHistEventXiTruePos;   //!
-  TH2F*                   fHistEventXiTrueNeg;   //!
-  TH2F*                   fHistEventXiTruePosRapSel;   //!
-  TH2F*                   fHistEventXiTrueNegRapSel;   //!
+  TH3F*                   fHistEventXiTrue;   //!
+  TH3F*                   fHistEventOmegaTrue;   //!
+
 TH2F *fHistDCApTrackXi;//!
 TH2F *fHistDCAnTrackXi;//!
 TH2F *fHistDCAbachTrackXi; //!
@@ -120,6 +119,11 @@ TH2F* fHistLengthvsCrossedRowsAfterSelBach; //!
   TH1F*                   fHistPDGBachMom;         //!	
   TH1F*                   fHistTheta; //!
   TH1F*                   fHistEta; //!
+TH1F*  fHistRapGenXi; //!
+TH1F*  fHistRapGenOmega; //!
+TH1F*  fHistRapSelXi; //!
+TH1F*  fHistRapSelOmega; //!
+
   TH1F*                   fHistPhi; //!
   TH1F*                   fHistTrackBufferOverflow;         //!	
   TH2F*                   fHistSecondParticleAll; //!
