@@ -18,7 +18,7 @@
 #include <TFile.h>
 #include </data/dataalice/AliceSoftware/aliphysics/master_chiara/src/PWG/Tools/AliPWGFunc.h>
 
-void BarlowSys(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Int_t TypeAnalysis=0, Bool_t isMC=0,   Int_t israp=0,TString year=/*"2016k_New"*/"Run2DataRed_hXi",  TString Path1 ="", Int_t avoidthissyst=3,Int_t avoidthissystbis=20,Int_t avoidthissysttris=21, Int_t type=8,  Bool_t isEfficiency=1,   TString Dir="FinalOutput",TString year0="2016", Int_t sysTrigger=0, Float_t numSigmaCorr=2, Bool_t MasterThesisAnalysis=0, Bool_t isEnlargedDeltaEtaPhi=0,Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Int_t PtBinMin=1,  Bool_t SkipAssoc=1){
+void BarlowSys(Int_t ishhCorr=0, Float_t PtTrigMin =0.15, Float_t PtTrigMax=15, Int_t TypeAnalysis=0, Bool_t isMC=0,   Int_t israp=1,TString year="2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"*/,  TString Path1 ="", Int_t avoidthissyst=3,Int_t avoidthissystbis=20,Int_t avoidthissysttris=21, Int_t type=0,  Bool_t isEfficiency=1,   TString Dir="FinalOutput",TString year0="2016", Int_t sysTrigger=0, Float_t numSigmaCorr=2, Bool_t MasterThesisAnalysis=0, Bool_t isEnlargedDeltaEtaPhi=0,Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Int_t PtBinMin=1,  Bool_t SkipAssoc=1){
 
   if (ishhCorr && type!=0){
     type=0;
@@ -89,16 +89,16 @@ void BarlowSys(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Int
   Int_t numSystGlobal  = 0;
   Int_t numsystPhiGlobal  = 0;
   if (!ishhCorr){
-    if (type==0){
+    /*    if (type==0){
     numSysV0Global = numSysV0; 
     numSystGlobal  = numSyst;
     numsystPhiGlobal  = numsystPhi;
-    }
-    if (type!=0){    
+    }*/
+    //    if (type!=0){    
     numSysV0Global = 1; 
     numSystGlobal  = 2;
     numsystPhiGlobal  = 0;
-    }
+    //    }
   }
   if (ishhCorr){
     numSysV0Global = numSysV0hh;
@@ -114,7 +114,7 @@ void BarlowSys(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Int
   cout << "ok " << endl;
   const Int_t numtipo=10;
   Float_t massParticle[numtipo]= {0.497611, 1.115683, 1.115683, 1.115683, 1.32171, 1.32171, 1.67245, 1.67245, 1.32171, 1.67245};
-  TString tipo[numtipo]={"kK0s", "Lambda", "AntiLambda","LambdaAntiLambda", "XiNeg", "XiPos", "OmegaNeg", "OmegaPlus", "Xi", "Omega"};
+  TString tipo[numtipo]={"K0s", "Lambda", "AntiLambda","LambdaAntiLambda", "XiNeg", "XiPos", "OmegaNeg", "OmegaPlus", "Xi", "Omega"};
   TString tipoTitle[numtipo]={"K0s", "#Lambda", "#AntiLambda","#Lambda + #AntiLambda", "Xi^{-}", "Xi^{+}", "Omega^{-}", "Omega^{+}", "Xi", "Omega"};
   cout << "ok " << endl;
   TString Srap[2] = {"_Eta0.8", "_y0.5"};
@@ -135,11 +135,23 @@ void BarlowSys(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Int
   TString Szeta[numzeta]={""};
   //  Double_t Nzeta[numzeta+1]={};
   TString SPtV0[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8"};
-  if (type>0)SPtV0[1]={"0.5-1"};
+  if (type>=0)SPtV0[1]={"0.5-1"};
+  if (ishhCorr){
+    SPtV0[0]={"0-0.5"};
+    SPtV0[1]={"0.5-1"};
+  }
   Double_t NPtV0[numPtV0+1]={0,0,1,1.5,2,2.5,3,4,8};
-  if (type>0) NPtV0[1]=0.5;
+  if (type>=0) NPtV0[1]=0.5;
+  if (ishhCorr) {
+    NPtV0[0]=0.1;
+    NPtV0[1]=0.5;
+  }
   TString SNPtV0[numPtV0+1]={"0.0","0.0","1.0","1.5","2.0","2.5","3.0","4.0","8.0"};
-  if (type>0) SNPtV0[1]={"0.5"};
+  if (type>=0) SNPtV0[1]={"0.5"};
+  if (ishhCorr){
+    SNPtV0[0]={"0.1"};
+    SNPtV0[1]={"0.5"};
+  }
 
   TString SErrorSpectrum[3]={"stat.","syst. uncorr.","syst. corr."};
   TString SSystJet[2]={"BC [-1.0, 1.0]", "BC [-1.2, 1.2]"};
@@ -275,7 +287,7 @@ void BarlowSys(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Int
   TString stringout;
 
   stringout = Dir+"/DATA"+year0+"/SystematicAnalysis" +year +Path1; //it was without year
-  if(type>0){
+  if(type>=0){
     stringout +="_"+tipo[type];
     stringout +=Srap[israp];
     stringout +=SSkipAssoc[SkipAssoc];
@@ -375,12 +387,12 @@ void BarlowSys(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Int
     }
 
     if(m<nummolt){
-      for(Int_t j=fHistTriggervsMult_MultProj->GetXaxis()->FindBin(Nmolt[m]+0.001); j<fHistTriggervsMult_MultProj->GetXaxis()->FindBin(Nmolt[m+1]-0.001); j++ ){
+      for(Int_t j=fHistTriggervsMult_MultProj->GetXaxis()->FindBin(Nmolt[m]+0.001); j<=fHistTriggervsMult_MultProj->GetXaxis()->FindBin(Nmolt[m+1]-0.001); j++ ){
 	NTrigger[m]+= fHistTriggervsMult_MultProj->GetBinContent(j);
       }
     }
     else {
-      for(Int_t j=1; j<fHistTriggervsMult_MultProj->GetNbinsX(); j++ ){
+      for(Int_t j=1; j<=fHistTriggervsMult_MultProj->GetNbinsX(); j++ ){
 	NTrigger[m]+= fHistTriggervsMult_MultProj->GetBinContent(j);
       }
     }
@@ -417,7 +429,7 @@ void BarlowSys(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Int
       if (isMC && !isEfficiency) PathIn1=Dir+"/DATA"+year0+"/histo/AngularCorrelation" + file+  Form("_Sys%i", sys)+"_Output.root";
       else {
 	PathIn1 = Dir+"/DATA"+year0+"/histo/AngularCorrelation" + file;
-	if(type>0){
+	if(type>=0){
 	  PathIn1 +="_"+tipo[type];
 	  PathIn1 +=Srap[israp];
 	  PathIn1 +=SSkipAssoc[SkipAssoc];

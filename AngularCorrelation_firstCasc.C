@@ -17,19 +17,13 @@
 #include <TFile.h>
 #include <TLegend.h>
 
-void AngularCorrelation_firstCasc(Bool_t ishhCorr=0,Float_t ptjmin=3, Int_t sysV0=0, Int_t sysTrigger=0,Int_t sys=0,Int_t type=8,  Int_t israp=0,Bool_t isMC=0, Bool_t isEfficiency=1,   TString year0 = "2016",TString year="Run2DataRed_hXi", TString yearMC="2016kl_hXi",  TString Path1 ="", TString Dir ="FinalOutput/",  Float_t ptjmax=15, Int_t rebin=1,  Int_t rebinx=2,  Int_t rebiny=2, Bool_t MasterThesisAnalysis=0, Float_t PtTrigMinFit=3, Bool_t isEnlargedDeltaEtaPhi=0,Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Bool_t SkipAssoc=1){ 
+void AngularCorrelation_firstCasc(Bool_t ishhCorr=0,Float_t ptjmin=0.15, Int_t sysV0=0, Int_t sysTrigger=0,Int_t sys=0,Int_t type=0,  Int_t israp=1,Bool_t isMC=0, Bool_t isEfficiency=1,   TString year0 = "2016",TString year="2016k_hK0s_30runs_150MeV", TString yearMC="2018f1_extra_hK0s_30runs_150MeV",  TString Path1 ="", TString Dir ="FinalOutput/",  Float_t ptjmax=15, Int_t rebin=2,  Int_t rebinx=2,  Int_t rebiny=2, Bool_t MasterThesisAnalysis=0, Float_t PtTrigMinFit=0.15, Bool_t isEnlargedDeltaEtaPhi=0,Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Bool_t SkipAssoc=1){ 
 
   //masterthesis analysis è usato quando devo fare analisi presentata per la tesi
   if (ishhCorr && type!=0) {cout << " for hh correlation type should be set to zero in order to get the correct files " << endl; return;}
 
-  if (type==0){
-    if (!ishhCorr && (((year!="2016k_onlyTriggerWithHighestPt"&& year!="2018f1_extra_onlyTriggerWithHighestPt") || yearMC!="2018f1_extra_onlyTriggerWithHighestPt"))) {
-      cout << "for hV0 correlation you should use year = 2016k_onlyTriggerWithHighestPt together with the MC yearMC = 2018f1_extra_onlyTriggerWithHighestPt" << endl;
-      return; 
-    }
-  }
   const  Float_t PtTrigMin=ptjmin;
-  gStyle->SetOptStat(0);
+  //  gStyle->SetOptStat(0);
 
   //lista degli effetti  sistematici studiati in questa macro
   if (sys==3 || sys>5) return;
@@ -44,7 +38,7 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0,Float_t ptjmin=3, Int_t sysV
   if (sys==2) sysang=2;
 
   const Int_t numtipo=10;
-  TString tipo[numtipo]={"kK0s", "Lambda", "AntiLambda","LambdaAntiLambda", "XiNeg", "XiPos", "OmegaNeg", "OmegaPlus", "Xi", "Omega"};
+  TString tipo[numtipo]={"K0s", "Lambda", "AntiLambda","LambdaAntiLambda", "XiNeg", "XiPos", "OmegaNeg", "OmegaPlus", "Xi", "Omega"};
   TString tipoTitle[numtipo]={"K0s", "#Lambda", "#AntiLambda","#Lambda + #AntiLambda", "Xi^{-}", "Xi^{+}", "Omega^{-}", "Omega^{+}", "Xi", "Omega"};
   TString Srap[2] = {"_Eta0.8", "_y0.5"};
   TString SSkipAssoc[2] = {"_AllAssoc", ""};
@@ -83,7 +77,7 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0,Float_t ptjmin=3, Int_t sysV
   TString file = year;
   TString file2 = year;
   if (isMC) file += "_MCEff";
-  file +=Path1; 
+  //  file +=Path1; 
   if (ishhCorr) {
     file2+="_hhCorr";
     file+="_hhCorr";
@@ -99,12 +93,12 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0,Float_t ptjmin=3, Int_t sysV
   TString PathIn;
   if (isMC && !isEfficiency) PathIn= Dir+"/histo/AngularCorrelation" + file + ".root";
   else{
-    PathIn= Dir+"/histo/AngularCorrelation" + file;
-    if(type>0){
+    PathIn= Dir+"/histo/AngularCorrelation" + file+Path1;
+        if(type>=0){
       PathIn +="_"+tipo[type];
       PathIn +=Srap[israp];
       PathIn +=SSkipAssoc[SkipAssoc];
-    }
+         }
     PathIn+= Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f.root", sysTrigger, sysV0, sysang, PtTrigMin);
   }
   if (MasterThesisAnalysis){
@@ -115,8 +109,8 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0,Float_t ptjmin=3, Int_t sysV
   if (ishhCorr) PathInBis="FinalOutput/AnalysisResults" + file2  + ".root"; 
 
 
-  TString PathInEfficiency = Dir+ "/Efficiency/Efficiency" +fileMC +Path1;
-  if(type>0){
+  TString PathInEfficiency = Dir+ "/Efficiency/Efficiency" +fileMC; // +Path1; change
+  if(type>=0){
     PathInEfficiency +="_"+tipo[type];
     PathInEfficiency +=Srap[israp];
     PathInEfficiency +=SSkipAssoc[SkipAssoc];
@@ -129,8 +123,8 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0,Float_t ptjmin=3, Int_t sysV
   TString PathOut1;
   if (isMC && !isEfficiency) PathOut1=Dir+"/histo/AngularCorrelation" + file  +"_Output.root";
   else {
-    PathOut1 = Dir+"/histo/AngularCorrelation" + file;
-    if(type>0){
+    PathOut1 = Dir+"/histo/AngularCorrelation"  +file+Path1;
+    if(type>=0){
       PathOut1 +="_"+tipo[type];
       PathOut1 +=Srap[israp];
       PathOut1 +=SSkipAssoc[SkipAssoc];
@@ -141,11 +135,14 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0,Float_t ptjmin=3, Int_t sysV
     if (MasterThesisAnalysis)    PathOut1 = Dir+"/histo/AngularCorrelation" + file  + Form("_SysT%i_SysV0%i_Sys%i", sysTrigger, sysV0, sys)+"_Output.root";
   }
  
-  TString PathInMass= Dir+"/invmass_distribution_thesis/invmass_distribution_";
+  TString PathInMass= Dir+"/invmass_distribution_thesis/invmass_distribution";
   if (isMC && isEfficiency) PathInMass+="MCEff_";
   TString Title;
+  //  PathInMass+= Path1+"_" ;
+  //  PathInMass+= "Eta05_" ; //change
+  PathInMass+="_";
   PathInMass+= year;
-  PathInMass+= Path1 ;
+
   cout << "path in: " << PathInBis << endl;
   cout << "path in angular correlation: " << PathIn << endl;
   cout << "path efficiency: " <<PathInEfficiency << endl;
@@ -195,11 +192,27 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0,Float_t ptjmin=3, Int_t sysV
   //  TString SPtV0[numPtV0]={"0-1", "1-2", "2-3", "3-4", "4-8"};
   //  Double_t NPtV0[numPtV0+1]={0,1,2,3,4,8};
   TString SPtV0[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8"};
-  if (type>0)SPtV0[1]={"0.5-1"};
+  //  if (type>0)SPtV0[1]={"0.5-1"};
+  if (type>=0)SPtV0[1]={"0.5-1"};
+  if (ishhCorr){
+    SPtV0[0]={"0-0.5"};
+    SPtV0[1]={"0.5-1"};
+  }
   Double_t NPtV0[numPtV0+1]={0,0,1,1.5,2,2.5,3,4,8};
-  if (type>0) NPtV0[1]=0.5;
+  //  if (type>0) NPtV0[1]=0.5;
+ if (type>=0) NPtV0[1]=0.5;
+  if (ishhCorr) {
+    NPtV0[0]=0.1;
+    NPtV0[1]=0.5;
+  }
   TString SNPtV0[numPtV0+1]={"0.0","0.0","1.0","1.5","2.0","2.5","3.0","4.0","8.0"};
-  if (type>0) SNPtV0[1]={"0.5"};
+  //  if (type>0) SNPtV0[1]={"0.5"};
+  if (type>=0) SNPtV0[1]={"0.5"};
+  if (ishhCorr){
+    SNPtV0[0]={"0.1"};
+    SNPtV0[1]={"0.5"};
+  }
+
   TString SPtTrigger[numPtTrigger]={"3-30"};
   Double_t NPtTrigger[numPtTrigger+1]={ptjmin,ptjmax};
   TString Seta[numetabis]={"_eta<0.5", "_allEta"};
@@ -211,6 +224,8 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0,Float_t ptjmin=3, Int_t sysV
   Float_t binwy;
   Bool_t Bool;
  
+  TH1F *fHistEtaLimitsOfRegion = new TH1F("fHistEtaLimitsOfRegion", "fHistEtaLimitsOfRegion",6, 0, 6);
+
   TH2D *fHistTriggervsMult         = (TH2D*)list->FindObject("fHistPtMaxvsMultBefAll");
   TH1D *fHistTriggervsMult_MultProj= (TH1D*)fHistTriggervsMult->ProjectionY("fHistTriggervsMult_MultProj");
   TH1D *HistoTriggerEfficiency     = (TH1D*)fileinEfficiency->Get("HistoTriggerEfficiency"); //trigger efficiency vs mult
@@ -238,6 +253,7 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0,Float_t ptjmin=3, Int_t sysV
   TH1D *hDeltaEtaDeltaPhi_ACbins_phi[nummolt+1][numzeta][numPtV0][numPtTrigger][numSB][numeta]; //SE/ME norm proiettato in delta Phi
   TH1D *hDeltaEtaDeltaPhi_ACbins_phi_Error[nummolt+1][numzeta][numPtV0][numPtTrigger][numSB][numeta]; //relative errors of histo projected above
   TH1D *hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[nummolt+1][numzeta][numPtV0][numPtTrigger][numeta]; //sottrazione bkg V0 effettuata
+  TH1D *hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Rebin[nummolt+1][numzeta][numPtV0][numPtTrigger][numeta]; 
   TH1D *hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Error[nummolt+1][numzeta][numPtV0][numPtTrigger][numeta]; //relative errors of histos above
   TH1D *hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Bulk_EffCorr[nummolt+1][numzeta][numPtV0][numPtTrigger]; //sottrazione bkg V0 effettuata
   TH1D *hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Bulk_EffCorr_Error[nummolt+1][numzeta][numPtV0][numPtTrigger]; 
@@ -282,12 +298,12 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0,Float_t ptjmin=3, Int_t sysV
     fHistV0EfficiencyPtBins[m]= (TH1D*)fileinEfficiency->Get("fHistV0EfficiencyPtBins_" + Smolt[m]);
     HistContV0PtBins[m]= (TH1D*)fileinEfficiency->Get("HistContV0PtBins_" + Smolt[m]);
     if(m<nummolt){
-      for(Int_t j=fHistTriggervsMult_MultProj->GetXaxis()->FindBin(Nmolt[m]+0.001); j<fHistTriggervsMult_MultProj->GetXaxis()->FindBin(Nmolt[m+1]-0.001); j++ ){
+      for(Int_t j=fHistTriggervsMult_MultProj->GetXaxis()->FindBin(Nmolt[m]+0.001); j<=fHistTriggervsMult_MultProj->GetXaxis()->FindBin(Nmolt[m+1]-0.001); j++ ){
 	NTrigger[m]+= fHistTriggervsMult_MultProj->GetBinContent(j);
       }
     }
     else {
-      for(Int_t j=1; j<fHistTriggervsMult_MultProj->GetNbinsX(); j++ ){
+      for(Int_t j=1; j<=fHistTriggervsMult_MultProj->GetNbinsX(); j++ ){
 	NTrigger[m]+= fHistTriggervsMult_MultProj->GetBinContent(j);
       }
     }
@@ -304,7 +320,7 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0,Float_t ptjmin=3, Int_t sysV
 
 	  PathInMassDef=PathInMass+ "_"+tipo[type]+Srap[israp]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG] + BkgType[isBkgParab] +Form("_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f.root", m, sysTrigger, sysV0, sysang,PtTrigMinFit);
 
-	  if(type==0)	  PathInMassDef=PathInMass+"_"+tipo[type]+Form("_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f.root", m, sysTrigger, sysV0, sysang, PtTrigMinFit);
+	  //	  if(type==0)	  PathInMassDef=PathInMass+"_"+tipo[type]+Form("_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f.root", m, sysTrigger, sysV0, sysang, PtTrigMinFit);
 	  if (MasterThesisAnalysis) 	  PathInMassDef=PathInMass+"_"+tipo[type]+Form("_molt%i_sysT%i_sysV0%i_Sys%i.root", m, sysTrigger, sysV0, sysang);
 	  cout << "******************************" << endl;
 	  cout << "******************************" << endl;
@@ -445,7 +461,7 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0,Float_t ptjmin=3, Int_t sysV
 	    //proietto in Delta Phi
 	    //****************************************************************************************************************
 
-	    hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][sb][0]= (TH1D*)(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->ProjectionY(nameME[m][z][v][tr][sb]+"_AC_phi_etaJet", hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->FindBin(-JetValue), hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->FindBin(JetValue), "E"));
+	    hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][sb][0]= (TH1D*)(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->ProjectionY(nameME[m][z][v][tr][sb]+"_AC_phi_etaJet", hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->FindBin(-JetValue)+1, hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->FindBin(JetValue)-1, "E"));
 	    hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][sb][2]= (TH1D*)(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->ProjectionY(nameME[m][z][v][tr][sb]+"_AC_phi_etaAll",  hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->FindBin(-InclusiveUpValue), hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->FindBin(InclusiveUpValue), "E"));
 
 	    HistBI[m][z][v][tr][sb]= (TH1D*)(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->ProjectionY(nameME[m][z][v][tr][sb]+"_AC_phi_etaBulkI", hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->FindBin(-BulkUpValue), hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->FindBin(-BulkLowValue), "E"));
@@ -578,14 +594,25 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0,Float_t ptjmin=3, Int_t sysV
 	  //	  cout << (hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(JetValue)) - hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(-JetValue))) << "   " <<(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(BulkUpValue)) - hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(BulkLowValue)))<<"  " << (hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(BulkUpValue))) << "  " << hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(BulkLowValue));
 	  //	  cout << "\n" <<ScaleFactor << endl;
 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][1]->Scale(ScaleFactor[m][z][v][tr]);
+
+	  //**********here I rebin the two histograms before subtraction*************** 
+	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Rebin[m][z][v][tr][1]=(TH1D*)hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][1]->Clone(nameME[m][z][v][tr][0]+Form("%i_AC_phi_V0Sub_Rebin", 1));
+	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Rebin[m][z][v][tr][0]=(TH1D*)hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][0]->Clone(nameME[m][z][v][tr][0]+Form("%i_AC_phi_V0Sub_Rebin", 0));
+	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Rebin[m][z][v][tr][1]->Rebin(rebin);
+	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Rebin[m][z][v][tr][0]->Rebin(rebin);
+	  //***************************************************************************
+
 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][1]->SetLineColor(kGreen+2);
 
-	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSub[m][z][v][tr]=(TH1D*)hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][0]->Clone(nameME[m][z][v][tr][0]+"_AC_phi_V0Sub_BulkSub");
+	  //norebin	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSub[m][z][v][tr]=(TH1D*)hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][0]->Clone(nameME[m][z][v][tr][0]+"_AC_phi_V0Sub_BulkSub");
+	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSub[m][z][v][tr]=(TH1D*)hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Rebin[m][z][v][tr][0]->Clone(nameME[m][z][v][tr][0]+"_AC_phi_V0Sub_BulkSub");
 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_EffCorr[m][z][v][tr]=(TH1D*)hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][0]->Clone(nameME[m][z][v][tr][0]+"_AC_phi_V0Sub_EffCorr");
 
-	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSub[m][z][v][tr]->Add(hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][1],-1);
+	  //no rebin 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSub[m][z][v][tr]->Add(hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][1],-1);
+	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSub[m][z][v][tr]->Add(hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Rebin[m][z][v][tr][1],-1);
 
-	  //	  error check //!!!!!ROOT computes errors assuming uncorrelated histograms
+	  //	  error check //!!!!!ROOT computes errors assuming uncorrelated histograms 
+/* 
 	    for(Int_t i=1; i< 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][0]->GetNbinsX(); i++){
 	    cout << hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][0]->GetBinContent(i) -  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][1]->GetBinContent(i)<< endl;
 	    cout << "norm factor value (should be zero) " << hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][1]->GetNormFactor()<< endl;
@@ -597,8 +624,12 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0,Float_t ptjmin=3, Int_t sysV
 	    cout << "errors assuming total correlation (ro =1): " << TMath::Abs(hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][0]->GetBinError(i)- hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][1]->GetBinError(i)) << " rel error = " << TMath::Abs(hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][0]->GetBinError(i)- hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][1]->GetBinError(i)) / hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSub[m][z][v][tr]->GetBinContent(i)<< endl;
 	    //the following formula is not correct	    cout << "errors assuming 'partial' correlation  " <<  sqrt(TMath::Abs(pow(hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][0]->GetBinError(i),2)- pow(hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][1]->GetBinError(i),2))) << " rel error = " <<  sqrt(TMath::Abs(pow(hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][0]->GetBinError(i),2)- pow(hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][1]->GetBinError(i),2))) / 	    hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSub[m][z][v][tr]->GetBinContent(i)<< endl;
 	    cout << "sqrt(bin content) of BulkSub histo " << sqrt(TMath::Abs(hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSub[m][z][v][tr]->GetBinContent(i)))<< " rel error " <<1./ sqrt(TMath::Abs(hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSub[m][z][v][tr]->GetBinContent(i)))<<endl;
-	    cout << " I set errors " << endl;
-	    hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSub[m][z][v][tr]->SetBinError(i, TMath::Abs(hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][0]->GetBinError(i)- hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][1]->GetBinError(i)));
+	    }
+*/
+
+	    for(Int_t i=1; i< 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Rebin[m][z][v][tr][0]->GetNbinsX(); i++){
+	      //	    cout << " I set errors " << endl;
+	    hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSub[m][z][v][tr]->SetBinError(i, TMath::Abs(hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Rebin[m][z][v][tr][0]->GetBinError(i)- hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Rebin[m][z][v][tr][1]->GetBinError(i)));
 	    }
 	  
 
@@ -938,6 +969,20 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0,Float_t ptjmin=3, Int_t sysV
   }
 
 
+  fHistEtaLimitsOfRegion->SetBinContent(1,hDeltaEtaDeltaPhi_ACbins[0][0][1][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[0][0][1][0][0]->GetXaxis()->FindBin(-JetValue)));
+  fHistEtaLimitsOfRegion->GetXaxis()->SetBinLabel(1, "JetLowValue");
+  fHistEtaLimitsOfRegion->SetBinContent(2,hDeltaEtaDeltaPhi_ACbins[0][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[0][0][1][0][0]->GetXaxis()->FindBin(JetValue)));
+  fHistEtaLimitsOfRegion->GetXaxis()->SetBinLabel(2, "JetUpValue");
+  fHistEtaLimitsOfRegion->SetBinContent(3,hDeltaEtaDeltaPhi_ACbins[0][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[0][0][1][0][0]->GetXaxis()->FindBin(BulkLowValue)));
+  fHistEtaLimitsOfRegion->GetXaxis()->SetBinLabel(3, "BulkLowValue");
+  fHistEtaLimitsOfRegion->SetBinContent(4,hDeltaEtaDeltaPhi_ACbins[0][0][1][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[0][0][1][0][0]->GetXaxis()->FindBin(BulkUpValue)));
+  fHistEtaLimitsOfRegion->GetXaxis()->SetBinLabel(4, "BulkUpValue");
+  fHistEtaLimitsOfRegion->SetBinContent(5,hDeltaEtaDeltaPhi_ACbins[0][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[0][0][1][0][0]->GetXaxis()->FindBin(-InclusiveUpValue)));
+  fHistEtaLimitsOfRegion->GetXaxis()->SetBinLabel(5, "InclusiveLowValue");
+  fHistEtaLimitsOfRegion->SetBinContent(6,hDeltaEtaDeltaPhi_ACbins[0][0][1][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[0][0][1][0][0]->GetXaxis()->FindBin(InclusiveUpValue)));
+  fHistEtaLimitsOfRegion->GetXaxis()->SetBinLabel(6, "InclusiveUpValue");
+
+  fHistEtaLimitsOfRegion->Write();
 
   fileout->Close(); 
   
