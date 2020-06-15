@@ -15,7 +15,7 @@
 #include <TTree.h>
 #include <TLatex.h>
 #include <TFile.h>
-void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus, =2 for OmegaMinus, =3 for OmegaPlus */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, Int_t sysV0=0, bool isMC = 0,Bool_t isEfficiency=1,Int_t sysTrigger=0,			    TString year="Run2DataRed_hXi"/*"2016kl_hXi"*//*"2016k_hXi_MECorr_25runs"*/, TString year0="2016", TString Path1 ="Prova")
+void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus, =2 for OmegaMinus, =3 for OmegaPlus */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, Int_t sysV0=0, bool isMC = 1,Bool_t isEfficiency=1,Int_t sysTrigger=0,			    TString year=/*"2015f"/*"2015g3b1""Run2DataRed_MECorr_hXi""2016kl_hXi"/*"2016k_hXi_MECorr_25runs"*/"2018f1_extra_hXi_CommonParton", TString year0="2016", TString Path1 ="_Mult010", Bool_t CommonParton=1)
 {
 
   //rap=0 : no rapidity window chsen for cascade, |Eta| < 0.8; rap=1 |y| < 0.5
@@ -30,7 +30,7 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
 
   const Int_t nummolt=5;
   const Int_t numzeta=1;
-  const Int_t numPtV0=8;
+  const Int_t numPtV0=8; //14;//was 8 for my analysis
   const Int_t numPtTrigger=1;
   const Int_t numtipo=6;
   TString tipo[numtipo]={"XiNeg", "XiPos", "OmegaNeg", "OmegaPos", "Xi", "Omega"};
@@ -99,7 +99,10 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
   Double_t     fSignTreeVariableZvertex;                        
   Int_t        fSignTreeVariablePDGCodeTrigger;                        
   Int_t        fSignTreeVariablePDGCodeAssoc;                        
-  Bool_t        fSignTreeVariableSkipAssoc;                        
+  Bool_t       fSignTreeVariableSkipAssoc;                        
+  Bool_t       fSignTreeVariableIsCommonParton;                        
+  Int_t        fSignTreeVariablePdgCommonParton;                        
+
 
   Double_t     fBkgTreeVariablePtTrigger;		       
   Int_t        fBkgTreeVariableChargeTrigger;		       
@@ -128,7 +131,9 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
   Double_t     fBkgTreeVariableZvertex;                        
   Int_t        fBkgTreeVariablePDGCodeTrigger;                        
   Int_t        fBkgTreeVariablePDGCodeAssoc;                        
-  Bool_t        fBkgTreeVariableSkipAssoc;                        
+  Bool_t       fBkgTreeVariableSkipAssoc;                        
+  Bool_t       fBkgTreeVariableIsCommonParton;                        
+  Int_t        fBkgTreeVariablePdgCommonParton;                        
 
   Int_t CounterSignPairsAfterPtMinCut=0; 
   Int_t CounterBkgPairsAfterPtMinCut=0; 
@@ -144,14 +149,14 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
   Float_t LimInfMass[numtipo]= {1.29, 1.29, 1.5, 1.5, 1.29, 1.5};
   Float_t LimSupMass[numtipo]= {1.35, 1.35, 1.8, 1.8, 1.35, 1.5};
 
-  TString Smolt[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "all"};
-  Double_t Nmolt[nummolt+1]={0, 5, 10, 30, 50, 100};
-  //TString Szeta[numzeta]={""};
-  //  Double_t Nzeta[numzeta+1]={};
+  //  TString Smolt[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "all"};
+  //  Double_t Nmolt[nummolt+1]={0, 5, 10, 30, 50, 100};
+  TString Smolt[nummolt+1]={"0-0", "0-10", "10-30", "30-50", "50-100", "all"};
+  Double_t Nmolt[nummolt+1]={0, 0, 10, 30, 50, 100};
   TString SPtV0[numPtV0]={"0-0.5","0.5-1.0", "1-1.5", "1.5-2", "2-2.5","2.5-3", "3-4", "4-8"};
   Double_t NPtV0[numPtV0+1]={0,0.5, 1,1.5,2,2.5,3,4,8};
-  //   TString SPtV0[numPtV0]={"0-1", "1-2", "2,3", "3-4", "4-8"};
-  //   Double_t NPtV0[numPtV0+1]={0,1,2,3,4,8};
+  //  TString SPtV0[numPtV0]={"0-0.6", "0.6-1.0", "1.0-1.2", "1.2-1.4", "1.4-1.6", "1.6-1.8", "1.8-2.0", "2.0-2.2", "2.2-2.5", "2.5-2.9", "2.9-3.4", "3.4-4", "4-5", "5-6.5"};
+  //  Double_t NPtV0[numPtV0+1]={0,0.6, 1,1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.5, 2.9, 3.4, 4,5,6.5};
   Double_t NPtTrigger[numPtTrigger+1]={PtTrigMin,ptjmax};
 
   
@@ -224,6 +229,9 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
   tSign->SetBranchAddress("fTreeVariablePDGCodeTrigger"                   ,&fSignTreeVariablePDGCodeTrigger);                         
   tSign->SetBranchAddress("fTreeVariablePDGCodeAssoc"                   ,&fSignTreeVariablePDGCodeAssoc);                         
   tSign->SetBranchAddress("fTreeVariableSkipAssoc"                   ,&fSignTreeVariableSkipAssoc);                         
+  tSign->SetBranchAddress("fTreeVariableIsCommonParton"                   ,&fSignTreeVariableIsCommonParton);                        
+  tSign->SetBranchAddress("fTreeVariablePdgCommonParton"                   ,&fSignTreeVariablePdgCommonParton);                        
+
 
 
   //BackGround
@@ -254,6 +262,8 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
   tBkg->SetBranchAddress("fTreeVariablePDGCodeTrigger"                   ,&fBkgTreeVariablePDGCodeTrigger);                        
   tBkg->SetBranchAddress("fTreeVariablePDGCodeAssoc"                   ,&fBkgTreeVariablePDGCodeAssoc);                        
   tBkg->SetBranchAddress("fTreeVariableSkipAssoc"                   ,&fBkgTreeVariableSkipAssoc);                        
+  tBkg->SetBranchAddress("fTreeVariableIsCommonParton"                   ,&fBkgTreeVariableIsCommonParton);                        
+  tBkg->SetBranchAddress("fTreeVariablePdgCommonParton"                   ,&fBkgTreeVariablePdgCommonParton);                        
 
   Int_t EntriesSign = 0; 
   Int_t EntriesBkg  = 0; 
@@ -271,6 +281,19 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
     HistoInfo->GetXaxis()->SetBinLabel(7+m,Form("SEpairs Mult distr m%i",m));
     HistoInfo->GetXaxis()->SetBinLabel(12+m, Form("NV0/ACev m%i",m));
   }
+
+  //--------histograms to get some info from Xi candidate having a common origin to the trigger particle----------------
+  TH1D *hSign_PtAssoc_CPTrue       = new TH1D("hSign_PtAssoc_CPTrue",       "hSign_PtAssoc_CPTrue",       300, 0, 30);
+  hSign_PtAssoc_CPTrue->GetXaxis()->SetTitle("p_{T} (Gev/c)");
+  hSign_PtAssoc_CPTrue->GetXaxis()->SetTitleSize(0.05);
+  hSign_PtAssoc_CPTrue->GetXaxis()->SetLabelSize(0.05);
+  hSign_PtAssoc_CPTrue->GetYaxis()->SetLabelSize(0.05);
+
+  TH1D *hSign_PtAssoc_NOCPTrue       = new TH1D("hSign_PtAssoc_NOCPTrue",       "hSign_PtAssoc_NOCPTrue",       300, 0, 30);
+  hSign_PtAssoc_NOCPTrue->GetXaxis()->SetTitle("p_{T} (Gev/c)");
+  hSign_PtAssoc_NOCPTrue->GetXaxis()->SetTitleSize(0.05);
+  hSign_PtAssoc_NOCPTrue->GetXaxis()->SetLabelSize(0.05);
+  hSign_PtAssoc_NOCPTrue->GetYaxis()->SetLabelSize(0.05);
 
   //------------------Histograms os selected particles (V0) for future efficiency calculation ----------------
   TH3F*    fHistSelectedV0PtTMaxPhi=new TH3F(Form("fHistSelectedV0PtTMaxPhi_%i", sysV0), "p^{Trigg, Max}_{T} and #phi distribution of selected V0 particles (Casc, primary, events w T>0)", 120, -30, 30, 400,0, 2*TMath::Pi() ,  100, 0, 100);
@@ -346,6 +369,10 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
   TH2D *hMassvsPt_SEbins[nummolt+1][numzeta][numPtTrigger];
   TH2D *hMassvsPt_SEbins_true[nummolt+1][numzeta][numPtTrigger];
   TH2D *hDeltaEtaDeltaPhi_SEbins[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH2D *hDeltaEtaDeltaPhi_SEbins_CPTrue[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH2D *hDeltaEtaDeltaPhi_SEbins_NOCPTrue[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH2D *hDeltaEtaDeltaPhi_SEbins_CPTruePtInt[nummolt+1][numzeta][numPtTrigger];
+  TH2D *hDeltaEtaDeltaPhi_SEbins_NOCPTruePtInt[nummolt+1][numzeta][numPtTrigger];
 
   //Form("hMassvsPt_"+tipo[type]+"_%i",molt
   for(Int_t m=0; m<nummolt+1; m++){
@@ -353,6 +380,8 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
       for(Int_t tr=0; tr<numPtTrigger; tr++){
 	hMassvsPt_SEbins[m][z][tr]= new TH2D(Form("SE_hMassvsPt_"+tipo[type]+"_%i", m),Form("SE_hMassvsPt_"+tipo[type]+"_%i", m), 100, LimInfMass[type], LimSupMass[type], 100, 0, 10);
 	hMassvsPt_SEbins_true[m][z][tr]= new TH2D(Form("SE_hMassvsPt_"+tipo[type]+"_%i_true", m),Form("SE_hMassvsPt_"+tipo[type]+"_%i_true", m), 100, LimInfMass[type], LimSupMass[type], 100, 0, 10);
+	hDeltaEtaDeltaPhi_SEbins_CPTruePtInt[m][z][tr]= new TH2D("SE_m"+Smolt[m]+"_CPTrue_PtInt", "SE_m"+Smolt[m]+"_CPTrue_PtInt", 56, -1.5, 1.5, 104,  -0.5*TMath::Pi(), 1.5*TMath::Pi()); 
+	hDeltaEtaDeltaPhi_SEbins_NOCPTruePtInt[m][z][tr]= new TH2D("SE_m"+Smolt[m]+"_NOCPTrue_PtInt", "SE_m"+Smolt[m]+"_NOCPTrue_PtInt", 56, -1.5, 1.5, 104,  -0.5*TMath::Pi(), 1.5*TMath::Pi()); 
 	for(Int_t v=1; v<numPtV0; v++){
 	  nameSE[m][z][v][tr]="SE_";
 	  namemassSE[m][z][v][tr]="InvMassSE_";
@@ -368,6 +397,10 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
 	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetYaxis()->SetTitleOffset(1.5);
 	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetXaxis()->SetLabelSize(0.05);
 	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetYaxis()->SetLabelSize(0.05);
+	  hDeltaEtaDeltaPhi_SEbins_CPTrue[m][z][v][tr]= (TH2D*)	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->Clone(nameSE[m][z][v][tr]+"_CPTrue");
+	  hDeltaEtaDeltaPhi_SEbins_CPTrue[m][z][v][tr]->SetTitle("AC for Xi (true) cand. with a common parton");
+	  hDeltaEtaDeltaPhi_SEbins_NOCPTrue[m][z][v][tr]= (TH2D*)	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->Clone(nameSE[m][z][v][tr]+"_NOCPTrue");
+	  hDeltaEtaDeltaPhi_SEbins_NOCPTrue[m][z][v][tr]->SetTitle("AC for Xi (true) cand. without a common parton");
 
 	}
       }
@@ -392,14 +425,13 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
 	  namemassME[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
 	  hInvMassK0Short_MEbins[m][z][v][tr]= new TH1D(namemassME[m][z][v][tr], namemassME[m][z][v][tr],   100, LimInfMass[type], LimSupMass[type]);
 	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]= new TH2D(nameME[m][z][v][tr], nameME[m][z][v][tr],  56, -1.5, 1.5, 104,  -0.5*TMath::Pi(), 1.5*TMath::Pi());
-	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetXaxis()->SetTitle("#Delta #eta");
+	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetXaxis()->SetTitle("#Delta #eta");
 	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetYaxis()->SetTitle("#Delta #phi (rad)");
 	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetXaxis()->SetTitleSize(0.05);
 	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetYaxis()->SetTitleSize(0.05);
 	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetYaxis()->SetTitleOffset(1.5);
 	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetXaxis()->SetLabelSize(0.05);
 	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetYaxis()->SetLabelSize(0.05);
-	
 	}
       }
     }
@@ -415,7 +447,7 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
   // cout << "  entries Sign: " << EntriesSign<<endl;
   Int_t l=0;
   for(Int_t k = 0; k<EntriesSign; k++){
-    if (k>1000) continue;
+    //    if (k>1000) continue;
     tSign->GetEntry(k);  
     if (k==10000*l){
       l++;     
@@ -527,7 +559,15 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
 
     hSign_PtAssoc->Fill(fSignTreeVariablePtV0);
     hSign_PtTrigger->Fill(fSignTreeVariablePtTrigger);
-    if (isCascTrue)hSign_PtAssocTrue->Fill(fSignTreeVariablePtV0);
+    if (isCascTrue) {
+      hSign_PtAssocTrue->Fill(fSignTreeVariablePtV0);
+    }
+    if ((isMC && isCascTrue) || !isMC){
+      if (CommonParton){
+      if (fSignTreeVariableIsCommonParton)      hSign_PtAssoc_CPTrue->Fill(fSignTreeVariablePtV0);
+      else      hSign_PtAssoc_NOCPTrue->Fill(fSignTreeVariablePtV0);
+      }
+    }
 
     for(Int_t m=0; m<nummolt+1; m++){
       if (m < nummolt){
@@ -542,11 +582,25 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
 	    if (isCascTrue)      TrueCounterSignPairsAfterPtMinCutMult[m]++;  
 	    hMassvsPt_SEbins[m][z][tr]->Fill(fSignTreeVariableInvMassCasc, fSignTreeVariablePtV0); 
 	    if(isCascTrue) hMassvsPt_SEbins_true[m][z][tr]->Fill(fSignTreeVariableInvMassCasc, fSignTreeVariablePtV0); 
+	    if ((isMC && isCascTrue) || !isMC){
+	      if (CommonParton){
+	      if (fSignTreeVariableIsCommonParton) hDeltaEtaDeltaPhi_SEbins_CPTruePtInt[m][z][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
+	      else   hDeltaEtaDeltaPhi_SEbins_NOCPTruePtInt[m][z][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
+	      }
+	    }
+	    
 	  }
+
 	  for(Int_t v=1; v<numPtV0; v++){
 	    if(MoltSel && fSignTreeVariablePtTrigger>=NPtTrigger[tr] && fSignTreeVariablePtTrigger<NPtTrigger[tr+1] && fSignTreeVariablePtV0>=NPtV0[v]&& fSignTreeVariablePtV0<NPtV0[v+1]){
 	      hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
 	      hInvMassK0Short_SEbins[m][z][v][tr]->Fill(fSignTreeVariableInvMassCasc);
+	      if ((isMC && isCascTrue) || !isMC){
+	      if (CommonParton){
+		if (fSignTreeVariableIsCommonParton) hDeltaEtaDeltaPhi_SEbins_CPTrue[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
+		else   hDeltaEtaDeltaPhi_SEbins_NOCPTrue[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
+	      }
+	      }
 	    }
 	  }
 	}
@@ -559,7 +613,7 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
   l=0;
   for(Int_t k = 0; k<EntriesBkg; k++){
     // for(Int_t k = 0; k<1; k++){
-    if (k>1000) continue;
+    //    if (k>1000) continue;
     tBkg->GetEntry(k);
     if (k==10000*l){
       l++;     
@@ -646,6 +700,18 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
     }
   }
 
+  cout << " ratio between Xi with CommonParton (CP) and Xi without in the different pt bins " << endl;
+Float_t      CPTrue[numPtV0] ={0};
+Float_t      NOCPTrue[numPtV0]={0};
+
+  for (Int_t v=0; v< numPtV0; v++){
+    for(Int_t b= hSign_PtAssoc_CPTrue->GetXaxis()->FindBin(NPtV0[v]+0.001); b<= hSign_PtAssoc_CPTrue->GetXaxis()->FindBin(NPtV0[v+1]-0.001); b++ ){
+      CPTrue[v] +=  hSign_PtAssoc_CPTrue->GetBinContent(b);
+      NOCPTrue[v] +=  hSign_PtAssoc_NOCPTrue->GetBinContent(b);
+    }
+    cout << "v " << v << " " <<  CPTrue[v]/NOCPTrue[v]<< endl;
+  }
+
    
 
   
@@ -654,7 +720,7 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
   cout << "\nsignal pairs trigger-associated (after all selections, included Pt min cut) " << 	CounterSignPairsAfterPtMinCut <<" true: " <<   TrueCounterSignPairsAfterPtMinCut << " -> all entries in sign Tree were : " <<   EntriesSign << " " <<(Float_t)CounterSignPairsAfterPtMinCut/EntriesSign << endl;
   cout << "bkg pairs trigger-associated (after all selections, included Pt min cut) " << 	CounterBkgPairsAfterPtMinCut << " true: " <<   TrueCounterBkgPairsAfterPtMinCut << " -> all entries in sign Tree were : " <<   EntriesBkg << " " <<(Float_t)CounterBkgPairsAfterPtMinCut/EntriesBkg <<  endl;
 
-  for (Int_t m=0; m< nummolt; m++){
+  for (Int_t m=0; m< nummolt+1; m++){
     cout << m << endl;  
     cout << "signal pairs trigger-associated (after all selections, included Pt min cut) " << 	CounterSignPairsAfterPtMinCutMult[m] << ", " << (Float_t)CounterSignPairsAfterPtMinCutMult[m]/CounterSignPairsAfterPtMinCut<<endl;
     cout << "bkgal pairs trigger-associated (after all selections, included Pt min cut) " << 	CounterBkgPairsAfterPtMinCutMult[m] << ", " << (Float_t)CounterBkgPairsAfterPtMinCutMult[m]/CounterBkgPairsAfterPtMinCut<<endl;
@@ -706,6 +772,6 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
 
   fout->Write();
 
-
+  cout <<"check if you have to change histogram binning for selected trigger particles (double the number of bins) " << endl;
 }
 
