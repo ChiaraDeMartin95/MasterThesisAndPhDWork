@@ -18,13 +18,13 @@
 #include <TFile.h>
 #include </data/dataalice/AliceSoftware/aliphysics/master_chiara/src/PWG/Tools/AliPWGFunc.h>
 
-void BarlowSys(Int_t ishhCorr=0, Float_t PtTrigMin =0.15, Float_t PtTrigMax=15, Int_t TypeAnalysis=0, Bool_t isMC=0,   Int_t israp=1,TString year="2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"*/,  TString Path1 ="", Int_t avoidthissyst=3,Int_t avoidthissystbis=20,Int_t avoidthissysttris=21, Int_t type=0,  Bool_t isEfficiency=1,   TString Dir="FinalOutput",TString year0="2016", Int_t sysTrigger=0, Float_t numSigmaCorr=2, Bool_t MasterThesisAnalysis=0, Bool_t isEnlargedDeltaEtaPhi=0,Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Int_t PtBinMin=1,  Bool_t SkipAssoc=1){
+void BarlowSys(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Int_t TypeAnalysis=0, Bool_t isMC=0,   Int_t israp=0,TString year="Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"*/,  TString Path1 ="_Jet0.75", Int_t avoidthissyst=3,Int_t avoidthissystbis=20,Int_t avoidthissysttris=21, Int_t type=8,  Bool_t isEfficiency=1,   TString Dir="FinalOutput",TString year0="2016", Int_t sysTrigger=0, Float_t numSigmaCorr=2, Bool_t MasterThesisAnalysis=0, Bool_t isEnlargedDeltaEtaPhi=0,Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1,   Bool_t SkipAssoc=1){
 
   if (ishhCorr && type!=0){
     type=0;
   }// {cout << " for hh correlation type should be set to zero in order to get the correct files " << endl; return;}
 
-  const   Int_t NumberTypeAnalysis=6;
+  const   Int_t NumberTypeAnalysis=8;
   cout << "here's the meaning of different values of TypeAnalysis:" << endl;
   cout << 0 << "in-jet production " << endl;
   cout << 1 << "out-of-jet production  (Delta Phi between 1 and 2)" << endl;
@@ -33,8 +33,7 @@ void BarlowSys(Int_t ishhCorr=0, Float_t PtTrigMin =0.15, Float_t PtTrigMax=15, 
   cout << 4 << "away side (from JetBulkEffCorr)" << endl;
   cout << 5 << "out-of-jet production (including away side, from JetBulkEffCorr) " << endl;
 
-  if (!ishhCorr && (type==4 || type==5 || type==8) && TypeAnalysis==0)  PtBinMin=2;
-  if (TypeAnalysis>5) return;
+  if (TypeAnalysis>7) return;
   Bool_t isBulk=0; Bool_t isTotal=0;
   if (TypeAnalysis==0) {isBulk=0; isTotal=0;}
   if (TypeAnalysis==1) {isBulk=1; isTotal=0;}
@@ -63,7 +62,7 @@ void BarlowSys(Int_t ishhCorr=0, Float_t PtTrigMin =0.15, Float_t PtTrigMax=15, 
   TFile *filein;
   TString PathIn1;
   TString file = year+Path1;
-  TString PathInBis =  "FinalOutput/AnalysisResults" + year + Path1  + ".root";
+  TString PathInBis =  "FinalOutput/AnalysisResults" + year/* + Path1*/  + ".root";
   if (isMC && isEfficiency)  PathInBis =  "FinalOutput/AnalysisResults" + year  + "_MCEff" + Path1 +".root";
   if (ishhCorr && !isMC)  PathInBis =  "FinalOutput/AnalysisResults" + year  +"_hhCorr" +Path1 + ".root";
   if (ishhCorr && isMC)  PathInBis =  "FinalOutput/AnalysisResults" + year  + "_hhCorr_MCEff" + Path1 + ".root";
@@ -107,7 +106,7 @@ void BarlowSys(Int_t ishhCorr=0, Float_t PtTrigMin =0.15, Float_t PtTrigMax=15, 
   }
 
   cout << "ok " << endl;
-  TString JetOrBulk[NumberTypeAnalysis]={"Jet", "Bulk", "All", "AllNS", "AwaySide", "AllButJet"};
+  TString JetOrBulk[NumberTypeAnalysis]={"Jet", "Bulk", "All", "AllNS", "AwaySide", "AllButJet", "JetBFit", "JetZYAM"};
   TString DataOrMC[2]={"Data", "MC"};
   Int_t jet=TypeAnalysis;
 
@@ -120,10 +119,13 @@ void BarlowSys(Int_t ishhCorr=0, Float_t PtTrigMin =0.15, Float_t PtTrigMax=15, 
   TString Srap[2] = {"_Eta0.8", "_y0.5"};
   TString SSkipAssoc[2] = {"_AllAssoc", ""};
 
-  Float_t SpectrumSup[numtipo][NumberTypeAnalysis]={{0.05,0.2, 0.2,0.8,0.2,0.2},{0.05,0.2, 0.2,0.8,0.2,0.2}, {0.05,0.2, 0.2,0.8,0.2,0.2}, {0.05,0.2, 0.2,0.8,0.2,0.2},{0.001,0.01, 0.01,0.08,0.01,0.01},{0.001,0.01, 0.01,0.08,0.01,0.01},{0.001,0.01, 0.01,0.08,0.01,0.01},{0.001,0.01, 0.01,0.08,0.01,0.01},{0.001,0.01, 0.01,0.08,0.01,0.01},{0.001,0.01, 0.01,0.08,0.01,0.01}};
+  Float_t SpectrumSup[numtipo][NumberTypeAnalysis]={{0.05,0.2, 0.2,0.8,0.2,0.2,0.05, 0.05},{0.05,0.2, 0.2,0.8,0.2,0.2,0.05, 0.05}, {0.05,0.2, 0.2,0.8,0.2,0.2,0.05, 0.05}, {0.05,0.2, 0.2,0.8,0.2,0.2,0.05, 0.05},{0.001,0.01, 0.01,0.08,0.01,0.01,0.05, 0.001},{0.001,0.01, 0.01,0.08,0.01,0.01,0.05, 0.001},{0.001,0.01, 0.01,0.08,0.01,0.01,0.05, 0.001},{0.001,0.01, 0.01,0.08,0.01,0.01,0.05, 0.001},{0.001,0.01, 0.01,0.08,0.01,0.01,0.05, 0.001},{0.001,0.01, 0.01,0.08,0.01,0.01,0.05, 0.001}};
 
   TString Smolt[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "_all"};
-  TString SmoltLegend[nummolt+1]={"0-5 %", "5-10 %", "10-30 %", "30-50 %", "50-100 %", "0-100 %"};
+  //  TString Smolt[nummolt+1]={"0-0", "0-10", "10-30", "30-50", "50-100", "_all"};
+   TString SmoltLegend[nummolt+1]={"0-5 %", "5-10 %", "10-30 %", "30-50 %", "50-100 %", "0-100 %"};
+   // TString SmoltLegend[nummolt+1]={"0-0 %", "0-10 %", "10-30 %", "30-50 %", "50-100 %", "0-100 %"};
+
   TString SSysT[numSysTrigger]={"DCAz < 1","DCAz < 2","DCAz < 0.5"};
   TString SSysV0[numSysV0]={"default", "cosTP> 0.997", "ctau <3 ", "YK0s < 0.5", "Lrejection 10 MeV","no Lrejection 5 MeV", "V0dca< 0.3"}; //all except no Lrejecxtion 5 MeV are done with the default cut on (i.e. Lrejection 5 MeV)
   TString SSysV0hh[numSysV0hh]={"DCAz < 1","DCAz < 2","DCAz < 0.5"}; 
@@ -132,6 +134,7 @@ void BarlowSys(Int_t ishhCorr=0, Float_t PtTrigMin =0.15, Float_t PtTrigMax=15, 
   TString SSystBetter[numSyst]={"default","cos(#theta_{P})", "c#tau", "YK0s", "#Lambda-rejection","", "V0 DCA_{PV}", "Sidebands region", "Peak region", "", "Jet region", "Out-of-jet region",  "Bin counting range"};
   TString SSystBetterhh[numSysthh]={"default","DCAz < 2","DCAz < 0.5", " ", " ", " ", "Jet region", "Out-of-jet region",  "Bin counting range"};
   Double_t Nmolt[nummolt+1]={0,5,10,30,50,100}; 
+  //  Double_t Nmolt[nummolt+1]={0,0,10,30,50,100}; 
   TString Szeta[numzeta]={""};
   //  Double_t Nzeta[numzeta+1]={};
   TString SPtV0[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8"};
@@ -275,14 +278,21 @@ void BarlowSys(Int_t ishhCorr=0, Float_t PtTrigMin =0.15, Float_t PtTrigMax=15, 
   TH1F*   fHistV0EfficiencyPtBins[nummolt];
   TH1F*   HistContV0PtBins[nummolt];
 
+  TH1F * fHistBinCountingRegionAndPtFit = new TH1F ("fHistBinCountingRegionAndPtFit", "fHistBinCountingRegionAndPtFit", 15, 0, 15);
+  fHistBinCountingRegionAndPtFit->GetXaxis()->SetBinLabel(1,"BCLow");
+  fHistBinCountingRegionAndPtFit->GetXaxis()->SetBinLabel(2,"BCUp");
+  for(Int_t m=0; m<nummolt+1; m++){
+    fHistBinCountingRegionAndPtFit->GetXaxis()->SetBinLabel(3+2*m,Form("FitLow_%i", m));
+    fHistBinCountingRegionAndPtFit->GetXaxis()->SetBinLabel(2+2*(m+1),Form("FitUp_%i", m));
+  }
+
   TString dirinputtype[numtipo] = {"", "Lambda", "Lambda", "Xi", "Lambda","Xi", "Omega", "Omega", "Xi", "Omega"};
   TDirectoryFile *dir = (TDirectoryFile*)fileinbis->Get("MyTask"+dirinputtype[type]);
   TList *list = (TList*)dir->Get("MyOutputContainer");
   TH2D *fHistTriggervsMult         = (TH2D*)list->FindObject("fHistPtMaxvsMultBefAll");
   if (MasterThesisAnalysis)  fHistTriggervsMult         = (TH2D*)list->FindObject("fHistPtvsMultBefAll");
-  cout << "ok up to here " << endl;
+
   TH1D *fHistTriggervsMult_MultProj= (TH1D*)fHistTriggervsMult->ProjectionY("fHistTriggervsMult_MultProj", fHistTriggervsMult->GetXaxis()->FindBin(PtTrigMin+0.0001),fHistTriggervsMult->GetXaxis()->FindBin(PtTrigMax-0.00001) );
- cout << "ok up to here " << endl;
 
   TString stringout;
 
@@ -304,6 +314,7 @@ void BarlowSys(Int_t ishhCorr=0, Float_t PtTrigMin =0.15, Float_t PtTrigMax=15, 
   if (isTotal) stringout = Dir+"/DATA"+year0+"/SystematicAnalysis" +hhCorr[ishhCorr]+Form("_All.root", PtTrigMin);
   if (isTotal && isMC &&isEfficiency) stringout = Dir+"/DATA"+year0+"/SystematicAnalysis" +hhCorr[ishhCorr]+Form("_AllMC.root", PtTrigMin);
   }  
+
   //********************************************************************* 
   //definition of integral regions in deltaPhi distribution
   //********************************************************************* 
@@ -323,8 +334,8 @@ void BarlowSys(Int_t ishhCorr=0, Float_t PtTrigMin =0.15, Float_t PtTrigMax=15, 
       AUpBinFit[1]=	AUpBin[1]={1.2};
     }
     if (!ishhCorr && (type==4 || type==5 || type==8)){
-      ALowBinFit[0]=	ALowBin[0]={-1};
-      AUpBinFit[0]=	AUpBin[0]={0.9};
+      ALowBinFit[0]=	ALowBin[0]={-0.8};
+      AUpBinFit[0]=	AUpBin[0]={0.8};
       
       ALowBinFit[1]=	ALowBin[1]={-1.1};
       AUpBinFit[1]=	AUpBin[1]={1.1};
@@ -366,7 +377,78 @@ void BarlowSys(Int_t ishhCorr=0, Float_t PtTrigMin =0.15, Float_t PtTrigMax=15, 
   }
   else if (TypeAnalysis==5){
     ALowBinFit[0]=	ALowBin[0]=1;
-    AUpBinFit[0]=	AUpBin[0]=1.5*TMath::Pi();
+    AUpBinFit[0]=	AUpBin[0]=1.5*TMath::Pi()-0.01;
+  }
+
+  Double_t LowRange[nummolt+1]= {2, 2, 1, 1.5, 1.5, 1.5}; 
+  Double_t UpRange[nummolt+1]= {8,8,8,8,8,8}; 
+
+  Double_t LowRangeJet[nummolt+1]= {2, 2, 1, 1.5, 1.5, 1.5}; 
+  Double_t UpRangeJet[nummolt+1]= {8,8,8,8,8,8}; 
+
+  Double_t LowRangeBulk[nummolt+1]= {1, 1, 1, 1, 1, 1}; 
+  Double_t UpRangeBulk[nummolt+1]= {4,4,4,4,4,4};
+
+  Double_t LowRangeAll[nummolt+1]=  {1, 1, 1, 1, 1, 1}; 
+  Double_t UpRangeAll[nummolt+1]= {4,4,4,4,4,4};
+
+  Double_t LowRangeAS[nummolt+1]= {1, 1, 1, 1, 1, 1}; 
+  Double_t UpRangeAS[nummolt+1]=  {4,4,4,4,4,4};
+
+  Double_t LowRangeAllButJet[nummolt+1]=  {1, 1, 1, 1, 1, 1}; 
+  Double_t UpRangeAllButJet[nummolt+1]={4,4,4,4,4,4};
+
+  Double_t LowRangeJetBFit[nummolt+1]= {1.5, 1.5, 1,1.5, 1,1}; 
+  Double_t UpRangeJetBFit[nummolt+1]= {8,8,8,8,8,8}; 
+
+  Double_t LowRangeJetZYAM[nummolt+1]= {1 , 1.5, 1,1.5, 1,1}; 
+  Double_t UpRangeJetZYAM[nummolt+1]= {8,8,8,8,8,8}; 
+
+  Int_t PtBinMin[nummolt+1]={0};
+  for (Int_t m=0; m<nummolt+1; m++){
+    if (TypeAnalysis==0){
+    LowRange[m] =  LowRangeJet[m];
+    UpRange[m] =  UpRangeJet[m];
+    }
+    if (TypeAnalysis==1){
+    LowRange[m] =  LowRangeBulk[m];
+    UpRange[m] =  UpRangeBulk[m];
+    }
+    if (TypeAnalysis==2 || TypeAnalysis==3){
+    LowRange[m] =  LowRangeAll[m];
+    UpRange[m] =  UpRangeAll[m];
+    }
+    if (TypeAnalysis==4){
+    LowRange[m] =  LowRangeAS[m];
+    UpRange[m] =  UpRangeAS[m];
+    }
+    if (TypeAnalysis==5){
+    LowRange[m] =  LowRangeAllButJet[m];
+    UpRange[m] =  UpRangeAllButJet[m];
+    }
+    if (TypeAnalysis==6){
+    LowRange[m] =  LowRangeJetBFit[m];
+    UpRange[m] =  UpRangeJetBFit[m];
+    }
+    if (TypeAnalysis==7){
+    LowRange[m] =  LowRangeJetZYAM[m];
+    UpRange[m] =  UpRangeJetZYAM[m];
+    }
+
+  for(Int_t v=0; v < numPtV0; v++){
+    if (LowRange[m]<=NPtV0[v]) break;
+    PtBinMin[m]++;
+    cout << "LowRange " << LowRange[m] << " v " << v << " PtBin " << NPtV0[v]<< endl;
+  }
+
+  }
+
+
+  fHistBinCountingRegionAndPtFit->SetBinContent(1,ALowBinFit[0]);
+  fHistBinCountingRegionAndPtFit->SetBinContent(2,AUpBinFit[0]);
+  for (Int_t m=0; m<nummolt+1; m++){
+  fHistBinCountingRegionAndPtFit->SetBinContent(3+m*2,LowRange[m]);
+  fHistBinCountingRegionAndPtFit->SetBinContent(2+(m+1)*2,UpRange[m]);
   }
 
   //syst1_limit indica gli effetti sistematici sullo spettro in pT
@@ -404,6 +486,7 @@ void BarlowSys(Int_t ishhCorr=0, Float_t PtTrigMin =0.15, Float_t PtTrigMax=15, 
   if(isMC && isEfficiency) file = year + "_MCEff" + Path1;
  
   for(Int_t m=0; m<nummolt+1; m++){
+    //    if (m==0) continue;
     //   if (m>=3) continue;     //added  
     //cout << "\n\n****************************************************\n" <<m << endl;
     //    cout << "\n****************************************************\n" << endl;
@@ -445,21 +528,35 @@ void BarlowSys(Int_t ishhCorr=0, Float_t PtTrigMin =0.15, Float_t PtTrigMax=15, 
       for(Int_t v=1; v < numPtV0; v++){
 	cout << "getting histograms....m: " << m << "  v: " << v << " syst: " << syst << endl;
 	if(syst==0){
-	  if (!isBulk) fHistPhiDistr_master[m][v]=(TH1D*)filein->Get("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_BulkSub_EffCorr");
+	  if (TypeAnalysis==6) fHistPhiDistr_master[m][v]=(TH1D*)filein->Get("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_EffCorr_BulkSubBulkFit");
+	  else 	  if (TypeAnalysis==7) fHistPhiDistr_master[m][v]=(TH1D*)filein->Get("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_EffCorr_BulkSubZYAM");
+	  else 	  if (!isBulk) fHistPhiDistr_master[m][v]=(TH1D*)filein->Get("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_BulkSub_EffCorr");
 	  if (isBulk) fHistPhiDistr_master[m][v]=(TH1D*)filein->Get("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_Bulk_EffCorr");
 	  if (isTotal || TypeAnalysis==4 || TypeAnalysis==5) fHistPhiDistr_master[m][v]=(TH1D*)filein->Get("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_JetBulkEffCorr");
 	  if (TypeAnalysis==3) fHistPhiDistr_master[m][v]=(TH1D*)filein->Get("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_JetBulkEffCorrNotScaled");
 	  fHistPhiDistr_master[m][v]->SetName("PhiDistr_m"+Smolt[m]+"_v"+SPtV0[v]);
 	}
-	if (!isBulk)	fHistPhiDistr[m][v][syst]=(TH1D*)filein->Get("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_BulkSub_EffCorr");
+
+	  if (TypeAnalysis==6) fHistPhiDistr[m][v][syst]=(TH1D*)filein->Get("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_EffCorr_BulkSubBulkFit");
+	  else 	  if (TypeAnalysis==7) fHistPhiDistr[m][v][syst]=(TH1D*)filein->Get("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_EffCorr_BulkSubZYAM");
+
+	  else	if (!isBulk)	fHistPhiDistr[m][v][syst]=(TH1D*)filein->Get("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_BulkSub_EffCorr");
 	if (isBulk)	fHistPhiDistr[m][v][syst]=(TH1D*)filein->Get("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_Bulk_EffCorr");
 	if (isTotal || TypeAnalysis==4 || TypeAnalysis==5)	fHistPhiDistr[m][v][syst]=(TH1D*)filein->Get("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_JetBulkEffCorr");
 	if (TypeAnalysis==3) fHistPhiDistr[m][v][syst]=(TH1D*)filein->Get("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_JetBulkEffCorrNotScaled");
 
-	if (!isBulk) fHistPhiDistr_solostat[m][v][syst]=(TH1D*)filein->Get("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_BulkSub_EffCorr");
+	  if (TypeAnalysis==6) fHistPhiDistr_solostat[m][v][syst]=(TH1D*)filein->Get("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_EffCorr_BulkSubBulkFit");
+	  else 	  if (TypeAnalysis==7) fHistPhiDistr_solostat[m][v][syst]=(TH1D*)filein->Get("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_EffCorr_BulkSubZYAM");
+
+	  else	if (!isBulk) fHistPhiDistr_solostat[m][v][syst]=(TH1D*)filein->Get("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_BulkSub_EffCorr");
 	if (isBulk) fHistPhiDistr_solostat[m][v][syst]=(TH1D*)filein->Get("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_Bulk_EffCorr");
 	if (isTotal || TypeAnalysis==4 || TypeAnalysis==5) fHistPhiDistr_solostat[m][v][syst]=(TH1D*)filein->Get("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_JetBulkEffCorr");
 	if (TypeAnalysis==3) fHistPhiDistr_solostat[m][v][syst]=(TH1D*)filein->Get("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_JetBulkEffCorrNotScaled");
+
+	if(!fHistPhiDistr[m][v][syst]         ) return;
+	if(!fHistPhiDistr_solostat[m][v][syst]) return;
+	if(!fHistPhiDistr_master[m][v])         return;
+
 	fHistPhiDistr[m][v][syst]->SetName("PhiDistr_m"+Smolt[m]+"_v"+SPtV0[v] +Form("_syst%i", syst));
 	fHistPhiDistr_solostat[m][v][syst]->SetName("PhiDistr_solostat_m"+Smolt[m]+"_v"+SPtV0[v] +Form("_syst%i", syst));
 	fHistPhiDistr_ratio[m][v][syst]=(TH1D*)fHistPhiDistr[m][v][syst]->Clone(Form("fHistPhiDistr_ratio_m%i_v%i_syst%i",m,v,syst));
@@ -532,7 +629,6 @@ void BarlowSys(Int_t ishhCorr=0, Float_t PtTrigMin =0.15, Float_t PtTrigMax=15, 
       } //end loop on pt v0
     }//end loop on syst
    
-
     //this part is used for those variables to which more than one selection has been applied (es. lambda rejection in hV0 analysis, DCAz in hh analysis)
     if (!ishhCorr){
     for(Int_t v=1; v < numPtV0; v++){
@@ -1022,7 +1118,7 @@ cout << "errore sist scorrelato in delta phi " << NSpectrumErrorSistUnCorr[m][v]
       //cout <<m << "  " << j << "  " <<syst << endl;
       if (CorrelatedSpectrum[m][syst]==kFALSE) continue;
       if ( BarlowPassedSpectrum[m][syst]==kFALSE) continue;
-      for(Int_t v = PtBinMin; v < numPtV0; v++){
+      for(Int_t v = PtBinMin[m]; v < numPtV0; v++){
 	YieldPerErrore[m][syst]+= (  (fHistSpectrum_master[m]->GetBinContent(v+1) + fHistSigmaBarlowSpectrum[m][syst]->GetBinContent(v+1))*fHistSpectrum_master[m]->GetBinWidth(v+1));
 	YieldDefault[m][syst]+=   (fHistSpectrum_master[m]->GetBinContent(v+1)*fHistSpectrum_master[m]->GetBinWidth(v+1));
       }
@@ -1120,6 +1216,7 @@ cout << "errore sist scorrelato in delta phi " << NSpectrumErrorSistUnCorr[m][v]
   TString   nameMTscaling[nummolt+1][syst1_limit][numfittipo];
   gStyle->SetOptFit(1111);
   for(Int_t m=0; m< nummolt +1; m++){
+    //    if (m==0) continue;
   // if (m>=3) continue;     //added  
     legendCorrBis[m]= new TLegend(0.5, 0.7, 0.9, 0.9);
     legendCorrBis[m]->SetHeader("Selezioni applicate");
@@ -1145,12 +1242,7 @@ cout << "errore sist scorrelato in delta phi " << NSpectrumErrorSistUnCorr[m][v]
 	}
 	if (m==0 && syst==0)	legendfit->AddEntry( fit_MTscaling[m][syst][typefit], nameFit[typefit], "l"); 
 	fit_MTscaling[m][syst][typefit]->SetLineColor(ColorFit[typefit]);
-	fit_MTscaling[m][syst][typefit]->SetRange(NPtV0[2], 4);//fit da 1 a 4
-	//fit_MTscaling[m][syst][typefit]->SetRange(0,8);//fit da 1 a 4
-	if (TypeAnalysis==0)       {
-	  if (m<=1 || m ==4 ) fit_MTscaling[m][syst][typefit]->SetRange(2, 8);
-	  else fit_MTscaling[m][syst][typefit]->SetRange(1, 8);
-	}
+	  fit_MTscaling[m][syst][typefit]->SetRange(LowRange[m], UpRange[m]);
 	fHistSpectrum[m][syst]->Fit(	fit_MTscaling[m][syst][typefit],"R0");
 	//	fHistSpectrum[m][syst]->Fit(	fit_MTscaling[m][syst][typefit],"", "",1,4);
 	fit_MTscaling[m][syst][typefit]->SetRange(0,8);
@@ -1197,6 +1289,7 @@ cout << "errore sist scorrelato in delta phi " << NSpectrumErrorSistUnCorr[m][v]
 
 
   TFile *fileout = new TFile(stringout ,"RECREATE");
+  fileout-> WriteTObject(  fHistBinCountingRegionAndPtFit);
   fileout->WriteTObject( canvasSys[0]); 
 
   TH1F *  fHistSpectrumRatioFit[nummolt+1][syst1_limit][numfittipo];
@@ -1205,6 +1298,7 @@ cout << "errore sist scorrelato in delta phi " << NSpectrumErrorSistUnCorr[m][v]
   TF1 * rettaUno= new TF1("rettaUno", "pol0",0,8);
   rettaUno->FixParameter(0,1);
   for(Int_t m=0; m< nummolt +1; m++){
+    //    if (m==0) continue;
     canvasRatioFit->cd(m+1);
     gPad->SetLeftMargin(0.15);
     for(Int_t syst=0; syst< syst1_limit; syst++){
@@ -1230,21 +1324,16 @@ cout << "errore sist scorrelato in delta phi " << NSpectrumErrorSistUnCorr[m][v]
 
   cout << "\n\n Yield vs multiplicity *******************************\n"<< endl;
   for(Int_t m=0; m < nummolt+1; m++){
+    //    if (m==0) continue;
   // if (m>=3) continue;     //added  
     Int_t typefitFixed=0;
     for (Int_t typefit=0; typefit<numfittipo; typefit++){
       if (nameFit[typefit]=="Boltzmann")    typefitFixed=typefit;
     }
-    if (TypeAnalysis!=0){
-      Yield[m]+=   fit_MTscaling[m][0][typefitFixed]->Integral(0,NPtV0[1]);
-      YieldErrStat[m]+= pow(    fit_MTscaling[m][0][typefitFixed]->IntegralError(0,NPtV0[1]) ,2);
-    }      
-    else if (TypeAnalysis==0) {
-      Yield[m]+=   fit_MTscaling[m][0][typefitFixed]->Integral(0,NPtV0[2]);
-      YieldErrStat[m]+= pow(    fit_MTscaling[m][0][typefitFixed]->IntegralError(0,NPtV0[2]) ,2);
-    }
+      Yield[m]+=   fit_MTscaling[m][0][typefitFixed]->Integral(0,LowRange[m]);
+      YieldErrStat[m]+= pow(    fit_MTscaling[m][0][typefitFixed]->IntegralError(0,LowRange[m]), 2);
       
-    for(Int_t v = PtBinMin; v < numPtV0; v++){
+    for(Int_t v = PtBinMin[m]; v < numPtV0; v++){
       Yield[m]+=  ( fHistSpectrum_master[m]->GetBinContent(v+1)*fHistSpectrum_master[m]->GetBinWidth(v+1));
       YieldErrStat[m]+= pow(   fHistSpectrum_masterOnlyStat[m]->GetBinError(v+1)*fHistSpectrum_master[m]->GetBinWidth(v+1),2);
       YieldErrSistUnCorr[m]+=pow(    fHistSpectrum_masterSystUnCorr[m]->GetBinError(v+1)*fHistSpectrum_master[m]->GetBinWidth(v+1),2);
@@ -1264,6 +1353,7 @@ cout << "errore sist scorrelato in delta phi " << NSpectrumErrorSistUnCorr[m][v]
   // fHistYieldErrSistUnCorr->Smooth();
   // fHistYieldErrSistCorr->Smooth();
   for(Int_t m=0; m < nummolt+1; m++){
+    //if (m==0) continue;
   // if (m>=3) continue;     //added  
     YieldErrSistUnCorr[m]=  fHistYieldErrSistUnCorr->GetBinContent(fHistYieldvsErrTotal->FindBin(mult[m]));
     YieldErrSistCorr[m]=  fHistYieldErrSistCorr->GetBinContent(fHistYieldvsErrTotal->FindBin(mult[m]));
@@ -1275,6 +1365,7 @@ cout << "errore sist scorrelato in delta phi " << NSpectrumErrorSistUnCorr[m][v]
 
   cout << "***************************"<< endl;
   for(Int_t m=0; m < nummolt+1; m++){
+    //if (m==0) continue;
   // if (m>=3) continue;     //added  
      if (m < nummolt){
       fHistYieldvsErrSoloSist->SetBinContent(fHistYieldvsErrTotal->FindBin(mult[m]), Yield[m]);
@@ -1520,6 +1611,7 @@ cout << "errore sist scorrelato in delta phi " << NSpectrumErrorSistUnCorr[m][v]
   //legendErrorSpectrum->SetHeader("Type of error");
   
   for(Int_t m=nummolt; m>=0; m--){
+    //if (m==0) continue;
   // if (m>=3) continue;     //added  
     canvasSys[1]->cd(m+1);
     gPad->SetLeftMargin(0.15);
@@ -1598,6 +1690,7 @@ cout << "errore sist scorrelato in delta phi " << NSpectrumErrorSistUnCorr[m][v]
   canvasSpectrumSysBis[1]->Divide(3,3);
 
   for(Int_t m=0; m< nummolt +1; m++){
+    //if (m==0) continue;
   // if (m>=3) continue;     //added  
     canvasSpectrumSys[2*m]=new TCanvas(Form("canvasSpectrumSys0_%i",m),Form("canvasSpectrumSys0_%i",m), 1300, 1000);
     canvasSpectrumSys[2*m+1]=new TCanvas(Form("canvasSpectrumSys1_%i",m),Form("canvasSpectrumSys1_%i",m), 1300, 1000);
@@ -1617,6 +1710,7 @@ cout << "errore sist scorrelato in delta phi " << NSpectrumErrorSistUnCorr[m][v]
 
   }
   for(Int_t m=0; m< nummolt +1; m++){
+    //if (m==0) continue;
   // if (m>=3) continue;     //added  
     legend_Bpassed_Spectrum[m]= new TLegend(0.7, 0.7, 0.9, 0.9);
     legend_Corr_Spectrum[m]= new TLegend(0.7, 0.7, 0.9, 0.9);
@@ -1692,6 +1786,7 @@ cout << "errore sist scorrelato in delta phi " << NSpectrumErrorSistUnCorr[m][v]
 
 
   for(Int_t m=0; m< nummolt +1; m++){
+    //if (m==0) continue;
   // if (m>=3) continue;     //added  
     for(Int_t v=1; v < numPtV0; v++){
       legend_corr[m][v]= new TLegend(0.6, 0.7, 0.9, 0.9);
@@ -1864,6 +1959,7 @@ cout << "errore sist scorrelato in delta phi " << NSpectrumErrorSistUnCorr[m][v]
 
   cout << "master val, master_bis val, master_bis error(stat), errore stat , errore stat + sist uncorr(deltaphi), errore stat +sist(delta phi) , errore uncorr (sist), error uncorr sist + stat, error corr (sist) "<< endl;
   for(Int_t m=0; m< nummolt +1; m++){
+    //if (m==0) continue;
   // if (m>=3) continue;     //added  
     fHistSpectrumErrorSistBC[m]=(TH1D*)fHistSpectrum[m][0]->Clone(Form("fHistSpectrumErrorSistBC_m%i",m));
     fHistSpectrumErrorSistPhi[m]=(TH1D*)fHistSpectrum[m][0]->Clone(Form("fHistSpectrumErrorSistPhi_m%i",m));
@@ -1904,6 +2000,7 @@ cout << "errore sist scorrelato in delta phi " << NSpectrumErrorSistUnCorr[m][v]
 
 
   for(Int_t m=0; m < nummolt+1; m++){
+    //if (m==0) continue;
   // if (m>=3) continue;     //added  
     //cout << "\n\n"<< m << endl;
     for(Int_t syst=1; syst< numsystPhiGlobal + numSysV0Global; syst++){  
@@ -1953,70 +2050,7 @@ cout << "errore sist scorrelato in delta phi " << NSpectrumErrorSistUnCorr[m][v]
   canvasSysError->Divide(3,2);
 
   for(Int_t m=0; m < nummolt+1; m++){
-  // if (m>=3) continue;     //added  
-    canvasSysError->cd(m+1);
-    gPad->SetLeftMargin(0.15);
-    for(Int_t syst=1; syst< numsystPhiGlobal + numSysV0Global; syst++){    
-      if (ishhCorr && (syst==3 || syst==4 || syst==5)) continue; //isto non definiti per questi sistematici
-      if (!ishhCorr && (syst==9 || syst ==avoidthissyst || syst==avoidthissystbis || syst==avoidthissysttris)) continue;
-      if (ishhCorr && (syst ==avoidthissyst || syst==avoidthissystbis || syst==avoidthissysttris)) continue;
-      for(Int_t j =1; j < numPtV0; j++){
-	//cout << " m " << m << " syst " << syst << " j " << j << "  " << fHistSpectrumErrorSist[m][syst]->GetBinContent(j+1) << endl;      
-	//      cout << fHistSpectrumErrorSist[m][syst]->GetBinContent(j+1) << endl;  
-      }
-      fHistSpectrumErrorSist[m][syst]->GetXaxis()->SetTitle("p^{Assoc}_{T} (GeV/c)");
-      fHistSpectrumErrorSist[m][syst]->GetXaxis()->SetTitleSize(0.048);
-      fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetTitle("Relative uncertainty");
-      fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetTitleSize(0.045);
-      fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetTitleOffset(1.55);
-      fHistSpectrumErrorSist[m][syst]->SetTitle("Multiplicity class "+SmoltLegend[m]);
-      fHistSpectrumErrorSist[m][syst]->SetTitleSize(0.045);
-      fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetRangeUser(0,0.10);
-      if (isTotal)       fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetRangeUser(0,0.03);
-
-      if (isBulk==0 && isTotal==0 && isMC==0)       fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetRangeUser(0,0.08);
-      if (isBulk && m==4)       fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetRangeUser(0,0.3);
-      if (isBulk && m!=4)       fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetRangeUser(0,0.03);
-      if (isBulk && isMC)       fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetRangeUser(0,0.028);
-      if (isTotal && m==4)       fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetRangeUser(0,0.18);
-      if (isTotal && m!=4)       fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetRangeUser(0,0.11);
-      if (isTotal &&isMC)       fHistSpectrumErrorSist[m][syst]->GetYaxis()->SetRangeUser(0,0.11);
-      fHistSpectrumErrorSist[m][syst]->SetMarkerStyle(MarkerBetter[syst]);
-      fHistSpectrumErrorSist[m][syst]->SetLineColor(ColorBetter[syst]);
-      fHistSpectrumErrorSist[m][syst]->SetMarkerColor(ColorBetter[syst]);
-      //       fHistSpectrumErrorSist[m][syst]->Smooth();     
-      fHistSpectrumErrorSist[m][syst]->Draw("sameep"); //ter
-      if (!ishhCorr && m==0 && syst!=0 && syst!=5) legend4->AddEntry(fHistSpectrumErrorSist[m][syst],SSystBetter[syst],"pel");   //ter
-      if (ishhCorr && m==0 && syst!=0 && syst!=5) legend4->AddEntry(fHistSpectrumErrorSist[m][syst],SSystBetterhh[syst],"pel");   //ter
-      
-    }
-    if (m==0) legend4->AddEntry(  fHistSpectrumErrorSistPhi[m], "All syst. in Table", "l");
-    if (m==0) legend4->AddEntry(  fHistSpectrumErrorSistBC[m], "Bin counting range", "l");
-    fHistSpectrumErrorSistPhi[m]->GetYaxis()->SetTitle("Relative uncertainty");
-    fHistSpectrumErrorSistBC[m]->GetYaxis()->SetTitle("Relative uncertainty");
-    fHistSpectrumErrorSistPhi[m]->GetYaxis()->SetRangeUser(0,0.08); 
-    fHistSpectrumErrorSistBC[m]-> GetYaxis()->SetRangeUser(0,0.08);
-    if(isBulk)      fHistSpectrumErrorSistPhi[m]->GetYaxis()->SetRangeUser(0,0.5);
-    if(isBulk)      fHistSpectrumErrorSistBC[m]-> GetYaxis()->SetRangeUser(0,0.5);
-    if(isBulk && isMC)      fHistSpectrumErrorSistPhi[m]->GetYaxis()->SetRangeUser(0,1.5);
-    if(isBulk&& isMC)      fHistSpectrumErrorSistBC[m]-> GetYaxis()->SetRangeUser(0,1.5);
-    fHistSpectrumErrorSistPhi[m]->SetLineWidth(2);
-    fHistSpectrumErrorSistBC[m]->SetLineWidth(2);
-    fHistSpectrumErrorSistPhi[m]->SetLineColor(1);
-    fHistSpectrumErrorSistBC[m]-> SetLineColor(2);
-
-    //     fHistSpectrumErrorSistPhi[m]->Smooth();
-    //     fHistSpectrumErrorSistBC[m]->Smooth();
-    fHistSpectrumErrorSistPhi[m]->Draw("same");
-    fHistSpectrumErrorSistBC[m]->Draw("same"); //noter
-   
-    legend4->Draw("pel");
-  }
-  fileout->WriteTObject( canvasSysError); 
-  canvasSysError->SaveAs("FinalOutput/DATA"+year0 +"/RelSysPt"+JetOrBulk[jet]+DataOrMC[isMC]+".pdf"); //noter
-  // canvasSysError->SaveAs("FinalOutput/DATA"+year0 +"/RelSysPt"+JetOrBulk[jet]+DataOrMC[isMC]+"Ter.pdf"); //ter
-  
-  for(Int_t m=0; m < nummolt+1; m++){
+    //if (m==0) continue;
   // if (m>=3) continue;     //added  
     canvasSys[2]->cd(m+1);
     gPad->SetLeftMargin(0.15);
@@ -2079,11 +2113,14 @@ cout << "errore sist scorrelato in delta phi " << NSpectrumErrorSistUnCorr[m][v]
   fileout->WriteTObject( canvasSpectrumSysBis[1]);
 
   for(Int_t m=0; m< nummolt +1; m++){
+    //if (m==0) continue;
+
   // if (m>=3) continue;     //added  
     fileout->WriteTObject( canvasSpectrumSys[2*m]);
     fileout->WriteTObject( canvasSpectrumSys[2*m+1]);
   }
   for(Int_t m=0; m< nummolt +1; m++){
+    //if (m==0) continue;
   // if (m>=3) continue;     //added  
     fileout->WriteTObject( canvasPhiSys[4*m]);
     fileout->WriteTObject( canvasPhiSys[4*m+1]);
@@ -2132,6 +2169,7 @@ cout << "errore sist scorrelato in delta phi " << NSpectrumErrorSistUnCorr[m][v]
     if (!ishhCorr && (syst==9 || syst ==avoidthissyst || syst==avoidthissystbis || syst==avoidthissysttris)) continue;
     if (ishhCorr && (syst ==avoidthissyst || syst==avoidthissystbis || syst==avoidthissysttris)) continue;
       for(Int_t m=0; m< nummolt +1; m++){
+    //if (m==0) continue;
   // if (m>=3) continue;     //added  
       //cout << "*********************************mult " <<m << endl;
       for(Int_t v=1; v < numPtV0; v++){
@@ -2163,10 +2201,11 @@ cout << "errore sist scorrelato in delta phi " << NSpectrumErrorSistUnCorr[m][v]
 
   cout << "\n\ndelta phi width " << DeltaPhiWidth[0]<< endl;
   cout << "delta phi width (approx) " << DeltaPhiWidthApprox[0]<< endl;
-  cout << "minimo dell'intervallo di BC " << fHistPhiDistr_Corr[0][1][0]->GetXaxis()->GetBinLowEdge(fHistPhiDistr_Corr[0][1][0]->FindBin(ALowBinFit[0]))<< endl;
-  cout << "massimo dell'intervallo di BC " << fHistPhiDistr_Corr[0][1][0]->GetXaxis()->GetBinUpEdge(fHistPhiDistr_Corr[0][1][0]->FindBin(AUpBinFit[0]))<< endl;
-  cout << " minimo bin dell'intervallo di BC " << fHistPhiDistr_Corr[0][1][0]->FindBin(ALowBinFit[0])<< " massimo " <<  fHistPhiDistr_Corr[0][1][0]->FindBin(AUpBinFit[0])<< endl;
+  cout << "minimo dell'intervallo di BC " << fHistPhiDistr_Corr[1][1][0]->GetXaxis()->GetBinLowEdge(fHistPhiDistr_Corr[1][1][0]->FindBin(ALowBinFit[0]))<< endl;
+  cout << "massimo dell'intervallo di BC " << fHistPhiDistr_Corr[1][1][0]->GetXaxis()->GetBinUpEdge(fHistPhiDistr_Corr[1][1][0]->FindBin(AUpBinFit[0]))<< endl;
+  cout << " minimo bin dell'intervallo di BC " << fHistPhiDistr_Corr[1][1][0]->FindBin(ALowBinFit[0])<< " massimo " <<  fHistPhiDistr_Corr[1][1][0]->FindBin(AUpBinFit[0])<< endl;
   for (Int_t m=0; m< nummolt+1; m++){
+    //if (m==0) continue;
   // if (m>=3) continue;     //added  
     for (Int_t v=1; v< numPtV0; v++){
       cout << " m " << m << " PtV0 " << v << " n spectrum final " << NSpectrumFinal[m][v][0] << "  " << NSpectrumFinal[m][v][1]<< " e dall isto " << 	  fHistSpectrum[m][0]->GetBinContent(v+1)<< endl;
@@ -2188,6 +2227,7 @@ cout << "errore sist scorrelato in delta phi " << NSpectrumErrorSistUnCorr[m][v]
   }
   }
   for (Int_t m=0; m< nummolt+1; m++){
+    //if (m==0) continue;
     Int_t syst=0;
     cout << "\n\n*********************************" << endl;
     for (Int_t typefit=0; typefit<numfittipo; typefit++){
@@ -2260,6 +2300,18 @@ cout << "errore sist scorrelato in delta phi " << NSpectrumErrorSistUnCorr[m][v]
 
 
   cout <<  "number of topo syst " << numSysV0Global << " total number of syst (topo + inv mass + DeltaEta + DeltaPhi " << numSystGlobal <<  " n. of inv mass region + DeltaEta region syst " << numsystPhiGlobal  <<endl;
+
+  /*just a check
+  for (Int_t m=0; m<nummolt+1; m++){
+    cout << "\n\n m " << m << endl;
+    for(Int_t v=0; v < numPtV0; v++){
+      cout << "before; LowRange " << LowRange[m] << " v " << v << " PtBin " << NPtV0[v]<< endl;
+      if (LowRange[m]<=NPtV0[v]) break;
+      cout << "LowRange " << LowRange[m] << " v " << v << " PtBin " << NPtV0[v]<< endl;
+    }
+    cout <<   PtBinMin[m]<< endl;
+  }
+  */
 
 }
 
