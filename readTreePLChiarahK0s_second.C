@@ -15,13 +15,14 @@
 #include <TTree.h>
 #include <TLatex.h>
 #include <TFile.h>
-void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAssoc=0, Int_t israp=1, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=0.15,Float_t PtTrigMinFit=0.15, Int_t sysTrigger=0, Int_t sysV0=0,Int_t syst=0,bool isMC = 0, Bool_t isEfficiency=0,TString year0="2016", TString year="2016k_hK0s_30runs_150MeV",  TString Path1 ="",  Double_t ptjmax =15, Double_t nsigmamax=10, Bool_t isSigma=kFALSE){
+void readTreePLChiarahK0s_second(Bool_t ishhCorr=1, Int_t type=0, Bool_t SkipAssoc=1, Int_t israp=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=3,Float_t PtTrigMinFit=3, Int_t sysTrigger=0, Int_t sysV0=0,Int_t syst=0,bool isMC = 0, Bool_t isEfficiency=0,TString year0="2016", TString year="2016k_MECorr",  TString Path1 ="",  Double_t ptjmax =15, Double_t nsigmamax=10, Bool_t isSigma=kFALSE){
 
   //isMeanFixedPDG and isBkgParab are characteristics of the fit to the inv mass distributions 
   cout << isMC << endl;
   cout << " Pt Trigg Min è = " << PtTrigMin << endl;
 
   if (israp>1) return;
+  if (israp==1 && ishhCorr) {cout << "in hh correlation associated hadrons are not identified" << endl; return;}
   if (type>3) {cout << "type value not allowed" << endl; return;}
   //lista degli effetti  sistematici studiati in questa macro
   //sys=1 nsigmamin=5 (def:4)
@@ -37,6 +38,8 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
     return;
   }
 
+  Int_t PtBinMin=0;
+  if (!ishhCorr) PtBinMin=1; //for associated particles different from hadrons I do not start from 0            
 
   Double_t massK0s = 0.497611;
   Double_t massLambda = 1.115683;
@@ -62,6 +65,10 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   PathOut+=year;  
   // PathInMass+=year;
   
+  if (ishhCorr){
+    PathIn+="_hhCorr";
+  }
+ 
   if(isMC && isEfficiency){ 
     PathIn+="_MCEff";
     PathOut+="_MCEff";
@@ -77,21 +84,26 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   PathIn+=".root";
 
 
-  PathOut+=Path1+"Bis";
+  PathOut+=Path1; //+"Bis";
   PathOut+="_"; 
- PathOut +=tipo[type];
+  if (!ishhCorr) PathOut +=tipo[type];
   PathOut +=Srap[israp];
   PathOut +=SSkipAssoc[SkipAssoc];
-  if ((!isMC ||(isMC && isEfficiency))) PathOut +=Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f",sysTrigger, sysV0, syst, PtTrigMin); 
+  if (!ishhCorr && (!isMC ||(isMC && isEfficiency))) PathOut +=Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f",sysTrigger, sysV0, syst, PtTrigMin); 
+  if (ishhCorr&& (!isMC ||(isMC && isEfficiency))) PathOut +=Form("_hhCorr_SysT%i_SysV0%i_Sys%i_PtMin%.1f",sysTrigger, sysV0, syst, PtTrigMin);
   PathOut+= ".root";
 
   cout << "file di input " << PathIn << endl;
   TFile *fin = new TFile(PathIn);
+  if (!PathIn){cout << PathIn << " not available " << endl; return;} 
   TFile *fileMassSigma;
   TString dirinputtype[4] = {"", "Lambda", "Lambda", "Lambda"};
   TDirectoryFile *d = (TDirectoryFile*)fin->Get("MyTask"+dirinputtype[type]);
+  if (!d) {cout << "directory not available " << endl; return;}
   TTree *tSign = (TTree *)d->Get("fSignalTree");
   TTree *tBkg  = (TTree *)d->Get("fBkgTree");
+  if (!tSign) {cout << "Sign Tree is not there! " << endl; return; }
+  if (!tBkg) {cout << "Bkg Tree is not there! " << endl; return; }
 
   const Int_t nummolt=5;
   const Int_t numzeta=1;
@@ -107,7 +119,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   TString SPtV0[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8"};
   if (type>0)SPtV0[1]={"0.5-1"};
   if (ishhCorr){
-    SPtV0[0]={"0-0.5"};
+    SPtV0[0]={"0.1-0.5"};
     SPtV0[1]={"0.5-1"};
   }
   Double_t NPtV0[numPtV0+1]={0,0,1,1.5,2,2.5,3,4,8};
@@ -140,6 +152,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   TH1F* histo_NSigmaPeak;
   TH1F* histo_NSigmasideB;
 
+  if (!ishhCorr){ 
   if(isMC==0 || (isMC==1 && isEfficiency==1)){
     for(Int_t m=0; m<nummolt+1; m++){
       //      PathInMassDef=PathInMass+ "_"+year+"_"+tipo[type]+Form("_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f.root", m, sysTrigger, sysV0, syst, PtTrigMin);
@@ -151,7 +164,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
       histo_LLsideB=(TH1F*)fileMassSigma->Get("histo_LLsideB");
       histo_NSigmasideB=(TH1F*)fileMassSigma->Get("histo_NSigmasideB");
       histo_NSigmaPeak=(TH1F*)fileMassSigma->Get("histo_NSigmaPeak");
-      for(Int_t v=1; v<numPtV0; v++){
+      for(Int_t v=PtBinMin; v<numPtV0; v++){
       sigmacentral[type][m][v]=      histo_NSigmaPeak->GetBinContent(v+1);
       nsigmamin[type][m][v]=      histo_NSigmasideB->GetBinContent(v+1);
 	mass[type][m][v]=histoMean->GetBinContent(v+1);
@@ -161,6 +174,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
 	cout <<"mult interval " <<  m << " PtV0 interval " << v << " mean " << mass[type][m][v] << " sigma "<< sigma[type][m][v] << endl;
       }
     }
+  }
   }
   Double_t     fSignTreeVariablePtTrigger;
   Int_t        fSignTreeVariableChargeTrigger;
@@ -314,8 +328,6 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
 
   
   TFile *fout = new TFile(PathOut,"RECREATE");
-  TDirectory  *dirSign= fout->mkdir("SE");
-  TDirectory  *dirBkg= fout->mkdir("ME");
 
   /*-----------------------DeltaEtaDeltaPhi in bin di molteplicita/ZVertex/pTV)/pTTrigger------------- */
   TString nameSE[nummolt+1][numzeta][numPtV0][numPtTrigger];
@@ -358,7 +370,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
       hSign_PtV0[m][z]->GetYaxis()->SetLabelSize(0.05);
 
       for(Int_t tr=0; tr<numPtTrigger; tr++){
-	for(Int_t v=1; v<numPtV0; v++){
+	for(Int_t v=PtBinMin; v<numPtV0; v++){
 	  nameSE[m][z][v][tr]="SE_";
 	  namemassSE[m][z][v][tr]="InvMassSE_";
 	  nameSE[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
@@ -423,7 +435,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
       hBkg_PtV0[m][z]->GetYaxis()->SetLabelSize(0.05);
 
       for(Int_t tr=0; tr<numPtTrigger; tr++){
-	for(Int_t v=1; v<numPtV0; v++){
+	for(Int_t v=PtBinMin; v<numPtV0; v++){
 	  nameME[m][z][v][tr]="ME_";
 	  namemassME[m][z][v][tr]="InvMassME_";
 	  nameME[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
@@ -459,10 +471,9 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   Bool_t isParticleTrue=kFALSE;
   Int_t fSignTreeVariablePAPAssoc=0;
 
-  dirSign->cd();
   cout << "\n\n I will process " << EntriesSign << " entries for theSE correlation " << endl;
   for(Int_t k = 0; k<EntriesSign; k++){
-    //    if (k>1000000) continue;
+    //     if (k>10000000) continue;
         tSign->GetEntry(k);
 	//  for(Int_t k = 0; k<1000000; k++){
     for (Int_t l=0; l<10000; l++){
@@ -571,7 +582,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
       }
       for(Int_t z=0; z<numzeta; z++){
 	for(Int_t tr=0; tr<numPtTrigger; tr++){
-	  for(Int_t v=1; v<numPtV0; v++){
+	  for(Int_t v=PtBinMin; v<numPtV0; v++){
 	    /* defined above in a less error-prone way
 	    if (type==4 || type==5 || type==8){
 	      LimInfMass[type]=1.30;
@@ -583,7 +594,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
 	      }
 	    }
 	    */
-	    if((isMC && !isEfficiency)) {
+	    if((isMC && !isEfficiency) || ishhCorr) {
 	      BoolMC = kTRUE;
 	      MassLimit=kTRUE;
 	    }
@@ -618,10 +629,9 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
 
   Float_t     fBkgTreeVariableInvMass= 0;
   cout << "ciao " << endl;
-  dirBkg->cd();
   cout << "\n\n I will process " << EntriesBkg << " entries for theSE correlation " << endl;
   for(Int_t k = 0; k<EntriesBkg; k++){
-    //      if (k>1000000) continue;
+    //    if (k>10000000) continue;
 
       tBkg->GetEntry(k);     
     //  for(Int_t k = 0; k<1000000; k++){
@@ -734,7 +744,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
 
       for(Int_t z=0; z<numzeta; z++){
 	for(Int_t tr=0; tr<numPtTrigger; tr++){
-	  for(Int_t v=1; v<numPtV0; v++){
+	  for(Int_t v=PtBinMin; v<numPtV0; v++){
 
 	    /*	    if (type==4 || type==5 || type==8){
 	      LimInfMass[type]=1.30;
@@ -745,7 +755,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
 	      LimSupMass[type]=1.352;
 	      }
 	    }*/
-	    if((isMC && !isEfficiency) ) {
+	    if((isMC && !isEfficiency) || ishhCorr) {
 	      BoolMC = kTRUE;
 	      MassLimit=kTRUE;
 	    }
