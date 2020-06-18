@@ -17,7 +17,7 @@
 #include <TFile.h>
 #include <TLegend.h>
 
-void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t ptjmin=3,  Float_t PtTrigMinFit=3, Int_t sysV0=0, Int_t sysTrigger=0,Int_t sys=0,Int_t type=8,  Int_t israp=0,Bool_t isMC=0, Bool_t isEfficiency=1,   TString year0 = "2016",TString year="Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"*/, TString yearMC="2016kl_hXi"/*"2018f1_extra_hK0s_30runs_150MeV"*/,  TString Path1 ="", TString Dir ="FinalOutput/",  Float_t ptjmax=15, Int_t rebin=2,  Int_t rebinx=2,  Int_t rebiny=2, Bool_t MasterThesisAnalysis=0, Bool_t isEnlargedDeltaEtaPhi=0,Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1){ 
+void AngularCorrelation_firstCasc(Bool_t ishhCorr=1, Bool_t SkipAssoc=1,Float_t ptjmin=3,  Float_t PtTrigMinFit=3, Int_t sysV0=0, Int_t sysTrigger=0,Int_t sys=0,Int_t type=0,  Int_t israp=0,Bool_t isMC=0, Bool_t isEfficiency=1,   TString year0 = "2016",TString year="2016k_MECorr"/*"Run2DataRed_MECorr_hXi""2016k_hK0s_30runs_150MeV"*/, TString yearMC="2018f1_extra_MECorr"/*"2016kl_hXi"/*"2018f1_extra_hK0s_30runs_150MeV"*/,  TString Path1 ="", TString Dir ="FinalOutput/",  Float_t ptjmax=15, Int_t rebin=2,  Int_t rebinx=2,  Int_t rebiny=2, Bool_t MasterThesisAnalysis=0, Bool_t isEnlargedDeltaEtaPhi=0,Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1){ 
 
   //masterthesis analysis è usato quando devo fare analisi presentata per la tesi
   if (ishhCorr && type!=0) {cout << " for hh correlation type should be set to zero in order to get the correct files " << endl; return;}
@@ -80,7 +80,7 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t 
   //  file +=Path1; 
   if (ishhCorr) {
     file2+="_hhCorr";
-    file+="_hhCorr";
+    //    file+="_hhCorr";
     if (isMC)     file2+="_MCEff";
   }
   file2+=Path1;
@@ -94,11 +94,13 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t 
   if (isMC && !isEfficiency) PathIn= Dir+"/histo/AngularCorrelation" + file + ".root";
   else{
     PathIn= Dir+"/histo/AngularCorrelation" + file+Path1;
-        if(type>=0){
-      PathIn +="_"+tipo[type];
+    if(type>=0){
+      PathIn +="_";
+      if (!ishhCorr)	  PathIn+=tipo[type];
       PathIn +=Srap[israp];
       PathIn +=SSkipAssoc[SkipAssoc];
-         }
+      if (ishhCorr)      PathIn +="_hhCorr";
+    }
     PathIn+= Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f.root", sysTrigger, sysV0, sysang, PtTrigMin);
   }
   if (MasterThesisAnalysis){
@@ -111,21 +113,23 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t 
 
   TString PathInEfficiency = Dir+ "/Efficiency/Efficiency" +fileMC+Path1;// change
   if(type>=0){
-    PathInEfficiency +="_"+tipo[type];
+    PathInEfficiency +="_";
+    if (!ishhCorr)             PathInEfficiency +=tipo[type];
     PathInEfficiency +=Srap[israp];
     PathInEfficiency +=SSkipAssoc[SkipAssoc];
+    if (ishhCorr)     PathInEfficiency +="_hhCorr";
   }
 
   PathInEfficiency+= Form("_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
-  if (ishhCorr) PathInEfficiency = Dir+ "/Efficiency/Efficiency" +fileMC  +"_hhCorr" + Path1+ Form("_SysT%i_SysV0%i_PtMin%.1f", sysTrigger, sysV0, PtTrigMin)+".root";
+  //  if (ishhCorr) PathInEfficiency = Dir+ "/Efficiency/Efficiency" +fileMC  +"_hhCorr" + Path1+ Form("_SysT%i_SysV0%i_PtMin%.1f", sysTrigger, sysV0, PtTrigMin)+".root";
   if (MasterThesisAnalysis) PathInEfficiency = Dir+ "/Efficiency/Efficiency" +fileMC  +Form("_MCEff_Efficiency_SysT%i_SysV0%i", sysTrigger, sysV0)+".root";
 
   TString PathOut1;
   if (isMC && !isEfficiency) PathOut1=Dir+"/histo/AngularCorrelation" + file  +"_Output.root";
   else {
-    PathOut1 = Dir+"/histo/AngularCorrelation"  +file+Path1+ "_Jet0.75";
+    PathOut1 = Dir+"/histo/AngularCorrelation"  +file+Path1; //+ "_Jet0.75";
     if(type>=0){
-      PathOut1 +="_"+tipo[type];
+      if (!ishhCorr)      PathOut1 +="_"+tipo[type];
       PathOut1 +=Srap[israp];
       PathOut1 +=SSkipAssoc[SkipAssoc];
     }
@@ -152,8 +156,11 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t 
 
   TFile *filepurezza;
   TFile *filein = new TFile(PathIn);
+  if (!filein) return;
   TFile *fileinbis = new TFile(PathInBis);
+  if (!fileinbis) return;
   TFile *fileinEfficiency = new TFile(PathInEfficiency);
+  if (!fileinEfficiency) return;
   TString dirinputtype[numtipo] = {"", "Lambda", "Lambda", "Xi", "Lambda","Xi", "Omega", "Omega", "Xi", "Omega"};
   TDirectoryFile *dir = (TDirectoryFile*)fileinbis->Get("MyTask"+dirinputtype[type]);
   TList *list = (TList*)dir->Get("MyOutputContainer");
@@ -199,7 +206,7 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t 
   //  if (type>0)SPtV0[1]={"0.5-1"};
   if (type>=0)SPtV0[1]={"0.5-1"};
   if (ishhCorr){
-    SPtV0[0]={"0-0.5"};
+    SPtV0[0]={"0.1-0.5"};
     SPtV0[1]={"0.5-1"};
   }
   Double_t NPtV0[numPtV0+1]={0,0,1,1.5,2,2.5,3,4,8};
