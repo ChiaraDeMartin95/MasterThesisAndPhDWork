@@ -18,7 +18,9 @@
 #include <TFile.h>
 #include <TSpline.h>
 
-void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=0, TString year0="2016", Int_t ishhCorr=0, Bool_t MasterThesis=0, Bool_t isSE=0, Int_t NumberOfRegions=6,  Int_t israp=0, Int_t type=8,   Float_t ScaleFactorJet = 1.56/2.08, Float_t ScaleFactorPions=1./0.8767, Bool_t EtaPhiEnlargedStudy=0,TString year="Run2DataRed_hXi" , TString yearhh="2016k", Bool_t SkipAssoc=1){
+void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2016", Int_t ishhCorr=0, Bool_t MasterThesis=0, Bool_t isSE=0, Int_t NumberOfRegions=3,  Int_t israp=0, Int_t type=0,Int_t typeDenom=0,   Float_t ScaleFactorJet = 1/*1.56/2.08*/, Float_t ScaleFactorPions=/*1./0.8767*/1, Bool_t EtaPhiEnlargedStudy=0,TString yearhh=/*"Run2DataRed_MECorr_hXi"*/"2016k_hK0s" , TString year="2016k_hK0s"/*"Run2DataRed_MECorr_hXi"*/, TString yearhhMC=/*"Run2DataRed_MECorr_hXi"*/"2018f1_extra_hK0s" , TString yearMC="2018f1_extra_hK0s"/*"Run2DataRed_MECorr_hXi"*/, Bool_t SkipAssoc=1, TString Path1="_Jet0.75",  TString Path1Denom="_Jet0.75",Bool_t ishDenom=0){
+  //if I want to perform the ratio between the yields of a particle and of charged hadrons I should place ishDenom=0.
+  //yearhh is the year for which the hh study has been performed if isSE=0 && ishhCorr=1; It's the year associated to the denominator if isSE=1
   //if isSE is true the ratio of K0s to hadrons is computed, in order to study the strangeness enhancement effect
   //by default for the hhCorr the "New" results are taken (they are the correct ones!)
   if (!EtaPhiEnlargedStudy) {
@@ -26,13 +28,13 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=0, TString year0="2
     //    return;
   }
 
-  const Int_t NumberTypeAnalysis=6; 
+  const Int_t NumberTypeAnalysis=8; 
   Int_t WhatKindOf=0;
   //  Float_t ScaleFactorJet = 0.84/2.08; //DeltaEta(hK0s) =~ 0.8; DeltaEta(hh) =~ 2; The TOTAL in-jet production for hh and hK0s should be compared: this is why we need this scale factor! This is only applied when the hK0s and hh correlation use different DeltraEtaPhi widths, and therefore IS NOT APPLIED isEnlargedStudy is chosen (the values is set to one in the following)
   //->for K0s not enlarged =0.84/2.08*2.13628/2.63894;
   //ScaleFactorPions mi dice la percentuale di pioni sul totale di particelle associate: è l'84% se pT, Trig, min > 3 GeV/c (questo per hhCorr, per hhCorr_New è 87.7%)
 
-  if (NumberOfRegions>6) {cout << "There are only 6 different region " << endl; return;}
+  if (NumberOfRegions>8) {cout << "There are only 6 different region " << endl; return;}
   if (!ishhCorr && !isSE) WhatKindOf=0;
   if (ishhCorr) WhatKindOf=1;
   if (!ishhCorr && isSE) WhatKindOf=2;
@@ -70,17 +72,22 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=0, TString year0="2
   TString SSkipAssoc[2] = {"_AllAssoc", ""};
   TString ishhCorrOrNot[3]= {"", "_hhCorr_New", "SE_New"}; 
   const Int_t numtipo=10;
-  TString tipo[numtipo]={"kK0s", "Lambda", "AntiLambda","LambdaAntiLambda", "XiNeg", "XiPos", "OmegaNeg", "OmegaPlus", "Xi", "Omega"};
+  TString tipo[numtipo]={"K0s", "Lambda", "AntiLambda","LambdaAntiLambda", "XiNeg", "XiPos", "OmegaNeg", "OmegaPlus", "Xi", "Omega"};
 
   TString nomefileoutput1 = "CfrDataMCRatioOutput/CfrDataMCRatioOutput" + year;
-  if( type>0){
-     nomefileoutput1 +="_"+tipo[type];
-     nomefileoutput1 +=Srap[israp];
-     nomefileoutput1 +=SSkipAssoc[SkipAssoc];
-  }
+  TString nomefileoutput2 = "CfrDataMCRatioOutput/CfrDataMCRatioOutput_" + year +"_"+ yearhh;
+  //  if( type>0){
+  nomefileoutput1 +="_"+tipo[type];
+  nomefileoutput1 +=Srap[israp];
+  nomefileoutput1 +=SSkipAssoc[SkipAssoc];
+  nomefileoutput2 +=Srap[israp];
+  nomefileoutput2 +=SSkipAssoc[SkipAssoc];
 
-  TString   nomefileoutput =nomefileoutput1+ishhCorrOrNot[ishhCorr]+ Form("_PtTrigMin%.1f_NumberOfRegions%i", PtTrigMin, NumberOfRegions);
-  if (isSEBis==1) nomefileoutput =nomefileoutput1+ ishhCorrOrNot[2]+Form("_PtTrigMin%.1f_NumberOfRegions%i", PtTrigMin, NumberOfRegions);
+  //  }
+
+  TString   nomefileoutput =nomefileoutput1+ishhCorrOrNot[ishhCorr]+ Form("_PtTrigMin%.1f_NumberOfRegions%i", PtTrigMin, NumberOfRegions);//+ "_JetIntegral";
+  if (isSEBis==1 && !ishDenom) nomefileoutput =nomefileoutput2+ "_Ratio"+tipo[type]+tipo[typeDenom]+Form("_PtTrigMin%.1f_NumberOfRegions%i", PtTrigMin, NumberOfRegions);// + "_JetIntegralNum";//+ "_JetIntegral";;
+  if (isSEBis==1 && ishDenom) nomefileoutput =nomefileoutput1+ ishhCorrOrNot[2]+Form("_PtTrigMin%.1f_NumberOfRegions%i", PtTrigMin, NumberOfRegions) ;
 
   if (EtaPhiEnlargedStudy){
     nomefileoutput = "CfrDataMCRatioOutput/CfrDataMCRatioOutput" + ishhCorrOrNot[ishhCorr]+ Form("_PtTrigMin%.1f_DeltaEtaPhiEnlarged_NumberOfRegions%i", PtTrigMin, NumberOfRegions);
@@ -88,6 +95,7 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=0, TString year0="2
   }
 
   TString  nomefileoutputPDF=nomefileoutput;
+  nomefileoutput += Path1;
   nomefileoutput += ".root";
   cout << "nome file output " << nomefileoutput << endl;
   fileout = new TFile (nomefileoutput, "RECREATE");
@@ -102,20 +110,20 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=0, TString year0="2
   const Int_t numPeriod=2;
   //colori e marker diversi per jet, OJ, J+OJ *********************************
 
-  Float_t Color[NumberTypeAnalysis]={1,801,2, 909,881,  868};
+  Float_t Color[NumberTypeAnalysis]={1,801,2, 909,881,  868, 843, 617};
   if (NumberOfRegions==3) {
     Color[0]=2;
-    Color[1]=860;
-    Color[2]=418;
+    Color[1]=418;
+    Color[2]=860;
   }
-  Int_t MarkerOrigin[NumberTypeAnalysis]={20,21,33, 20, 21, 33}; 
-  Int_t MarkerMC[NumberTypeAnalysis]={24,25,27, 24, 25, 27}; 
+  Int_t MarkerOrigin[NumberTypeAnalysis]={20,21,33, 20, 21, 33, 20, 20}; 
+  Int_t MarkerMC[NumberTypeAnalysis]={24,25,27, 24, 25, 27, 24, 24}; 
   //   Int_t MarkerMC[NumberTypeAnalysis]={20,21,33,20,21,33}; 
-  TString Sys[2*NumberTypeAnalysis]={"Jet DATA", "Jet MC", "OJ DATA", "OJ MC", "J+OJ DATA", "J+OJ MC",  "J+OJ NotScaled DATA", "J+OJ NotScaled MC", "AwaySide DATA", "AwaySide MC", "AllButJet DATA", "AllButJet MC"};
-  TString StatErrBis[NumberTypeAnalysis]={"stat. in-jet", "stat. out-of-jet", "stat. inclusive", "stat. inclusive not scaled", "stat. away side","stat. all but jet"};  
-  TString SysErrBis[NumberTypeAnalysis]={"sist. in-jet", "sist. out-of-jet", "sist. inclusive",  "stat. inclusive not scaled", "stat. away si", "stat. all but jet"};
-  TString Region[NumberTypeAnalysis]={"Jet", "Bulk", "All","AllNS", "AwaySide", "AllButJet"};
-  TString JetOrNot[NumberTypeAnalysis]={"Jet ", "OJ " , "J+OJ ", "J+OJ NS", "AwaySide", "AllButJet"};
+  TString Sys[2*NumberTypeAnalysis]={"Jet DATA", "Jet MC", "OJ DATA", "OJ MC", "J+OJ DATA", "J+OJ MC",  "J+OJ NotScaled DATA", "J+OJ NotScaled MC", "AwaySide DATA", "AwaySide MC", "AllButJet DATA", "AllButJet MC", "JetBFit DATA", "JetBFit MC", "JetZYAM DATA", "JetZYAM MC"};
+  TString StatErrBis[NumberTypeAnalysis]={"stat. in-jet", "stat. out-of-jet", "stat. inclusive", "stat. inclusive not scaled", "stat. away side","stat. all but jet", "stat. in-jet", "stat. in-jet"};  
+  TString SysErrBis[NumberTypeAnalysis]={"sist. in-jet", "sist. out-of-jet", "sist. inclusive",  "stat. inclusive not scaled", "stat. away si", "stat. all but jet", "sist. in-jet", "sist. in-jet"};
+  TString Region[NumberTypeAnalysis]={"Jet", "Out of jet", "Inclusive","AllNS", "AwaySide", "AllButJet", "JetFromBulkFit", "JetZYAM"};
+  TString JetOrNot[NumberTypeAnalysis]={"Jet ", "OJ " , "J+OJ ", "J+OJ NS", "AwaySide", "AllButJet", "JetBFit", "JetZYAM"};
   TString SysErr[2]={"syst. DATA", "syst. MC"};
   TString StatErr[2]={"stat. DATA", "stat. MC"};
   TString SysErrMB[2]={"syst. DATA 0-100 %", "syst. MC 0-100 %"};
@@ -280,6 +288,10 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=0, TString year0="2
 
   TString  PathInJet[2];
   TString  PathInJetMC[2];
+  TString  PathInJetBFit[2];
+  TString  PathInJetBFitMC[2];
+  TString  PathInJetZYAM[2];
+  TString  PathInJetZYAMMC[2];
   TString  PathInBulk[2];
   TString  PathInBulkMC[2];
   TString  PathInAll[2];
@@ -300,145 +312,191 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=0, TString year0="2
 
   TString  hhCorr[3]={"", "_New_hhCorr", "_SE_New"}; //"_New_hhCorr"
   cout << "I'm getting the files " << endl;
-  for(Int_t ishhCorrLoop=MinLoop; ishhCorrLoop<MaxLoop; ishhCorrLoop++){
+
+  for(Int_t LoopNumDenom=MinLoop; LoopNumDenom<MaxLoop; LoopNumDenom++){
+    Int_t   LoopNumDenomBis=LoopNumDenom;
     if (!MasterThesis){
 
       TString      stringout = "FinalOutput/DATA"+year0+"/SystematicAnalysis" ;
-      if (ishhCorrLoop==0){
-	stringout += year ; //+Path1; 
+      TString      stringoutMC = "FinalOutput/DATA"+year0+"/SystematicAnalysis" ;
+      if (LoopNumDenom==1){
+	stringout += yearhh +Path1Denom; 
+	stringoutMC += yearhhMC +Path1Denom; 
       }
-      else      if (ishhCorrLoop==1){
-	stringout += yearhh ; //+Path1; 
+      else      if (LoopNumDenom==0){
+	stringout += year +Path1; 
+	stringoutMC += yearMC +Path1; 
       }
-      if(ishhCorrLoop==0 && type>0){
+      
+      if(LoopNumDenom==0 && type>=0) {
 	stringout +="_"+tipo[type];
 	stringout +=Srap[israp];
 	stringout+=SSkipAssoc[SkipAssoc];
+	stringoutMC +="_"+tipo[type];
+	stringoutMC +=Srap[israp];
+	stringoutMC +=SSkipAssoc[SkipAssoc];
+
+	LoopNumDenomBis=0;
       }
+      if  (LoopNumDenom==1 && !ishDenom){
+	stringout +="_"+tipo[typeDenom];
+	stringout +=Srap[israp];
+	stringout+=SSkipAssoc[SkipAssoc];
+	stringoutMC +="_"+tipo[typeDenom];
+	stringoutMC +=Srap[israp];
+	stringoutMC +=SSkipAssoc[SkipAssoc];
 
-      PathInJet[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_JetData_PtMin%.1f.root", PtTrigMin);	 
-      PathInJetMC[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_JetMC_PtMin%.1f.root", PtTrigMin);	 
-      PathInBulk[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_BulkData_PtMin%.1f.root", PtTrigMin); 	 
-      PathInBulkMC[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_BulkMC_PtMin%.1f.root", PtTrigMin);
-      PathInAll[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_AllData_PtMin%.1f.root", PtTrigMin); 	 
-      PathInAllMC[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_AllMC_PtMin%.1f.root", PtTrigMin);  
+	LoopNumDenomBis=0;
+      }
+      //      if (LoopNumDenom==0)      PathInJet[LoopNumDenom]=stringout+hhCorr[LoopNumDenomBis] +Form("_JetData_PtMin%.1f_JetIntegral.root", PtTrigMin);
+      PathInJet[LoopNumDenom]=stringout+hhCorr[LoopNumDenomBis] +Form("_JetData_PtMin%.1f.root", PtTrigMin);
 
-      PathInAllNS[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_AllNSData_PtMin%.1f.root", PtTrigMin); 	 
-      PathInAllNSMC[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_AllNSMC_PtMin%.1f.root", PtTrigMin);  
-      PathInAwaySide[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_AwaySideData_PtMin%.1f.root", PtTrigMin); 	 
-      PathInAwaySideMC[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_AwaySideMC_PtMin%.1f.root", PtTrigMin);  
-      PathInAllButJet[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_AllButJetData_PtMin%.1f.root", PtTrigMin); 	
-      PathInAllButJetMC[ishhCorrLoop]=stringout+hhCorr[ishhCorrLoop] +Form("_AllButJetMC_PtMin%.1f.root", PtTrigMin);
+      PathInJetMC[LoopNumDenom]=stringoutMC+hhCorr[LoopNumDenomBis] +Form("_JetMC_PtMin%.1f.root", PtTrigMin);	 
 
-      if (ishhCorrLoop==0 && EtaPhiEnlargedStudy){
-      PathInJet[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_JetData_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin);	 
-      PathInJetMC[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_JetMC_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin);	 
-      PathInBulk[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_BulkData_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin); 	 
-      PathInBulkMC[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_BulkMC_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin);
-      PathInAll[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_AllData_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin); 	 
-      PathInAllMC[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_AllMC_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin);  
+      PathInJetBFit[LoopNumDenom]=stringout+hhCorr[LoopNumDenomBis] +Form("_JetBFitData_PtMin%.1f.root", PtTrigMin);	 
+      PathInJetBFitMC[LoopNumDenom]=stringoutMC+hhCorr[LoopNumDenomBis] +Form("_JetBFitMC_PtMin%.1f.root", PtTrigMin);	 
 
-      PathInAllNS[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_AllNSData_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin); 	 
-      PathInAllNSMC[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_AllNSMC_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin);  
-      PathInAwaySide[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_AwaySideData_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin); 	 
-      PathInAwaySideMC[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_AwaySideMC_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin);  
-      PathInAllButJet[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_AllButJetData_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin); 	
-      PathInAllButJetMC[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorrLoop] +Form("_AllButJetMC_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin);
+      PathInJetZYAM[LoopNumDenom]=stringout+hhCorr[LoopNumDenomBis] +Form("_JetZYAMData_PtMin%.1f.root", PtTrigMin);	 
+      PathInJetZYAMMC[LoopNumDenom]=stringoutMC+hhCorr[LoopNumDenomBis] +Form("_JetZYAMMC_PtMin%.1f.root", PtTrigMin);	 
+
+      PathInBulk[LoopNumDenom]=stringout+hhCorr[LoopNumDenomBis] +Form("_BulkData_PtMin%.1f.root", PtTrigMin); 	 
+      PathInBulkMC[LoopNumDenom]=stringoutMC+hhCorr[LoopNumDenomBis] +Form("_BulkMC_PtMin%.1f.root", PtTrigMin);
+      PathInAll[LoopNumDenom]=stringout+hhCorr[LoopNumDenomBis] +Form("_AllData_PtMin%.1f.root", PtTrigMin); 	 
+      PathInAllMC[LoopNumDenom]=stringoutMC+hhCorr[LoopNumDenomBis] +Form("_AllMC_PtMin%.1f.root", PtTrigMin);  
+
+      PathInAllNS[LoopNumDenom]=stringout+hhCorr[LoopNumDenomBis] +Form("_AllNSData_PtMin%.1f.root", PtTrigMin); 	 
+      PathInAllNSMC[LoopNumDenom]=stringoutMC+hhCorr[LoopNumDenomBis] +Form("_AllNSMC_PtMin%.1f.root", PtTrigMin);  
+      PathInAwaySide[LoopNumDenom]=stringout+hhCorr[LoopNumDenomBis] +Form("_AwaySideData_PtMin%.1f.root", PtTrigMin); 	 
+      PathInAwaySideMC[LoopNumDenom]=stringoutMC+hhCorr[LoopNumDenomBis] +Form("_AwaySideMC_PtMin%.1f.root", PtTrigMin);  
+      PathInAllButJet[LoopNumDenom]=stringout+hhCorr[LoopNumDenomBis] +Form("_AllButJetData_PtMin%.1f.root", PtTrigMin); 	
+      PathInAllButJetMC[LoopNumDenom]=stringoutMC+hhCorr[LoopNumDenomBis] +Form("_AllButJetMC_PtMin%.1f.root", PtTrigMin);
+
+      if (LoopNumDenom==0 && EtaPhiEnlargedStudy){
+	PathInJet[LoopNumDenom]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[LoopNumDenom] +Form("_JetData_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin);	 
+	PathInJetMC[LoopNumDenom]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[LoopNumDenom] +Form("_JetMC_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin);	 
+	PathInJetBFit[LoopNumDenom]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[LoopNumDenom] +Form("_JetBFitData_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin);	 
+	PathInJetBFitMC[LoopNumDenom]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[LoopNumDenom] +Form("_JetBFitMC_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin);	 
+	PathInJetZYAM[LoopNumDenom]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[LoopNumDenom] +Form("_JetZYAMData_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin);	 
+	PathInJetZYAMMC[LoopNumDenom]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[LoopNumDenom] +Form("_JetZYAMMC_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin);	 
+
+	PathInBulk[LoopNumDenom]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[LoopNumDenom] +Form("_BulkData_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin); 	 
+	PathInBulkMC[LoopNumDenom]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[LoopNumDenom] +Form("_BulkMC_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin);
+	PathInAll[LoopNumDenom]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[LoopNumDenom] +Form("_AllData_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin); 	 
+	PathInAllMC[LoopNumDenom]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[LoopNumDenom] +Form("_AllMC_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin);  
+
+	PathInAllNS[LoopNumDenom]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[LoopNumDenom] +Form("_AllNSData_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin); 	 
+	PathInAllNSMC[LoopNumDenom]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[LoopNumDenom] +Form("_AllNSMC_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin);  
+	PathInAwaySide[LoopNumDenom]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[LoopNumDenom] +Form("_AwaySideData_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin); 	 
+	PathInAwaySideMC[LoopNumDenom]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[LoopNumDenom] +Form("_AwaySideMC_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin);  
+	PathInAllButJet[LoopNumDenom]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[LoopNumDenom] +Form("_AllButJetData_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin); 	
+	PathInAllButJetMC[LoopNumDenom]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[LoopNumDenom] +Form("_AllButJetMC_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin);
 
       }
     }
     //per analsisi presentata nella tesi
     else{
-      if (ishhCorrLoop=1) continue;
-      PathInJet[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorr] +"_Jet.root";	 
-      PathInJetMC[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorr] +"_JetMC.root";	 
-      PathInBulk[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorr] +"_Bulk.root"; 	 
-      PathInBulkMC[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorr] +"_BulkMC.root";
-      PathInAll[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorr] +"_All.root"; 	 
-      PathInAllMC[ishhCorrLoop]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorr] +"_AllMC.root";  
+      if (LoopNumDenom=1) continue;
+      PathInJet[LoopNumDenom]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorr] +"_Jet.root";	 
+      PathInJetMC[LoopNumDenom]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorr] +"_JetMC.root";	 
+      PathInBulk[LoopNumDenom]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorr] +"_Bulk.root"; 	 
+      PathInBulkMC[LoopNumDenom]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorr] +"_BulkMC.root";
+      PathInAll[LoopNumDenom]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorr] +"_All.root"; 	 
+      PathInAllMC[LoopNumDenom]="FinalOutput/DATA" + year0 + "/SystematicAnalysis" + hhCorr[ishhCorr] +"_AllMC.root";  
     }
   }
   cout << "...Done\n\n" << endl;
-  cout << "These are the input files for K0s: " << PathInJet[0]<< endl;
+  cout << "These are the input files for numerator: " << PathInJet[0]<< endl;
+  if (isSE)  cout << "These are the input files for denominator: " << PathInJet[1]<< endl;
   cout << "I'm getting the histos " << endl;
   //**************** prendo gli istogrammi **********************************************
   TLegend *  legendRegion=new TLegend(0.7,0.7, 0.9, 0.9);
   for(Int_t l=0; l<NumberOfRegions; l++){ //loop sulla region (jet, OJ, inclusive)
     for(Int_t j=DataOrMCMin; j<DataOrMCMax; j++){ //loop data or MC
       cout << " region " << l << "data/MC " << j << endl;
-      for (Int_t ishhCorrLoop=MinLoop; ishhCorrLoop<MaxLoop; ishhCorrLoop++){
+      for (Int_t LoopNumDenom=MinLoop; LoopNumDenom<MaxLoop; LoopNumDenom++){
 	if(l==0){
-	  if (j==0)   PathIn[ishhCorrLoop]=PathInJet[ishhCorrLoop];
-	  if (j==1)   PathIn[ishhCorrLoop]=PathInJetMC[ishhCorrLoop];
+	  if (j==0)   PathIn[LoopNumDenom]=PathInJet[LoopNumDenom];
+	  if (j==1)   PathIn[LoopNumDenom]=PathInJetMC[LoopNumDenom];
 	}
 	if(l==1){
-	  if (j==0)  PathIn[ishhCorrLoop]=PathInBulk[ishhCorrLoop];
-	  if (j==1)  PathIn[ishhCorrLoop]=PathInBulkMC[ishhCorrLoop];
+	  if (j==0)  PathIn[LoopNumDenom]=PathInBulk[LoopNumDenom];
+	  if (j==1)  PathIn[LoopNumDenom]=PathInBulkMC[LoopNumDenom];
 	}
 	if (l==2){
-	  if (j==0)  PathIn[ishhCorrLoop]=PathInAll[ishhCorrLoop];
-	  if (j==1)  PathIn[ishhCorrLoop]=PathInAllMC[ishhCorrLoop];
+	  if (j==0)  PathIn[LoopNumDenom]=PathInAll[LoopNumDenom];
+	  if (j==1)  PathIn[LoopNumDenom]=PathInAllMC[LoopNumDenom];
 	}
 	if(l==3){
-	  if (j==0)   PathIn[ishhCorrLoop]=PathInAllNS[ishhCorrLoop];
-	  if (j==1)   PathIn[ishhCorrLoop]=PathInAllNSMC[ishhCorrLoop];
+	  if (j==0)   PathIn[LoopNumDenom]=PathInAllNS[LoopNumDenom];
+	  if (j==1)   PathIn[LoopNumDenom]=PathInAllNSMC[LoopNumDenom];
 	}
 	if(l==4){
-	  if (j==0)   PathIn[ishhCorrLoop]=PathInAwaySide[ishhCorrLoop];
-	  if (j==1)   PathIn[ishhCorrLoop]=PathInAwaySideMC[ishhCorrLoop];
+	  if (j==0)   PathIn[LoopNumDenom]=PathInAwaySide[LoopNumDenom];
+	  if (j==1)   PathIn[LoopNumDenom]=PathInAwaySideMC[LoopNumDenom];
 	}
 	if(l==5){
-	  if (j==0)   PathIn[ishhCorrLoop]=PathInAllButJet[ishhCorrLoop];
-	  if (j==1)   PathIn[ishhCorrLoop]=PathInAllButJetMC[ishhCorrLoop];
+	  if (j==0)   PathIn[LoopNumDenom]=PathInAllButJet[LoopNumDenom];
+	  if (j==1)   PathIn[LoopNumDenom]=PathInAllButJetMC[LoopNumDenom];
 	}
 
-	filein[ishhCorrLoop]=new TFile(PathIn[ishhCorrLoop], "");
+	if(l==6){
+	  if (j==0)   PathIn[LoopNumDenom]=PathInJetBFit[LoopNumDenom];
+	  if (j==1)   PathIn[LoopNumDenom]=PathInJetBFitMC[LoopNumDenom];
+	}
+	if(l==7){
+	  if (j==0)   PathIn[LoopNumDenom]=PathInJetZYAM[LoopNumDenom];
+	  if (j==1)   PathIn[LoopNumDenom]=PathInJetZYAMMC[LoopNumDenom];
+	}
+
+	filein[LoopNumDenom]=new TFile(PathIn[LoopNumDenom], "");
       }
 
 
       //************************** Drawing the pt spectra
       for (Int_t m=0; m< nummolt+1; m++){
-      fHistSpectrum_master[j][l][m] = (TH1F*) filein[ishhCorr]->Get(Form("fHistSpectrum_master_%i",m));
-      if (!fHistSpectrum_master[j][l][m]) return;
-      fHistSpectrum_master[j][l][m]->SetLineColor(Color[l]);
-      fHistSpectrum_master[j][l][m]->SetMarkerColor(Color[l]);
-      fHistSpectrum_scaled[j][l][m]= (TH1F*)fHistSpectrum_master[j][l][m]->Clone(Form("fHistSpectrum_Scaled_%i",m));
-      if (m==0 && j==0) legendRegion->AddEntry(  fHistSpectrum_master[j][l][m], Region[l], "pl");
-      if (type==4 || type==5 || type==8)       fHistSpectrum_master[j][l][m]->GetYaxis()->SetRangeUser(0,0.01);
-      canvasSpectrum[0]->cd(m+1);
+	fHistSpectrum_master[j][l][m] = (TH1F*) filein[ishhCorr]->Get(Form("fHistSpectrum_master_%i",m));
+	if (!fHistSpectrum_master[j][l][m]) return;
+	fHistSpectrum_master[j][l][m]->SetLineColor(Color[l]);
+	fHistSpectrum_master[j][l][m]->SetMarkerColor(Color[l]);
+	fHistSpectrum_master[j][l][m]->SetMarkerStyle(33);
+	fHistSpectrum_scaled[j][l][m]= (TH1F*)fHistSpectrum_master[j][l][m]->Clone(Form("fHistSpectrum_Scaled_%i",m));
+	if (m==0 && j==0) legendRegion->AddEntry(  fHistSpectrum_master[j][l][m], Region[l], "pl");
+	if (type==4 || type==5 || type==8)       fHistSpectrum_master[j][l][m]->GetYaxis()->SetRangeUser(0,0.007);
+	canvasSpectrum[0]->cd(m+1);
 
-      if (l!=3)      fHistSpectrum_master[j][l][m]->Draw("same ep");
-      if (j==0 && l==0) legendRegion->Draw("");
-      if (l==3 && (type==4 || type==5 || type==8))       fHistSpectrum_master[j][l][m]->GetYaxis()->SetRangeUser(0,0.15);
-      fHistSpectrum_master[j][l][m]->GetXaxis()->SetRangeUser(0,8);
-      hspectrumCfr[m]->Sumw2();
-      if (j==0 && l==0)      hspectrumCfr[m]->Scale(1.6);
-      hspectrumCfr[m]->GetYaxis()->SetRangeUser(0,0.15);
-      hspectrumCfr[m]->GetXaxis()->SetRangeUser(0,8);
+	if (l!=3 )      fHistSpectrum_master[j][l][m]->Draw("same ep");
+	//if (l==0 || l>=6 )      fHistSpectrum_master[j][l][m]->Draw("same ep");
+	if (j==0 && l==0) legendRegion->Draw("");
+	if (l==3 && (type==4 || type==5 || type==8))       fHistSpectrum_master[j][l][m]->GetYaxis()->SetRangeUser(0,0.15);
+	fHistSpectrum_master[j][l][m]->GetXaxis()->SetRangeUser(0,8);
+	hspectrumCfr[m]->Sumw2();
+	if (j==0 && l==0)      hspectrumCfr[m]->Scale(1.6);
+	hspectrumCfr[m]->GetYaxis()->SetRangeUser(0,0.15);
+	hspectrumCfr[m]->GetXaxis()->SetRangeUser(0,8);
 
-      canvasSpectrum[1]->cd(m+1);
-      if (type==4 || type==5 || type==8)      hspectrumCfr[m]->Draw("same ep");
-      if (l==3)      fHistSpectrum_master[j][l][m]->Draw("same ep");
+	canvasSpectrum[1]->cd(m+1);
+	if (type==4 || type==5 || type==8)      hspectrumCfr[m]->Draw("same ep");
+	if (l==3)      fHistSpectrum_master[j][l][m]->Draw("same ep");
 
-      if (l==0) {
-       fHistSpectrum_scaled[j][l][m]->Scale(DeltaPhiWidth[l]*DeltaEtaWidth[l]);
-	fHistSpectrum_inclusiveMyWay[j][m]=  (TH1F*)  fHistSpectrum_scaled[j][l][m] ->Clone(Form("fHistSpectrum_InclusiveMyWay_%i",m));
-      fHistSpectrum_scaled[j][l][m]->Draw("same ep");
-      }
-      if (l==1){
-      fHistSpectrum_scaled[j][l][m]->Scale(DeltaPhiWidth[l]*3.2);
-      fHistSpectrum_scaled[j][l][m]->Draw("same ep");
-      fHistSpectrum_inclusiveMyWay[j][m]->Add(fHistSpectrum_scaled[j][l][m]);
-      }
-      if (l==4){
-      fHistSpectrum_scaled[j][l][m]->Scale(DeltaPhiWidth[l]*3.2);
-      fHistSpectrum_scaled[j][l][m]->Draw("same ep");
-      fHistSpectrum_inclusiveMyWay[j][m]->Add(fHistSpectrum_scaled[j][l][m]);
-      fHistSpectrum_inclusiveMyWay[j][m]->SetLineColor(881);
-      fHistSpectrum_inclusiveMyWay[j][m]->SetMarkerColor(881);
-      fHistSpectrum_inclusiveMyWay[j][m]->GetXaxis()->SetRangeUser(0,8);
-      fHistSpectrum_inclusiveMyWay[j][m]->Draw("same ep");
-      }
+	if (l==0 || l>=6) {
+	  fHistSpectrum_scaled[j][l][m]->Scale(DeltaPhiWidth[l]*DeltaEtaWidth[l]);
+	  fHistSpectrum_inclusiveMyWay[j][m]=  (TH1F*)  fHistSpectrum_scaled[j][l][m] ->Clone(Form("fHistSpectrum_InclusiveMyWay_%i",m));
+	  fHistSpectrum_scaled[j][l][m]->Draw("same ep");
+	}
+	if (l==1){
+	  fHistSpectrum_scaled[j][l][m]->Scale(DeltaPhiWidth[l]*3.2);
+	  fHistSpectrum_scaled[j][l][m]->Draw("same ep");
+	  fHistSpectrum_inclusiveMyWay[j][m]->Add(fHistSpectrum_scaled[j][l][m]);
+	}
+	if (l==4){
+	  fHistSpectrum_scaled[j][l][m]->Scale(DeltaPhiWidth[l]*3.2);
+	  fHistSpectrum_scaled[j][l][m]->Draw("same ep");
+	  fHistSpectrum_inclusiveMyWay[j][m]->Add(fHistSpectrum_scaled[j][l][m]);
+	  fHistSpectrum_inclusiveMyWay[j][m]->SetLineColor(881);
+	  fHistSpectrum_inclusiveMyWay[j][m]->SetMarkerColor(881);
+	  fHistSpectrum_inclusiveMyWay[j][m]->GetXaxis()->SetRangeUser(0,8);
+	  fHistSpectrum_inclusiveMyWay[j][m]->Draw("same ep");
+	}
 
       }
 
@@ -470,7 +528,7 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=0, TString year0="2
 	  fHistYieldvsErrErrSoloStatMB[j][l]->Scale(1./ScaleFactorJet);
 	  fHistYieldvsErrErrSoloSistMB[j][l]->Scale(1./ScaleFactorJet);
 	*/
-	  }
+      }
 
       cout << "isSE " << isSEBis << endl;
       if (isSEBis){
@@ -535,10 +593,10 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=0, TString year0="2
 
   //drawin the pt spectra
 
-    fileout->WriteTObject(canvasSpectrum[0]);
-    fileout->WriteTObject(canvasSpectrum[1]);
-    canvasSpectrum[0]->SaveAs(nomefileoutputPDF+".pdf(");
-    canvasSpectrum[1]->SaveAs(nomefileoutputPDF+".pdf");
+  fileout->WriteTObject(canvasSpectrum[0]);
+  fileout->WriteTObject(canvasSpectrum[1]);
+  canvasSpectrum[0]->SaveAs(nomefileoutputPDF+".pdf(");
+  canvasSpectrum[1]->SaveAs(nomefileoutputPDF+".pdf");
 
   //********cfr data MC separatamente per J, OJ, J+OJ*********************************************************
   cout << "I'm comparing data to MC " << endl;
@@ -599,7 +657,7 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=0, TString year0="2
       fHistYieldvsErrSoloSist[j][l]->GetXaxis()->SetRangeUser(0,25);
       fHistYieldvsErrSoloSist[j][l]->SetMarkerSize(msize);
       if (l==2)    fHistYieldvsErrSoloSist[j][l]->SetMarkerSize(3);
-      fHistYieldvsErrSoloSist[j][l]->Draw("samee2");
+      //      fHistYieldvsErrSoloSist[j][l]->Draw("samee2");
       
       legend[l]->AddEntry(fHistYieldvsErrSoloStat[j][l], JetOrNot[l]+DATAorMC[j], "pl");
       if(j==1)    legendtype[l]->AddEntry(fHistYieldvsErrSoloStatMB[j][l], "stat. ", "el");
@@ -664,7 +722,7 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=0, TString year0="2
       fHistYieldvsErrSoloSistRatio[l][j]->SetFillStyle(0);
       fHistYieldvsErrSoloSistRatio[l][j]->SetMarkerSize(msize);
       if (j==2)    fHistYieldvsErrSoloSistRatio[l][j]->SetMarkerSize(3);
-      fHistYieldvsErrSoloSistRatio[l][j]->Draw("samee2");
+      //      fHistYieldvsErrSoloSistRatio[l][j]->Draw("samee2");
         
       legendbis[l]->AddEntry(   fHistYieldvsErrSoloStatRatio[l][j], JetOrNot[j]+DATAorMC[l], "pl");
       if(j==0)legendbis[l]->Draw();
@@ -678,28 +736,28 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=0, TString year0="2
   }
 
 
-    if (!ishhCorr){
-      for(Int_t k=1; k <= fHistYieldDatiPubblicati->GetNbinsX(); k++){
-	fHistYieldDatiPubblicati->SetBinError(k,     fHistYieldErroriDatiPubblicati->GetBinContent(k));
-      }
-      fHistYieldDatiPubblicati->Scale(1.6);
-      for (int i=0;i< fGraphYieldDatiPubblicati->GetN();i++)  fGraphYieldDatiPubblicati->GetY()[i] *= 1.6; //I'm scaling the TGraph
-
-      for(Int_t k=1; k <= fHistYieldDatiPubblicatiSE->GetNbinsX(); k++){
-	fHistYieldDatiPubblicatiSE->SetBinError(k,     fHistYieldErroriDatiPubblicatiSE->GetBinContent(k));
-      }
-      for(Int_t k=1; k <= fHistYieldDatiPubblicatiSE13TeV->GetNbinsX(); k++){
-	fHistYieldDatiPubblicatiSE13TeV->SetBinError(k,     fHistYieldErroriDatiPubblicatiSE13TeV->GetBinContent(k));
-      }
-
+  if (!ishhCorr){
+    for(Int_t k=1; k <= fHistYieldDatiPubblicati->GetNbinsX(); k++){
+      fHistYieldDatiPubblicati->SetBinError(k,     fHistYieldErroriDatiPubblicati->GetBinContent(k));
     }
-    //    fHistYieldDatiPubblicati->Scale(1.6/2*2.2);
-    fHistYieldDatiPubblicatiSE->Sumw2();
-    fHistYieldDatiPubblicatiSE->SetLineColor(801);
-    if(type==0)    fHistYieldDatiPubblicatiSE->Scale(0.5); // i dati pubblicati sono relativi a 2*Nk0s/(Npi+ + Npi-)
-    fHistYieldDatiPubblicatiSE13TeV->Sumw2();
-    fHistYieldDatiPubblicatiSE13TeV->SetLineColor(881);
-    if(type==0)    fHistYieldDatiPubblicatiSE13TeV->Scale(0.5); // i dati pubblicati sono relativi a 2*Nk0s/(Npi+ + Npi-)
+    fHistYieldDatiPubblicati->Scale(1.6);
+    for (int i=0;i< fGraphYieldDatiPubblicati->GetN();i++)  fGraphYieldDatiPubblicati->GetY()[i] *= 1.6; //I'm scaling the TGraph
+
+    for(Int_t k=1; k <= fHistYieldDatiPubblicatiSE->GetNbinsX(); k++){
+      fHistYieldDatiPubblicatiSE->SetBinError(k,     fHistYieldErroriDatiPubblicatiSE->GetBinContent(k));
+    }
+    for(Int_t k=1; k <= fHistYieldDatiPubblicatiSE13TeV->GetNbinsX(); k++){
+      fHistYieldDatiPubblicatiSE13TeV->SetBinError(k,     fHistYieldErroriDatiPubblicatiSE13TeV->GetBinContent(k));
+    }
+
+  }
+  //    fHistYieldDatiPubblicati->Scale(1.6/2*2.2);
+  fHistYieldDatiPubblicatiSE->Sumw2();
+  fHistYieldDatiPubblicatiSE->SetLineColor(801);
+  if(type==0)    fHistYieldDatiPubblicatiSE->Scale(0.5); // i dati pubblicati sono relativi a 2*Nk0s/(Npi+ + Npi-)
+  fHistYieldDatiPubblicatiSE13TeV->Sumw2();
+  fHistYieldDatiPubblicatiSE13TeV->SetLineColor(881);
+  if(type==0)    fHistYieldDatiPubblicatiSE13TeV->Scale(0.5); // i dati pubblicati sono relativi a 2*Nk0s/(Npi+ + Npi-)
 
   TSpline3 *splinePub;
   if (isSEBis)  splinePub = new TSpline3( fHistYieldDatiPubblicatiSE13TeV, "splineK0sPionRatio");
@@ -726,7 +784,7 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=0, TString year0="2
       }
       if (!ishhCorr && !isSE && (type==4 || type==5 || type==8))  fHistYieldvsErrSoloStat[l][j]->GetYaxis()->SetRangeUser(0.0001,0.02);
       fHistYieldvsErrSoloStat[l][j]->GetXaxis()->SetRangeUser(0,25);
-      // fHistYieldvsErrSoloStat[l][j]->SetMarkerColor(Color[j]);
+      fHistYieldvsErrSoloStat[l][j]->SetMarkerColor(Color[j]);
       fHistYieldvsErrSoloStat[l][j]->SetMarkerStyle(MarkerOrigin[j]);
       // fHistYieldvsErrSoloStat[l][j]->SetMarkerSize(msize);
       // if (j==2)    fHistYieldvsErrSoloStat[l][j]->SetMarkerSize(3);
@@ -764,7 +822,7 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=0, TString year0="2
       // fHistYieldvsErrSoloSist[l][j]->SetFillStyle(0);
       // fHistYieldvsErrSoloSist[l][j]->SetMarkerSize(msize);
       // if (j==2)    fHistYieldvsErrSoloSist[l][j]->SetMarkerSize(3);
-      fHistYieldvsErrSoloSist[l][j]->Draw("samee2");
+      //      fHistYieldvsErrSoloSist[l][j]->Draw("samee2");
 
       if (!ishhCorr && !isSEBis && l==0 &&NumberOfRegions!=3 && j==0) {
 	fHistYieldDatiPubblicati->Draw("same");
@@ -1009,11 +1067,14 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=0, TString year0="2
     fileout->WriteTObject(canvasnotratio[l]);
     //  fileout->WriteTObject(canvaserrall[l]);
   }
-    fileout->WriteTObject(fHistYieldvsErrSoloStat[0][0]);
+  for(Int_t j=0; j<NumberOfRegions; j++){
+    fileout->WriteTObject(fHistYieldvsErrSoloStat[0][j]);
+  }
+
   fileout->Close();
   cout << "\n\n ho creato il file " << nomefileoutput << endl;
   cout << "e il file pdf " << nomefileoutputPDF+".pdf" << endl;
-  cout << "name of saved histo " <<     fHistYieldvsErrSoloStat[0][0]->GetName()<< endl;
+  //  cout << "name of saved histo " <<     fHistYieldvsErrSoloStat[0][0]->GetName()<< endl;
   if (isSEBis){
     cout << "\n\n***************************************************************"<< endl;
     cout<< "Be careful! K0s/h ratios have been scaled to properly compare with 7TeV pulbished data (both my data and published ones have been scaled)" << endl;
