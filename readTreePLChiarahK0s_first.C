@@ -16,7 +16,7 @@
 #include <TLatex.h>
 #include <TFile.h>
 #include <TLegend.h>
-void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, Int_t sysV0=0, bool isMC = 1,Bool_t isEfficiency=1,Int_t sysTrigger=0,	    TString year=/*"2016k_hK0s"*/"2018f1_extra_hK0s_CP_10runs", TString year0="2016", TString Path1 ="", Bool_t CommonParton=1)
+void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, Int_t sysV0=0, bool isMC = 1,Bool_t isEfficiency=1,Int_t sysTrigger=0,	    TString year=/*"2016k_hK0s"*/"2018f1_extra_hK0s_CP", TString year0="2016", TString Path1 ="", Bool_t CommonParton=1)
 {
 
   //rap=0 : no rapidity window chsen for cascade, |Eta| < 0.8; rap=1 |y| < 0.5
@@ -66,6 +66,7 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
   PathOut +=Form("_MassDistr_SysT%i_SysV0%i_PtMin%.1f",sysTrigger, sysV0, PtTrigMin); 
   PathOut+= ".root";
 
+  Bool_t MassInPeakK0s =0; //variable for a rough cut on K0s candidates' invariant mass (only done to fill histograms needed for deltaphi projections of K0s with or without an ancestor parton in common with trigger particle)
   TString dirinputtype[4] = {"", "Lambda", "Lambda", "Lambda"};
   TFile *fin = new TFile(PathIn);
   if (!fin) {cout << "file input not available " ; return;}
@@ -592,9 +593,11 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
     //    else ?
 
     //    cout << " 1 " << endl;
+    MassInPeakK0s=0;
     if (CommonParton){
-      if ( fSignTreeVariableInvMass< LimInfMassTight[type] ||  fSignTreeVariableInvMass>LimSupMassTight[type]) continue;
+      if ( fSignTreeVariableInvMass> LimInfMassTight[type] &&  fSignTreeVariableInvMass<LimSupMassTight[type]) MassInPeakK0s=1;
     }
+    //    cout << "MassInPeakK0s" << MassInPeakK0s << " " << fSignTreeVariableInvMass <<  " " << LimSupMassTight[type] << endl;
     //    cout << " 1 " << endl;
     //rapidity selection
     if (israp==0 && TMath::Abs(fSignTreeVariableEtaV0)>0.8)continue; 
@@ -753,8 +756,12 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
                 if (fSignTreeVariableIsCommonParton) hDeltaEtaDeltaPhi_SEbins_CPTruePtInt[m][z][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
                 else   hDeltaEtaDeltaPhi_SEbins_NOCPTruePtInt[m][z][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
               }
+	      if (MassInPeakK0s){
+		//	      if (!isParticleTrue){
+		//	      if (kTRUE){
               if (fSignTreeVariableIsCommonParton) hDeltaEtaDeltaPhi_SEbins_CPPtInt[m][z][tr]->Fill(fSignTreeVariableDeltaEta,fSignTreeVariableDeltaPhi);
               else   hDeltaEtaDeltaPhi_SEbins_NOCPPtInt[m][z][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
+	      }
               if (fSignTreeVariableIsCommonParton ){
                 if (TMath::Abs(fSignTreeVariableDeltaPhi)<1) InJet[m]++;
                 else OutJet[m]++;
@@ -772,8 +779,12 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
                   if (fSignTreeVariableIsCommonParton) hDeltaEtaDeltaPhi_SEbins_CPTrue[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
                   else   hDeltaEtaDeltaPhi_SEbins_NOCPTrue[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
                 }
+		if (MassInPeakK0s){
+		  //if (!isParticleTrue){
+		  //if (kTRUE){
                 if (fSignTreeVariableIsCommonParton) hDeltaEtaDeltaPhi_SEbins_CP[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta,fSignTreeVariableDeltaPhi);
                 else   hDeltaEtaDeltaPhi_SEbins_NOCP[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
+		}
               }
 
 	    }
@@ -1110,6 +1121,7 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
 	    if (m==0 && v==0)	  legendPtBins->AddEntry(hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_BulkReg[m][z][v][tr], "NOCP cand. bulk", "pel");
 
 	    legendPtBins->Draw("");
+
           }
         }
       }
@@ -1123,12 +1135,27 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
     }
   }
 
+      for(Int_t z=0; z<numzeta; z++){
+	for(Int_t tr=0; tr<numPtTrigger; tr++){
 
+	    cout << " some infos about deltaphi projections: " << endl;
+	    cout << " ratio between max value and min value" << endl;
+	    for (Int_t m=0; m<nummolt+1; m++){
+	      cout << "\nn m " << m << endl;
+	    for(Int_t v=PtBinMin; v<numPtV0; v++){
+	      cout << " pt bin " << NPtV0[v] << " - " << NPtV0[v+1] << " NOCP_JetReg " <<     hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_JetReg[m][z][v][tr]->GetMaximum()<< " " <<   hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_JetReg[m][z][v][tr]->GetMinimum()<< endl;
+	    cout << " pt bin " << NPtV0[v] << " - " << NPtV0[v+1] << " NOCP_JetReg " <<     hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_JetReg[m][z][v][tr]->GetMaximum()/    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_JetReg[m][z][v][tr]->GetMinimum()<< " NOCP_BulkReg " <<     hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_BulkReg[m][z][v][tr]->GetMaximum()/    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_BulkReg[m][z][v][tr]->GetMinimum()<< endl;
+	    }
+	    }
+	}
+      }
   TH1D *  hSign_PtTriggerPtAssoc_Proj[numPtV0];
   cout << "average pT of trigger particles associated to associated particles in pt bins: " << endl;
   for(Int_t v=PtBinMin; v<numPtV0; v++){
     hSign_PtTriggerPtAssoc_Proj[v]= (TH1D*)	  hSign_PtTriggerPtAssoc->ProjectionY("hSign_PtTriggerPtAssoc_Proj_v"+SPtV0[v], hSign_PtTriggerPtAssoc->GetXaxis()->FindBin(NPtV0[v]+0.0001) ,  hSign_PtTriggerPtAssoc->GetXaxis()->FindBin(NPtV0[v+1]-0.0001),"E");
     cout << SPtV0[v] << " " <<  hSign_PtTriggerPtAssoc_Proj[v]->GetMean() << endl;
+
+
   }
   fout->Write();
 
