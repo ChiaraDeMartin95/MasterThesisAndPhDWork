@@ -16,7 +16,7 @@
 #include <TLatex.h>
 #include <TFile.h>
 #include <TLegend.h>
-void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, Int_t sysV0=0, bool isMC = 1,Bool_t isEfficiency=1,Int_t sysTrigger=0,	    TString year=/*"2016k_hK0s"*/"2018f1_extra_hK0s_CP", TString year0="2016", TString Path1 ="", Bool_t CommonParton=1)
+void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, Int_t sysV0=0, bool isMC = 1,Bool_t isEfficiency=1,Int_t sysTrigger=0,	    TString year=/*"2016kehjl_hK0s"/*"2016k_hK0s"*/"2018f1_extra_hK0s_CP", TString year0="2016", TString Path1 ="", Bool_t CommonParton=1, Int_t PtBinning=1)
 {
 
   //rap=0 : no rapidity window chsen for cascade, |Eta| < 0.8; rap=1 |y| < 0.5
@@ -32,7 +32,7 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
 
   const Int_t nummolt=5;
   const Int_t numzeta=1;
-  const Int_t numPtV0=8;
+  const Int_t numPtV0=9;
   const Int_t numPtTrigger=1;
   const Int_t numtipo=4;
   TString tipo[numtipo]={"K0s", "Lambda", "AntiLambda", "LambdaAntiLambda"};
@@ -55,8 +55,9 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
  
   //  PathIn+=Path1;
   PathIn+=".root";
-  PathOut+="_";
   PathOut+=Path1;
+  if (PtBinning>0)  PathOut+=Form("_PtBinning%i",PtBinning);
+  PathOut+="_";
   if (!ishhCorr){
     PathOut +=tipo[type];
   }
@@ -171,7 +172,9 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
   TString Smolt[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "all"};
   Double_t Nmolt[nummolt+1]={0, 5, 10, 30, 50, 100};
 
-  TString SPtV0[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8"};
+  TString SPtV0[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8", ""};
+  TString SPtV00[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8", ""};
+
   if (type>0)SPtV0[1]={"0.5-1"};
   else {
     SPtV0[0]={"0-0.5"}; 
@@ -181,7 +184,7 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
     SPtV0[0]={"0.1-0.5"};
     SPtV0[1]={"0.5-1"};
   }
-  Double_t NPtV0[numPtV0+1]={0,0,1,1.5,2,2.5,3,4,8};
+  Double_t NPtV0[numPtV0+1]={0,0,1,1.5,2,2.5,3,4,8,100};
   NPtV0[1]=0.5;
   if (ishhCorr) {
     NPtV0[0]=0.1;
@@ -192,7 +195,29 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
   if (!ishhCorr && type!=0) PtBinMin=1; //for associated particles different from hadrons I do not start from 0
   cout << "PtBinMin " << PtBinMin << endl;
 
+  TString SPtV01[numPtV0]={"0.1-0.5", "0.5-0.8", "0.8-1.2", "1.2-1.6","1.6-2", "2-2.5","2.5-3", "3-4", "4-8"};
+  Double_t NPtV01[numPtV0+1]={0.1,0.5,0.8, 1.2,1.6,2,2.5,3,4,8};
+  TString SPtV02[numPtV0]={"0.1-0.4", "0.4-0.6", "0.6-0.8", "0.8-1.6","1.6-2", "2-2.5","2.5-3", "3-4", "4-8"};
+  Double_t NPtV02[numPtV0+1]={0.1,0.4,0.6, 0.8,1.6,2,2.5,3,4,8};
+
+  Int_t numPtV0Max=numPtV0;
+  if (PtBinning==1) numPtV0Max = numPtV0;
+  else numPtV0Max = numPtV0-1;
+  if (PtBinning==1){
+    for(Int_t v=PtBinMin; v<numPtV0Max+1; v++){
+      if (v<numPtV0Max)      SPtV0[v] = SPtV01[v];
+      NPtV0[v] = NPtV01[v];
+    }
+  }
+  if (PtBinning==2){
+    for(Int_t v=PtBinMin; v<numPtV0Max+1; v++){
+      if (v<numPtV0Max)      SPtV0[v] = SPtV02[v];
+      NPtV0[v] = NPtV02[v];
+    }
+  }
+
   Double_t NPtTrigger[numPtTrigger+1]={PtTrigMin,ptjmax};
+
 
   
   //what is the fraction of AC events in each multiplicity class?
@@ -491,7 +516,7 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
         hDeltaEtaDeltaPhi_SEbins_NOCPTruePtInt[m][z][tr]= new TH2D("SE_m"+Smolt[m]+"_NOCPTrue_PtInt", "SE_m"+Smolt[m]+"_NOCPTrue_PtInt", 56, -1.5, 1.5, 104,  -0.5*TMath::Pi(), 1.5*TMath::Pi());
         hDeltaEtaDeltaPhi_SEbins_CPPtInt[m][z][tr]= new TH2D("SE_m"+Smolt[m]+"_CP_PtInt", "SE_m"+Smolt[m]+"_CP_PtInt", 56, -1.5, 1.5,104,  -0.5*TMath::Pi(), 1.5*TMath::Pi());
         hDeltaEtaDeltaPhi_SEbins_NOCPPtInt[m][z][tr]= new TH2D("SE_m"+Smolt[m]+"_NOCP_PtInt", "SE_m"+Smolt[m]+"_NOCP_PtInt", 56, -1.5, 1.5, 104,  -0.5*TMath::Pi(), 1.5*TMath::Pi());
-	for(Int_t v=PtBinMin; v<numPtV0; v++){
+	for(Int_t v=PtBinMin; v<numPtV0Max; v++){
 	  nameSE[m][z][v][tr]="SE_";
 	  namemassSE[m][z][v][tr]="InvMassSE_";
 	  //nameSE[m][z][v][tr]+=Form("m%i_z%i_v%i_tr%i",m,z,v,tr);
@@ -532,7 +557,7 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
       for(Int_t tr=0; tr<numPtTrigger; tr++){
 	hMassvsPt_MEbins[m][z][tr]= new TH2D(Form("ME_hMassvsPt_"+tipo[type]+"_%i", m),Form("ME_hMassvsPt_"+tipo[type]+"_%i", m),100, LimInfMass[type], LimSupMass[type],100, 0, 10);
 	hMassvsPt_MEbins_true[m][z][tr]= new TH2D(Form("ME_hMassvsPt_"+tipo[type]+"_%i_true", m),Form("ME_hMassvsPt_"+tipo[type]+"_%i_true", m),100, LimInfMass[type], LimSupMass[type],100, 0, 10);
-	for(Int_t v=PtBinMin; v<numPtV0; v++){
+	for(Int_t v=PtBinMin; v<numPtV0Max; v++){
 	  nameME[m][z][v][tr]="ME_";
 	  namemassME[m][z][v][tr]="InvMassME_";
 	  nameME[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
@@ -769,7 +794,7 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
             }
 	  }
 
-	  for(Int_t v=PtBinMin; v<numPtV0; v++){
+	  for(Int_t v=PtBinMin; v<numPtV0Max; v++){
 	    if(MoltSel && fSignTreeVariablePtTrigger>=NPtTrigger[tr] && fSignTreeVariablePtTrigger<NPtTrigger[tr+1] && fSignTreeVariablePtV0>=NPtV0[v]&& fSignTreeVariablePtV0<NPtV0[v+1]){
 	      hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
 	      if (!ishhCorr)	      hInvMassK0Short_SEbins[m][z][v][tr]->Fill(fSignTreeVariableInvMass);
@@ -898,7 +923,7 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
 	      if(isParticleTrue) 	    hMassvsPt_MEbins_true[m][z][tr]->Fill(fBkgTreeVariableInvMass, fBkgTreeVariablePtV0);
 	    }
 	  }
-	  for(Int_t v=PtBinMin; v<numPtV0; v++){
+	  for(Int_t v=PtBinMin; v<numPtV0Max; v++){
 	    if(MoltSel && fBkgTreeVariablePtTrigger>=NPtTrigger[tr] && fBkgTreeVariablePtTrigger<NPtTrigger[tr+1] && fBkgTreeVariablePtV0>=NPtV0[v]&& fBkgTreeVariablePtV0<NPtV0[v+1]){
 	      if (!ishhCorr)	      hInvMassK0Short_MEbins[m][z][v][tr]->Fill(fBkgTreeVariableInvMass);
 	      hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->Fill(fBkgTreeVariableDeltaEta, fBkgTreeVariableDeltaPhi);
@@ -914,7 +939,7 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
   Float_t      CPTrue[numPtV0] ={0};
   Float_t      NOCPTrue[numPtV0]={0};
 
-  for (Int_t v=PtBinMin; v< numPtV0; v++){
+  for (Int_t v=PtBinMin; v< numPtV0Max; v++){
     for(Int_t b= hSign_PtAssoc_CPTrue->GetXaxis()->FindBin(NPtV0[v]+0.001); b<= hSign_PtAssoc_CPTrue->GetXaxis()->FindBin(NPtV0[v+1]-0.001); b++ ){
       CPTrue[v] +=  hSign_PtAssoc_CPTrue->GetBinContent(b);
       NOCPTrue[v] +=  hSign_PtAssoc_NOCPTrue->GetBinContent(b);
@@ -1040,7 +1065,7 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
 	  DeltaPhiProjMult[m] = new TCanvas(Form("DeltaPhiProj_%i",m), Form("DeltaPhiProj_%i",m), 1300, 800);
           DeltaPhiProjMult[m] ->Divide(4,2);
 
-          for (Int_t v=PtBinMin; v< numPtV0; v++){
+          for (Int_t v=PtBinMin; v< numPtV0Max; v++){
 	    DeltaPhiProjMult[m] ->cd(v+1);
 	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CP[m][z][v][tr] = (TH1D*)hDeltaEtaDeltaPhi_SEbins_CP[m][z][v][tr]->ProjectionY( "SE_m"+Smolt[m]+"_v"+SPtV0[v]+"_CP_py",0, -1, "E");
             hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CP[m][z][v][tr]->SetLineColor(kRed);
@@ -1133,25 +1158,26 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
     for (Int_t m=0; m< nummolt+1; m++){
       fout->WriteTObject(DeltaPhiProjMult[m]);
     }
-  }
 
-      for(Int_t z=0; z<numzeta; z++){
-	for(Int_t tr=0; tr<numPtTrigger; tr++){
+    for(Int_t z=0; z<numzeta; z++){
+      for(Int_t tr=0; tr<numPtTrigger; tr++){
 
-	    cout << " some infos about deltaphi projections: " << endl;
-	    cout << " ratio between max value and min value" << endl;
-	    for (Int_t m=0; m<nummolt+1; m++){
-	      cout << "\nn m " << m << endl;
-	    for(Int_t v=PtBinMin; v<numPtV0; v++){
-	      cout << " pt bin " << NPtV0[v] << " - " << NPtV0[v+1] << " NOCP_JetReg " <<     hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_JetReg[m][z][v][tr]->GetMaximum()<< " " <<   hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_JetReg[m][z][v][tr]->GetMinimum()<< endl;
+	cout << " some infos about deltaphi projections: " << endl;
+	cout << " ratio between max value and min value" << endl;
+	for (Int_t m=0; m<nummolt+1; m++){
+	  cout << "\nn m " << m << endl;
+	  for(Int_t v=PtBinMin; v<numPtV0Max; v++){
+	    cout << " pt bin " << NPtV0[v] << " - " << NPtV0[v+1] << " NOCP_JetReg " <<     hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_JetReg[m][z][v][tr]->GetMaximum()<< " " <<   hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_JetReg[m][z][v][tr]->GetMinimum()<< endl;
 	    cout << " pt bin " << NPtV0[v] << " - " << NPtV0[v+1] << " NOCP_JetReg " <<     hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_JetReg[m][z][v][tr]->GetMaximum()/    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_JetReg[m][z][v][tr]->GetMinimum()<< " NOCP_BulkReg " <<     hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_BulkReg[m][z][v][tr]->GetMaximum()/    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_BulkReg[m][z][v][tr]->GetMinimum()<< endl;
-	    }
-	    }
+	  }
 	}
       }
+    }
+  }
+
   TH1D *  hSign_PtTriggerPtAssoc_Proj[numPtV0];
   cout << "average pT of trigger particles associated to associated particles in pt bins: " << endl;
-  for(Int_t v=PtBinMin; v<numPtV0; v++){
+  for(Int_t v=PtBinMin; v<numPtV0Max; v++){
     hSign_PtTriggerPtAssoc_Proj[v]= (TH1D*)	  hSign_PtTriggerPtAssoc->ProjectionY("hSign_PtTriggerPtAssoc_Proj_v"+SPtV0[v], hSign_PtTriggerPtAssoc->GetXaxis()->FindBin(NPtV0[v]+0.0001) ,  hSign_PtTriggerPtAssoc->GetXaxis()->FindBin(NPtV0[v+1]-0.0001),"E");
     cout << SPtV0[v] << " " <<  hSign_PtTriggerPtAssoc_Proj[v]->GetMean() << endl;
 

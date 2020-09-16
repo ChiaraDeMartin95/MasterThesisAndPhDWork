@@ -21,7 +21,7 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
   return sqrt(((Double_t)k+1)*((Double_t)k+2)/(n+2)/(n+3) - pow((Double_t)(k+1),2)/pow(n+2,2));
 }
 
-void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0, Int_t type=6, Int_t israp=0, TString ResoHisto="2D",Bool_t SkipAssoc=1 ,   Float_t ptjmin=3,  Float_t ptjmax=15, Int_t sysTrigger=0, Int_t sysV0=0, TString data=/*"1617GP_hXi" /*"2018f1_extra_MECorr"*/ /*"2018f1_extra_hK0s"*/"2018f1_extra_hK0s_CP_10runs", TString year0="2016", TString path1=/*"_New"*/ /*"_10runs_FB128_TrackLengthCut"*/""){
+void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0, Int_t type=6, Int_t israp=0, TString ResoHisto="2D",Bool_t SkipAssoc=1 ,   Float_t ptjmin=3,  Float_t ptjmax=15, Int_t sysTrigger=0, Int_t sysV0=0, TString data="1617GP_hXi" /*"2018f1_extra_MECorr"/"2018f1_extra_hK0s_CP"/* "2018f1_extra_hK0s_CP"/*"2018f1_extra_hK0s_CP_10runs_Bis"/"AllMC_hXi"*/, TString year0="2016", TString path1=""/*"_New"*/ /*"_10runs_FB128_TrackLengthCut"/"_NewMultClassBis"/"_PtTrigMax2.5"*/, Int_t MultBinning=0, Int_t PtBinning=1){
 
   //  if (type==6 && israp!=0) return; //so far I haven't appended any info on the rapidity to efficiency output files for K0s; if I decide to do as ofr the cascade, just remove this line
 
@@ -69,12 +69,13 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
   cout << PathInBis << endl;
   //  TString PathInBis =  "AnalysisResults.root";
   TString PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + path1;
+  if (PtBinning>0) PathOut2 += Form("_PtBinning%i",PtBinning);
   if (CommonParton && isCPEff)  PathOut2 += "_CPEff";
   if (CommonParton && !isCPEff)  PathOut2 += "_NOCPEff";
   PathOut2 += "_"+tipo[type]+Srap[israp]+Form("_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
-  if (!ishhCorr && !SkipAssoc)PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + path1 + "_"+tipo[type]+Srap[israp]+Form("_AllAssoc_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
-  if (ishhCorr) PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file  + path1 +"_"+Srap[israp]+ "_hhCorr"+Form("_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
-  if (ishhCorr &&!SkipAssoc) PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + "_hhCorr" + path1 +Srap[israp]+ "_hhCorr"+Form("_AllAssoc_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
+  if (!ishhCorr && !SkipAssoc)PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + path1+  Form("_PtBinning%i",PtBinning)+ "_"+tipo[type]+Srap[israp]+Form("_AllAssoc_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
+  if (ishhCorr) PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file  + path1 + Form("_PtBinning%i",PtBinning)+"_"+Srap[israp]+ "_hhCorr"+Form("_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
+  if (ishhCorr &&!SkipAssoc) PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + "_hhCorr" + path1 + Form("_PtBinning%i",PtBinning)+Srap[israp]+ "_hhCorr"+Form("_AllAssoc_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
   cout << "new input file " << endl;
 
   cout << PathInBis << endl;
@@ -89,6 +90,7 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
   PathInSel+=data;
   PathInSel+="_MCEff";
   PathInSel+=path1;
+  if (PtBinning>0)  PathInSel+=  Form("_PtBinning%i",PtBinning);
   PathInSel+="_";
   if (!ishhCorr) {
     PathInSel +=tipo[type];
@@ -119,7 +121,7 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
   }
   const Int_t nummolt=5;
   const Int_t numzeta=1;
-  const Int_t numPtV0=8; //14;//was 8
+  const Int_t numPtV0=9; //14;//was 8
   const Int_t numPtTrigger=19;
   const Int_t numSelTrigger=3;
   const Int_t numSelV0=6;
@@ -157,16 +159,41 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
 
 }
 
-  /*
-  TString Smolt[nummolt+1]={"0-0", "0-10", "10-30", "30-50", "50-100", "_all"};
-  TString SmoltLegend[nummolt+1]={"0-0 %", "0-10 %", "10-30 %", "30-50 %", "50-100 %", "0-100 %"};
-  Double_t Nmolt[nummolt+1]={0,0,10,30,50,100}; 
-  */
   
-  TString Smolt[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "_all"};
-  TString SmoltLegend[nummolt+1]={"0-5 %", "5-10 %", "10-30 %", "30-50 %", "50-100 %", "0-100 %"};
-  Double_t Nmolt[nummolt+1]={0,5,10,30,50,100}; 
+  TString Smolt[nummolt+1]={"0-1", "1-5", "5-15", "15-30", "30-100", "_all"};
+  TString SmoltLegend[nummolt+1]={"0-1 %", "1-5 %", "5-15 %", "15-30 %", "30-100 %", "0-100 %"};
+  Double_t Nmolt[nummolt+1]={0,1,5,15,30,100}; 
+
+  TString Smolt0[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "_all"};
+  TString SmoltLegend0[nummolt+1]={"0-5 %", "5-10 %", "10-30 %", "30-50 %", "50-100 %", "0-100 %"};
+  Double_t Nmolt0[nummolt+1]={0,5,10,30,50,100}; 
+
+  TString Smolt1[nummolt+1]={"0-1", "1-5", "5-15", "15-30", "30-100", "_all"};
+  TString SmoltLegend1[nummolt+1]={"0-1 %", "1-5 %", "5-15 %", "15-30 %", "30-100 %", "0-100 %"};
+  Double_t Nmolt1[nummolt+1]={0,1,5,15,30,100}; 
+
+  TString Smolt2[nummolt+1]={"0-2", "2-7", "7-15", "15-30", "30-100", "_all"};
+  TString SmoltLegend2[nummolt+1]={"0-2 %", "2-7 %", "7-15 %", "15-30 %", "30-100 %", "0-100 %"};
+  Double_t Nmolt2[nummolt+1]={0,2,7,15,30,100}; 
   
+  for (Int_t m =0; m< nummolt+1; m++){  
+    if (MultBinning==0){
+    Smolt[m] = Smolt0[m];
+    SmoltLegend[m] = SmoltLegend0[m];
+    Nmolt[m] = Nmolt0[m];
+    }
+    else     if (MultBinning==1){
+    Smolt[m] = Smolt1[m];
+    SmoltLegend[m] = SmoltLegend1[m];
+    Nmolt[m] = Nmolt1[m];
+    }
+    else    if (MultBinning==2){
+    Smolt[m] = Smolt2[m];
+    SmoltLegend[m] = SmoltLegend2[m];
+    Nmolt[m] = Nmolt2[m];
+    }
+  }
+
   TString Szeta[numzeta]={""};
 
   /*
@@ -174,7 +201,7 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
   Double_t NPtV0[numPtV0+1]={0,0.6, 1,1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.5, 2.9, 3.4, 4,5,6.5};
   */
   
-  TString SPtV0[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8"};
+  TString SPtV0[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8", ""};
   //TString SPtV0[numPtV0]={"", "", "0.5-1", "1-1.5","1.5-2","2-3", "3-4", "4-8"};
   if (type>=0)SPtV0[1]={"0.5-1"};
   if (type==6) {SPtV0[0]={"0-0.5"}; SPtV0[1]={"0.5-1"};}
@@ -182,7 +209,7 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
     SPtV0[0]={"0.1-0.5"};
     SPtV0[1]={"0.5-1"};
   }
-  Double_t NPtV0[numPtV0+1]={0,0,1,1.5,2,2.5,3,4,8};
+  Double_t NPtV0[numPtV0+1]={0,0,1,1.5,2,2.5,3,4,8,100};
   //Double_t NPtV0[numPtV0+1]={0,0,0.5,1,1.5,2,3,4,8};
   //el 
   if (type>=0) NPtV0[1]=0.5;
@@ -191,7 +218,7 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
     NPtV0[0]=0.1;
     NPtV0[1]=0.5;
   }
-  TString SNPtV0[numPtV0+1]={"0.0","0.0","1.0","1.5","2.0","2.5","3.0","4.0","8.0"};
+  TString SNPtV0[numPtV0+1]={"0.0","0.0","1.0","1.5","2.0","2.5","3.0","4.0","8.0", ""};
   if (type>=0) SNPtV0[1]={"0.5"};
   if (type==6)  SNPtV0[1]="0.5";
   if (ishhCorr){
@@ -199,6 +226,20 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
     SNPtV0[1]={"0.5"};
   }
   
+  TString SPtV01[numPtV0]={ "0.1-0.5", "0.5-0.8", "0.8-1.2","1.2-1.6","1.6-2", "2-2.5","2.5-3", "3-4", "4-8"};
+  Double_t NPtV01[numPtV0+1]={0.1,0.5,0.8,1.2,1.6,2,2.5,3,4,8};
+  TString SNPtV01[numPtV0+1]={"0.1","0.5","0.8","1.2","1.6","2.0","2.5","3.0","4.0","8.0"};
+  if (PtBinning==1){
+    for(Int_t j=0; j<numPtV0+1; j++){
+      cout << " j " << j << endl;
+      if (j<numPtV0)      SPtV0[j] = SPtV01[j];
+      NPtV0[j] = NPtV01[j];
+      SNPtV0[j] = SNPtV01[j];
+    }
+  }
+  Int_t numPtV0Max =numPtV0;
+  if (PtBinning==0) numPtV0Max =numPtV0-1;
+
   Double_t NPtTrigger[numPtTrigger+1]={0,0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 8.0, 10.0, 13.0, 20.0, 30.0};
   //  Int_t Marker[nummolt+1]={7,4,20,22,29, 35};
   Int_t Marker[nummolt+1]={7,20,20,22,29,25};
@@ -873,7 +914,7 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
     fHistGenerated_1D_V0Phi[molt]->Add(fHistGenerated_1D_V0Phi_Int1[molt]);
     }
     else {
-    fHistGenerated_1D_V0Phi[molt]=(TH1D*)fHistGenerated_2D_V0PtTMaxPhi[molt]->ProjectionY("fHistGenerated_1D_V0Phi"+ Smolt[molt],fHistGenerated_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(ptjminGen+0.0001) ,fHistGenerated_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(ptjmaxGen-0.0001));
+    fHistGenerated_1D_V0Phi[molt]=(TH1D*)fHistGenerated_2D_V0PtTMaxPhi[molt]->ProjectionY("fHistGenerated_1D_V0Phi_"+ Smolt[molt],fHistGenerated_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(ptjminGen+0.0001) ,fHistGenerated_2D_V0PtTMaxPhi[molt]->GetXaxis()->FindBin(ptjmaxGen-0.0001));
     }
     fHistV0EfficiencyPhi[molt] ->Divide(  fHistSelected_1D_V0Phi[molt],  fHistGenerated_1D_V0Phi[molt]);
   
@@ -943,7 +984,7 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
     fHistGenerated_1D_V0Pt[molt]->Add( fHistGenerated_1D_V0Pt_Int1[molt]);
     }
     else {
-    fHistGenerated_1D_V0Pt[molt]=(TH1D*)fHistGenerated_2D_V0PtPtTMax[molt]->ProjectionX("fHistGenerated_1D_V0Pt"+ Smolt[molt],fHistGenerated_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(ptjminGen+0.0001) ,fHistGenerated_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(ptjmaxGen-0.0001));
+    fHistGenerated_1D_V0Pt[molt]=(TH1D*)fHistGenerated_2D_V0PtPtTMax[molt]->ProjectionX("fHistGenerated_1D_V0Pt_"+ Smolt[molt],fHistGenerated_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(ptjminGen+0.0001) ,fHistGenerated_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(ptjmaxGen-0.0001));
     }
 
     fHistV0EfficiencyPt[molt]= (TH1D*) fHistSelected_1D_V0Pt[molt]->Clone("fHistV0EfficiencyPt_"+ Smolt[molt]);
@@ -994,7 +1035,7 @@ cout << "sel2D " <<     fHistSelected_1D_V0Pt[molt]->GetNbinsX() << endl;
     Float_t NumberOfSelectedGen;
     Float_t NumberOfGenerated;
     cout << "\n V0 efficiency in Pt bins " << endl;
-    for(Int_t j=0; j<numPtV0; j++){
+    for(Int_t j=0; j<numPtV0Max; j++){
       NumberOfSelected=0;
       NumberOfSelectedGen=0;
       NumberOfGenerated=0;
@@ -1085,7 +1126,7 @@ cout << "sel2D " <<     fHistSelected_1D_V0Pt[molt]->GetNbinsX() << endl;
     fHistGenerated_1D_V0Eta[molt]->Add(fHistGenerated_1D_V0Eta_Int1[molt]);
     }
     else {
-    fHistGenerated_1D_V0Eta[molt]=(TH1D*)fHistGenerated_2D_V0PtTMaxEta[molt]->ProjectionY("fHistGenerated_1D_V0Eta"+ Smolt[molt],fHistGenerated_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(ptjminGen+0.0001) ,fHistGenerated_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(ptjmaxGen-0.0001));
+    fHistGenerated_1D_V0Eta[molt]=(TH1D*)fHistGenerated_2D_V0PtTMaxEta[molt]->ProjectionY("fHistGenerated_1D_V0Eta_"+ Smolt[molt],fHistGenerated_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(ptjminGen+0.0001) ,fHistGenerated_2D_V0PtTMaxEta[molt]->GetXaxis()->FindBin(ptjmaxGen-0.0001));
     }
 
     fHistV0EfficiencyEta[molt] ->Divide(  fHistSelected_1D_V0Eta[molt],  fHistGenerated_1D_V0Eta[molt]);
@@ -1336,7 +1377,7 @@ cout << "sel2D " <<     fHistSelected_1D_V0Pt[molt]->GetNbinsX() << endl;
 
     cout << "\n\n contamination factor for V0 particles in Pt bins " << endl;
     //histo contamination factor for V0 particles in pt bins of V0 particle (bins used in analysis)
-    for(Int_t binpt=0; binpt<numPtV0; binpt++){
+    for(Int_t binpt=0; binpt<numPtV0Max; binpt++){
       num=0;
       denom=0;
       for(Int_t pt=HistContV0[molt]->GetYaxis()->FindBin(NPtV0[binpt]+0.0001); pt<HistContV0[molt]->GetYaxis()->FindBin(NPtV0[binpt+1]-0.0001); pt++){
@@ -1453,8 +1494,8 @@ if (listRisoluzione){
 
   //Large bins TProfile for assoc particles
   fHistAssocPtRecovsPtGen_PtBins = new TH2F("fHistAssocPtRecovsPtGen_PtBins", "fHistAssocPtRecovsPtGen_PtBins", numPtV0, NPtV0, numPtV0, NPtV0);
-  for (Int_t pTAssoc=0; pTAssoc<numPtV0; pTAssoc++){
-  for (Int_t pTAssoc1=0; pTAssoc1<numPtV0; pTAssoc1++){
+  for (Int_t pTAssoc=0; pTAssoc<numPtV0Max; pTAssoc++){
+  for (Int_t pTAssoc1=0; pTAssoc1<numPtV0Max; pTAssoc1++){
   CountForTProfile=0;   
   //    cout << "\n\npTAssoc " << pTAssoc << " " << pTAssoc1<< " " << CountForTProfile<<  endl;
   for(Int_t i=fHistAssocPtRecovsPtGen->GetXaxis()->FindBin(NPtV0[pTAssoc]+0.001); i<=fHistAssocPtRecovsPtGen->GetXaxis()->FindBin(NPtV0[pTAssoc+1]-0.001); i++ ){

@@ -17,7 +17,7 @@
 #include <TFile.h>
 #include <TLegend.h>
 
-void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t ptjmin=3,  Float_t PtTrigMinFit=3, Int_t sysV0=0, Int_t sysTrigger=0,Int_t sys=0,Int_t type=8,  Int_t israp=0,Bool_t isMC=0, Bool_t isEfficiency=1,   TString year0 = "2016",TString year=/*"2018f1_extra_hK0s"/*"2016k_hK0s"/*"2016k_MECorr"*/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"*/, TString yearMC="2016kl_hXi"/*"2018f1_extra_MECorr"*//*"2018f1_extra_hK0s"/*"2018f1_extra_hK0s_30runs_150MeV"*/,  TString Path1 ="", TString Dir ="FinalOutput/",  Float_t ptjmax=15, Int_t rebin=2,  Int_t rebinx=2,  Int_t rebiny=2, Bool_t MasterThesisAnalysis=0, Bool_t isEnlargedDeltaEtaPhi=0,Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1){ 
+void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t ptjmin=3,  Float_t PtTrigMinFit=3, Int_t sysV0=0, Int_t sysTrigger=0,Int_t sys=0,Int_t type=0,  Int_t israp=0,Bool_t isMC=0, Bool_t isEfficiency=1,   TString year0 = "2016",TString year="2016kehjl_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/*"2016k_hK0s"/*"2016k_MECorr"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"*/, TString yearMC=/*"AllMC_hXi"/*"1617GP_hXi"/*"2016kl_hXi"/*"2018f1_extra_MECorr"*/"2018f1_extra_hK0s"/*"2018f1_extra_hK0s_30runs_150MeV"*/,  TString Path1 =""/*"_PtTrigMax2.5"/*"_NewMultClassBis"*/, TString Dir ="FinalOutput/",  Float_t ptjmax=15, Int_t rebin=2,  Int_t rebinx=2,  Int_t rebiny=2, Bool_t MasterThesisAnalysis=0, Bool_t isEnlargedDeltaEtaPhi=0,Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Int_t MultBinning=0, Int_t PtBinning=1){ 
 
   //masterthesis analysis è usato quando devo fare analisi presentata per la tesi
   if (ishhCorr && type!=0) {cout << " for hh correlation type should be set to zero in order to get the correct files " << endl; return;}
@@ -87,6 +87,7 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t 
     //    file+="_hhCorr";
     if (isMC)     file2+="_MCEff";
   }
+  if (PtBinning>0)  file2+=Form("_PtBinning%i",PtBinning);
   file2+=Path1;
   //  if(isMC && isEfficiency) file = year + "_MCEff";
   if(isMC && !isEfficiency) file = yearMC + "_MCTruth";
@@ -97,7 +98,9 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t 
   TString PathIn;
   if (isMC && !isEfficiency) PathIn= Dir+"/histo/AngularCorrelation" + file + ".root";
   else{
-    PathIn= Dir+"/histo/AngularCorrelation" + file+Path1;
+    PathIn= Dir+"/histo/AngularCorrelation" + file;
+  if (PtBinning>0)    PathIn+=Form("_PtBinning%i",PtBinning);
+    PathIn+=Path1;
     if(type>=0){
       PathIn +="_";
       if (!ishhCorr)	  PathIn+=tipo[type];
@@ -115,7 +118,9 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t 
   if (ishhCorr) PathInBis="FinalOutput/AnalysisResults" + file2  + ".root"; 
 
 
-  TString PathInEfficiency = Dir+ "/Efficiency/Efficiency" +fileMC+Path1;// change
+  TString PathInEfficiency = Dir+ "/Efficiency/Efficiency" +fileMC;
+  if (PtBinning>0)    PathInEfficiency+=Form("_PtBinning%i",PtBinning);
+    PathInEfficiency+=Path1;// change
   if(type>=0){
     PathInEfficiency +="_";
     if (!ishhCorr)             PathInEfficiency +=tipo[type];
@@ -131,6 +136,7 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t 
   TString PathInMass= Dir+"/invmass_distribution_thesis/invmass_distribution";
   if (isMC && isEfficiency) PathInMass+="_MCEff";
   TString Title;
+  if (PtBinning>0)  PathInMass+= Form("_PtBinning%i",PtBinning);
   PathInMass+= Path1; //+"_" ;
   //  PathInMass+= "Eta05_" ; //change
   PathInMass+="_";
@@ -171,12 +177,12 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t 
 
   const Int_t nummolt=5;
   const Int_t numzeta=1;
-  const Int_t numPtV0=8;
+  const Int_t numPtV0=9;
   const Int_t numPtTrigger=1;
   const Int_t numeta=3;
   const Int_t numetabis=3;
   const Int_t numSB=2;
-  Int_t PtV0Min=1;
+  Int_t PtV0Min=1; //el 1
   if (!ishhCorr && type==0) PtV0Min=0;
 
   Int_t Marker[nummolt+1]={7,4,20,22,29,28};
@@ -191,8 +197,29 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t 
 
   TString Smolt[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "_all"};
   Double_t Nmolt[nummolt+1]={0,5,10,30,50,100}; 
-  //  TString Smolt[nummolt+1]={"0-0", "0-10", "10-30", "30-50", "50-100", "_all"};
-  //  Double_t Nmolt[nummolt+1]={0,0,10,30,50,100}; 
+
+  TString Smolt0[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "_all"};
+  Double_t Nmolt0[nummolt+1]={0,5,10,30,50,100}; 
+  TString Smolt1[nummolt+1]={"0-1", "1-5", "5-15", "15-30", "30-100", "_all"};
+  Double_t Nmolt1[nummolt+1]={0,1,5,15,30,100}; 
+  TString Smolt2[nummolt+1]={"0-2", "2-7", "7-15", "15-30", "30-100", "_all"};
+  Double_t Nmolt2[nummolt+1]={0,2,7,15,30,100}; 
+
+  for(Int_t m=0; m<nummolt+1; m++){
+    if (MultBinning==0){
+      Smolt[m] = Smolt0[m];
+      Nmolt[m] = Nmolt0[m];
+    }
+    if (MultBinning==1){
+      Smolt[m] = Smolt1[m];
+      Nmolt[m] = Nmolt1[m];
+    }
+    if (MultBinning==2){
+      Smolt[m] = Smolt2[m];
+      Nmolt[m] = Nmolt2[m];
+    }
+
+  }
 
   TString Ssideband[numSB]={"", "_SB"};
   TString Ssidebandtitle[numSB]={"", " (sidebands)"};
@@ -200,25 +227,49 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t 
   //  Double_t Nzeta[numzeta+1]={};
   //  TString SPtV0[numPtV0]={"0-1", "1-2", "2-3", "3-4", "4-8"};
   //  Double_t NPtV0[numPtV0+1]={0,1,2,3,4,8};
-  TString SPtV0[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8"};
-  //  if (type>0)SPtV0[1]={"0.5-1"};
+
+
+  TString SPtV0[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8", ""};
+  //  TString SPtV0[numPtV0]={"", "","0.5-1", "1-1.5","1.5-2", "2-3", "3-4", "4-8"};
   if (type>0)SPtV0[1]={"0.5-1"};
   else {SPtV0[0]={"0-0.5"}; SPtV0[1]={"0.5-1"};}
   if (ishhCorr){
     SPtV0[0]={"0.1-0.5"};
     SPtV0[1]={"0.5-1"};
   }
-  Double_t NPtV0[numPtV0+1]={0,0,1,1.5,2,2.5,3,4,8};
+  Double_t NPtV0[numPtV0+1]={0,0,1,1.5,2,2.5,3,4,8, 100};
+  //Double_t NPtV0[numPtV0+1]={0,0,0.5,1,1.5,2,3,4,8};
   NPtV0[1]=0.5;
   if (ishhCorr) {
     NPtV0[0]=0.1;
     NPtV0[1]=0.5;
   }
-  TString SNPtV0[numPtV0+1]={"0.0","0.0","1.0","1.5","2.0","2.5","3.0","4.0","8.0"};
+  TString SNPtV0[numPtV0+1]={"0.0","0.0","1.0","1.5","2.0","2.5","3.0","4.0","8.0", ""};
+  //TString SNPtV0[numPtV0+1]={"0.0","0.0", "0.5","1.0","1.5","2.0","3.0","4.0","8.0"};
   SNPtV0[1]={"0.5"};
   if (ishhCorr){
     SNPtV0[0]={"0.1"};
     SNPtV0[1]={"0.5"};
+  }
+
+  TString SPtV01[numPtV0]={"0.1-0.5", "0.5-0.8", "0.8-1.2", "1.2-1.6","1.6-2", "2-2.5","2.5-3", "3-4", "4-8"};
+  Double_t NPtV01[numPtV0+1]={0.1,0.5,0.8, 1.2,1.6,2,2.5,3,4,8};
+  TString SPtV02[numPtV0]={"0.1-0.4", "0.4-0.6", "0.6-0.8", "0.8-1.6","1.6-2", "2-2.5","2.5-3", "3-4", "4-8"};
+  Double_t NPtV02[numPtV0+1]={0.1,0.4,0.6, 0.8,1.6,2,2.5,3,4,8};
+  Int_t numPtV0Max=numPtV0;
+  if (PtBinning==1) numPtV0Max = numPtV0;
+  else numPtV0Max = numPtV0-1;
+  if (PtBinning==1){
+    for(Int_t v=PtV0Min; v<numPtV0Max+1; v++){
+      if (v<numPtV0Max)      SPtV0[v] = SPtV01[v];
+      NPtV0[v] = NPtV01[v];
+    }
+  }
+  if (PtBinning==2){
+    for(Int_t v=PtV0Min; v<numPtV0Max+1; v++){
+      if (v<numPtV0Max)      SPtV0[v] = SPtV02[v];
+      NPtV0[v] = NPtV02[v];
+    }
   }
 
   TString SPtTrigger[numPtTrigger]={"3-30"};
@@ -355,7 +406,7 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t 
       }
       for(Int_t z=0; z<numzeta; z++){
 	for(Int_t tr=0; tr<numPtTrigger; tr++){
-	  for(Int_t v=PtV0Min; v<numPtV0; v++){
+	  for(Int_t v=PtV0Min; v<numPtV0Max; v++){
 	    for (Int_t sb=0; sb<2; sb++){
 	      TitleString[m][v][sb]= "in mult. " + Smolt[m] +"% and " + SNPtV0[v] + " GeV/c < p_{T}^{Assoc} < " + SNPtV0[v+1]+" GeV/c"+ Ssidebandtitle[sb];
 	    }
@@ -553,7 +604,7 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t 
     // for(Int_t m=nummolt; m>=0; m--){
     for(Int_t z=0; z<numzeta; z++){
       for(Int_t tr=0; tr<numPtTrigger; tr++){
-	for(Int_t v=PtV0Min; v<numPtV0; v++){
+	for(Int_t v=PtV0Min; v<numPtV0Max; v++){
 	  if (!ishhCorr){
 	    cout << "\n\n *********************************************" << endl;
 	    cout << "analisi nell'intervallo di molt " << Smolt[m] <<" e nell\'intervallo di PtV0 " << SPtV0[v] << endl;
@@ -890,7 +941,7 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t 
     //if (m==0) continue;
       for(Int_t z=0; z<numzeta; z++){
 	for(Int_t tr=0; tr<numPtTrigger; tr++){
-	  for(Int_t v=PtV0Min; v<numPtV0; v++){
+	  for(Int_t v=PtV0Min; v<numPtV0Max; v++){
 
 	    hDeltaEtaDeltaPhi_MEbins_rapMolt[m][z][v][tr][sb]=(TH2D*)hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]->Clone(nameME[m][z][v][tr][sb] + "_rapMolt");
 	    if (!	    hDeltaEtaDeltaPhi_MEbins_rapMolt[m][z][v][tr][sb]) return;
@@ -915,7 +966,7 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t 
     //if (m==0) continue;
     canvasJetFit[m]= new TCanvas (Form("canvasJet_%i",m),Form("canvasJet_%i",m) , 1200, 1000);
     canvasJetFit[m]->Divide(4,2);
-    for(Int_t v=PtV0Min; v< numPtV0; v++){
+    for(Int_t v=PtV0Min; v< numPtV0Max; v++){
       //      cout << "v" << v << endl;
       canvasJetFit[m]->cd(v+1);
 
@@ -942,7 +993,9 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t 
   TString PathOut1;
   if (isMC && !isEfficiency) PathOut1=Dir+"/histo/AngularCorrelation" + file  +"_Output.root";
   else {
-    PathOut1 = Dir+"/histo/AngularCorrelation"  +file+Path1 + Form("_Jet%.2f", hDeltaEtaDeltaPhi_ACbins[1][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[1][0][1][0][0]->GetXaxis()->FindBin(JetValue))) ;
+    PathOut1 = Dir+"/histo/AngularCorrelation"  +file+Path1 ;
+    PathOut1 +=Form("_PtBinning%i",PtBinning);
+    PathOut1 +=Form("_Jet%.2f", hDeltaEtaDeltaPhi_ACbins[1][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[1][0][1][0][0]->GetXaxis()->FindBin(JetValue))) ;
     if(type>=0){
       if (!ishhCorr)      PathOut1 +="_"+tipo[type];
       PathOut1 +=Srap[israp];
@@ -961,7 +1014,7 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t 
     cout << "\n" <<m << endl;
     for(Int_t z=0; z<numzeta; z++){
       for(Int_t tr=0; tr<numPtTrigger; tr++){
-	for(Int_t v=PtV0Min; v<numPtV0; v++){
+	for(Int_t v=PtV0Min; v<numPtV0Max; v++){
 	  cout << "v " << v << endl;
 	  if(!isMC || (isMC && isEfficiency)){
 
@@ -1059,7 +1112,7 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t 
     cout << "\n" <<m << endl;
     for(Int_t z=0; z<numzeta; z++){
       for(Int_t tr=0; tr<numPtTrigger; tr++){
-	for(Int_t v=PtV0Min; v<numPtV0; v++){
+	for(Int_t v=PtV0Min; v<numPtV0Max; v++){
 	  cout << "la normalizzazione del ME non è stato effettuata per: " << endl;
 	  if (norm_MEbins[m][v][0]==0) cout << " m " << m << " PtV0 " << v << " sideband 0"<< endl;
 	  if (norm_MEbins[m][v][1]==0) cout << " m " << m << " PtV0 " << v << " sideband 1"<< endl;
@@ -1125,7 +1178,7 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t 
   Int_t NBins=0;
   for (Int_t m=0; m<nummolt+1; m++){
     cout << "\n m " << m << endl;
-    for (Int_t v=PtV0Min; v<numPtV0; v++){
+    for (Int_t v=PtV0Min; v<numPtV0Max; v++){
       OJEntries=0;
       NBins=0;
       //      cout << SPtV0[v] << " " << hDeltaEtaDeltaPhi_SEbins[m][0][v][0][0]->GetEntries() << endl;
@@ -1141,4 +1194,5 @@ void AngularCorrelation_firstCasc(Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t 
   }
 
   if (InclusiveLowValue!= -InclusiveUpValue) cout << "\n\n!!!!!!!! asymmetric inclusive interval is being used!!!!!\n\n"<<endl;
+  cout << 	 SPtV0[2] << " " <<     hDeltaEtaDeltaPhi_SEbins[0][0][2][0][0]->GetXaxis()->GetBinWidth(1)<< endl;
 }

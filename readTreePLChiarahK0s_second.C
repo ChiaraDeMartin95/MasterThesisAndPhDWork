@@ -15,7 +15,7 @@
 #include <TTree.h>
 #include <TLatex.h>
 #include <TFile.h>
-void readTreePLChiarahK0s_second(Bool_t ishhCorr=1, Int_t type=0, Bool_t SkipAssoc=1, Int_t israp=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=3,Float_t PtTrigMinFit=3, Int_t sysTrigger=0, Int_t sysV0=0,Int_t syst=0,bool isMC = 0, Bool_t isEfficiency=0,TString year0="2016", TString year="2016k_MECorr",  TString Path1 ="",  Double_t ptjmax =15, Double_t nsigmamax=10, Bool_t isSigma=kFALSE){
+void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAssoc=1, Int_t israp=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=3,Float_t PtTrigMinFit=3, Int_t sysTrigger=0, Int_t sysV0=0,Int_t syst=0,bool isMC = 0, Bool_t isEfficiency=1,TString year0="2016", TString year="2016kehjl_hK0s"/*"2018f1_extra_hK0s"/*"2016k_hK0s"*/,  TString Path1 ="",  Double_t ptjmax =15, Double_t nsigmamax=10, Bool_t isSigma=kFALSE, Int_t PtBinning=1){
 
   //isMeanFixedPDG and isBkgParab are characteristics of the fit to the inv mass distributions 
   cout << isMC << endl;
@@ -39,7 +39,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=1, Int_t type=0, Bool_t SkipAss
   }
 
   Int_t PtBinMin=0;
-  if (!ishhCorr) PtBinMin=1; //for associated particles different from hadrons I do not start from 0            
+  if (!ishhCorr && type!=0) PtBinMin=1; //for associated particles different from hadrons I do not start from 0            
 
   Double_t massK0s = 0.497611;
   Double_t massLambda = 1.115683;
@@ -80,10 +80,12 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=1, Int_t type=0, Bool_t SkipAss
   }
  
   //  PathIn+=Path1; //change
+  if(PtBinning)  PathInMass+=Form("_PtBinning%i",PtBinning);
   PathInMass+=Path1;
   PathIn+=".root";
 
 
+  if(PtBinning)  PathOut+=Form("_PtBinning%i",PtBinning);
   PathOut+=Path1; //+"Bis";
   PathOut+="_"; 
   if (!ishhCorr) PathOut +=tipo[type];
@@ -107,7 +109,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=1, Int_t type=0, Bool_t SkipAss
 
   const Int_t nummolt=5;
   const Int_t numzeta=1;
-  const Int_t numPtV0=8;
+  const Int_t numPtV0=9;
   const Int_t numPtTrigger=1;
   
   Float_t LimInfMass[numtipo][nummolt+1][numPtV0]={0};
@@ -116,23 +118,45 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=1, Int_t type=0, Bool_t SkipAss
   Double_t Nmolt[nummolt+1]={0, 5, 10, 30, 50, 100};
   TString Szeta[numzeta]={""};
 
-  TString SPtV0[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8"};
+  TString SPtV0[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8", ""};
   if (type>0)SPtV0[1]={"0.5-1"};
+  else {SPtV0[0]={"0-0.5"}; SPtV0[1]={"0.5-1"};}
   if (ishhCorr){
     SPtV0[0]={"0.1-0.5"};
     SPtV0[1]={"0.5-1"};
   }
-  Double_t NPtV0[numPtV0+1]={0,0,1,1.5,2,2.5,3,4,8};
-  if (type>0) NPtV0[1]=0.5;
+  Double_t NPtV0[numPtV0+1]={0,0,1,1.5,2,2.5,3,4,8, 100};
+  NPtV0[1]=0.5;
   if (ishhCorr) {
     NPtV0[0]=0.1;
     NPtV0[1]=0.5;
   }
-  TString SNPtV0[numPtV0+1]={"0.0","0.0","1.0","1.5","2.0","2.5","3.0","4.0","8.0"};
-  if (type>0) SNPtV0[1]={"0.5"};
+  TString SNPtV0[numPtV0+1]={"0.0","0.0","1.0","1.5","2.0","2.5","3.0","4.0","8.0", ""};
+  SNPtV0[1]={"0.5"};
   if (ishhCorr){
     SNPtV0[0]={"0.1"};
     SNPtV0[1]={"0.5"};
+  }
+
+  TString SPtV01[numPtV0]={"0.1-0.5", "0.5-0.8", "0.8-1.2", "1.2-1.6","1.6-2", "2-2.5","2.5-3", "3-4", "4-8"};
+  Double_t NPtV01[numPtV0+1]={0.1,0.5,0.8, 1.2,1.6,2,2.5,3,4,8};
+  TString SPtV02[numPtV0]={"0.1-0.4", "0.4-0.6", "0.6-0.8", "0.8-1.6","1.6-2", "2-2.5","2.5-3", "3-4", "4-8"};
+  Double_t NPtV02[numPtV0+1]={0.1,0.4,0.6, 0.8,1.6,2,2.5,3,4,8};
+  Int_t numPtV0Max=numPtV0;
+  if (PtBinning==1) numPtV0Max = numPtV0;
+  else numPtV0Max = numPtV0-1;
+
+  if (PtBinning==1){
+    for(Int_t v=PtBinMin; v<numPtV0Max+1; v++){
+      if (v<numPtV0Max)      SPtV0[v] = SPtV01[v];
+      NPtV0[v] = NPtV01[v];
+    }
+  }
+  if (PtBinning==2){
+    for(Int_t v=PtBinMin; v<numPtV0Max+1; v++){
+      if (v<numPtV0Max)      SPtV0[v] = SPtV02[v];
+      NPtV0[v] = NPtV02[v];
+    }
   }
 
   //  TString SPtTrigger[numPtTrigger]={"2-10"};
@@ -164,7 +188,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=1, Int_t type=0, Bool_t SkipAss
       histo_LLsideB=(TH1F*)fileMassSigma->Get("histo_LLsideB");
       histo_NSigmasideB=(TH1F*)fileMassSigma->Get("histo_NSigmasideB");
       histo_NSigmaPeak=(TH1F*)fileMassSigma->Get("histo_NSigmaPeak");
-      for(Int_t v=PtBinMin; v<numPtV0; v++){
+      for(Int_t v=PtBinMin; v<numPtV0Max; v++){
       sigmacentral[type][m][v]=      histo_NSigmaPeak->GetBinContent(v+1);
       nsigmamin[type][m][v]=      histo_NSigmasideB->GetBinContent(v+1);
 	mass[type][m][v]=histoMean->GetBinContent(v+1);
@@ -370,7 +394,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=1, Int_t type=0, Bool_t SkipAss
       hSign_PtV0[m][z]->GetYaxis()->SetLabelSize(0.05);
 
       for(Int_t tr=0; tr<numPtTrigger; tr++){
-	for(Int_t v=PtBinMin; v<numPtV0; v++){
+	for(Int_t v=PtBinMin; v<numPtV0Max; v++){
 	  nameSE[m][z][v][tr]="SE_";
 	  namemassSE[m][z][v][tr]="InvMassSE_";
 	  nameSE[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
@@ -435,7 +459,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=1, Int_t type=0, Bool_t SkipAss
       hBkg_PtV0[m][z]->GetYaxis()->SetLabelSize(0.05);
 
       for(Int_t tr=0; tr<numPtTrigger; tr++){
-	for(Int_t v=PtBinMin; v<numPtV0; v++){
+	for(Int_t v=PtBinMin; v<numPtV0Max; v++){
 	  nameME[m][z][v][tr]="ME_";
 	  namemassME[m][z][v][tr]="InvMassME_";
 	  nameME[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
@@ -582,7 +606,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=1, Int_t type=0, Bool_t SkipAss
       }
       for(Int_t z=0; z<numzeta; z++){
 	for(Int_t tr=0; tr<numPtTrigger; tr++){
-	  for(Int_t v=PtBinMin; v<numPtV0; v++){
+	  for(Int_t v=PtBinMin; v<numPtV0Max; v++){
 	    /* defined above in a less error-prone way
 	    if (type==4 || type==5 || type==8){
 	      LimInfMass[type]=1.30;
@@ -631,7 +655,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=1, Int_t type=0, Bool_t SkipAss
   cout << "ciao " << endl;
   cout << "\n\n I will process " << EntriesBkg << " entries for theSE correlation " << endl;
   for(Int_t k = 0; k<EntriesBkg; k++){
-    //    if (k>10000000) continue;
+    //  if (k>10000000) continue;
 
       tBkg->GetEntry(k);     
     //  for(Int_t k = 0; k<1000000; k++){
@@ -744,7 +768,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=1, Int_t type=0, Bool_t SkipAss
 
       for(Int_t z=0; z<numzeta; z++){
 	for(Int_t tr=0; tr<numPtTrigger; tr++){
-	  for(Int_t v=PtBinMin; v<numPtV0; v++){
+	  for(Int_t v=PtBinMin; v<numPtV0Max; v++){
 
 	    /*	    if (type==4 || type==5 || type==8){
 	      LimInfMass[type]=1.30;

@@ -18,7 +18,7 @@
 #include <TFile.h>
 #include <TSpline.h>
 
-void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2016", Int_t ishhCorr=0, Bool_t MasterThesis=0, Bool_t isSE=0, Int_t NumberOfRegions=3,  Int_t israp=0, Int_t type=0,Int_t typeDenom=0,   Float_t ScaleFactorJet = 1/*1.56/2.08*/, Float_t ScaleFactorPions=/*1./0.8767*/1, Bool_t EtaPhiEnlargedStudy=0,TString yearhh=/*"Run2DataRed_MECorr_hXi"*/"2016k_hK0s" , TString year="2016k_hK0s"/*"Run2DataRed_MECorr_hXi"*/, TString yearhhMC=/*"Run2DataRed_MECorr_hXi"*/"2018f1_extra_hK0s" , TString yearMC="2018f1_extra_hK0s"/*"Run2DataRed_MECorr_hXi"*/, Bool_t SkipAssoc=1, TString Path1="_Jet0.75",  TString Path1Denom="_Jet0.75",Bool_t ishDenom=0){
+void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2016", Int_t ishhCorr=0, Bool_t MasterThesis=0, Bool_t isSE=0, Int_t NumberOfRegions=3,  Int_t israp=0, Int_t type=0,Int_t typeDenom=0,   Float_t ScaleFactorJet = 1.69163/2.17495/*1/*1.56/2.08*/, Float_t ScaleFactorPions=/*1./0.8767*/1, Bool_t EtaPhiEnlargedStudy=0,TString yearhh="2016kehjl_hK0s"/*"Run2DataRed_MECorr_hXi"/*"2016k_hK0s"*/ , TString year="2016kehjl_hK0s"/*"2016k_hK0s"/"Run2DataRed_MECorr_hXi"*/, TString yearhhMC="AllMC_hXi"/*"Run2DataRed_MECorr_hXi""2018f1_extra_hK0s"*/ , TString yearMC=/*"AllMC_hXi"*/"2018f1_extra_hK0s"/*"Run2DataRed_MECorr_hXi"*/, Bool_t SkipAssoc=1, TString Path1="_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,  TString Path1Denom="_Jet0.75",Bool_t ishDenom=0, Int_t MultBinning=0, Int_t typefit=3 /*Fermi_Dirac*/){
   //if I want to perform the ratio between the yields of a particle and of charged hadrons I should place ishDenom=0.
   //yearhh is the year for which the hh study has been performed if isSE=0 && ishhCorr=1; It's the year associated to the denominator if isSE=1
   //if isSE is true the ratio of K0s to hadrons is computed, in order to study the strangeness enhancement effect
@@ -101,7 +101,6 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
   fileout = new TFile (nomefileoutput, "RECREATE");
   const Int_t nummolt=5;
   const Int_t numzeta=1;
-  const Int_t numPtV0=7;
   const Int_t numPtTrigger=1;
   const Int_t numSelTrigger=3;
   const Int_t numSelV0=6;
@@ -129,11 +128,12 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
   TString SysErrMB[2]={"syst. DATA 0-100 %", "syst. MC 0-100 %"};
   TString StatErrMB[2]={"stat. DATA 0-100 %", "stat. MC 0-100 %"};
   TString DATAorMC[2]={"DATA", "MC"};
+  /*
   TString Smolt[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "all"};
   TString SmoltBis[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "_all"};
   Double_t Nmolt[nummolt+1]={0,5,10,30,50,100}; 
+  */
   TString Szeta[numzeta]={""};
-  TString SPtV0[numPtV0]={"0-1", "1-1.5", "1.5-2", "2-2.5","2.5-3", "3-4", "4-8"};
   TString SPeriod[numPeriod]={"2016", "2017"};//, "2018"};
   TString SRun[numPeriod]={"2016k", "2017h"};//, "2018m"};
   //20,21,33
@@ -147,6 +147,15 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
   TF1* pol1[2][NumberOfRegions];
 
   Double_t   mult[nummolt+1]={21.2, 16.17, 11.4625, 7.135, 3.33, 6.94};
+  Double_t   mult0[nummolt+1]={21.2, 16.17, 11.4625, 7.135, 3.33, 6.94};
+  Double_t   mult1[nummolt+1]={26.02, 20.02, 14.97, 10.69, 4.4, 6.94};
+  Double_t   mult2[nummolt+1]={24.5, 18, 13, 10.69, 4.4, 6.94};
+
+  for (Int_t m =0; m < nummolt; m++){
+    if (MultBinning==0)    mult[m] = mult0[m];
+    else     if (MultBinning==1)    mult[m] = mult1[m];
+    else     if (MultBinning==2)    mult[m] = mult2[m];
+  }
 
   //cfr spettri pubblicati per le Xi
   cout << "\nprendo histo per confronto con dati pubblicati " << endl;
@@ -207,6 +216,7 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
 
   TH1F*  fHistSpectrum_inclusiveMyWay[2][NumberOfRegions];
   TH1F * fHistSpectrum_master[2][NumberOfRegions][nummolt+1];
+  TF1*  fit_MTscaling[2][NumberOfRegions][nummolt+1]; 
   TH1F * fHistSpectrum_scaled[2][NumberOfRegions][nummolt+1];
   TCanvas * canvasSpectrum[3];
   for (Int_t i=0; i<3; i++){
@@ -216,6 +226,7 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
   }
 
   TH1D*  fHistYieldvsErrSoloStat[6][6];
+  TH1D*  fHistYieldFitvsErrSoloStat[6][6];
   TH1D*  fHistYieldvsErrSoloSist[6][6];
   TH1D*  fHistYieldvsErrSoloStatMB[6][6];
   TH1D*  fHistYieldvsErrSoloSistMB[6][6];
@@ -453,18 +464,29 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
 
 
       //************************** Drawing the pt spectra
+      Bool_t IsFit=0;
       for (Int_t m=0; m< nummolt+1; m++){
-	fHistSpectrum_master[j][l][m] = (TH1F*) filein[ishhCorr]->Get(Form("fHistSpectrum_master_%i",m));
-	if (!fHistSpectrum_master[j][l][m]) return;
+	IsFit=0;
+	if( (TH1F*) filein[ishhCorr]->Get(Form("fHistSpectrumPart_m%i_syst%i",m,0))){
+	fHistSpectrum_master[j][l][m] = (TH1F*) filein[ishhCorr]->Get(Form("fHistSpectrumPart_m%i_syst%i",m,0));
+	}
+	else 	fHistSpectrum_master[j][l][m] = (TH1F*) filein[ishhCorr]->Get(Form("fHistSpectrum_master_%i",m));
+	fit_MTscaling[j][l][m]= (TF1*) filein[ishhCorr]->Get(Form("fitMTscaling_m%i_syst0_fit%i",m, typefit));
+	//	if (!fHistSpectrum_master[j][l][m]) return;
+	if (!fit_MTscaling[j][l][m]) {cout << " I do not find the spectrum fit function TF1 for m "<< m << " l " << l << " and j " << j  << endl; IsFit=0;}
+	if (IsFit)	fit_MTscaling[j][l][m]->SetLineColor(Color[l]);
 	fHistSpectrum_master[j][l][m]->SetLineColor(Color[l]);
 	fHistSpectrum_master[j][l][m]->SetMarkerColor(Color[l]);
 	fHistSpectrum_master[j][l][m]->SetMarkerStyle(33);
 	fHistSpectrum_scaled[j][l][m]= (TH1F*)fHistSpectrum_master[j][l][m]->Clone(Form("fHistSpectrum_Scaled_%i",m));
 	if (m==0 && j==0) legendRegion->AddEntry(  fHistSpectrum_master[j][l][m], Region[l], "pl");
-	if (type==4 || type==5 || type==8)       fHistSpectrum_master[j][l][m]->GetYaxis()->SetRangeUser(0,0.007);
+	if (type==4 || type==5 || type==8)       fHistSpectrum_master[j][l][m]->GetYaxis()->SetRangeUser(0,0.001);
 	canvasSpectrum[0]->cd(m+1);
-
-	if (l!=3 )      fHistSpectrum_master[j][l][m]->Draw("same ep");
+	fHistSpectrum_master[j][l][m]->GetXaxis()->SetRangeUser(0,8);
+	if (l==0 || l==6 || l==7 )      fHistSpectrum_master[j][l][m]->Draw("same ep");
+	if (IsFit){
+	if (l==0 || l==6 || l==7 )      fit_MTscaling[j][l][m]->Draw("same");
+	}
 	//if (l==0 || l>=6 )      fHistSpectrum_master[j][l][m]->Draw("same ep");
 	if (j==0 && l==0) legendRegion->Draw("");
 	if (l==3 && (type==4 || type==5 || type==8))       fHistSpectrum_master[j][l][m]->GetYaxis()->SetRangeUser(0,0.15);
@@ -506,6 +528,8 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
       fHistYieldvsErrSoloSistMB[j][l]=   (TH1D*)filein[ishhCorr]->Get("fHistYieldvsErrSoloSistMB");   
       fHistYieldvsErrSoloStatMB[j][l]=   (TH1D*)filein[ishhCorr]->Get("fHistYieldvsErrSoloStatMB");   
       fHistYieldvsErrSoloStat[j][l]=     (TH1D*)filein[ishhCorr]->Get("fHistYieldvsErrSoloStat");	    
+      if (   (TH1D*)filein[ishhCorr]->Get("fHistYieldFitvsErrSoloStat"))       fHistYieldFitvsErrSoloStat[j][l]=     (TH1D*)filein[ishhCorr]->Get("fHistYieldFitvsErrSoloStat");	    
+      else       fHistYieldFitvsErrSoloStat[j][l]=     (TH1D*)filein[ishhCorr]->Get("fHistYieldvsErrSoloStat");	    
       fHistYieldvsErrSoloSist[j][l]=     (TH1D*)filein[ishhCorr]->Get("fHistYieldvsErrSoloSist");	    
       fHistYieldvsErrSoloStatRatio[j][l]=(TH1D*)filein[ishhCorr]->Get("fHistYieldvsErrSoloStatRatio");
       fHistYieldvsErrSoloSistRatio[j][l]=(TH1D*)filein[ishhCorr]->Get("fHistYieldvsErrSoloSistRatio");
@@ -537,6 +561,7 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
 	fHistYieldvsErrSoloSistMB_SE[j][l]=   (TH1D*)filein[1]->Get("fHistYieldvsErrSoloSistMB");   
 	fHistYieldvsErrSoloStatMB_SE[j][l]=   (TH1D*)filein[1]->Get("fHistYieldvsErrSoloStatMB");   
 	fHistYieldvsErrSoloStat_SE[j][l]=     (TH1D*)filein[1]->Get("fHistYieldvsErrSoloStat");	    
+	//	fHistYieldFitvsErrSoloStat_SE[j][l]=     (TH1D*)filein[1]->Get("fHistYieldFitvsErrSoloStat");	    
 	fHistYieldvsErrSoloSist_SE[j][l]=     (TH1D*)filein[1]->Get("fHistYieldvsErrSoloSist");	    
 	fHistYieldvsErrSoloStatRatio_SE[j][l]=(TH1D*)filein[1]->Get("fHistYieldvsErrSoloStatRatio");
 	fHistYieldvsErrSoloSistRatio_SE[j][l]=(TH1D*)filein[1]->Get("fHistYieldvsErrSoloSistRatio");
@@ -568,10 +593,11 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
 	// fHistYieldvsErrErrSoloStatMB[j][l]->Divide(fHistYieldvsErrErrSoloStatMB_SE[j][l] );
 	// fHistYieldvsErrErrSoloSistMB[j][l]->Divide(fHistYieldvsErrErrSoloSistMB_SE[j][l] );
         if (EtaPhiEnlargedStudy) ScaleFactorJet=1;
-	if (l==0){
+	if (l==0 || l==6 || l==7){
 	  fHistYieldvsErrSoloSistMB[j][l]   ->Scale(ScaleFactorJet);
 	  fHistYieldvsErrSoloStatMB[j][l]   ->Scale(ScaleFactorJet);
 	  fHistYieldvsErrSoloStat[j][l]     ->Scale(ScaleFactorJet);
+	  fHistYieldFitvsErrSoloStat[j][l]     ->Scale(ScaleFactorJet);
 	  fHistYieldvsErrSoloSist[j][l]     ->Scale(ScaleFactorJet);
 	  fHistYieldvsErrSoloStatRatio[j][l]->Scale(ScaleFactorJet);
 	  fHistYieldvsErrSoloSistRatio[j][l]->Scale(ScaleFactorJet);
@@ -619,6 +645,12 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
       if (isSE)  fHistYieldvsErrSoloStat[j][l]->GetYaxis()->SetTitle ("N_{K^{0}_{S}}/N_{charged}");      
 
       fHistYieldvsErrSoloStat[j][l]->SetMarkerColor(Color[l]);
+      if (     fHistYieldFitvsErrSoloStat[j][l]) {
+     fHistYieldFitvsErrSoloStat[j][l]->SetLineColor(Color[l]);
+     fHistYieldFitvsErrSoloStat[j][l]->SetMarkerColor(Color[l]);
+     fHistYieldFitvsErrSoloStat[j][l]->SetMarkerStyle(MarkerMC[l]);
+     fHistYieldFitvsErrSoloStat[j][l]->SetMarkerSize(msize);
+      }
       fHistYieldvsErrSoloStat[j][l]->SetMarkerStyle(MarkerOrigin[l]);
       if (j==1)      fHistYieldvsErrSoloStat[j][l]->SetMarkerStyle(MarkerMC[l]);
       fHistYieldvsErrSoloStat[j][l]->SetLineColor(Color[l]);
@@ -629,10 +661,11 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
       }
       else fHistYieldvsErrSoloStat[j][l]->GetYaxis()->SetRangeUser(0.0001,0.14);
       if (!ishhCorr && !isSE && (type==4 || type==5 || type==8))  fHistYieldvsErrSoloStat[j][l]->GetYaxis()->SetRangeUser(0.0001,0.02);
-      fHistYieldvsErrSoloStat[j][l]->GetXaxis()->SetRangeUser(0,25);
+      fHistYieldvsErrSoloStat[j][l]->GetXaxis()->SetRangeUser(0,27);
       fHistYieldvsErrSoloStat[j][l]->SetMarkerSize(msize);
       if (l==2)    fHistYieldvsErrSoloStat[j][l]->SetMarkerSize(3);
       fHistYieldvsErrSoloStat[j][l]->Draw("samee");
+      //      fHistYieldFitvsErrSoloStat[j][l]->Draw("samee");
     
       if (!ishhCorr)      fHistYieldvsErrSoloSist[j][l]->SetTitle ("Yield of K^{0}_{S} in jet per trigger particle vs V0M multiplicity");
       if (ishhCorr)      fHistYieldvsErrSoloSist[j][l]->SetTitle ("Yield of charged unidentified in jet per trigger particle vs V0M multiplicity");
@@ -654,7 +687,7 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
       if (!ishhCorr && !isSE && (type==4 || type==5 || type==8))  fHistYieldvsErrSoloStat[j][l]->GetYaxis()->SetRangeUser(0.0001,0.02);
       if (!ishhCorr && !isSE && (type==4 || type==5 || type==8))  fHistYieldvsErrSoloSist[j][l]->GetYaxis()->SetRangeUser(0.0001,0.02);
 
-      fHistYieldvsErrSoloSist[j][l]->GetXaxis()->SetRangeUser(0,25);
+      fHistYieldvsErrSoloSist[j][l]->GetXaxis()->SetRangeUser(0,27);
       fHistYieldvsErrSoloSist[j][l]->SetMarkerSize(msize);
       if (l==2)    fHistYieldvsErrSoloSist[j][l]->SetMarkerSize(3);
       //      fHistYieldvsErrSoloSist[j][l]->Draw("samee2");
@@ -699,14 +732,15 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
       if (isSE)  fHistYieldvsErrSoloStatRatio[l][j]->GetYaxis()->SetTitle ("");      
       //      fHistYieldvsErrSoloStatRatio[l][j]->SetTitle("");
       fHistYieldvsErrSoloStatRatio[l][j]->GetYaxis()->SetRangeUser(0, 2.2); //..
-      fHistYieldvsErrSoloStatRatio[l][j]->GetXaxis()->SetRangeUser(0,25);
+      fHistYieldvsErrSoloStatRatio[l][j]->GetXaxis()->SetRangeUser(0,27);
       fHistYieldvsErrSoloStatRatio[l][j]->SetMarkerColor(Color[j]);
       fHistYieldvsErrSoloStatRatio[l][j]->SetMarkerStyle(MarkerOrigin[j]);
       fHistYieldvsErrSoloStatRatio[l][j]->SetMarkerSize(msize);
       if (j==2)    fHistYieldvsErrSoloStatRatio[l][j]->SetMarkerSize(3);
       fHistYieldvsErrSoloStatRatio[l][j]->SetLineColor(Color[j]);
       fHistYieldvsErrSoloStatRatio[l][j]->Draw("samee");
- 
+
+
       //      fHistYieldvsErrSoloSistRatio[l][j]->SetTitle("");
       if (!ishhCorr)      fHistYieldvsErrSoloSistRatio[l][j]->SetTitle ("Relative yield of K^{0}_{S} in jet per trigger particle vs V0M multiplicity");
       if (ishhCorr)      fHistYieldvsErrSoloSistRatio[l][j]->SetTitle ("Relative yield of charged unidentified in jet per trigger particle vs V0M multiplicity");
@@ -715,7 +749,7 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
       if (ishhCorr)  fHistYieldvsErrSoloSistRatio[l][j]->GetYaxis()->SetTitle ("(N_{charged}/N_{Trigg}) / (N_{charged}/N_{Trigg})_{0-100 %}");
       if (isSE)  fHistYieldvsErrSoloSistRatio[l][j]->GetYaxis()->SetTitle ("");      
       fHistYieldvsErrSoloSistRatio[l][j]->GetYaxis()->SetRangeUser(0, 2.2);//..
-      fHistYieldvsErrSoloSistRatio[l][j]->GetXaxis()->SetRangeUser(0,25);
+      fHistYieldvsErrSoloSistRatio[l][j]->GetXaxis()->SetRangeUser(0,27);
       fHistYieldvsErrSoloSistRatio[l][j]->SetMarkerColor(Color[j]);
       fHistYieldvsErrSoloSistRatio[l][j]->SetMarkerStyle(MarkerOrigin[j]);
       fHistYieldvsErrSoloSistRatio[l][j]->SetLineColor(Color[j]);
@@ -763,7 +797,7 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
   if (isSEBis)  splinePub = new TSpline3( fHistYieldDatiPubblicatiSE13TeV, "splineK0sPionRatio");
   else splinePub = new TSpline3("splineK0s", fGraphYieldDatiPubblicati);
   splinePub->SetLineColor(909);
-  TF1 * PublishedDataFit= new TF1( "PublishedDataFit","pol1", 2, 25);
+  TF1 * PublishedDataFit= new TF1( "PublishedDataFit","pol1", 2, 27);
   cout << "\n fit of K0s yield at 13 TeV " << endl;
   fHistYieldDatiPubblicati->Fit(PublishedDataFit,"R+");
 
@@ -776,6 +810,9 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
       if (!ishhCorr && !isSEBis)  {
 	fHistYieldvsErrSoloStat[l][j]->GetYaxis()->SetRangeUser(0, 0.35);
 	if (j==3) fHistYieldvsErrSoloStat[l][j]->GetYaxis()->SetRangeUser(0, 5);
+	fHistYieldFitvsErrSoloStat[l][j]->GetYaxis()->SetRangeUser(0, 0.35);
+	if (j==3) fHistYieldFitvsErrSoloStat[l][j]->GetYaxis()->SetRangeUser(0, 5);
+
       }
       else if (ishhCorr)       fHistYieldvsErrSoloStat[l][j]->GetYaxis()->SetRangeUser(0, 7);
       else {
@@ -783,20 +820,29 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
 	fHistYieldvsErrSoloStat[l][j]->GetYaxis()->SetRangeUser(0,0.1);
       }
       if (!ishhCorr && !isSE && (type==4 || type==5 || type==8))  fHistYieldvsErrSoloStat[l][j]->GetYaxis()->SetRangeUser(0.0001,0.02);
-      fHistYieldvsErrSoloStat[l][j]->GetXaxis()->SetRangeUser(0,25);
+      fHistYieldvsErrSoloStat[l][j]->GetXaxis()->SetRangeUser(0,27);
       fHistYieldvsErrSoloStat[l][j]->SetMarkerColor(Color[j]);
       fHistYieldvsErrSoloStat[l][j]->SetMarkerStyle(MarkerOrigin[j]);
+      if (     fHistYieldFitvsErrSoloStat[l][j]) {
+      fHistYieldFitvsErrSoloStat[l][j]->GetXaxis()->SetRangeUser(0,27);
+      fHistYieldFitvsErrSoloStat[l][j]->SetMarkerColor(Color[j]);
+      fHistYieldFitvsErrSoloStat[l][j]->SetMarkerStyle(MarkerMC[j]);
+
+      }
       // fHistYieldvsErrSoloStat[l][j]->SetMarkerSize(msize);
       // if (j==2)    fHistYieldvsErrSoloStat[l][j]->SetMarkerSize(3);
       // fHistYieldvsErrSoloStat[l][j]->SetLineColor(Color[j]);
-      pol0[l][j]= new TF1(Form("pol0_%i_%i", l, j), "pol0", 0,25);
-      pol1[l][j]= new TF1(Form("pol1_%i_%i", l, j), "pol1", 0,25);
+      pol0[l][j]= new TF1(Form("pol0_%i_%i", l, j), "pol0", 0,27);
+      pol1[l][j]= new TF1(Form("pol1_%i_%i", l, j), "pol1", 0,27);
       pol0[l][j]->SetParName(0, "q");      pol1[l][j]->SetParName(0, "q");
       pol1[l][j]->SetParName(1, "m");
       pol1[l][j]->SetLineColor(Color[j]);
       pol1[l][j]->SetLineWidth(1);
       pol0[l][j]->SetLineColor(kMagenta);
+     
       fHistYieldvsErrSoloStat[l][j]->Draw("samee");
+      //      fHistYieldFitvsErrSoloStat[l][j]->Draw("samee");
+     
       cout << "pol0 fit for " << DATAorMC[l] << " region " << j << endl;
       if (isSEBis)       fHistYieldvsErrSoloStat[l][j]->Fit(pol0[l][j], "R0");
       cout << "pol1 fit for " << DATAorMC[l] << " region " << j << endl;
@@ -815,7 +861,7 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
       }
       if (!ishhCorr && !isSE && (type==4 || type==5 || type==8))  fHistYieldvsErrSoloStat[l][j]->GetYaxis()->SetRangeUser(0.0001,0.02);
       if (!ishhCorr && !isSE && (type==4 || type==5 || type==8))  fHistYieldvsErrSoloSist[l][j]->GetYaxis()->SetRangeUser(0.0001,0.02);
-      fHistYieldvsErrSoloSist[l][j]->GetXaxis()->SetRangeUser(0,25);
+      fHistYieldvsErrSoloSist[l][j]->GetXaxis()->SetRangeUser(0,27);
       // fHistYieldvsErrSoloSist[l][j]->SetMarkerColor(Color[j]);
       fHistYieldvsErrSoloSist[l][j]->SetMarkerStyle(MarkerOrigin[j]);
       // fHistYieldvsErrSoloSist[l][j]->SetLineColor(Color[j]);
@@ -873,7 +919,7 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
       fHistYieldvsErrErrSoloStat[j][l]->GetXaxis()->SetTitleSize(0.042);
       fHistYieldvsErrErrSoloStat[j][l]->GetYaxis()->SetTitleOffset(1.1);
       fHistYieldvsErrErrSoloStat[j][l]->GetYaxis()->SetTitleSize(0.042);
-      fHistYieldvsErrErrSoloStat[j][l]->GetXaxis()->SetRangeUser(0,25);
+      fHistYieldvsErrErrSoloStat[j][l]->GetXaxis()->SetRangeUser(0,27);
       fHistYieldvsErrErrSoloStat[j][l]->SetMarkerSize(msize);
       
       //      fHistYieldvsErrErrSoloStatMB[j][l]->SetTitle("");
@@ -881,7 +927,7 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
       fHistYieldvsErrErrSoloStatMB[j][l]->SetMarkerStyle(MarkerMBStat[j]);
       fHistYieldvsErrErrSoloStatMB[j][l]->SetLineColor(1);
       fHistYieldvsErrErrSoloStatMB[j][l]->SetMarkerSize(msize);
-      fHistYieldvsErrErrSoloStatMB[j][l]->GetXaxis()->SetRangeUser(0,25);
+      fHistYieldvsErrErrSoloStatMB[j][l]->GetXaxis()->SetRangeUser(0,27);
       //      fHistYieldvsErrErrSoloStatMB[j][l]->Draw("sameep");
 
       //      fHistYieldvsErrErrSoloSist[j][l]->SetTitle("");
@@ -897,14 +943,14 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
       fHistYieldvsErrErrSoloSist[j][l]->GetYaxis()->SetTitleOffset(1.1);
       fHistYieldvsErrErrSoloSist[j][l]->GetYaxis()->SetTitleSize(0.042);
       fHistYieldvsErrErrSoloSist[j][l]->GetYaxis()->SetRangeUser(0,0.14);
-      fHistYieldvsErrErrSoloSist[j][l]->GetXaxis()->SetRangeUser(0,25);
+      fHistYieldvsErrErrSoloSist[j][l]->GetXaxis()->SetRangeUser(0,27);
 
       //      fHistYieldvsErrErrSoloSistMB[j][l]->SetTitle("");
       fHistYieldvsErrErrSoloSistMB[j][l]->SetMarkerColor(1);
       fHistYieldvsErrErrSoloSistMB[j][l]->SetMarkerStyle(MarkerMBSist[j]);
       fHistYieldvsErrErrSoloSistMB[j][l]->SetLineColor(1);
       fHistYieldvsErrErrSoloSistMB[j][l]->SetMarkerSize(msize);
-      fHistYieldvsErrErrSoloSistMB[j][l]->GetXaxis()->SetRangeUser(0,25);
+      fHistYieldvsErrErrSoloSistMB[j][l]->GetXaxis()->SetRangeUser(0,27);
       //      fHistYieldvsErrErrSoloSistMB[j][l]->Draw("sameep");
 
         
@@ -965,7 +1011,7 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
       fHistYieldvsErrErrSoloStat[l][j]->GetXaxis()->SetTitleSize(0.042);
       fHistYieldvsErrErrSoloStat[l][j]->GetYaxis()->SetTitleOffset(1.1);
       fHistYieldvsErrErrSoloStat[l][j]->GetYaxis()->SetTitleSize(0.042);
-      fHistYieldvsErrErrSoloStat[l][j]->GetXaxis()->SetRangeUser(0,25);
+      fHistYieldvsErrErrSoloStat[l][j]->GetXaxis()->SetRangeUser(0,27);
       fHistYieldvsErrErrSoloStat[l][j]->SetMarkerSize(msize);
             
       //      fHistYieldvsErrErrSoloStatMB[l][j]->SetTitle("");
@@ -989,14 +1035,14 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
       fHistYieldvsErrErrSoloSist[l][j]->GetYaxis()->SetTitleOffset(1.1);
       fHistYieldvsErrErrSoloSist[l][j]->GetYaxis()->SetTitleSize(0.042);
       fHistYieldvsErrErrSoloSist[l][j]->GetYaxis()->SetRangeUser(0,0.14);
-      fHistYieldvsErrErrSoloSist[l][j]->GetXaxis()->SetRangeUser(0,25);
+      fHistYieldvsErrErrSoloSist[l][j]->GetXaxis()->SetRangeUser(0,27);
 
       //      fHistYieldvsErrErrSoloSistMB[l][j]->SetTitle("");
       fHistYieldvsErrErrSoloSistMB[l][j]->SetMarkerColor(1);
       fHistYieldvsErrErrSoloSistMB[l][j]->SetMarkerStyle(MarkerTris[1]);
       fHistYieldvsErrErrSoloSistMB[l][j]->SetLineColor(1);
       fHistYieldvsErrErrSoloSistMB[l][j]->SetMarkerSize(msize);
-      fHistYieldvsErrErrSoloSistMB[l][j]->GetXaxis()->SetRangeUser(0,25);
+      fHistYieldvsErrErrSoloSistMB[l][j]->GetXaxis()->SetRangeUser(0,27);
       //fHistYieldvsErrErrSoloSistMB[l][j]->Draw("sameep");
        
       if(l==0)legenderrbis->AddEntry(    fHistYieldvsErrErrSoloStat[l][j], StatErrBis[j], "pl");
@@ -1011,6 +1057,7 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
   }
 
 
+  cout << " cmparison to published results " << endl;
   //Canvas where I compare my results to the published ones (ratio my/published)
   TCanvas *canvasComparison = new TCanvas("canvasComparison","canvasComparison",800,500);
   canvasComparison->Divide(2,1);
@@ -1062,15 +1109,20 @@ void CfrDataMCRatio( Float_t PtTrigMin=3.0, Int_t isDataOrMC=2, TString year0="2
   //canvaserrall[1] ->SaveAs(Form("FinalOutput/DATA2016/RelErrAllDATA1_PtMin%.1f.pdf", PtTrigMin)); 
   canvasComparison->SaveAs(nomefileoutputPDF+".pdf)");
   fileout->WriteTObject(canvasComparison);
+
+  cout << "ciao " << endl;
   for(Int_t l=DataOrMCMin; l<DataOrMCMax; l++){
     //  fileout->WriteTObject(canvasratiobis[l]);
     fileout->WriteTObject(canvasnotratio[l]);
     //  fileout->WriteTObject(canvaserrall[l]);
   }
+  cout << "ciao " << endl;
   for(Int_t j=0; j<NumberOfRegions; j++){
-    fileout->WriteTObject(fHistYieldvsErrSoloStat[0][j]);
+    if (isDataOrMC==0)    fileout->WriteTObject(fHistYieldvsErrSoloStat[0][j]);
+    else if (isDataOrMC==1)    fileout->WriteTObject(fHistYieldvsErrSoloStat[1][j]);
+    else if (isDataOrMC==2)  {  fileout->WriteTObject(fHistYieldvsErrSoloStat[0][j]);   fileout->WriteTObject(fHistYieldvsErrSoloStat[1][j]);}
   }
-
+  cout << "ciao " << endl;
   fileout->Close();
   cout << "\n\n ho creato il file " << nomefileoutput << endl;
   cout << "e il file pdf " << nomefileoutputPDF+".pdf" << endl;
