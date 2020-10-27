@@ -16,7 +16,7 @@
 #include <TLatex.h>
 #include <TFile.h>
 #include <TLegend.h>
-void readTreePLChiarahK0s_firstSmallestTree( Int_t sysV0=0,Int_t sysV0Index=0, Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, bool isMC = 0,Bool_t isEfficiency=1,Int_t sysTrigger=0,	    TString year=/*"2016kehjl_hK0s"/*"2016k_hK0s"/"17anch17_hK0s"*/"1617_hK0s"/*"2018f1_extra_hK0s_CP"*/, TString year0="2016", TString Path1 ="", Bool_t CommonParton=0, Int_t PtBinning=1, Bool_t isSysStudy=1, Int_t numsysV0index=20)
+void readTreePLChiarahK0s_firstSmallestTree( Int_t sysV0=0,Int_t sysV0Index=0, Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, bool isMC = 1,Bool_t isEfficiency=1,Int_t sysTrigger=0,	    TString year=/*"2016kehjl_hK0s"/*"2016k_hK0s"/"17anch17_hK0s"*/"1617MC_hK0s"/*"2018f1_extra_hK0s_CP"*/, TString year0="2016", TString Path1 ="", Bool_t CommonParton=0, Int_t PtBinning=1, Bool_t isSysStudy=1, Int_t numsysV0index=20)
 {
 
   if (sysV0!=0 && sysV0Index!=0) {cout << " this macro is meant to create a smaller tree, starting from the task output, with the needed variables after application of the loosest topological cuts (so to allow application of tighter cuts for systematic studies in macro readTreePLChiarahK0s_firstSys.C)" << endl; return; }
