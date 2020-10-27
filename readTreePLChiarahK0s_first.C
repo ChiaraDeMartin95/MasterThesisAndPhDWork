@@ -16,10 +16,84 @@
 #include <TLatex.h>
 #include <TFile.h>
 #include <TLegend.h>
-void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, Int_t sysV0=0, bool isMC = 1,Bool_t isEfficiency=1,Int_t sysTrigger=0,	    TString year=/*"2016kehjl_hK0s"/*"2016k_hK0s"*/"2018f1_extra_hK0s_CP", TString year0="2016", TString Path1 ="", Bool_t CommonParton=1, Int_t PtBinning=1)
+void readTreePLChiarahK0s_first( Int_t sysV0=0,Int_t sysV0Index=1, Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, bool isMC = 0,Bool_t isEfficiency=1,Int_t sysTrigger=0,	    TString year=/*"2016kehjl_hK0s"/*"2016k_hK0s"/"17anch17_hK0s"*/"1617_hK0s"/*"2018f1_extra_hK0s_CP"*/, TString year0="2016", TString Path1 ="", Bool_t CommonParton=0, Int_t PtBinning=1, Bool_t isSysStudy=1, Int_t numsysV0index=20)
 {
 
+  if (sysV0Index>20) return; 
+  //SysStudy: if 1, values different from default ones will be used; the topological variable changed will sysV0Index > 20 ) return;be indicated in the output file, together with its value  
+
+  //sysV0 indicated the type of topological variable which is varied. (trial iintervals are indicated below)
+  //***  sysV0=1: cosinePointingAngle : 0.970 - 0.999
+  //***  sysV0=2: DCAPosToPV          : 0.05 - 0.14
+  //***  sysV0=3: DCANegToPV          : 0.05 - 0.14
+  //***  sysV0=4: DCAV0ToPV           : 0.2 - 0.6
+  //***  sysV0=5: ctau                : 10 - 40
+  //***  sysV0=6: LambdaMass          : 3 - 9  
+
+  //sysV0Index is the index of the array of the set of selections
+
+  //  Float_t CosinePAngleExtr[2] = {0.970, 0.998};
+  Float_t CosinePAngleExtr[2] = {0.995, 1};
+  Float_t CosinePAngle = 0;
+  if (sysV0==1) CosinePAngle = (CosinePAngleExtr[1] -  CosinePAngleExtr[0])/numsysV0index * sysV0Index +  CosinePAngleExtr[0];
+  else  CosinePAngle=0.995;
+
+  Float_t DCAPosToPVExtr[2] = {0.05, 0.14};
+  Float_t DCAPosToPV = 0;
+  if (sysV0==2) DCAPosToPV = (DCAPosToPVExtr[1] -  DCAPosToPVExtr[0])/numsysV0index * sysV0Index +  DCAPosToPVExtr[0];
+  else DCAPosToPV = 0.06;
+
+  Float_t DCANegToPVExtr[2] = {0.05, 0.14};
+  Float_t DCANegToPV = 0;
+  if (sysV0==3) DCANegToPV = (DCANegToPVExtr[1] -  DCANegToPVExtr[0])/numsysV0index * sysV0Index +  DCANegToPVExtr[0];
+  else DCANegToPV = 0.06;
+
+  Float_t DCAV0ToPVExtr[2] = {0.2, 0.6};
+  Float_t DCAV0ToPV = 0;
+  if (sysV0==4) DCAV0ToPV = (DCAV0ToPVExtr[1] -  DCAV0ToPVExtr[0])/numsysV0index * sysV0Index +  DCAV0ToPVExtr[0];
+  else DCAV0ToPV = 0.5;
+
+  //  Float_t ctauExtr[2] = {10, 40};
+  Float_t ctauExtr[2] = {2, 20};
+  Float_t ctau = 0;
+  if (sysV0==5) ctau = (ctauExtr[1] -  ctauExtr[0])/numsysV0index * sysV0Index +  ctauExtr[0];
+  else ctau = 20;
+
+  //  Float_t LambdaMassWindowExtr[2] = {0.003, 0.009};
+  Float_t LambdaMassWindowExtr[2] = {0.000, 0.03};
+  Float_t LambdaMassWindow =0; 
+  if (sysV0==6)  LambdaMassWindow= (LambdaMassWindowExtr[1] -  LambdaMassWindowExtr[0])/numsysV0index * sysV0Index +  LambdaMassWindowExtr[0];
+  else LambdaMassWindow = 0.005;
+
+  if (sysV0==0 && sysV0Index==1 && isSysStudy){ //I set the tighest selections to check effect on signal yield (the tighest selections are those which, when applied together with default selections for all other variables, give a -5% in signal yield)
+    LambdaMassWindow = 0.017;
+    ctau = 7.5;
+    DCAV0ToPV = 0.3;
+    DCAPosToPV = 0.14;
+    DCANegToPV = 0.14;
+    CosinePAngle = 0.99875;
+  }
+
+  if (sysV0==0 && sysV0Index==2 && isSysStudy){ //I set the loosest selections to check effect on signal yield (the loosest selections are those applied in task, for most of te variables)
+    LambdaMassWindow = 0;
+    ctau = 30;
+    DCAV0ToPV = 0.6;
+    DCAPosToPV = 0.03;
+    DCANegToPV = 0.03;
+    CosinePAngle = 0.97;
+  }
+
+  if (sysV0==0 && sysV0Index==3 && isSysStudy){ //I set tighter selections (less tight than those for sysV0Index ==1) to check effect on signal yield (the tighest selections are those which, when applied together with default selections for all other variables, give a -2% in signal yield)
+    LambdaMassWindow = 0.010;
+    ctau = 10.5;
+    DCAV0ToPV = 0.4;
+    DCAPosToPV = 0.09;
+    DCANegToPV = 0.09;
+    CosinePAngle = 0.998;
+  }
+
   //rap=0 : no rapidity window chsen for cascade, |Eta| < 0.8; rap=1 |y| < 0.5
+
   if (ishhCorr && !isEfficiency) {
     cout << "This macro should not be run is hh correlation is studied; go directly to readTreePLChiara_second " << endl;
     cout << "for hh correlation it is necessary only to compute efficiency of associated particles " << endl;
@@ -64,7 +138,8 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
   PathOut +=Srap[israp];
   if (!SkipAssoc)  PathOut +="_AllAssoc";
   if (ishhCorr) PathOut +="_hhCorr";  
-  PathOut +=Form("_MassDistr_SysT%i_SysV0%i_PtMin%.1f",sysTrigger, sysV0, PtTrigMin); 
+  if (isSysStudy)  PathOut +=Form("_MassDistr_SysT%i_SysV0%i_index%i_PtMin%.1f",sysTrigger, sysV0, sysV0Index, PtTrigMin); 
+  else   PathOut +=Form("_MassDistr_SysT%i_SysV0%i_PtMin%.1f",sysTrigger, sysV0, PtTrigMin); 
   PathOut+= ".root";
 
   Bool_t MassInPeakK0s =0; //variable for a rough cut on K0s candidates' invariant mass (only done to fill histograms needed for deltaphi projections of K0s with or without an ancestor parton in common with trigger particle)
@@ -161,6 +236,9 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
   Int_t CounterBkgPairsAfterPtMinCutMult[nummolt+1]={0}; 
   Int_t TrueCounterSignPairsAfterPtMinCutMult[nummolt+1]={0}; 
   Int_t TrueCounterBkgPairsAfterPtMinCutMult[nummolt+1]={0}; 
+  Int_t CounterSignPairsAllAssocMult[nummolt+1]={0}; 
+  Int_t TrueCounterSignPairsAllAssocMult[nummolt+1]={0}; 
+
 
   Float_t ctauCasc[numtipo] = {2.6844,7.89, 7.89, 7.89};
   Float_t PDGCode[numtipo-1] = {310, 3122, -3122};
@@ -371,7 +449,7 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
   TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPTrue[nummolt+1][numzeta][numPtV0][numPtTrigger];
   TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPTrue[nummolt+1][numzeta][numPtV0][numPtTrigger];
 
-  TH1F * HistoInfo = new TH1F("HistoInfo", "HistoInfo",20,0.5, 20.5);
+  TH1F * HistoInfo = new TH1F("HistoInfo", "HistoInfo",25,0.5, 25.5);
   HistoInfo->GetXaxis()->SetBinLabel(1, "% Ev. NT>0");
   HistoInfo->GetXaxis()->SetBinLabel(2, "NV0/NInt7");
   HistoInfo->GetXaxis()->SetBinLabel(3, "<p_{T,Xi}>");
@@ -381,6 +459,13 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
   for (Int_t m=0; m< nummolt; m++){
     HistoInfo->GetXaxis()->SetBinLabel(7+m,Form("SEpairs Mult distr m%i",m));
     HistoInfo->GetXaxis()->SetBinLabel(12+m, Form("NV0/ACev m%i",m));
+    HistoInfo->GetXaxis()->SetBinLabel(17+m,Form("fraction of non skipped V0 m%i",m));
+  }
+
+
+  TH2F*  fHistPtAssocvsPtTrig[nummolt+1];
+  for(Int_t j=0; j<nummolt+1; j++){
+    fHistPtAssocvsPtTrig[j] = new TH2F (Form("fHistPtAssocvsPtTrig%i",j),Form("fHistPtAssocvsPtTrig%i",j),100, 0, 30, 100, 0, 10);
   }
 
   //--------histograms to get some info from K0s candidate having a common origin to the trigger particle----------------     
@@ -591,9 +676,9 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
   Int_t l=0;
   for(Int_t k = 0; k<EntriesSign; k++){
     //    cout << k << endl;
-    //    if (k>1000) continue;
+    //    if (k>100000) continue;
     tSign->GetEntry(k);  
-    if (k==10000*l){
+    if (k==100000*l){
       l++;     
       cout << "SE ----" << (Float_t)k/EntriesSign<< endl;
     }
@@ -632,8 +717,6 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
     if (ishhCorr)  isParticleTrue=kTRUE; //the request of being primary will be made afterwards
     else if (type<=2) isParticleTrue= (fSignTreeVariablePDGCodeAssoc==PDGCode[type] );
     else if (type==3) isParticleTrue= ((fSignTreeVariablePDGCodeAssoc==PDGCode[1]) ||(fSignTreeVariablePDGCodeAssoc==PDGCode[1])  );
-   
-    if (SkipAssoc){    if (fSignTreeVariableSkipAssoc==1) continue;}
 
     if(isMC==0 || (isMC==1 && isEfficiency==1)){
 
@@ -654,20 +737,15 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
 
       //******************* some other cuts for sys studies**************************
       if (!ishhCorr){
-	if (sysV0==0){
-	
-	  //the values are valid for K0s
 	  if (type==0){
-	    if(TMath::Abs((fSignTreeVariableInvMassLambda - massLambda))<= 0.005) continue;
-	    if(TMath::Abs((fSignTreeVariableInvMassAntiLambda - massLambda))<= 0.005) continue;
+	    if(TMath::Abs((fSignTreeVariableInvMassLambda - massLambda))<= LambdaMassWindow) continue;
+	    if(TMath::Abs((fSignTreeVariableInvMassAntiLambda - massLambda))<= LambdaMassWindow) continue;
 	  }
-	  if(fSignTreeVariableV0CosineOfPointingAngle<0.995)            continue;
-	  if(fSignTreeVariableDcaNegToPrimVertex < 0.06)      continue;
-	  if(fSignTreeVariableDcaPosToPrimVertex < 0.06)      continue;
-	  if(fSignTreeVariableDcaV0ToPrimVertex > 0.5)                               continue;
-	  if(fSignTreeVariablectau> 20)                   continue;
-
-	}
+	  if(fSignTreeVariableV0CosineOfPointingAngle<CosinePAngle)            continue;
+	  if(fSignTreeVariableDcaNegToPrimVertex < DCANegToPV)      continue;
+	  if(fSignTreeVariableDcaPosToPrimVertex < DCAPosToPV)      continue;
+	  if(fSignTreeVariableDcaV0ToPrimVertex > DCAV0ToPV)      continue;
+	  if(fSignTreeVariablectau> ctau)                   continue;
       }
       else if (ishhCorr){
 	if(sysV0==0){
@@ -681,6 +759,28 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
 	}
       }
     }
+
+    //pT trigger vs pT assoc histogram (before pt selection on assoc)
+    for(Int_t m=0; m<nummolt+1; m++){
+      if (m < nummolt){
+	MoltSel = (fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1]);
+      }
+      else if(m==nummolt) MoltSel=kTRUE;
+      // cout << m << "  " << nummolt << "  " << MoltSel<< endl;
+      for(Int_t z=0; z<numzeta; z++){
+	for(Int_t tr=0; tr<numPtTrigger; tr++){
+	  if (MoltSel) {
+	    fHistPtAssocvsPtTrig[m] ->Fill(fSignTreeVariablePtTrigger, fSignTreeVariablePtV0);
+	    CounterSignPairsAllAssocMult[m]++;  
+	    if (isParticleTrue)      TrueCounterSignPairsAllAssocMult[m]++;
+	  }
+	}
+      }
+    }
+
+
+    if (SkipAssoc){    if (fSignTreeVariableSkipAssoc==1) continue;}
+
     if (isParticleTrue)      TrueCounterSignPairsAfterPtMinCut++;  
     CounterSignPairsAfterPtMinCut++;  
     //**********************************************************************************************
@@ -822,11 +922,12 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
 
   Float_t     fBkgTreeVariableInvMass= 0;
   l=0;
+  if (!isSysStudy){
   for(Int_t k = 0; k<EntriesBkg; k++){
     // for(Int_t k = 0; k<1; k++){
-    //    if (k>1000) continue;
+    //    if (k>100000) continue;
     tBkg->GetEntry(k);
-    if (k==10000*l){
+    if (k==100000*l){
       l++;     
       cout << "ME ----" << (Float_t)k/EntriesBkg<< endl;
     }
@@ -875,15 +976,14 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
 	if (sysV0==0){
 	  //the values are valid for K0s
 	  if (type==0){
-	    if(TMath::Abs((fBkgTreeVariableInvMassLambda - massLambda))<= 0.005) continue;
-	    if(TMath::Abs((fBkgTreeVariableInvMassAntiLambda - massLambda))<= 0.005) continue;
+	    if(TMath::Abs((fBkgTreeVariableInvMassLambda - massLambda))<= LambdaMassWindow) continue;
+	    if(TMath::Abs((fBkgTreeVariableInvMassAntiLambda - massLambda))<= LambdaMassWindow) continue;
 	  }
-	  if(fBkgTreeVariableV0CosineOfPointingAngle<0.995)            continue;
-	  if(fBkgTreeVariableDcaNegToPrimVertex < 0.06)      continue;
-	  if(fBkgTreeVariableDcaPosToPrimVertex < 0.06)      continue;
-	  if(fBkgTreeVariableDcaV0ToPrimVertex > 0.5)                               continue;
-	  if(fBkgTreeVariablectau> 20)                   continue;
-
+	  if(fBkgTreeVariableV0CosineOfPointingAngle<CosinePAngle)            continue;
+	  if(fBkgTreeVariableDcaNegToPrimVertex < DCANegToPV)      continue;
+	  if(fBkgTreeVariableDcaPosToPrimVertex < DCAPosToPV)      continue;
+	  if(fBkgTreeVariableDcaV0ToPrimVertex > DCAV0ToPV)      continue;
+	  if(fBkgTreeVariablectau> ctau)                   continue;
 	}
       }
       else if (ishhCorr){
@@ -932,6 +1032,7 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
 	}
       }
     }
+  }
   }
 
 
@@ -1000,7 +1101,9 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
   for (Int_t m=0; m< nummolt; m++){
     HistoInfo->SetBinContent(7+m,(Float_t)CounterSignPairsAfterPtMinCutMult[m]/CounterSignPairsAfterPtMinCut);
     HistoInfo->SetBinContent(12+m, hMultvsNumberAssoc_Proj[m]->GetMean());
+    HistoInfo->SetBinContent(17+m,	   (float)CounterSignPairsAfterPtMinCutMult[m]/CounterSignPairsAllAssocMult[m]);
   }
+
 
   for (Int_t m=0; m< nummolt+1; m++){
     cout << "Ratio between |#Delta#phi|<1 and all the rest for K0s cand. with origin in common with trigger  " << (Float_t)InJet[m]/OutJet[m] << endl;
@@ -1184,7 +1287,13 @@ void readTreePLChiarahK0s_first(Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAs
 
   }
   fout->Write();
-
+  cout << "cut values " << endl;
+  cout << "CosinePAngle  :" << CosinePAngle    <<endl;
+  cout << "DCANegToPV    :"  <<DCANegToPV      <<endl;
+  cout << "DCAPosToPV    :"  <<DCAPosToPV      <<endl;
+  cout << "DCAV0ToPV     :"  <<DCAV0ToPV       <<endl;
+  cout << "ctau          :"  <<ctau            <<endl;
+  cout << " number of entries " << CounterSignPairsAfterPtMinCut<< endl;
 
 }
 

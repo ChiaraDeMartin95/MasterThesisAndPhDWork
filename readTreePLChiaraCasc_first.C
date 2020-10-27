@@ -15,8 +15,10 @@
 #include <TTree.h>
 #include <TLatex.h>
 #include <TFile.h>
-void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus, =2 for OmegaMinus, =3 for OmegaPlus */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, Int_t sysV0=0, bool isMC = 1,Bool_t isEfficiency=1,Int_t sysTrigger=0,			    TString year=/*"2015f"/*"2015g3b1""Run2DataRed_MECorr_hXi""2016kl_hXi"/*"2016k_hXi_MECorr_25runs"*/"2018f1_extra_hXi_CommonParton", TString year0="2016", TString Path1 ="_Mult010", Bool_t CommonParton=1)
+void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=0, Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus, =2 for OmegaMinus, =3 for OmegaPlus */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, bool isMC = 0,Bool_t isEfficiency=1,Int_t sysTrigger=0,			    TString year=/*"AllMC_hXi"/*"2015f"/*"2015g3b1"*/"Run2DataRed_MECorr_hXi"/*"2016kl_hXi"/*"2016k_hXi_MECorr_25runs"/"1617GP_hXi"/*"2018f1_extra_hXi_CommonParton"*/, TString year0="2016", TString Path1 ="", Bool_t CommonParton=0, Int_t MultBinning=0, Bool_t isSysStudy=1, Int_t numsysV0index=40)
 {
+
+  if (sysV0index>40) return;
 
   //rap=0 : no rapidity window chsen for cascade, |Eta| < 0.8; rap=1 |y| < 0.5
   if (ishhCorr) {
@@ -27,6 +29,68 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
   if (israp>1) return;
   if (sysV0>6) return;
   if (sysV0>2 && ishhCorr) return;
+  if (sysV0==0 && sysV0index==0) return;  //pathout used to store the reduced tree
+
+  Float_t DCAXiDaughtersExtr[2]={0.3, 1.8};
+  Float_t DCAXiDaughters=0.8;
+  if (sysV0==1)   DCAXiDaughters = (DCAXiDaughtersExtr[1]- DCAXiDaughtersExtr[0])/numsysV0index *sysV0index + DCAXiDaughtersExtr[0];
+
+  Float_t CosinePAngleXiToPVExtr[2]={0.95, 1};
+  Float_t CosinePAngleXiToPV=0.995;
+  if (sysV0==2)   CosinePAngleXiToPV = (CosinePAngleXiToPVExtr[1]- CosinePAngleXiToPVExtr[0])/numsysV0index *sysV0index + CosinePAngleXiToPVExtr[0];
+
+  Float_t CosinePAngleV0ToXiExtr[2]={0.95, 1};
+  Float_t CosinePAngleV0ToXi=0.97;
+  if (sysV0==3)   CosinePAngleV0ToXi = (CosinePAngleV0ToXiExtr[1]- CosinePAngleV0ToXiExtr[0])/numsysV0index *sysV0index + CosinePAngleV0ToXiExtr[0];
+
+  Float_t InvMassLambdaWindowExtr[2]={0.003, 0.009};
+  Float_t InvMassLambdaWindow=0.006;
+  if (sysV0==4)   InvMassLambdaWindow = (InvMassLambdaWindowExtr[1]- InvMassLambdaWindowExtr[0])/numsysV0index *sysV0index + InvMassLambdaWindowExtr[0];
+
+  Float_t ctauExtr[2]={2*4.91, 5*4.91};
+  Float_t ctau=3*4.91;
+  if (sysV0==5)   ctau = (ctauExtr[1]- ctauExtr[0])/numsysV0index *sysV0index + ctauExtr[0];
+
+  Float_t DCAzTriggerExtr[2]={0, 2};
+  Float_t DCAzTrigger=1;
+  if (sysV0==6)   DCAzTrigger = (DCAzTriggerExtr[1]- DCAzTriggerExtr[0])/numsysV0index *sysV0index + DCAzTriggerExtr[0];
+
+  if (sysV0==0 && sysV0index==2 && isSysStudy){ //I set the loosest selections to check effect on signal yield (the loosest selections are those applied in task, for most of te variables)                    
+    DCAXiDaughters=1.8;
+    CosinePAngleXiToPV=0.95;
+    CosinePAngleV0ToXi=0.95;
+    InvMassLambdaWindow = 0.009;
+    ctau = 5* 4.91;
+    DCAzTrigger = 2;
+  }
+
+  if (sysV0==0 && sysV0index==1 && isSysStudy){ //default selections as a check
+    DCAXiDaughters=0.8;
+    CosinePAngleXiToPV=0.995;
+    CosinePAngleV0ToXi=0.97;
+    InvMassLambdaWindow = 0.006;
+    ctau = 3* 4.91;
+    DCAzTrigger = 1;
+  }
+
+  if (sysV0==0 && sysV0index==3 && isSysStudy){ //some loose selections (+2% or loostest possible if less)
+    DCAXiDaughters=0.9;
+    CosinePAngleXiToPV=0.991;
+    CosinePAngleV0ToXi=0.95;
+    InvMassLambdaWindow = 0.009;
+    ctau = 4* 4.91;
+    DCAzTrigger = 2;
+  }
+
+  if (sysV0==0 && sysV0index==4 && isSysStudy){ //some tight selections (-2%)
+    DCAXiDaughters=0.68;
+    CosinePAngleXiToPV=0.997;
+    CosinePAngleV0ToXi=0.995;
+    InvMassLambdaWindow = 0.005;
+    ctau = 2.6* 4.91;
+    DCAzTrigger = 0.1;
+  }
+
 
   const Int_t nummolt=5;
   const Int_t numzeta=1;
@@ -52,13 +116,36 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
  
   //  PathIn+=Path1;
   PathIn+=".root";
-  PathOut+="_";
   PathOut+=Path1;
+  PathOut+="_";
   PathOut +=tipo[type];
   PathOut +=Srap[israp];
   if (!SkipAssoc)  PathOut +="_AllAssoc";
-  PathOut +=Form("_MassDistr_SysT%i_SysV0%i_PtMin%.1f",sysTrigger, sysV0, PtTrigMin); 
+  if (isSysStudy)  PathOut +=Form("_MassDistr_SysT%i_SysV0%i_index%i_PtMin%.1f",sysTrigger, sysV0, sysV0index, PtTrigMin);
+  else  PathOut +=Form("_MassDistr_SysT%i_SysV0%i_PtMin%.1f",sysTrigger, sysV0, PtTrigMin); 
   PathOut+= ".root";
+
+  //take the smaller tree as input (just when isSysStudy is set to 1)                                          
+  TString  PathInTree = "FinalOutput/DATA2016/histo/AngularCorrelation";
+  PathInTree += year;
+  if(isMC && isEfficiency){
+    PathInTree+="_MCEff";
+  }
+  if(isMC && !isEfficiency){
+    PathInTree+="_MCTruth";
+  }
+  PathInTree+= "_";
+  PathInTree += tipo[type];
+  PathInTree += Srap[israp];
+  if (!SkipAssoc)  PathInTree += "_AllAssoc";
+  PathInTree += "_MassDistr_SysT0_SysV00_index0_";
+  PathInTree += Form("PtMin%.1f.root", PtTrigMin);
+
+  TFile *finTree;
+  if (isSysStudy){
+    finTree = new TFile(PathInTree);
+    if (!finTree) {cout << "tree input not available " ; return;}
+  }
 
   TString dirinputtype[6] = {"Xi", "Xi", "Omega", "Omega", "Xi", "Omega"};
   TFile *fin = new TFile(PathIn);
@@ -66,10 +153,21 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
   TDirectoryFile *d = (TDirectoryFile*)fin->Get("MyTask"+dirinputtype[type]);
   if (!d)  {cout << "dir input not available " ; return;}
 
-  TTree *tSign = (TTree *)d->Get("fSignalTree");
-  TTree *tBkg  = (TTree *)d->Get("fBkgTree");
+  TTree *tSign;
+  TTree *tBkg;
+
+  if (!isSysStudy){
+    tSign = (TTree *)d->Get("fSignalTree");
+    tBkg  = (TTree *)d->Get("fBkgTree");
+  }
+  else {
+    tSign = (TTree *)finTree->Get("tSignO");
+    tBkg  = (TTree *)finTree->Get("tBkgO");
+  }
+
   Double_t massK0s = 0.497611;
   Double_t massLambda = 1.115683;
+  Bool_t MassInPeakCasc=0;
   Double_t ctauK0s = 2.6844;
 
   Double_t     fSignTreeVariablePtTrigger;		       
@@ -136,7 +234,9 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
   Int_t        fBkgTreeVariablePdgCommonParton;                        
 
   Int_t CounterSignPairsAfterPtMinCut=0; 
+  Int_t CounterSignPairsIntermediate=0; 
   Int_t CounterBkgPairsAfterPtMinCut=0; 
+  Int_t CounterBkgPairsIntermediate=0; 
   Int_t TrueCounterSignPairsAfterPtMinCut=0; 
   Int_t TrueCounterBkgPairsAfterPtMinCut=0; 
   Int_t CounterSignPairsAfterPtMinCutMult[nummolt+1]={0}; 
@@ -149,12 +249,41 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
   Float_t LimInfMass[numtipo]= {1.29, 1.29, 1.5, 1.5, 1.29, 1.5};
   Float_t LimSupMass[numtipo]= {1.35, 1.35, 1.8, 1.8, 1.35, 1.5};
 
-  //  TString Smolt[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "all"};
-  //  Double_t Nmolt[nummolt+1]={0, 5, 10, 30, 50, 100};
-  TString Smolt[nummolt+1]={"0-0", "0-10", "10-30", "30-50", "50-100", "all"};
-  Double_t Nmolt[nummolt+1]={0, 0, 10, 30, 50, 100};
+  TString Smolt0[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "all"};
+  Double_t Nmolt0[nummolt+1]={0, 5, 10, 30, 50, 100};
+  TString Smolt1[nummolt+1]={"0-1", "1-5", "5-15", "15-30", "30-100", "all"};
+  Double_t Nmolt1[nummolt+1]={0, 1, 5, 15, 30, 100};
+  TString Smolt2[nummolt+1]={"0-2", "2-7", "7-15", "15-30", "30-100", "all"};
+  Double_t Nmolt2[nummolt+1]={0, 2, 7, 15, 30, 100};
+
+  TString Smolt[nummolt+1]={"0-1", "1-5", "5-15", "15-30", "30-100", "all"};
+  Double_t Nmolt[nummolt+1]={0, 1, 5, 15, 30, 100};
+  
+  for (Int_t m=0; m<nummolt+1; m++){
+    if (MultBinning==0){
+      Smolt[m] = Smolt0[m];
+      Nmolt[m] = Nmolt0[m];
+    }
+    else if (MultBinning==1){
+      Smolt[m] = Smolt1[m];
+      Nmolt[m] = Nmolt1[m];
+    }
+    else if (MultBinning==2){
+      Smolt[m] = Smolt2[m];
+      Nmolt[m] = Nmolt2[m];
+    }
+
+  }
+
+  //  TString Smolt[nummolt+1]={"0-0", "0-10", "10-30", "30-50", "50-100", "all"};
+  //  Double_t Nmolt[nummolt+1]={0, 0, 10, 30, 50, 100};
+
   TString SPtV0[numPtV0]={"0-0.5","0.5-1.0", "1-1.5", "1.5-2", "2-2.5","2.5-3", "3-4", "4-8"};
+  //  TString SPtV0[numPtV0]={"0-0", "0-0.5","0.5-1.0", "1-1.5", "1.5-2", "2-3", "3-4", "4-8"};
   Double_t NPtV0[numPtV0+1]={0,0.5, 1,1.5,2,2.5,3,4,8};
+  //Double_t NPtV0[numPtV0+1]={0,0,0.5, 1,1.5,2,3,4,8};
+
+
   //  TString SPtV0[numPtV0]={"0-0.6", "0.6-1.0", "1.0-1.2", "1.2-1.4", "1.4-1.6", "1.6-1.8", "1.8-2.0", "2.0-2.2", "2.2-2.5", "2.5-2.9", "2.9-3.4", "3.4-4", "4-5", "5-6.5"};
   //  Double_t NPtV0[numPtV0+1]={0,0.6, 1,1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.5, 2.9, 3.4, 4,5,6.5};
   Double_t NPtTrigger[numPtTrigger+1]={PtTrigMin,ptjmax};
@@ -183,18 +312,18 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
     hMultiplicityBefAll=(TH1F*)  hMultiplicity2DBefAll->ProjectionY("fHistPtMaxvsMult1DBefAll",     hMultiplicity2DBefAll->GetXaxis()->FindBin(PtTrigMin+0.0001),  hMultiplicity2DBefAll->GetXaxis()->FindBin(ptjmax-0.0001));
     ACcounter[5]= hMultiplicity->GetEntries();
 
-      cout <<"total number of events with NT>0  " << hMultiplicityBefAll->GetEntries() << " " <<   (Float_t)hMultiplicityBefAll->GetEntries()/TotEvtINT7 << endl;
-      cout <<"\ntotal number of events used in the AC (no selections on topo var and on skipAssoc!) " << hMultiplicity->GetEntries() << endl;
+    cout <<"total number of events with NT>0  " << hMultiplicityBefAll->GetEntries() << " " <<   (Float_t)hMultiplicityBefAll->GetEntries()/TotEvtINT7 << endl;
+    cout <<"\ntotal number of events used in the AC (no selections on topo var and on skipAssoc!) " << hMultiplicity->GetEntries() << endl;
 
     for (Int_t m=0; m< nummolt; m++){ 
       hMultvsNumberAssoc_Proj[m] = (TH1F*)       hMultvsNumberAssoc->ProjectionX(Form("hMultvsNumberAssoc_%i", m), hMultvsNumberAssoc->GetYaxis()->FindBin(Nmolt[m]+0.001), hMultvsNumberAssoc->GetYaxis()->FindBin(Nmolt[m+1]-0.001));
 
-       cout << " m " << m << endl;
+      cout << " m " << m << endl;
       ACcounter[m] =0;
       for (Int_t b= hMultiplicity->GetXaxis()->FindBin(Nmolt[m]+0.001); b <=  hMultiplicity->GetXaxis()->FindBin(Nmolt[m+1]-0.001); b++){
 	ACcounter[m] +=  hMultiplicity->GetBinContent(b);
       }
-   cout << "fraction of events in mult bin (for ptTrig> PtTrigMin) " << Smolt[m] << ": " << ACcounter[m]/ACcounter[5] <<  " ~average V0 number (for pTTrig> 0.150 GeV usually) " <<     hMultvsNumberAssoc_Proj[m]->GetMean() <<endl;
+      cout << "fraction of events in mult bin (for ptTrig> PtTrigMin) " << Smolt[m] << ": " << ACcounter[m]/ACcounter[5] <<  " ~average V0 number (for pTTrig> 0.150 GeV usually) " <<     hMultvsNumberAssoc_Proj[m]->GetMean() <<endl;
     }
     
   }
@@ -270,6 +399,22 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
   
   TFile *fout = new TFile(PathOut,"RECREATE");
 
+  TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPPtInt[nummolt+1][numzeta][numPtTrigger];
+  TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt[nummolt+1][numzeta][numPtTrigger];
+  TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt_BulkReg[nummolt+1][numzeta][numPtTrigger];
+  TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt_JetReg[nummolt+1][numzeta][numPtTrigger];
+  TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPTruePtInt[nummolt+1][numzeta][numPtTrigger];
+  TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPTruePtInt[nummolt+1][numzeta][numPtTrigger];
+
+  TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CP[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_BulkReg[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_JetReg[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPTrue[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPTrue[nummolt+1][numzeta][numPtV0][numPtTrigger];
+
+  TH1F * hMultiplicityDIstributionACEv = new TH1F ("hMultiplicityDIstributionACEv", "hMultiplicityDIstributionACEv", 100, 0,100);
+
   TH1F * HistoInfo = new TH1F("HistoInfo", "HistoInfo",20,0.5, 20.5);
   HistoInfo->GetXaxis()->SetBinLabel(1, "% Ev. NT>0");
   HistoInfo->GetXaxis()->SetBinLabel(2, "NV0/NInt7");
@@ -300,13 +445,37 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
   fHistSelectedV0PtTMaxPhi->GetXaxis()->SetTitle("p^{Trigg, Max}_{T}");
   fHistSelectedV0PtTMaxPhi->GetYaxis()->SetTitle("#phi");
 
+  TH3F*    fHistCPSelectedV0PtTMaxPhi=new TH3F(Form("fHistCPSelectedV0PtTMaxPhi_%i", sysV0), "p^{Trigg, Max}_{T} and #phi distribution of selected V0 particles (Casc, primary, events w T>0)", 120, -30, 30, 400,0, 2*TMath::Pi() ,  100, 0, 100);
+  fHistCPSelectedV0PtTMaxPhi->GetXaxis()->SetTitle("p^{Trigg, Max}_{T}");
+  fHistCPSelectedV0PtTMaxPhi->GetYaxis()->SetTitle("#phi");
+
+  TH3F*    fHistNOCPSelectedV0PtTMaxPhi=new TH3F(Form("fHistNOCPSelectedV0PtTMaxPhi_%i", sysV0), "p^{Trigg, Max}_{T} and #phi distribution of selected V0 particles (Casc, primary, events w T>0)", 120, -30, 30, 400,0, 2*TMath::Pi() ,  100, 0, 100);
+  fHistNOCPSelectedV0PtTMaxPhi->GetXaxis()->SetTitle("p^{Trigg, Max}_{T}");
+  fHistNOCPSelectedV0PtTMaxPhi->GetYaxis()->SetTitle("#phi");
+
   TH3F *    fHistSelectedV0PtTMaxEta=new TH3F(Form("fHistSelectedV0PtTMaxEta_%i", sysV0), "p^{Trigg, Max}_{T} and #eta distribution of selected V0 particles (Casc, primary, events w T>0)", 120, -30, 30, 400,-1.2,1.2,  100, 0, 100 );
   fHistSelectedV0PtTMaxEta->GetXaxis()->SetTitle("p^{Trigg, max}_{T}");
   fHistSelectedV0PtTMaxEta->GetYaxis()->SetTitle("#eta");
 
+  TH3F *    fHistCPSelectedV0PtTMaxEta=new TH3F(Form("fHistCPSelectedV0PtTMaxEta_%i", sysV0), "p^{Trigg, Max}_{T} and #eta distribution of selected V0 particles with common parton (Casc, primary, events w T>0)", 120, -30, 30, 400,-1.2,1.2,  100, 0, 100 );
+  fHistCPSelectedV0PtTMaxEta->GetXaxis()->SetTitle("p^{Trigg, max}_{T}");
+  fHistCPSelectedV0PtTMaxEta->GetYaxis()->SetTitle("#eta");
+
+  TH3F *    fHistNOCPSelectedV0PtTMaxEta=new TH3F(Form("fHistNOCPSelectedV0PtTMaxEta_%i", sysV0), "p^{Trigg, Max}_{T} and #eta distribution of selected V0 particles with no common parton(Casc, primary, events w T>0)", 120, -30, 30, 400,-1.2,1.2,  100, 0, 100 );
+  fHistNOCPSelectedV0PtTMaxEta->GetXaxis()->SetTitle("p^{Trigg, max}_{T}");
+  fHistNOCPSelectedV0PtTMaxEta->GetYaxis()->SetTitle("#eta");
+
   TH3F *    fHistSelectedV0PtPtTMax=new TH3F(Form("fHistSelectedV0PtPtTMax_%i",sysV0), "p_{T} and p^{Trigg, Max}_{T} distribution of selected V0 particles (Casc, primary, events w T>0)", 300, 0, 30, 120, -30,30,  100, 0, 100 );
   fHistSelectedV0PtPtTMax->GetXaxis()->SetTitle("p_{T}");
   fHistSelectedV0PtPtTMax->GetYaxis()->SetTitle("p^{Trigg, Max}_{T}");
+
+  TH3F *    fHistCPSelectedV0PtPtTMax=new TH3F(Form("fHistCPSelectedV0PtPtTMax_%i",sysV0), "p_{T} and p^{Trigg, Max}_{T} distribution of selected V0 particles with common parton (Casc, primary, events w T>0)", 300, 0, 30, 120, -30,30,  100, 0, 100 );
+  fHistCPSelectedV0PtPtTMax->GetXaxis()->SetTitle("p_{T}");
+  fHistCPSelectedV0PtPtTMax->GetYaxis()->SetTitle("p^{Trigg, Max}_{T}");
+
+  TH3F *    fHistNOCPSelectedV0PtPtTMax=new TH3F(Form("fHistNOCPSelectedV0PtPtTMax_%i",sysV0), "p_{T} and p^{Trigg, Max}_{T} distribution of selected V0 particles with no common parton (Casc, primary, events w T>0)", 300, 0, 30, 120, -30,30,  100, 0, 100 );
+  fHistNOCPSelectedV0PtPtTMax->GetXaxis()->SetTitle("p_{T}");
+  fHistNOCPSelectedV0PtPtTMax->GetYaxis()->SetTitle("p^{Trigg, Max}_{T}");
 
   TH3F*    fHistPrimaryV0[nummolt+1];
   for(Int_t j=0; j<nummolt+1; j++){
@@ -369,8 +538,12 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
   TH2D *hMassvsPt_SEbins[nummolt+1][numzeta][numPtTrigger];
   TH2D *hMassvsPt_SEbins_true[nummolt+1][numzeta][numPtTrigger];
   TH2D *hDeltaEtaDeltaPhi_SEbins[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH2D *hDeltaEtaDeltaPhi_SEbins_CP[nummolt+1][numzeta][numPtV0][numPtTrigger];
   TH2D *hDeltaEtaDeltaPhi_SEbins_CPTrue[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH2D *hDeltaEtaDeltaPhi_SEbins_NOCP[nummolt+1][numzeta][numPtV0][numPtTrigger];
   TH2D *hDeltaEtaDeltaPhi_SEbins_NOCPTrue[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH2D *hDeltaEtaDeltaPhi_SEbins_CPPtInt[nummolt+1][numzeta][numPtTrigger];
+  TH2D *hDeltaEtaDeltaPhi_SEbins_NOCPPtInt[nummolt+1][numzeta][numPtTrigger];
   TH2D *hDeltaEtaDeltaPhi_SEbins_CPTruePtInt[nummolt+1][numzeta][numPtTrigger];
   TH2D *hDeltaEtaDeltaPhi_SEbins_NOCPTruePtInt[nummolt+1][numzeta][numPtTrigger];
 
@@ -382,6 +555,9 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
 	hMassvsPt_SEbins_true[m][z][tr]= new TH2D(Form("SE_hMassvsPt_"+tipo[type]+"_%i_true", m),Form("SE_hMassvsPt_"+tipo[type]+"_%i_true", m), 100, LimInfMass[type], LimSupMass[type], 100, 0, 10);
 	hDeltaEtaDeltaPhi_SEbins_CPTruePtInt[m][z][tr]= new TH2D("SE_m"+Smolt[m]+"_CPTrue_PtInt", "SE_m"+Smolt[m]+"_CPTrue_PtInt", 56, -1.5, 1.5, 104,  -0.5*TMath::Pi(), 1.5*TMath::Pi()); 
 	hDeltaEtaDeltaPhi_SEbins_NOCPTruePtInt[m][z][tr]= new TH2D("SE_m"+Smolt[m]+"_NOCPTrue_PtInt", "SE_m"+Smolt[m]+"_NOCPTrue_PtInt", 56, -1.5, 1.5, 104,  -0.5*TMath::Pi(), 1.5*TMath::Pi()); 
+	hDeltaEtaDeltaPhi_SEbins_CPPtInt[m][z][tr]= new TH2D("SE_m"+Smolt[m]+"_CP_PtInt", "SE_m"+Smolt[m]+"_CP_PtInt", 56, -1.5, 1.5, 104,  -0.5*TMath::Pi(), 1.5*TMath::Pi()); 
+	hDeltaEtaDeltaPhi_SEbins_NOCPPtInt[m][z][tr]= new TH2D("SE_m"+Smolt[m]+"_NOCP_PtInt", "SE_m"+Smolt[m]+"_NOCP_PtInt", 56, -1.5, 1.5, 104,  -0.5*TMath::Pi(), 1.5*TMath::Pi()); 
+
 	for(Int_t v=1; v<numPtV0; v++){
 	  nameSE[m][z][v][tr]="SE_";
 	  namemassSE[m][z][v][tr]="InvMassSE_";
@@ -397,10 +573,15 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
 	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetYaxis()->SetTitleOffset(1.5);
 	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetXaxis()->SetLabelSize(0.05);
 	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetYaxis()->SetLabelSize(0.05);
+
 	  hDeltaEtaDeltaPhi_SEbins_CPTrue[m][z][v][tr]= (TH2D*)	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->Clone(nameSE[m][z][v][tr]+"_CPTrue");
 	  hDeltaEtaDeltaPhi_SEbins_CPTrue[m][z][v][tr]->SetTitle("AC for Xi (true) cand. with a common parton");
+	  hDeltaEtaDeltaPhi_SEbins_CP[m][z][v][tr]= (TH2D*)	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->Clone(nameSE[m][z][v][tr]+"_CP");
+	  hDeltaEtaDeltaPhi_SEbins_CP[m][z][v][tr]->SetTitle("AC for Xi cand. with a common parton");
 	  hDeltaEtaDeltaPhi_SEbins_NOCPTrue[m][z][v][tr]= (TH2D*)	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->Clone(nameSE[m][z][v][tr]+"_NOCPTrue");
 	  hDeltaEtaDeltaPhi_SEbins_NOCPTrue[m][z][v][tr]->SetTitle("AC for Xi (true) cand. without a common parton");
+	  hDeltaEtaDeltaPhi_SEbins_NOCP[m][z][v][tr]= (TH2D*)	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->Clone(nameSE[m][z][v][tr]+"_NOCP");
+	  hDeltaEtaDeltaPhi_SEbins_NOCP[m][z][v][tr]->SetTitle("AC for Xi cand. without a common parton");
 
 	}
       }
@@ -439,7 +620,11 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
 
   EntriesSign =  tSign->GetEntries();
   EntriesBkg  =  tBkg ->GetEntries();
-    
+
+  Int_t InJet[nummolt+1]={0};
+  Int_t OutJet[nummolt+1]={0};
+
+
   Bool_t MoltSel=kFALSE; 
   Float_t     fSignTreeVariableInvMassCasc= 0;
   Bool_t isCascTrue=kFALSE;
@@ -447,7 +632,7 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
   // cout << "  entries Sign: " << EntriesSign<<endl;
   Int_t l=0;
   for(Int_t k = 0; k<EntriesSign; k++){
-    //    if (k>1000) continue;
+    //    if (k>100000) continue;
     tSign->GetEntry(k);  
     if (k==10000*l){
       l++;     
@@ -463,7 +648,11 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
     fSignTreeVariableInvMassCasc= 0;
     if (type==0 || type==1 || type==4)      fSignTreeVariableInvMassCasc= fSignTreeVariableInvMassXi;
     else if (type==2 || type==3 || type==5)      fSignTreeVariableInvMassCasc= fSignTreeVariableInvMassOmega;
-    
+
+    if (CommonParton){
+      MassInPeakCasc=0;
+      if ( fSignTreeVariableInvMassCasc> 1.315 &&  fSignTreeVariableInvMassCasc<1.33)  MassInPeakCasc=1;
+    }
     //rapidity selection
     if (israp==0 && TMath::Abs(fSignTreeVariableEtaV0)>0.8)continue; 
     else if (israp==1 && TMath::Abs(fSignTreeVariableRapAssoc)>0.5)continue;
@@ -482,27 +671,29 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
       if(TMath::Abs(fSignTreeVariablePtTrigger)>ptjmax) continue;
 
       //cuts on DCAz trigger*******************
-      if(sysTrigger==0){
-	if(TMath::Abs(fSignTreeVariableDCAz)>1) continue;
-      }
-      if(sysTrigger==1){
-	if(TMath::Abs(fSignTreeVariableDCAz)>2) continue;
-      }
-      if(sysTrigger==2){
-	if(TMath::Abs(fSignTreeVariableDCAz)>0.5) continue;
-      }
 
-      //******************* some other cuts for sys studies**************************
-      if (sysV0==0){
-	
-	if (fSignTreeVariableDcaXiDaughters> 0.8) continue;
-	if (fSignTreeVariableV0CosineOfPointingAngle<0.97)continue;
-	if (fSignTreeVariableXiCosineOfPointingAngle < 0.995)continue;
-	if (TMath::Abs(fSignTreeVariableInvMassLambda -massLambda) > 0.006)continue;
-	if (fSignTreeVariablectau  > 3* ctauCasc[type])continue;
-	
+      if (!isSysStudy){
+	if(sysTrigger==0){
+	  if(TMath::Abs(fSignTreeVariableDCAz)>1) continue;
+	}
+	if(sysTrigger==1){
+	  if(TMath::Abs(fSignTreeVariableDCAz)>2) continue;
+	}
+	if(sysTrigger==2){
+	  if(TMath::Abs(fSignTreeVariableDCAz)>0.5) continue;
+	}
       }
-    }
+      else {
+	if(TMath::Abs(fSignTreeVariableDCAz)>DCAzTrigger) continue;
+      }
+      CounterSignPairsIntermediate++;  
+      //******************* some other cuts for sys studies**************************
+      if (fSignTreeVariableDcaXiDaughters> DCAXiDaughters) continue;
+      if (fSignTreeVariableV0CosineOfPointingAngle<CosinePAngleV0ToXi)continue;
+      if (fSignTreeVariableXiCosineOfPointingAngle < CosinePAngleXiToPV)continue;
+      if (TMath::Abs(fSignTreeVariableInvMassLambda -massLambda) > InvMassLambdaWindow)continue;
+      if (fSignTreeVariablectau  > ctau)continue;
+    }    
     if (isCascTrue)      TrueCounterSignPairsAfterPtMinCut++;  
     CounterSignPairsAfterPtMinCut++;  
     //**********************************************************************************************
@@ -513,50 +704,64 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
 
 
     if (isMC && isEfficiency) {
-    if(fSignTreeVariableisPrimaryTrigger==1){
-      fHistSelectedTriggerPtPhi->Fill(fSignTreeVariablePtTrigger,fSignTreeVariablePhiTrigger, fSignTreeVariableMultiplicity);
-      fHistSelectedTriggerPtEta->Fill(fSignTreeVariablePtTrigger,fSignTreeVariableEtaTrigger, fSignTreeVariableMultiplicity);
-    }
+      if(fSignTreeVariableisPrimaryTrigger==1){
+	fHistSelectedTriggerPtPhi->Fill(fSignTreeVariablePtTrigger,fSignTreeVariablePhiTrigger, fSignTreeVariableMultiplicity);
+	fHistSelectedTriggerPtEta->Fill(fSignTreeVariablePtTrigger,fSignTreeVariableEtaTrigger, fSignTreeVariableMultiplicity);
+      }
 
-    for (Int_t m =0; m<5;m++){
-      if(fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1]){
-        for(Int_t p=1; p<=4; p++){
-          if (fSignTreeVariableisPrimaryTrigger==p){
-	    fHistPrimaryTrigger[m]->Fill(p,fSignTreeVariablePtTrigger );
-          }
-        }
+      for (Int_t m =0; m<5;m++){
+	if(fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1]){
+	  for(Int_t p=1; p<=4; p++){
+	    if (fSignTreeVariableisPrimaryTrigger==p){
+	      fHistPrimaryTrigger[m]->Fill(p,fSignTreeVariablePtTrigger );
+	    }
+	  }
+	}
       }
-    }
-    for(Int_t p=1; p<=4; p++){
-      if (fSignTreeVariableisPrimaryTrigger==p){
-	fHistPrimaryTrigger[5]->Fill(p,fSignTreeVariablePtTrigger );
+      for(Int_t p=1; p<=4; p++){
+	if (fSignTreeVariableisPrimaryTrigger==p){
+	  fHistPrimaryTrigger[5]->Fill(p,fSignTreeVariablePtTrigger );
+	}
       }
-    }
 
     
-    if(isCascTrue &&  fSignTreeVariableisPrimaryV0==1){
-      fHistSelectedV0PtTMaxPhi->Fill(fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc, fSignTreeVariablePhiV0, fSignTreeVariableMultiplicity);
-      fHistSelectedV0PtTMaxEta->Fill(fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc, fSignTreeVariableEtaV0, fSignTreeVariableMultiplicity);
-      fHistSelectedV0PtPtTMax->Fill(fSignTreeVariablePtV0,fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc , fSignTreeVariableMultiplicity);
-    }
+      if(isCascTrue &&  fSignTreeVariableisPrimaryV0==1){
+	if (CommonParton){
+	  if ( fSignTreeVariableIsCommonParton)      {
+	    fHistCPSelectedV0PtTMaxPhi->Fill(fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc, fSignTreeVariablePhiV0, fSignTreeVariableMultiplicity);
+	    fHistCPSelectedV0PtPtTMax->Fill(fSignTreeVariablePtV0,fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc , fSignTreeVariableMultiplicity);
+	    fHistCPSelectedV0PtTMaxEta->Fill(fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc, fSignTreeVariableEtaV0, fSignTreeVariableMultiplicity);
+
+	  }
+	  else     {
+	    fHistNOCPSelectedV0PtTMaxPhi->Fill(fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc, fSignTreeVariablePhiV0, fSignTreeVariableMultiplicity);
+	    fHistNOCPSelectedV0PtPtTMax->Fill(fSignTreeVariablePtV0,fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc , fSignTreeVariableMultiplicity);
+	    fHistNOCPSelectedV0PtTMaxEta->Fill(fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc, fSignTreeVariableEtaV0, fSignTreeVariableMultiplicity);
+	  }
+	}
+	fHistSelectedV0PtTMaxPhi->Fill(fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc, fSignTreeVariablePhiV0, fSignTreeVariableMultiplicity);
+	fHistSelectedV0PtTMaxEta->Fill(fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc, fSignTreeVariableEtaV0, fSignTreeVariableMultiplicity);
+	fHistSelectedV0PtPtTMax->Fill(fSignTreeVariablePtV0,fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc , fSignTreeVariableMultiplicity);
+      }
     
 
-    for (Int_t m =0; m<5;m++){
-      if(fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1]){
-        for(Int_t p=1; p<=4; p++){
-          if (fSignTreeVariableisPrimaryV0==p){
-	    fHistPrimaryV0[m]->Fill(p,fSignTreeVariablePtV0, fSignTreeVariablePtTrigger );
-          }
-        }
+      for (Int_t m =0; m<5;m++){
+	if(fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1]){
+	  for(Int_t p=1; p<=4; p++){
+	    if (fSignTreeVariableisPrimaryV0==p){
+	      fHistPrimaryV0[m]->Fill(p,fSignTreeVariablePtV0, fSignTreeVariablePtTrigger );
+	    }
+	  }
+	}
       }
-    }
-    for(Int_t p=1; p<=4; p++){
-      if (fSignTreeVariableisPrimaryV0==p){
-	fHistPrimaryV0[5]->Fill(p,fSignTreeVariablePtV0, fSignTreeVariablePtTrigger);
+      for(Int_t p=1; p<=4; p++){
+	if (fSignTreeVariableisPrimaryV0==p){
+	  fHistPrimaryV0[5]->Fill(p,fSignTreeVariablePtV0, fSignTreeVariablePtTrigger);
+	}
       }
-    }
     }
 
+    hMultiplicityDIstributionACEv->Fill(fSignTreeVariableMultiplicity);
     hSign_PtAssoc->Fill(fSignTreeVariablePtV0);
     hSign_PtTrigger->Fill(fSignTreeVariablePtTrigger);
     if (isCascTrue) {
@@ -564,10 +769,11 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
     }
     if ((isMC && isCascTrue) || !isMC){
       if (CommonParton){
-      if (fSignTreeVariableIsCommonParton)      hSign_PtAssoc_CPTrue->Fill(fSignTreeVariablePtV0);
-      else      hSign_PtAssoc_NOCPTrue->Fill(fSignTreeVariablePtV0);
+	if (fSignTreeVariableIsCommonParton)      hSign_PtAssoc_CPTrue->Fill(fSignTreeVariablePtV0);
+	else      hSign_PtAssoc_NOCPTrue->Fill(fSignTreeVariablePtV0);
       }
     }
+
 
     for(Int_t m=0; m<nummolt+1; m++){
       if (m < nummolt){
@@ -582,10 +788,18 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
 	    if (isCascTrue)      TrueCounterSignPairsAfterPtMinCutMult[m]++;  
 	    hMassvsPt_SEbins[m][z][tr]->Fill(fSignTreeVariableInvMassCasc, fSignTreeVariablePtV0); 
 	    if(isCascTrue) hMassvsPt_SEbins_true[m][z][tr]->Fill(fSignTreeVariableInvMassCasc, fSignTreeVariablePtV0); 
-	    if ((isMC && isCascTrue) || !isMC){
-	      if (CommonParton){
-	      if (fSignTreeVariableIsCommonParton) hDeltaEtaDeltaPhi_SEbins_CPTruePtInt[m][z][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
-	      else   hDeltaEtaDeltaPhi_SEbins_NOCPTruePtInt[m][z][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
+	    if (CommonParton){
+	      if ((isMC && isCascTrue)){
+		if (fSignTreeVariableIsCommonParton) hDeltaEtaDeltaPhi_SEbins_CPTruePtInt[m][z][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
+		else   hDeltaEtaDeltaPhi_SEbins_NOCPTruePtInt[m][z][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
+	      }
+	      if ( MassInPeakCasc){
+		if (fSignTreeVariableIsCommonParton) hDeltaEtaDeltaPhi_SEbins_CPPtInt[m][z][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
+		else   hDeltaEtaDeltaPhi_SEbins_NOCPPtInt[m][z][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
+	      }
+	      if (fSignTreeVariableIsCommonParton ){
+		if (TMath::Abs(fSignTreeVariableDeltaPhi)<1) InJet[m]++;
+		else OutJet[m]++;
 	      }
 	    }
 	    
@@ -595,114 +809,126 @@ void readTreePLChiaraCasc_first( Int_t type=4 /*type = 0 for XiMinus, =1, for Xi
 	    if(MoltSel && fSignTreeVariablePtTrigger>=NPtTrigger[tr] && fSignTreeVariablePtTrigger<NPtTrigger[tr+1] && fSignTreeVariablePtV0>=NPtV0[v]&& fSignTreeVariablePtV0<NPtV0[v+1]){
 	      hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
 	      hInvMassK0Short_SEbins[m][z][v][tr]->Fill(fSignTreeVariableInvMassCasc);
-	      if ((isMC && isCascTrue) || !isMC){
 	      if (CommonParton){
-		if (fSignTreeVariableIsCommonParton) hDeltaEtaDeltaPhi_SEbins_CPTrue[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
-		else   hDeltaEtaDeltaPhi_SEbins_NOCPTrue[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
+		if ((isMC && isCascTrue) || !isMC){
+		  if (fSignTreeVariableIsCommonParton) hDeltaEtaDeltaPhi_SEbins_CPTrue[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
+		  else   hDeltaEtaDeltaPhi_SEbins_NOCPTrue[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
+		}
+		if ( MassInPeakCasc){
+		  if (fSignTreeVariableIsCommonParton) hDeltaEtaDeltaPhi_SEbins_CP[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
+		  else   hDeltaEtaDeltaPhi_SEbins_NOCP[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
+		}
+
 	      }
-	      }
+
 	    }
 	  }
 	}
       }
     }
   }
-
 
   Float_t     fBkgTreeVariableInvMassCasc= 0;
   l=0;
-  for(Int_t k = 0; k<EntriesBkg; k++){
-    // for(Int_t k = 0; k<1; k++){
-    //    if (k>1000) continue;
-    tBkg->GetEntry(k);
-    if (k==10000*l){
-      l++;     
-      cout << "ME ----" << (Float_t)k/EntriesBkg<< endl;
-    }
-    fBkgTreeVariableDeltaEta=fBkgTreeVariableEtaV0-fBkgTreeVariableEtaTrigger;
-
-    //charge selection
-    if ((type==0 || type ==2) && fBkgTreeVariableChargeAssoc==1) continue;
-    else if ((type==1 || type ==3) && fBkgTreeVariableChargeAssoc==-1) continue;
-
-    //inv mass definition
-    fBkgTreeVariableInvMassCasc= 0;
-    if (type==0 || type==1 || type==4)      fBkgTreeVariableInvMassCasc= fBkgTreeVariableInvMassXi;
-    else if (type==2 || type==3 || type==5)      fBkgTreeVariableInvMassCasc= fBkgTreeVariableInvMassOmega;
-
-    //rapidity selection
-    if (israp==0 && TMath::Abs(fBkgTreeVariableEtaV0)>0.8)continue;
-    else if (israp==1 && TMath::Abs(fBkgTreeVariableRapAssoc)>0.5)continue;
-
-    //definition of true cascade
-    if (type<=3) isCascTrue= (fBkgTreeVariablePDGCodeAssoc==PDGCode[type] );
-    else if (type==4) isCascTrue= ((fBkgTreeVariablePDGCodeAssoc==PDGCode[0]) ||(fBkgTreeVariablePDGCodeAssoc==PDGCode[1])  );
-    else if (type==5) isCascTrue= ((fBkgTreeVariablePDGCodeAssoc==PDGCode[2]) ||(fBkgTreeVariablePDGCodeAssoc==PDGCode[3])  );
-
-    if (SkipAssoc){    if (fBkgTreeVariableSkipAssoc==1) continue;}
-
-    if(isMC==0 || (isMC==1 && isEfficiency==1)){
-      //************cuts on pT trigger min*********************************
-      if(TMath::Abs(fBkgTreeVariablePtTrigger)<PtTrigMin) continue;
-      if(TMath::Abs(fBkgTreeVariablePtTrigger)>ptjmax) continue;
-
-      //cuts on DCAz trigger*******************
-      if(sysTrigger==0){
-	if(TMath::Abs(fBkgTreeVariableDCAz)>1) continue;
+  if (!isSysStudy){
+    for(Int_t k = 0; k<EntriesBkg; k++){
+      // for(Int_t k = 0; k<1; k++){
+      //    if (k>100000) continue;
+      tBkg->GetEntry(k);
+      if (k==10000*l){
+	l++;     
+	cout << "ME ----" << (Float_t)k/EntriesBkg<< endl;
       }
-      if(sysTrigger==1){
-	if(TMath::Abs(fBkgTreeVariableDCAz)>2) continue;
-      }
-      if(sysTrigger==2){
-	if(TMath::Abs(fBkgTreeVariableDCAz)>0.5) continue;
-      }
+      fBkgTreeVariableDeltaEta=fBkgTreeVariableEtaV0-fBkgTreeVariableEtaTrigger;
 
-      //******************* some other cuts for sys studies **************************
+      //charge selection
+      if ((type==0 || type ==2) && fBkgTreeVariableChargeAssoc==1) continue;
+      else if ((type==1 || type ==3) && fBkgTreeVariableChargeAssoc==-1) continue;
 
-      if (sysV0==0){
-	if (fBkgTreeVariableDcaXiDaughters> 0.8) continue;
-	if (fBkgTreeVariableV0CosineOfPointingAngle<0.97)continue;
-	if (fBkgTreeVariableXiCosineOfPointingAngle < 0.995)continue;
-	if (TMath::Abs(fBkgTreeVariableInvMassLambda -massLambda) > 0.006)continue;
-	if (fBkgTreeVariablectau  > 3* ctauCasc[type])continue;
-      }
-    }
-    if (isCascTrue)      TrueCounterBkgPairsAfterPtMinCut++;  
-    CounterBkgPairsAfterPtMinCut++;  
-    //**********************************************************************************************
+      //inv mass definition
+      fBkgTreeVariableInvMassCasc= 0;
+      if (type==0 || type==1 || type==4)      fBkgTreeVariableInvMassCasc= fBkgTreeVariableInvMassXi;
+      else if (type==2 || type==3 || type==5)      fBkgTreeVariableInvMassCasc= fBkgTreeVariableInvMassOmega;
 
-    fBkgTreeVariableDeltaPhi= -fBkgTreeVariableDeltaPhi;
-    if (fBkgTreeVariableDeltaPhi >  (1.5*TMath::Pi())) fBkgTreeVariableDeltaPhi -= 2.0*TMath::Pi();
-    if (fBkgTreeVariableDeltaPhi < (-0.5*TMath::Pi())) fBkgTreeVariableDeltaPhi += 2.0*TMath::Pi();
- 
-    for(Int_t m=0; m<nummolt+1; m++){
-      if (m < nummolt){
-	MoltSel = (fBkgTreeVariableMultiplicity>=Nmolt[m] && fBkgTreeVariableMultiplicity<Nmolt[m+1]);
-      }
-      else  if(m==nummolt) MoltSel=kTRUE;
-  
-      for(Int_t z=0; z<numzeta; z++){
-	for(Int_t tr=0; tr<numPtTrigger; tr++){
-	  if(MoltSel){
-	    CounterBkgPairsAfterPtMinCutMult[m]++;  
-	    if (isCascTrue)      TrueCounterBkgPairsAfterPtMinCutMult[m]++;  
-	    hMassvsPt_MEbins[m][z][tr]->Fill(fBkgTreeVariableInvMassCasc, fBkgTreeVariablePtV0);
-	    if(isCascTrue) 	    hMassvsPt_MEbins_true[m][z][tr]->Fill(fBkgTreeVariableInvMassCasc, fBkgTreeVariablePtV0);
+      //rapidity selection
+      if (israp==0 && TMath::Abs(fBkgTreeVariableEtaV0)>0.8)continue;
+      else if (israp==1 && TMath::Abs(fBkgTreeVariableRapAssoc)>0.5)continue;
+
+      //definition of true cascade
+      if (type<=3) isCascTrue= (fBkgTreeVariablePDGCodeAssoc==PDGCode[type] );
+      else if (type==4) isCascTrue= ((fBkgTreeVariablePDGCodeAssoc==PDGCode[0]) ||(fBkgTreeVariablePDGCodeAssoc==PDGCode[1])  );
+      else if (type==5) isCascTrue= ((fBkgTreeVariablePDGCodeAssoc==PDGCode[2]) ||(fBkgTreeVariablePDGCodeAssoc==PDGCode[3])  );
+
+      if (SkipAssoc){    if (fBkgTreeVariableSkipAssoc==1) continue;}
+
+      if(isMC==0 || (isMC==1 && isEfficiency==1)){
+	//************cuts on pT trigger min*********************************
+	if(TMath::Abs(fBkgTreeVariablePtTrigger)<PtTrigMin) continue;
+	if(TMath::Abs(fBkgTreeVariablePtTrigger)>ptjmax) continue;
+
+	//cuts on DCAz trigger*******************
+	if (!isSysStudy){
+	  if(sysTrigger==0){
+	    if(TMath::Abs(fBkgTreeVariableDCAz)>1) continue;
 	  }
-	  for(Int_t v=1; v<numPtV0; v++){
-	    if(MoltSel && fBkgTreeVariablePtTrigger>=NPtTrigger[tr] && fBkgTreeVariablePtTrigger<NPtTrigger[tr+1] && fBkgTreeVariablePtV0>=NPtV0[v]&& fBkgTreeVariablePtV0<NPtV0[v+1]){
-	      hInvMassK0Short_MEbins[m][z][v][tr]->Fill(fBkgTreeVariableInvMassCasc);
-	      hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->Fill(fBkgTreeVariableDeltaEta, fBkgTreeVariableDeltaPhi);
+	  if(sysTrigger==1){
+	    if(TMath::Abs(fBkgTreeVariableDCAz)>2) continue;
+	  }
+	  if(sysTrigger==2){
+	    if(TMath::Abs(fBkgTreeVariableDCAz)>0.5) continue;
+	  }
+	}
+	else {
+	  if(TMath::Abs(fBkgTreeVariableDCAz)>DCAzTrigger) continue;
+	}
+	CounterBkgPairsIntermediate++;  
+	//******************* some other cuts for sys studies **************************
+
+	if (fBkgTreeVariableDcaXiDaughters> DCAXiDaughters) continue;
+	if (fBkgTreeVariableV0CosineOfPointingAngle<CosinePAngleV0ToXi)continue;
+	if (fBkgTreeVariableXiCosineOfPointingAngle < CosinePAngleXiToPV)continue;
+	if (TMath::Abs(fBkgTreeVariableInvMassLambda -massLambda) > InvMassLambdaWindow)continue;
+	if (fBkgTreeVariablectau  > ctau)continue;
+    
+      }
+
+      if (isCascTrue)      TrueCounterBkgPairsAfterPtMinCut++;  
+      CounterBkgPairsAfterPtMinCut++;  
+      //**********************************************************************************************
+
+      fBkgTreeVariableDeltaPhi= -fBkgTreeVariableDeltaPhi;
+      if (fBkgTreeVariableDeltaPhi >  (1.5*TMath::Pi())) fBkgTreeVariableDeltaPhi -= 2.0*TMath::Pi();
+      if (fBkgTreeVariableDeltaPhi < (-0.5*TMath::Pi())) fBkgTreeVariableDeltaPhi += 2.0*TMath::Pi();
+ 
+      for(Int_t m=0; m<nummolt+1; m++){
+	if (m < nummolt){
+	  MoltSel = (fBkgTreeVariableMultiplicity>=Nmolt[m] && fBkgTreeVariableMultiplicity<Nmolt[m+1]);
+	}
+	else  if(m==nummolt) MoltSel=kTRUE;
+  
+	for(Int_t z=0; z<numzeta; z++){
+	  for(Int_t tr=0; tr<numPtTrigger; tr++){
+	    if(MoltSel){
+	      CounterBkgPairsAfterPtMinCutMult[m]++;  
+	      if (isCascTrue)      TrueCounterBkgPairsAfterPtMinCutMult[m]++;  
+	      hMassvsPt_MEbins[m][z][tr]->Fill(fBkgTreeVariableInvMassCasc, fBkgTreeVariablePtV0);
+	      if(isCascTrue) 	    hMassvsPt_MEbins_true[m][z][tr]->Fill(fBkgTreeVariableInvMassCasc, fBkgTreeVariablePtV0);
+	    }
+	    for(Int_t v=1; v<numPtV0; v++){
+	      if(MoltSel && fBkgTreeVariablePtTrigger>=NPtTrigger[tr] && fBkgTreeVariablePtTrigger<NPtTrigger[tr+1] && fBkgTreeVariablePtV0>=NPtV0[v]&& fBkgTreeVariablePtV0<NPtV0[v+1]){
+		hInvMassK0Short_MEbins[m][z][v][tr]->Fill(fBkgTreeVariableInvMassCasc);
+		hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->Fill(fBkgTreeVariableDeltaEta, fBkgTreeVariableDeltaPhi);
+	      }
 	    }
 	  }
 	}
       }
     }
-  }
+  }//sysstudy
 
   cout << " ratio between Xi with CommonParton (CP) and Xi without in the different pt bins " << endl;
-Float_t      CPTrue[numPtV0] ={0};
-Float_t      NOCPTrue[numPtV0]={0};
+  Float_t      CPTrue[numPtV0] ={0};
+  Float_t      NOCPTrue[numPtV0]={0};
 
   for (Int_t v=0; v< numPtV0; v++){
     for(Int_t b= hSign_PtAssoc_CPTrue->GetXaxis()->FindBin(NPtV0[v]+0.001); b<= hSign_PtAssoc_CPTrue->GetXaxis()->FindBin(NPtV0[v+1]-0.001); b++ ){
@@ -766,12 +992,190 @@ Float_t      NOCPTrue[numPtV0]={0};
   HistoInfo->SetBinContent(5,(Float_t)CounterSignPairsAfterPtMinCut/EntriesSign);
   HistoInfo->SetBinContent(6,(Float_t)CounterBkgPairsAfterPtMinCut/EntriesBkg);
   for (Int_t m=0; m< nummolt; m++){
-  HistoInfo->SetBinContent(7+m,(Float_t)CounterSignPairsAfterPtMinCutMult[m]/CounterSignPairsAfterPtMinCut);
-  HistoInfo->SetBinContent(12+m, hMultvsNumberAssoc_Proj[m]->GetMean());
+    HistoInfo->SetBinContent(7+m,(Float_t)CounterSignPairsAfterPtMinCutMult[m]/CounterSignPairsAfterPtMinCut);
+    HistoInfo->SetBinContent(12+m, hMultvsNumberAssoc_Proj[m]->GetMean());
   }
 
-  fout->Write();
+  for (Int_t m=0; m< nummolt+1; m++){
+    cout << "Ratio between |#Delta#phi|<1 and all the rest for Xi cand. with origin in common with trigger  " << (Float_t)InJet[m]/OutJet[m] << endl;
+  }
+
 
   cout <<"check if you have to change histogram binning for selected trigger particles (double the number of bins) " << endl;
+
+  TCanvas *DeltaPhiProj;
+  TCanvas *DeltaPhiProjMult[nummolt+1];
+  if (CommonParton){
+    DeltaPhiProj= new TCanvas("DeltaPhiProj", "DeltaPhiProj", 1300, 800);
+    DeltaPhiProj->Divide(3,2);
+
+    for(Int_t m=0; m<nummolt+1; m++){
+      DeltaPhiProj->cd(m+1);
+      for(Int_t z=0; z<numzeta; z++){
+	for(Int_t tr=0; tr<numPtTrigger; tr++){
+
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPPtInt[m][z][tr] = (TH1D*)hDeltaEtaDeltaPhi_SEbins_CPPtInt[m][z][tr]->ProjectionY( "SE_m"+Smolt[m]+"_CP_PtInt_py",0, -1, "E");
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPPtInt[m][z][tr]->GetXaxis()->SetTitle("#Delta #phi (rad)");
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPPtInt[m][z][tr]->GetXaxis()->SetLabelSize(0.05);
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPPtInt[m][z][tr]->GetXaxis()->SetLabelOffset(1);
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPPtInt[m][z][tr]->SetLineColor(kRed);
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPPtInt[m][z][tr]->SetMarkerColor(kRed);
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPPtInt[m][z][tr]->Rebin(2);
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPPtInt[m][z][tr]->Draw("");
+
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPTruePtInt[m][z][tr] = (TH1D*)hDeltaEtaDeltaPhi_SEbins_CPTruePtInt[m][z][tr]->ProjectionY("SE_m"+Smolt[m]+"_CPTrue_PtInt_py",0, -1, "E");
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPTruePtInt[m][z][tr]->SetLineColor(kMagenta);
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPTruePtInt[m][z][tr]->SetMarkerColor(kMagenta);
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPTruePtInt[m][z][tr]->Rebin(2);
+	  //hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPTruePtInt[m][z][tr]->Draw("same");
+
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt[m][z][tr] = (TH1D*)hDeltaEtaDeltaPhi_SEbins_NOCPPtInt[m][z][tr]->ProjectionY( "SE_m"+Smolt[m]+"_NOCP_PtInt_py",0, -1, "E");
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt[m][z][tr]->SetLineColor(kBlue);
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt[m][z][tr]->SetMarkerColor(kBlue);
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt[m][z][tr]->Rebin(2);
+	  //hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt[m][z][tr]->Draw("same");
+
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt_BulkReg[m][z][tr] = (TH1D*)hDeltaEtaDeltaPhi_SEbins_NOCPPtInt[m][z][tr]->ProjectionY( "SE_m"+Smolt[m]+"_NOCP_PtInt_BulkReg_py",hDeltaEtaDeltaPhi_SEbins_NOCPPtInt[m][z][tr]->GetXaxis()->FindBin(0.8),hDeltaEtaDeltaPhi_SEbins_NOCPPtInt[m][z][tr]->GetXaxis()->FindBin(1.1) , "E");
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt_BulkReg[m][z][tr]->SetLineColor(kAzure+1);
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt_BulkReg[m][z][tr]->SetMarkerColor(kAzure+1);
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt_BulkReg[m][z][tr]->Rebin(2);
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt_BulkReg[m][z][tr]->Draw("same");
+
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt_JetReg[m][z][tr] = (TH1D*)hDeltaEtaDeltaPhi_SEbins_NOCPPtInt[m][z][tr]->ProjectionY( "SE_m"+Smolt[m]+"_NOCP_PtInt_JetReg_py",hDeltaEtaDeltaPhi_SEbins_NOCPPtInt[m][z][tr]->GetXaxis()->FindBin(-0.7),hDeltaEtaDeltaPhi_SEbins_NOCPPtInt[m][z][tr]->GetXaxis()->FindBin(0.7) , "E");
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt_JetReg[m][z][tr]->SetLineColor(kViolet+1);
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt_JetReg[m][z][tr]->SetMarkerColor(kViolet+1);
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt_JetReg[m][z][tr]->Rebin(2);
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt_JetReg[m][z][tr]->Draw("same");
+
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPTruePtInt[m][z][tr] = (TH1D*)hDeltaEtaDeltaPhi_SEbins_NOCPTruePtInt[m][z][tr]->ProjectionY( "SE_m"+Smolt[m]+"_NOCPTrue_PtInt_py",0, -1, "E");
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPTruePtInt[m][z][tr]->SetLineColor(kBlue+3);
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPTruePtInt[m][z][tr]->SetMarkerColor(kBlue+3);
+	  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPTruePtInt[m][z][tr]->Rebin(2);
+	  // hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPTruePtInt[m][z][tr]->Draw("same");
+	 
+	  DeltaPhiProjMult[m] = new TCanvas(Form("DeltaPhiProj_%i",m), Form("DeltaPhiProj_%i",m), 1300, 800);
+	  DeltaPhiProjMult[m] ->Divide(4,2);
+	  
+	  for (Int_t v=1; v< numPtV0; v++){
+	    DeltaPhiProjMult[m] ->cd(v+1);
+	    
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CP[m][z][v][tr] = (TH1D*)hDeltaEtaDeltaPhi_SEbins_CP[m][z][v][tr]->ProjectionY( "SE_m"+Smolt[m]+"_v"+SPtV0[v]+"_CP_py",0, -1, "E");
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CP[m][z][v][tr]->SetLineColor(kRed);
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CP[m][z][v][tr]->SetMarkerColor(kRed);
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CP[m][z][v][tr]->Rebin(2);
+	    if (v<=5)  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CP[m][z][v][tr]->Rebin(2);
+	    
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPTrue[m][z][v][tr] = (TH1D*)hDeltaEtaDeltaPhi_SEbins_CPTrue[m][z][v][tr]->ProjectionY("SE_m"+Smolt[m]+"_v"+SPtV0[v]+"_CPTrue_py",0, -1, "E");
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPTrue[m][z][v][tr]->SetLineColor(kMagenta);
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPTrue[m][z][v][tr]->SetMarkerColor(kMagenta);
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPTrue[m][z][v][tr]->Rebin(2);
+	    if (v<=5)  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPTrue[m][z][v][tr]->Rebin(2);
+	    
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP[m][z][v][tr] = (TH1D*)hDeltaEtaDeltaPhi_SEbins_NOCP[m][z][v][tr]->ProjectionY( "SE_m"+Smolt[m]+"_v"+SPtV0[v]+"_NOCP_py",0, -1, "E");
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP[m][z][v][tr]->SetLineColor(kBlue);
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP[m][z][v][tr]->SetMarkerColor(kBlue);
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP[m][z][v][tr]->Rebin(2);
+	    if (v<=5)  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP[m][z][v][tr]->Rebin(2);
+
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_BulkReg[m][z][v][tr] = (TH1D*)hDeltaEtaDeltaPhi_SEbins_NOCP[m][z][v][tr]->ProjectionY( "SE_m"+Smolt[m]+"_v"+SPtV0[v]+"_NOCP_BulkReg_py",hDeltaEtaDeltaPhi_SEbins_NOCP[m][z][v][tr]->GetXaxis()->FindBin(0.8), hDeltaEtaDeltaPhi_SEbins_NOCP[m][z][v][tr]->GetXaxis()->FindBin(1.3), "E");
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_BulkReg[m][z][v][tr]->SetLineColor(kAzure+1); //861
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_BulkReg[m][z][v][tr]->SetMarkerColor(kAzure+1);
+	    //	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_BulkReg[m][z][v][tr]->Scale(10./0.5);
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_BulkReg[m][z][v][tr]->Rebin(2);
+	    if (v<=5)  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_BulkReg[m][z][v][tr]->Rebin(2);
+
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_JetReg[m][z][v][tr] = (TH1D*)hDeltaEtaDeltaPhi_SEbins_NOCP[m][z][v][tr]->ProjectionY( "SE_m"+Smolt[m]+"_v"+SPtV0[v]+"_NOCP_JetReg_py",hDeltaEtaDeltaPhi_SEbins_NOCP[m][z][v][tr]->GetXaxis()->FindBin(-0.7), hDeltaEtaDeltaPhi_SEbins_NOCP[m][z][v][tr]->GetXaxis()->FindBin(0.7), "E");
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_JetReg[m][z][v][tr]->SetLineColor(kViolet+1); //881
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_JetReg[m][z][v][tr]->SetMarkerColor(kViolet+1);
+	    //	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_JetReg[m][z][v][tr]->Scale(1./1.4);
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_JetReg[m][z][v][tr]->Rebin(2);
+	    if (v<=5)  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_JetReg[m][z][v][tr]->Rebin(2);
+	    
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPTrue[m][z][v][tr] = (TH1D*)hDeltaEtaDeltaPhi_SEbins_NOCPTrue[m][z][v][tr]->ProjectionY( "SE_m"+Smolt[m]+"_v"+SPtV0[v]+"_NOCPTrue_py",0, -1, "E");
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPTrue[m][z][v][tr]->SetLineColor(kBlue+3);
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPTrue[m][z][v][tr]->SetMarkerColor(kBlue+3);
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPTrue[m][z][v][tr]->Rebin(2);
+	    if (v<=5)  hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPTrue[m][z][v][tr]->Rebin(2);
+
+	    if (hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CP[m][z][v][tr]->GetMaximum()>hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP[m][z][v][tr]->GetMaximum()){
+	      hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CP[m][z][v][tr]->GetYaxis()->SetRangeUser(0,1.3*hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CP[m][z][v][tr]->GetMaximum());
+	      hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CP[m][z][v][tr]->Draw("");
+	      //	      hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP[m][z][v][tr]->Draw("same");
+	      hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_JetReg[m][z][v][tr]->Draw("same");
+	    }
+	    else {
+	      hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP[m][z][v][tr]->GetYaxis()->SetRangeUser(0,1.3*hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP[m][z][v][tr]->GetMaximum());
+	      hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_JetReg[m][z][v][tr]->GetYaxis()->SetRangeUser(0,1.3*hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP[m][z][v][tr]->GetMaximum());
+	      //	      hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP[m][z][v][tr]->Draw("");
+	      hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_JetReg[m][z][v][tr]->Draw("");
+	      hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CP[m][z][v][tr]->Draw("same");	     
+	    }
+	    if (hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPTrue[m][z][v][tr]->GetMaximum()>hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPTrue[m][z][v][tr]->GetMaximum()){
+	      hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPTrue[m][z][v][tr]->GetYaxis()->SetRangeUser(0,1.3*hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPTrue[m][z][v][tr]->GetMaximum());
+	      //	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPTrue[m][z][v][tr]->Draw("");	  	
+	      //	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPTrue[m][z][v][tr]->Draw("same");
+	    }
+	    else {
+	      hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPTrue[m][z][v][tr]->GetYaxis()->SetRangeUser(0,1.3*hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPTrue[m][z][v][tr]->GetMaximum());
+	      //	      hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPTrue[m][z][v][tr]->Draw("");
+	      //	      hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPTrue[m][z][v][tr]->Draw("same");	  	
+	    }
+	  	
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_BulkReg[m][z][v][tr]->Draw("same");
+	    hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCP_JetReg[m][z][v][tr]->Draw("same");
+	  }
+	}
+      }
+    }
+  }
+
+
+  TCanvas *canvas = new TCanvas ("canvas", "canvas",1300,800);
+  TCanvas *canvasAC = new TCanvas ("canvasAC", "canvasAC",1300,800);
+  canvas->Divide(4,2);
+  canvasAC->Divide(4,2);
+  TH1F*  hDeltaEtaDeltaPhi_SEbinsProj[nummolt+1][numzeta][numPtV0][numPtTrigger];
+
+  for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t z=0; z<numzeta; z++){
+      for(Int_t tr=0; tr<numPtTrigger; tr++){
+	for (Int_t v=1; v< numPtV0; v++){
+	  //	  cout << " v " << v << endl;
+	  canvasAC->cd(v+1);
+	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->Draw("colz ");
+	  canvas->cd(v+1);
+	  hDeltaEtaDeltaPhi_SEbinsProj[m][z][v][tr] = (TH1F*)  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->ProjectionY( "SE_m"+Smolt[m]+"_v"+SPtV0[v]+"_Proj",0, -1, "E");
+
+	  hDeltaEtaDeltaPhi_SEbinsProj[m][z][v][tr]->Rebin(2);
+	  hDeltaEtaDeltaPhi_SEbinsProj[m][z][v][tr]->GetYaxis()->SetRangeUser(0,1.2*	    hDeltaEtaDeltaPhi_SEbinsProj[m][z][v][tr]->GetMaximum());
+	  hDeltaEtaDeltaPhi_SEbinsProj[m][z][v][tr]->Draw("");
+	}
+      }
+    }
+  }
+
+  fout->WriteTObject(canvas);
+  fout->WriteTObject(canvasAC);
+
+  if (CommonParton){
+    fout->WriteTObject(DeltaPhiProj);
+    for (Int_t m=0; m< nummolt+1; m++){
+      fout->WriteTObject(DeltaPhiProjMult[m]);
+    }
+  }
+  fout->Write();
+
+  cout << "cut values " << endl;
+  cout << "DcaXiDaughters:" << DCAXiDaughters  <<endl;
+  cout << "CosinePAngleXiToPV   :"  <<CosinePAngleXiToPV     <<endl;
+  cout << "CosinePAngleV0ToXi   :"  <<CosinePAngleV0ToXi    <<endl;
+  cout << "InvMassLambdaWindow  :" << InvMassLambdaWindow << endl;
+  cout << "ctau          :"  <<ctau            <<endl;
+  cout << "DCAzTrigger   :"  <<DCAzTrigger            <<endl;
+  cout << "number of entries sign" << CounterSignPairsAfterPtMinCut<< endl;
+  cout << "intermediate counter for sign pairs " <<       CounterSignPairsIntermediate<< endl;
+  cout << "number of entries bkg" << CounterBkgPairsAfterPtMinCut<< endl;
+  cout << "intermediate counter for bkg pairs " <<       CounterBkgPairsIntermediate<< endl;
+
 }
 
