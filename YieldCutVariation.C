@@ -16,7 +16,7 @@
 #include <TLatex.h>
 #include <TFile.h>
 #include <TLegend.h>
-void YieldCutVariation( Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAssoc=1,  Bool_t ishhCorr=0, bool isMC = 0,Bool_t isEfficiency=1, Int_t sysTrigger=0, TString year=/*"2016kehjl_hK0s"/*"2016k_hK0s"/"17anch17_hK0s"*/"1617_hK0s"/*"2018f1_extra_hK0s_CP"*/, TString year0="2016", TString Path1 ="", Int_t PtBinning=1, Int_t molt=5, Float_t PtTrigMin=3,Float_t PtTrigMax=15, Int_t rap=0, Int_t syst=0, Double_t nsigmamax=9, Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1,   Double_t sigmacentral=4, Double_t nsigmamin=5, Int_t MultBinning=0, Int_t isSysStudy=1)
+void YieldCutVariation( Int_t type=8 /*type = 0 for K0s */,Bool_t SkipAssoc=1,  Bool_t ishhCorr=0, bool isMC = 0,Bool_t isEfficiency=1, Int_t sysTrigger=0, TString year="Run2DataRed_MECorr_hXi"/*"2016kehjl_hK0s"/*"2016k_hK0s"/"17anch17_hK0s"/"1617_hK0s"/*"2018f1_extra_hK0s_CP"*/, TString year0="2016", TString Path1 ="", Int_t PtBinning=0, Int_t molt=5, Float_t PtTrigMin=3,Float_t PtTrigMax=15, Int_t rap=0, Int_t syst=0, Double_t nsigmamax=9, Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1,   Double_t sigmacentral=4, Double_t nsigmamin=5, Int_t MultBinning=0, Int_t isSysStudy=1)
 {
 
   //SysStudy: if 1, values different from default ones will be used; the topological variable changed will sysV0Index > 20 ) return;be ind  icated in the output file, together with its value                                                                                    
@@ -25,7 +25,7 @@ void YieldCutVariation( Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAssoc=1,  
 
   cout << "ciao ciao " << endl;
   Int_t numSysVar=0;
-  const  Int_t numSysVarK0s=0;  
+  const  Int_t numSysVarK0s=6;  
   const   Int_t numSysVarXi=6;
   if (type==0) numSysVar = numSysVarK0s;
   else if (type==8) numSysVar = numSysVarXi;
@@ -35,14 +35,26 @@ void YieldCutVariation( Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAssoc=1,  
   TString MassFixedPDG[2]={"", "isMeanFixedPDG_"};
 
   Int_t numsysV0index=20;
+  if (type==8) numsysV0index=40;
 
   cout << "ciao ciao " << endl;
   TString SSysV0[10] = {"", "CosinePAngle", "DCAPosToPV", "DCANegToPV", "DCAV0ToPV", "ctau (cm)", "LambdaRejection (MeV/c^{2})"};
+  TString SSysV0Xi[10] = {"", "DCAXiDaughters", "CosinePAngleXiToPV", "CosinePAngleV0ToXi", "InvMassLambdaWindow", "ctau (cm)", "DCAzTrigger"};
+
   //old  Float_t MinSysV0[10] = {0, 0.970, 0.05, 0.05, 0.2, 10, 0.003} ;
   //old  Float_t MaxSysV0[10] = {0, 0.998, 0.14, 0.14, 0.6, 40, 0.009} ;
   Float_t MinSysV0[10] = {0, 0.995, 0.05, 0.05, 0.2, 2, 0.001} ;
   Float_t MaxSysV0[10] = {0, 1, 0.14, 0.14, 0.6, 20, 0.03} ;
+  Float_t MinSysV0Xi[10] = {0, 0.3, 0.95, 0.95, 0.003, 2*4.91, 0} ;
+  Float_t MaxSysV0Xi[10] = {0, 1.8,    1,    1, 0.009, 5*4.91, 2} ;
 
+  if (type==8){
+    for (Int_t i=0; i<10; i++){
+      MinSysV0[i] = MinSysV0Xi[i];
+      MaxSysV0[i] = MaxSysV0Xi[i];
+      SSysV0[i] = SSysV0Xi[i];
+    }
+  }
   cout << "ciao ciao " << endl;
   TCanvas *canvasYield = new TCanvas("canvasYield", "canvasYield", 1300, 800);
   canvasYield->Divide(3,2);
@@ -65,8 +77,8 @@ void YieldCutVariation( Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAssoc=1,  
   const Int_t numzeta=1;
   const Int_t numPtV0=9;
   const Int_t numPtTrigger=1;
-  const Int_t numtipo=4;
-  TString tipo[numtipo]={"K0s", "Lambda", "AntiLambda", "LambdaAntiLambda"};
+  const Int_t numtipo=10;
+  TString tipo[numtipo]={"K0s", "Lambda", "AntiLambda", "LambdaAntiLambda", "XiNeg","XiPos", "OmegaNeg", "OmegaPos>", "Xi", "Omega"};
   TString Srap[2] = {"_Eta0.8", "_y0.5"};
   TString    SSkipAssoc[2]={"_AllAssoc", ""};
 
@@ -82,6 +94,7 @@ void YieldCutVariation( Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAssoc=1,  
 
   cout << "ciao ciao " << endl;
   for (Int_t sysV0=0; sysV0<=numSysVar; sysV0++){
+    //    if (sysV0>1) continue;
     cout << "\n\nsysV0 " << sysV0 << endl;
     lineat1[sysV0] = new TF1("pol0", "pol0", MinSysV0[sysV0], MaxSysV0[sysV0]);
     lineat1[sysV0] -> SetParameter(0,1);
@@ -89,10 +102,11 @@ void YieldCutVariation( Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAssoc=1,  
     histoYield[sysV0] = new TH1F (Form("histoYield_%i",sysV0), SSysV0[sysV0], numsysV0index, MinSysV0[sysV0], MaxSysV0[sysV0]);
     histoYieldRatio[sysV0]= (TH1F*)       histoYield[sysV0]->Clone(Form("histoYieldRatio_%i",sysV0));
     for (Int_t sysV0index = 0; sysV0index < numsysV0index; sysV0index++){
-      //      if (sysV0==0 && sysV0index!=0) continue;
-      if (sysV0==0 && sysV0index>3) continue;
+      if (sysV0==0 && sysV0index!=0) continue;
+      if (type==8 && sysV0==6 && sysV0index==0) continue;
+      //if (sysV0==0 && sysV0index>3) continue;
       //      if (sysV0==6 && sysV0index>14) continue;
-      //      if (sysV0index>3) continue;
+      //      if (sysV0index>20) continue;
       cout << " sysV0index " << sysV0index << endl;
       nome_file_input ="FinalOutput/DATA"+year0+"/invmass_distribution_thesis/invmass_distribution";
       if(isMC && isEfficiency){
@@ -101,9 +115,11 @@ void YieldCutVariation( Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAssoc=1,  
       nome_file_input+=Path1;
       if (PtBinning>0)    nome_file_input+=Form("_PtBinning%i",PtBinning);
       if (sysV0>0 || (sysV0==0 && sysV0index>0)){
+	if (type==0){
 	if (sysV0 ==1  || sysV0==5 || sysV0==6)       nome_file_input +=Form("_"+year+"_"+tipo[type]+Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0%i_indexBis%i_Sys%i_PtMin%.1f.root", molt, sysTrigger, sysV0, sysV0index, syst,PtTrigMin);
 	else       nome_file_input +=Form("_"+year+"_"+tipo[type]+Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0%i_index%i_Sys%i_PtMin%.1f.root", molt, sysTrigger, sysV0, sysV0index, syst,PtTrigMin);
-
+	}
+	else       nome_file_input +=Form("_"+year+"_"+tipo[type]+Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0%i_index%i_Sys%i_PtMin%.1f.root", molt, sysTrigger, sysV0, sysV0index, syst,PtTrigMin);
       }
       else      nome_file_input +=Form("_"+year+"_"+tipo[type]+Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f.root", molt, sysTrigger, sysV0, syst,PtTrigMin);
       TFile *fin = new TFile(nome_file_input,"");
