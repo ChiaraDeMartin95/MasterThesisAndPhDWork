@@ -18,13 +18,18 @@
 #include <TLegend.h>
 #include <TRandom.h>
 
-void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, bool isMC = 0,Bool_t isEfficiency=1,Int_t sysTrigger=0,	    TString year=/*"2016kehjl_hK0s"/*"2016k_hK0s"/"17anch17_hK0s"*/"1617_hK0s"/*"2018f1_extra_hK0s_CP"*/, TString year0="2016", TString Path1 ="", Bool_t CommonParton=0, Int_t PtBinning=1, Bool_t isSysDef=1, Bool_t IsDefaultSel=0)
+void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,  bool isMC = 1,    TString year=/*"2016kehjl_hK0s"/*"2016k_hK0s"/"17anch17_hK0s"*/"1617MC_hK0s"/*"2018f1_extra_hK0s_CP"*/, Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15,Bool_t isEfficiency=1,Int_t sysTrigger=0,	  TString year0="2016", TString Path1 ="", Bool_t CommonParton=0, Int_t PtBinning=1, Bool_t isSysDef=1, Bool_t IsDefaultSel=0, TString yearData="1617_hK0s")
 {
 
   if (!isSysDef) {cout << "this macro should be run with SysDef=1"; return; }
   Int_t sysV0=0; //need to define it ... but useless for the purposes of this macro
 
-  //intervals in which values are randomly varied to assess systematic effect. The tighter value gives, when applied alone (all other variables set to default), -5% in the yield. The loostest variable is the loosest possible (mainly taken from loose selections applied in task), and gives a +x% in the yield, where x<(<)5.
+
+  const Int_t numtipo=4;
+  TString tipo[numtipo]={"K0s", "Lambda", "AntiLambda", "LambdaAntiLambda"};
+  TString Srap[2] = {"_Eta0.8", "_y0.5"};
+
+  //intervals in which values are randomly varied to assess systematic effect. The tighter value gives, when applied alone (all other variables set to default), -2% in the yield. The loostest variable is the loosest possible (mainly taken from loose selections applied in task), and gives a +x% in the yield, where x<(<)5.
   Float_t CosinePAngleExtr[2] = {0.970, 0.998};
   Float_t DCAPosToPVExtr[2] = {0.05, 0.09};
   Float_t DCANegToPVExtr[2] = {0.05, 0.09};
@@ -33,43 +38,74 @@ void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,Int_t type=0 /*type = 0 f
   Float_t LambdaMassWindowExtr[2] = {0.00, 0.010};
 
   //random number generator: a value between 0 and 9 is extracted for each of the 6 variables above, and this value defines the selection applied 
-  const Int_t numSysV0Var =6;
-  Int_t numsysV0index=10;
-  Int_t sysV0Index[numSysV0Var];
-  TRandom * r[numSysV0Var];
-  for (Int_t i=0; i<numSysV0Var; i++){
-    cout << i << endl;
-    r[i] = new TRandom();
-    r[i]->SetSeed(indexSysV0);
-    sysV0Index[i] =  int(r[i]->Uniform(numsysV0index));
-    cout <<"random index : " <<  sysV0Index[i] << endl;
-  }
+   
+ const Int_t numSysV0Var =6;
+ /*
+   Int_t numsysV0index=10;
+   Int_t sysV0Index[numSysV0Var];
+   TRandom * r[numSysV0Var];
+   for (Int_t i=0; i<numSysV0Var; i++){
+   cout << i << endl;
+   r[i] = new TRandom();
+   r[i]->SetSeed(indexSysV0);
+   sysV0Index[i] =  int(r[i]->Uniform(numsysV0index));
+   cout <<"random index : " <<  sysV0Index[i] << endl;
+   }
+  */
+  gRandom->SetSeed(indexSysV0);
 
   Float_t CosinePAngle = 0;
-  CosinePAngle = (CosinePAngleExtr[1] -  CosinePAngleExtr[0])/numsysV0index * sysV0Index[0] +  CosinePAngleExtr[0];
+  CosinePAngle = gRandom->Uniform(CosinePAngleExtr[0] , CosinePAngleExtr[1]);//(CosinePAngleExtr[1] -  CosinePAngleExtr[0])/numsysV0index * sysV0Index[0] +  CosinePAngleExtr[0];
   if (IsDefaultSel)  CosinePAngle=0.995; //default value
 
   Float_t DCAPosToPV = 0;
-  DCAPosToPV = (DCAPosToPVExtr[1] -  DCAPosToPVExtr[0])/numsysV0index * sysV0Index[1] +  DCAPosToPVExtr[0];
+  DCAPosToPV = gRandom->Uniform( DCAPosToPVExtr[0], DCAPosToPVExtr[1]);//(DCAPosToPVExtr[1] -  DCAPosToPVExtr[0])/numsysV0index * sysV0Index[1] +  DCAPosToPVExtr[0];
   if (IsDefaultSel) DCAPosToPV = 0.06; //default value
 
   Float_t DCANegToPV = 0;
-  DCANegToPV = (DCANegToPVExtr[1] -  DCANegToPVExtr[0])/numsysV0index * sysV0Index[2] +  DCANegToPVExtr[0];
+  DCANegToPV = gRandom->Uniform( DCANegToPVExtr[0], DCANegToPVExtr[1]);//(DCANegToPVExtr[1] -  DCANegToPVExtr[0])/numsysV0index * sysV0Index[2] +  DCANegToPVExtr[0];
   if (IsDefaultSel) DCANegToPV = 0.06; //default value
-
+  
   Float_t DCAV0ToPV = 0;
-  DCAV0ToPV = (DCAV0ToPVExtr[1] -  DCAV0ToPVExtr[0])/numsysV0index * sysV0Index[3] +  DCAV0ToPVExtr[0];
+  DCAV0ToPV = gRandom->Uniform(DCAV0ToPVExtr[0],DCAV0ToPVExtr[1]);//(DCAV0ToPVExtr[1] -  DCAV0ToPVExtr[0])/numsysV0index * sysV0Index[3] +  DCAV0ToPVExtr[0];
   if (IsDefaultSel) DCAV0ToPV = 0.5; //default value
-
+  
   Float_t ctau = 0;
-  ctau = (ctauExtr[1] -  ctauExtr[0])/numsysV0index * sysV0Index[4] +  ctauExtr[0];
+  ctau = gRandom->Uniform(ctauExtr[0],ctauExtr[1]);//(ctauExtr[1] -  ctauExtr[0])/numsysV0index * sysV0Index[4] +  ctauExtr[0];
   if (IsDefaultSel) ctau = 20; //default value
 
   Float_t LambdaMassWindow =0; 
-   LambdaMassWindow= (LambdaMassWindowExtr[1] -  LambdaMassWindowExtr[0])/numsysV0index * sysV0Index[5] +  LambdaMassWindowExtr[0];
+  LambdaMassWindow = gRandom->Uniform(LambdaMassWindowExtr[0], LambdaMassWindowExtr[1]);//(LambdaMassWindowExtr[1] -  LambdaMassWindowExtr[0])/numsysV0index * sysV0Index[5] +  LambdaMassWindowExtr[0];
   if (IsDefaultSel) LambdaMassWindow = 0.005; //default value
-
+  
   //rap=0 : no rapidity window chsen for cascade, |Eta| < 0.8; rap=1 |y| < 0.5
+  
+  if (isMC && isEfficiency) { //I take topo sel from histogram (so to correctly compute efficiency)
+    TString PathInData="./FinalOutput/DATA" + year0 + "/histo/AngularCorrelation";
+  PathInData+=yearData;  
+  PathInData+=Path1;
+  if (PtBinning>0)  PathInData+=Form("_PtBinning%i",PtBinning);
+  PathInData+="_";
+  if (!ishhCorr){
+    PathInData +=tipo[type];
+  }
+  PathInData +=Srap[israp];
+  if (!SkipAssoc)  PathInData +="_AllAssoc";
+  if (isSysDef && IsDefaultSel)  PathInData +=Form("_MassDistr_SysT%i_SysV0Default_PtMin%.1f",sysTrigger,   PtTrigMin); 
+  else   if (isSysDef && !IsDefaultSel)  PathInData +=Form("_MassDistr_SysT%i_SysV0index%i_PtMin%.1f",sysTrigger, indexSysV0,  PtTrigMin); 
+  else   PathInData +=Form("_MassDistr_SysT%i_SysV0Bis%i_PtMin%.1f",sysTrigger, 0, PtTrigMin); 
+  PathInData+= ".root";
+
+  TFile * fileinData = new TFile(PathInData, "");
+  if (!PathInData) {cout << " I cannot retrieve info about topo selections..." << endl; return;}
+  TH1F * histoTopoSel = (TH1F*) fileinData->Get("histoTopoSel");
+  CosinePAngle = histoTopoSel->GetBinContent(1);
+  DCAPosToPV = histoTopoSel->GetBinContent(2);
+  DCANegToPV = histoTopoSel->GetBinContent(3);
+  DCAV0ToPV = histoTopoSel->GetBinContent(4);
+  ctau = histoTopoSel->GetBinContent(5);
+  LambdaMassWindow = histoTopoSel->GetBinContent(6);
+  }
 
   if (ishhCorr && !isEfficiency) {
     //cout << "This macro should not be run is hh correlation is studied; go directly to readTreePLChiara_second " << endl;
@@ -83,9 +119,6 @@ void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,Int_t type=0 /*type = 0 f
   const Int_t numzeta=1;
   const Int_t numPtV0=9;
   const Int_t numPtTrigger=1;
-  const Int_t numtipo=4;
-  TString tipo[numtipo]={"K0s", "Lambda", "AntiLambda", "LambdaAntiLambda"};
-  TString Srap[2] = {"_Eta0.8", "_y0.5"};
   TString SSkipAssoc[2] = {"_AllAssoc", ""};
   TString PathIn="./FinalOutput/AnalysisResults";
   TString PathOut="./FinalOutput/DATA" + year0 + "/histo/AngularCorrelation";
@@ -123,12 +156,19 @@ void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,Int_t type=0 /*type = 0 f
 
   TString  PathInTree = "FinalOutput/DATA2016/histo/AngularCorrelation";
   PathInTree += year;
+  if(isMC && isEfficiency){
+    PathInTree+="_MCEff";
+  }
+  if(isMC && !isEfficiency){
+    PathInTree+="_MCTruth";
+  }
   if(PtBinning)  PathInTree+=Form("_PtBinning%i",PtBinning);
   PathInTree+= "_";
   PathInTree += tipo[type];
   PathInTree += Srap[israp];
   PathInTree += SSkipAssoc[SkipAssoc];
-  PathInTree += "_MassDistr_SysT0_SysV00_index0_PtMin3.0.root";
+  PathInTree += "_MassDistr_SysT0_SysV00_index0_";
+  PathInTree+= Form("PtMin%.1f.root",PtTrigMin);
 
   Bool_t MassInPeakK0s =0; //variable for a rough cut on K0s candidates' invariant mass (only done to fill histograms needed for deltaphi projections of K0s with or without an ancestor parton in common with trigger particle)
   TString dirinputtype[4] = {"", "Lambda", "Lambda", "Lambda"};
@@ -973,6 +1013,7 @@ void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,Int_t type=0 /*type = 0 f
 
   Float_t     fBkgTreeVariableInvMass= 0;
   l=0;
+  if (!isSysDef){
   for(Int_t k = 0; k<EntriesBkg; k++){
     // for(Int_t k = 0; k<1; k++){
     //    if (k>10000000) continue;
@@ -1083,6 +1124,7 @@ void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,Int_t type=0 /*type = 0 f
 	}
       }
     }
+  }
   }
 
 
