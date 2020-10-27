@@ -46,7 +46,7 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
 
   Float_t PtTrigMin=0;
   gStyle->SetOptStat(0);
-  gStyle->SetOptFit(1111);
+  //  gStyle->SetOptFit(1111);
 
   //lista degli effetti  sistematici studiati in questa macro
   if (sys==3 || sys>5) return;
@@ -66,8 +66,8 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
   TLegend *legendPt = new TLegend(0.7, 0.7, 0.9, 0.9);
   legendPt->SetHeader("p_T^{Assoc} intervals");
 
-  TLegend *legendmult = new TLegend(0.7, 0.7, 0.9, 0.9);
-  legendmult->SetHeader("multiplicity class");
+  TLegend *legendmult = new TLegend(0.6, 0.7, 0.9, 0.9);
+  legendmult->SetHeader("Mult class");
 
   Dir+="DATA"+year0;
   TString file[2];
@@ -84,7 +84,8 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
   const Int_t numPtV0=9;
   Int_t numPtV0Max =numPtV0;
   if (PtBinning==0)numPtV0Max =numPtV0-1;
-  numPtV0Max=5;
+  Int_t   numPtV0MaxOOJ=5;
+  Int_t   numPtV0MaxUniversal=0;
   const Int_t numPtTrig=10;
   const Int_t numtipo=10;
   const Int_t numeta=3;
@@ -177,6 +178,7 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
   TString nameMEEtaProj[nummolt+1][numPtV0];
   TString nameMEPhiProj[nummolt+1][numPtV0];
   TString namePhiProjJet[nummolt+1][numPtV0];
+  TString namePhiProjInclusive[nummolt+1][numPtV0];
   TString namePhiProjJetZYAM[nummolt+1][numPtV0];
   TString namePhiProjJetFromBulkFit[nummolt+1][numPtV0];
   TString namePhiProjJetNotBulkSub[nummolt+1][numPtV0];
@@ -193,7 +195,12 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
   TH1F *hDeltaEtaDeltaPhi_MEbins_PhiProjRatio[nummolt+1][numPtV0][numPtTrig];
   TH1F *hDeltaEtaDeltaPhi_MEbins_PhiProjMaster[nummolt+1][numPtTrig];
   TH1F *hDeltaEtaDeltaPhi_PhiProjJet[nummolt+1][numPtV0][numPtTrig];
+  TH1F *hDeltaEtaDeltaPhi_PhiProjJetInclusive[nummolt+1][numPtV0][numPtTrig];
+  TH1F *hDeltaEtaDeltaPhi_PhiProjJetRebSmooth[nummolt+1][numPtV0][numPtTrig];
+  TH1F *hDeltaEtaDeltaPhi_PhiProjJetRebSmoothBis[nummolt+1][numPtV0][numPtTrig];
+  TH1F *hDeltaEtaDeltaPhi_PhiProjJetRebSmoothFit[nummolt+1][numPtV0][numPtTrig];
   TH1F *hDeltaEtaDeltaPhi_PhiProjJetDefaultMethod[nummolt+1][numPtV0][numPtTrig];
+  TH1F *hDeltaEtaDeltaPhi_PhiProjJetDefaultMethodSmooth[nummolt+1][numPtV0][numPtTrig];
   TH1F *hDeltaEtaDeltaPhi_PhiProjJetFromBulkFit[nummolt+1][numPtV0][numPtTrig];
   TH1F *hDeltaEtaDeltaPhi_PhiProjJetZYAM[nummolt+1][numPtV0][numPtTrig];
   TH1F *hDeltaEtaDeltaPhi_PhiProjJetRatio[nummolt+1][numPtV0][numPtTrig];
@@ -202,7 +209,9 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
 
   TF1*	  pol0ZYAM[nummolt+1][numPtV0][numPtTrig];
   TF1*	  pol0BulkBis[nummolt+1][numPtV0][numPtTrig];
+  TF1*	  pol0BulkSmooth[nummolt+1][numPtV0][numPtTrig];
 
+  TH1F *hDeltaEtaDeltaPhi_PhiProjInclusive[nummolt+1][numPtV0][numPtTrig];
   TH1F *hDeltaEtaDeltaPhi_PhiProjJetNotBulkSub[nummolt+1][numPtV0][numPtTrig];
   TH1F *hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubRebin[nummolt+1][numPtV0][numPtTrig];
   TH1F *hDeltaEtaDeltaPhi_PhiProjJetNewMethod[nummolt+1][numPtV0][numPtTrig];
@@ -210,12 +219,21 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
   TH1F *hDeltaEtaDeltaPhi_PhiProjJetNDRatio[nummolt+1][numPtV0][numPtTrig];
   TH1F *hDeltaEtaDeltaPhi_PhiProjJetNRebinDRatio[nummolt+1][numPtV0][numPtTrig];
   TH1F *hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethod[nummolt+1][numPtV0][numPtTrig];
+  TH1F *hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethodRebin[nummolt+1][numPtV0][numPtTrig];
   TH1F *hDeltaEtaDeltaPhi_PhiProjBulk[nummolt+1][numPtV0][numPtTrig];
+  TH1F *hDeltaEtaDeltaPhi_PhiProjBulkReb[nummolt+1][numPtV0][numPtTrig];
+  TH1F *hDeltaEtaDeltaPhi_PhiProjBulkRebSmoothed[nummolt+1][numPtV0][numPtTrig];
+  TH1F *hDeltaEtaDeltaPhi_PhiProjBulk_mall[numPtV0][numPtTrig];
   TH1F *hDeltaEtaDeltaPhi_PhiProjBulkIntegralScaled[nummolt+1][numPtV0][numPtTrig];
   TH1F *hDeltaEtaDeltaPhi_PhiProjBulkIntegralScaledRatio[nummolt+1][numPtV0][numPtTrig];
   TH1F *hDeltaEtaDeltaPhi_PhiProjBulkDefault[nummolt+1][numPtV0][numPtTrig];
   TH1F *hDeltaEtaDeltaPhi_PhiProjBulkScaled[nummolt+1][numPtV0][numPtTrig];
+  TH1F *hDeltaEtaDeltaPhi_PhiProjBulkScaledToInclusiveAllMult[nummolt+1][numPtV0][numPtTrig];
   TH1F *hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMult[nummolt+1][numPtV0][numPtTrig];
+  TH1F *hDeltaEtaDeltaPhi_PhiProjBulkScaledBisAllMult[nummolt+1][numPtV0][numPtTrig];
+  TH1F *hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMultRebin[nummolt+1][numPtV0][numPtTrig];
+  TH1F *hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMultRebinSmoothed[nummolt+1][numPtV0][numPtTrig];
+  TH1F *hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMultSmoothed[nummolt+1][numPtV0][numPtTrig];
   TH1F *hDeltaEtaDeltaPhi_PhiProjBulkScaledRebin[nummolt+1][numPtV0][numPtTrig];
   TH1F *hDeltaEtaDeltaPhi_PhiProjBulkRatio[nummolt+1][numPtV0][numPtTrig];
   TH1F *hDeltaEtaDeltaPhi_PhiProjJetBulk[nummolt+1][numPtV0][numPtTrig];
@@ -266,6 +284,8 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
   TCanvas *canvasPlotMEEtaProj[2];
   TCanvas *canvasPlotMEPhiProj[2];
   TCanvas *canvasPlotProj[nummolt+1][2];
+  TCanvas *canvasPlotProjAllPt[nummolt+1][2];
+  TCanvas *canvasPlotProjSmoothed[nummolt+1][2];
   TCanvas *canvasPlotProjRatioJet[nummolt+1][2];
   TCanvas *canvasPlotProjEta[nummolt+1][3][2];
 
@@ -282,13 +302,16 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
 
 
   TString nomefileoutput= "OOJComparison"+year+Form("_PtBinning%i",PtBinning) +Path1;
+  TString nomepdffile;
   if(type>=0){
     nomefileoutput +="_"+tipo[type];
     nomefileoutput +=Srap[israp];
     nomefileoutput +=SSkipAssoc[SkipAssoc];
   }
 
-  nomefileoutput += hhCorr[ishhCorr] +  isMCOrData[isMC] + Form("_PtTrigMin%.1f_PtTrigMin%.1f_Output.root", PtTrigMin1, PtTrigMin2);
+  nomefileoutput += hhCorr[ishhCorr] +  isMCOrData[isMC] + Form("_PtTrigMin%.1f_PtTrigMin%.1f_Output", PtTrigMin1, PtTrigMin2);
+  nomepdffile = nomefileoutput;
+  nomefileoutput+= ".root";
    
   TFile *fileout = new TFile(nomefileoutput, "RECREATE");
 
@@ -319,7 +342,10 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
       canvasPlotME[m][IntisMC]=new TCanvas(Form("canvasPlotME_m%i_MC%i",m,  IntisMC), "canvasPlotME"+Smolt[m], 1300, 800);
       canvasPlotME[m][IntisMC]->Divide(numC,2);
       canvasPlotProj[m][IntisMC]=new TCanvas(Form("canvasPlotProj_m%i_MC%i",m,  IntisMC), "canvasPlotProj"+Smolt[m], 1300, 800);
-      canvasPlotProj[m][IntisMC]->Divide(numC,2);
+      canvasPlotProj[m][IntisMC]->Divide(numC,4);
+      canvasPlotProjAllPt[m][IntisMC]=new TCanvas(Form("canvasPlotProjAllPt_m%i_MC%i",m,  IntisMC), "canvasPlotProj"+Smolt[m], 1300, 800);
+      canvasPlotProjAllPt[m][IntisMC]->Divide(numC,2);
+      
       canvasPlotProjRatioJet[m][IntisMC]=new TCanvas(Form("canvasPlotProjRatioJet_m%i_MC%i",m,  IntisMC), "canvasPlotProjRatioJet"+Smolt[m], 1300, 800);
       canvasPlotProjRatioJet[m][IntisMC]->Divide(numC,2);
       for (Int_t t=0; t<3; t++){
@@ -341,11 +367,21 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
   //I start the loop overt the two differetn files ******************
   Float_t IntegralFactorBulkNew[nummolt+1][numPtV0][numPtTrig]={0};
   Float_t IntegralFactorBulkDef[nummolt+1][numPtV0][numPtTrig]={0};
+  Float_t IntegralFactorBulkNewAllMult[nummolt+1][numPtV0][numPtTrig]={0};
   TLegend * OOJlegend = new TLegend (0.6, 0.7, 0.9, 0.9);
   cout << "\n\n\n********+ looping over the two files " << endl;
   Float_t ScalingFactorJetNotBulkSub[nummolt+1][numPtV0]={0};
   Float_t ScalingFactorBulk[nummolt+1][numPtV0]={   0};
+  Float_t ScalingFactorInclusive[nummolt+1][numPtV0]={   0};
+
+    TH1F* hDeltaEtaLimits;
+    Float_t  DeltaEtaInclusive=0;
+    Float_t     DeltaEtaJet=0;
+
+
   for (Int_t LoopFile=0; LoopFile<=1; LoopFile++){
+    if (LoopFile==0)   numPtV0MaxUniversal=numPtV0Max;
+    else  numPtV0MaxUniversal=numPtV0MaxOOJ;
     //if (LoopFile==1) continue;
     cout << "\n\n\n Looping on the two files... " << LoopFile << endl;
     //**************calcolo numero particelle di trigger*******************                                                                 
@@ -429,7 +465,12 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
       }
 
 
-      for(Int_t v=PtV0Min; v<numPtV0Max; v++){  
+      for(Int_t v=PtV0Min; v<numPtV0Max; v++){ 
+	cout << " Loop file " << LoopFile << " v " << v << endl; 
+	if (v>= numPtV0MaxOOJ && LoopFile==1) {
+	  cout << "v is " << v << " and I am going to continue " << endl;
+	  continue;
+	}
 	//    if (v!=PtIntervalShown) continue;
 	//	if (v>4) continue;
 	nameSE[m][v]="ME_";
@@ -471,12 +512,17 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
 	    //	    return;
 	    filein[PtTrig]= new TFile(PathIn[PtTrig], "");
 	
+	    if (LoopFile==0){
+	    hDeltaEtaLimits=(TH1F*)	    filein[PtTrig]->Get("fHistEtaLimitsOfRegion");
+	    DeltaEtaInclusive = 	  2*  hDeltaEtaLimits->GetBinContent(6);
+	    DeltaEtaJet = 	  2*  hDeltaEtaLimits->GetBinContent(2);
+	    }
 	    hDeltaEtaDeltaPhi_SEbins[m][v][PtTrig]= (TH2F*)filein[PtTrig]->Get(nameSE[m][v]);
 	    hDeltaEtaDeltaPhi_MEbins[m][v][PtTrig]= (TH2F*)filein[PtTrig]->Get(nameME[m][v]);
-	    if (v==PtV0Min)  hDeltaEtaDeltaPhi_MEbins[m][numPtV0Max-1][PtTrig]= (TH2F*)filein[PtTrig]->Get("ME_m"+ Smolt[m]+"_v"+SPtV0[numPtV0Max-1]+Ssideband[0]+"_norm");
+	    if (v==PtV0Min)  hDeltaEtaDeltaPhi_MEbins[m][numPtV0MaxUniversal-1][PtTrig]= (TH2F*)filein[PtTrig]->Get("ME_m"+ Smolt[m]+"_v"+SPtV0[numPtV0MaxUniversal-1]+Ssideband[0]+"_norm");
 	    if (!hDeltaEtaDeltaPhi_SEbins[m][v][PtTrig]){cout << "no SE 2D histo for v = "<<v << " name of the histo " << nameSE[m][v] << endl;  return;}
 	    if (!hDeltaEtaDeltaPhi_MEbins[m][v][PtTrig]){cout << "no ME 2D histo for v = " << v << endl;  return;}
-	    if (!hDeltaEtaDeltaPhi_MEbins[m][numPtV0Max-1][PtTrig]){cout << "no ME 2D histo for v = " <<numPtV0Max-1 <<  endl;  return;}
+	    if (!hDeltaEtaDeltaPhi_MEbins[m][numPtV0MaxUniversal-1][PtTrig]){cout << "no ME 2D histo for v = " <<numPtV0Max-1 <<  endl;  return;}
 
 	    //projection along eta of the Mixed Event distribution
 	    hDeltaEtaDeltaPhi_MEbins_EtaProj[m][v][PtTrig]= (TH1F*)	  hDeltaEtaDeltaPhi_MEbins[m][v][PtTrig]->ProjectionX(nameMEEtaProj[m][v],0,-1, "E");
@@ -486,7 +532,7 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
 
 	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatio[m][v][PtTrig]= (TH1F*)	  hDeltaEtaDeltaPhi_MEbins_EtaProj[m][v][PtTrig]->Clone(nameMEEtaProj[m][v]+"_Ratio");
 	    //	  if (v==1)	{
-	    hDeltaEtaDeltaPhi_MEbins_EtaProjMaster[m][PtTrig]= (TH1F*)	  hDeltaEtaDeltaPhi_MEbins[m][numPtV0Max-1][PtTrig]->ProjectionX(nameMEEtaProj[m][numPtV0Max-1]+ "_Master",0,-1, "E");
+	    hDeltaEtaDeltaPhi_MEbins_EtaProjMaster[m][PtTrig]= (TH1F*)	  hDeltaEtaDeltaPhi_MEbins[m][numPtV0MaxUniversal-1][PtTrig]->ProjectionX(nameMEEtaProj[m][numPtV0MaxUniversal-1]+ "_Master",0,-1, "E");
 	    hDeltaEtaDeltaPhi_MEbins_EtaProjMaster[m][PtTrig]->Scale(1./ hDeltaEtaDeltaPhi_MEbins[m][v][PtTrig]->GetNbinsY());
 	    //	  }
 	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatio[m][v][PtTrig]->Divide( hDeltaEtaDeltaPhi_MEbins_EtaProjMaster[m][PtTrig]);
@@ -505,7 +551,7 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
 	    hDeltaEtaDeltaPhi_MEbins_PhiProj[m][v][PtTrig]->SetMarkerColor(ColorPt[v]);
 
 	    hDeltaEtaDeltaPhi_MEbins_PhiProjRatio[m][v][PtTrig]= (TH1F*)	  hDeltaEtaDeltaPhi_MEbins_PhiProj[m][v][PtTrig]->Clone(nameMEPhiProj[m][v]+"_Ratio");
-	    if (v==PtV0Min)	  hDeltaEtaDeltaPhi_MEbins_PhiProjMaster[m][PtTrig]= 	  hDeltaEtaDeltaPhi_MEbins_PhiProj[m][v][PtTrig]= (TH1F*)	  hDeltaEtaDeltaPhi_MEbins[m][numPtV0Max-1][PtTrig]->ProjectionY(nameMEPhiProj[m][numPtV0Max-1]+"_Master",0,-1, "E");
+	    if (v==PtV0Min)	  hDeltaEtaDeltaPhi_MEbins_PhiProjMaster[m][PtTrig]= 	  hDeltaEtaDeltaPhi_MEbins_PhiProj[m][v][PtTrig]= (TH1F*)	  hDeltaEtaDeltaPhi_MEbins[m][numPtV0MaxUniversal-1][PtTrig]->ProjectionY(nameMEPhiProj[m][numPtV0MaxUniversal-1]+"_Master",0,-1, "E");
 	    hDeltaEtaDeltaPhi_MEbins_PhiProjRatio[m][v][PtTrig]->Divide( hDeltaEtaDeltaPhi_MEbins_PhiProjMaster[m][PtTrig]);
 
 	    for (Int_t i=1; i<=   hDeltaEtaDeltaPhi_MEbins_PhiProjRatio[m][v][PtTrig]->GetNbinsX(); i++){
@@ -581,16 +627,16 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
 
 	    //	canvasPlot[m]->cd(PtTrig+1+7);
 	    cout << "setting to zero last bin " << endl;
-	    hDeltaEtaDeltaPhi_PhiProjJet[m][v][PtTrig]    ->SetBinContent(	hDeltaEtaDeltaPhi_PhiProjJet[m][v][PtTrig]->GetNbinsX(), 0);
+	    //	    hDeltaEtaDeltaPhi_PhiProjJet[m][v][PtTrig]    ->SetBinContent(	hDeltaEtaDeltaPhi_PhiProjJet[m][v][PtTrig]->GetNbinsX(), 0);
 	    //	    hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig]   ->SetBinContent(	hDeltaEtaDeltaPhi_PhiProjJet[m][v][PtTrig]->GetNbinsX(), 0);
-	    hDeltaEtaDeltaPhi_PhiProjJetBulk[m][v][PtTrig]->SetBinContent(	hDeltaEtaDeltaPhi_PhiProjJet[m][v][PtTrig]->GetNbinsX(), 0);
+	    //	    hDeltaEtaDeltaPhi_PhiProjJetBulk[m][v][PtTrig]->SetBinContent(	hDeltaEtaDeltaPhi_PhiProjJet[m][v][PtTrig]->GetNbinsX(), 0);
+
 	    hDeltaEtaDeltaPhi_PhiProjJetZYAM[m][v][PtTrig]    ->SetLineColor(860);
 	    hDeltaEtaDeltaPhi_PhiProjJet[m][v][PtTrig]    ->SetLineColor(kBlue);
 	    hDeltaEtaDeltaPhi_PhiProjJetFromBulkFit[m][v][PtTrig]    ->SetLineColor(kGreen+3);
 
 	    hDeltaEtaDeltaPhi_PhiProjJetNotBulkSub[m][v][PtTrig]    ->SetLineColor(628);
 	    hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig]   ->SetLineColor(418);
-	    hDeltaEtaDeltaPhi_PhiProjJetBulk[m][v][PtTrig]->SetLineColor(868);
 
 	    hDeltaEtaDeltaPhi_PhiProjJetZYAM[m][v][PtTrig]    ->SetMarkerColor(860);
 	    hDeltaEtaDeltaPhi_PhiProjJet[m][v][PtTrig]    ->SetMarkerColor(628);
@@ -598,7 +644,8 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
 
 	    hDeltaEtaDeltaPhi_PhiProjJetNotBulkSub[m][v][PtTrig]    ->SetMarkerColor(628);
 	    hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig]   ->SetMarkerColor(418);
-	    hDeltaEtaDeltaPhi_PhiProjJetBulk[m][v][PtTrig]->SetMarkerColor(868);
+	    hDeltaEtaDeltaPhi_PhiProjJetBulk[m][v][PtTrig]    ->SetLineColor(kBlue-3);
+	    //	    hDeltaEtaDeltaPhi_PhiProjJetBulk[m][v][PtTrig]->SetMarkerColor(868);
 
 	    if (hDeltaEtaDeltaPhi_PhiProjJetRelError[m][v][PtTrig] && hDeltaEtaDeltaPhi_PhiProjJetBulkRelError[m][v][PtTrig]&& hDeltaEtaDeltaPhi_PhiProjBulkRelError[m][v][PtTrig]){
 	      hDeltaEtaDeltaPhi_PhiProjJetRelError[m][v][PtTrig]    ->SetLineColor(628);
@@ -670,7 +717,10 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
 	    if (m<=1 && MultBinning==1) LimSupY[0]=0.001;
 	    if (type==0)	  LimSupY[0]=0.014;
 	    if (type==0)	  LimInfY[0]=-0.002;
+
+	    cout << " ciao ciao " << endl;
 	    hDeltaEtaDeltaPhi_PhiProjJetBulk[m][v][PtTrig]->GetYaxis()->SetRangeUser(LimInfY[ishhCorr], LimSupY[ishhCorr]); //-0.004 for hh and hK0s
+	    cout << " ciao ciao " << endl;
 	    hDeltaEtaDeltaPhi_PhiProjJet[m][v][PtTrig]    ->GetYaxis()->SetRangeUser(LimInfY[ishhCorr],LimSupY[ishhCorr]);
 	    hDeltaEtaDeltaPhi_PhiProjJetZYAM[m][v][PtTrig]    ->GetYaxis()->SetRangeUser(LimInfY[ishhCorr], LimSupY[ishhCorr]);
 	    hDeltaEtaDeltaPhi_PhiProjJetFromBulkFit[m][v][PtTrig]    ->GetYaxis()->SetRangeUser(LimInfY[ishhCorr], LimSupY[ishhCorr]);
@@ -703,28 +753,90 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
 	    hDeltaEtaDeltaPhi_PhiProjJetNotBulkSub[m][v][PtTrig]->Fit(pol0ZYAM[m][v][PtTrig], "R+");
 
 	    pol0BulkBis[m][v][PtTrig]= new TF1("pol0",Form("pol0BulkBis_m%i_v%i",m,v), -1,1);
+	    pol0BulkSmooth[m][v][PtTrig]= new TF1("pol0",Form("pol0BulkSmooth_m%i_v%i",m,v), -TMath::Pi()/2,3/2*TMath::Pi());
+	    pol0BulkSmooth[m][v][PtTrig]->SetLineColor(418);
 	    if (LoopFile==0)	    pol0BulkBis[m][v][PtTrig]->SetLineColor(418);
 	    else pol0BulkBis[m][v][PtTrig]->SetLineColor(420);
 	    
+	    cout << " ciao ciao " << endl;
 	    if (LoopFile==0){
+	      ScalingFactorInclusive[m][v]=	      hDeltaEtaDeltaPhi_PhiProjJetBulk[m][v][PtTrig]->Integral( hDeltaEtaDeltaPhi_PhiProjJetBulk[m][v][PtTrig]->FindBin(1),  hDeltaEtaDeltaPhi_PhiProjJetBulk[m][v][PtTrig]->FindBin(2));
+	      IntegralFactorBulkDef[m][v][PtTrig]=	      hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig]   ->Integral();
 	      ScalingFactorJetNotBulkSub[m][v]=	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSub[m][v][PtTrig]->Integral( hDeltaEtaDeltaPhi_PhiProjJetNotBulkSub[m][v][PtTrig]->FindBin(1),  hDeltaEtaDeltaPhi_PhiProjJetNotBulkSub[m][v][PtTrig]->FindBin(2));
 	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethod[m][v][PtTrig]= (TH1F*)	      	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSub[m][v][PtTrig]->Clone(namePhiProjJetNotBulkSub[m][v] + "_DefaultMethod");
 	      hDeltaEtaDeltaPhi_PhiProjJetNewMethod[m][v][PtTrig]= (TH1F*)	      	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSub[m][v][PtTrig]->Clone(namePhiProjJet[m][v] + "_NewMethod");
 	      hDeltaEtaDeltaPhi_PhiProjJetNewMethodRebinSub[m][v][PtTrig]= (TH1F*)	      	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSub[m][v][PtTrig]->Clone(namePhiProjJet[m][v] + "_NewMethodRebinSub");
-	      hDeltaEtaDeltaPhi_PhiProjJetDefaultMethod[m][v][PtTrig]=	(TH1F*)      	      hDeltaEtaDeltaPhi_PhiProjJet[m][v][PtTrig]->Clone(namePhiProjJet[m][v] + "_DefaultMethod");	 
+	      hDeltaEtaDeltaPhi_PhiProjJetDefaultMethod[m][v][PtTrig]=	(TH1F*)      	      hDeltaEtaDeltaPhi_PhiProjJet[m][v][PtTrig]->Clone(namePhiProjJet[m][v] + "_DefaultMethod");
+	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethodRebin[m][v][PtTrig] =(TH1F*)	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSub[m][v][PtTrig]->Clone(namePhiProjJetNotBulkSub[m][v]+"_Rebin");
 	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubRebin[m][v][PtTrig]= (TH1F*)	      	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSub[m][v][PtTrig]->Clone(namePhiProjJetNotBulkSub[m][v] + "_Rebinned");
 	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubRebin[m][v][PtTrig]->Rebin(2);
+	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethodRebin[m][v][PtTrig] ->Rebin(2);
 
 	      canvasPlotProj[m][IntisMC]->cd(v);
-	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethod[m][v][PtTrig]->Draw("");
+	      if (v<numPtV0MaxOOJ){
+	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethodRebin[m][v][PtTrig]->Draw("");
+	      //	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethod[m][v][PtTrig]->Draw("");
 	      hDeltaEtaDeltaPhi_PhiProjJetDefaultMethod[m][v][PtTrig]    ->SetMarkerStyle(33);
 	      hDeltaEtaDeltaPhi_PhiProjJetDefaultMethod[m][v][PtTrig]    ->Draw("same");
-	      hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig]->Draw("same");
+	      hDeltaEtaDeltaPhi_PhiProjBulkReb[m][v][PtTrig]= (TH1F*) 	      hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig]->Clone(namePhiProjBulk[m][v]+"_Rebin");
+	      hDeltaEtaDeltaPhi_PhiProjBulkReb[m][v][PtTrig]->Rebin(2);
+	      hDeltaEtaDeltaPhi_PhiProjBulkReb[m][v][PtTrig]->Draw("same");
 	      tlinePhiBase->Draw("same");
+	      }
 
 	      canvasPlotProj[m][IntisMC]->cd(v+4);
+	      if (v<numPtV0MaxOOJ){
 	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethod[m][v][PtTrig]->Draw("");
 	      tlinePhiBase->Draw("same");
+	      }
+
+	      canvasPlotProj[m][IntisMC]->cd(v+8);
+	      if (v<numPtV0MaxOOJ){
+		//	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethodRebin[m][v][PtTrig]->Draw("");
+	      //	      tlinePhiBase->Draw("same");
+	      }
+
+	      canvasPlotProj[m][IntisMC]->cd(v+12);
+	      if (v<numPtV0MaxOOJ){
+		hDeltaEtaDeltaPhi_PhiProjJetBulk[m][v][PtTrig]->Rebin(2);
+		hDeltaEtaDeltaPhi_PhiProjJetBulk[m][v][PtTrig]->Draw("");
+		hDeltaEtaDeltaPhi_PhiProjJetInclusive[m][v][PtTrig]= (TH1F*)	      	      hDeltaEtaDeltaPhi_PhiProjJetBulk[m][v][PtTrig]->Clone(namePhiProjJet[m][v] + "_InclusiveRebSmooth");	 
+		tlinePhiBase->Draw("same");
+	      }
+
+	      hDeltaEtaDeltaPhi_PhiProjJetRebSmooth[m][v][PtTrig]= (TH1F*)	      	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethodRebin[m][v][PtTrig]->Clone(namePhiProjJet[m][v] + "_RebSmooth");	 
+	      hDeltaEtaDeltaPhi_PhiProjJetRebSmoothBis[m][v][PtTrig]= (TH1F*)	      	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethodRebin[m][v][PtTrig]->Clone(namePhiProjJet[m][v] + "_RebSmoothBis");	 
+	      hDeltaEtaDeltaPhi_PhiProjJetRebSmoothFit[m][v][PtTrig]= (TH1F*)	      	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethodRebin[m][v][PtTrig]->Clone(namePhiProjJet[m][v] + "_RebSmoothFit");	 
+	
+	      //subtraction using rebin + smooth OOJ distribution from events with pT,Trig > 3 geV 
+	      hDeltaEtaDeltaPhi_PhiProjJetDefaultMethodSmooth[m][v][PtTrig]= (TH1F*) 	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethodRebin[m][v][PtTrig]->Clone(namePhiProjJet[m][v] + "_DefaultMethodSmooth");
+	      hDeltaEtaDeltaPhi_PhiProjBulkRebSmoothed[m][v][PtTrig]= (TH1F*)	      	      hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig]->Clone(namePhiProjBulk[m][v] + "_RebSmooth");	 
+	      hDeltaEtaDeltaPhi_PhiProjBulkRebSmoothed[m][v][PtTrig]->Rebin(2);
+	      hDeltaEtaDeltaPhi_PhiProjBulkRebSmoothed[m][v][PtTrig]->Smooth();
+	      hDeltaEtaDeltaPhi_PhiProjJetDefaultMethodSmooth[m][v][PtTrig]->Add(	      hDeltaEtaDeltaPhi_PhiProjBulkRebSmoothed[m][v][PtTrig],-1);
+
+	      for (Int_t b=1; b<= hDeltaEtaDeltaPhi_PhiProjJetDefaultMethodSmooth[m][v][PtTrig]->GetNbinsX(); b++ ){
+		//		hDeltaEtaDeltaPhi_PhiProjJetDefaultMethodSmooth[m][v][PtTrig]->SetBinError(b, TMath::Abs(	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethodRebin[m][v][PtTrig]->GetBinError(b)-hDeltaEtaDeltaPhi_PhiProjBulkRebSmoothed[m][v][PtTrig]->GetBinError(b)) );
+
+	      }
+
+	      canvasPlotProjAllPt[m][IntisMC]->cd(v+1);
+	      hDeltaEtaDeltaPhi_PhiProjJetDefaultMethodSmooth[m][v][PtTrig]->SetLineColor(881);
+	      hDeltaEtaDeltaPhi_PhiProjJetDefaultMethodSmooth[m][v][PtTrig]->SetMarkerColor(881);
+	      hDeltaEtaDeltaPhi_PhiProjJetDefaultMethodSmooth[m][v][PtTrig]->SetMarkerStyle(33);
+	      hDeltaEtaDeltaPhi_PhiProjBulkRebSmoothed[m][v][PtTrig]->Draw("");
+	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethodRebin[m][v][PtTrig]->Draw("same");
+	      hDeltaEtaDeltaPhi_PhiProjJetDefaultMethodSmooth[m][v][PtTrig]->Draw("same");
+	      tlinePhiBase->Draw("same");
+	      hDeltaEtaDeltaPhi_PhiProjJetDefaultMethod[m][v][PtTrig]    ->Draw("same");
+	      canvasPlotProj[m][IntisMC]->cd(v);
+	      if (v<numPtV0MaxOOJ){
+		//c	      hDeltaEtaDeltaPhi_PhiProjJetDefaultMethodSmooth[m][v][PtTrig]->DrawClone("same");
+	      }
+
+	      fileout->WriteTObject(hDeltaEtaDeltaPhi_PhiProjJetDefaultMethod[m][v][PtTrig]);
+	      hDeltaEtaDeltaPhi_PhiProjJetDefaultMethodSmooth[m][v][PtTrig]->Scale(NTrigger[m][IntisMC]);
+	      fileout->WriteTObject(hDeltaEtaDeltaPhi_PhiProjJetDefaultMethodSmooth[m][v][PtTrig]);
 	    }
 	      //	    }	    
 	    //I rescale the histogram of the OOJ distribution
@@ -734,14 +846,19 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
 	      ScalingFactorBulk[m][v]=	      hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig]->Integral( hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig]->FindBin(1),  hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig]->FindBin(2));
 	      hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig]->Sumw2();
 	      hDeltaEtaDeltaPhi_PhiProjBulkScaled[m][v][PtTrig]= (TH1F*) 	      hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig]->Clone(namePhiProjBulk[m][v]+ "Scaled");
-	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMult[m][v][PtTrig]= (TH1F*) 	      hDeltaEtaDeltaPhi_PhiProjBulk[nummolt][v][PtTrig]->Clone(namePhiProjBulk[m][v]+ "ScaledAllMult");
+	      if (m==nummolt)  hDeltaEtaDeltaPhi_PhiProjBulk_mall[v][PtTrig]= (TH1F*) 	      hDeltaEtaDeltaPhi_PhiProjBulk[nummolt][v][PtTrig]->Clone(namePhiProjBulk[m][v]+ "_mall");
+	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMult[m][v][PtTrig]= (TH1F*) 	      hDeltaEtaDeltaPhi_PhiProjBulk_mall[v][PtTrig]->Clone(namePhiProjBulk[m][v]+ "ScaledAllMult");
+	      hDeltaEtaDeltaPhi_PhiProjBulkScaledToInclusiveAllMult[m][v][PtTrig]= (TH1F*) 	      hDeltaEtaDeltaPhi_PhiProjBulk_mall[v][PtTrig]->Clone(namePhiProjBulk[m][v]+ "ScaledToInclusive");
 
+	      hDeltaEtaDeltaPhi_PhiProjBulkScaledToInclusiveAllMult[m][v][PtTrig]->Scale(ScalingFactorInclusive[m][v]/ScalingFactorBulk[nummolt][v]);
 	      hDeltaEtaDeltaPhi_PhiProjBulkScaled[m][v][PtTrig]->Scale(ScalingFactorJetNotBulkSub[m][v]/ScalingFactorBulk[m][v]);
-	      //	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMult[m][v][PtTrig]->Scale(ScalingFactorJetNotBulkSub[m][v]/ScalingFactorBulk[nummolt][v]);
-	      cout <<"\\n\n\n****** m " << m << " v " << v <<" " <<  	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMult[m][v][PtTrig]->GetBinContent(1)<< endl;
-	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMult[m][v][PtTrig]->Scale(0.02/ScalingFactorBulk[nummolt][v]);
-	      cout << "scaling factor " << ScalingFactorBulk[nummolt][v]<< endl;
-	      cout <<  	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMult[m][v][PtTrig]->GetBinContent(1)<< endl;
+	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMult[m][v][PtTrig]->Scale(ScalingFactorJetNotBulkSub[m][v]/ScalingFactorBulk[nummolt][v]);
+
+	      tlineAtOne->Draw("same"); 
+	      //cout <<"\\n\n\n****** m " << m << " v " << v <<" " <<  	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMult[m][v][PtTrig]->GetBinContent(1)<< endl;
+	      //	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMult[m][v][PtTrig]->Scale(0.02/ScalingFactorBulk[nummolt][v]);
+	      //	      cout << "scaling factor " << ScalingFactorBulk[nummolt][v]<< endl;
+	      //	      cout <<  	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMult[m][v][PtTrig]->GetBinContent(1)<< endl;
 
 	      hDeltaEtaDeltaPhi_PhiProjBulkScaled[m][v][PtTrig]->SetLineColor(420);
 	      hDeltaEtaDeltaPhi_PhiProjBulkScaled[m][v][PtTrig]->SetMarkerColor(420);
@@ -760,7 +877,8 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
 	      cout << " \n\n\n rebinning " << endl;
 	      hDeltaEtaDeltaPhi_PhiProjJetNewMethod[m][v][PtTrig]->Rebin(2);
 	      hDeltaEtaDeltaPhi_PhiProjJetNewMethod[m][v][PtTrig]->Draw("same");
-	      //the histogram above is equal to the histogram 'JetNewMethodRebinSub' since rebinning -> subtracting == subtracting --> rebinning (only a difference in the error if histograms involve in subtraction are treated as fully correlated. In this case I treat them as uncorrelated (...not correct...) and therefore there are no differences
+	
+      //the histogram above is equal to the histogram 'JetNewMethodRebinSub' since rebinning -> subtracting == subtracting --> rebinning (only a difference in the error if histograms involve in subtraction are treated as fully correlated. In this case I treat them as uncorrelated (...not correct...) and therefore there are no differences
 
 	      hDeltaEtaDeltaPhi_PhiProjBulkScaledRebin[m][v][PtTrig] = (TH1F*) 	      hDeltaEtaDeltaPhi_PhiProjBulkScaled[m][v][PtTrig]->Clone(namePhiProjBulk[m][v]+ "ScaledRebin");
 	      hDeltaEtaDeltaPhi_PhiProjJetNewMethodRebinSub[m][v][PtTrig]->Rebin(2);
@@ -780,6 +898,76 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
 		hDeltaEtaDeltaPhi_PhiProjJetNDRatio[m][v][PtTrig]->SetBinError(b,TMath::Abs(hDeltaEtaDeltaPhi_PhiProjJetDefaultMethod[m][v][PtTrig]->GetBinError(b)-hDeltaEtaDeltaPhi_PhiProjJetNewMethod[m][v][PtTrig]->GetBinError(b)));
 		hDeltaEtaDeltaPhi_PhiProjJetNRebinDRatio[m][v][PtTrig]->SetBinError(b,TMath::Abs(hDeltaEtaDeltaPhi_PhiProjJetDefaultMethod[m][v][PtTrig]->GetBinError(b)-hDeltaEtaDeltaPhi_PhiProjJetNewMethodRebinSub[m][v][PtTrig]->GetBinError(b)));
 	      }
+
+	      canvasPlotProj[m][IntisMC]->cd(v+8);
+	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMultRebin[m][v][PtTrig]= (TH1F*) 	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMult[m][v][PtTrig]->Clone(namePhiProjBulk[m][v]+ "ScaledAllMultRebin");
+	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMultRebin[m][v][PtTrig]->Rebin(2);
+	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMultRebin[m][v][PtTrig]->GetYaxis()->SetRangeUser(LimInfY[ishhCorr], LimSupY[ishhCorr]);
+	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMultSmoothed[m][v][PtTrig]=(TH1F*) 	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMultRebin[m][v][PtTrig]->Clone(namePhiProjBulk[m][v]+ "ScaledAllMultSmoothed");
+	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMultSmoothed[m][v][PtTrig]-> Smooth();
+	      pol0BulkSmooth[m][v][PtTrig]->SetRange(-1, 1);
+	      //c	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMultSmoothed[m][v][PtTrig]->Fit(pol0BulkSmooth[m][v][PtTrig], "R+");
+	      pol0BulkSmooth[m][v][PtTrig]->SetRange(-1./2*TMath::Pi(), 3./2*TMath::Pi());
+	      hDeltaEtaDeltaPhi_PhiProjJetRebSmooth[m][v][PtTrig]->Add(hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMultSmoothed[m][v][PtTrig],-1);
+
+	      for (Int_t b=1; b<= hDeltaEtaDeltaPhi_PhiProjJetRebSmooth[m][v][PtTrig]->GetNbinsX(); b++ ){
+		//		hDeltaEtaDeltaPhi_PhiProjJetRebSmooth[m][v][PtTrig]->SetBinError(b, TMath::Abs(	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethodRebin[m][v][PtTrig]->GetBinError(b)-hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMultSmoothed[m][v][PtTrig]->GetBinError(b)) );
+		//		hDeltaEtaDeltaPhi_PhiProjJetRebSmoothFit[m][v][PtTrig]->SetBinError(b, TMath::Abs(	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethodRebin[m][v][PtTrig]->GetBinError(b)-pol0BulkSmooth[m][v][PtTrig]->GetParError(0)));
+
+	      }
+	      hDeltaEtaDeltaPhi_PhiProjJetRebSmooth[m][v][PtTrig]->GetYaxis()->SetRangeUser(LimInfY[ishhCorr], LimSupY[ishhCorr]);
+	      hDeltaEtaDeltaPhi_PhiProjJetRebSmooth[m][v][PtTrig]->SetLineColor(628);
+	      hDeltaEtaDeltaPhi_PhiProjJetRebSmooth[m][v][PtTrig]->SetMarkerColor(628);
+	      hDeltaEtaDeltaPhi_PhiProjJetRebSmooth[m][v][PtTrig]->SetMarkerStyle(33);
+	      hDeltaEtaDeltaPhi_PhiProjJetRebSmoothFit[m][v][PtTrig]->SetLineColor(kRed-7);
+	      hDeltaEtaDeltaPhi_PhiProjJetRebSmoothFit[m][v][PtTrig]->SetMarkerColor(kRed-7);
+	      hDeltaEtaDeltaPhi_PhiProjJetRebSmoothFit[m][v][PtTrig]->SetMarkerStyle(33);
+
+	      //OOJ distribution for NoTriggerEvents and m0-100 scaled by integral of OOJ distribution default
+	      hDeltaEtaDeltaPhi_PhiProjBulkScaledBisAllMult[m][v][PtTrig]= (TH1F*) 	      hDeltaEtaDeltaPhi_PhiProjBulk_mall[v][PtTrig]->Clone(namePhiProjBulk[m][v]+ "ScaledBisAllMult");
+	      IntegralFactorBulkNewAllMult[m][v][PtTrig]=	      hDeltaEtaDeltaPhi_PhiProjBulk_mall[v][PtTrig]   ->Integral();
+	      hDeltaEtaDeltaPhi_PhiProjBulkScaledBisAllMult[m][v][PtTrig]->Scale(IntegralFactorBulkDef[m][v][PtTrig]/IntegralFactorBulkNewAllMult[m][v][PtTrig]);
+	      hDeltaEtaDeltaPhi_PhiProjBulkScaledBisAllMult[m][v][PtTrig]->SetLineColor(kGreen+3);
+	      hDeltaEtaDeltaPhi_PhiProjBulkScaledBisAllMult[m][v][PtTrig]->SetMarkerColor(kGreen+3);
+	      //	      hDeltaEtaDeltaPhi_PhiProjBulkScaledBisAllMult[m][v][PtTrig]->SetMarkerStyle(33);
+	      hDeltaEtaDeltaPhi_PhiProjBulkScaledBisAllMult[m][v][PtTrig]->Rebin(2);
+	      hDeltaEtaDeltaPhi_PhiProjBulkScaledBisAllMult[m][v][PtTrig]->Smooth();
+
+	      hDeltaEtaDeltaPhi_PhiProjJetRebSmoothBis[m][v][PtTrig]->Add(hDeltaEtaDeltaPhi_PhiProjBulkScaledBisAllMult[m][v][PtTrig],-1);
+	      hDeltaEtaDeltaPhi_PhiProjJetRebSmoothBis[m][v][PtTrig]->SetLineColor(kAzure+7);
+	      hDeltaEtaDeltaPhi_PhiProjJetRebSmoothBis[m][v][PtTrig]->SetMarkerColor(kAzure+7);
+	      hDeltaEtaDeltaPhi_PhiProjJetRebSmoothBis[m][v][PtTrig]->SetMarkerStyle(33);
+	      cout << " \n\n\n rebinning " << endl;
+
+	      //	      pol0BulkSmooth[m][v][PtTrig]->SetRange(-3/2*TMath::Pi(), TMath::Pi());
+	      hDeltaEtaDeltaPhi_PhiProjJetRebSmoothFit[m][v][PtTrig]->Add(pol0BulkSmooth[m][v][PtTrig],-1, "i");
+	      hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethodRebin[m][v][PtTrig]->Draw("");
+	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMultSmoothed[m][v][PtTrig]->Draw("same");
+	      hDeltaEtaDeltaPhi_PhiProjJetRebSmooth[m][v][PtTrig]->DrawClone("same");
+	      hDeltaEtaDeltaPhi_PhiProjJetRebSmoothFit[m][v][PtTrig]->DrawClone("same");
+	      hDeltaEtaDeltaPhi_PhiProjJetRebSmoothBis[m][v][PtTrig]->Draw("same");
+	      hDeltaEtaDeltaPhi_PhiProjBulkScaledBisAllMult[m][v][PtTrig]->Draw("same");
+	      tlinePhiBase->Draw("same"); 
+
+	      //	      hDeltaEtaDeltaPhi_PhiProjJetRebSmooth[m][v][PtTrig]->Scale(NTrigger[m][IntisMC]);
+	      //	      hDeltaEtaDeltaPhi_PhiProjJetRebSmoothFit[m][v][PtTrig]->Scale(NTrigger[m][IntisMC]);
+	      fileout->WriteTObject(hDeltaEtaDeltaPhi_PhiProjJetRebSmooth[m][v][PtTrig]);
+	      fileout->WriteTObject(hDeltaEtaDeltaPhi_PhiProjJetRebSmoothBis[m][v][PtTrig]);
+	      fileout->WriteTObject(hDeltaEtaDeltaPhi_PhiProjJetRebSmoothFit[m][v][PtTrig]);
+
+
+	      canvasPlotProj[m][IntisMC]->cd(v+12);
+	      hDeltaEtaDeltaPhi_PhiProjBulkScaledToInclusiveAllMult[m][v][PtTrig]->Rebin(2);
+	      hDeltaEtaDeltaPhi_PhiProjBulkScaledToInclusiveAllMult[m][v][PtTrig]->Smooth();
+	     
+	      //	      hDeltaEtaDeltaPhi_PhiProjJetInclusive[m][v][PtTrig]->Add(hDeltaEtaDeltaPhi_PhiProjBulkScaledToInclusiveAllMult[m][v][PtTrig],-1);
+	      hDeltaEtaDeltaPhi_PhiProjJetInclusive[m][v][PtTrig]->Add(hDeltaEtaDeltaPhi_PhiProjBulkScaledBisAllMult[m][v][PtTrig],-1);
+	      hDeltaEtaDeltaPhi_PhiProjJetInclusive[m][v][PtTrig]->Scale(DeltaEtaInclusive/DeltaEtaJet);
+	      hDeltaEtaDeltaPhi_PhiProjJetInclusive[m][v][PtTrig]->SetMarkerStyle(33);
+	      hDeltaEtaDeltaPhi_PhiProjJetInclusive[m][v][PtTrig]->Draw("same");
+	      // hDeltaEtaDeltaPhi_PhiProjBulkScaledToInclusiveAllMult[m][v][PtTrig]->Draw("same");	      
+	      hDeltaEtaDeltaPhi_PhiProjBulkScaledBisAllMult[m][v][PtTrig]->Draw("same");
+	      fileout->WriteTObject(hDeltaEtaDeltaPhi_PhiProjJetInclusive[m][v][PtTrig]);
 	    }
 
 	    //	  pol0ZYAM[m][v][PtTrig]->Draw("same");
@@ -787,11 +975,11 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
 	    
 	    //	  hDeltaEtaDeltaPhi_PhiProjJetZYAM[m][v][PtTrig]    ->Draw("same");
 	    //	  hDeltaEtaDeltaPhi_PhiProjJetFromBulkFit[m][v][PtTrig]    ->Draw("same");
-	 
+       
 
 	    canvasPlotOOJDistr[m][IntisMC][0]->cd(v);
 	    if (LoopFile==0)	{
-	      IntegralFactorBulkDef[m][v][PtTrig]=	      hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig]   ->Integral();
+	      //	      IntegralFactorBulkDef[m][v][PtTrig]=	      hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig]   ->Integral();
 	      hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig]   ->SetLineColor(418);
 	      hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig]   ->SetMarkerColor(418);
 	      hDeltaEtaDeltaPhi_PhiProjBulkRatio[m][v][PtTrig] = (TH1F*)hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig] ->Clone("PhiProjBulkRatioOOJ");
@@ -853,10 +1041,11 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
 	      hDeltaEtaDeltaPhi_PhiProjBulkIntegralScaledRatio[m][v][PtTrig]->GetYaxis()->SetRangeUser(0.5,1.5);
 	      if (m==nummolt)	      hDeltaEtaDeltaPhi_PhiProjBulkIntegralScaledRatio[m][v][PtTrig]->Draw("");
 	      else 	      hDeltaEtaDeltaPhi_PhiProjBulkIntegralScaledRatio[m][v][PtTrig]->Draw("same");
-	      tlineAtOne->Draw("same"); 
-	      if (m==0) legendmult->Draw("");
+	      tlineAtOneAllDeltaPhi->Draw("same"); 
+	      //	      if (m==0) legendmult->Draw("");
 
 	    }
+
 
 	    canvasPlotProjRatioJet[m][IntisMC]->cd(v+1);
 	    cout << "cd chosen " << endl;
@@ -952,6 +1141,7 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
 	for(Int_t PtTrig=0; PtTrig<numPtTrig; PtTrig++){
 	  if ((PtTrig+PtTrigChosen)!=PtTrigChosen) continue;
 	  for(Int_t v=PtV0Min; v<numPtV0Max; v++){  
+	if (v>= numPtV0MaxOOJ && LoopFile==1) continue;
 	    cout <<" m " << m <<  " v " << v << " "  <<  	  hDeltaEtaDeltaPhi_PhiProjJet[m][v][PtTrig]    ->GetMaximum() << endl;
 	  }
 	  cout <<" m " << m <<  " " <<	  hDeltaEtaDeltaPhi_PhiProjJet_PtV0Summed[m][IntisMC][PtTrig]    ->GetMaximum() << endl;
@@ -1058,7 +1248,21 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
       fileout->WriteTObject(canvasPlotOOJDistr[m][IntisMC][1]); 
       fileout->WriteTObject(canvasPlotME[m][IntisMC]); 
       fileout->WriteTObject(canvasPlotProj[m][IntisMC]); 
+      fileout->WriteTObject(canvasPlotProjAllPt[m][IntisMC]); 
       fileout->WriteTObject(canvasPlotProjRatioJet[m][IntisMC]); 
+
+      if (m==nummolt && IntisMC == LimInfMC) {
+	canvasPlotProj[m][IntisMC]->SaveAs(nomepdffile+"_PlotProj.pdf(");
+	canvasPlotProjAllPt[m][IntisMC]->SaveAs(nomepdffile+"_PlotProjAllPt.pdf(");
+      }
+      else if (m==0 && IntisMC == LimSupMC) {
+	canvasPlotProj[m][IntisMC]->SaveAs(nomepdffile+"_PlotProj.pdf)");  
+	canvasPlotProjAllPt[m][IntisMC]->SaveAs(nomepdffile+"_PlotProjAllPt.pdf)");  
+      }
+      else {
+	canvasPlotProj[m][IntisMC]->SaveAs(nomepdffile+"_PlotProj.pdf"); 
+	canvasPlotProjAllPt[m][IntisMC]->SaveAs(nomepdffile+"_PlotProjAllPt.pdf"); 
+      }
 
       canvasPlot[m][IntisMC]->Close(); 
       canvasPlotME[m][IntisMC]->Close(); 
@@ -1139,7 +1343,8 @@ void OOJDistributionComparisonNew(Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float
     }
   }
 
+  cout << "DeltaEtaJet " << DeltaEtaJet << "DeltaEtaInclusive " << DeltaEtaInclusive << endl;
   cout << "\n\n ho creato il file " << nomefileoutput << endl;
-
+  cout << " ho creato le canvas " << nomepdffile +"_PlotProjAllPt.pdf e " << nomepdffile+"_PlotProj.pdf"<< endl; 
 }
 
