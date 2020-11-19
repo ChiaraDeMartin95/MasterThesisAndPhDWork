@@ -207,6 +207,8 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s() :AliAnalysisT
   fTreeVariableDCAxy(0),
   fTreeVariableChargeAssoc(0),     
   fTreeVariableSkipAssoc(0),     
+//  fTreeVariableEtaDaughterPos(0),
+//  fTreeVariableEtaDaughterNeg(0),
   fTreeVariableIsCommonParton(0),
   fTreeVariablePdgCommonParton(0),
   fTreeVariableAssocDCAz(0),
@@ -404,6 +406,8 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s(const char* nam
   fTreeVariableDCAxy(0),		
   fTreeVariableChargeAssoc(0),     
   fTreeVariableSkipAssoc(0),     
+//  fTreeVariableEtaDaughterPos(0),
+//  fTreeVariableEtaDaughterNeg(0),
   fTreeVariableIsCommonParton(0),
   fTreeVariablePdgCommonParton(0),
   fTreeVariableAssocDCAz(0),
@@ -702,6 +706,8 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   fSignalTree->Branch("fTreeVariableDCAxy",              &fTreeVariableDCAxy  , "fTreeVariableDCAxy/D");
   fSignalTree->Branch("fTreeVariableChargeAssoc",        &fTreeVariableChargeAssoc  , "fTreeVariableChargeAssoc/I");
   fSignalTree->Branch("fTreeVariableSkipAssoc",          &fTreeVariableSkipAssoc  , "fTreeVariableSkipAssoc/O");
+  //  fSignalTree->Branch("fTreeVariableEtaDaughterPos",          &fTreeVariableEtaDaughterPos  , "fTreeVariableEtaDaughterPos/D");
+  //  fSignalTree->Branch("fTreeVariableEtaDaughterNeg",          &fTreeVariableEtaDaughterNeg  , "fTreeVariableEtaDaughterNeg/D");
   fSignalTree->Branch("fTreeVariableIsCommonParton",     &fTreeVariableIsCommonParton, "fTreeVariableIsCommonParton/O");
   fSignalTree->Branch("fTreeVariablePdgCommonParton",    &fTreeVariablePdgCommonParton, "fTreeVariablePdgCommonParton/I");
   fSignalTree->Branch("fTreeVariableAssocDCAz",          &fTreeVariableAssocDCAz  , "fTreeVariableAssocDCAz/D");
@@ -1818,6 +1824,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   Int_t NumberFirstParticleAll=0;
   Int_t NumberFirstParticle=0;
   Int_t NumberFirstParticleAllPt=0;
+  Int_t NumberFirstParticleAllPtMC=0;
   Int_t NumberFirstParticleMC=0;
   Int_t NumberFirstParticle_finale=0;
   Int_t NumberSecondParticleRecoTrue=0;
@@ -1850,6 +1857,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   Int_t TriggerPdgCode=0;
 
   //begin loop for trigger particles   
+  if (!(fReadMCTruth && !isEfficiency)){
   for(Int_t i=0; i < iTracks; i++) {
 
     track = static_cast<AliAODTrack*>(fAOD->GetTrack(i));        
@@ -2069,6 +2077,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
     }
 
   }//end loop for trigger particles
+}//done only if not MC truth
 
   TClonesArray* AODMCTrackArray =0x0;  
   Float_t ptTriggerMinimoMC=10000;
@@ -2080,6 +2089,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   //begin loop for trigger particles (MC truth analysis)
   if(fReadMCTruth){
     if (fMCEvent){
+      cout << " loop for trigger particles.. MC truth " << endl;
       AODMCTrackArray = dynamic_cast<TClonesArray*>(fAOD->FindListObject(AliAODMCParticle::StdBranchName()));
       if (AODMCTrackArray == NULL){
 	return;
@@ -2093,6 +2103,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	if((trParticle->Charge())==0)continue;
 	if(TMath::Abs(trParticle->Eta())>fEtaTrigger)continue; //I need to select particles within this eta range!
 	if (!(trParticle->IsPhysicalPrimary()))continue; 
+	NumberFirstParticleAllPtMC++; 
 	if(trParticle->Pt()<= fminPtj || trParticle->Pt()>=fmaxPtj)continue;
 	if(trParticle->Pt()< ptTriggerMinimoMC) ptTriggerMinimoMC=trParticle->Pt();
 	if(trParticle->Pt()> ptTriggerMassimoMC){
@@ -2116,9 +2127,11 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	fEvt->fReconstructedFirst[NumberFirstParticleMC-1].fPDGcode     = trParticle->GetPdgCode();
 
       }
+      cout << "I found " << 	NumberFirstParticleMC << " trigger particles (pT > 3 GeV/c, not only the highest pt one)" << endl;
+      cout << " pt of trigger particle " << 	  ptTriggerMassimoMC << endl;
     }
-  }   //end loop for trigger particles (MC truth analysis)
-
+  }  //end loop for trigger particles (MC truth analysis)
+  cout << " end of loop for trigger particles (MCtruth)" << endl;
 
   if ((!fReadMCTruth || (fReadMCTruth &&isEfficiency))&&  ptTriggerMassimoDati!=0 )  fHistPtMaxvsMultBefAll->Fill(ptTriggerMassimoDati, lPercentiles);
   if (fReadMCTruth && !isEfficiency &&  ptTriggerMassimoMC!=0)  fHistPtMaxvsMultBefAll->Fill(ptTriggerMassimoMC, lPercentiles);  
@@ -2143,7 +2156,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 
   
   if((fReadMCTruth && isEfficiency) || (!fReadMCTruth)) {NumberFirstParticleAll=NumberFirstParticle; ptTriggerMassimoAll=ptTriggerMassimoDati;}
-  else if (fReadMCTruth && !isEfficiency) {NumberFirstParticleAll=NumberFirstParticleMC; ptTriggerMassimoAll=ptTriggerMassimoMC;}
+  else if (fReadMCTruth && !isEfficiency) {NumberFirstParticleAll=NumberFirstParticleMC; ptTriggerMassimoAll=ptTriggerMassimoMC; NumberFirstParticleAllPt = NumberFirstParticleAllPtMC;}
   if(NumberFirstParticleAll==0) fHistNumberChargedNoTrigger->Fill(lPercentiles, NumberCharged,0 );
   if(NumberFirstParticleAll!=0) fHistNumberChargedTrigger->Fill(lPercentiles, NumberCharged,ptTriggerMassimoAll );
   fHistNumberChargedAllEvents->Fill(lPercentiles, NumberCharged,ptTriggerMassimoAll );
@@ -2166,8 +2179,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   isV0=kFALSE;
   Int_t VPdgTrig[50]={0};
   Int_t VParticleTrigLabel[50]={0};
-
-  if(fReadMCTruth){
+  if(fReadMCTruth && isEfficiency){
     if(fMCEvent){
       //      ProcessMCParticles(Generated, trackPtTMax, labelPrimOrSec, lPercentiles, isV0, dzgPtTMax,0, fIshhCorr);
       ProcessMCParticles(Generated, trackPtTMax, labelPrimOrSec, lPercentiles, isV0, dzgPtTMax,0, fIshhCorr, VPdgTrig, VParticleTrigLabel);
@@ -2185,7 +2197,6 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
     //    cout  << "event does not have Trigger particles with pT> 3 GeV/c " << endl;          
     return;
   }
- 
   fHist_multiplicity_EvwTrigger->Fill(lPercentiles);
   fHistTrack->AddBinContent(14, NumberFirstParticle);
   fHistTrack->AddBinContent(15, NumberFirstParticleMC);
@@ -2210,7 +2221,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 
     //LOOP for charged particles as associated particles
     bool skipAssoc=kFALSE; 
-
+    if (!(fReadMCTruth && !isEfficiency)){
     for(Int_t i=0; i < iTracks; i++) {
       track = static_cast<AliAODTrack*>(fAOD->GetTrack(i));        
       fHistTrackAssoc->Fill(1);
@@ -2437,6 +2448,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
       }
 
     }  //end loop for charged particles as associated particles
+    } //done only if it is not MC truth
 
     //begin MC loop for charged particles as associated particles
     if(fReadMCTruth){
@@ -2552,6 +2564,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
     }
   
     // cout << "\n \n  here I start the loop on v0s " << endl;
+    if (!(fReadMCTruth && !isEfficiency)){
     for(Int_t i(0); i < V0Tracks; i++) {       
       isaK0s=0; //it will be put to 1 for true K0s in MC
       rapidityV0=0;
@@ -2833,7 +2846,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
       if(v0->DcaNegToPrimVertex() < kMinDCAPrimary[ParticleType])      continue;
       if(v0->DcaPosToPrimVertex() < kMinDCAPrimary[ParticleType])      continue;
       if(v0->DcaV0Daughters() > kMaxDCADaughters[ParticleType])        continue;
-      if(v0Dca > kMaxDCA[ParticleType]) 	        		     continue;
+      if(v0Dca > kMaxDCA[ParticleType]) 	        	       continue;
       if(kctau[ParticleType]>kctauval[ParticleType])                   continue;
    
       //if(v0->PtArmV0()< 0.2*TMath::Abs(v0->AlphaV0()))                    continue;
@@ -3041,10 +3054,13 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	fHistPtV0->Fill(v0->Pt());
       }
     } //end loop for K0s particles as associated
-  
+    } // done only if not MC truth  
+
+    cout << " beginning loop for associated particles (MCtruth) " << endl;
     //begin MC truth loop for K0s particles as associated 
     if(fReadMCTruth){
       if (fMCEvent){
+	cout << " MC truth for associated particles " << endl;
 	AODMCTrackArray = dynamic_cast<TClonesArray*>(fAOD->FindListObject(AliAODMCParticle::StdBranchName()));
 	if (AODMCTrackArray == NULL){
 	  return;
@@ -3058,6 +3074,24 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	  //	  if(TMath::Abs(particleV0->Eta())> fEtaV0Assoc)continue;
 	  if (!(particleV0->IsPhysicalPrimary()))continue; 
 	  if(!(particleV0->Pt()> fminPtV0 && particleV0->Pt()<fmaxPtV0) )continue;
+
+	  //question: should I take all daughter tracks or only those with |eta| < 0.8 as in the data?
+	  AliAODMCParticle* particlePos;
+	  AliAODMCParticle* particleNeg;
+	  
+	  Int_t labelPos = particleV0->GetDaughterLabel(0);
+	  Int_t labelNeg = particleV0->GetDaughterLabel(1);
+	  particlePos = static_cast<AliAODMCParticle*>(AODMCTrackArray->At(TMath::Abs(labelPos)));
+	  particleNeg = static_cast<AliAODMCParticle*>(AODMCTrackArray->At(TMath::Abs(labelNeg)));
+	  
+	  //	  labelPos =  (particleV0->GetDaughterFirst());
+	  //	  labelNeg =  (particleV0->GetDaughterLast());
+	  //cout << "label pos " << labelPos << " labelNeg " << labelNeg << " q+ " << particlePos->Charge() << " q- " << particleNeg->Charge() << endl;
+	  //cout << " PDG+ " << particlePos->GetPdgCode() << " PDG- " << particleNeg->GetPdgCode() << endl;
+	  //cout << "eta + " << particlePos->Eta() << endl;
+	  //cout << "eta - " << particleNeg->Eta() << endl;
+	  //	  EtaPos = particlePos->Eta();
+	  //	  EtaNeg = particleNeg->Eta();
 
 	  if ((particleV0->Pt())>=ptTriggerMassimoMC) {
 	    skipV0_MC=kTRUE;
@@ -3091,12 +3125,17 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	  fEvt->fReconstructedSecond[NumberSecondParticleMC-1].sAssocOrNot   = skipV0_MC;
 	  fEvt->fReconstructedSecond[NumberSecondParticleMC-1].sIsCommonParton        = 0;
 	  fEvt->fReconstructedSecond[NumberSecondParticleMC-1].sPdgCommonParton       = 0;
+	  //	  fEvt->fReconstructedSecond[NumberSecondParticleMC-1].sEtaPos       = particlePos->Eta();
+	  //	  fEvt->fReconstructedSecond[NumberSecondParticleMC-1].sEtaNeg       = particleNeg->Eta();
 
 
 	}
+	//	  cout << "I found " << 	NumberSecondParticleMC - 	    NumberSecondParticleMCNoAssoc<< " associated particles (pT < pt,Trig)" << endl;
+	//	  cout << "I found " << 	NumberSecondParticleMC << " associated particles (all pt)" << endl;
+	  
       }
     } //end MC truth loop for K0s particles as associated 
-
+    //    cout << " end of loop for assoc particles (MCtruth)" << endl;
   }
   //************************end hV0 section*************************************************
 
@@ -3321,6 +3360,7 @@ void AliAnalysisTaskCorrelationhhK0s::DoPairsh1h2 ( const Float_t lPercentiles, 
   double pairKt    = 0.;
   double pTmax = 0.;
 
+  //  cout << " I'm doing the trigger-assoc association " << endl;
   for (int i=0; i<fEvt->fNumberCandidateFirst; i++) {
     
     //I select as trigger particle only the highest-pT one
@@ -3377,6 +3417,8 @@ void AliAnalysisTaskCorrelationhhK0s::DoPairsh1h2 ( const Float_t lPercentiles, 
 	  fTreeVariableSkipAssoc              =  fEvt->fReconstructedSecond[j].sAssocOrNot ;
 	  fTreeVariableIsCommonParton         =  fEvt->fReconstructedSecond[j].sIsCommonParton       ;
           fTreeVariablePdgCommonParton        =  fEvt->fReconstructedSecond[j].sPdgCommonParton      ;
+	  //	  fTreeVariableEtaDaughterPos         =  fEvt->fReconstructedSecond[j].sEtaPos ;
+	  //	  fTreeVariableEtaDaughterNeg         =  fEvt->fReconstructedSecond[j].sEtaNeg ;
 
 	  fSignalTree->Fill();  
 
@@ -3412,6 +3454,8 @@ void AliAnalysisTaskCorrelationhhK0s::DoPairsh1h2 ( const Float_t lPercentiles, 
 	  fTreeVariablePDGCodeAssoc           = (fEvt+eventNumber)->fReconstructedSecond[j].sPDGcode;
 	  fTreeVariableisPrimaryV0            =  (fEvt+eventNumber)->fReconstructedSecond[j].isP;
 	  fTreeVariableSkipAssoc              =  (fEvt+eventNumber)->fReconstructedSecond[j].sAssocOrNot ;
+	  //	  fTreeVariableEtaDaughterPos         =  (fEvt+eventNumber)->fReconstructedSecond[j].sEtaPos ;
+	  //	  fTreeVariableEtaDaughterNeg         =  (fEvt+eventNumber)->fReconstructedSecond[j].sEtaNeg ;
 	  fTreeVariableIsCommonParton         =    (fEvt+eventNumber)->fReconstructedSecond[j].sIsCommonParton       ;
           fTreeVariablePdgCommonParton        =    (fEvt+eventNumber)->fReconstructedSecond[j].sPdgCommonParton      ;
 
@@ -3434,6 +3478,7 @@ void AliAnalysisTaskCorrelationhhK0s::DoPairsh1h2 ( const Float_t lPercentiles, 
     
   } // end first particle loop
   
+  cout << " I've done the trigger-assoc association " << endl;
   if  (multmixedcounted) 
     fHistMultiplicityOfMixedEvent->Fill(evmultmixed); //tells me with how many events the mixed-event was done
   
