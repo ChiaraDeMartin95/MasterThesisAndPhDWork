@@ -20,8 +20,9 @@
 #include "TGraphAsymmErrors.h"
 #include </data/dataalice/AliceSoftware/aliphysics/master_chiara/src/PWG/Tools/AliPWGFunc.h>
 
-void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, TString titleX, TString titleY, TString title){
+void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, TString titleX, TString titleY, TString title, Bool_t XRange, Float_t XLow, Float_t XUp){
   histo->GetYaxis()->SetRangeUser(Low, Up);
+  if (XRange)   histo->GetXaxis()->SetRangeUser(XLow, XUp);
   histo->SetLineColor(color);
   histo->SetMarkerColor(color);
   histo->SetMarkerStyle(style);
@@ -34,7 +35,7 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString year="1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/,  TString Path1 ="_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,  Bool_t isEfficiency=1,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Int_t PtBinning=1, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,   Int_t sys=0){
+void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString year="1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/,  TString Path1 ="_Jet0.75"/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,  Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Int_t PtBinning=1, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,   Int_t sys=0, Bool_t ZeroYieldLowPt=0, Bool_t TwoFitFunctions=0){
 
   if (TypeAnalysis>2) {cout << "sys errors not yet implemented for these regions " << endl; return;}
 
@@ -51,6 +52,7 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
 
 
   TString RegionType[3] = {"Jet", "Bulk", "Inclusive"};
+  TString RegionTypeOld[3] = {"Jet", "Bulk", "All"};
 
   if (ishhCorr && type!=0){
     type=0;
@@ -71,6 +73,15 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
   } 
 
   gStyle->SetOptStat(0);
+
+  TF1 * lineat2= new TF1 ("lineat2", "pol0", 0,8);
+  lineat2->FixParameter(0,2);
+  lineat2->SetLineColor(kBlack);
+  lineat2->SetLineWidth(1);
+  TF1 * lineatm2= new TF1 ("lineatm2", "pol0", 0,8);
+  lineatm2->FixParameter(0,-2);
+  lineatm2->SetLineColor(1);
+  lineatm2->SetLineWidth(1);
 
   TString hhCorr[2]={"", "_hhCorr"};
   TFile *fileinbis;
@@ -231,6 +242,9 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
   }
   stringout+=   Form("_PtMin%.1f_", PtTrigMin);
   stringout+= RegionType[TypeAnalysis];
+  if (ZeroYieldLowPt && TypeAnalysis==0) stringout +="_ZeroYLowPtJet";
+  //  stringout += "_LowPtExtr0.5";
+  if (TwoFitFunctions) stringout += "_TwoFitFunctions";
   stringout += ".root";
   TFile * fileout = new TFile(stringout, "RECREATE");
 
@@ -244,7 +258,8 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
   Double_t LowRangeSpectrumPart[nummolt+1]= {0};
   Double_t UpRangeSpectrumPart[nummolt+1]= {0};
 
-  Double_t LowRangeJet[nummolt+1]= {2, 1.5, 1, 1.5, 1.5, 1}; 
+  //Double_t LowRangeJet[nummolt+1]= {2, 1.5, 1, 1.5, 1.5, 1}; 
+  Double_t LowRangeJet[nummolt+1]= {1,1,1,1,1,1};
   Double_t UpRangeJet[nummolt+1]= {8,8,8,8,8,8}; 
 
   //  Double_t LowRangeBulk[nummolt+1]= {1, 1, 1, 1, 1, 1}; 
@@ -316,6 +331,7 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
 	  if (!isMC){
 	    if (m==5|| m==2 || m==4 )     LowRangeJet[m] =     LowRangeJetBFit[m] =     LowRangeJetZYAM[m]= 0.1;
 	    else  {LowRangeJet[m] = 0.5;     LowRangeJetBFit[m] =     LowRangeJetZYAM[m]= 0.1;}
+	    //LowRangeJet[m] = 0.5;     LowRangeJetBFit[m] =     LowRangeJetZYAM[m]= 0.1; for LowPtExtr0.5
 	    UpRangeJet[m] = UpRangeJetBFit[m] = UpRangeJetZYAM[m]=4;	  
 	    if (m==4) UpRangeJet[m] = UpRangeJetBFit[m] = UpRangeJetZYAM[m]=4;
 	    LowRangeBulk[m]= 0.1; 
@@ -449,7 +465,11 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
       if (LowRangeSpectrumPart[m]<=NPtV0[v]) break;
       PtBinMin[m]++;
       cout << "LowRange " << LowRangeSpectrumPart[m] << " v " << v << " PtBin " << NPtV0[v]<< endl;
+      cout << "PtBinMin " << PtBinMin[m] << endl;
     }
+
+    UpRangeSpectrumPart[m] =8;
+    if (type==8 && m==4 && (TypeAnalysis==0 || TypeAnalysis==1))    UpRangeSpectrumPart[m] =4;
   }
 
   //syst1_limit indica gli effetti sistematici sullo spettro in pT
@@ -473,19 +493,23 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
   TString title = "Multiplicity class "; 
 
   TLegend *legendPhi = new TLegend(0.6, 0.6, 0.9, 0.9);
-  TLegend *legendErrorAll;
+
+  /*
   if (type==0){
     legendErrorAll = new TLegend(0.6, 0.6, 0.9, 0.9);
   }
   else if (type==8){
     legendErrorAll = new TLegend(0.6, 0.1, 0.9, 0.4);
   }
+  */
   TLegend *legendError = new TLegend(0.6, 0.7, 0.9, 0.9);
   TLegend *legendError2 = new TLegend(0.6, 0.7, 0.9, 0.9);
 
   TH1F* fHistSpectrumStat[nummolt+1];
   TH1F* fHistSpectrumStatpol0[nummolt+1];
   TH1F* fHistSpectrumStatOOJSubDef[nummolt+1];
+  TH1F* fHistSpectrumStatLeadTrackDef[nummolt+1];
+  TH1F* fHistSpectrumStatMCChoiceDef[nummolt+1];
   TH1F* fHistSpectrumSist[nummolt+1];
   TH1F* fHistSpectrum_max[nummolt+1];
   TH1F* fHistSpectrum_min[nummolt+1];
@@ -494,6 +518,8 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
   TH1F* fHistSpectrumSistDPhi[nummolt+1];
   TH1F* fHistSpectrumSistOOJ[nummolt+1];
   TH1F* fHistSpectrumSistAll[nummolt+1];
+  TH1F* fHistSpectrumSistLeadTrack[nummolt+1];
+  TH1F* fHistSpectrumSistMCChoice[nummolt+1];
 
   //histos for relative uncertainty
   TH1F* fHistSpectrumStatRelError[nummolt+1]; //stat
@@ -506,6 +532,8 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
   TH1F* fHistSpectrumSistRelErrorMB[nummolt+1]; 
   TH1F* fHistSpectrumSistRelErrorOOBPU[nummolt+1]; 
   TH1F* fHistSpectrumSistRelErrorIBPU[nummolt+1]; 
+  TH1F* fHistSpectrumSistRelErrorLeadTrack[nummolt+1]; 
+  TH1F* fHistSpectrumSistRelErrorMCChoice[nummolt+1]; 
 
   TCanvas* canvasYield = new TCanvas ("canvasYield", "canvasYield", 1300, 800);
   TCanvas* canvasYieldErr = new TCanvas ("canvasYieldErr", "canvasYieldErr", 1300, 800);
@@ -516,9 +544,16 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
   canvaspol0->Divide(3,2);
   TCanvas* canvasOOJSubDef = new TCanvas ("canvasOOJSubDef", "canvasOOJSubDef", 1300, 800);
   canvasOOJSubDef->Divide(3,2);
+  TCanvas* canvasLeadTrackDef = new TCanvas ("canvasLeadTrackDef", "canvasLeadTrackDef", 1300, 800);
+  canvasLeadTrackDef->Divide(3,2);
+  TCanvas* canvasMCChoiceDef = new TCanvas ("canvasMCChoiceDef", "canvasMCChoiceDef", 1300, 800);
+  canvasMCChoiceDef->Divide(3,2);
 
   TCanvas* canvasPtSpectraFit = new TCanvas ("canvasPtSpectraFit", "canvasPtSpectraFit", 1300, 800);
   canvasPtSpectraFit->Divide(3,2);
+
+  TCanvas* canvasPtSpectraFitBis = new TCanvas ("canvasPtSpectraFitBis", "canvasPtSpectraFitBis", 1300, 800);
+  canvasPtSpectraFitBis->Divide(3,2);
 
   TCanvas* canvasPtSpectraAll = new TCanvas ("canvasPtSpectraAll", "canvasPtSpectraAll", 1300, 800);
   canvasPtSpectraAll->Divide(3,2);
@@ -528,6 +563,11 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
   canvasBarlowpol0->Divide(3,2);
   TCanvas* canvasBarlowOOJSubDef = new TCanvas ("canvasBarlowOOJSubDef", "canvasBarlowOOJSubDef", 1300, 800);
   canvasBarlowOOJSubDef->Divide(3,2);
+  TCanvas* canvasBarlowLeadTrackDef = new TCanvas ("canvasBarlowLeadTrackDef", "canvasBarlowLeadTrackDef", 1300, 800);
+  canvasBarlowLeadTrackDef->Divide(3,2);
+  TCanvas* canvasBarlowMCChoiceDef = new TCanvas ("canvasBarlowMCChoiceDef", "canvasBarlowMCChoiceDef", 1300, 800);
+  canvasBarlowMCChoiceDef->Divide(3,2);
+
 
   TCanvas* canvasPtSpectraRelError = new TCanvas ("canvasPtSpectraRelError", "canvasPtSpectraRelError", 1300, 800);
   canvasPtSpectraRelError->Divide(3,2);
@@ -546,18 +586,27 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
   Int_t BarlowSignOOJSubDef[nummolt+1]={0};
   TH1F* hBarlowVarOOJSubDef[nummolt+1];
   Float_t BarlowVarOOJSubDef[nummolt+1][numPtV0]={0};
+  Bool_t BarlowPassedLeadTrackDef[nummolt+1]={0};
+  Int_t BarlowSignLeadTrackDef[nummolt+1]={0};
+  TH1F* hBarlowVarLeadTrackDef[nummolt+1];
+  Float_t BarlowVarLeadTrackDef[nummolt+1][numPtV0]={0};
+  Bool_t BarlowPassedMCChoiceDef[nummolt+1]={0};
+  Int_t BarlowSignMCChoiceDef[nummolt+1]={0};
+  TH1F* hBarlowVarMCChoiceDef[nummolt+1];
+  Float_t BarlowVarMCChoiceDef[nummolt+1][numPtV0]={0};
+
   Float_t ErrDPhi[nummolt+1][numPtV0]={0};
 
   Int_t ColorsysDPhi[12] = {807,  881, 867,909, 881,860,868,841,  418, 881, 7, 1};
 
   Float_t LimSupYield=0.1;
   if (type==8){
-    if (TypeAnalysis==0)    LimSupYield=0.007;
-    else   LimSupYield=0.04;
+    if (TypeAnalysis==0)    LimSupYield=0.003;
+    else   LimSupYield=0.02;
   }
   if (type==0){
     if (TypeAnalysis==0)    LimSupYield=0.045;
-    else    LimSupYield=0.25;
+    else    LimSupYield=0.3;
   }
 
   Float_t LimInfYield=0.1;
@@ -573,7 +622,7 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
   Float_t LimSupYieldErr=0.04;
   if (type==0){
     if (TypeAnalysis==1) LimSupYieldErr=0.02;
-    if (TypeAnalysis==2) LimSupYieldErr=0.005;
+    if (TypeAnalysis==2) LimSupYieldErr=0.02;
   }
   if (type==8){
     if (TypeAnalysis==0) LimSupYieldErr=0.45;
@@ -599,8 +648,8 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
   if (type==0) {
     if (TypeAnalysis==0){ LimSupError =0.3; LimSupErrorLog =0.5;}
     else   if (TypeAnalysis==1) LimSupError =0.15;
-    else   if (TypeAnalysis==2) LimSupError =0.02;
-    LimInfError=10e-4;
+    else   if (TypeAnalysis==2) LimSupError =0.05;
+    LimInfError=10e-5;
   }
   else  if (type==8) {
     if (TypeAnalysis==0) LimSupError =1;
@@ -648,12 +697,16 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
     fHistSpectrumSistRelErrorMB[m]=(TH1F*)fHistSpectrumStat[m]->Clone("fHistSpectrumSistRelErrorMB_"+Smolt[m]);
     fHistSpectrumSistRelErrorOOBPU[m]=(TH1F*)fHistSpectrumStat[m]->Clone("fHistSpectrumSistRelErrorOOBPU_"+Smolt[m]);
     fHistSpectrumSistRelErrorIBPU[m]=(TH1F*)fHistSpectrumStat[m]->Clone("fHistSpectrumSistRelErrorIBPU_"+Smolt[m]);
+    fHistSpectrumSistRelErrorLeadTrack[m]=(TH1F*)fHistSpectrumStat[m]->Clone("fHistSpectrumSistRelErrorLeadTrack_"+Smolt[m]);
+    fHistSpectrumSistRelErrorMCChoice[m]=(TH1F*)fHistSpectrumStat[m]->Clone("fHistSpectrumSistRelErrorMCChoice_"+Smolt[m]);
 
     fHistSpectrum_max[m]=(TH1F*)fHistSpectrumStat[m]->Clone("fHistSpectrumMax_"+Smolt[m]);
     fHistSpectrum_min[m]=(TH1F*)fHistSpectrumStat[m]->Clone("fHistSpectrumMin_"+Smolt[m]);
     fHistSpectrumSistDPhi[m]=(TH1F*)fHistSpectrumStat[m]->Clone("fHistSpectrumSistDPhi_"+Smolt[m]);
     fHistSpectrumSistOOJ[m]=(TH1F*)fHistSpectrumStat[m]->Clone("fHistSpectrumSistOOJ_"+Smolt[m]);
     fHistSpectrumSistAll[m]=(TH1F*)fHistSpectrumSist[m]->Clone("fHistSpectrumSistAll_"+Smolt[m]);
+    fHistSpectrumSistLeadTrack[m]=(TH1F*)fHistSpectrumSist[m]->Clone("fHistSpectrumSistLeadTrack_"+Smolt[m]);
+    fHistSpectrumSistMCChoice[m]=(TH1F*)fHistSpectrumSist[m]->Clone("fHistSpectrumSistMCChoice_"+Smolt[m]);
 
     for(Int_t v=PtV0Min; v <    fHistSpectrumSistAll[m]->GetNbinsX() ; v++){
       //      cout << "v " << v << endl;
@@ -702,8 +755,8 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
 	fHistSpectrumStatDPhi[m][sysDPhi]=(TH1F*)filein->Get("fHistSpectrum_"+Smolt[m]);
 	fHistSpectrumStatDPhi[m][sysDPhi]->SetName(Form("fHistSpectrumStat_sysDPhi%i", sysDPhi)+Smolt[m]);
 
-	StyleHisto(fHistSpectrumStatDPhi[m][sysDPhi], 0, LimSup, ColorsysDPhi[sysDPhi], 1, titleX, titleY,  title+SmoltLegend[m]);
-	StyleHisto(fHistSpectrumStat[m], 0, LimSup, Color[TypeAnalysis], 1, titleX, titleY,  title+SmoltLegend[m]);
+	StyleHisto(fHistSpectrumStatDPhi[m][sysDPhi], 0, LimSup, ColorsysDPhi[sysDPhi], 1, titleX, titleY,  title+SmoltLegend[m], 0, 0, 0);
+	StyleHisto(fHistSpectrumStat[m], 0, LimSup, Color[TypeAnalysis], 1, titleX, titleY,  title+SmoltLegend[m],  0, 0, 0);
 
 	canvasPtSpectraAll->cd(m+1);
 	//      cout << "I'm drawing on the canvas " << endl;
@@ -729,8 +782,8 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
 
 	}//end loop v
 	if (BarlowSign[m][sysDPhi]>= NSign) BarlowPassed[m][sysDPhi]=1;
-	StyleHisto(hBarlowVar[m][sysDPhi], -5, 5, ColorsysDPhi[sysDPhi], 33, titleX, "N_{#sigma}(Barlow)",  title+SmoltLegend[m]);
-	if ( BarlowPassed[m][sysDPhi])       StyleHisto(hBarlowVar[m][sysDPhi], -5, 5, ColorsysDPhi[sysDPhi], 27,  titleX, "N_{#sigma}(Barlow)",  title+SmoltLegend[m]);
+	StyleHisto(hBarlowVar[m][sysDPhi], -5, 5, ColorsysDPhi[sysDPhi], 33, titleX, "N_{#sigma}(Barlow)",  title+SmoltLegend[m],  0, 0, 0);
+	if ( BarlowPassed[m][sysDPhi])       StyleHisto(hBarlowVar[m][sysDPhi], -5, 5, ColorsysDPhi[sysDPhi], 27,  titleX, "N_{#sigma}(Barlow)",  title+SmoltLegend[m],  0, 0, 0);
 
 	cout << "Barlow passed " << BarlowPassed[m][sysDPhi] << endl;
 	canvasBarlow->cd(m+1);
@@ -782,24 +835,188 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
     }//end loop on m
   } //end of type analysis
 
+  //here syst related to pt < pt,trigg 
+  //    cout << "\n*******************************************"<<endl;
+  //    cout<< "hXi: systematic effect associated to selection pt,assoc < pt,Trigg  " << endl;
+  Float_t   YieldSpectrumErrLeadTrack[nummolt+1]={0};
+  TString    PathInLeadTrackDef;
+  for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t v=PtV0Min; v < numPtV0Max; v++){
+      fHistSpectrumSistLeadTrack[m]->SetBinError(v+1,0);
+    }
+  }
+  if (type==8){
+    cout << "\n*******************************************"<<endl;
+    cout<< "hXi: systematic effect associated to selection pt,assoc < pt,Trigg  " << endl;
+    PathInLeadTrackDef = Dir+"/DATA"+year0+"/SystematicAnalysis" +year;
+    //    PathInLeadTrackDef +=Path1; //it was without year                                                        
+    if (type==8 && TypeAnalysis==0) PathInLeadTrackDef += "_OOJSmoothedBis";
+    if(type>=0){
+      PathInLeadTrackDef +="_"+tipo[type];
+      PathInLeadTrackDef +=Srap[israp];
+      PathInLeadTrackDef +="_AllAssoc";
+    }
+    //    if (IsHighPtExtr) PathInLeadTrackDef+="_HighPtExtr";
+    PathInLeadTrackDef+= hhCorr[ishhCorr]+"_"+RegionTypeOld[TypeAnalysis] +DataOrMC[isMC] + Form("_PtMin%.1f.root", PtTrigMin);
+    cout << "\n\n" << PathInLeadTrackDef << endl;
+    TFile *  fileinLeadTrackDef = new TFile(PathInLeadTrackDef, "");
+    if (!fileinLeadTrackDef) {cout << PathInLeadTrackDef << " does not exist" << endl; return;}
+
+    for(Int_t m=0; m<nummolt+1; m++){
+      //    cout << " m " << m << endl;
+      fHistSpectrumStatLeadTrackDef[m]    =(TH1F*)fileinLeadTrackDef->Get(Form("fHistSpectrumPart_m%i_syst0", m)); 
+      if (!fHistSpectrumStatLeadTrackDef[m]) {cout << " I was looking for histo in " << PathInLeadTrackDef  << endl; return;}
+
+      hBarlowVarLeadTrackDef[m]=(TH1F*)    fHistSpectrumStat[m]->Clone("fHistBarlowVarLeadTrackDef_"+Smolt[m]);
+      for(Int_t v=PtV0Min; v < numPtV0Max; v++){
+	if (NPtV0[v] <3) continue;
+	if (m== 4 && v==numPtV0Max-1 && TypeAnalysis==0 && type==8) continue;
+	if (fHistSpectrumStatLeadTrackDef[m]->GetBinContent(v+1) ==0) continue;
+	BarlowVarLeadTrackDef[m][v] = (    fHistSpectrumStat[m]->GetBinContent(v+1) -    fHistSpectrumStatLeadTrackDef[m]->GetBinContent(v+1))/sqrt(TMath::Abs(pow( fHistSpectrumStat[m]->GetBinError(v+1),2) -pow(fHistSpectrumStatLeadTrackDef[m]->GetBinError(v+1),2)));
+	if (TMath::Abs(BarlowVarLeadTrackDef[m][v])>2) BarlowSignLeadTrackDef[m]++;
+	hBarlowVarLeadTrackDef[m] ->SetBinContent(v+1, BarlowVarLeadTrackDef[m][v]) ;
+	hBarlowVarLeadTrackDef[m] ->SetBinError(v+1, 0) ;
+	cout << "barlow var v" << v << " "  << 	  hBarlowVarLeadTrackDef[m] ->GetBinContent(v+1)<<" " <<	  hBarlowVarLeadTrackDef[m] ->GetBinError(v+1) << endl;
+
+      }//end loop v
+
+      if (BarlowSignLeadTrackDef[m]>= 2) BarlowPassedLeadTrackDef[m]=1;
+      StyleHisto(hBarlowVarLeadTrackDef[m], -5, 5, Color[TypeAnalysis], 33, titleX, "N_{#sigma}(Barlow)",  title+SmoltLegend[m], 0, 0, 0);
+      if (BarlowPassedLeadTrackDef[m]) StyleHisto(hBarlowVarLeadTrackDef[m], -5, 5, Color[TypeAnalysis], 27,  titleX, "N_{#sigma}(Barlow)",  title+SmoltLegend[m], 0, 0, 0);
+
+      cout << "Barlow passed " << BarlowPassedLeadTrackDef[m] << endl;
+      canvasBarlowLeadTrackDef->cd(m+1);
+      gPad->SetLeftMargin(0.15);
+      hBarlowVarLeadTrackDef[m] ->Draw("same p");
+
+      canvasLeadTrackDef->cd(m+1);
+      gPad->SetLeftMargin(0.15);
+      StyleHisto(fHistSpectrumStat[m], LimInf, LimSup, Color[TypeAnalysis], 1, titleX, titleY,  title+SmoltLegend[m], 0, 0, 0);
+      fHistSpectrumStat[m]->Draw("ep");
+      StyleHisto(fHistSpectrumStatLeadTrackDef[m], LimInf, LimSup, 1, 1, titleX, titleY,  title+SmoltLegend[m], 0, 0, 0);
+      fHistSpectrumStatLeadTrackDef[m]->Draw("same ep");
+
+      for(Int_t v=PtV0Min; v < numPtV0Max; v++){
+	if (NPtV0[v] <3 || TypeAnalysis==2){
+	  fHistSpectrumSistLeadTrack[m]->SetBinError(v+1,0);
+	  continue;
+	}
+	if (v==numPtV0Max-1 && m==4 && TypeAnalysis==0 && type==8) continue;
+	if (fHistSpectrumStatLeadTrackDef[m]->GetBinContent(v+1) ==0) continue;
+	//	if(TMath::Abs(BarlowVarLeadTrackDef[m][v])>2){
+	if (BarlowPassedLeadTrackDef[m]){
+	  fHistSpectrumSistLeadTrack[m]->SetBinError(v+1,	  (fHistSpectrumStat[m]->GetBinContent(v+1) -    fHistSpectrumStatLeadTrackDef[m]->GetBinContent(v+1))/2);
+	  //YieldSpectrumErrLeadTrack[m]+= TMath::Abs(   fHistSpectrumStat[m]->GetBinContent(v+1) -    fHistSpectrumStatLeadTrackDef[m]->GetBinContent(v+1));
+	}
+      }
+    }//end loop m
+  }//end loop syst associated to choice pt <pt,trigg
+
+  //    cout << "\n*******************************************"<<endl;
+  //    cout<< "systematic effect associated to MC used to calculate efficiency  " << endl;
+  Float_t   YieldSpectrumErrMCChoice[nummolt+1]={0};
+  TString    PathInMCChoiceDef;
+  TLegend * legendMCChoice= new TLegend(0.6, 0.6, 0.9, 0.9);
+  for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t v=PtV0Min; v < numPtV0Max; v++){
+      fHistSpectrumSistMCChoice[m]->SetBinError(v+1,0);
+    }
+  }
+  if (type==0){
+    cout << "\n*******************************************"<<endl;
+    cout<< "hXi: systematic effect associated to choice of MC used to calculat K0s/Xi efficiency  " << endl;
+    PathInMCChoiceDef = Dir+"/DATA"+year0+"/SystematicAnalysis" +year;
+    //    PathInMCChoiceDef +=Path1; //it was without year                                                    
+    if (PtBinning>0) PathInMCChoiceDef +=Form("_PtBinning%i",PtBinning);
+    if (type==8 && TypeAnalysis==0) PathInMCChoiceDef += "_OOJSmoothedBis";
+    if(type>=0){
+      PathInMCChoiceDef +="_"+tipo[type];
+      PathInMCChoiceDef +=Srap[israp];
+      PathInMCChoiceDef +=SSkipAssoc[SkipAssoc];
+    }
+    //    if (IsHighPtExtr) PathInMCChoiceDef+="_HighPtExtr";
+    PathInMCChoiceDef+= hhCorr[ishhCorr]+"_"+RegionTypeOld[TypeAnalysis] +DataOrMC[isMC] + Form("_PtMin%.1f_EPOS.root", PtTrigMin);
+    cout << "\n\n" << PathInMCChoiceDef << endl;
+    TFile *  fileinMCChoiceDef = new TFile(PathInMCChoiceDef, "");
+    if (!fileinMCChoiceDef) {cout << PathInMCChoiceDef << " does not exist" << endl; return;}
+
+    for(Int_t m=0; m<nummolt+1; m++){
+      //    cout << " m " << m << endl;
+      fHistSpectrumStatMCChoiceDef[m]    =(TH1F*)fileinMCChoiceDef->Get(Form("fHistSpectrumPart_m%i_syst0", m)); 
+      if (!fHistSpectrumStatMCChoiceDef[m]) {cout << " I was looking for histo in " << PathInMCChoiceDef  << endl; return;}
+
+      hBarlowVarMCChoiceDef[m]=(TH1F*)    fHistSpectrumStat[m]->Clone("fHistBarlowVarMCChoiceDef_"+Smolt[m]);
+      for(Int_t v=PtV0Min; v < numPtV0Max; v++){
+	//	if (NPtV0[v] <3) continue;
+	if (m== 4 && v==numPtV0Max-1 && TypeAnalysis==0 && type==8) continue;
+	if (fHistSpectrumStatMCChoiceDef[m]->GetBinContent(v+1) ==0) continue;
+	BarlowVarMCChoiceDef[m][v] = (    fHistSpectrumStat[m]->GetBinContent(v+1) -    fHistSpectrumStatMCChoiceDef[m]->GetBinContent(v+1))/sqrt(TMath::Abs(pow( fHistSpectrumStat[m]->GetBinError(v+1),2) -pow(fHistSpectrumStatMCChoiceDef[m]->GetBinError(v+1),2)));
+	if (TMath::Abs(BarlowVarMCChoiceDef[m][v])>2) BarlowSignMCChoiceDef[m]++;
+	hBarlowVarMCChoiceDef[m] ->SetBinContent(v+1, BarlowVarMCChoiceDef[m][v]) ;
+	hBarlowVarMCChoiceDef[m] ->SetBinError(v+1, 0) ;
+	cout << "barlow var v" << v << " "  << 	  hBarlowVarMCChoiceDef[m] ->GetBinContent(v+1)<<" " <<	  hBarlowVarMCChoiceDef[m] ->GetBinError(v+1) << endl;
+
+      }//end loop v
+
+      if (BarlowSignMCChoiceDef[m]>= 3) BarlowPassedMCChoiceDef[m]=1;
+      StyleHisto(hBarlowVarMCChoiceDef[m], -5, 5, Color[TypeAnalysis], 33, titleX, "N_{#sigma}(Barlow)",  title+SmoltLegend[m], 0, 0, 0);
+      if (BarlowPassedMCChoiceDef[m]) StyleHisto(hBarlowVarMCChoiceDef[m], -5, 5, Color[TypeAnalysis], 27,  titleX, "N_{#sigma}(Barlow)",  title+SmoltLegend[m], 0, 0, 0);
+
+      cout << "Barlow passed " << BarlowPassedMCChoiceDef[m] << endl;
+      canvasBarlowMCChoiceDef->cd(m+1);
+      gPad->SetLeftMargin(0.15);
+      hBarlowVarMCChoiceDef[m] ->Draw("same p");
+      lineat2->Draw("same");
+      lineatm2->Draw("same");
+
+      canvasMCChoiceDef->cd(m+1);
+      gPad->SetLeftMargin(0.15);
+      StyleHisto(fHistSpectrumStat[m], LimInf, LimSup, Color[TypeAnalysis], 1, titleX, titleY,  title+SmoltLegend[m], 0, 0, 0);
+      if (m==0)      legendMCChoice->AddEntry(fHistSpectrumStat[m], "default", "ple");
+      fHistSpectrumStat[m]->Draw("ep");
+      StyleHisto(fHistSpectrumStatMCChoiceDef[m], LimInf, LimSup, 1, 1, titleX, titleY,  title+SmoltLegend[m], 0, 0, 0);
+      if (m==0)      legendMCChoice->AddEntry(fHistSpectrumStatMCChoiceDef[m], "EPOS", "ple");
+      fHistSpectrumStatMCChoiceDef[m]->Draw("same ep");
+      legendMCChoice->Draw("");
+
+      for(Int_t v=PtV0Min; v < numPtV0Max; v++){
+	fHistSpectrumSistMCChoice[m]->SetBinError(v+1,0);
+	if (v==numPtV0Max-1 && m==4 && TypeAnalysis==0 && type==8) continue;
+	if (fHistSpectrumStatMCChoiceDef[m]->GetBinContent(v+1) ==0) continue;
+	//	if(TMath::Abs(BarlowVarMCChoiceDef[m][v])>2){
+	if (BarlowPassedMCChoiceDef[m]){
+	  fHistSpectrumSistMCChoice[m]->SetBinError(v+1,	  (fHistSpectrumStat[m]->GetBinContent(v+1) -    fHistSpectrumStatMCChoiceDef[m]->GetBinContent(v+1))/2);
+	  //YieldSpectrumErrMCChoice[m]+= TMath::Abs(   fHistSpectrumStat[m]->GetBinContent(v+1) -    fHistSpectrumStatMCChoiceDef[m]->GetBinContent(v+1));
+	}
+      }
+    }//end loop m
+  }//end loop syst associated to MC used to calculate efficiency
+
+
+  //end pt < pt,trig
+
   for(Int_t m=0; m<nummolt+1; m++){
     for(Int_t v=PtV0Min; v < numPtV0Max; v++){
       Sigma2OOBPU[m] =pow(OOBPU *fHistSpectrumStat[m]->GetBinContent(v+1),2) ;
       Sigma2IBPU[m] =pow(IBPU *fHistSpectrumStat[m]->GetBinContent(v+1),2) ;
       Sigma2MB[m]= pow(MB *fHistSpectrumStat[m]->GetBinContent(v+1),2) ;
-      fHistSpectrumSistAll[m]->SetBinError(v+1,sqrt(pow(fHistSpectrumSistDPhi[m]->GetBinError(v+1),2) + pow(fHistSpectrumSist[m]->GetBinError(v+1),2) + Sigma2OOBPU[m]+ Sigma2IBPU[m] + Sigma2MB[m]));
+      fHistSpectrumSistAll[m]->SetBinError(v+1,sqrt(pow(fHistSpectrumSistDPhi[m]->GetBinError(v+1),2) + pow(fHistSpectrumSist[m]->GetBinError(v+1),2) + Sigma2OOBPU[m]+ Sigma2IBPU[m] + Sigma2MB[m] + pow(fHistSpectrumSistLeadTrack[m]->GetBinError(v+1),2)+  pow(fHistSpectrumSistMCChoice[m]->GetBinError(v+1),2)));
 
       if ( fHistSpectrumStat[m]->GetBinContent(v+1)!=0){
 	fHistSpectrumSistRelErrorAll[m]->SetBinContent(v+1, fHistSpectrumSistAll[m]->GetBinError(v+1)/fHistSpectrumStat[m]->GetBinContent(v+1));
 	fHistSpectrumSistRelErrorMB[m]->SetBinContent(v+1,MB);
 	fHistSpectrumSistRelErrorIBPU[m]->SetBinContent(v+1,IBPU);
 	fHistSpectrumSistRelErrorOOBPU[m]->SetBinContent(v+1,OOBPU);
+	fHistSpectrumSistRelErrorLeadTrack[m]->SetBinContent(v+1,fHistSpectrumSistLeadTrack[m]->GetBinError(v+1)/fHistSpectrumStat[m]->GetBinContent(v+1));
+	fHistSpectrumSistRelErrorMCChoice[m]->SetBinContent(v+1,fHistSpectrumSistMCChoice[m]->GetBinError(v+1)/fHistSpectrumStat[m]->GetBinContent(v+1));
       }
       //	else       fHistSpectrumSistRelErrorAll[m]->SetBinContent(v+1,0);
       fHistSpectrumSistRelErrorAll[m]->SetBinError(v+1,0);
       fHistSpectrumSistRelErrorMB[m]->SetBinError(v+1,0);
       fHistSpectrumSistRelErrorIBPU[m]->SetBinError(v+1,0);
       fHistSpectrumSistRelErrorOOBPU[m]->SetBinError(v+1,0);
+      fHistSpectrumSistRelErrorLeadTrack[m]->SetBinError(v+1,0);
+      fHistSpectrumSistRelErrorMCChoice[m]->SetBinError(v+1,0);
       //      cout << " stat rel error " <<       fHistSpectrumStatRelError[m]->GetBinContent(v+1)<< endl;
       //      cout << " sist rel error assoc to DeltaPhi choice " <<       fHistSpectrumSistRelErrorDPhi[m]->GetBinContent(v+1)<< endl;
     }
@@ -807,26 +1024,31 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
     //    cout << "drawing sist rel error " << endl;
     canvasPtSpectraRelErrorAll->cd(m+1);
     gPad->SetLeftMargin(0.15);
-    StyleHisto(fHistSpectrumStatRelError[m], LimInfError, LimSupError, Color[TypeAnalysis], 33, titleX, titleYRel ,  title+SmoltLegend[m]);
-    StyleHisto(fHistSpectrumSistRelErrorAll[m], LimInfError, LimSupError, Color[TypeAnalysis], 27, titleX, titleYRel ,  title+SmoltLegend[m]);
-    StyleHisto(fHistSpectrumSistRelErrorSE[m], LimInfError, LimSupError, 807, 27, titleX, titleYRel,  title+SmoltLegend[m]);
-    StyleHisto(fHistSpectrumSistRelErrorDCAz[m], LimInfError, LimSupError, 867, 27, titleX, titleYRel,  title+SmoltLegend[m]);
-    StyleHisto(fHistSpectrumSistRelErrorDeltaEta[m], LimInfError, LimSupError, 881, 27, titleX, titleYRel,  title+SmoltLegend[m]);
-    StyleHisto(fHistSpectrumSistRelErrorDPhi[m], LimInfError, LimSupError, 922, 27, titleX, titleYRel,  title+SmoltLegend[m]);
-    StyleHisto(fHistSpectrumSistRelErrorMB[m], LimInfError, LimSupError, 401, 27, titleX, titleYRel,  title+SmoltLegend[m]);
-    StyleHisto(fHistSpectrumSistRelErrorOOBPU[m], LimInfError, LimSupError, 825, 27, titleX, titleYRel,  title+SmoltLegend[m]);
-    StyleHisto(fHistSpectrumSistRelErrorIBPU[m], LimInfError, LimSupError, 631, 27, titleX, titleYRel,  title+SmoltLegend[m]);
+    StyleHisto(fHistSpectrumStatRelError[m], LimInfError, LimSupError, Color[TypeAnalysis], 33, titleX, titleYRel ,  title+SmoltLegend[m],0,0,0);
+    StyleHisto(fHistSpectrumSistRelErrorAll[m], LimInfError, LimSupError, Color[TypeAnalysis], 27, titleX, titleYRel ,  title+SmoltLegend[m],0,0,0);
+    StyleHisto(fHistSpectrumSistRelErrorSE[m], LimInfError, LimSupError, 807, 27, titleX, titleYRel,  title+SmoltLegend[m],0,0,0);
+    StyleHisto(fHistSpectrumSistRelErrorDCAz[m], LimInfError, LimSupError, 867, 27, titleX, titleYRel,  title+SmoltLegend[m],0,0,0);
+    StyleHisto(fHistSpectrumSistRelErrorDeltaEta[m], LimInfError, LimSupError, 881, 27, titleX, titleYRel,  title+SmoltLegend[m],0,0,0);
+    StyleHisto(fHistSpectrumSistRelErrorDPhi[m], LimInfError, LimSupError, 922, 27, titleX, titleYRel,  title+SmoltLegend[m],0,0,0);
+    StyleHisto(fHistSpectrumSistRelErrorMB[m], LimInfError, LimSupError, 401, 27, titleX, titleYRel,  title+SmoltLegend[m],0,0,0);
+    StyleHisto(fHistSpectrumSistRelErrorOOBPU[m], LimInfError, LimSupError, 825, 27, titleX, titleYRel,  title+SmoltLegend[m],0,0,0);
+    StyleHisto(fHistSpectrumSistRelErrorIBPU[m], LimInfError, LimSupError, 631, 27, titleX, titleYRel,  title+SmoltLegend[m],0,0,0);
+    StyleHisto(fHistSpectrumSistRelErrorLeadTrack[m], LimInfError, LimSupError, 630, 27, titleX, titleYRel,  title+SmoltLegend[m],0,0,0);
+    StyleHisto(fHistSpectrumSistRelErrorMCChoice[m], LimInfError, LimSupError, 907, 27, titleX, titleYRel,  title+SmoltLegend[m],0,0,0);
     gPad->SetLogy();
 
-    if(m==0)    legendErrorAll->AddEntry(fHistSpectrumStatRelError[m], "stat.", "pl");
-    if(m==0)    legendErrorAll->AddEntry(fHistSpectrumSistRelErrorAll[m], "syst.", "pl");
-    if(m==0)    legendErrorAll->AddEntry(fHistSpectrumSistRelErrorSE[m], "syst. signal extr.", "l");
-    if(m==0)    legendErrorAll->AddEntry(fHistSpectrumSistRelErrorDCAz[m], "syst. DCAzTrigger", "l");
-    if(m==0 && TypeAnalysis!=2)    legendErrorAll->AddEntry(fHistSpectrumSistRelErrorDeltaEta[m], "syst. #Delta#eta region", "l");
-    if(m==0 && TypeAnalysis!=2)    legendErrorAll->AddEntry(fHistSpectrumSistRelErrorDPhi[m], "syst. #Delta#phi region", "l");
-    if(m==0)    legendErrorAll->AddEntry(fHistSpectrumSistRelErrorMB[m], "Material Budget", "l");
-    if(m==0)    legendErrorAll->AddEntry(fHistSpectrumSistRelErrorOOBPU[m], "Out-of-bunch PU", "l");
-    if(m==0)    legendErrorAll->AddEntry(fHistSpectrumSistRelErrorIBPU[m], "In-bunch PU", "l");
+    TLegend *legendErrorAll= new TLegend(0.6, 0.1, 0.9, 0.4);
+    legendErrorAll->AddEntry(fHistSpectrumStatRelError[m], "stat.", "pl");
+    legendErrorAll->AddEntry(fHistSpectrumSistRelErrorAll[m], "syst.", "pl");
+    legendErrorAll->AddEntry(fHistSpectrumSistRelErrorSE[m], "syst. signal extr.", "l");
+    legendErrorAll->AddEntry(fHistSpectrumSistRelErrorDCAz[m], "syst. DCAzTrigger", "l");
+    if(TypeAnalysis!=2)    legendErrorAll->AddEntry(fHistSpectrumSistRelErrorDeltaEta[m], "syst. #Delta#eta region", "l");
+    if(TypeAnalysis!=2)    legendErrorAll->AddEntry(fHistSpectrumSistRelErrorDPhi[m], "syst. #Delta#phi region", "l");
+    legendErrorAll->AddEntry(fHistSpectrumSistRelErrorMB[m], "Material Budget", "l");
+    legendErrorAll->AddEntry(fHistSpectrumSistRelErrorOOBPU[m], "Out-of-bunch PU", "l");
+    legendErrorAll->AddEntry(fHistSpectrumSistRelErrorIBPU[m], "In-bunch PU", "l");
+    if(BarlowPassedLeadTrackDef[m])   legendErrorAll->AddEntry(fHistSpectrumSistRelErrorLeadTrack[m], "p_{T} < p_{T}^{Trigg}", "l");
+    if(BarlowPassedMCChoiceDef[m])   legendErrorAll->AddEntry(fHistSpectrumSistRelErrorMCChoice[m], "MCChoice", "l");
 
     fHistSpectrumSistRelErrorAll[m]->Draw("same p");
     fHistSpectrumSistRelErrorMB[m]->Draw("same");
@@ -834,6 +1056,8 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
     fHistSpectrumSistRelErrorOOBPU[m]->Draw("same");
     fHistSpectrumSistRelErrorSE[m]->Draw("same");
     fHistSpectrumSistRelErrorDCAz[m]->Draw("same");
+    fHistSpectrumSistRelErrorLeadTrack[m]->Draw("same");
+    fHistSpectrumSistRelErrorMCChoice[m]->Draw("same");
     if (TypeAnalysis!=2) {
       fHistSpectrumSistRelErrorDeltaEta[m]->Draw("same");
       fHistSpectrumSistRelErrorDPhi[m]->Draw("same");
@@ -888,8 +1112,8 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
     }//end loop v
 
     if (BarlowSignpol0[m]>= NSign) BarlowPassedpol0[m]=1;
-    StyleHisto(hBarlowVarpol0[m], -5, 5, Color[TypeAnalysis], 33, titleX, "N_{#sigma}(Barlow)",  title+SmoltLegend[m]);
-    if (BarlowPassedpol0[m]) StyleHisto(hBarlowVarpol0[m], -5, 5, Color[TypeAnalysis], 27,  titleX, "N_{#sigma}(Barlow)",  title+SmoltLegend[m]);
+    StyleHisto(hBarlowVarpol0[m], -5, 5, Color[TypeAnalysis], 33, titleX, "N_{#sigma}(Barlow)",  title+SmoltLegend[m], 0,0,0);
+    if (BarlowPassedpol0[m]) StyleHisto(hBarlowVarpol0[m], -5, 5, Color[TypeAnalysis], 27,  titleX, "N_{#sigma}(Barlow)",  title+SmoltLegend[m], 0,0,0);
 
     cout << "Barlow passed " << BarlowPassedpol0[m] << endl;
     canvasBarlowpol0->cd(m+1);
@@ -898,14 +1122,13 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
 
     canvaspol0->cd(m+1);
     gPad->SetLeftMargin(0.15);
-    StyleHisto(fHistSpectrumStat[m], LimInf, LimSup, Color[TypeAnalysis], 1, titleX, titleY,  title+SmoltLegend[m]);
+    StyleHisto(fHistSpectrumStat[m], LimInf, LimSup, Color[TypeAnalysis], 1, titleX, titleY,  title+SmoltLegend[m],0,0,0);
     fHistSpectrumStat[m]->Draw("ep");
-    StyleHisto(fHistSpectrumStatpol0[m], LimInf, LimSup, 1, 1, titleX, titleY,  title+SmoltLegend[m]);
+    StyleHisto(fHistSpectrumStatpol0[m], LimInf, LimSup, 1, 1, titleX, titleY,  title+SmoltLegend[m], 0,0,0);
     fHistSpectrumStatpol0[m]->Draw("same ep");
 
     }
   }
-
 
   //I plot spectra with stat + total syst uncertainty
   // I plot stat + syst (total, DeltaPhi assoc., OOJ sub assoc.) relative uncertainty
@@ -914,8 +1137,8 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
 
     canvasPtSpectra->cd(m+1);
     gPad->SetLeftMargin(0.15);
-    StyleHisto(fHistSpectrumSistAll[m], LimInf, LimSup, Color[TypeAnalysis], 1, titleX, titleY, title+SmoltLegend[m]);
-    StyleHisto(fHistSpectrumStat[m], LimInf, LimSup, Color[TypeAnalysis], 1, titleX, titleY,  title+SmoltLegend[m]);
+    StyleHisto(fHistSpectrumSistAll[m], LimInf, LimSup, Color[TypeAnalysis], 1, titleX, titleY, title+SmoltLegend[m], 0, 0, 0);
+    StyleHisto(fHistSpectrumStat[m], LimInf, LimSup, Color[TypeAnalysis], 1, titleX, titleY,  title+SmoltLegend[m], 0, 0, 0);
     fHistSpectrumStat[m]->Draw("same");
     fHistSpectrumSistAll[m]->SetFillStyle(0);
     fHistSpectrumSistAll[m]->Draw("same e2");
@@ -927,8 +1150,8 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
 
     canvasPtSpectraRelErrorAll->cd(m+1);
     gPad->SetLeftMargin(0.15);
-    StyleHisto(fHistSpectrumSistRelErrorAll[m], LimInfError, LimSupError,Color[TypeAnalysis] , 27, titleX, titleYRel, title+SmoltLegend[m]);
-    StyleHisto(fHistSpectrumStatRelError[m], LimInfError, LimSupError,Color[TypeAnalysis] , 33, titleX, titleYRel, title+SmoltLegend[m]);
+    StyleHisto(fHistSpectrumSistRelErrorAll[m], LimInfError, LimSupError,Color[TypeAnalysis] , 27, titleX, titleYRel, title+SmoltLegend[m], 0, 0, 0);
+    StyleHisto(fHistSpectrumStatRelError[m], LimInfError, LimSupError,Color[TypeAnalysis] , 33, titleX, titleYRel, title+SmoltLegend[m], 0, 0, 0);
     fHistSpectrumSistRelErrorAll[m]->Draw("same p");
     fHistSpectrumStatRelError[m]->Draw("same p");
 
@@ -943,15 +1166,17 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
     legendError->Draw("");
   } //end loop m
 
+  //*************************************************************************
   //for Xi in-jet production: systematic effect associated to ooj subtraction
+  //*************************************************************************
   Float_t   YieldSpectrumErrOOJSub[nummolt+1]={0};
   TString    PathInOOJSubDef;
   if (TypeAnalysis==0 && type==8){
     cout << "\n*******************************************"<<endl;
-    cout << "3. sysy associated to pol0 OOJ subtraction for hK0s"<< endl;
-
+    cout<< "hXi: systematic effect associated to OOJ subtraction " << endl;
     PathInOOJSubDef = Dir+"/DATA"+year0+"/SystematicAnalysis" +year;
     PathInOOJSubDef +=Path1; //it was without year                                                        
+    //PathInOOJSubDef +="_Jet0.75"; //it was without year                                                        
     if(type>=0){
       PathInOOJSubDef +="_"+tipo[type];
       PathInOOJSubDef +=Srap[israp];
@@ -966,47 +1191,48 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
     for(Int_t m=0; m<nummolt+1; m++){
       //    cout << " m " << m << endl;
       fHistSpectrumStatOOJSubDef[m]    =(TH1F*)fileinOOJSubDef->Get(Form("fHistSpectrumPart_m%i_syst0", m)); 
-    if (!fHistSpectrumStatOOJSubDef[m]) {cout << " I was looking for histo in " << PathInOOJSubDef  << endl; return;}
+      if (!fHistSpectrumStatOOJSubDef[m]) {cout << " I was looking for histo in " << PathInOOJSubDef  << endl; return;}
 
-    hBarlowVarOOJSubDef[m]=(TH1F*)    fHistSpectrumStat[m]->Clone("fHistBarlowVarOOJSubDef_"+Smolt[m]);
-    for(Int_t v=PtV0Min; v < numPtV0Max; v++){
-      if (NPtV0[v] >2.5) continue;
-      if (v==1 && TypeAnalysis==0 && type==8) continue;
-      if (fHistSpectrumStatOOJSubDef[m]->GetBinContent(v+1) ==0) continue;
-      BarlowVarOOJSubDef[m][v] = (    fHistSpectrumStat[m]->GetBinContent(v+1) -    fHistSpectrumStatOOJSubDef[m]->GetBinContent(v+1))/sqrt(TMath::Abs(pow( fHistSpectrumStat[m]->GetBinError(v+1),2) -pow(fHistSpectrumStatOOJSubDef[m]->GetBinError(v+1),2)));
-      if (TMath::Abs(BarlowVarOOJSubDef[m][v])>2) BarlowSignOOJSubDef[m]++;
-      hBarlowVarOOJSubDef[m] ->SetBinContent(v+1, BarlowVarOOJSubDef[m][v]) ;
-      hBarlowVarOOJSubDef[m] ->SetBinError(v+1, 0) ;
-      cout << "barlow var v" << v << " "  << 	  hBarlowVarOOJSubDef[m] ->GetBinContent(v+1)<<" " <<	  hBarlowVarOOJSubDef[m] ->GetBinError(v+1) << endl;
+      hBarlowVarOOJSubDef[m]=(TH1F*)    fHistSpectrumStat[m]->Clone("fHistBarlowVarOOJSubDef_"+Smolt[m]);
+      for(Int_t v=PtV0Min; v < numPtV0Max; v++){
+	if (NPtV0[v] >2.5) continue;
+	if (v==1 && TypeAnalysis==0 && type==8) continue;
+	if (fHistSpectrumStatOOJSubDef[m]->GetBinContent(v+1) ==0) continue;
+	BarlowVarOOJSubDef[m][v] = (    fHistSpectrumStat[m]->GetBinContent(v+1) -    fHistSpectrumStatOOJSubDef[m]->GetBinContent(v+1))/sqrt(TMath::Abs(pow( fHistSpectrumStat[m]->GetBinError(v+1),2) -pow(fHistSpectrumStatOOJSubDef[m]->GetBinError(v+1),2)));
+	if (TMath::Abs(BarlowVarOOJSubDef[m][v])>2) BarlowSignOOJSubDef[m]++;
+	hBarlowVarOOJSubDef[m] ->SetBinContent(v+1, BarlowVarOOJSubDef[m][v]) ;
+	hBarlowVarOOJSubDef[m] ->SetBinError(v+1, 0) ;
+	cout << "barlow var v" << v << " "  << 	  hBarlowVarOOJSubDef[m] ->GetBinContent(v+1)<<" " <<	  hBarlowVarOOJSubDef[m] ->GetBinError(v+1) << endl;
 
-    }//end loop v
+      }//end loop v
 
-    if (BarlowSignOOJSubDef[m]>= 1) BarlowPassedOOJSubDef[m]=1;
-    StyleHisto(hBarlowVarOOJSubDef[m], -5, 5, Color[TypeAnalysis], 33, titleX, "N_{#sigma}(Barlow)",  title+SmoltLegend[m]);
-    if (BarlowPassedOOJSubDef[m]) StyleHisto(hBarlowVarOOJSubDef[m], -5, 5, Color[TypeAnalysis], 27,  titleX, "N_{#sigma}(Barlow)",  title+SmoltLegend[m]);
+      if (BarlowSignOOJSubDef[m]>= 1) BarlowPassedOOJSubDef[m]=1;
+      StyleHisto(hBarlowVarOOJSubDef[m], -5, 5, Color[TypeAnalysis], 33, titleX, "N_{#sigma}(Barlow)",  title+SmoltLegend[m], 0, 0, 0);
+      if (BarlowPassedOOJSubDef[m]) StyleHisto(hBarlowVarOOJSubDef[m], -5, 5, Color[TypeAnalysis], 27,  titleX, "N_{#sigma}(Barlow)",  title+SmoltLegend[m], 0, 0, 0);
 
-    cout << "Barlow passed " << BarlowPassedOOJSubDef[m] << endl;
-    canvasBarlowOOJSubDef->cd(m+1);
-    gPad->SetLeftMargin(0.15);
-    hBarlowVarOOJSubDef[m] ->Draw("same p");
+      cout << "Barlow passed " << BarlowPassedOOJSubDef[m] << endl;
+      canvasBarlowOOJSubDef->cd(m+1);
+      gPad->SetLeftMargin(0.15);
+      hBarlowVarOOJSubDef[m] ->Draw("same p");
 
-    canvasOOJSubDef->cd(m+1);
-    gPad->SetLeftMargin(0.15);
-    StyleHisto(fHistSpectrumStat[m], LimInf, LimSup, Color[TypeAnalysis], 1, titleX, titleY,  title+SmoltLegend[m]);
-    fHistSpectrumStat[m]->Draw("ep");
-    StyleHisto(fHistSpectrumStatOOJSubDef[m], LimInf, LimSup, 1, 1, titleX, titleY,  title+SmoltLegend[m]);
-    fHistSpectrumStatOOJSubDef[m]->Draw("same ep");
+      canvasOOJSubDef->cd(m+1);
+      gPad->SetLeftMargin(0.15);
+      StyleHisto(fHistSpectrumStat[m], LimInf, LimSup, Color[TypeAnalysis], 1, titleX, titleY,  title+SmoltLegend[m], 0, 0, 0);
+      fHistSpectrumStat[m]->Draw("ep");
+      StyleHisto(fHistSpectrumStatOOJSubDef[m], LimInf, LimSup, 1, 1, titleX, titleY,  title+SmoltLegend[m], 0, 0, 0);
+      fHistSpectrumStatOOJSubDef[m]->Draw("same ep");
 
-    for(Int_t v=PtV0Min; v < numPtV0Max; v++){
-      if (NPtV0[v] >2.5) continue;
-      if (v==1 && TypeAnalysis==0 && type==8) continue;
-      if (fHistSpectrumStatOOJSubDef[m]->GetBinContent(v+1) ==0) continue;
-      if(TMath::Abs(BarlowVarOOJSubDef[m][v])>2){
-	YieldSpectrumErrOOJSub[m]+= TMath::Abs(   fHistSpectrumStat[m]->GetBinContent(v+1) -    fHistSpectrumStatOOJSubDef[m]->GetBinContent(v+1));
+      for(Int_t v=PtV0Min; v < numPtV0Max; v++){
+	if (NPtV0[v] >2.5) continue;
+	if (v==1 && TypeAnalysis==0 && type==8) continue;
+	if (fHistSpectrumStatOOJSubDef[m]->GetBinContent(v+1) ==0) continue;
+	if(TMath::Abs(BarlowVarOOJSubDef[m][v])>2){
+	  YieldSpectrumErrOOJSub[m]+= TMath::Abs(   fHistSpectrumStat[m]->GetBinContent(v+1) -    fHistSpectrumStatOOJSubDef[m]->GetBinContent(v+1));
+	}
       }
-    }
     }//end loop m
-  }
+  }//end loop ooj sub for hXi
+
 
   //fourth part: fit to obtain pt-integrated yield vs mult
   AliPWGFunc pwgfunc;
@@ -1015,7 +1241,9 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
   TString   nameMTscaling[nummolt+1][numfittipo];
   Int_t ColorFit[numfittipo+1]={860, 881, 868, 628, 419};
   TFitResultPtr fFitResultPtr0[nummolt+1][numfittipo];
+  TFitResultPtr fFitResultPtr1[nummolt+1][numfittipo];
   TF1* fit_MTscaling[nummolt+1][numfittipo];
+  TF1* fit_MTscalingBis[nummolt+1][numfittipo];
   TString       nameFit[numfittipo]={"mT-scaling", "Boltzmann", "Fermi-Dirac", "Levi"};
   pwgfunc.SetVarType(AliPWGFunc::kdNdpt);
   Int_t factor=1;
@@ -1067,19 +1295,34 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
       if (m==0 )    legendfit->AddEntry( fit_MTscaling[m][typefit], nameFit[typefit],"l");
 
       fit_MTscaling[m][typefit]->SetLineColor(ColorFit[typefit]);
-      fit_MTscaling[m][typefit]->SetRange(LowRange[m], UpRange[m]);
-      fFitResultPtr0[m][typefit]=       fHistSpectrumStat[m]->Fit(    fit_MTscaling[m][typefit],"SR0");
-      fit_MTscaling[m][typefit]->SetRange(0,8);
 
+      fit_MTscalingBis[m][typefit]= (TF1*)       fit_MTscaling[m][typefit]->Clone(      nameMTscaling[m][typefit]+ "_Bis");
+
+      fit_MTscaling[m][typefit]->SetRange(LowRange[m], UpRange[m]);
+      fit_MTscalingBis[m][typefit]->SetRange(LowRange[m], UpRange[m]);
+      if (TwoFitFunctions) {
+	fit_MTscaling[m][typefit]->SetRange(LowRange[m], 1.5);
+	fit_MTscalingBis[m][typefit]->SetRange(2, UpRange[m]);
+      }
+      fFitResultPtr0[m][typefit]=       fHistSpectrumStat[m]->Fit(    fit_MTscaling[m][typefit],"SR0");
+      fit_MTscaling[m][typefit]->SetRange(0,50);
       canvasPtSpectraFit->cd(m+1);
       gPad->SetLeftMargin(0.15);
       fHistSpectrumStat[m]->Draw("same");
       fit_MTscaling[m][typefit]->Draw("same");
       legendfit->Draw("");
 
+      fFitResultPtr1[m][typefit]=       fHistSpectrumStat[m]->Fit(    fit_MTscalingBis[m][typefit],"SR0");
+      fit_MTscalingBis[m][typefit]->SetRange(0,50);
+      canvasPtSpectraFitBis->cd(m+1);
+      gPad->SetLeftMargin(0.15);
+      fHistSpectrumStat[m]->Draw("same");
+      fit_MTscalingBis[m][typefit]->Draw("same");
+      legendfit->Draw("");
+
       //calculatin yields
       YieldExtrLowPt[m][typefit]= fit_MTscaling[m][typefit]->Integral(0,LowRangeSpectrumPart[m]);
-      YieldExtrHighPt[m][typefit] = fit_MTscaling[m][typefit]->Integral(UpRangeSpectrumPart[m],50);
+      YieldExtrHighPt[m][typefit] = fit_MTscalingBis[m][typefit]->Integral(UpRangeSpectrumPart[m],50);
 
       if (typefit==0){
 	YieldExtrMaxLowPt[m] =  YieldExtrLowPt[m][typefit];
@@ -1103,18 +1346,18 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
       }
 
       YieldExtrLowPtAvg[m]+= fit_MTscaling[m][typefit]->Integral(0,LowRangeSpectrumPart[m]);
-      YieldExtrHighPtAvg[m]+= fit_MTscaling[m][typefit]->Integral(UpRangeSpectrumPart[m],50);     
+      YieldExtrHighPtAvg[m]+= fit_MTscalingBis[m][typefit]->Integral(UpRangeSpectrumPart[m],50);     
 
       YieldErrStatLowPtAvg[m]+= pow(    fit_MTscaling[m][typefit]->IntegralError(0,LowRangeSpectrumPart[m],fFitResultPtr0[m][typefit] ->GetParams(),(fFitResultPtr0[m][typefit]->GetCovarianceMatrix()).GetMatrixArray() ), 2);
-      YieldErrStatHighPtAvg[m]+= pow(    fit_MTscaling[m][typefit]->IntegralError(UpRangeSpectrumPart[m],50,fFitResultPtr0[m][typefit] ->GetParams(),(fFitResultPtr0[m][typefit]->GetCovarianceMatrix()).GetMatrixArray() ), 2);
+      YieldErrStatHighPtAvg[m]+= pow(    fit_MTscalingBis[m][typefit]->IntegralError(UpRangeSpectrumPart[m],50,fFitResultPtr1[m][typefit] ->GetParams(),(fFitResultPtr1[m][typefit]->GetCovarianceMatrix()).GetMatrixArray() ), 2);
 
     } //end loop typefit
 
 
     YieldExtrHighPtAvg[m]=YieldExtrHighPtAvg[m]/numfittipo;
     YieldExtrLowPtAvg[m]=YieldExtrLowPtAvg[m]/numfittipo;
-    YieldErrStatHighPtAvg[m]=sqrt(YieldErrStatHighPtAvg[m]/numfittipo);
-    YieldErrStatLowPtAvg[m]=sqrt(YieldErrStatLowPtAvg[m]/numfittipo);
+    YieldErrStatHighPtAvg[m]=sqrt(YieldErrStatHighPtAvg[m])/numfittipo;
+    YieldErrStatLowPtAvg[m]=sqrt(YieldErrStatLowPtAvg[m])/numfittipo;
 
     YieldExtr[m] =     YieldExtrHighPtAvg[m]+    YieldExtrLowPtAvg[m];
     YieldExtrErrStat[m] = sqrt(    pow(YieldErrStatHighPtAvg[m],2)+    pow(YieldErrStatLowPtAvg[m],2));
@@ -1122,7 +1365,8 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
     YieldExtrErrSistLowPt[m] = (YieldExtrMaxLowPt[m]-YieldExtrMinLowPt[m])/2;
     YieldExtrErrSistUp[m] = YieldExtrMaxLowPt[m]-YieldExtrLowPtAvg[m];
     YieldExtrErrSistLow[m] = YieldExtrLowPtAvg[m];
-    YieldExtrErrSist[m]=sqrt(pow(    YieldExtrErrSistUp[m],2) + pow(    YieldExtrErrSistLow[m],2)) ;
+    //    YieldExtrErrSist[m]=sqrt(pow(    YieldExtrErrSistUp[m],2) + pow(    YieldExtrErrSistLow[m],2)) ;
+    YieldExtrErrSist[m]=sqrt(pow(    YieldExtrErrSistHighPt[m],2) + pow(    YieldExtrErrSistLowPt[m],2)) ;
 
     for(Int_t v = PtBinMin[m]; v < numPtV0Max; v++){
       YieldSpectrum[m] +=  ( fHistSpectrumStat[m]->GetBinContent(v+1)*fHistSpectrumStat[m]->GetBinWidth(v+1));
@@ -1139,21 +1383,36 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
     YieldErrSistUp[m] = sqrt(    pow(YieldSpectrumErrSist[m],2) + pow(YieldExtrErrSistUp[m],2) +  pow(YieldExtrErrSistHighPt[m],2)  + pow(YieldSpectrumErrOOJSub[m],2));
     YieldErrSistLow[m] = sqrt(    pow(YieldSpectrumErrSist[m],2) + pow(YieldExtrErrSistLow[m],2) +  pow(YieldExtrErrSistHighPt[m],2)  + pow(YieldSpectrumErrOOJSub[m],2));
 
+    if (ZeroYieldLowPt){
+      Yield[m] =  YieldSpectrum[m]+ YieldExtrHighPtAvg[m];
+      YieldErrStat[m] = sqrt(    pow(YieldSpectrumErrStat[m],2) + pow(YieldErrStatHighPtAvg[m],2));
+      YieldErrSist[m] = sqrt(    pow(YieldSpectrumErrSist[m],2) + pow(YieldExtrErrSistHighPt[m],2) + pow(YieldSpectrumErrOOJSub[m],2));
+    }
+
     cout << " m " << m << endl;
+    for(Int_t v = PtBinMin[m]; v < numPtV0Max; v++){
+      cout << " v " << v << " " << NPtV0[v] << " yield: " << fHistSpectrumStat[m]->GetBinContent(v+1)*fHistSpectrumStat[m]->GetBinWidth(v+1) << endl;
+    }
     cout << Yield[m] << "+-" << YieldErrStat[m]<< " (stat) +- "<< YieldErrSist[m] << " (sist) "<< endl;
     cout << " (stat rel: " <<  YieldErrStat[m]/ Yield[m] << ") " << endl;
     cout << " (sist rel: " <<  YieldErrSist[m]/ Yield[m] << ")= " << endl;
     cout << "from spectrum: " <<   YieldSpectrum[m] << "+- " << YieldSpectrumErrStat[m]<<" (stat) +- " <<YieldSpectrumErrSist[m]<< " (sist)"  << endl;
     if (type==8 && TypeAnalysis==0)    cout << "from OOJ Sub " <<      YieldSpectrumErrOOJSub[m] << endl;
     cout << "from extr: " <<     YieldExtr[m] << "+- " <<     YieldExtrErrStat[m]<< " (stat)  +- " << YieldExtrErrSist[m]<< " (sist) " << endl;
+    cout << " extr at low pt " << YieldExtrLowPtAvg[m]<<" " << "err extrap high pt " << YieldExtrHighPtAvg[m]<< endl; 
+    cout << " extr at low pt " << YieldExtrLowPtAvg[m]<<" " << "err extrap low pt " << YieldExtrErrSistLow[m]<< endl; 
     if (TypeAnalysis==0 && type==8)     cout << Yield[m] << "+-" << YieldErrStat[m]<< " (stat) + "<< YieldErrSistUp[m]<< " - " << YieldErrSistLow[m] << " (sist) "<< endl;
 
+    cout << " fraction of yield from low pt extrapolation " <<  YieldExtrLowPtAvg[m]/Yield[m] << endl;
+    cout << " fraction of yield from high pt extrapolation " <<  YieldExtrHighPtAvg[m]/Yield[m] << endl;
+    cout << "fit range " << LowRange[m] << "- " << UpRange[m] << endl;
   }//end loop m
 
 
   TLegend *legendYield=new TLegend(0.7, 0.7, 0.9, 0.9);
   TLegend *legendYieldErr=new TLegend(0.6, 0.6, 0.9, 0.9);
 
+  TF1 * pol0 = new TF1 ("pol0", "pol0", 0, 30);
   TString titleYieldX="dN_{ch}/d#eta";
   TString titleYieldYType[2]={"N_{K^{0}_{S}}/N_{Trigg} 1/#Delta#eta #Delta#phi", "N_{#Xi}/N_{Trigg} 1/#Delta#eta #Delta#phi"};
   TString titleYieldY;
@@ -1161,14 +1420,14 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
   else if(type==8) titleYieldY=titleYieldYType[1];
   TString titleYield[3]={"In-jet", "Out-of-jet", "Inclusive"};
 \
-  TH1F* fHistYieldStat=new TH1F ("fHistYieldStat","fHistYieldStat",125,0,25);
-  TH1F* fHistYieldSist=new TH1F ("fHistYieldSist","fHistYieldSist",125,0,25);
-  TH1F* fHistYieldSistNoExtr=new TH1F ("fHistYieldSistNoExtr","fHistYieldSistNoExtr",125,0,25);
-  TH1F* fHistYieldStatRelErr=new TH1F ("fHistYieldStatRelErr","fHistYieldStatRelErr",125,0,25);
-  TH1F* fHistYieldSistRelErr=new TH1F ("fHistYieldSistRelErr","fHistYieldSistRelErr",125,0,25);
-  TH1F* fHistYieldSistNoExtrRelErr=new TH1F ("fHistYieldSistNoExtrRelErr","fHistYieldSistNoExtrRelErr",125,0,25);
-  TH1F* fHistYieldSistLowRelErr=new TH1F ("fHistYieldSistLowRelErr","fHistYieldSistLowRelErr",125,0,25);
-  TH1F* fHistYieldSistUpRelErr=new TH1F ("fHistYieldSistUpRelErr","fHistYieldSistUpRelErr",125,0,25);
+  TH1F* fHistYieldStat=new TH1F ("fHistYieldStat","fHistYieldStat",150,0,30);
+  TH1F* fHistYieldSist=new TH1F ("fHistYieldSist","fHistYieldSist",150,0,30);
+  TH1F* fHistYieldSistNoExtr=new TH1F ("fHistYieldSistNoExtr","fHistYieldSistNoExtr",150,0,30);
+  TH1F* fHistYieldStatRelErr=new TH1F ("fHistYieldStatRelErr","fHistYieldStatRelErr",150,0,30);
+  TH1F* fHistYieldSistRelErr=new TH1F ("fHistYieldSistRelErr","fHistYieldSistRelErr",150,0,30);
+  TH1F* fHistYieldSistNoExtrRelErr=new TH1F ("fHistYieldSistNoExtrRelErr","fHistYieldSistNoExtrRelErr",150,0,30);
+  TH1F* fHistYieldSistLowRelErr=new TH1F ("fHistYieldSistLowRelErr","fHistYieldSistLowRelErr",150,0,30);
+  TH1F* fHistYieldSistUpRelErr=new TH1F ("fHistYieldSistUpRelErr","fHistYieldSistUpRelErr",150,0,30);
   Float_t   mult[nummolt+1]={21.2, 16.17, 11.4625, 7.135, 3.33, 6.94};
 
   for(Int_t m=0; m<nummolt; m++){
@@ -1218,15 +1477,18 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
   gYield->SetMarkerStyle(1);
 
   canvasYield->cd();
-  StyleHisto(fHistYieldStat, LimInfYield, LimSupYield, Color[TypeAnalysis], 1, titleYieldX, titleYieldY, titleYield[TypeAnalysis] + " yield vs multiplicity");
-  StyleHisto(fHistYieldSist, LimInfYield, LimSupYield, Color[TypeAnalysis], 1, titleYieldX, titleYieldY, titleYield[TypeAnalysis] + " yield vs multiplicity");
-  StyleHisto(fHistYieldSistNoExtr, LimInfYield, LimSupYield, Color[TypeAnalysis], 1, titleYieldX, titleYieldY, titleYield[TypeAnalysis] + " yield vs multiplicity");
+  StyleHisto(fHistYieldStat, LimInfYield, LimSupYield, Color[TypeAnalysis], 1, titleYieldX, titleYieldY, titleYield[TypeAnalysis] + " yield vs multiplicity",1, 0, 25);
+  StyleHisto(fHistYieldSist, LimInfYield, LimSupYield, Color[TypeAnalysis], 1, titleYieldX, titleYieldY, titleYield[TypeAnalysis] + " yield vs multiplicity", 1, 0, 25);
+  StyleHisto(fHistYieldSistNoExtr, LimInfYield, LimSupYield, Color[TypeAnalysis], 1, titleYieldX, titleYieldY, titleYield[TypeAnalysis] + " yield vs multiplicity", 1, 0, 25);
   fHistYieldStat->GetYaxis()->SetTitleOffset(1.2);
   fHistYieldSist->GetYaxis()->SetTitleOffset(1.2);
   fHistYieldSistNoExtr->GetYaxis()->SetTitleOffset(1.2);
+  if (TypeAnalysis==0){
+    fHistYieldStat->Fit(pol0, "R0");
+  }
 
   fHistYieldStat->Draw("e");
-  if (TypeAnalysis==0 && type==8)  gYield->Draw("same p");
+  //  if (TypeAnalysis==0 && type==8)  gYield->Draw("same p");
   //  fHistYieldSistNoExtr->SetFillStyle(9);
   fHistYieldSistNoExtr->SetFillStyle(3001);
   fHistYieldSistNoExtr->SetFillColorAlpha(Color[TypeAnalysis], 1);
@@ -1242,18 +1504,20 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
   canvasYield->SaveAs("provay.pdf");
 
   canvasYieldErr->cd();
-  StyleHisto(fHistYieldStatRelErr, 10e-5, LimSupYieldErr, Color[TypeAnalysis], 33, titleYieldX, titleYRel,titleYRel+" of "+ titleYield[TypeAnalysis] + " yield vs multiplicity");
+  StyleHisto(fHistYieldStatRelErr, 10e-5, LimSupYieldErr, Color[TypeAnalysis], 33, titleYieldX, titleYRel,titleYRel+" of "+ titleYield[TypeAnalysis] + " yield vs multiplicity", 1, 0, 25);
   fHistYieldStatRelErr->GetYaxis()->SetTitleOffset(1.2);
-  StyleHisto(fHistYieldSistRelErr, 10e-5, LimSupYieldErr, Color[TypeAnalysis], 27, titleYieldX, titleYRel, titleYRel+" of "+titleYield[TypeAnalysis] + " yield vs multiplicity");
-  StyleHisto(fHistYieldSistUpRelErr, 10e-5, LimSupYieldErr, Color[TypeAnalysis], 24, titleYieldX, titleYRel, titleYRel+" of "+titleYield[TypeAnalysis] + " yield vs multiplicity");
-  StyleHisto(fHistYieldSistLowRelErr, 10e-5, LimSupYieldErr, Color[TypeAnalysis], 25, titleYieldX, titleYRel, titleYRel+" of "+titleYield[TypeAnalysis] + " yield vs multiplicity");
-  StyleHisto(fHistYieldSistNoExtrRelErr, 10e-5, LimSupYieldErr, 881, 27,  titleYieldX, titleYRel, titleYRel+" of "+titleYield[TypeAnalysis] + " yield vs multiplicity");
+  StyleHisto(fHistYieldSistRelErr, 10e-5, LimSupYieldErr, Color[TypeAnalysis], 27, titleYieldX, titleYRel, titleYRel+" of "+titleYield[TypeAnalysis] + " yield vs multiplicity",  1, 0, 25);
+  StyleHisto(fHistYieldSistUpRelErr, 10e-5, LimSupYieldErr, Color[TypeAnalysis], 24, titleYieldX, titleYRel, titleYRel+" of "+titleYield[TypeAnalysis] + " yield vs multiplicity",  1, 0, 25);
+  StyleHisto(fHistYieldSistLowRelErr, 10e-5, LimSupYieldErr, Color[TypeAnalysis], 25, titleYieldX, titleYRel, titleYRel+" of "+titleYield[TypeAnalysis] + " yield vs multiplicity",  1, 0, 25);
+  StyleHisto(fHistYieldSistNoExtrRelErr, 10e-5, LimSupYieldErr, 881, 27,  titleYieldX, titleYRel, titleYRel+" of "+titleYield[TypeAnalysis] + " yield vs multiplicity",  1, 0, 25);
   legendYieldErr->AddEntry(fHistYieldStatRelErr, "stat.", "pl");
-  if (!(TypeAnalysis==0 && type==8))   legendYieldErr->AddEntry(fHistYieldSistRelErr, "syst.", "pl");
+  //  if (!(TypeAnalysis==0 && type==8))   legendYieldErr->AddEntry(fHistYieldSistRelErr, "syst.", "pl");
+  legendYieldErr->AddEntry(fHistYieldSistRelErr, "syst.", "pl");
   legendYieldErr->AddEntry(fHistYieldSistNoExtrRelErr, "syst. (no extr)", "pl");
   fHistYieldSistRelErr->GetYaxis()->SetTitleOffset(1.2);
   fHistYieldStatRelErr->Draw("e p");
   fHistYieldSistNoExtrRelErr->Draw("same p");
+  /*
   if (!(TypeAnalysis==0 && type==8))  fHistYieldSistRelErr->Draw("same p");
   else {
     fHistYieldSistUpRelErr->Draw("same p");
@@ -1261,6 +1525,8 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
     legendYieldErr->AddEntry(fHistYieldSistUpRelErr, "syst. up", "pl");
     legendYieldErr->AddEntry(fHistYieldSistLowRelErr, "syst. low", "pl");
   }
+  */
+  fHistYieldSistRelErr->Draw("same p");
   legendYieldErr->Draw("");
 
   //fifth part: syst associated to bkg used for OOJ subtraction  (only for Xi and jet)
@@ -1275,14 +1541,25 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
   fileout->WriteTObject(fHistYieldSistRelErr);
   fileout->WriteTObject(fHistYieldSistNoExtrRelErr);
   if (TypeAnalysis==0 && type==8) {
+    fileout->  WriteTObject(  fHistYieldSistUpRelErr);
+    fileout->  WriteTObject(  fHistYieldSistLowRelErr);
     fileout->WriteTObject(gYield);
     fileout->WriteTObject(canvasOOJSubDef);
     fileout->WriteTObject(canvasBarlowOOJSubDef);
+  }
+  if (type==8){
+  fileout->WriteTObject(canvasLeadTrackDef);
+  fileout->WriteTObject(canvasBarlowLeadTrackDef);
+  }
+  if (type==0){
+  fileout->WriteTObject(canvasMCChoiceDef);
+  fileout->WriteTObject(canvasBarlowMCChoiceDef);
   }
   fileout->WriteTObject(canvasPtSpectraAll);
   fileout->WriteTObject(canvaspol0);
   fileout->WriteTObject(canvasPtSpectra);
   fileout->WriteTObject(canvasPtSpectraFit);
+  fileout->WriteTObject(canvasPtSpectraFitBis);
   fileout->WriteTObject(canvasBarlow);
   fileout->WriteTObject(canvasBarlowpol0);
   fileout->WriteTObject(canvasPtSpectraRelError);
@@ -1291,8 +1568,24 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=1,Int_t ishhCorr=0, Float_t 
     fileout->WriteTObject(      fHistSpectrumSistAll[m]);
     fileout->WriteTObject(      fHistSpectrumStat[m]);
   }
+  if (ZeroYieldLowPt && TypeAnalysis==0){
+  canvasYield->SaveAs("PictureForNote/YieldvsMult"+tipo[type]+RegionType[TypeAnalysis]+"_ZeroYieldLowPt.pdf");
+  canvasYieldErr->SaveAs("PictureForNote/YieldvsMultErr"+tipo[type]+RegionType[TypeAnalysis]+"_ZeroYieldLowPt.pdf");
+  }
+  else {
+  canvasYield->SaveAs("PictureForNote/YieldvsMult"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
+  canvasYieldErr->SaveAs("PictureForNote/YieldvsMultErr"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
+  }
+  canvasPtSpectra->SaveAs("PictureForNote/PtSpectra"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
+  canvasPtSpectraFit->SaveAs("PictureForNote/PtSpectraFit"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
+  canvasPtSpectraFit->SaveAs("PictureForNote/PtSpectraFitBis"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
+  canvasPtSpectraRelError->SaveAs("PictureForNote/PtSpectraRelErr"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
+  canvasPtSpectraRelErrorAll->SaveAs("PictureForNote/PtSpectraRelErrAll"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
+
 
   fileout->Close();
+
+  if (TypeAnalysis==0)  cout <<" q " <<  pol0->GetParameter(0) << " red chisq " << pol0->GetChisquare()/pol0->GetNDF() << endl;
   cout << "starting from the file(s) "  << PathInDef<< endl;
   if (type==0 && TypeAnalysis==0)  cout << "starting from the file(s) "  << PathInpol0<< endl;
   cout << " I have created the file " << stringout << endl;
