@@ -589,7 +589,7 @@ void AliAnalysisTaskCorrelationhCasc::ProcessMCParticles(Bool_t Generated, AliAO
 	fHistGeneratedTriggerPtEta->Fill(particle->Pt(), particle->Eta(), lPercentiles);
       }
       else if(isV0==kTRUE){ //for associated particles
-	//let's check if the generated V0 comes from the same parton ad the trigger particle
+	//let's check if the generated V0 comes from the same parton as the trigger particle
 	Bool_t IsCommonParton=kFALSE;
 	for (Int_t i=1; i<50; i++){ //I start from one since last element cannot be a parton but is a hadron
 	  if (IsCommonParton==1) break;
@@ -1163,26 +1163,26 @@ void AliAnalysisTaskCorrelationhCasc::UserCreateOutputObjects()
 
   fHistSelectedTriggerPtPhi= new TH3F*[3];
   for(Int_t j=0; j<3; j++){
-    fHistSelectedTriggerPtPhi[j]=new TH3F(Form("fHistSelectedTriggerPtPhi_%i",j), "p_{T} and #phi distribution of selected trigger particles (primary)", 300, 0, 30, 400,0, 2*TMath::Pi() ,  100, 0, 100);
+    fHistSelectedTriggerPtPhi[j]=new TH3F(Form("fHistSelectedTriggerPtPhi_%i",j), "p_{T} and #phi distribution of selected trigger particles (primary)", 600, 0, 30, 400,0, 2*TMath::Pi() ,  100, 0, 100);
     fHistSelectedTriggerPtPhi[j]->GetXaxis()->SetTitle("p_{T}");
     fHistSelectedTriggerPtPhi[j]->GetYaxis()->SetTitle("#phi");
   }
   fHistSelectedGenTriggerPtPhi= new TH3F*[3];
   for(Int_t j=0; j<3; j++){
-    fHistSelectedGenTriggerPtPhi[j]=new TH3F(Form("fHistSelectedGenTriggerPtPhi_%i",j), "p_{T} and #phi distribution of selected trigger particles (primary) (p_{T} and #phi generated))", 300, 0, 30, 400,0, 2*TMath::Pi() ,  100, 0, 100);
+    fHistSelectedGenTriggerPtPhi[j]=new TH3F(Form("fHistSelectedGenTriggerPtPhi_%i",j), "p_{T} and #phi distribution of selected trigger particles (primary) (p_{T} and #phi generated))", 600, 0, 30, 400,0, 2*TMath::Pi() ,  100, 0, 100);
     fHistSelectedGenTriggerPtPhi[j]->GetXaxis()->SetTitle("p_{T}");
     fHistSelectedGenTriggerPtPhi[j]->GetYaxis()->SetTitle("#phi");
   }
 
   fHistSelectedTriggerPtEta= new TH3F*[3];
   for(Int_t j=0; j<3; j++){
-    fHistSelectedTriggerPtEta[j]=new TH3F(Form("fHistSelectedTriggerPtEta_%i",j), "p_{T} and #eta distribution of selected trigger particles (primary)", 300, 0, 30, 400,-1.2, 1.2,  100, 0, 100);
+    fHistSelectedTriggerPtEta[j]=new TH3F(Form("fHistSelectedTriggerPtEta_%i",j), "p_{T} and #eta distribution of selected trigger particles (primary)", 600, 0, 30, 400,-1.2, 1.2,  100, 0, 100);
     fHistSelectedTriggerPtEta[j]->GetXaxis()->SetTitle("p_{T}");
     fHistSelectedTriggerPtEta[j]->GetYaxis()->SetTitle("#eta");
   }
   fHistSelectedGenTriggerPtEta= new TH3F*[3];
   for(Int_t j=0; j<3; j++){
-    fHistSelectedGenTriggerPtEta[j]=new TH3F(Form("fHistSelectedGenTriggerPtEta_%i",j), "p_{T} and #eta distribution of selected trigger particles (primary) (p_{T} and #eta generated))", 300, 0, 30, 400,-1.2, 1.2,  100, 0, 100);
+    fHistSelectedGenTriggerPtEta[j]=new TH3F(Form("fHistSelectedGenTriggerPtEta_%i",j), "p_{T} and #eta distribution of selected trigger particles (primary) (p_{T} and #eta generated))", 600, 0, 30, 400,-1.2, 1.2,  100, 0, 100);
     fHistSelectedGenTriggerPtEta[j]->GetXaxis()->SetTitle("p_{T}");
     fHistSelectedGenTriggerPtEta[j]->GetYaxis()->SetTitle("#eta");
   }
