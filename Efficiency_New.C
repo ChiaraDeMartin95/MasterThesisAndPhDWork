@@ -21,9 +21,13 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
   return sqrt(((Double_t)k+1)*((Double_t)k+2)/(n+2)/(n+3) - pow((Double_t)(k+1),2)/pow(n+2,2));
 }
 
-void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0, Int_t type=6, Int_t israp=0, TString ResoHisto="2D",Bool_t SkipAssoc=1 ,   Float_t ptjmin=3,  Float_t ptjmax=15, Int_t sysTrigger=0, Int_t sysV0=0, TString data="1617GP_hXi" /*"2018f1_extra_MECorr"/"2018f1_extra_hK0s_CP"/* "2018f1_extra_hK0s_CP"/*"2018f1_extra_hK0s_CP_10runs_Bis"/"AllMC_hXi"*/, TString year0="2016", TString path1=""/*"_New"*/ /*"_10runs_FB128_TrackLengthCut"/"_NewMultClassBis"/"_PtTrigMax2.5"*/, Int_t MultBinning=0, Int_t PtBinning=1){
-
+void Efficiency_New(Int_t DEtaEff=1, Int_t indexSysV0=0, Int_t sysTrigger=0, Int_t indexsysTrigger=0,  Int_t type=4, Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0, Int_t israp=0, TString ResoHisto="2D",Bool_t SkipAssoc=1 ,   Float_t ptjmin=3,  Float_t ptjmax=15, Int_t sysV0=0, TString data=/*"17d20bEPOS_hXi"/*"17d20bEPOS_hK0s"/"2018f1_extra_hK0s"/*"1617GP_hXi" /*"2018f1_extra_MECorr"/"2018f1_extra_hK0s_CP"/* "2018f1_extra_hK0s_CP"/*"2018f1_extra_hK0s_CP_10runs_Bis"/"AllMC_hXi"/"161718_MD_hXi"/* "17anch17_hK0s"/"1617MC_hK0s"/"2018f1g4_extra_hXi"*/"2018f1_extra_DEtaEff_50runs", TString year0="2016", TString path1=""/*"_New"*/ /*"_10runs_FB128_TrackLengthCut"/"_NewMultClassBis"/"_PtTrigMax2.5"*/, Int_t MultBinning=0, Int_t PtBinning=0, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsPtTrigMultDep=0, Int_t EffRegion=0, Bool_t isEfficiencyMassSel=0, Bool_t isMCTruth=0){
   //  if (type==6 && israp!=0) return; //so far I haven't appended any info on the rapidity to efficiency output files for K0s; if I decide to do as ofr the cascade, just remove this line
+
+  if (isDefaultSel && (isLoosest || isTightest) ) return;
+  if (isLoosest && isTightest) return;
+  if (isDefaultSel && sysTrigger==1) {cout << "to run the default selections you should put sysTrigger==0) " << endl;  return; }
+
 
   if (sysTrigger> 3) return;
   if (!ishhCorr){
@@ -49,13 +53,19 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
   TString tipoPart[numtipo]={"Xi", "Xi", "Omega", "Omega", "Xi", "Omega", "", ""};
   TString Srap[2] = {"_Eta0.8", "_y0.5"};
 
+  cout << "new input file " << endl;
   TString file = "Efficiency";
   TString PathInBis =  "FinalOutput/AnalysisResults";
   file+=data;
   //  file+="_MCEff";
   PathInBis+=data;
-  if (!ishhCorr) {
+  if (!ishhCorr){
+    if (!isMCTruth) {
     PathInBis+="_MCEff";
+    }
+    else {
+    PathInBis+="_MCTruth";
+    }
     //    PathInBis+=path1;
     PathInBis+=".root";
   }
@@ -69,26 +79,48 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
   cout << PathInBis << endl;
   //  TString PathInBis =  "AnalysisResults.root";
   TString PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + path1;
+  if (isMCTruth) PathOut2+= "_MCTruth";
   if (PtBinning>0) PathOut2 += Form("_PtBinning%i",PtBinning);
   if (CommonParton && isCPEff)  PathOut2 += "_CPEff";
   if (CommonParton && !isCPEff)  PathOut2 += "_NOCPEff";
-  PathOut2 += "_"+tipo[type]+Srap[israp]+Form("_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
-  if (!ishhCorr && !SkipAssoc)PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + path1+  Form("_PtBinning%i",PtBinning)+ "_"+tipo[type]+Srap[israp]+Form("_AllAssoc_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
+  if (isSysDef && isDefaultSel)  PathOut2 += "_"+tipo[type]+Srap[israp]+Form("_SysT%i_SysV0Default_PtMin%.1f.root", sysTrigger,  PtTrigMin);
+  else if (isSysDef && isLoosest)  PathOut2 += "_"+tipo[type]+Srap[israp]+Form("_SysT%i_SysV0Loosest_PtMin%.1f.root", sysTrigger,  PtTrigMin);
+  else if (isSysDef && isTightest)  PathOut2 += "_"+tipo[type]+Srap[israp]+Form("_SysT%i_SysV0Tightest_PtMin%.1f.root", sysTrigger,  PtTrigMin);
+  else  if (isSysDef && !isDefaultSel && sysTrigger==0)  PathOut2 += "_"+tipo[type]+Srap[israp]+Form("_SysT%i_SysV0index%i_PtMin%.1f.root", sysTrigger, indexSysV0, PtTrigMin);
+  else  if (isSysDef && !isDefaultSel && sysTrigger==1)  PathOut2 += "_"+tipo[type]+Srap[israp]+Form("_SysTindex%i_SysV0%i_PtMin%.1f.root", indexsysTrigger, 0, PtTrigMin);
+  else  {
+    PathOut2 += "_"+tipo[type]+Srap[israp]+Form("_SysT%i_SysV0%i_PtMin%.1f", sysTrigger,0, PtTrigMin);
+    if (IsPtTrigMultDep) PathOut2+="_IsPtTrigMultDep";
+    if(    isEfficiencyMassSel) PathOut2+= "_isEfficiencyMassSel";
+    if (DEtaEff==1)PathOut2+="_Incl";   
+    else if (DEtaEff==2)PathOut2+="_Jet";   
+    else if (DEtaEff==3)PathOut2+="_OOJ";   
+ PathOut2+= ".root";
+  }
+
+  if (!ishhCorr && !SkipAssoc)PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + path1+ Form("_PtBinning%i",PtBinning)+ "_"+tipo[type]+Srap[israp]+Form("_AllAssoc_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
   if (ishhCorr) PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file  + path1 + Form("_PtBinning%i",PtBinning)+"_"+Srap[israp]+ "_hhCorr"+Form("_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
   if (ishhCorr &&!SkipAssoc) PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + "_hhCorr" + path1 + Form("_PtBinning%i",PtBinning)+Srap[israp]+ "_hhCorr"+Form("_AllAssoc_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
   cout << "new input file " << endl;
 
   cout << PathInBis << endl;
+  cout << "ok here " << endl;
   TFile *fileinbis = new TFile(PathInBis, "");
-
+  cout << "ok here " << endl;
   if (!fileinbis){
     cout << "input file does not exist " << endl; 
     return;
   }
-
+  cout << "ok here " << endl;
   TString PathInSel="./FinalOutput/DATA" + year0 + "/histo/AngularCorrelation";
   PathInSel+=data;
-  PathInSel+="_MCEff";
+  if (!isMCTruth) {
+    PathInSel+="_MCEff";
+  }
+  else {
+    PathInSel+="_MCTruth";
+  }
+
   PathInSel+=path1;
   if (PtBinning>0)  PathInSel+=  Form("_PtBinning%i",PtBinning);
   PathInSel+="_";
@@ -98,7 +130,18 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
   PathInSel +=Srap[israp];
   if (!SkipAssoc)  PathInSel +="_AllAssoc";
   if (ishhCorr) PathInSel+="_hhCorr";
-  PathInSel +=Form("_MassDistr_SysT%i_SysV0%i_PtMin%.1f",sysTrigger, sysV0, PtTrigMin);
+  if (isSysDef && isDefaultSel)   PathInSel +=Form("_MassDistr_SysT%i_SysV0Default_PtMin%.1f",sysTrigger, PtTrigMin);
+  else   if (isSysDef && isLoosest)   PathInSel +=Form("_MassDistr_SysT%i_SysV0Loosest_PtMin%.1f",sysTrigger, PtTrigMin);
+  else   if (isSysDef && isTightest)   PathInSel +=Form("_MassDistr_SysT%i_SysV0Tightest_PtMin%.1f",sysTrigger, PtTrigMin);
+  else  if (isSysDef && !isDefaultSel && sysTrigger==0) PathInSel +=Form("_MassDistr_SysT%i_SysV0index%i_PtMin%.1f",sysTrigger, indexSysV0, PtTrigMin);
+  else  if (isSysDef && !isDefaultSel && sysTrigger==1) PathInSel +=Form("_MassDistr_SysTindex%i_SysV0%i_PtMin%.1f",indexsysTrigger, 0, PtTrigMin);
+  else  PathInSel +=Form("_MassDistr_SysT%i_SysV0%i_PtMin%.1f",sysTrigger, 0, PtTrigMin);
+  if (IsPtTrigMultDep) PathInSel+="_IsPtTrigMultDep";
+  if(    isEfficiencyMassSel) PathInSel+= "_isEfficiencyMassSel";
+    if (DEtaEff==1)PathInSel+="_Incl";   
+    else if (DEtaEff==2)PathInSel+="_Jet";   
+    else if (DEtaEff==3)PathInSel+="_OOJ";   
+
   PathInSel+= ".root";
   cout << "fileinputSel :" << PathInSel << endl;
 
@@ -135,9 +178,11 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
 
   Float_t ptjminGen=0;
   Float_t ptjmaxGen=0;
-    Float_t ptjminBisFixed[nummolt+1]={0.150,1,2, 3,4,5};
-    Float_t ptjminBis[nummolt+1];
-    Float_t ptjmaxRes[nummolt+1]={ptjmax};
+  Float_t ptjminBisFixed[nummolt+1]={0.150,1,2, 3,4,5};
+  Float_t ptjminBis[nummolt+1];
+  Float_t ptjmaxRes[nummolt+1]={ptjmax};
+  Float_t PtTrigMultDep[nummolt+1] = {3.0, 3.05, 3.05, 3.1, 3.1, 3};
+
 
     cout << " I will print ... " << endl;
   if (type==0 || type ==2) {
@@ -159,7 +204,8 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
 
 }
 
-  
+ 
+
   TString Smolt[nummolt+1]={"0-1", "1-5", "5-15", "15-30", "30-100", "_all"};
   TString SmoltLegend[nummolt+1]={"0-1 %", "1-5 %", "5-15 %", "15-30 %", "30-100 %", "0-100 %"};
   Double_t Nmolt[nummolt+1]={0,1,5,15,30,100}; 
@@ -283,18 +329,18 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
   if (!fHistGeneratedTriggerPtEta) {cout << "histo gen not found " << endl; return;}
 
   //  TH3D*   fHistSelectedTriggerPtPhi=  (TH3D*)fileinputSel->Get(Form("fHistSelectedTriggerPtPhi_%i",sysTrigger));
-  TH3D*   fHistSelectedTriggerPtPhi=  (TH3D*)list3->FindObject(Form("fHistSelectedTriggerPtPhi_%i",sysTrigger));
+  TH3D*   fHistSelectedTriggerPtPhi=  (TH3D*)list3->FindObject(Form("fHistSelectedTriggerPtPhi_%i",0));
   if (!fHistSelectedTriggerPtPhi) {cout << "histo sel not found " << endl; return;}
-  TH3D*   fHistSelectedTriggerPtEta=  (TH3D*)list3->FindObject(Form("fHistSelectedTriggerPtEta_%i",sysTrigger));
+  TH3D*   fHistSelectedTriggerPtEta=  (TH3D*)list3->FindObject(Form("fHistSelectedTriggerPtEta_%i",0));
   if (!fHistSelectedTriggerPtEta) {cout << "histo sel not found " << endl; return;}
 
   TH3D*   fHistSelectedGenTriggerPtPhi;
-  if ((TH3D*)list3->FindObject(Form("fHistSelectedGenTriggerPtPhi_%i", sysTrigger))) {
-      fHistSelectedGenTriggerPtPhi=  (TH3D*)list3->FindObject(Form("fHistSelectedGenTriggerPtPhi_%i", sysTrigger));
+  if ((TH3D*)list3->FindObject(Form("fHistSelectedGenTriggerPtPhi_%i", 0))) {
+      fHistSelectedGenTriggerPtPhi=  (TH3D*)list3->FindObject(Form("fHistSelectedGenTriggerPtPhi_%i", 0));
     }
     else {
       cout << " fHistSelectedGenTriggerPtPhi non esiste " << endl;
-      fHistSelectedGenTriggerPtPhi=   (TH3D*) fHistSelectedTriggerPtPhi->Clone(Form("fHistSelectedGenTriggerPtPhi", sysTrigger));
+      fHistSelectedGenTriggerPtPhi=   (TH3D*) fHistSelectedTriggerPtPhi->Clone(Form("fHistSelectedGenTriggerPtPhi", 0));
     }
 
   TH3D*   fHistGeneratedV0PtTMaxPhi;
@@ -351,6 +397,10 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
   TH3D*   fHistGeneratedV0PtPtTMax;
   TH3D*   fHistGeneratedV0PtPtTMaxInt1;
   TH3D*   fHistGeneratedV0PtPtTMaxInt2;
+  TString namegenV0="fHistGeneratedV0PtPtTMax";
+  if (DEtaEff==1) namegenV0="fHistGeneratedV0PtPtTMaxIncl";
+  else if (DEtaEff==2) namegenV0="fHistGeneratedV0PtPtTMaxJet";
+  else if (DEtaEff==3) namegenV0="fHistGeneratedV0PtPtTMaxOOJ";
   cout << " hey there 1 " << endl;
   if (CommonParton && isCPEff){
     fHistGeneratedV0PtPtTMax=       (TH3D*)list2->FindObject(Form("fHistCPGeneratedV0PtPtTMax_%i", sysV0Gen));
@@ -361,7 +411,7 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
     if (fHistGeneratedV0PtPtTMaxInt1)    fHistGeneratedV0PtPtTMax= (TH3D*)     fHistGeneratedV0PtPtTMaxInt1->Clone(Form("fHistNOCPGeneratedV0PtPtTMax_%i", sysV0Gen));
   }
   else {
-    fHistGeneratedV0PtPtTMax=       (TH3D*)list2->FindObject(Form("fHistGeneratedV0PtPtTMax_%i", sysV0Gen));
+    fHistGeneratedV0PtPtTMax=       (TH3D*)list2->FindObject(namegenV0+Form("_%i", sysV0Gen));
   }
   if (!fHistGeneratedV0PtPtTMax) {cout << "histo gen not found " << endl; return;}
 
@@ -566,6 +616,17 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
   cout << "Sto effettuando istogrammi efficienze in range di molteplicita'" << endl;
     
   for(Int_t molt=0; molt < nummolt+1; molt++){
+
+    if (IsPtTrigMultDep) {
+      ptjmin = PtTrigMultDep[molt];
+      if (type==0 || type ==2) {
+	ptjmaxGen=-ptjmin;
+      }
+      else  if (type==1 || type ==3 || type >5) {
+	ptjminGen = ptjmin; 
+      }
+    }
+
     //    if (molt==0) continue;
     cout << "\n\n I'm analyzing multiplcity interval n. " << molt<< endl;
   
@@ -580,6 +641,7 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
       fHistSelectedGenTriggerPtPhi->GetZaxis()->SetRange(0,100); 
       fHistGeneratedTriggerPtPhi->GetZaxis()->SetRange(0,100);
     }
+
     fHistSelected_2D_TriggerPtPhi[molt] = (TH2D*)fHistSelectedTriggerPtPhi->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis
     fHistSelectedGen_2D_TriggerPtPhi[molt] = (TH2D*)fHistSelectedGenTriggerPtPhi->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis //!! 
 
@@ -588,9 +650,12 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
     fHistSelectedGen_2D_TriggerPtPhi[molt] ->SetName("fHistSelectedGen_2D_TriggerPtPhi_"+ Smolt[molt] );
     fHistGenerated_2D_TriggerPtPhi[molt]->SetName("fHistGenerated_2D_TriggerPtPhi_"+ Smolt[molt]);
     
+    cout << "bin width of x axis of 3d histo " <<     fHistSelected_2D_TriggerPtPhi[molt]->GetXaxis()->GetBinWidth(1) << endl;
     cout << "\nsel2D " <<     fHistSelected_2D_TriggerPtPhi[molt]->GetNbinsX() <<   "  " <<   fHistSelected_2D_TriggerPtPhi[molt]->GetNbinsY() <<" " <<    fHistSelected_2D_TriggerPtPhi[molt]->GetName() <<  endl;
+    cout << "\nsel2D - bin width " <<     fHistSelected_2D_TriggerPtPhi[molt]->GetXaxis()->GetBinWidth(1) <<   "  " <<   fHistSelected_2D_TriggerPtPhi[molt]->GetYaxis()->GetBinWidth(1) <<" " <<    fHistSelected_2D_TriggerPtPhi[molt]->GetName() <<  endl;
     cout << "selgen2D " <<     fHistSelectedGen_2D_TriggerPtPhi[molt]->GetNbinsX() <<   "  " <<   fHistSelectedGen_2D_TriggerPtPhi[molt]->GetNbinsY() << "  " <<fHistSelectedGen_2D_TriggerPtPhi[molt]->GetName() << endl;
     cout << "gen2D " <<     fHistGenerated_2D_TriggerPtPhi[molt]->GetNbinsX() <<   "  " <<   fHistGenerated_2D_TriggerPtPhi[molt]->GetNbinsY() << "\n" << endl;
+    cout << "gen2D - bin width " <<     fHistGenerated_2D_TriggerPtPhi[molt]->GetXaxis()->GetBinWidth(1) <<   "  " <<   fHistGenerated_2D_TriggerPtPhi[molt]->GetYaxis()->GetBinWidth(1) <<" " <<    fHistGenerated_2D_TriggerPtPhi[molt]->GetName() <<  endl;
 
     fHistTriggerEfficiencyPtPhi[molt]= new TH2D("fHistTriggerEfficiencyPtPhi_"+ Smolt[molt],"fHistTriggerEfficiencyPtPhi_"+ Smolt[molt],fHistSelectedTriggerPtPhi->GetNbinsX(),fHistSelectedTriggerPtPhi->GetXaxis()->GetXmin(), fHistSelectedTriggerPtPhi->GetXaxis()->GetXmax(),fHistSelectedTriggerPtPhi->GetNbinsY(),fHistSelectedTriggerPtPhi->GetYaxis()->GetBinLowEdge(1), fHistSelectedTriggerPtPhi->GetYaxis()->GetBinUpEdge(fHistSelectedTriggerPtPhi->GetNbinsY()) );
     fHistTriggerEfficiencyPtPhi[molt]->GetXaxis()->SetTitle("p_{T}^{Trigg} (GeV/c)");      
@@ -602,7 +667,8 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
     fHistSelectedGen_2D_TriggerPtPhi[molt] ->RebinX(2); 
     fHistSelectedGen_2D_TriggerPtPhi[molt] ->RebinY(5); 
 
-    if (type==6)    fHistGenerated_2D_TriggerPtPhi[molt]->RebinX(2);    
+    if (type==6 && PtBinning==1)    fHistGenerated_2D_TriggerPtPhi[molt]->RebinX(2);    
+    else if (type==6)    fHistGenerated_2D_TriggerPtPhi[molt]->RebinX(2);    
     else     fHistGenerated_2D_TriggerPtPhi[molt]->RebinX(4);    
     fHistGenerated_2D_TriggerPtPhi[molt]->RebinY(5);    
     
@@ -648,7 +714,10 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
     fHistTriggerEfficiencyGenPt[molt] ->Divide(  fHistGenerated_1D_TriggerPt[molt] );
     cout << "numerator number of bins " << fHistTriggerEfficiencyGenPt[molt]->GetNbinsX()<< endl;
     cout << "denominator number of bins " << fHistGenerated_1D_TriggerPt[molt]->GetNbinsX()<< endl;
-    
+    for (Int_t b =1; b<        fHistTriggerEfficiencyPt[molt]->GetNbinsX(); b++){
+      cout <<      fHistSelected_1D_TriggerPt[molt]->GetBinContent(b) << " / " << fHistGenerated_1D_TriggerPt[molt]->GetBinContent(b) <<" = " <<      fHistTriggerEfficiencyPt[molt]->GetBinContent(b)<< endl;
+    }
+
     canvasEff->cd(1);
     fHistTriggerEfficiencyPt[molt]->GetYaxis()->SetRangeUser(0,1.6);
     fHistTriggerEfficiencyPt[molt]->GetYaxis()->SetTitle("#epsilon_{Trigg}");
@@ -778,9 +847,9 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
     HistoTriggerEfficiency->SetBinError(molt+1, SetEfficiencyError(SelEntries[molt], GenEntries[molt]));
 
     HistoTriggerEfficiency->GetYaxis()->SetRangeUser(0,1);
-    HistoTriggerEfficiency->SetMarkerStyle(ColorSysTrigger[sysTrigger]);
-    HistoTriggerEfficiency->SetLineColor(ColorSysTrigger[sysTrigger]);
-    HistoTriggerEfficiency->SetMarkerColor(ColorSysTrigger[sysTrigger]);
+    HistoTriggerEfficiency->SetMarkerStyle(ColorSysTrigger[0]);
+    HistoTriggerEfficiency->SetLineColor(ColorSysTrigger[0]);
+    HistoTriggerEfficiency->SetMarkerColor(ColorSysTrigger[0]);
     canvasUsed->cd(1);
     HistoTriggerEfficiency->Draw("e");
       
@@ -804,7 +873,8 @@ void Efficiency_New(Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0,
     fHistSelected_2D_TriggerPtEta[molt] ->RebinX(2);   
     fHistSelected_2D_TriggerPtEta[molt] ->RebinY(10);   
     
-    if (type==6)    fHistGenerated_2D_TriggerPtEta[molt]->RebinX(2);    
+    if (type==6 && PtBinning==1)    fHistGenerated_2D_TriggerPtEta[molt]->RebinX(2);    
+    else    if (type==6)    fHistGenerated_2D_TriggerPtEta[molt]->RebinX(2);    
     else fHistGenerated_2D_TriggerPtEta[molt]->RebinX(4);    
     fHistGenerated_2D_TriggerPtEta[molt]->RebinY(10);    
     
@@ -1022,11 +1092,11 @@ cout << "sel2D " <<     fHistSelected_1D_V0Pt[molt]->GetNbinsX() << endl;
     if(molt ==nummolt)     legend->Draw();
 
     cout << "V0 efficiency in Pt bins used in the analysis " << endl;
-    fHistV0EfficiencyPtBins[molt]= new TH1D("fHistV0EfficiencyPtBins_" + Smolt[molt], "fHistV0EfficiencyPtBins_" + Smolt[molt],numPtV0, NPtV0 );
+    fHistV0EfficiencyPtBins[molt]= new TH1D("fHistV0EfficiencyPtBins_" + Smolt[molt], "fHistV0EfficiencyPtBins_" + Smolt[molt],numPtV0Max, NPtV0 );
     fHistV0EfficiencyPtBins[molt]->GetXaxis()->SetTitle("p_{T}^{Assoc} (GeV/c)");      
     fHistV0EfficiencyPtBins[molt]->GetXaxis()->SetTitleSize(0.05);
     fHistV0EfficiencyPtBins[molt]->GetXaxis()->SetTitleOffset(1);
-    fHistV0EfficiencyGenPtBins[molt]= new TH1D("fHistV0EfficiencyGenPtBins_" + Smolt[molt], "fHistV0EfficiencyGenPtBins_" + Smolt[molt],numPtV0, NPtV0 );
+    fHistV0EfficiencyGenPtBins[molt]= new TH1D("fHistV0EfficiencyGenPtBins_" + Smolt[molt], "fHistV0EfficiencyGenPtBins_" + Smolt[molt],numPtV0Max, NPtV0 );
     fHistV0EfficiencyGenPtBins[molt]->GetXaxis()->SetTitle("p_{T}^{Assoc} (GeV/c)");      
     fHistV0EfficiencyGenPtBins[molt]->GetXaxis()->SetTitleSize(0.05);
     fHistV0EfficiencyGenPtBins[molt]->GetXaxis()->SetTitleOffset(1);
@@ -1062,6 +1132,7 @@ cout << "sel2D " <<     fHistSelected_1D_V0Pt[molt]->GetNbinsX() << endl;
     fHistV0EfficiencyPtBins[molt]->SetStats(0);
     fHistV0EfficiencyPtBins[molt]->SetLineColor(Color[molt]);
     fHistV0EfficiencyPtBins[molt]->SetMarkerColor(Color[molt]);
+    //    if (molt==nummolt)    fHistV0EfficiencyPtBins[molt]->Draw("samee");
     fHistV0EfficiencyPtBins[molt]->Draw("samee");
     if(molt ==nummolt)     legend->Draw();
 
@@ -1281,7 +1352,7 @@ cout << "sel2D " <<     fHistSelected_1D_V0Pt[molt]->GetNbinsX() << endl;
 
     //***************contamination factor for trigger and V0 in multiplicity intervals***************
 
-    HistContTrigger[molt]=(TH2D*)list3->FindObject(Form("fHistPrimaryTrigger_%i_cut%i", molt, sysTrigger)); //histo tipo di trigger (primario, secondario) vs pT trigger
+    HistContTrigger[molt]=(TH2D*)list3->FindObject(Form("fHistPrimaryTrigger_%i_cut%i", molt, 0)); //histo tipo di trigger (primario, secondario) vs pT trigger
     //    cout << "deficit " << endl;
     HistContV0PtTMax[molt]=(TH3D*)fileinputSel->Get(Form("fHistPrimaryV0_%i_cut%i", molt, sysV0hh));//histo tipo di V0 (primario, secondario) vs pT V0
 
@@ -1327,7 +1398,7 @@ cout << "sel2D " <<     fHistSelected_1D_V0Pt[molt]->GetNbinsX() << endl;
     HistContV0Pt[molt]->GetXaxis()->SetTitleSize(1.5);
     HistContV0Pt[molt]->GetYaxis()->SetTitle("C factor");
 
-    HistContV0PtBins[molt]=new TH1D("HistContV0PtBins_"+Smolt[molt], Form("HistContV0PtBins_%i", molt),numPtV0, NPtV0 );
+    HistContV0PtBins[molt]=new TH1D("HistContV0PtBins_"+Smolt[molt], Form("HistContV0PtBins_%i", molt),numPtV0Max, NPtV0 );
     HistContV0PtBins[molt]->SetTitle("");
     HistContV0PtBins[molt]->GetXaxis()->SetTitle("p_{T}^{Assoc}");
     HistContV0PtBins[molt]->GetYaxis()->SetTitle("C_{Assoc}");
@@ -1493,7 +1564,7 @@ if (listRisoluzione){
 
 
   //Large bins TProfile for assoc particles
-  fHistAssocPtRecovsPtGen_PtBins = new TH2F("fHistAssocPtRecovsPtGen_PtBins", "fHistAssocPtRecovsPtGen_PtBins", numPtV0, NPtV0, numPtV0, NPtV0);
+  fHistAssocPtRecovsPtGen_PtBins = new TH2F("fHistAssocPtRecovsPtGen_PtBins", "fHistAssocPtRecovsPtGen_PtBins", numPtV0Max, NPtV0, numPtV0Max, NPtV0);
   for (Int_t pTAssoc=0; pTAssoc<numPtV0Max; pTAssoc++){
   for (Int_t pTAssoc1=0; pTAssoc1<numPtV0Max; pTAssoc1++){
   CountForTProfile=0;   
@@ -1714,4 +1785,5 @@ if (listRisoluzione){
 
   cout << "\n\n Run it for sysV0=0,..,6 if !ishhCorr, else for sysV0=0,1,2" << endl;
   cout << "Run it for sysTrigger=0,1,2 (although results won't be used)" << endl;
+
 }
