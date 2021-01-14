@@ -270,7 +270,7 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
   Float_t LimSupYieldErr[2] ={0.2, 0.3};
   Float_t LimInfYield[2]={10e-5, 10e-5};
   Float_t LimInfPt[2]={0.8, 1.2};
-  Float_t LimSupPt[2]={2.8, 5};
+  Float_t LimSupPt[2]={3.5, 5};
   //  Float_t LimInfYield[2]={10e-6, 10e-7}; //this for yield/event
   //  Float_t LimInfRatioYield = 10e-5;
   Float_t LimInfRatioYield = 0.015;
@@ -311,6 +311,8 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
   TH1F* fHistYieldSistErr[2][numregions];
   TH1F* fHistPtvsMultStatErr[2][numregions];
   TH1F* fHistPtvsMultSistErr[2][numregions];
+  TH1F* fHistPtvsMultStatErrFS[2][numregions];
+  TH1F* fHistPtvsMultSistErrFS[2][numregions];
   TH1F* fHistYieldSistNoExtr[2][numregions];
   TH1F* fHistYieldStatJet[2][numregions];
   TH1F* fHistYieldSistJet[2][numregions];
@@ -411,6 +413,8 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 
   gStyle->SetLegendFillColor(0);
   gStyle->SetLegendBorderSize(0);
+
+  TLegend* legendPtvsMult = new TLegend(0.15, 0.7, 0.4, 0.93);
   TLegend *legendRegionAllF=new TLegend(0.15, 0.43, 0.59, 0.71);
   legendRegionAllF->SetFillStyle(0);
   legendRegionAllF->SetMargin(0.07);
@@ -552,6 +556,8 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 
       fHistPtvsMultStatErr[type][iregion]=(TH1F*) fHistPtvsMultStat[type][iregion]-> Clone("fHistPtvsMultStatErr");
       fHistPtvsMultSistErr[type][iregion]=(TH1F*) fHistPtvsMultSist[type][iregion]-> Clone("fHistPtvsMultSistErr");
+      fHistPtvsMultStatErrFS[type][iregion]=(TH1F*) fHistPtvsMultStatFS[type][iregion]-> Clone("fHistPtvsMultStatErrFS");
+      fHistPtvsMultSistErrFS[type][iregion]=(TH1F*) fHistPtvsMultSistFS[type][iregion]-> Clone("fHistPtvsMultSistErrFS");
 
       for (Int_t b=1; b<=fHistYieldStatErr[type][iregion]->GetNbinsX(); b++){
 	if (fHistYieldStatErr[type][iregion]->GetBinContent(b)!=0){
@@ -559,10 +565,16 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 	  fHistYieldSistErr[type][iregion]->SetBinContent(b, fHistYieldSistErr[type][iregion]->GetBinError(b)/fHistYieldSistErr[type][iregion]->GetBinContent(b));
 	  fHistYieldStatErr[type][iregion]->SetBinError(b, 0);
 	  fHistYieldSistErr[type][iregion]->SetBinError(b, 0);
-	  fHistPtvsMultStatErr[type][iregion]->SetBinContent(b, fHistPtvsMultStatErr[type][iregion]->GetBinError(b)/fHistPtvsMultStatErr[type][iregion]->GetBinContent(b));
-	  fHistPtvsMultSistErr[type][iregion]->SetBinContent(b, fHistPtvsMultSistErr[type][iregion]->GetBinError(b)/fHistPtvsMultSistErr[type][iregion]->GetBinContent(b));
+
+	  fHistPtvsMultStatErr[type][iregion]->SetBinContent(b, fHistPtvsMultStatErr[type][iregion]->GetBinError(b)/fHistPtvsMultStat[type][iregion]->GetBinContent(b));
+	  fHistPtvsMultSistErr[type][iregion]->SetBinContent(b, fHistPtvsMultSistErr[type][iregion]->GetBinError(b)/fHistPtvsMultSist[type][iregion]->GetBinContent(b));
 	  fHistPtvsMultStatErr[type][iregion]->SetBinError(b, 0);
 	  fHistPtvsMultSistErr[type][iregion]->SetBinError(b, 0);
+
+	  fHistPtvsMultStatErrFS[type][iregion]->SetBinContent(b, fHistPtvsMultStatErrFS[type][iregion]->GetBinError(b)/fHistPtvsMultStatFS[type][iregion]->GetBinContent(b));
+	  fHistPtvsMultSistErrFS[type][iregion]->SetBinContent(b, fHistPtvsMultSistErrFS[type][iregion]->GetBinError(b)/fHistPtvsMultSistFS[type][iregion]->GetBinContent(b));
+	  fHistPtvsMultStatErrFS[type][iregion]->SetBinError(b, 0);
+	  fHistPtvsMultSistErrFS[type][iregion]->SetBinError(b, 0);
 
 	}
       }
@@ -827,14 +839,20 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
       
       canvasPtvsMultErrSeparate[iregion][type]->cd();
       StyleHisto(fHistPtvsMultStatErr[type][iregion], LimInfYield[type], LimSupYieldErr[type], Color[iregion], 33, titleYieldX, titleYieldYRelErr, "");
-      StyleHisto(fHistPtvsMultSistErr[type][iregion], LimInfYield[type], LimSupYieldErr[type], Color[iregion], 24, titleYieldX, titleYieldYRelErr, "");
+      StyleHisto(fHistPtvsMultSistErr[type][iregion], LimInfYield[type], LimSupYieldErr[type], Color[iregion], 20, titleYieldX, titleYieldYRelErr, "");
+      StyleHisto(fHistPtvsMultStatErrFS[type][iregion], LimInfYield[type], LimSupYieldErr[type], Color[iregion], 27, titleYieldX, titleYieldYRelErr, "");
+      StyleHisto(fHistPtvsMultSistErrFS[type][iregion], LimInfYield[type], LimSupYieldErr[type], Color[iregion], 24, titleYieldX, titleYieldYRelErr, "");
 
       TLegend* legendPtvsMultErr = new TLegend(0.6, 0.6, 0.9, 0.9);
-      legendPtvsMultErr->AddEntry(fHistPtvsMultStatErr[type][iregion], "stat.", "pl");
-      legendPtvsMultErr->AddEntry(fHistPtvsMultSistErr[type][iregion], "syst.", "pl");
+      legendPtvsMultErr->AddEntry(fHistPtvsMultStatErr[type][iregion], "stat. (<p_{T}> from Fit)", "pl");
+      legendPtvsMultErr->AddEntry(fHistPtvsMultSistErr[type][iregion], "syst. (<p_{T}> from Fit)", "pl");
+      legendPtvsMultErr->AddEntry(fHistPtvsMultStatErrFS[type][iregion], "stat. (<p_{T}> from Spectrum)", "pl");
+      legendPtvsMultErr->AddEntry(fHistPtvsMultSistErrFS[type][iregion], "syst. (<p_{T}> from Spectrum)", "pl");
       //      legendYieldErr->AddEntry(fHistYieldErroriRelDatiPubblicatiDenom, "syst. pub.", "pl");
       fHistPtvsMultStatErr[type][iregion]->Draw("same p"); 
       fHistPtvsMultSistErr[type][iregion]->Draw("same p"); 
+      fHistPtvsMultStatErrFS[type][iregion]->Draw("same p"); 
+      fHistPtvsMultSistErrFS[type][iregion]->Draw("same p"); 
       legendPtvsMultErr->Draw("");
 
 
@@ -1344,13 +1362,18 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
       StyleHistoYield(fHistPtvsMultStatFS[type][iregion], LimInfPt[type]+10e-7, LimSupPt[type], Color[iregion], YmarkerRegionBis[iregion], titleYieldX, titlePtvsMultYType[type],"",  MarkerSize[iregion], 1.2 , 1.25);
       StyleHistoYield(fHistPtvsMultSistFS[type][iregion], LimInfPt[type]+10e-7, LimSupPt[type], Color[iregion], YmarkerRegionBis[iregion], titleYieldX, titlePtvsMultYType[type], "",  MarkerSize[iregion], 1.2, 1.25);
 
+      if (type==0){
+      legendPtvsMult->AddEntry(fHistPtvsMultStat[type][iregion], " <p_{T}> from Fit ("+ SRegionType[iregion]+")", "pl");
+      legendPtvsMult->AddEntry(fHistPtvsMultStatFS[type][iregion]," <p_{T}> from Spectrum ("+ SRegionType[iregion]+")", "pl");
+      }
+
       fHistPtvsMultStat[type][iregion]->DrawClone("same e0x0");  
       fHistPtvsMultSist[type][iregion]->SetFillStyle(0);
       fHistPtvsMultSist[type][iregion]->DrawClone("same e2");
       fHistPtvsMultStatFS[type][iregion]->DrawClone("same e0x0");  
       fHistPtvsMultSistFS[type][iregion]->SetFillStyle(0);
       fHistPtvsMultSistFS[type][iregion]->DrawClone("same e2");
-
+      legendPtvsMult->Draw("");
 
       canvasPtvsMultMethodComp[type]->cd();
       canvasPtvsMultMethodComp[type]->SetFillColor(0);
