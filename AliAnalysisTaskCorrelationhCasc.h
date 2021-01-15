@@ -116,6 +116,8 @@ class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE
   TH1F*                   fHist_multiplicity; 		//!
   TH1F*                   fHist_multiplicity_EvwTrigger;//!
   TH1F*                   fHistEventMult;   		//!
+  TH1F*                   fHistTriggerFractionNum;   		//!
+  TH1F*                   fHistTriggerFractionDenom;   		//!
   TH1F*                   fHistEventV0;   		//!
   TH1F*                   fHistTrack;       		//!
   TH2F*                   fHistLengthvsCrossedRowsAfterSel; //!
@@ -171,6 +173,9 @@ class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE
   TH3F **                 fHistCPGeneratedV0PtTMaxEta; 	    //!
   TH3F **                 fHistSelectedV0PtTMaxEta; 	    //!
   TH3F **                 fHistGeneratedV0PtPtTMax; 	    //!
+  TH3F **                 fHistGeneratedV0PtPtTMaxIncl; 	    //!
+  TH3F **                 fHistGeneratedV0PtPtTMaxJet; 	    //!
+  TH3F **                 fHistGeneratedV0PtPtTMaxOOJ; 	    //!
   TH3F **                 fHistCPGeneratedV0PtPtTMax; 	    //!
   TH3F **                 fHistSelectedV0PtPtTMax; 	    //!
   TH3F **                 fHistSelectedGenV0PtPtTMax; 	    //!
@@ -253,6 +258,7 @@ class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE
 
   Double_t fTreeVariableMultiplicity;                   
   Double_t fTreeVariableZvertex;
+  Int_t  fTreeVariableTriggerIndex;
   Int_t fTreeVariablePDGCodeTrigger;
   Int_t fTreeVariablePDGCodeAssoc;
 
