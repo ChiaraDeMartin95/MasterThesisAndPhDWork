@@ -16,7 +16,11 @@
 #include <TLatex.h>
 #include <TLegend.h>
 
-void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAssoc=1, Int_t israp=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=3,Float_t PtTrigMinFit=3, Int_t sysTrigger=0, Int_t sysV0=0,Int_t syst=0,bool isMC = 0, Bool_t isEfficiency=0,TString year0="2016", TString year=/*"2018f1_Reco_hK0s"/"2018f1_extra_hK0s"/*"2018f1_extra_hK0s"/*"LHC17_hK0s"*/"1617_hK0s"/*"2016kehjl_hK0s"/"2018f1_extra_hK0s_30runs_Hybrid"/"2016k_hK0s"*/,  TString Path1 ="",  Double_t ptjmax =15, Double_t nsigmamax=10, Bool_t isSigma=kFALSE, Int_t PtBinning=1, Bool_t IsTrueParticle=0, Bool_t IsPtTrigMultDep =0, Bool_t isNotSigmaTrigger=1){
+void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAssoc=0, Int_t israp=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=3,Float_t PtTrigMinFit=3, Int_t sysTrigger=0, Int_t sysV0=0,Int_t syst=0,bool isMC = 1, Bool_t isEfficiency=0,TString year0="2016", TString year=/*"2018f1_Reco_hK0s"/"2018f1_extra_hK0s"/*"2018f1_extra_hK0s"/*"LHC17_hK0s"/"1617_hK0s"/*"2016kehjl_hK0s"/"2018f1_extra_hK0s_30runs_Hybrid"/"2016k_hK0s"*/"2018g4_extra_EtaEff_Hybrid_hK0s",  TString Path1 ="",  Double_t ptjmax =15, Double_t nsigmamax=10, Bool_t isSigma=kFALSE, Int_t PtBinning=1, Bool_t IsTrueParticle=0, Bool_t IsPtTrigMultDep =0, Bool_t isNotSigmaTrigger=0, Bool_t isEtaEff=1, TString yearMC = "2018g4_extra_EtaEff_hK0s"){
+
+  if (isMC && !isEfficiency) isEtaEff=0; //no efficiency correction needed in this case
+
+  //isEtaEff ==1 : efficiency correction done here, taking into account the eta dependence of the efficiency
 
   //isMeanFixedPDG and isBkgParab are characteristics of the fit to the inv mass distributions 
   cout << isMC << endl;
@@ -59,8 +63,17 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   Float_t ctauCasc[numtipo] = {2.6844,7.89, 7.89, 7.89};
   Float_t PDGCode[numtipo-1] = {310, 3122, -3122};
 
+  const Int_t nummolt=5;
+  const Int_t numzeta=1;
+  const Int_t numPtV0=9;
+  const Int_t numPtTrigger=1;
+
   TString BkgType[2]={"BkgRetta", "BkgParab"};
   TString MassFixedPDG[2]={"", "isMeanFixedPDG_"};
+  TString Smolt[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "_all"};
+  TString SBismolt[nummolt+1]={"0-5 %", "5-10 %", "10-30 %", "30-50 %", "50-100 %", "0-100 %"};
+  Double_t Nmolt[nummolt+1]={0, 5, 10, 30, 50, 100};
+  TString Szeta[numzeta]={""};
 
   TString PathIn="FinalOutput/AnalysisResults";
   TString PathOut="FinalOutput/DATA" + year0 + "/histo/AngularCorrelation";
@@ -101,12 +114,48 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   if (IsTrueParticle) PathOut+="_IsParticleTrue";
   if (IsPtTrigMultDep) PathOut += "_IsPtTrigMultDep";
   if (isNotSigmaTrigger) PathOut+="_IsNotSigmaTrigger";
-  PathOut += "_EtaStudy";
+  //  PathOut += "_EtaStudy";
   PathOut+= ".root";
 
   cout << "file di input " << PathIn << endl;
   TFile *fin = new TFile(PathIn);
   if (!PathIn){cout << PathIn << " not available " << endl; return;} 
+
+  //input file where efficiency is found
+  TString PathInEfficiency = "FinalOutput/DATA2016/Efficiency/Efficiency" +yearMC;
+  if (PtBinning>0)    PathInEfficiency+=Form("_PtBinning%i",PtBinning);
+  PathInEfficiency+=Path1;// change                                                                   
+  if(type>=0){
+    PathInEfficiency +="_";
+    if (!ishhCorr)             PathInEfficiency +=tipo[type];
+    PathInEfficiency +=Srap[israp];
+    PathInEfficiency +=SSkipAssoc[SkipAssoc];
+    if (ishhCorr)     PathInEfficiency +="_hhCorr";
+  }
+
+  PathInEfficiency+= Form("_SysT%i_SysV0%i_PtMin%.1f", sysTrigger, sysV0, PtTrigMin);
+  /*
+  if (IsPtTrigMultDep)    PathInEfficiency+= "_IsPtTrigMultDep";
+  if (IsEfficiencyMassSel)    PathInEfficiency+= "_isEfficiencyMassSel";
+  */
+  PathInEfficiency+= ".root";
+  
+  TFile *fileinEfficiency = new TFile (PathInEfficiency, "");
+  TH2F * fHistEfficiencyV0PtEta[nummolt+1];
+  TH2F * fHistEfficiencyV0PtPtBins[nummolt+1];
+  if (isEtaEff){
+    if (!fileinEfficiency) {cout << " input file with efficiency not found " << endl; return;}
+  }
+  if (isEtaEff){
+    for(Int_t molt=0; molt<nummolt+1; molt++){
+      fHistEfficiencyV0PtEta[molt] = (TH2F*) fileinEfficiency->Get("fHistV0EfficiencyPtV0EtaV0PtBins_"+ Smolt[molt]);
+      if (!fHistEfficiencyV0PtEta[molt]) {cout << "histogram 2D V0 efficiency pt vs eta " << endl; return;}
+      fHistEfficiencyV0PtPtBins[molt] = (TH2F*) fileinEfficiency->Get("fHistV0EfficiencyPtBins_"+ Smolt[molt]);
+      if (!fHistEfficiencyV0PtPtBins[molt]) {cout << "histogram 1D V0 efficiency pt " << endl; return;}
+    }
+  }
+
+  Float_t   EffRelErr[nummolt+1][numPtV0]={0};
   TFile *fileMassSigma;
   TString dirinputtype[4] = {"", "Lambda", "Lambda", "Lambda"};
   TDirectoryFile *d = (TDirectoryFile*)fin->Get("MyTask"+dirinputtype[type]);
@@ -120,18 +169,10 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   if (!tSign) {cout << "Sign Tree is not there! " << endl; return; }
   if (!tBkg) {cout << "Bkg Tree is not there! " << endl; return; }
 
-  const Int_t nummolt=5;
-  const Int_t numzeta=1;
-  const Int_t numPtV0=9;
-  const Int_t numPtTrigger=1;
   
   Int_t Color[nummolt+1]={1,2,8,4,6,868};
   Float_t LimInfMass[numtipo][nummolt+1][numPtV0]={0};
   Float_t LimSupMass[numtipo][nummolt+1][numPtV0]={0}; 
-  TString Smolt[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "_all"};
-  TString SBismolt[nummolt+1]={"0-5 %", "5-10 %", "10-30 %", "30-50 %", "50-100 %", "0-100 %"};
-  Double_t Nmolt[nummolt+1]={0, 5, 10, 30, 50, 100};
-  TString Szeta[numzeta]={""};
 
   //identità particelle di trigger nel MC                                                                 
   TH1F* fHistTriggerPDGCode = new TH1F("fHistTriggerPDGCode", "fHistTriggerPDGCode", 11,0, 11);
@@ -258,6 +299,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   if (!ishhCorr){ 
     if(isMC==0 || (isMC==1 && isEfficiency==1)){
       for(Int_t m=0; m<nummolt+1; m++){
+	//      if (m!= nummolt) continue;
 	//      PathInMassDef=PathInMass+ "_"+year+"_"+tipo[type]+Form("_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f.root", m, sysTrigger, sysV0, syst, PtTrigMin);
 	PathInMassDef=PathInMass+ "_"+year+"_"+tipo[type]+Srap[israp]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG] + BkgType[isBkgParab];
 	if(IsPtTrigMultDep) PathInMassDef  +="_IsPtTrigMultDep" ;
@@ -438,6 +480,10 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   TString nameSE[nummolt+1][numzeta][numPtV0][numPtTrigger];
   TString namemassSE[nummolt+1][numzeta][numPtV0][numPtTrigger];
   TH2D *hDeltaEtaDeltaPhi_SEbins[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH2D *hDeltaEtaDeltaPhi_SEbinsRelErr[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH2D *hDeltaEtaDeltaPhi_SEbinsEffw[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH2D *hDeltaEtaDeltaPhi_SEbinsEffwRelErr[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH2D *hDeltaEtaDeltaPhi_SEbinsEffwErrors[nummolt+1][numzeta][numPtV0][numPtTrigger];
   TH2D *hDeltaEtaDeltaPhi_SEbins_sidebands[nummolt+1][numzeta][numPtV0][numPtTrigger];
   TH1D *hSign_PtTrigger[nummolt+1][numzeta];
   TH1D *hSign_PtTriggerRatio[nummolt+1][numzeta];
@@ -532,6 +578,21 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
 	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetYaxis()->SetTitleOffset(1.5);
 	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetXaxis()->SetLabelSize(0.05);
 	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetYaxis()->SetLabelSize(0.05);
+
+	  hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]= new TH2D(nameSE[m][z][v][tr]+ "_Effw", nameSE[m][z][v][tr]+ " eff corr",  56, -1.5, 1.5, 104,  -0.5*TMath::Pi(), 1.5*TMath::Pi());
+	  hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->GetXaxis()->SetTitle("#Delta #eta");
+	  hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->GetYaxis()->SetTitle("#Delta #phi (rad)");
+	  hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->GetXaxis()->SetTitleSize(0.05);
+	  hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->GetYaxis()->SetTitleSize(0.05);
+	  hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->GetYaxis()->SetTitleOffset(1.5);
+	  hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->GetXaxis()->SetLabelSize(0.05);
+	  hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->GetYaxis()->SetLabelSize(0.05);
+
+	  hDeltaEtaDeltaPhi_SEbinsEffwErrors[m][z][v][tr]= (TH2D*) hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]-> Clone(nameSE[m][z][v][tr]+ "_EffwErrors");
+	  hDeltaEtaDeltaPhi_SEbinsEffwErrors[m][z][v][tr]->SetTitle(nameSE[m][z][v][tr]+ " errors of eff corr SE");
+	  hDeltaEtaDeltaPhi_SEbinsRelErr[m][z][v][tr]= (TH2D*) hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]-> Clone(nameSE[m][z][v][tr]+ "_RelErr");
+	  hDeltaEtaDeltaPhi_SEbinsEffwRelErr[m][z][v][tr]= (TH2D*) hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]-> Clone(nameSE[m][z][v][tr]+ "_EffwRelErr");
+
 	  hDeltaEtaDeltaPhi_SEbins_sidebands[m][z][v][tr]= new TH2D(nameSE[m][z][v][tr]+"_SB", nameSE[m][z][v][tr]+"_SB",   56, -1.5, 1.5, 104,  -0.5*TMath::Pi(), 1.5*TMath::Pi());
 	  hDeltaEtaDeltaPhi_SEbins_sidebands[m][z][v][tr]->GetXaxis()->SetTitle("#Delta #eta");
 	  hDeltaEtaDeltaPhi_SEbins_sidebands[m][z][v][tr]->GetYaxis()->SetTitle("#Delta #phi (rad)");
@@ -549,6 +610,10 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   TString nameME[nummolt+1][numzeta][numPtV0][numPtTrigger];
   TString namemassME[nummolt+1][numzeta][numPtV0][numPtTrigger];
   TH2D *hDeltaEtaDeltaPhi_MEbins[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH2D *hDeltaEtaDeltaPhi_MEbinsRelErr[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH2D *hDeltaEtaDeltaPhi_MEbinsEffw[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH2D *hDeltaEtaDeltaPhi_MEbinsEffwRelErr[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH2D *hDeltaEtaDeltaPhi_MEbinsEffwErrors[nummolt+1][numzeta][numPtV0][numPtTrigger];
   TH2D *hDeltaEtaDeltaPhi_MEbins_sidebands[nummolt+1][numzeta][numPtV0][numPtTrigger];
   TH1D *hBkg_PtTrigger[nummolt+1][numzeta];
   TH1D *hBkg_PtV0[nummolt+1][numzeta];
@@ -590,13 +655,27 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
 	  nameME[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
 	  namemassME[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
 	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]= new TH2D(nameME[m][z][v][tr], nameME[m][z][v][tr],  56, -1.5, 1.5, 104,  -0.5*TMath::Pi(), 1.5*TMath::Pi());
-	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetXaxis()->SetTitle("#Delta #eta");
+	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetXaxis()->SetTitle("#Delta #eta");
 	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetYaxis()->SetTitle("#Delta #phi (rad)");
 	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetXaxis()->SetTitleSize(0.05);
 	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetYaxis()->SetTitleSize(0.05);
 	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetYaxis()->SetTitleOffset(1.5);
 	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetXaxis()->SetLabelSize(0.05);
 	  hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetYaxis()->SetLabelSize(0.05);
+	  hDeltaEtaDeltaPhi_MEbinsEffw[m][z][v][tr]= new TH2D(nameME[m][z][v][tr]+ "_Effw", nameME[m][z][v][tr]+ " eff corr",  56, -1.5, 1.5, 104,  -0.5*TMath::Pi(), 1.5*TMath::Pi());
+	  hDeltaEtaDeltaPhi_MEbinsEffw[m][z][v][tr]->GetXaxis()->SetTitle("#Delta #eta");
+	  hDeltaEtaDeltaPhi_MEbinsEffw[m][z][v][tr]->GetYaxis()->SetTitle("#Delta #phi (rad)");
+	  hDeltaEtaDeltaPhi_MEbinsEffw[m][z][v][tr]->GetXaxis()->SetTitleSize(0.05);
+	  hDeltaEtaDeltaPhi_MEbinsEffw[m][z][v][tr]->GetYaxis()->SetTitleSize(0.05);
+	  hDeltaEtaDeltaPhi_MEbinsEffw[m][z][v][tr]->GetYaxis()->SetTitleOffset(1.5);
+	  hDeltaEtaDeltaPhi_MEbinsEffw[m][z][v][tr]->GetXaxis()->SetLabelSize(0.05);
+	  hDeltaEtaDeltaPhi_MEbinsEffw[m][z][v][tr]->GetYaxis()->SetLabelSize(0.05);
+
+	  hDeltaEtaDeltaPhi_MEbinsEffwErrors[m][z][v][tr]= (TH2D*) hDeltaEtaDeltaPhi_MEbinsEffw[m][z][v][tr]-> Clone(nameME[m][z][v][tr]+ "_EffwErrors");
+	  hDeltaEtaDeltaPhi_MEbinsRelErr[m][z][v][tr]= (TH2D*) hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]-> Clone(nameME[m][z][v][tr]+ "_RelErr");
+	  hDeltaEtaDeltaPhi_MEbinsEffwRelErr[m][z][v][tr]= (TH2D*) hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]-> Clone(nameME[m][z][v][tr]+ "_EffwRelErr");
+	  hDeltaEtaDeltaPhi_MEbinsEffwErrors[m][z][v][tr]->SetTitle(nameME[m][z][v][tr]+ " errors of eff corr ME");
+
 	  hDeltaEtaDeltaPhi_MEbins_sidebands[m][z][v][tr]= new TH2D(nameME[m][z][v][tr]+"_SB", nameME[m][z][v][tr]+"_SB",  56, -1.5, 1.5, 104,  -0.5*TMath::Pi(), 1.5*TMath::Pi());
 	  hDeltaEtaDeltaPhi_MEbins_sidebands[m][z][v][tr]->GetYaxis()->SetTitle("#Delta #phi (rad)");
 	  hDeltaEtaDeltaPhi_MEbins_sidebands[m][z][v][tr]->GetXaxis()->SetTitleSize(0.05);
@@ -620,10 +699,12 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   Bool_t isParticleTrue=kFALSE;
   Int_t fSignTreeVariablePAPAssoc=0;
   Float_t  fSignTreeVariablePtTriggerTemp=0;
+  Double_t effSign=0;
+  Double_t sigmaEffSign=0;
 
   cout << "\n\n I will process " << EntriesSign << " entries for theSE correlation " << endl;
   for(Int_t k = 0; k<EntriesSign; k++){
-   if (k>1000000) continue;
+    //   if (k>1000000) continue;
     tSign->GetEntry(k);
     //  for(Int_t k = 0; k<1000000; k++){
     for (Int_t l=0; l<10000; l++){
@@ -772,6 +853,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
 
 
     for(Int_t m=0; m<nummolt+1; m++){
+      //      if (m!= nummolt) continue;
       //      cout << " m " << m << endl;
       if(m< nummolt) BoolVar = fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1];
       else BoolVar=kTRUE;
@@ -825,6 +907,30 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
 	      if(BoolMC){
 		hSign_PtTriggerPtV0bins[m][z][v]->Fill(fSignTreeVariablePtTrigger);
 		hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
+
+		effSign =0;	       
+		if (isEtaEff){
+		  for (Int_t pt=1; pt<= fHistEfficiencyV0PtEta[m]->GetNbinsX(); pt++){
+		    if (fSignTreeVariablePtV0< fHistEfficiencyV0PtEta[m]->GetXaxis()->GetBinLowEdge(pt) || fSignTreeVariablePtV0>= fHistEfficiencyV0PtEta[m]->GetXaxis()->GetBinUpEdge(pt)) continue;
+		    for (Int_t eta=1; eta<=fHistEfficiencyV0PtEta[m]->GetNbinsY(); eta++){
+		      if (fSignTreeVariableEtaV0< fHistEfficiencyV0PtEta[m]->GetYaxis()->GetBinLowEdge(eta) || fSignTreeVariableEtaV0>= fHistEfficiencyV0PtEta[m]->GetYaxis()->GetBinUpEdge(eta)) continue;
+
+		      effSign = fHistEfficiencyV0PtEta[m]->GetBinContent(fHistEfficiencyV0PtEta[m]->GetBin(pt, eta)); 
+		      sigmaEffSign = fHistEfficiencyV0PtEta[m]->GetBinError(fHistEfficiencyV0PtEta[m]->GetBin(pt, eta)); 
+		      /*
+		      cout <<  "\neff sign "<<   fHistEfficiencyV0PtEta[m]->GetBinContent(fHistEfficiencyV0PtEta[m]->GetBin(pt, eta)) << endl;
+		      cout << " pt: " << fSignTreeVariablePtV0 << " eta: " << fSignTreeVariableEtaV0 << endl;
+		      cout <<  fHistEfficiencyV0PtEta[m]->GetXaxis()->GetBinLowEdge(pt) << " - " << fHistEfficiencyV0PtEta[m]->GetXaxis()->GetBinUpEdge(pt) << endl;
+		      cout <<  fHistEfficiencyV0PtEta[m]->GetYaxis()->GetBinLowEdge(eta) << " - " << fHistEfficiencyV0PtEta[m]->GetYaxis()->GetBinUpEdge(eta) << endl;
+		      cout << "effw Sign: " << effSign << endl;
+		      */
+
+		    }
+		  }
+		  hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi, 1./effSign);
+		  hDeltaEtaDeltaPhi_SEbinsEffwErrors[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi, pow(sigmaEffSign/pow(effSign,2),2));
+		  
+		}
 	      }
 	      if((!isMC || (isMC &&isEfficiency)) && MassLimit){
 		hDeltaEtaDeltaPhi_SEbins_sidebands[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
@@ -847,8 +953,10 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   Float_t     fBkgTreeVariableInvMass= 0;
   cout << "ciao " << endl;
   cout << "\n\n I will process " << EntriesBkg << " entries for theSE correlation " << endl;
+  Double_t effBkg=0;
+  Double_t sigmaEffBkg=0;
   for(Int_t k = 0; k<EntriesBkg; k++){
-    if (k>1000000) continue;
+    //    if (k>1000000) continue;
 
     tBkg->GetEntry(k);     
     //  for(Int_t k = 0; k<1000000; k++){
@@ -974,6 +1082,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
       cout << " New: deltaphi: " << fBkgTreeVariableDeltaPhiMinus << "  new: " << fBkgTreeVariablePhiV0-fBkgTreeVariablePhiTrigger <<  endl;
     */
     for(Int_t m=0; m<nummolt+1; m++){
+      //      if (m!= nummolt) continue;
       if(m< nummolt) BoolVar =  fBkgTreeVariableMultiplicity>=Nmolt[m] && fBkgTreeVariableMultiplicity<Nmolt[m+1];
       else BoolVar=kTRUE;
       hBkg_DeltaEtaEtaV0[m]->Fill(fBkgTreeVariableEtaV0, fBkgTreeVariableDeltaEta);
@@ -1015,17 +1124,89 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
 	    }	  
 	    if(BoolVar && fBkgTreeVariablePtTrigger>=NPtTrigger[tr] && fBkgTreeVariablePtTrigger<NPtTrigger[tr+1] && fBkgTreeVariablePtV0>=NPtV0[v]&& fBkgTreeVariablePtV0<NPtV0[v+1]){
 	      if(BoolMC){
+
 		hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->Fill(fBkgTreeVariableDeltaEta, fBkgTreeVariableDeltaPhi);
+
+		effBkg =0;	       
+		if (isEtaEff){
+		  for (Int_t pt=1; pt<= fHistEfficiencyV0PtEta[m]->GetNbinsX(); pt++){
+		    if (fBkgTreeVariablePtV0< fHistEfficiencyV0PtEta[m]->GetXaxis()->GetBinLowEdge(pt) || fBkgTreeVariablePtV0>= fHistEfficiencyV0PtEta[m]->GetXaxis()->GetBinUpEdge(pt)) continue;
+		    for (Int_t eta=1; eta<=fHistEfficiencyV0PtEta[m]->GetNbinsY(); eta++){
+		      if (fBkgTreeVariableEtaV0< fHistEfficiencyV0PtEta[m]->GetYaxis()->GetBinLowEdge(eta) || fBkgTreeVariableEtaV0>= fHistEfficiencyV0PtEta[m]->GetYaxis()->GetBinUpEdge(eta)) continue;
+
+		      effBkg = fHistEfficiencyV0PtEta[m]->GetBinContent(fHistEfficiencyV0PtEta[m]->GetBin(pt, eta)); 
+		      sigmaEffBkg = fHistEfficiencyV0PtEta[m]->GetBinError(fHistEfficiencyV0PtEta[m]->GetBin(pt, eta)); 
+		      /*
+		      cout <<    fHistEfficiencyV0PtEta[m]->GetBinContent(fHistEfficiencyV0PtEta[m]->GetBin(pt, eta)) << endl;
+		      cout << " pt: " << fBkgTreeVariablePtV0 << " eta: " << fBkgTreeVariableEtaV0 << endl;
+		      cout <<  fHistEfficiencyV0PtEta[m]->GetXaxis()->GetBinLowEdge(pt) << " - " << fHistEfficiencyV0PtEta[m]->GetXaxis()->GetBinUpEdge(pt) << endl;
+		      cout <<  fHistEfficiencyV0PtEta[m]->GetYaxis()->GetBinLowEdge(eta) << " - " << fHistEfficiencyV0PtEta[m]->GetYaxis()->GetBinUpEdge(eta) << endl;
+		      cout << "effw Bkg: " << effBkg << endl;
+		      */
+
+		    }
+		  }
+
+		  hDeltaEtaDeltaPhi_MEbinsEffw[m][z][v][tr]->Fill(fBkgTreeVariableDeltaEta, fBkgTreeVariableDeltaPhi, 1./effBkg);
+		  hDeltaEtaDeltaPhi_MEbinsEffwErrors[m][z][v][tr]->Fill(fBkgTreeVariableDeltaEta, fBkgTreeVariableDeltaPhi, pow(sigmaEffBkg/pow(effBkg,2),2));
+		}
 	      }
 	      if((!isMC || (isMC &&isEfficiency)) && MassLimit){
 		hDeltaEtaDeltaPhi_MEbins_sidebands[m][z][v][tr]->Fill(fBkgTreeVariableDeltaEta, fBkgTreeVariableDeltaPhi);
 	      }
+	   
 	    }
 	  }
 	}
       }
     }
   }
+
+
+  //put correct errors on 2D histograms
+  for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t z=0; z<numzeta; z++){
+      for(Int_t tr=0; tr<numPtTrigger; tr++){
+	for(Int_t v=PtBinMin; v<numPtV0Max; v++){
+	  Int_t bin=0;
+	  for (Int_t dphi=1; dphi<=hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetNbinsY(); dphi++){ 
+	    for (Int_t deta=1; deta<= hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetNbinsX(); deta++){
+	      bin = hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetBin(deta, dphi);
+	      //	      if (hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->GetBinContent(bin) !=0) {
+	      /*
+		cout << " bin " << bin << endl;
+		cout << " sqrt of content : " << hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->GetBinContent(bin) << endl;
+		cout << " error set by ROOT: " << hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->GetBinError(bin) << endl;
+	      */
+	      if (isEtaEff){									
+		EffRelErr[m][v] = fHistEfficiencyV0PtPtBins[m]->GetBinError(v+1)/fHistEfficiencyV0PtPtBins[m]->GetBinContent(v+1); 
+		//not correct! 		hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->SetBinError(bin,sqrt(hDeltaEtaDeltaPhi_SEbinsEffwErrors[m][z][v][tr]->GetBinContent(bin)));
+		hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->SetBinError(bin,sqrt(1./hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetBinContent(bin) + pow(EffRelErr[m][v],2)) * hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->GetBinContent(bin));
+		//	      cout << " error set by me: " << hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->GetBinError(bin) << endl;
+		//not correct!		hDeltaEtaDeltaPhi_MEbinsEffw[m][z][v][tr]->SetBinError(bin,sqrt(hDeltaEtaDeltaPhi_MEbinsEffwErrors[m][z][v][tr]->GetBinContent(bin)));
+		hDeltaEtaDeltaPhi_MEbinsEffw[m][z][v][tr]->SetBinError(bin,sqrt(1./hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetBinContent(bin) + pow(EffRelErr[m][v],2)) * hDeltaEtaDeltaPhi_MEbinsEffw[m][z][v][tr]->GetBinContent(bin));
+		hDeltaEtaDeltaPhi_SEbinsEffwRelErr[m][z][v][tr]->SetBinContent(bin, hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->GetBinError(bin)/hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->GetBinContent(bin));
+		hDeltaEtaDeltaPhi_MEbinsEffwRelErr[m][z][v][tr]->SetBinContent(bin, hDeltaEtaDeltaPhi_MEbinsEffw[m][z][v][tr]->GetBinError(bin)/hDeltaEtaDeltaPhi_MEbinsEffw[m][z][v][tr]->GetBinContent(bin));
+
+	      }
+	      if (hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetBinContent(bin) !=0){
+		hDeltaEtaDeltaPhi_SEbinsRelErr[m][z][v][tr]->SetBinContent(bin, hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetBinError(bin)/hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetBinContent(bin));
+		//	      cout << "Rel Err SE  " << hDeltaEtaDeltaPhi_SEbinsRelErr[m][z][v][tr]->GetBinContent(bin) << endl;
+	      }
+	      if (hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetBinContent(bin) !=0){
+		hDeltaEtaDeltaPhi_MEbinsRelErr[m][z][v][tr]->SetBinContent(bin, hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetBinError(bin)/hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetBinContent(bin));
+		//		cout << "Rel Err ME  " << hDeltaEtaDeltaPhi_MEbinsRelErr[m][z][v][tr]->GetBinContent(bin) << endl;	      
+	      }
+	      
+	      //cout << "deta dphi bn content after fill " << hDeltaEtaDeltaPhi_MEbinsEffw[m][z][v][tr]->GetBinContent(bin) << endl;
+	      //	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+
 
   fHistTriggerPDGCode->Scale(1./fHistTriggerPDGCode->GetEntries());
   fout->WriteTObject(fHistTriggerPDGCode);
@@ -1183,6 +1364,6 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   cout << "ciao " << endl;
   fout->Write();
 
-  cout << "partendo dal file " << PathIn << " e " << PathInMassDef << " (per le diverse molteplicità) ho creato il file " << PathOut<< endl;
+  cout << "partendo dal file " << PathIn << "\n e " << PathInMassDef << " (per le diverse molteplicità) \ne dal file delle efficienze "<<   PathInEfficiency << ",  \nho creato il file " << PathOut<< endl;
 }
 
