@@ -179,6 +179,7 @@ class AliAnalysisTaskCorrelationhCasc : public AliAnalysisTaskSE
   TH3F **                 fHistCPGeneratedV0PtPtTMax; 	    //!
   TH3F **                 fHistSelectedV0PtPtTMax; 	    //!
   TH3F **                 fHistSelectedGenV0PtPtTMax; 	    //!
+  TH3F **                 fHistGeneratedV0PtEta; 	    //!
   TH3F *                  fHistReconstructedV0PtMass; 	    //!
   TH3F *                  fHistSelectedV0PtMass;            //!
 

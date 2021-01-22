@@ -169,6 +169,7 @@ AliAnalysisTaskCorrelationhCasc::AliAnalysisTaskCorrelationhCasc() :AliAnalysisT
 //fHistSelectedV0PtPtTMaxJet(0),
 //  fHistSelectedV0PtPtTMaxOOJ(0),
   fHistSelectedGenV0PtPtTMax(0),
+  fHistGeneratedV0PtEta(0),
   fHistReconstructedV0PtMass(0),
   fHistSelectedV0PtMass(0),
   fHistTriggerPtRecovsPtGen(0),
@@ -375,7 +376,6 @@ AliAnalysisTaskCorrelationhCasc::AliAnalysisTaskCorrelationhCasc(const char* nam
 //  fHistSelectedV0PtPtTMaxOOJ(0),
   fHistSelectedGenV0PtPtTMax(0),
   fHistGeneratedV0PtEta(0),
-  fHistSelectedV0PtEta(0),
   fHistReconstructedV0PtMass(0),
   fHistSelectedV0PtMass(0),
   fHistTriggerPtRecovsPtGen(0),
@@ -636,6 +636,7 @@ void AliAnalysisTaskCorrelationhCasc::ProcessMCParticles(Bool_t Generated, AliAO
 	    fHistGeneratedV0PtTMaxPhi[0]->Fill(lChargeXi*PtTriggMax,particle->Phi(), lPercentiles );
 	    fHistGeneratedV0PtTMaxEta[0]->Fill(lChargeXi*PtTriggMax,particle->Eta(), lPercentiles );
 	    fHistGeneratedV0PtPtTMax[0]->Fill(particle->Pt(),lChargeXi*PtTriggMax, lPercentiles );
+	    fHistGeneratedV0PtEta[0]->Fill(particle->Pt(),particle->Eta(), lPercentiles );
 
 	    if(TMath::Abs(particle->Eta()-track->Eta())<1.2){
 	    fHistGeneratedV0PtPtTMaxIncl[0]->Fill(particle->Pt(),lChargeXi*PtTriggMax, lPercentiles );
@@ -658,6 +659,7 @@ void AliAnalysisTaskCorrelationhCasc::ProcessMCParticles(Bool_t Generated, AliAO
 	    fHistGeneratedV0PtTMaxPhi[1]->Fill(lChargeXi*PtTriggMax,particle->Phi(), lPercentiles );
 	    fHistGeneratedV0PtTMaxEta[1]->Fill(lChargeXi*PtTriggMax,particle->Eta(), lPercentiles );
 	    fHistGeneratedV0PtPtTMax[1]->Fill(particle->Pt(),lChargeXi*PtTriggMax, lPercentiles );
+	    fHistGeneratedV0PtEta[1]->Fill(particle->Pt(),particle->Eta(), lPercentiles );
 	}
 	    if (IsCommonParton){
 	    fHistCPGeneratedV0PtTMaxPhi[1]->Fill(lChargeXi*PtTriggMax,particle->Phi(), lPercentiles );
@@ -1351,6 +1353,13 @@ fHistSelectedV0PtPtTMaxIncl=new TH3F*[7];
     fHistSelectedGenV0PtPtTMax[j]->GetYaxis()->SetTitle("p^{Trigg, Max}_{T}");
   }
 
+  fHistGeneratedV0PtEta=new TH3F*[2];
+  for(Int_t j=0; j<2; j++){
+    fHistGeneratedV0PtEta[j]=new TH3F(Form("fHistGeneratedV0PtEta_%i",j), "p_{T} and #eta distribution of selected V0 particles (K0s, primary, events w T>0)", 300, 0, 30, 450,-1.2,1.2,  100, 0,  100 );
+    fHistGeneratedV0PtEta[j]->GetXaxis()->SetTitle("p_{T}");
+    fHistGeneratedV0PtEta[j]->GetYaxis()->SetTitle("#eta");
+  }
+
   fHistReconstructedV0PtMass=new TH3F("fHistReconstructedV0PtMass", "p_{T} and mass distribution of reconstructed V0 particles(Casc, primary, event w T>0)", 100, lLimInfMass, lLimSupMass, 160, 0, 16,  100, 0, 100);
   fHistReconstructedV0PtMass->GetYaxis()->SetTitle("p_{T}");
   fHistReconstructedV0PtMass->GetXaxis()->SetTitle("M_{pi^{+} #pi^{-}}");
@@ -1648,6 +1657,7 @@ fHistSelectedV0PtPtTMaxIncl=new TH3F*[7];
     fOutputList2->Add(fHistGeneratedV0PtTMaxPhi[j]); 
     fOutputList2->Add(fHistGeneratedV0PtTMaxEta[j]); 
     fOutputList2->Add(fHistGeneratedV0PtPtTMax[j]); 
+    fOutputList2->Add(fHistGeneratedV0PtEta[j]); 
     fOutputList2->Add(fHistGeneratedV0PtPtTMaxIncl[j]); 
     fOutputList2->Add(fHistGeneratedV0PtPtTMaxOOJ[j]); 
     fOutputList2->Add(fHistGeneratedV0PtPtTMaxJet[j]); 
