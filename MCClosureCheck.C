@@ -35,15 +35,22 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t ishhCorr=0, Float_t PtTrigMin =2, Float_t PtTrigMax=15, Int_t israp=0,TString yearMC=/*"1617_hK0s"/*"AllMC_hXi"*/"2018f1_extra_Reco_hK0s"/*"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"  2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, TString yearMCTruth="2018f1_extra_hK0s", TString yearMCHyb="2018f1_extra_Hybrid_hK0s", TString Path1 =""/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,  TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Int_t PtBinning=0, Int_t sys=0, Bool_t IsParticleTrue=1, Bool_t isEffMassSel=1, Bool_t IsNotSigmaTrigger=0, Bool_t isMEFromHybrid=0){
+void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Int_t israp=0,TString yearMC="2018g4_extra_EtaEff_hK0s"/*"1617_hK0s"/*"AllMC_hXi"/"2018f1_extra_Reco_hK0s"/*"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"  2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, TString yearMCTruth="2018f1_extra_hK0s", TString yearMCHyb="2018g4_extra_EtaEff_Hybrid_hK0s"/*"2018f1_extra_Hybrid_hK0s"*/, TString Path1 =""/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,  TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Int_t PtBinning=1, Int_t sys=0, Bool_t IsParticleTrue=1, Bool_t isEffMassSel=0, Bool_t IsNotSigmaTrigger=0, Bool_t isMEFromHybrid=0, Bool_t isMEFromCorrectCentrality=1, Bool_t isEtaEff=1){
 
   // if isEventLoss==0 I compare MCTruth to MCreco (MCreco/MCTruth)
   // if isEventLoss==1 I compare (MCHybrid/MCTruth)
   // if isEventLoss==2 I compare (MCReco/MCHybrid)
 
+  if (type==0){ //used for MC closure for preliminary
+    //    yearMC = "2018f1_extra_Reco_hK0s";
+    //    yearMCHyb = "2018f1_extra_Hybrid_hK0s";
+  }
+
+
   if (type==8){
     if (PtTrigMin==3){    
-    yearMC = "AllMC_hXi";
+      //    yearMC = "AllMC_hXi";
+      yearMC = "2018f1g4_extra_EtaEff_hXi";
     yearMCHyb="2018f1g4_extra_hXi_Hybrid";
     }
     //    yearMCHyb="LHC16_17_GP_Hybrid_hXi";
@@ -58,6 +65,9 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t ishhCorr=0, Float_
   }
   TString PathIn0;
   TString PathInAC;
+
+  TString AllPathIn0[2][3];
+  TString AllPathInAC[2][3];
 
   const Int_t nummolt=5;
   const Int_t numzeta=1;
@@ -94,7 +104,8 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t ishhCorr=0, Float_
 
   Float_t LimSup=0.1;
   Float_t LimInf=0;
-   
+  Float_t LimInfRatioSpectra[3] = {0.75, 0.75, 0.85};
+  Float_t LimSupRatioSpectra[3] = {1.25, 1.25, 1.15};
 
   TString  stringout = Dir+"/DATA"+year0+"/MCClosureCheck";
   if (isEventLoss==0) stringout += "_RecotoTrue";
@@ -114,7 +125,9 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t ishhCorr=0, Float_
   if (IsParticleTrue) stringout+= "_IsParticleTrue";
   if (isEffMassSel) stringout+= "_isEffMassSel";
   if (isMEFromHybrid) stringout+= "_IsMEFromHybrid";
+  if (isMEFromCorrectCentrality) stringout+= "_IsMEFromCorrectCentrality";
   if (IsNotSigmaTrigger) stringout+= "_IsNotSigmaTrigger";
+  if (isEtaEff) stringout+= "_IsEtaEff";
   TString stringoutpdf=stringout; 
  stringout += ".root";
 
@@ -207,6 +220,9 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t ishhCorr=0, Float_
   Float_t YSup=0.01;
   Float_t YInf=-0.001;
 
+  gStyle->SetOptStat(0);
+  gStyle->SetOptFit(0);
+
   for (Int_t r =0; r<3; r++){
     canvasSpectrumRatio[r] = new TCanvas( Form("canvasSpectrumRatio%i",r), 	"canvasSpectrumRatio_"+ RegionTypeOld[r], 1300, 800);
     canvasSpectrumRelErrorClosure[r] = new TCanvas( Form("canvasSpectrumRelErrorClosure%i",r), 	"canvasSpectrumRelErrorClosure_"+ RegionTypeOld[r], 1300, 800);
@@ -264,6 +280,8 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t ishhCorr=0, Float_
       if (i==0 && (isEventLoss==0 || isEventLoss==2)){
       if (IsParticleTrue) PathIn0+= "_IsParticleTrue";
       if (isEffMassSel) PathIn0+= "_IsEfficiencyMassSel";
+      if (isMEFromCorrectCentrality) PathIn0+= "_IsMEFromCorrectCentrality";
+      if (isEtaEff) PathIn0+= "_IsEtaEff";
       }
       //      if (PtBinning==0)      PathIn0+="_EL.root";
       //      else      PathIn0+=".root";
@@ -300,6 +318,8 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t ishhCorr=0, Float_
       if (IsParticleTrue) PathInAC+= "_IsParticleTrue";
       if (isEffMassSel) PathInAC+= "_IsEfficiencyMassSel";
       if (isMEFromHybrid) PathInAC+= "_IsMEFromHybrid";
+      if (isMEFromCorrectCentrality) PathInAC+= "_IsMEFromCorrectCentrality";
+      if (isEtaEff) PathInAC+= "_IsEtaEff";
       }
       if (i==1 && (isEventLoss==0 || isEventLoss==1)){
       if (IsNotSigmaTrigger) PathInAC+= "_IsNotSigmaTrigger";
@@ -307,6 +327,8 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t ishhCorr=0, Float_
       PathInAC+=".root";
 
       cout << "region " << r << " file " << i << " " << PathIn0 <<  " and " << PathInAC << endl;
+      AllPathIn0[i][r] = PathIn0;
+      AllPathInAC[i][r] = PathInAC;
 
       filein[i] = new TFile(PathIn0, "");
       if (!filein[i]) return;
@@ -416,7 +438,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t ishhCorr=0, Float_
 	hPhiFit[r][m]->SetTitle("");
 	hPhiFit[r][m]->GetYaxis()->SetTitleOffset(1.2);
 	hPhiFit[r][m]->SetLineColor(Colormult[m]);
-	hPhiFit[r][m]->GetYaxis()->SetRangeUser(0.5, 1.5);
+	hPhiFit[r][m]->GetYaxis()->SetRangeUser(0.85, 1.15);
 	if (r==0) legendMult->AddEntry(hPhiFit[r][m], SmoltLegend[m], "pl");
 	hPhiFit[r][m]->Draw("same");
 	if (m==nummolt)	legendMult->Draw("");
@@ -439,7 +461,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t ishhCorr=0, Float_
 	canvasSpectrumRatio[r]->cd(m+1);
 	gPad->SetLeftMargin(0.15);
 	gStyle->SetOptStat(0);
-	StyleHisto(hSpectrumratio[r][m], 0.5, 1.5, Color[r], 1, titleX, titleYRatio,  title+SmoltLegend[m],  0, 0, 0);
+	StyleHisto(hSpectrumratio[r][m], LimInfRatioSpectra[r], LimSupRatioSpectra[r], Color[r], 1, titleX, titleYRatio,  title+SmoltLegend[m],  0, 0, 0);
 	hSpectrumratio[r][m]->GetYaxis()->SetTitleSize(0.04);
 	hSpectrumratio[r][m]->GetYaxis()->SetTitleOffset(1.2);
 	if (i==1)	{
@@ -483,6 +505,13 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t ishhCorr=0, Float_
       fileout->WriteTObject(canvasProjRatio[m][r]);
       fileout->WriteTObject(hPhiFit[r][m]);
     }
+  }
+  for (Int_t i =0; i<2; i++){ 
+    cout << "\n" << endl;
+  for (Int_t r =0; r<3; r++){ 
+    cout << " region " << r << endl;
+  cout << " partendo da " <<       AllPathIn0[i][r] << " e " <<       AllPathIn0[i][r] << endl;
+  }
   }
   cout << " ho creato il file " << stringout << endl;
   fileout->Close();
