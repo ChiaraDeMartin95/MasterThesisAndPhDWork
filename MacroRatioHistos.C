@@ -122,7 +122,7 @@ void MacroRatioHistos(const Int_t numFiles = 8, TString  CommonFileName = "Final
     gPad->SetLeftMargin(0.15);
     gPad->SetBottomMargin(0.15);
     histoRatio[i] = (TH1F*) histo[i]->Clone(histoName + "_Ratio");
-    if (i!=0)    histoRatio[i]->Divide(histo[i-1]);
+    if (i!=0)    histoRatio[i]->Divide(histo[0]);
     StyleHistoYield(histoRatio[i], Low, 0.6, color[i], style, titleX, "Ratio", titleRatio, 1, 1.2, 1.4);
     if (i!=0)  histoRatio[i]->Draw("same");
     if (i==numFiles-1) legend->Draw("");
