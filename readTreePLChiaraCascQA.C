@@ -32,7 +32,7 @@ Double_t fparab(Double_t *x, Double_t *par)
   return par[0] + par[1]*x[0] + par[2]*x[0]*x[0];
 }
 
-void readTreePLChiaraCascQA( Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus, =2 for OmegaMinus, =3 for OmegaPlus */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, Int_t sysV0=0, bool isMC = 0,Bool_t isEfficiency=1,Int_t sysTrigger=0,			    TString year="2016k_hXi", TString year0="2016", TString Path1 ="", Bool_t AllRun2=1)
+void readTreePLChiaraCascQA(Int_t NumberOfChilds=3 /*49*/, Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus, =2 for OmegaMinus, =3 for OmegaPlus */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, Int_t sysV0=0, bool isMC = 0,Bool_t isEfficiency=1,Int_t sysTrigger=0,			    TString year="", TString year0="2016", TString Path1 ="", Bool_t AllRun2=0, TString InputDir="hXiCheckRefilteredAOD"/*"hXiDataAllRun2MECorrect"/*"hXiMCAnalysis"*/, TString data ="" /*"FinalComparison""LHC16deghijklop_general_purpose_extra2"/*"LHC17_pyt8_13TeV_anchLHC16"AnalysisResultsLHC16_17_18_MoreDataset/"LHC16_17_GP"*/)
 {
 
     const Int_t  numQAhisto=13;
@@ -41,14 +41,26 @@ void readTreePLChiaraCascQA( Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus
     const Int_t numPtV0=8;
     const Int_t numPtTrigger=1;
     const Int_t numtipo=6;
+
+    Int_t    TotEvtINT7AllChilds=0;
+    Double_t TotEvtINT7[NumberOfChilds];
+
     TString tipo[numtipo]={"XiNeg", "XiPos", "OmegaNeg", "OmegaPos", "Xi", "Omega"};
     Float_t MassPart[numtipo] = { 1.32171, 1.32171, 1.67245, 1.67245,  1.32171,  1.67245};
     TString Srap[2] = {"_Eta0.8", "_y0.5"};
-    TString PathOutQA = "hXiDataAllRun2/QAChilds.pdf";
-    TString PathOutQAroot = "hXiDataAllRun2/QAChilds.root";
+    TString PathOutQA = InputDir+"/QAChilds_AnalysisResults.pdf";//"hXiDataAllRun2/QAChildsAAA.pdf";
+    //    if (isMC) PathOutQA = "hXiDataAllRun2/MC16klpass2/QAChildsMC.pdf";
+    //    if (isMC) PathOutQA = "hXiCommonParton/QAChildsMC.pdf";
+    //    if (isMC) PathOutQA = InputDir + "/QAChildsMC_AnalysisResults" + data + ".pdf";
+    if (isMC) PathOutQA = InputDir + "/QAChildsMC_AnalysisResults"+InputDir +".pdf";
+    TString PathOutQAroot =  InputDir+"/QAChilds_AnalysisResults.root";//"hXiDataAllRun2/QAChildsAAA.root";
+    //    if (isMC) PathOutQAroot = "hXiDataAllRun2/MC16klpass2/QAChildsMC.root";
+    //    if (isMC) PathOutQAroot = "hXiCommonParton/QAChildsMC.root";
+    //    if (isMC) PathOutQAroot = InputDir+"/QAChildsMC_AnalysisResults"+data+".root";
+    if (isMC) PathOutQAroot = InputDir+"/QAChildsMC_AnalysisResults"+InputDir+".root";
     Int_t ColorQA[nummolt]= {868,909,801,419,881};
     //definition of QA histograms 
-    TString TitleQAHisto[numQAhisto] = { "Number of INT7 events " , " Ev. with NT>0    " , "NV0/INT7  " , "<pT,Xi>  " , "<pT,Trig>   " , "SE pairs after all selections  " , "ME pairs after all selections  " , "Multiplicity distribution of selected SE pairs" , "Multiplicity distribution of NV0/ev (no sel.applied)", "Inv.mass Mean", "Inv.mass Sigma", "Purity", "Raw signal (Nv0/Trigger particle)"};
+    TString TitleQAHisto[numQAhisto] = { "Number of INT7 events " , " Ev. with NT>0    " , "NV0/INT7  " , "<pT,Xi>  " , "<pT,Trig>   " , "SE pairs after all selections  " , "ME pairs after all selections  " , "Multiplicity distribution of selected V0 (also rough mass sel)" , "Multiplicity distribution of NV0/ev (no sel.applied)", "Inv.mass Mean", "Inv.mass Sigma", "Purity", "Raw signal (Nv0/Trigger particle)"};
     TCanvas *canvasQA[numQAhisto];
     TCanvas *canvasInvMass[5];
     for (Int_t i=0; i<5; i++){
@@ -71,31 +83,51 @@ void readTreePLChiaraCascQA( Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus
     TFitResultPtr fFitResultPtr0;
     TFitResultPtr fFitResultPtr1;
 
-    Double_t Mean;
-    Double_t ErrMean;
-    Double_t Sigma;
-    Double_t ErrSigma;
-    Double_t sigmas;
-    Double_t sigmab;
-    Double_t YieldS;
-    Double_t YieldB;
-    Double_t IntegralS;
-    Double_t IntegralB;
-    Double_t ErrYieldS;
-    Double_t ErrYieldB;
+    Double_t Mean=0;
+    Double_t ErrMean=0;
+    Double_t Sigma=0;
+    Double_t ErrSigma=0;
+    Double_t sigmas=0;
+    Double_t sigmab=0;
+    Double_t YieldS=0;
+    Double_t YieldB=0;
+    Double_t IntegralS=0;
+    Double_t IntegralB=0;
+    Double_t ErrYieldS=0;
+    Double_t ErrYieldB=0;
 
     TH1F*     hInvMassTotalQA;
 
     for (Int_t i=0; i<numQAhisto; i++){
       canvasQA[i]= new TCanvas(Form("canvasQA%i",i),TitleQAHisto[i], 800, 500);
       for (Int_t m = 0; m < nummolt; m++){
-	fHistQA[i][m]= new TH1F (Form("fHistQA%i_%i", i, m), TitleQAHisto[i], 35, 0.5, 35.5);
+	fHistQA[i][m]= new TH1F (Form("fHistQA%i_%i", i, m), TitleQAHisto[i], 50, 0.5, 50.5);
 
       }
     }
 
   cout <<"Child   " << "INT7     " << " Ev. NT>0    " << "NV0/INT7  " << "<pT,Xi>  " << "<pT,Trig>   " << "SE pairs   " << "ME pairs   " << "Mult. distr                      " << "NV0/ev mult " << endl;
-  for (Int_t child =1; child<=35 ; child++){
+  Int_t childeff=0;
+  for (Int_t child =1; child<=NumberOfChilds ; child++){
+    if (child==13 || child==14) continue;
+    //    if (child>=2) continue;
+   
+    cout << "\n\n child " << child << endl;
+    childeff=child;
+
+    Mean=0;
+    ErrMean=0;
+    Sigma=0;
+    ErrSigma=0;
+    sigmas=0;
+    sigmab=0;
+    YieldS=0;
+    YieldB=0;
+    IntegralS=0;
+    IntegralB=0;
+    ErrYieldS=0;
+    ErrYieldB=0;
+
     hInvMassTotalQA= new TH1F (Form("hInvMassTotalQA_%i", child), Form("hInvMassTotalQA_%i", child), 100, liminf[type], limsup[type]);
     //rap=0 : no rapidity window chsen for cascade, |Eta| < 0.8; rap=1 |y| < 0.5
     if (ishhCorr) {
@@ -108,16 +140,57 @@ void readTreePLChiaraCascQA( Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus
     if (sysV0>2 && ishhCorr) return;
 
     TString PathIn="./FinalOutput/AnalysisResults";
-    if (AllRun2) PathIn = Form("hXiDataAllRun2/AnalysisResultsChild%i",child);
+
+    if (!AllRun2 && isMC){
+      if (child>=1 && child <=10) data = "LHC16_17_18_MoreDataset";
+      else   if (child>10 && child <=18) {
+	data = "LHC18_pyt8_13TeV_anchLHC18";
+	childeff = child-10;
+      }
+      else   if (child>18 && child <=26){
+	data = "LHC17_pyt8_13TeV_anchLHC17";
+	childeff = child-18;
+      }
+      else   if (child>26 && child <=34) {
+	data = "LHC17_pyt8_13TeV_anchLHC16";
+	childeff = child-26;
+      }
+      else   if (child>34 && child <=44) {
+	data = "LHC16deghijklop_general_purpose_extra2";
+	childeff = child-34;
+      }
+      else {
+	data = "LHC16_17_GP";
+	childeff = child-44;
+      }
+    }
+
+    if (InputDir=="hXiCheckRefilteredAOD"){
+      if (child==1) data="LHC16k_pass2_AOD";
+      if (child==2) data="LHC16k_pass2_AOD234";
+      if (child==3) data="LHC16k_pass2_AOD208";
+
+    }
+
+    PathIn = InputDir + "/AnalysisResults"+ data+Form("_Child%i",childeff);
+
+    if (AllRun2) PathIn = Form("hXiDataAllRun2MECorrect/AnalysisResultsChild%i",child);
+    if (AllRun2 && isMC) PathIn = Form("hXiCommonParton/AnalysisResultsChild%i",child);
+
     TString PathOut="./FinalOutput/DATA" + year0 + "/histo/AngularCorrelation";
     if (AllRun2) PathOut = Form("hXiDataAllRun2/AngularCorrelation%i",child);
+    //    if (AllRun2 && isMC) PathOut = Form("hXiDataAllRun2/MC16klpass2/AngularCorrelation%i",child);
+    if (AllRun2 && isMC) PathOut = Form("hXiCommonParton/AngularCorrelation%i",child);
+    if (!AllRun2 && isMC) PathOut = InputDir+"/AngularCorrelation_"+data+Form("_Child%i",childeff);
+   
+    /*
     if (!AllRun2){
       PathIn+=year;
       PathOut+=year;  
     }
-
+    */
     if(isMC && isEfficiency){
-      PathIn+="_MCEff";
+      //      PathIn+="_MCEff";
       PathOut+="_MCEff";
     }
     if(isMC && !isEfficiency){
@@ -138,7 +211,9 @@ void readTreePLChiaraCascQA( Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus
 
     TString dirinputtype[6] = {"Xi", "Xi", "Omega", "Omega", "Xi", "Omega"};
     TFile *fin = new TFile(PathIn);
-    if (!fin) {cout << "file input not available " ; return;}
+    cout << "PathIn " << PathIn << endl; 
+    if (!fin) continue;
+    //    if (!fin) {cout << "file input not available " ; return;}
     TDirectoryFile *d = (TDirectoryFile*)fin->Get("MyTask"+dirinputtype[type]);
     if (!d)  {cout << "dir input not available " ; return;}
 
@@ -237,7 +312,8 @@ void readTreePLChiaraCascQA( Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus
     TH1F* fHistEventMult=(TH1F*)  d1->FindObject("fHistEventMult");
     if (!fHistEventMult) cout << "no info about total number of INT7 events analyzed" << endl;
     //  cout <<" bin label: " << fHistEventMult->GetXaxis()->GetBinLabel(7) << endl;
-    Double_t TotEvtINT7 = fHistEventMult->GetBinContent(7);
+    TotEvtINT7[child] = fHistEventMult->GetBinContent(7);
+    TotEvtINT7AllChilds+= TotEvtINT7[child];
 
     TH2F* hMultiplicity2D=(TH2F*)  d1->FindObject("fHistPtMaxvsMult");
     TH2F* hMultiplicity2DBefAll=(TH2F*)  d1->FindObject("fHistPtMaxvsMultBefAll");
@@ -479,11 +555,16 @@ void readTreePLChiaraCascQA( Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus
     Bool_t MoltSel=kFALSE; 
     Float_t     fSignTreeVariableInvMassCasc= 0;
     Bool_t isCascTrue=kFALSE;
+    Int_t l1=0;
 
     dirSign->cd();
     // cout << "  entries Sign: " << EntriesSign<<endl;
     for(Int_t k = 0; k<EntriesSign; k++){
       tSign->GetEntry(k);  
+      if (k==100000*l1){
+	l1++;
+	cout << "SE ----" << (Float_t)k/EntriesSign<< endl;
+      }
 
       //charge selection
       if ((type==0 || type ==2) && fSignTreeVariableChargeAssoc==1) continue;
@@ -534,7 +615,9 @@ void readTreePLChiaraCascQA( Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus
 	}
       }
       if (isCascTrue)      TrueCounterSignPairsAfterPtMinCut++;  
-      CounterSignPairsAfterPtMinCut++;  
+      if (fSignTreeVariableInvMassCasc > 1.315 && fSignTreeVariableInvMassCasc< 1.330){
+	CounterSignPairsAfterPtMinCut++;  
+      }
       //**********************************************************************************************
 
       if (fSignTreeVariableDeltaPhi >  (1.5*TMath::Pi())) fSignTreeVariableDeltaPhi -= 2.0*TMath::Pi();
@@ -599,7 +682,9 @@ void readTreePLChiaraCascQA( Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus
 	for(Int_t z=0; z<numzeta; z++){
 	  for(Int_t tr=0; tr<numPtTrigger; tr++){
 	    if(MoltSel){
+	      if (fSignTreeVariableInvMassCasc > 1.315 && fSignTreeVariableInvMassCasc< 1.330){
 	      CounterSignPairsAfterPtMinCutMult[m]++;  
+	      }
 	      if (isCascTrue)      TrueCounterSignPairsAfterPtMinCutMult[m]++;  
 	      hMassvsPt_SEbins[m][z][tr]->Fill(fSignTreeVariableInvMassCasc, fSignTreeVariablePtV0); 
 	      if(isCascTrue) hMassvsPt_SEbins_true[m][z][tr]->Fill(fSignTreeVariableInvMassCasc, fSignTreeVariablePtV0); 
@@ -616,12 +701,17 @@ void readTreePLChiaraCascQA( Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus
       hInvMassTotalQA->Fill(fSignTreeVariableInvMassCasc);
     }
 
+    l1=0;
     dirBkg->cd();
 
     Float_t     fBkgTreeVariableInvMassCasc= 0;
     for(Int_t k = 0; k<EntriesBkg; k++){
       // for(Int_t k = 0; k<1; k++){
       tBkg->GetEntry(k);
+      if (k==100000*l1){
+	l1++;
+	cout << "ME ----" << (Float_t)k/EntriesBkg<< endl;
+      }
 
       //charge selection
       if ((type==0 || type ==2) && fBkgTreeVariableChargeAssoc==1) continue;
@@ -797,14 +887,25 @@ void readTreePLChiaraCascQA( Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus
     Sigma = total->GetParameter(2);
     ErrSigma =total->GetParError(2);
 
-    IntegralS = total->Integral(Mean-3*Sigma,Mean+3*Sigma);
     IntegralB = totalbis->Integral(Mean-3*Sigma,Mean+3*Sigma);
-    sigmas=total->IntegralError(Mean-3*Sigma,Mean+3*Sigma,fFitResultPtr0 ->GetParams(),(fFitResultPtr0->GetCovarianceMatrix()).GetMatrixArray());
     sigmab=totalbis->IntegralError(Mean-3*Sigma,Mean+3*Sigma,fFitResultPtr1 ->GetParams(),(fFitResultPtr1->GetCovarianceMatrix()).GetMatrixArray());
 
-    YieldS= IntegralS/hInvMassTotalQA->GetBinWidth(1);
+    //    IntegralS = total->Integral(Mean-3*Sigma,Mean+3*Sigma);
+    //    sigmas=total->IntegralError(Mean-3*Sigma,Mean+3*Sigma,fFitResultPtr0 ->GetParams(),(fFitResultPtr0->GetCovarianceMatrix()).GetMatrixArray());
+
+    for (Int_t b=hInvMassTotalQA->FindBin(Mean-3*Sigma); b<=hInvMassTotalQA->FindBin(Mean+3*Sigma); b++){
+      IntegralS+=  hInvMassTotalQA->GetBinContent(b);
+      sigmas += pow( hInvMassTotalQA->GetBinError(b),2);
+    }
+    IntegralS = IntegralS-IntegralB/hInvMassTotalQA->GetBinWidth(1);
+    sigmas = sigmas+pow(sigmab/hInvMassTotalQA->GetBinWidth(1),2);
+    sigmas = sqrt(sigmas);
+
+    //YieldS= IntegralS/hInvMassTotalQA->GetBinWidth(1);
+    YieldS= IntegralS;
     YieldB= IntegralB/hInvMassTotalQA->GetBinWidth(1);
-    ErrYieldS= sigmas/hInvMassTotalQA->GetBinWidth(1);
+    //    ErrYieldS= sigmas/hInvMassTotalQA->GetBinWidth(1);
+    ErrYieldS= sigmas;
     ErrYieldB= sigmab/hInvMassTotalQA->GetBinWidth(1);
 
     Int_t NEvents= hMultiplicityBefAll->GetEntries(); //number of trigger particles
@@ -814,21 +915,27 @@ void readTreePLChiaraCascQA( Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus
     ErrYieldS=       ErrYieldS/NEvents;
     ErrYieldB=       ErrYieldB/NEvents;
     */
-    fHistQA[0][0]->Fill(child, TotEvtINT7);
-    fHistQA[1][0]->Fill(child, (Float_t)hMultiplicityBefAll->GetEntries()/TotEvtINT7);
-    fHistQA[2][0]->Fill(child, (Float_t)CounterSignPairsAfterPtMinCut/TotEvtINT7);
+    fHistQA[0][0]->Fill(child, TotEvtINT7[child]);
+
+    fHistQA[1][0]->Fill(child, (Float_t)hMultiplicityBefAll->GetEntries()/TotEvtINT7[child]);
+    fHistQA[2][0]->Fill(child, (Float_t)CounterSignPairsAfterPtMinCut/TotEvtINT7[child]);
     fHistQA[3][0]->Fill(child, hSign_PtAssoc->GetMean());
-    fHistQA[4][0]->Fill(child,hSign_PtTrigger->GetMean());
-    fHistQA[5][0]->Fill(child,(Float_t)CounterSignPairsAfterPtMinCut/EntriesSign);
-    fHistQA[6][0]->Fill(child,(Float_t)CounterBkgPairsAfterPtMinCut/EntriesBkg);
+    fHistQA[4][0]->Fill(child, hSign_PtTrigger->GetMean());
+    fHistQA[5][0]->Fill(child, (Float_t)CounterSignPairsAfterPtMinCut/EntriesSign);
+    fHistQA[6][0]->Fill(child, (Float_t)CounterBkgPairsAfterPtMinCut/EntriesBkg);
     for (Int_t m=0; m<nummolt; m++){
-    fHistQA[7][m]->Fill(child,ACcounter[m]/ACcounter[5]);
+      //    fHistQA[7][m]->Fill(child,ACcounter[m]/ACcounter[5]);
+      //      cout << "V0pairs " << CounterSignPairsAfterPtMinCutMult[m] << "  " << CounterSignPairsAfterPtMinCut<< " ratio; " << (Float_t)CounterSignPairsAfterPtMinCutMult[m]/CounterSignPairsAfterPtMinCut<< endl;
+      fHistQA[7][m]->Fill(child, (Float_t)CounterSignPairsAfterPtMinCutMult[m]/CounterSignPairsAfterPtMinCut);
     fHistQA[8][m]->Fill(child,hMultvsNumberAssoc_Proj[m]->GetMean());
+
+    //    fHistQA[13][m]->Fill(CounterSignPairsAfterPtMinCutMult[m]/CounterSignPairsAfterPtMinCut);
     fHistQA[7][m]->SetLineColor(ColorQA[m]);
     fHistQA[8][m]->SetLineColor(ColorQA[m]);
+    //    fHistQA[13][m]->SetLineColor(ColorQA[m]);
     fHistQA[7][m]->SetMarkerColor(ColorQA[m]);
     fHistQA[8][m]->SetMarkerColor(ColorQA[m]);
-
+    //    fHistQA[13][m]->SetMarkerColor(ColorQA[m]);
     }
     fHistQA[9][0]->SetBinContent(child,Mean);
     fHistQA[9][0]->SetBinError(child,ErrMean);
@@ -843,9 +950,12 @@ void readTreePLChiaraCascQA( Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus
 
     cout << std::setprecision(2);
     cout << "    " << child ;
-    cout << "    " << TotEvtINT7;
-    cout << "    " <<   (Float_t)hMultiplicityBefAll->GetEntries()/TotEvtINT7;
-    cout << "    " <<(Float_t)CounterSignPairsAfterPtMinCut/TotEvtINT7;
+    cout << std::setprecision(5);
+    cout << "    " << TotEvtINT7[child];
+    cout << " or " << fHistEventMult->GetBinContent(7);
+    cout << std::setprecision(2);
+    cout << "    " <<   (Float_t)hMultiplicityBefAll->GetEntries()/TotEvtINT7[child];
+    cout << "    " <<(Float_t)CounterSignPairsAfterPtMinCut/TotEvtINT7[child];
     cout << std::setprecision(3);
     cout << "    " << hSign_PtAssoc->GetMean();
     cout << "    " <<hSign_PtTrigger->GetMean();
@@ -865,6 +975,7 @@ void readTreePLChiaraCascQA( Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus
     cout << std::setprecision(7);
 
 
+    cout << "\n\n the name of the input file is: " << PathIn << endl;
   } //end loop on child
 
   TFile *fileout = new TFile(PathOutQAroot, "RECREATE");
@@ -875,7 +986,7 @@ void readTreePLChiaraCascQA( Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus
   }
 
   cout << "\n mass line " << endl;
-  TF1 *Mass = new TF1("pol0", "pol0", 0,35);
+  TF1 *Mass = new TF1("pol0", "pol0", 0,50);
   Mass->FixParameter(0, MassPart[type]);
   fHistQA[9][0]->Fit(Mass, "R+");
   fHistQA[9][0]->GetYaxis()->SetRangeUser(1.320, 1.324);
@@ -895,6 +1006,11 @@ void readTreePLChiaraCascQA( Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus
   }
   fileout->Close();
 
+  for (Int_t child =1; child<=NumberOfChilds ; child++){
+    cout << "child: " << child << " INT7 " <<     TotEvtINT7[child]<< endl;
+  }
+
+  cout << " total number of int7 events in all chhildren " <<   TotEvtINT7AllChilds<< endl;
   cout << " ho creato i file: " << endl;
   cout << PathOutQAroot << "  " << PathOutQA<< endl;
 }
