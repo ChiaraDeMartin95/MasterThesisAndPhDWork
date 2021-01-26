@@ -64,25 +64,53 @@ void StyleHistoYield(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t st
   histo->SetTitle(title);
 }
 
-void MacroRatioHistos(const Int_t numFiles = 8, TString  CommonFileName = "FinalOutput/DATA2016/histo/AngularCorrelationRun2DataRed_MECorr_hXi_Xi_Eta0.8_SysT0_SysV00_Sys0_", /*name common to all files */  TString OutputName ="hXiEstimateTriggerRun3/hXiEstimateForTriggerRun3.root"){
+void MacroRatioHistos(Int_t RunVar=2, TString  CommonFileName = ""/*name common to all files */,  TString OutputName =""){
+
+  //RunVar should be increased when you want to do a new comparison; also, OutputName And CommonFileName should be updated below!!
+  Int_t numFiles=0;
+  if (RunVar==0){
+    CommonFileName = "FinalOutput/DATA2016/histo/AngularCorrelationRun2DataRed_MECorr_hXi_Xi_Eta0.8_SysT0_SysV00_Sys0_";
+    OutputName = "hXiEstimateTriggerRun3/hXiEstimateForTriggerRun3.root";
+    numFiles=8;
+  }
+  else if (RunVar==1){
+    CommonFileName= "FinalOutput/DATA2016/histo/AngularCorrelation2016k_pass2_TOFOOBPileUp_Xi_Eta0.8_SysT0_SysV00_Sys0_";
+    OutputName="hXiEstimateTriggerRun3/hXiEstimateForTriggerRun3_TOFOOB.root";
+    numFiles=4;
+  }
+  if (RunVar==2){
+    CommonFileName = "FinalOutput/DATA2016/histo/AngularCorrelation";
+    OutputName = "hXiEstimateTriggerRun3/hXiEstimateForTriggerRun3_TOFOOB_Comparison.root";
+    numFiles=8;
+  }
 
   //this macros superimpose in a same canvas pad same histos found in different files. A loop over the files is done. The ratio of the histos to the histo found in the first file is performed. You can choose if histos have to be considered fully correlated, uncorrelated, or if the histos are obtaiend from a subsample of the data used to obtain the histo found in the first file (i.e. partial correlation)
 
+  //  TString VarName[numFiles] = {"2016k_pass2_TOFOOBPileUp_Xi_Eta0.8_SysT0_SysV00_Sys0_PtMin4.0", "Run2DataRed_MECorr_hXi_Xi_Eta0.8_SysT0_SysV00_Sys0_PtMin4.0"}; //might be defined within the loop
   TString VarName[numFiles] = {""}; //might be defined within the loop
   TString histoName= "fHistQA6";
   Float_t numDef=3;
   Float_t num=0;
+  Int_t numEff=0;
 
   //histo style selections
   Float_t Low=10e-8;
   Float_t Up=0.003;
-  Int_t color[numFiles]={1,402 , 628, 905, 881,601, 867, 418 };
+  Float_t LowRatio=10e-8;
+  Float_t UpRatio=0.6;
+  Int_t color[10]={1,402 , 628, 905, 881,601, 867, 418 };
   Int_t style =33;
   TString titleX = "Multiplicity class";
   TString titleY="#hXi events / #INT7 events";
   TString title="Fraction of INT7 events containing trigger particle and Xi";
   TString titleRatio="Ratio to #it{p}_{T}^{trigg} > 3 GeV/#it{c}";
  
+  if (RunVar==2){
+    titleRatio = "Ratio of only TOF to (SPD+TOF) pileup rej";
+    LowRatio = 0.5;
+    UpRatio = 1;
+  }
+
   TLegend * legend = new TLegend (0.6, 0.7, 0.9, 0.9);
   legend->SetHeader("#it{p}_{T}^{trigg} > ");
   TString LegendName[numFiles]={""};
@@ -100,7 +128,17 @@ void MacroRatioHistos(const Int_t numFiles = 8, TString  CommonFileName = "Final
 
   for (Int_t i=0; i<numFiles; i++){
     num = numDef+i;
-    VarName[i] = Form("PtMin%.1f", num);
+    numEff= num;
+    if (RunVar==2) {
+      if (i<4)      numEff = num;
+      else if (i>=4) numEff=num-4;
+    }
+    cout << numEff << endl;
+    if (RunVar==0 || RunVar==1)    VarName[i] = Form("PtMin%.1f", num);
+    else if (RunVar==2){
+      if (i>=0 && i<4) VarName[i] = Form("Run2DataRed_MECorr_hXi_Xi_Eta0.8_SysT0_SysV00_Sys0_PtMin%.1f", (float)numEff);
+      else if (i>=4) VarName[i] =  Form("2016k_pass2_TOFOOBPileUp_Xi_Eta0.8_SysT0_SysV00_Sys0_PtMin%.1f", (float)numEff);
+    }
     InputName = CommonFileName + VarName[i]+"_IsEstimateRun3.root";
     InputFile = new TFile (InputName, "");
     if (!InputFile) return;
@@ -112,8 +150,13 @@ void MacroRatioHistos(const Int_t numFiles = 8, TString  CommonFileName = "Final
     gPad->SetLogy();
     gPad->SetLeftMargin(0.15);
     gPad->SetBottomMargin(0.15);
-    StyleHistoYield(histo[i], Low, Up, color[i], style, titleX, titleY, title, 1, 1.2, 1.4);
+    if (RunVar==2 && i>=4) style = 27;
+    StyleHistoYield(histo[i], Low, Up, color[numEff-3], style, titleX, titleY, title, 1, 1.2, 1.4);
     LegendName[i] = Form("%.1f GeV/#it{c}", num);
+    if (RunVar==2){
+      if (i<4)    LegendName[i] = Form("%.1f GeV/#it{c}", (float)numEff);
+      else    LegendName[i] = Form("%.1f GeV/#it{c}, only TOF PU rej", (float)numEff);
+    }
     legend->AddEntry(histo[i], LegendName[i], "pl");
     histo[i]->Draw("same");
     if (i==numFiles-1) legend->Draw("");
@@ -122,14 +165,25 @@ void MacroRatioHistos(const Int_t numFiles = 8, TString  CommonFileName = "Final
     gPad->SetLeftMargin(0.15);
     gPad->SetBottomMargin(0.15);
     histoRatio[i] = (TH1F*) histo[i]->Clone(histoName + "_Ratio");
+    if (RunVar==2){
+      if (i>=4)      histoRatio[i]->Divide(histo[i-4]);
+    }
+    else {
     if (i!=0)    histoRatio[i]->Divide(histo[0]);
-    StyleHistoYield(histoRatio[i], Low, 0.6, color[i], style, titleX, "Ratio", titleRatio, 1, 1.2, 1.4);
+    }
+    StyleHistoYield(histoRatio[i], LowRatio, UpRatio, color[numEff-3], style, titleX, "Ratio", titleRatio, 1, 1.2, 1.4);
+    if (RunVar==2) {
+      if (i>=4)      histoRatio[i]->Draw("same");
+    }
+    else {
     if (i!=0)  histoRatio[i]->Draw("same");
     if (i==numFiles-1) legend->Draw("");
+    }
 
   }
 
   OutputFile->WriteTObject(canvas);
+  OutputFile->Close();
   cout << "I produced the output file " << OutputName << endl;
 
 }
