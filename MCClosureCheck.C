@@ -35,7 +35,7 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Int_t israp=0,TString yearMC="2018g4_extra_EtaEff_hK0s"/*"1617_hK0s"/*"AllMC_hXi"/"2018f1_extra_Reco_hK0s"/*"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"  2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, TString yearMCTruth="2018f1_extra_hK0s", TString yearMCHyb="2018g4_extra_EtaEff_Hybrid_hK0s"/*"2018f1_extra_Hybrid_hK0s"*/, TString Path1 =""/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,  TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Int_t PtBinning=1, Int_t sys=0, Bool_t IsParticleTrue=1, Bool_t isEffMassSel=0, Bool_t IsNotSigmaTrigger=0, Bool_t isMEFromHybrid=0, Bool_t isMEFromCorrectCentrality=1, Bool_t isEtaEff=1){
+void MCClosureCheck( Int_t isEventLoss=0, Int_t type=8, Int_t ishhCorr=0, Float_t PtTrigMin =2, Float_t PtTrigMax=15, Int_t israp=0,TString yearMC="2018g4_extra_EtaEff_hK0s"/*"1617_hK0s"/*"AllMC_hXi"/"2018f1_extra_Reco_hK0s"/*"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"  2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, TString yearMCTruth="2018f1_extra_hK0s", TString yearMCHyb="2018g4_extra_EtaEff_Hybrid_hK0s"/*"2018f1_extra_Hybrid_hK0s"*/, TString Path1 =""/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,  TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Int_t PtBinning=1, Int_t sys=0, Bool_t IsParticleTrue=1, Bool_t isEffMassSel=0, Bool_t IsNotSigmaTrigger=0, Bool_t isMEFromHybrid=1, Bool_t isMEFromCorrectCentrality=0, Bool_t isEtaEff=1){
 
   // if isEventLoss==0 I compare MCTruth to MCreco (MCreco/MCTruth)
   // if isEventLoss==1 I compare (MCHybrid/MCTruth)
@@ -56,7 +56,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t ishhCorr=0, Float_
     //    yearMCHyb="LHC16_17_GP_Hybrid_hXi";
     else {    
       yearMCHyb="161718_MD_hXi_Hybrid";
-      yearMC="161718_MD_hXi";
+      yearMC="161718_MD_EtaEff_hXi";
     }
     yearMCTruth="2018g4_extra_hXi_SelTrigger";
     PtBinning=0;
@@ -129,7 +129,8 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t ishhCorr=0, Float_
   if (IsNotSigmaTrigger) stringout+= "_IsNotSigmaTrigger";
   if (isEtaEff) stringout+= "_IsEtaEff";
   TString stringoutpdf=stringout; 
- stringout += ".root";
+  //  stringout+="_thinptbins";
+  stringout+= ".root";
 
 
   TCanvas *  canvasSpectrum[3];
@@ -233,7 +234,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t ishhCorr=0, Float_
 
     canvasFitResult[r] = new TCanvas( Form("canvasFitResult%i",r), 	"canvasFitResult_"+ RegionTypeOld[r], 1300, 800);
     for(Int_t m=0; m<nummolt+1; m++){
-      canvasProj[m][r]=new TCanvas(Form("canvasProj_m%i_MC%i",m,  r), "canvasProj"+Smolt[m], 800, 1300);
+      canvasProj[m][r]=new TCanvas(Form("canvasProj_m%i_MC%i",m,  r), "canvasProj"+Smolt[m], 1300, 800);
       canvasProj[m][r]->Divide(3,3);
       canvasProjRatio[m][r]=new TCanvas(Form("canvasProjRatio_m%i_MC%i",m,  r), "canvasProjRatio"+Smolt[m], 1300, 800);
       canvasProjRatio[m][r]->Divide(3,3);
@@ -280,6 +281,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t ishhCorr=0, Float_
       if (i==0 && (isEventLoss==0 || isEventLoss==2)){
       if (IsParticleTrue) PathIn0+= "_IsParticleTrue";
       if (isEffMassSel) PathIn0+= "_IsEfficiencyMassSel";
+      if (isMEFromHybrid) PathIn0+= "_IsMEFromHybrid";
       if (isMEFromCorrectCentrality) PathIn0+= "_IsMEFromCorrectCentrality";
       if (isEtaEff) PathIn0+= "_IsEtaEff";
       }
@@ -288,6 +290,10 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t ishhCorr=0, Float_
       if (i==1 && (isEventLoss==0 || isEventLoss==1)){
       if (IsNotSigmaTrigger) PathIn0+= "_IsNotSigmaTrigger";
       }
+      if (i==1 && (isEventLoss==0 || isEventLoss==2)){
+      if (isMEFromCorrectCentrality) PathIn0+= "_IsMEFromCorrectCentrality";
+      }
+      //      if (i==0)      PathIn0+="_thinptbins";
       PathIn0+=".root";
 
       PathInAC = Dir+"/DATA"+year0+"/histo/AngularCorrelation";
@@ -324,6 +330,10 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t ishhCorr=0, Float_
       if (i==1 && (isEventLoss==0 || isEventLoss==1)){
       if (IsNotSigmaTrigger) PathInAC+= "_IsNotSigmaTrigger";
       }
+      if (i==1 && (isEventLoss==0 || isEventLoss==2)){
+      if (isMEFromCorrectCentrality) PathInAC+= "_IsMEFromCorrectCentrality";
+      }
+      //      if (i==0)      PathInAC+="_thinptbins";
       PathInAC+=".root";
 
       cout << "region " << r << " file " << i << " " << PathIn0 <<  " and " << PathInAC << endl;
@@ -354,6 +364,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t ishhCorr=0, Float_
 	  hDeltaEtaDeltaPhi_PhiProj[r][i][m][v]= (TH1F*)fileinAC[i]->Get(namePhiProj[r][m][v]+ "_TrCorr");
 	  if (!hDeltaEtaDeltaPhi_PhiProj[r][i][m][v]){cout << "histo not there " << endl; return;}
 	  hDeltaEtaDeltaPhi_PhiProj[r][i][m][v]->Sumw2();
+	  hDeltaEtaDeltaPhi_PhiProj[r][i][m][v]->Rebin(2);
 	  if (i==0)	  hDeltaEtaDeltaPhi_PhiProjRatio[r][m][v] = (TH1F*) 	  hDeltaEtaDeltaPhi_PhiProj[r][i][m][v]->Clone(namePhiProj[r][m][v] + "_Ratio");
 	  else   hDeltaEtaDeltaPhi_PhiProjRatio[r][m][v]->Divide(  hDeltaEtaDeltaPhi_PhiProj[r][i][m][v]);
 	}
@@ -397,7 +408,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t ishhCorr=0, Float_
 	  }
 	  if (type==8){
 	    //	    YSup=0.0006;
-	    YSup=0.0001;
+	    YSup=0.0001*2;
 	    //	    YInf = -0.0001;
 	    YInf =0;
 	    if (m==0) YSup = 0.0012;
@@ -510,7 +521,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t ishhCorr=0, Float_
     cout << "\n" << endl;
   for (Int_t r =0; r<3; r++){ 
     cout << " region " << r << endl;
-  cout << " partendo da " <<       AllPathIn0[i][r] << " e " <<       AllPathIn0[i][r] << endl;
+  cout << " partendo da " <<       AllPathInAC[i][r] << " e " <<       AllPathIn0[i][r] << endl;
   }
   }
   cout << " ho creato il file " << stringout << endl;
