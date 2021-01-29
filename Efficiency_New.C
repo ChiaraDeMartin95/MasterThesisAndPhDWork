@@ -22,7 +22,7 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
   return sqrt(((Double_t)k+1)*((Double_t)k+2)/(n+2)/(n+3) - pow((Double_t)(k+1),2)/pow(n+2,2));
 }
 
-void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int_t indexsysTrigger=0,  Int_t type=6, Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0, Int_t israp=0, TString ResoHisto="2D",Bool_t SkipAssoc=1 ,   Float_t ptjmin=3,  Float_t ptjmax=15, Int_t sysV0=0, TString data=/*"17d20bEPOS_hXi"/*"17d20bEPOS_hK0s"/"2018f1_extra_hK0s"/*"1617GP_hXi" /*"2018f1_extra_MECorr"/"2018f1_extra_hK0s_CP"/* "2018f1_extra_hK0s_CP"/*"2018f1_extra_hK0s_CP_10runs_Bis"/"AllMC_hXi"/"161718_MD_hXi"/* "17anch17_hK0s"/"1617MC_hK0s"/"2018f1g4_extra_hXi"/"2018f1_extra_DEtaEff_50runs"*/"2018g4_extra_EtaEff_hK0s", TString year0="2016", TString path1=""/*"_New"*/ /*"_10runs_FB128_TrackLengthCut"/"_NewMultClassBis"/"_PtTrigMax2.5"*/, Int_t MultBinning=0, Int_t PtBinning=1, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsPtTrigMultDep=0, Int_t EffRegion=0, Bool_t isEfficiencyMassSel=0, Bool_t isMCTruth=0, Bool_t isEtaEff=1){
+void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int_t indexsysTrigger=0,  Int_t type=4, Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0, Int_t israp=0, TString ResoHisto="2D",Bool_t SkipAssoc=1 ,   Float_t ptjmin=2,  Float_t ptjmax=15, Int_t sysV0=0, TString data=/*"17d20bEPOS_hXi"/*"17d20bEPOS_hK0s"/"2018f1_extra_hK0s"/*"1617GP_hXi" /*"2018f1_extra_MECorr"/"2018f1_extra_hK0s_CP"/* "2018f1_extra_hK0s_CP"/*"2018f1_extra_hK0s_CP_10runs_Bis"/"AllMC_hXi"/"161718_MD_hXi"/* "17anch17_hK0s"/"1617MC_hK0s"/"2018f1g4_extra_hXi"/"2018f1_extra_DEtaEff_50runs"/"2018g4_extra_EtaEff_hK0s"/"2018f1g4_extra_EtaEff_hXi"*/"161718_MD_EtaEff_hXi", TString year0="2016", TString path1=""/*"_New"*/ /*"_10runs_FB128_TrackLengthCut"/"_NewMultClassBis"/"_PtTrigMax2.5"*/, Int_t MultBinning=0, Int_t PtBinning=0, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsPtTrigMultDep=0, Int_t EffRegion=0, Bool_t isEfficiencyMassSel=0, Bool_t isMCTruth=0, Bool_t isEtaEff=1){
   //  if (type==6 && israp!=0) return; //so far I haven't appended any info on the rapidity to efficiency output files for K0s; if I decide to do as ofr the cascade, just remove this line
 
   //the Preliminary results have been obtained using isEtaEff==0 (no calculation of ptvseta eff performed)
@@ -52,11 +52,17 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   const   Float_t PtTrigMin=ptjmin;
   const   Float_t PtTrigMax=ptjmax;
   const Int_t numtipo = 8; 
-  const Int_t numetaregions = 8; 
+  const Int_t numEtaCasc=20; 
+  const Int_t numEtaV0=20; 
+  Int_t numEta=0;
 
+  /*
+  const Int_t numetaregions = 8; 
   Float_t NEta[numetaregions+1]={-0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8};
   TString SEta[numetaregions]={"[-0.8, -0.6)", "[-0.6, -0.4)", "[-0.4, -0.2)", "[-0.2, 0)", "[0, 0.2)", "[0.2, 0.4)", "[0.4, 0.6)", "[0.6, 0.8)"};
-  Int_t ColorEta[numetaregions] = {1,628, 808, 801,812, 843, 867, 601};
+  */
+
+  Int_t ColorEta[20] = {1, 628, 808, 801, 402, 812, 842, 433, 861, 859, 602, 881, 612 , 907, 1,1,1,1,1,1};
   TLegend * legendEtaR = new TLegend (0.6, 0.6, 0.9, 0.9);
   legendEtaR->SetHeader("#eta interval");
   TLine * lineat1 = new TLine (0, 1, 8, 1);
@@ -113,6 +119,7 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
     else if (DEtaEff==2)PathOut2+="_Jet";   
     else if (DEtaEff==3)PathOut2+="_OOJ";   
     PathOutCanvas = PathOut2;
+    PathOut2+= "_thinptbins";
     PathOut2+= ".root";
   }
 
@@ -183,8 +190,9 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   const Int_t nummolt=5;
   const Int_t numzeta=1;
   const Int_t numPtV0=9; //14;//was 8
-  const Int_t numPtV0BisCasc=17; 
-  const Int_t numPtV0BisV0=17; 
+  //  const Int_t numPtV0BisCasc=8; //14
+  const Int_t numPtV0BisCasc=15;
+  const Int_t numPtV0BisV0=19; 
   Int_t numPtV0Bis=0;
   const Int_t numPtTrigger=19;
   const Int_t numSelTrigger=3;
@@ -264,8 +272,11 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   TString Szeta[numzeta]={""};
 
 
-  Double_t NPtV0BisCasc[numPtV0BisCasc+1]={0,0.2,0.4, 0.6, 0.8, 1.2, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3, 3.5, 4, 6, 8};
-  Double_t NPtV0BisV0[numPtV0BisV0+1]={0,0.1, 0.2,0.4, 0.6, 0.8, 1.2, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3, 3.5, 4, 8};
+  //  Double_t NPtV0BisCasc[numPtV0BisCasc+1]={0,0.5, 0.8,  1, 1.2, 1.5, 1.7, 2, 2.2, 2.5, 2.7, 3, 3.5, 4, 8};
+  //  Double_t NPtV0BisCasc[numPtV0BisCasc+1]={0,0.5,  1, 1.5, 2, 2.5,  3, 4, 8};
+  Double_t NPtV0BisCasc[numPtV0BisCasc+1]={0,0.5, 0.7,0.8 , 0.9,  1,1.1, 1.2, 1.3, 1.4, 1.5, 2, 2.5,  3, 4, 8};
+  //  Double_t NPtV0BisV0[numPtV0BisV0+1]={0,0.1, 0.2,0.4, 0.6, 0.8, 1.2, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3, 3.5, 4, 8};
+  Double_t NPtV0BisV0[numPtV0BisV0+1]={0,0.1, 0.3, 0.5, 0.6, 0.7, 0.8,1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.5, 2.7, 3, 3.5, 4, 8};
   if (type==6){
   numPtV0Bis = numPtV0BisV0;
   }
@@ -276,6 +287,21 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   for (Int_t i =0; i<=numPtV0Bis; i++){
     if (type==6)    NPtV0Bis[i] = NPtV0BisV0[i];
     else if (type==0 || type==1 || type==4)  NPtV0Bis[i] = NPtV0BisCasc[i];
+  }
+
+  Double_t NEtaCasc[numEtaCasc+1]={-0.8,-0.72, -0.64, -0.56, -0.48, -0.4, -0.32, -0.24, -0.16, -0.08, 0, 0.08,0.16, 0.24, 0.32, 0.40, 0.48, 0.56, 0.64, 0.72, 0.8};
+  Double_t NEtaV0[numEtaV0+1]={-0.8,-0.72, -0.64, -0.56, -0.48, -0.4, -0.32, -0.24, -0.16, -0.08, 0, 0.08,0.16, 0.24, 0.32, 0.40, 0.48, 0.56, 0.64, 0.72, 0.8};
+  if (type==6){
+  numEta = numEtaV0;
+  }
+  else if (type==0 || type==1 || type==4){
+  numEta = numEtaCasc;
+  }
+  TString SEta[numEta]={""};
+  Double_t NEtaBis[numEta+1]={0};
+  for (Int_t i =0; i<=numEta; i++){
+    if (type==6)    NEtaBis[i] = NEtaV0[i];
+    else if (type==0 || type==1 || type==4)  NEtaBis[i] = NEtaCasc[i];
   }
 
   /*
@@ -469,7 +495,7 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
 
   TH3D*   fHistGeneratedV0PtEta;
   fHistGeneratedV0PtEta=       (TH3D*)list2->FindObject(Form("fHistGeneratedV0PtEta_%i", sysV0Gen));
-
+  if (!fHistGeneratedV0PtEta) {cout << " no histogram fHistGeneratedV0PtEta " << endl; return;}
 
 
   TH3D*   fHistSelectedV0PtTMaxPhi=       (TH3D*)fileinputSel->Get(Form("fHistSelectedV0PtTMaxPhi_%i", sysV0hh));
@@ -619,12 +645,12 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   TH2D*  fHistV0EfficiencyPtEta[nummolt+1];
   TH2D*  fHistV0EfficiencyPtV0EtaV0[nummolt+1];
   TH2D*  fHistV0EfficiencyPtV0EtaV0PtBins[nummolt+1];
-  TH1D*  fHistV0SelectedPtEtaR[nummolt+1][numetaregions];
-  TH1D*  fHistV0GeneratedPtEtaR[nummolt+1][numetaregions];
-  TH1D*  fHistV0SelectedPtBinsEtaR[nummolt+1][numetaregions];
-  TH1D*  fHistV0GeneratedPtBinsEtaR[nummolt+1][numetaregions];
-  TH1D*  fHistV0EfficiencyPtEtaR[nummolt+1][numetaregions];
-  TH1D*  fHistV0EfficiencyPtEtaRRatio[nummolt+1][numetaregions];
+  TH1D*  fHistV0SelectedPtEtaR[nummolt+1][numEta];
+  TH1D*  fHistV0GeneratedPtEtaR[nummolt+1][numEta];
+  TH1D*  fHistV0SelectedPtBinsEtaR[nummolt+1][numEta];
+  TH1D*  fHistV0GeneratedPtBinsEtaR[nummolt+1][numEta];
+  TH1D*  fHistV0EfficiencyPtEtaR[nummolt+1][numEta];
+  TH1D*  fHistV0EfficiencyPtEtaRRatio[nummolt+1][numEta];
   TH1D*  fHistV0SelectedPtAllEta[nummolt+1];
   TH1D*  fHistV0GeneratedPtAllEta[nummolt+1];
   TH1D*  fHistV0SelectedPtBinsAllEta[nummolt+1];
@@ -947,12 +973,14 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
     
     if (type==6 && PtBinning==1)    fHistGenerated_2D_TriggerPtEta[molt]->RebinX(2);    
     else    if (type==6)    fHistGenerated_2D_TriggerPtEta[molt]->RebinX(2);    
-    else fHistGenerated_2D_TriggerPtEta[molt]->RebinX(4);    
+    else fHistGenerated_2D_TriggerPtEta[molt]->RebinX(2);    //4?
     fHistGenerated_2D_TriggerPtEta[molt]->RebinY(10);    
     
     fHistTriggerEfficiencyPtEta[molt]->RebinX(2);    
     fHistTriggerEfficiencyPtEta[molt]->RebinY(10);    
     
+    cout << fHistSelected_2D_TriggerPtEta[molt]->GetNbinsX() << " " << fHistGenerated_2D_TriggerPtEta[molt]->GetNbinsX() << endl;
+    cout << fHistSelected_2D_TriggerPtEta[molt]->GetNbinsY() << " " << fHistGenerated_2D_TriggerPtEta[molt]->GetNbinsY() << endl;
     fHistTriggerEfficiencyPtEta[molt]->Divide(fHistSelected_2D_TriggerPtEta[molt], fHistGenerated_2D_TriggerPtEta[molt]); 
     
     fHistTriggerEfficiencyEta[molt]= new TH1D("fHistTriggerEfficiencyEta_"+ Smolt[molt] , "fHistTriggerEfficiencyEta_"+ Smolt[molt] ,  fHistTriggerEfficiencyPtEta[molt]->GetNbinsY(), fHistTriggerEfficiencyPtEta[molt]->GetYaxis()->GetBinLowEdge(1), fHistTriggerEfficiencyPtEta[molt]->GetYaxis()->GetBinUpEdge(fHistTriggerEfficiencyPtEta[molt]->GetNbinsY()) );
@@ -1009,17 +1037,21 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
 	fHistSelectedV0PtEta->GetZaxis()->SetRange(0,100);
 	fHistGeneratedV0PtEta->GetZaxis()->SetRange(0,100);
       }
+      cout << " projection is done " << endl;
       fHistSelected_2D_V0PtEta[molt] = (TH2D*)fHistSelectedV0PtEta->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis
       fHistGenerated_2D_V0PtEta[molt] = (TH2D*)fHistGeneratedV0PtEta->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis
       fHistSelected_2D_V0PtEta[molt] ->SetName("fHistSelected_2D_V0PtEta_"+ Smolt[molt]);
       fHistGenerated_2D_V0PtEta[molt]->SetName("fHistGenerated_2D_V0PtEta_"+ Smolt[molt]);
 
       //      fHistSelected_2D_V0PtEta[molt] ->RebinX(1); //should not be rebinned for finer calculation   
+      cout << " rebinning " << endl;
       fHistSelected_2D_V0PtEta[molt] ->RebinX(1);   
-      fHistSelected_2D_V0PtEta[molt] ->RebinY(10);   
+      if (type==6)      fHistSelected_2D_V0PtEta[molt] ->RebinY(10);   
+      //      else if (type==0 || type==1 || type==4)      fHistSelected_2D_V0PtEta[molt] ->RebinY(20);   
 
       fHistGenerated_2D_V0PtEta[molt]->RebinX(1);    
-      fHistGenerated_2D_V0PtEta[molt]->RebinY(10);    
+      if (type==6)      fHistGenerated_2D_V0PtEta[molt]->RebinY(10);    
+      //      else if (type==0 || type==1 || type==4) fHistGenerated_2D_V0PtEta[molt]->RebinY(20);    
 
       fHistV0EfficiencyPtV0EtaV0[molt]= (TH2D*)     fHistSelected_2D_V0PtEta[molt]->Clone("fHistV0EfficiencyPtV0EtaV0_"+ Smolt[molt]);
       fHistV0EfficiencyPtV0EtaV0[molt]->GetXaxis()->SetTitle("p_{T, Assoc} (GeV/c)");      
@@ -1047,60 +1079,6 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
 	fHistV0EfficiencyPtAllEta[molt]->SetBinError(b, SetEfficiencyError( fHistV0SelectedPtAllEta[molt]->GetBinContent(b),  fHistV0GeneratedPtAllEta[molt]->GetBinContent(b)));
       }
 
-      for (Int_t eta = 0; eta<numetaregions; eta++){
-	fHistV0SelectedPtEtaR[molt][eta]= (TH1D*) fHistSelected_2D_V0PtEta[molt]->ProjectionX("fHistV0SelectedPtEtaR"+Smolt[molt]+"_Eta"+SEta[eta], fHistSelected_2D_V0PtEta[molt]->GetYaxis()->FindBin(NEta[eta]+0.0001), fHistSelected_2D_V0PtEta[molt]->GetYaxis()->FindBin(NEta[eta+1]-0.0001));
-	fHistV0GeneratedPtEtaR[molt][eta]= (TH1D*) fHistGenerated_2D_V0PtEta[molt]->ProjectionX("fHistV0GeneratedPtEtaR"+Smolt[molt]+"_Eta"+SEta[eta], fHistGenerated_2D_V0PtEta[molt]->GetYaxis()->FindBin(NEta[eta]+0.0001), fHistGenerated_2D_V0PtEta[molt]->GetYaxis()->FindBin(NEta[eta+1]-0.0001));
-
-	cout << " I'm going to rebin sel vs pt in different eta regions " << endl;
-	fHistV0SelectedPtBinsEtaR[molt][eta]= (TH1D*)fHistV0SelectedPtEtaR[molt][eta]->Rebin(numPtV0Bis, "fHistV0SelectedPtBinsEtaR"+Smolt[molt]+"_Eta"+SEta[eta], NPtV0Bis);
-	fHistV0GeneratedPtBinsEtaR[molt][eta]= (TH1D*)fHistV0GeneratedPtEtaR[molt][eta]->Rebin(numPtV0Bis,"fHistV0GeneratedPtBinsEtaR"+Smolt[molt]+"_Eta"+SEta[eta] , NPtV0Bis);
-
-	fHistV0EfficiencyPtEtaR[molt][eta]= (TH1D*) fHistV0SelectedPtBinsEtaR[molt][eta]->Clone("fHistV0EfficiencyPtEtaR"+Smolt[molt]+"_Eta"+SEta[eta]);
-
-	fHistV0EfficiencyPtEtaR[molt][eta]->Divide(	fHistV0GeneratedPtBinsEtaR[molt][eta]);
-	for (Int_t b =1; b<=  fHistV0EfficiencyPtEtaR[molt][eta]->GetNbinsX(); b++){
-	  fHistV0EfficiencyPtEtaR[molt][eta]->SetBinError(b, SetEfficiencyError( fHistV0SelectedPtBinsEtaR[molt][eta]->GetBinContent(b),  fHistV0GeneratedPtBinsEtaR[molt][eta]->GetBinContent(b)));
-	}
-
-	fHistV0EfficiencyPtEtaR[molt][eta]->SetLineColor(ColorEta[eta]);
-	fHistV0EfficiencyPtEtaR[molt][eta]->SetMarkerColor(ColorEta[eta]);
-	fHistV0EfficiencyPtEtaR[molt][eta]->SetMarkerStyle(33);
-	fHistV0EfficiencyPtEtaR[molt][eta]->GetXaxis()->SetRangeUser(0,8);
-	fHistV0EfficiencyPtEtaR[molt][eta]->GetYaxis()->SetRangeUser(0+10e-7,0.45);
-	fHistV0EfficiencyPtEtaR[molt][eta]->GetXaxis()->SetTitle("p_{T} (GeV/c)");
-	fHistV0EfficiencyPtEtaR[molt][eta]->GetYaxis()->SetTitle("Efficiency");
-	fHistV0EfficiencyPtEtaR[molt][eta]->GetXaxis()->SetTitleOffset(0.8);
-	fHistV0EfficiencyPtEtaR[molt][eta]->GetXaxis()->SetTitleSize(0.05);
-	fHistV0EfficiencyPtEtaR[molt][eta]->GetYaxis()->SetTitleOffset(1);
-	fHistV0EfficiencyPtEtaR[molt][eta]->GetYaxis()->SetTitleSize(0.05);
-
-	//	fHistV0EfficiencyPtEtaR[molt][eta]->SetTitle("fHistV0EfficiencyPhi_"+ Smolt[molt] + " Eta region: " + SEta[eta]);
-	fHistV0EfficiencyPtEtaR[molt][eta]->SetTitle(Stipo[type] + " efficiency in mult. class "+ SmoltLegend[molt]);
-
-	fHistV0EfficiencyPtEtaRRatio[molt][eta]= (TH1D*) fHistV0EfficiencyPtEtaR[molt][eta]->Clone("fHistV0EfficiencyPtEtaRRatio"+Smolt[molt]+"_Eta"+SEta[eta]);
-	fHistV0EfficiencyPtEtaRRatio[molt][eta]->Divide(fHistV0EfficiencyPtAllEta[molt]);
-
-	if (molt==0){
-	  legendEtaR->AddEntry(	fHistV0EfficiencyPtEtaR[molt][eta], SEta[eta], "pl");
-	}
-	canvasV0EffEtaRegion->cd(molt+1);
-	fHistV0EfficiencyPtEtaR[molt][eta]->SetBinContent(1,0);
-    	fHistV0EfficiencyPtEtaR[molt][eta]->Draw("same");
-	canvasV0EffEtaRegionRatio->cd(molt+1);
-	fHistV0EfficiencyPtEtaRRatio[molt][eta]->SetBinContent(1,0);
-	fHistV0EfficiencyPtEtaRRatio[molt][eta]->GetYaxis()->SetTitle("#varepsilon_{#eta}/#varepsilon_{all #eta}");
-	fHistV0EfficiencyPtEtaRRatio[molt][eta]->GetXaxis()->SetTitleOffset(0.8);
-	fHistV0EfficiencyPtEtaRRatio[molt][eta]->GetXaxis()->SetTitleSize(0.05);
-	fHistV0EfficiencyPtEtaRRatio[molt][eta]->SetTitle("Ratio of efficiencies");
-	fHistV0EfficiencyPtEtaRRatio[molt][eta]->GetYaxis()->SetRangeUser(0+10e-7,3);
-	fHistV0EfficiencyPtEtaRRatio[molt][eta]->Draw("same");
-      }
-      canvasV0EffEtaRegion->cd(molt+1);
-      fHistV0EfficiencyPtAllEta[molt]->Draw("same");
-      legendEtaR->Draw("");
-      canvasV0EffEtaRegionRatio->cd(molt+1);
-      lineat1->Draw("same");
-      legendEtaR->Draw("");
     
       /* not valid for TH2
       fHistSelected_2D_V0PtEtaPtBins[molt] =(TH2D*)       fHistSelected_2D_V0PtEta[molt] ->RebinX(numPtV0, "fHistSelected_2D_V0PtEtaPtBins_"+ Smolt[molt], NPtV0);
@@ -1109,15 +1087,23 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
 
       
       cout << " pt vs eta in pt bins " << endl;
-      fHistSelected_2D_V0PtEtaPtBins[molt] = new TH2D ("fHistSelected_2D_V0PtEtaPtBins_"+ Smolt[molt], "fHistSelected_2D_V0PtEtaPtBins_"+ Smolt[molt], numPtV0Bis, NPtV0Bis, 40, -1.2, 1.2);
-      fHistGenerated_2D_V0PtEtaPtBins[molt] = new TH2D ("fHistGenerated_2D_V0PtEtaPtBins_"+ Smolt[molt], "fHistGenerated_2D_V0PtEtaPtBins_"+ Smolt[molt], numPtV0Bis, NPtV0Bis, 40, -1.2, 1.2);
+      /*old choice
+      Int_t numbins =40;
+      if (type==0 || type==1 || type==4)  numbins = 450; //22
+      fHistSelected_2D_V0PtEtaPtBins[molt] = new TH2D ("fHistSelected_2D_V0PtEtaPtBins_"+ Smolt[molt], "fHistSelected_2D_V0PtEtaPtBins_"+ Smolt[molt], numPtV0Bis, NPtV0Bis, numbins, -1.2, 1.2);
+      fHistGenerated_2D_V0PtEtaPtBins[molt] = new TH2D ("fHistGenerated_2D_V0PtEtaPtBins_"+ Smolt[molt], "fHistGenerated_2D_V0PtEtaPtBins_"+ Smolt[molt], numPtV0Bis, NPtV0Bis, numbins, -1.2, 1.2);
 
-     
       if (  fHistSelected_2D_V0PtEtaPtBins[molt]->GetNbinsY() != fHistSelected_2D_V0PtEta[molt]->GetNbinsY() ) {
 	cout << " the two histograms should have the same binning along Y " << endl; 
 	cout << " instead they have " << fHistSelected_2D_V0PtEtaPtBins[molt]->GetNbinsY() << " and " << fHistSelected_2D_V0PtEta[molt]->GetNbinsY() << endl;
 	return; 
       }
+
+      */
+
+      fHistSelected_2D_V0PtEtaPtBins[molt] = new TH2D ("fHistSelected_2D_V0PtEtaPtBins_"+ Smolt[molt], "fHistSelected_2D_V0PtEtaPtBins_"+ Smolt[molt], numPtV0Bis, NPtV0Bis, numEta, NEtaBis);
+      fHistGenerated_2D_V0PtEtaPtBins[molt] = new TH2D ("fHistGenerated_2D_V0PtEtaPtBins_"+ Smolt[molt], "fHistGenerated_2D_V0PtEtaPtBins_"+ Smolt[molt], numPtV0Bis, NPtV0Bis, numEta, NEtaBis);
+     
       /*
       cout << "numPtV0Bis" << numPtV0Bis << endl;
       for (Int_t i=0; i<=numPtV0Bis; i++){
@@ -1125,16 +1111,27 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
 
       }
       */
+
       for  (Int_t eta =1; eta<= fHistSelected_2D_V0PtEtaPtBins[molt]->GetNbinsY(); eta++){
+	cout << fHistSelected_2D_V0PtEta[molt]->GetYaxis()->GetBinLowEdge(fHistSelected_2D_V0PtEta[molt]->GetYaxis()->FindBin(NEtaBis[eta-1]+0.001))<< " " <<  fHistSelected_2D_V0PtEtaPtBins[molt]->GetYaxis()->GetBinLowEdge(eta) << endl;
+	if (TMath::Abs(fHistSelected_2D_V0PtEta[molt]->GetYaxis()->GetBinLowEdge(fHistSelected_2D_V0PtEta[molt]->GetYaxis()->FindBin(NEtaBis[eta-1]+0.001)) - fHistSelected_2D_V0PtEtaPtBins[molt]->GetYaxis()->GetBinLowEdge(eta))> 0.001) {cout << "the eta bins chosen are not multiples of the original bins" << endl; return;}
 	for (Int_t pt=1; pt<=  fHistSelected_2D_V0PtEtaPtBins[molt]->GetNbinsX(); pt++){
 	  Float_t bincSel=0;
 	  Float_t bincGen=0;
-	  for (Int_t subpt =fHistSelected_2D_V0PtEta[molt]->GetXaxis()->FindBin(fHistSelected_2D_V0PtEtaPtBins[molt]->GetXaxis()->GetBinLowEdge(pt)+0.0001); subpt <=fHistSelected_2D_V0PtEta[molt]->GetXaxis()->FindBin(fHistSelected_2D_V0PtEtaPtBins[molt]->GetXaxis()->GetBinUpEdge(pt)-0.0001); subpt++){
-	    bincSel += fHistSelected_2D_V0PtEta[molt]->GetBinContent(fHistSelected_2D_V0PtEta[molt]->GetBin(subpt, eta));
-	    bincGen += fHistGenerated_2D_V0PtEta[molt]->GetBinContent(fHistGenerated_2D_V0PtEta[molt]->GetBin(subpt, eta));
+	  //	  cout << "\n" << endl;
+
+	  cout << fHistSelected_2D_V0PtEta[molt]->GetXaxis()->GetBinLowEdge(fHistSelected_2D_V0PtEta[molt]->GetXaxis()->FindBin(NPtV0Bis[pt-1]+0.001))<< " " <<  fHistSelected_2D_V0PtEtaPtBins[molt]->GetXaxis()->GetBinLowEdge(pt) << endl;
+
+	  if (TMath::Abs(fHistSelected_2D_V0PtEta[molt]->GetXaxis()->GetBinLowEdge(fHistSelected_2D_V0PtEta[molt]->GetXaxis()->FindBin(NPtV0Bis[pt-1]+0.001)) - fHistSelected_2D_V0PtEtaPtBins[molt]->GetXaxis()->GetBinLowEdge(pt)) > 0.001) {cout << "the pt bins chosen are not multiples of the original bins" << endl; return;}
+
+	  for (Int_t subeta =fHistSelected_2D_V0PtEta[molt]->GetYaxis()->FindBin(fHistSelected_2D_V0PtEtaPtBins[molt]->GetYaxis()->GetBinLowEdge(eta)+0.0001); subeta <=fHistSelected_2D_V0PtEta[molt]->GetYaxis()->FindBin(fHistSelected_2D_V0PtEtaPtBins[molt]->GetYaxis()->GetBinUpEdge(eta)-0.0001); subeta++){
+	    for (Int_t subpt =fHistSelected_2D_V0PtEta[molt]->GetXaxis()->FindBin(fHistSelected_2D_V0PtEtaPtBins[molt]->GetXaxis()->GetBinLowEdge(pt)+0.0001); subpt <=fHistSelected_2D_V0PtEta[molt]->GetXaxis()->FindBin(fHistSelected_2D_V0PtEtaPtBins[molt]->GetXaxis()->GetBinUpEdge(pt)-0.0001); subpt++){
+	      bincSel += fHistSelected_2D_V0PtEta[molt]->GetBinContent(fHistSelected_2D_V0PtEta[molt]->GetBin(subpt, subeta));
+	      bincGen += fHistGenerated_2D_V0PtEta[molt]->GetBinContent(fHistGenerated_2D_V0PtEta[molt]->GetBin(subpt, subeta));
+	    }
 	  }
 	  fHistSelected_2D_V0PtEtaPtBins[molt]->SetBinContent(fHistSelected_2D_V0PtEtaPtBins[molt]->GetBin(pt,eta), bincSel);
-	fHistGenerated_2D_V0PtEtaPtBins[molt]->SetBinContent(fHistGenerated_2D_V0PtEtaPtBins[molt]->GetBin(pt,eta), bincGen);
+	  fHistGenerated_2D_V0PtEtaPtBins[molt]->SetBinContent(fHistGenerated_2D_V0PtEtaPtBins[molt]->GetBin(pt,eta), bincGen);
 	//	cout << " bin : " <<  fHistSelected_2D_V0PtEtaPtBins[molt]->GetXaxis()->GetBinCenter(pt)<< " (pt) " <<  fHistSelected_2D_V0PtEtaPtBins[molt]->GetYaxis()->GetBinCenter(eta) << " (eta) " <<fHistSelected_2D_V0PtEtaPtBins[molt]->GetBinContent(fHistSelected_2D_V0PtEtaPtBins[molt]->GetBin(pt,eta))<< endl;
 	}
       }
@@ -1150,6 +1147,86 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
       }
     }
 
+    for (Int_t eta = 0; eta<numEta; eta++){
+      if (NEtaBis[eta] < 0 && eta%2!=0) continue;
+      //if (NEtaBis[eta] < 0 && eta%2!=1) continue;
+      if (NEtaBis[eta] >= 0 && eta%2!=1) continue;
+      //if (NEtaBis[eta] >= 0 && eta%2!=0) continue;
+      cout << eta << endl;
+      /*
+	fHistV0SelectedPtEtaR[molt][eta]= (TH1D*) fHistSelected_2D_V0PtEta[molt]->ProjectionX("fHistV0SelectedPtEtaR"+Smolt[molt]+"_Eta"+SEta[eta], fHistSelected_2D_V0PtEta[molt]->GetYaxis()->FindBin(NEta[eta]+0.0001), fHistSelected_2D_V0PtEta[molt]->GetYaxis()->FindBin(NEta[eta+1]-0.0001));
+	fHistV0GeneratedPtEtaR[molt][eta]= (TH1D*) fHistGenerated_2D_V0PtEta[molt]->ProjectionX("fHistV0GeneratedPtEtaR"+Smolt[molt]+"_Eta"+SEta[eta], fHistGenerated_2D_V0PtEta[molt]->GetYaxis()->FindBin(NEta[eta]+0.0001), fHistGenerated_2D_V0PtEta[molt]->GetYaxis()->FindBin(NEta[eta+1]-0.0001));
+
+	cout << " I'm going to rebin sel vs pt in different eta regions " << endl;
+	fHistV0SelectedPtBinsEtaR[molt][eta]= (TH1D*)fHistV0SelectedPtEtaR[molt][eta]->Rebin(numPtV0Bis, "fHistV0SelectedPtBinsEtaR"+Smolt[molt]+"_Eta"+SEta[eta], NPtV0Bis);
+	fHistV0GeneratedPtBinsEtaR[molt][eta]= (TH1D*)fHistV0GeneratedPtEtaR[molt][eta]->Rebin(numPtV0Bis,"fHistV0GeneratedPtBinsEtaR"+Smolt[molt]+"_Eta"+SEta[eta] , NPtV0Bis);
+
+      */ //here the new part which substitues the part above begins->
+      SEta[eta] = Form("[%.2f, %.2f)", NEtaBis[eta], NEtaBis[eta+1]);
+      fHistV0SelectedPtEtaR[molt][eta]= (TH1D*) fHistSelected_2D_V0PtEtaPtBins[molt]->ProjectionX("fHistV0SelectedPtEtaR"+Smolt[molt]+"_Eta"+SEta[eta], fHistSelected_2D_V0PtEtaPtBins[molt]->GetYaxis()->FindBin(NEtaBis[eta]+0.0001), fHistSelected_2D_V0PtEtaPtBins[molt]->GetYaxis()->FindBin(NEtaBis[eta]+0.0001));
+      fHistV0GeneratedPtEtaR[molt][eta]= (TH1D*) fHistGenerated_2D_V0PtEtaPtBins[molt]->ProjectionX("fHistV0GeneratedPtEtaR"+Smolt[molt]+"_Eta"+SEta[eta], fHistGenerated_2D_V0PtEtaPtBins[molt]->GetYaxis()->FindBin(NEtaBis[eta]+0.0001), fHistGenerated_2D_V0PtEtaPtBins[molt]->GetYaxis()->FindBin(NEtaBis[eta]+0.0001));
+      cout << " here I am" << endl;
+      fHistV0EfficiencyPtEtaR[molt][eta]= (TH1D*) fHistV0SelectedPtEtaR[molt][eta]->Clone("fHistV0EfficiencyPtEtaR"+Smolt[molt]+"_Eta"+SEta[eta]);
+
+      fHistV0EfficiencyPtEtaR[molt][eta]->Divide(	fHistV0GeneratedPtEtaR[molt][eta]);
+      for (Int_t b =1; b<=  fHistV0EfficiencyPtEtaR[molt][eta]->GetNbinsX(); b++){
+	cout << "gen " <<  fHistV0EfficiencyPtEtaR[molt][eta]->GetBinContent(b) << endl;
+	cout << "sel " <<  fHistV0SelectedPtEtaR[molt][eta]->GetBinContent(b) << endl;
+	cout << "eff " <<  fHistV0GeneratedPtEtaR[molt][eta]->GetBinContent(b) << endl;
+	fHistV0EfficiencyPtEtaR[molt][eta]->SetBinError(b, SetEfficiencyError( fHistV0SelectedPtEtaR[molt][eta]->GetBinContent(b),  fHistV0GeneratedPtEtaR[molt][eta]->GetBinContent(b)));
+      }
+
+      if (NEtaBis[eta] < 0){
+	cout << eta << endl;
+	//	counter ++;
+      fHistV0EfficiencyPtEtaR[molt][eta]->SetLineColor(ColorEta[eta]);
+      fHistV0EfficiencyPtEtaR[molt][eta]->SetMarkerColor(ColorEta[eta]);
+      fHistV0EfficiencyPtEtaR[molt][eta]->SetMarkerStyle(33);
+      }
+      else {
+      fHistV0EfficiencyPtEtaR[molt][eta]->SetLineColor(ColorEta[numEta-1-eta]);
+      fHistV0EfficiencyPtEtaR[molt][eta]->SetMarkerColor(ColorEta[numEta-1-eta]);
+      fHistV0EfficiencyPtEtaR[molt][eta]->SetMarkerStyle(27);
+      }
+
+      fHistV0EfficiencyPtEtaR[molt][eta]->GetXaxis()->SetRangeUser(0,8);
+      fHistV0EfficiencyPtEtaR[molt][eta]->GetYaxis()->SetRangeUser(0+10e-7,0.2);
+      if (type==6) 	fHistV0EfficiencyPtEtaR[molt][eta]->GetYaxis()->SetRangeUser(0+10e-7,0.45);
+      fHistV0EfficiencyPtEtaR[molt][eta]->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+      fHistV0EfficiencyPtEtaR[molt][eta]->GetYaxis()->SetTitle("Efficiency");
+      fHistV0EfficiencyPtEtaR[molt][eta]->GetXaxis()->SetTitleOffset(0.8);
+      fHistV0EfficiencyPtEtaR[molt][eta]->GetXaxis()->SetTitleSize(0.05);
+      fHistV0EfficiencyPtEtaR[molt][eta]->GetYaxis()->SetTitleOffset(1);
+      fHistV0EfficiencyPtEtaR[molt][eta]->GetYaxis()->SetTitleSize(0.05);
+
+      //	fHistV0EfficiencyPtEtaR[molt][eta]->SetTitle("fHistV0EfficiencyPhi_"+ Smolt[molt] + " Eta region: " + SEta[eta]);
+      fHistV0EfficiencyPtEtaR[molt][eta]->SetTitle(Stipo[type] + " efficiency in mult. class "+ SmoltLegend[molt]);
+
+      fHistV0EfficiencyPtEtaRRatio[molt][eta]= (TH1D*) fHistV0EfficiencyPtEtaR[molt][eta]->Clone("fHistV0EfficiencyPtEtaRRatio"+Smolt[molt]+"_Eta"+SEta[eta]);
+      fHistV0EfficiencyPtEtaRRatio[molt][eta]->Divide(fHistV0EfficiencyPtAllEta[molt]);
+
+      if (molt==0){
+	legendEtaR->AddEntry(	fHistV0EfficiencyPtEtaR[molt][eta], SEta[eta], "pl");
+      }
+      canvasV0EffEtaRegion->cd(molt+1);
+      fHistV0EfficiencyPtEtaR[molt][eta]->SetBinContent(1,0);
+      fHistV0EfficiencyPtEtaR[molt][eta]->Draw("same");
+      canvasV0EffEtaRegionRatio->cd(molt+1);
+      fHistV0EfficiencyPtEtaRRatio[molt][eta]->SetBinContent(1,0);
+      fHistV0EfficiencyPtEtaRRatio[molt][eta]->GetYaxis()->SetTitle("#varepsilon_{#eta}/#varepsilon_{all #eta}");
+      fHistV0EfficiencyPtEtaRRatio[molt][eta]->GetXaxis()->SetTitleOffset(0.8);
+      fHistV0EfficiencyPtEtaRRatio[molt][eta]->GetXaxis()->SetTitleSize(0.05);
+      fHistV0EfficiencyPtEtaRRatio[molt][eta]->SetTitle("Ratio of efficiencies");
+      fHistV0EfficiencyPtEtaRRatio[molt][eta]->GetYaxis()->SetRangeUser(0+10e-7,3);
+      fHistV0EfficiencyPtEtaRRatio[molt][eta]->Draw("same");
+    }
+    canvasV0EffEtaRegion->cd(molt+1);
+    fHistV0EfficiencyPtAllEta[molt]->Draw("same");
+    legendEtaR->Draw("");
+    canvasV0EffEtaRegionRatio->cd(molt+1);
+    lineat1->Draw("same");
+    legendEtaR->Draw("");
+    
     cout << "V0 2D projection in Phi and PtTMax (Pt stands for PtTMax) " << endl;
     if(molt < nummolt){
       fHistSelectedV0PtTMaxPhi->GetZaxis()->SetRange(fHistSelectedV0PtTMaxPhi->GetZaxis()->FindBin(Nmolt[molt]+0.001),fHistSelectedV0PtTMaxPhi->GetZaxis()->FindBin(Nmolt[molt+1]-0.001) );
