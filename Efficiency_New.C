@@ -22,7 +22,7 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
   return sqrt(((Double_t)k+1)*((Double_t)k+2)/(n+2)/(n+3) - pow((Double_t)(k+1),2)/pow(n+2,2));
 }
 
-void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int_t indexsysTrigger=0,  Int_t type=4, Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0, Int_t israp=0, TString ResoHisto="2D",Bool_t SkipAssoc=1 ,   Float_t ptjmin=2,  Float_t ptjmax=15, Int_t sysV0=0, TString data=/*"17d20bEPOS_hXi"/*"17d20bEPOS_hK0s"/"2018f1_extra_hK0s"/*"1617GP_hXi" /*"2018f1_extra_MECorr"/"2018f1_extra_hK0s_CP"/* "2018f1_extra_hK0s_CP"/*"2018f1_extra_hK0s_CP_10runs_Bis"/"AllMC_hXi"/"161718_MD_hXi"/* "17anch17_hK0s"/"1617MC_hK0s"/"2018f1g4_extra_hXi"/"2018f1_extra_DEtaEff_50runs"/"2018g4_extra_EtaEff_hK0s"/"2018f1g4_extra_EtaEff_hXi"*/"161718_MD_EtaEff_hXi", TString year0="2016", TString path1=""/*"_New"*/ /*"_10runs_FB128_TrackLengthCut"/"_NewMultClassBis"/"_PtTrigMax2.5"*/, Int_t MultBinning=0, Int_t PtBinning=0, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsPtTrigMultDep=0, Int_t EffRegion=0, Bool_t isEfficiencyMassSel=0, Bool_t isMCTruth=0, Bool_t isEtaEff=1){
+void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int_t indexsysTrigger=0,  Int_t type=4, Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0, Int_t israp=0, TString ResoHisto="2D",Bool_t SkipAssoc=1 ,   Float_t ptjmin=2,  Float_t ptjmax=15, Int_t sysV0=0, TString data=/*"17d20bEPOS_hXi"/*"17d20bEPOS_hK0s"/"2018f1_extra_hK0s"/*"1617GP_hXi" /*"2018f1_extra_MECorr"/"2018f1_extra_hK0s_CP"/* "2018f1_extra_hK0s_CP"/*"2018f1_extra_hK0s_CP_10runs_Bis"/"AllMC_hXi"/"161718_MD_hXi"/* "17anch17_hK0s"/"1617MC_hK0s"/"2018f1g4_extra_hXi"/"2018f1_extra_DEtaEff_50runs"/"2018g4_extra_EtaEff_hK0s"/*"2018f1g4_extra_EtaEff_hXi"*/"161718_MD_EtaEff_hXi", TString year0="2016", TString path1=""/*"_New"*/ /*"_10runs_FB128_TrackLengthCut"/"_NewMultClassBis"/"_PtTrigMax2.5"*/, Int_t MultBinning=0, Int_t PtBinning=0, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsPtTrigMultDep=0, Int_t EffRegion=0, Bool_t isEfficiencyMassSel=0, Bool_t isMCTruth=0, Bool_t isEtaEff=1){
   //  if (type==6 && israp!=0) return; //so far I haven't appended any info on the rapidity to efficiency output files for K0s; if I decide to do as ofr the cascade, just remove this line
 
   //the Preliminary results have been obtained using isEtaEff==0 (no calculation of ptvseta eff performed)
@@ -120,6 +120,7 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
     else if (DEtaEff==3)PathOut2+="_OOJ";   
     PathOutCanvas = PathOut2;
     PathOut2+= "_thinptbins";
+    //    PathOut2+= "_Try";
     PathOut2+= ".root";
   }
 
@@ -129,14 +130,11 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   cout << "new input file " << endl;
 
   cout << PathInBis << endl;
-  cout << "ok here " << endl;
   TFile *fileinbis = new TFile(PathInBis, "");
-  cout << "ok here " << endl;
   if (!fileinbis){
     cout << "input file does not exist " << endl; 
     return;
   }
-  cout << "ok here " << endl;
   TString PathInSel="./FinalOutput/DATA" + year0 + "/histo/AngularCorrelation";
   PathInSel+=data;
   if (!isMCTruth) {
@@ -291,6 +289,7 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
 
   Double_t NEtaCasc[numEtaCasc+1]={-0.8,-0.72, -0.64, -0.56, -0.48, -0.4, -0.32, -0.24, -0.16, -0.08, 0, 0.08,0.16, 0.24, 0.32, 0.40, 0.48, 0.56, 0.64, 0.72, 0.8};
   Double_t NEtaV0[numEtaV0+1]={-0.8,-0.72, -0.64, -0.56, -0.48, -0.4, -0.32, -0.24, -0.16, -0.08, 0, 0.08,0.16, 0.24, 0.32, 0.40, 0.48, 0.56, 0.64, 0.72, 0.8};
+
   if (type==6){
   numEta = numEtaV0;
   }
@@ -362,6 +361,8 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   canvasV0EffEtaRegion->Divide(3,2);
   TCanvas* canvasV0EffEtaRegionRatio = new TCanvas("canvasV0EffEtaRegionRatio", "canvasV0EffEtaRegionRatio", 1300, 800);
   canvasV0EffEtaRegionRatio->Divide(3,2);
+  TCanvas* canvasV0EffEtaRegionRelErr = new TCanvas("canvasV0EffEtaRegionRelErr", "canvasV0EffEtaRegionRelErr", 1300, 800);
+  canvasV0EffEtaRegionRelErr->Divide(3,2);
 
 
   TCanvas *canvasEff=new TCanvas ("canvasEff", "canvasEff", 1500, 800);
@@ -433,7 +434,6 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   if (CommonParton && !isCPEff){
     if (!fHistGeneratedV0PtTMaxPhiInt2)  {cout << "histo gen not found " << endl; return;}
     for (Int_t b=1; b<= fHistGeneratedV0PtTMaxPhi->GetBin(fHistGeneratedV0PtTMaxPhi->GetNbinsX(), fHistGeneratedV0PtTMaxPhi->GetNbinsY(), fHistGeneratedV0PtTMaxPhi->GetNbinsZ()); b++){
-      //      cout << " b " << b<< endl;
       fHistGeneratedV0PtTMaxPhi->SetBinContent(b, fHistGeneratedV0PtTMaxPhiInt1->GetBinContent(b)-fHistGeneratedV0PtTMaxPhiInt2->GetBinContent(b));
     }
   }
@@ -442,7 +442,6 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   TH3D*   fHistGeneratedV0PtTMaxEta;
   TH3D*   fHistGeneratedV0PtTMaxEtaInt1;
   TH3D*   fHistGeneratedV0PtTMaxEtaInt2;
-  cout << " hey there 1 " << endl;
   if (CommonParton && isCPEff){
     fHistGeneratedV0PtTMaxEta=      (TH3D*)list2->FindObject(Form("fHistCPGeneratedV0PtTMaxEta_%i", sysV0Gen));
   }
@@ -459,7 +458,6 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   if (CommonParton && !isCPEff){
     if (!fHistGeneratedV0PtTMaxEtaInt2) {cout << "histo gen not found " << endl; return;}
     for (Int_t b=1; b<= fHistGeneratedV0PtTMaxEta->GetBin(fHistGeneratedV0PtTMaxEta->GetNbinsX(), fHistGeneratedV0PtTMaxEta->GetNbinsY(), fHistGeneratedV0PtTMaxEta->GetNbinsZ()); b++){
-      //      cout << " b " << b<< endl;
       fHistGeneratedV0PtTMaxEta->SetBinContent(b, fHistGeneratedV0PtTMaxEtaInt1->GetBinContent(b)-fHistGeneratedV0PtTMaxEtaInt2->GetBinContent(b));
     }
   }
@@ -471,7 +469,7 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   if (DEtaEff==1) namegenV0="fHistGeneratedV0PtPtTMaxIncl";
   else if (DEtaEff==2) namegenV0="fHistGeneratedV0PtPtTMaxJet";
   else if (DEtaEff==3) namegenV0="fHistGeneratedV0PtPtTMaxOOJ";
-  cout << " hey there 1 " << endl;
+  //  cout << " hey there 1 " << endl;
   if (CommonParton && isCPEff){
     fHistGeneratedV0PtPtTMax=       (TH3D*)list2->FindObject(Form("fHistCPGeneratedV0PtPtTMax_%i", sysV0Gen));
   }
@@ -488,7 +486,6 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   if (CommonParton && !isCPEff){
     if (!fHistGeneratedV0PtPtTMaxInt2) {cout << "histo gen not found " << endl; return;}
     for (Int_t b=1; b<= fHistGeneratedV0PtPtTMax->GetBin(fHistGeneratedV0PtPtTMax->GetNbinsX(), fHistGeneratedV0PtPtTMax->GetNbinsY(), fHistGeneratedV0PtPtTMax->GetNbinsZ()); b++){
-      //      cout << " b " << b<< endl;
       fHistGeneratedV0PtPtTMax->SetBinContent(b, fHistGeneratedV0PtPtTMaxInt1->GetBinContent(b)-fHistGeneratedV0PtPtTMaxInt2->GetBinContent(b));
     }
   }
@@ -651,6 +648,7 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   TH1D*  fHistV0GeneratedPtBinsEtaR[nummolt+1][numEta];
   TH1D*  fHistV0EfficiencyPtEtaR[nummolt+1][numEta];
   TH1D*  fHistV0EfficiencyPtEtaRRatio[nummolt+1][numEta];
+  TH1D*  fHistV0EfficiencyPtEtaRRelErr[nummolt+1][numEta];
   TH1D*  fHistV0SelectedPtAllEta[nummolt+1];
   TH1D*  fHistV0GeneratedPtAllEta[nummolt+1];
   TH1D*  fHistV0SelectedPtBinsAllEta[nummolt+1];
@@ -747,13 +745,16 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
     fHistSelected_2D_TriggerPtPhi[molt] ->SetName("fHistSelected_2D_TriggerPtPhi_"+ Smolt[molt] );
     fHistSelectedGen_2D_TriggerPtPhi[molt] ->SetName("fHistSelectedGen_2D_TriggerPtPhi_"+ Smolt[molt] );
     fHistGenerated_2D_TriggerPtPhi[molt]->SetName("fHistGenerated_2D_TriggerPtPhi_"+ Smolt[molt]);
-    
+
+    cout << " decomment if you want info about bin width etc for sel and gen histos" << endl;
+    /*    
     cout << "bin width of x axis of 3d histo " <<     fHistSelected_2D_TriggerPtPhi[molt]->GetXaxis()->GetBinWidth(1) << endl;
     cout << "\nsel2D " <<     fHistSelected_2D_TriggerPtPhi[molt]->GetNbinsX() <<   "  " <<   fHistSelected_2D_TriggerPtPhi[molt]->GetNbinsY() <<" " <<    fHistSelected_2D_TriggerPtPhi[molt]->GetName() <<  endl;
     cout << "\nsel2D - bin width " <<     fHistSelected_2D_TriggerPtPhi[molt]->GetXaxis()->GetBinWidth(1) <<   "  " <<   fHistSelected_2D_TriggerPtPhi[molt]->GetYaxis()->GetBinWidth(1) <<" " <<    fHistSelected_2D_TriggerPtPhi[molt]->GetName() <<  endl;
     cout << "selgen2D " <<     fHistSelectedGen_2D_TriggerPtPhi[molt]->GetNbinsX() <<   "  " <<   fHistSelectedGen_2D_TriggerPtPhi[molt]->GetNbinsY() << "  " <<fHistSelectedGen_2D_TriggerPtPhi[molt]->GetName() << endl;
     cout << "gen2D " <<     fHistGenerated_2D_TriggerPtPhi[molt]->GetNbinsX() <<   "  " <<   fHistGenerated_2D_TriggerPtPhi[molt]->GetNbinsY() << "\n" << endl;
     cout << "gen2D - bin width " <<     fHistGenerated_2D_TriggerPtPhi[molt]->GetXaxis()->GetBinWidth(1) <<   "  " <<   fHistGenerated_2D_TriggerPtPhi[molt]->GetYaxis()->GetBinWidth(1) <<" " <<    fHistGenerated_2D_TriggerPtPhi[molt]->GetName() <<  endl;
+    */
 
     fHistTriggerEfficiencyPtPhi[molt]= new TH2D("fHistTriggerEfficiencyPtPhi_"+ Smolt[molt],"fHistTriggerEfficiencyPtPhi_"+ Smolt[molt],fHistSelectedTriggerPtPhi->GetNbinsX(),fHistSelectedTriggerPtPhi->GetXaxis()->GetXmin(), fHistSelectedTriggerPtPhi->GetXaxis()->GetXmax(),fHistSelectedTriggerPtPhi->GetNbinsY(),fHistSelectedTriggerPtPhi->GetYaxis()->GetBinLowEdge(1), fHistSelectedTriggerPtPhi->GetYaxis()->GetBinUpEdge(fHistSelectedTriggerPtPhi->GetNbinsY()) );
     fHistTriggerEfficiencyPtPhi[molt]->GetXaxis()->SetTitle("p_{T}^{Trigg} (GeV/c)");      
@@ -813,7 +814,7 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
     cout << "numerator number of bins " << fHistTriggerEfficiencyGenPt[molt]->GetNbinsX()<< endl;
     cout << "denominator number of bins " << fHistGenerated_1D_TriggerPt[molt]->GetNbinsX()<< endl;
     for (Int_t b =1; b<        fHistTriggerEfficiencyPt[molt]->GetNbinsX(); b++){
-      cout <<      fHistSelected_1D_TriggerPt[molt]->GetBinContent(b) << " / " << fHistGenerated_1D_TriggerPt[molt]->GetBinContent(b) <<" = " <<      fHistTriggerEfficiencyPt[molt]->GetBinContent(b)<< endl;
+      //      cout <<      fHistSelected_1D_TriggerPt[molt]->GetBinContent(b) << " / " << fHistGenerated_1D_TriggerPt[molt]->GetBinContent(b) <<" = " <<      fHistTriggerEfficiencyPt[molt]->GetBinContent(b)<< endl;
     }
 
     canvasEff->cd(1);
@@ -979,8 +980,8 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
     fHistTriggerEfficiencyPtEta[molt]->RebinX(2);    
     fHistTriggerEfficiencyPtEta[molt]->RebinY(10);    
     
-    cout << fHistSelected_2D_TriggerPtEta[molt]->GetNbinsX() << " " << fHistGenerated_2D_TriggerPtEta[molt]->GetNbinsX() << endl;
-    cout << fHistSelected_2D_TriggerPtEta[molt]->GetNbinsY() << " " << fHistGenerated_2D_TriggerPtEta[molt]->GetNbinsY() << endl;
+    //    cout << fHistSelected_2D_TriggerPtEta[molt]->GetNbinsX() << " " << fHistGenerated_2D_TriggerPtEta[molt]->GetNbinsX() << endl;
+    //    cout << fHistSelected_2D_TriggerPtEta[molt]->GetNbinsY() << " " << fHistGenerated_2D_TriggerPtEta[molt]->GetNbinsY() << endl;
     fHistTriggerEfficiencyPtEta[molt]->Divide(fHistSelected_2D_TriggerPtEta[molt], fHistGenerated_2D_TriggerPtEta[molt]); 
     
     fHistTriggerEfficiencyEta[molt]= new TH1D("fHistTriggerEfficiencyEta_"+ Smolt[molt] , "fHistTriggerEfficiencyEta_"+ Smolt[molt] ,  fHistTriggerEfficiencyPtEta[molt]->GetNbinsY(), fHistTriggerEfficiencyPtEta[molt]->GetYaxis()->GetBinLowEdge(1), fHistTriggerEfficiencyPtEta[molt]->GetYaxis()->GetBinUpEdge(fHistTriggerEfficiencyPtEta[molt]->GetNbinsY()) );
@@ -1113,14 +1114,14 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
       */
 
       for  (Int_t eta =1; eta<= fHistSelected_2D_V0PtEtaPtBins[molt]->GetNbinsY(); eta++){
-	cout << fHistSelected_2D_V0PtEta[molt]->GetYaxis()->GetBinLowEdge(fHistSelected_2D_V0PtEta[molt]->GetYaxis()->FindBin(NEtaBis[eta-1]+0.001))<< " " <<  fHistSelected_2D_V0PtEtaPtBins[molt]->GetYaxis()->GetBinLowEdge(eta) << endl;
+	//	cout << fHistSelected_2D_V0PtEta[molt]->GetYaxis()->GetBinLowEdge(fHistSelected_2D_V0PtEta[molt]->GetYaxis()->FindBin(NEtaBis[eta-1]+0.001))<< " " <<  fHistSelected_2D_V0PtEtaPtBins[molt]->GetYaxis()->GetBinLowEdge(eta) << endl;
 	if (TMath::Abs(fHistSelected_2D_V0PtEta[molt]->GetYaxis()->GetBinLowEdge(fHistSelected_2D_V0PtEta[molt]->GetYaxis()->FindBin(NEtaBis[eta-1]+0.001)) - fHistSelected_2D_V0PtEtaPtBins[molt]->GetYaxis()->GetBinLowEdge(eta))> 0.001) {cout << "the eta bins chosen are not multiples of the original bins" << endl; return;}
 	for (Int_t pt=1; pt<=  fHistSelected_2D_V0PtEtaPtBins[molt]->GetNbinsX(); pt++){
 	  Float_t bincSel=0;
 	  Float_t bincGen=0;
 	  //	  cout << "\n" << endl;
 
-	  cout << fHistSelected_2D_V0PtEta[molt]->GetXaxis()->GetBinLowEdge(fHistSelected_2D_V0PtEta[molt]->GetXaxis()->FindBin(NPtV0Bis[pt-1]+0.001))<< " " <<  fHistSelected_2D_V0PtEtaPtBins[molt]->GetXaxis()->GetBinLowEdge(pt) << endl;
+	  //	  cout << fHistSelected_2D_V0PtEta[molt]->GetXaxis()->GetBinLowEdge(fHistSelected_2D_V0PtEta[molt]->GetXaxis()->FindBin(NPtV0Bis[pt-1]+0.001))<< " " <<  fHistSelected_2D_V0PtEtaPtBins[molt]->GetXaxis()->GetBinLowEdge(pt) << endl;
 
 	  if (TMath::Abs(fHistSelected_2D_V0PtEta[molt]->GetXaxis()->GetBinLowEdge(fHistSelected_2D_V0PtEta[molt]->GetXaxis()->FindBin(NPtV0Bis[pt-1]+0.001)) - fHistSelected_2D_V0PtEtaPtBins[molt]->GetXaxis()->GetBinLowEdge(pt)) > 0.001) {cout << "the pt bins chosen are not multiples of the original bins" << endl; return;}
 
@@ -1152,7 +1153,7 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
       //if (NEtaBis[eta] < 0 && eta%2!=1) continue;
       if (NEtaBis[eta] >= 0 && eta%2!=1) continue;
       //if (NEtaBis[eta] >= 0 && eta%2!=0) continue;
-      cout << eta << endl;
+      //      cout << eta << endl;
       /*
 	fHistV0SelectedPtEtaR[molt][eta]= (TH1D*) fHistSelected_2D_V0PtEta[molt]->ProjectionX("fHistV0SelectedPtEtaR"+Smolt[molt]+"_Eta"+SEta[eta], fHistSelected_2D_V0PtEta[molt]->GetYaxis()->FindBin(NEta[eta]+0.0001), fHistSelected_2D_V0PtEta[molt]->GetYaxis()->FindBin(NEta[eta+1]-0.0001));
 	fHistV0GeneratedPtEtaR[molt][eta]= (TH1D*) fHistGenerated_2D_V0PtEta[molt]->ProjectionX("fHistV0GeneratedPtEtaR"+Smolt[molt]+"_Eta"+SEta[eta], fHistGenerated_2D_V0PtEta[molt]->GetYaxis()->FindBin(NEta[eta]+0.0001), fHistGenerated_2D_V0PtEta[molt]->GetYaxis()->FindBin(NEta[eta+1]-0.0001));
@@ -1165,14 +1166,14 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
       SEta[eta] = Form("[%.2f, %.2f)", NEtaBis[eta], NEtaBis[eta+1]);
       fHistV0SelectedPtEtaR[molt][eta]= (TH1D*) fHistSelected_2D_V0PtEtaPtBins[molt]->ProjectionX("fHistV0SelectedPtEtaR"+Smolt[molt]+"_Eta"+SEta[eta], fHistSelected_2D_V0PtEtaPtBins[molt]->GetYaxis()->FindBin(NEtaBis[eta]+0.0001), fHistSelected_2D_V0PtEtaPtBins[molt]->GetYaxis()->FindBin(NEtaBis[eta]+0.0001));
       fHistV0GeneratedPtEtaR[molt][eta]= (TH1D*) fHistGenerated_2D_V0PtEtaPtBins[molt]->ProjectionX("fHistV0GeneratedPtEtaR"+Smolt[molt]+"_Eta"+SEta[eta], fHistGenerated_2D_V0PtEtaPtBins[molt]->GetYaxis()->FindBin(NEtaBis[eta]+0.0001), fHistGenerated_2D_V0PtEtaPtBins[molt]->GetYaxis()->FindBin(NEtaBis[eta]+0.0001));
-      cout << " here I am" << endl;
-      fHistV0EfficiencyPtEtaR[molt][eta]= (TH1D*) fHistV0SelectedPtEtaR[molt][eta]->Clone("fHistV0EfficiencyPtEtaR"+Smolt[molt]+"_Eta"+SEta[eta]);
+      //      cout << " here I am" << endl;
 
+      fHistV0EfficiencyPtEtaR[molt][eta]= (TH1D*) fHistV0SelectedPtEtaR[molt][eta]->Clone("fHistV0EfficiencyPtEtaR"+Smolt[molt]+"_Eta"+SEta[eta]);
       fHistV0EfficiencyPtEtaR[molt][eta]->Divide(	fHistV0GeneratedPtEtaR[molt][eta]);
       for (Int_t b =1; b<=  fHistV0EfficiencyPtEtaR[molt][eta]->GetNbinsX(); b++){
-	cout << "gen " <<  fHistV0EfficiencyPtEtaR[molt][eta]->GetBinContent(b) << endl;
-	cout << "sel " <<  fHistV0SelectedPtEtaR[molt][eta]->GetBinContent(b) << endl;
-	cout << "eff " <<  fHistV0GeneratedPtEtaR[molt][eta]->GetBinContent(b) << endl;
+	//	cout << "gen " <<  fHistV0EfficiencyPtEtaR[molt][eta]->GetBinContent(b) << endl;
+	//	cout << "sel " <<  fHistV0SelectedPtEtaR[molt][eta]->GetBinContent(b) << endl;
+	//	cout << "eff " <<  fHistV0GeneratedPtEtaR[molt][eta]->GetBinContent(b) << endl;
 	fHistV0EfficiencyPtEtaR[molt][eta]->SetBinError(b, SetEfficiencyError( fHistV0SelectedPtEtaR[molt][eta]->GetBinContent(b),  fHistV0GeneratedPtEtaR[molt][eta]->GetBinContent(b)));
       }
 
@@ -1208,6 +1209,19 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
       if (molt==0){
 	legendEtaR->AddEntry(	fHistV0EfficiencyPtEtaR[molt][eta], SEta[eta], "pl");
       }
+
+      fHistV0EfficiencyPtEtaRRelErr[molt][eta]= (TH1D*) fHistV0EfficiencyPtEtaR[molt][eta]->Clone("fHistV0EfficiencyPtEtaRRelErr"+Smolt[molt]+"_Eta"+SEta[eta]);
+
+      for (Int_t b =1; b<=  fHistV0EfficiencyPtEtaR[molt][eta]->GetNbinsX(); b++){
+	if (fHistV0EfficiencyPtEtaR[molt][eta]->GetBinContent(b)!=0){
+	fHistV0EfficiencyPtEtaRRelErr[molt][eta]->SetBinContent(b, fHistV0EfficiencyPtEtaR[molt][eta]->GetBinError(b)/ fHistV0EfficiencyPtEtaR[molt][eta]->GetBinContent(b));
+	}
+	else  fHistV0EfficiencyPtEtaRRelErr[molt][eta]->SetBinContent(b, 0);
+	fHistV0EfficiencyPtEtaRRelErr[molt][eta]->SetBinError(b,0);
+	//	cout << "error eff: " << fHistV0EfficiencyPtEtaR[molt][eta]->GetBinError(b) << endl;
+	//	cout << " eff: " << fHistV0EfficiencyPtEtaR[molt][eta]->GetBinContent(b) << endl;
+      }
+      
       canvasV0EffEtaRegion->cd(molt+1);
       fHistV0EfficiencyPtEtaR[molt][eta]->SetBinContent(1,0);
       fHistV0EfficiencyPtEtaR[molt][eta]->Draw("same");
@@ -1219,12 +1233,20 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
       fHistV0EfficiencyPtEtaRRatio[molt][eta]->SetTitle("Ratio of efficiencies");
       fHistV0EfficiencyPtEtaRRatio[molt][eta]->GetYaxis()->SetRangeUser(0+10e-7,3);
       fHistV0EfficiencyPtEtaRRatio[molt][eta]->Draw("same");
+      canvasV0EffEtaRegionRelErr->cd(molt+1);
+      fHistV0EfficiencyPtEtaRRelErr[molt][eta]->GetXaxis()->SetTitleOffset(0.8);
+      fHistV0EfficiencyPtEtaRRelErr[molt][eta]->GetXaxis()->SetTitleSize(0.05);
+      fHistV0EfficiencyPtEtaRRelErr[molt][eta]->SetTitle("Relative uncertainty of efficiency");
+      fHistV0EfficiencyPtEtaRRelErr[molt][eta]->GetYaxis()->SetRangeUser(0+10e-7,0.5);
+      fHistV0EfficiencyPtEtaRRelErr[molt][eta]->Draw("same");
     }
     canvasV0EffEtaRegion->cd(molt+1);
     fHistV0EfficiencyPtAllEta[molt]->Draw("same");
     legendEtaR->Draw("");
     canvasV0EffEtaRegionRatio->cd(molt+1);
     lineat1->Draw("same");
+    legendEtaR->Draw("");
+    canvasV0EffEtaRegionRelErr->cd(molt+1);
     legendEtaR->Draw("");
     
     cout << "V0 2D projection in Phi and PtTMax (Pt stands for PtTMax) " << endl;
@@ -1949,9 +1971,11 @@ cout << "sel2D " <<     fHistSelected_1D_V0Pt[molt]->GetNbinsX() << endl;
   fileoutbis->WriteTObject( canvasUsed);
   fileoutbis->WriteTObject(  canvasV0EffEtaRegion);
   fileoutbis->WriteTObject(  canvasV0EffEtaRegionRatio);
+  fileoutbis->WriteTObject(  canvasV0EffEtaRegionRelErr);
 
   canvasV0EffEtaRegion->SaveAs(PathOutCanvas+"_EffEtaRegions.pdf");
   canvasV0EffEtaRegionRatio->SaveAs(PathOutCanvas+"_EffEtaRegionsRatio.pdf");
+  canvasV0EffEtaRegionRelErr->SaveAs(PathOutCanvas+"_EffEtaRegionsRelErr.pdf");
 
   for(Int_t m=0; m<nummolt+1; m++){
     //    if (m==0) continue;
