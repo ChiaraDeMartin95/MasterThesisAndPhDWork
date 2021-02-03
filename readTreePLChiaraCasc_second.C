@@ -20,7 +20,7 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
   return sqrt(((Double_t)k+1)*((Double_t)k+2)/(n+2)/(n+3) - pow((Double_t)(k+1),2)/pow(n+2,2));
 }
 
-void readTreePLChiaraCasc_second(Int_t type=4, Bool_t SkipAssoc=1, Int_t israp=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=2,Float_t PtTrigMinFit=2, Int_t sysTrigger=0, Int_t sysV0=0,Int_t syst=0,bool isMC = 1, Bool_t isEfficiency=1,TString year0="2016", TString year="161718_MD_EtaEff_hXi"/*"2018f1g4_extra_EtaEff_hXi"/*"161718_MD_hXi_Hybrid"/*"LHC16_17_GP_Hybrid_hXi"/*"2018g4_extra_hXi_SelTrigger"/*"AllMC_hXi"/*"Run2DataRed_MECorr_hXi"/"2016k_pass2_TOFOOBPileUp"*/,  TString Path1 =""/*"_PtTrigMax2.5"/*"NewMultClassBis"*/,  Double_t ptjmax =15, Double_t nsigmamax=10, Bool_t isSigma=kFALSE, Int_t MultBinning=0, Bool_t IsTrueParticle=1, Bool_t isNotSigmaTrigger=0, Bool_t isEtaEff=1, TString yearMC = "161718_MD_EtaEff_hXi"/*"2018f1g4_extra_EtaEff_hXi"*/, Bool_t isEstimateRun3=0){
+void readTreePLChiaraCasc_second(Int_t type=4, Bool_t SkipAssoc=1, Int_t israp=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=2,Float_t PtTrigMinFit=2, Int_t sysTrigger=0, Int_t sysV0=0,Int_t syst=0,bool isMC = 1, Bool_t isEfficiency=1,TString year0="2016", TString year="161718_MD_EtaEff_hXi"/*"2018f1g4_extra_EtaEff_hXi"/*"161718_MD_hXi_Hybrid"/*"LHC16_17_GP_Hybrid_hXi"/*"2018g4_extra_hXi_SelTrigger"/*"AllMC_hXi"/"Run2DataRed_MECorr_hXi"/*"2016k_pass2_TOFOOBPileUp"*/,  TString Path1 =""/*"_PtTrigMax2.5"/*"NewMultClassBis"*/,  Double_t ptjmax =15, Double_t nsigmamax=10, Bool_t isSigma=kFALSE, Int_t MultBinning=0, Bool_t IsTrueParticle=1, Bool_t isNotSigmaTrigger=0, Bool_t isEtaEff=1, TString yearMC = "161718_MD_EtaEff_hXi"/*"2018f1g4_extra_EtaEff_hXi"*/, Bool_t isEstimateRun3=0){
 
   //isEstimateRun3=1: I use smaller mult classes
   //isMeanFixedPDG and isBkgParab are characteristics of the fit to the inv mass distributions 
@@ -64,6 +64,7 @@ void readTreePLChiaraCasc_second(Int_t type=4, Bool_t SkipAssoc=1, Int_t israp=0
 
   if (!isEstimateRun3 && nummolt!=5) {cout << " maybe you forgot the multiplciity classes you used for Run3 estimates" << endl; return;}
   if (isEstimateRun3) PtTrigMinFit=3; 
+  if (isEstimateRun3 && nummolt!=11) {cout << " maybe you forgot the multiplciity classes you use for your analysis" << endl; return;}
 
   TString SmoltBin0[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "_all"};
   Double_t NmoltBin0[nummolt+1]={0, 5, 10, 30, 50, 100};
@@ -288,6 +289,7 @@ void readTreePLChiaraCasc_second(Int_t type=4, Bool_t SkipAssoc=1, Int_t israp=0
   Double_t NPtV0[numPtV0+1]={0,0.5, 1,1.5, 2,2.5,3,4,8};
 
   if (!isEstimateRun3 && NPtV0[numPtV0]!=8){cout << " maximum pt value not set to 8 " << endl;  return;}
+  //  if (isEstimateRun3 && NPtV0[numPtV0]!=12){cout << " maximum pt value not set to 12 " << endl;  return;}
   //  TString SPtV0[numPtV0]={"0-0", "0-0.5","0.5-1", "1-1.5", "1.5-2", "2-3", "3-4", "4-8"};
   //Double_t NPtV0[numPtV0+1]={0,0,0.5, 1,1.5,2,3,4,8};
  
@@ -970,7 +972,7 @@ void readTreePLChiaraCasc_second(Int_t type=4, Bool_t SkipAssoc=1, Int_t israp=0
   cout << "\n\n I will process " << EntriesBkg << " entries for theSE correlation " << endl;
   if (!isEstimateRun3){
     for(Int_t k = 0; k<EntriesBkg; k++){
-      //    if (k>100000) continue;
+      //      if (k>100000) continue;
 
       tBkg->GetEntry(k);     
       //  for(Int_t k = 0; k<1000000; k++){
@@ -1154,15 +1156,25 @@ void readTreePLChiaraCasc_second(Int_t type=4, Bool_t SkipAssoc=1, Int_t israp=0
 	      bin = hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->GetBin(deta, dphi);		
 	      if (isEtaEff){
 		//		EffRelErr[m][v] = fHistEfficiencyV0PtPtBins[m]->GetBinError(v+1)/fHistEfficiencyV0PtPtBins[m]->GetBinContent(v+1); old
-		EffRelErrSign[m][v] = hDeltaEtaDeltaPhi_SEbinsEffwErrors[m][z][v][tr]->GetBinContent(v+1);
-		hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->SetBinError(bin,sqrt(1./hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetBinContent(bin) + pow(EffRelErrSign[m][v],2)) * hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->GetBinContent(bin));
-		if (hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->GetBinContent(bin)==0) {
+		EffRelErrSign[m][v] = hDeltaEtaDeltaPhi_SEbinsEffwErrors[m][z][v][tr]->GetBinContent(bin);
+
+		if (hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->GetBinContent(bin)!=0) {
+		  hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->SetBinError(bin,sqrt(1./hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetBinContent(bin) + pow(EffRelErrSign[m][v],2)) * hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->GetBinContent(bin));
+		}
+		else{
 		  hDeltaEtaDeltaPhi_SEbinsEffw[m][z][v][tr]->SetBinError(bin,0);
 		}
 
-		EffRelErrBkg[m][v] = hDeltaEtaDeltaPhi_MEbinsEffwErrors[m][z][v][tr]->GetBinContent(v+1);
+		EffRelErrBkg[m][v] = hDeltaEtaDeltaPhi_MEbinsEffwErrors[m][z][v][tr]->GetBinContent(bin);
+
+		if (hDeltaEtaDeltaPhi_MEbinsEffw[m][z][v][tr]->GetBinContent(bin) !=0){
 		hDeltaEtaDeltaPhi_MEbinsEffw[m][z][v][tr]->SetBinError(bin,sqrt(1./hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetBinContent(bin) + pow(EffRelErrBkg[m][v],2)) * hDeltaEtaDeltaPhi_MEbinsEffw[m][z][v][tr]->GetBinContent(bin));
-		if (hDeltaEtaDeltaPhi_MEbinsEffw[m][z][v][tr]->GetBinContent(bin)==0) {
+		//cout << "* m:" << m << " v:" << v << " bin:" << bin <<endl;
+		//cout << "rel error due to counts " << 1./hDeltaEtaDeltaPhi_MEbins[m][z][v][tr]->GetBinContent(bin)<< endl;
+		//cout << "rel error due to eff " << EffRelErrBkg[m][v] << endl;
+		//cout << " error assigned to corrected ME distribution " << hDeltaEtaDeltaPhi_MEbinsEffw[m][z][v][tr]->GetBinError(bin)/ hDeltaEtaDeltaPhi_MEbinsEffw[m][z][v][tr]->GetBinContent(bin)<< endl;
+		}
+		else {
 		  hDeltaEtaDeltaPhi_MEbinsEffw[m][z][v][tr]->SetBinError(bin,0);
 		}
 
