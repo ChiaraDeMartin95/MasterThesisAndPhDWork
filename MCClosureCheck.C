@@ -35,23 +35,30 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void MCClosureCheck( Int_t isEventLoss=0, Int_t type=8, Int_t ishhCorr=0, Float_t PtTrigMin =2, Float_t PtTrigMax=15, Int_t israp=0,TString yearMC="2018g4_extra_EtaEff_hK0s"/*"1617_hK0s"/*"AllMC_hXi"/"2018f1_extra_Reco_hK0s"/*"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"  2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, TString yearMCTruth="2018f1_extra_hK0s", TString yearMCHyb="2018g4_extra_EtaEff_Hybrid_hK0s"/*"2018f1_extra_Hybrid_hK0s"*/, TString Path1 =""/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,  TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Int_t PtBinning=1, Int_t sys=0, Bool_t IsParticleTrue=1, Bool_t isEffMassSel=0, Bool_t IsNotSigmaTrigger=0, Bool_t isMEFromHybrid=1, Bool_t isMEFromCorrectCentrality=0, Bool_t isEtaEff=1){
+void MCClosureCheck( Int_t isEventLoss=0, Int_t type=8, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Int_t israp=0,TString yearMC="2018g4_extra_EtaEff_hK0s"/*"1617_hK0s"/*"AllMC_hXi"/"2018f1_extra_Reco_hK0s"/*"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"  2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, TString yearMCTruth="2018f1_extra_hK0s", TString yearMCHyb="2018g4_extra_EtaEff_Hybrid_hK0s"/*"2018f1_extra_Hybrid_hK0s"*/, TString Path1 =""/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,  TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=0, Int_t PtBinning=1, Int_t sys=0, Bool_t IsParticleTrue=0, Bool_t isEffMassSel=0, Bool_t IsNotSigmaTrigger=0, Bool_t isMEFromHybrid=0, Bool_t isMEFromCorrectCentrality=0, Bool_t isEtaEff=0, Bool_t isMEFromK0s=0){
+
+  if (isMEFromK0s && type==0) {cout << "the option isMEFromK0s is meant to be used when Xi is being analyzed" << endl; return;}
 
   // if isEventLoss==0 I compare MCTruth to MCreco (MCreco/MCTruth)
   // if isEventLoss==1 I compare (MCHybrid/MCTruth)
   // if isEventLoss==2 I compare (MCReco/MCHybrid)
 
+  //********** K0s *******************
   if (type==0){ //used for MC closure for preliminary
     //    yearMC = "2018f1_extra_Reco_hK0s";
     //    yearMCHyb = "2018f1_extra_Hybrid_hK0s";
+    yearMCHyb = "1617GP_hK0s_Hybrid"; //norm factor
+    yearMCTruth = "1617GP_hK0s"; //norm factor
   }
+  //**********************************
 
-
+  //********** Xi *******************
   if (type==8){
     if (PtTrigMin==3){    
       //    yearMC = "AllMC_hXi";
       yearMC = "2018f1g4_extra_EtaEff_hXi";
-    yearMCHyb="2018f1g4_extra_hXi_Hybrid";
+      if (isEventLoss==2)      yearMCHyb="2018f1g4_extra_hXi_Hybrid";
+      if (isEventLoss==1)      yearMCHyb="2018f1g4_extra_hXi_Hybrid";
     }
     //    yearMCHyb="LHC16_17_GP_Hybrid_hXi";
     else {    
@@ -63,6 +70,8 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=8, Int_t ishhCorr=0, Float_
     if (isEventLoss==2)    IsParticleTrue=1;
     isEffMassSel=0;
   }
+  //**********************************
+
   TString PathIn0;
   TString PathInAC;
 
@@ -82,6 +91,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=8, Int_t ishhCorr=0, Float_
 
   TString titleX=  "p_{T} (GeV/c)";
   TString titleXPhi=  "#Delta #phi";
+  TString titleYEff=  "#epsilon_{part}";
   TString titleY=  "1/#Delta#eta #Delta#phi 1/N_{trigg} dN/dp_{T}";
   TString titleYPhi=  "N/N_{trigg} per #Delta#eta";
   //  TString titleYRatio = "Ratio to MC truth";
@@ -104,6 +114,8 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=8, Int_t ishhCorr=0, Float_
 
   Float_t LimSup=0.1;
   Float_t LimInf=0;
+  Float_t LimInfEff=0;
+  Float_t LimSupEff=1;
   Float_t LimInfRatioSpectra[3] = {0.75, 0.75, 0.85};
   Float_t LimSupRatioSpectra[3] = {1.25, 1.25, 1.15};
 
@@ -125,6 +137,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=8, Int_t ishhCorr=0, Float_
   if (IsParticleTrue) stringout+= "_IsParticleTrue";
   if (isEffMassSel) stringout+= "_isEffMassSel";
   if (isMEFromHybrid) stringout+= "_IsMEFromHybrid";
+  if (isMEFromK0s) stringout+= "_IsMEFromK0s";
   if (isMEFromCorrectCentrality) stringout+= "_IsMEFromCorrectCentrality";
   if (IsNotSigmaTrigger) stringout+= "_IsNotSigmaTrigger";
   if (isEtaEff) stringout+= "_IsEtaEff";
@@ -132,15 +145,17 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=8, Int_t ishhCorr=0, Float_
   //  stringout+="_thinptbins";
   stringout+= ".root";
 
-
+  TCanvas *  canvasTriggerEfficiency = new TCanvas ("canvasTriggerEfficiency", "canvasTriggerEfficiency", 1300, 800);
   TCanvas *  canvasSpectrum[3];
   TCanvas *  canvasSpectrumRatio[3];
+  TCanvas *  canvasPtEfficiency[3];
   TCanvas *  canvasSpectrumRelErrorClosure[3];
   TCanvas *  canvasFitResult[3];
   TCanvas *  canvasProj[nummolt+1][3];
   TCanvas *  canvasProjRatio[nummolt+1][3];
   Float_t   Sigma[3][nummolt+1][numPtV0]={0};
   TH1F *hSpectrum[3][2][nummolt+1];
+  TH1F *hSpectrumPtEff[3][nummolt+1];
   TH1F *hSpectrumratio[3][nummolt+1];
   TH1F *hSpectrumRelErrorClosure[3][nummolt+1];
   TH1F*  hPhiFit[3][nummolt+1];
@@ -218,6 +233,10 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=8, Int_t ishhCorr=0, Float_
   //TString namePhiProjReg[3]= {"_phi_V0Sub_BulkSub_EffCorr", "_phi_V0Sub_Bulk_EffCorr", "_phi_V0Sub_JetBulk_EffCorr"};
   TString namePhiProjReg[3]= {"_phi_V0Sub_EffCorr", "_phi_V0Sub_Bulk_EffCorr", "_phi_V0Sub_JetBulk_EffCorr"};
 
+  TH1F*  fHistEventLoss;
+  TH1F*  fHistEventLossMultAll;
+  Float_t TriggerEff[nummolt+1]={0};
+
   Float_t YSup=0.01;
   Float_t YInf=-0.001;
 
@@ -226,6 +245,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=8, Int_t ishhCorr=0, Float_
 
   for (Int_t r =0; r<3; r++){
     canvasSpectrumRatio[r] = new TCanvas( Form("canvasSpectrumRatio%i",r), 	"canvasSpectrumRatio_"+ RegionTypeOld[r], 1300, 800);
+    canvasPtEfficiency[r] = new TCanvas( Form("canvasPtEfficiency%i",r), 	"canvasPtEfficiency_"+ RegionTypeOld[r], 1300, 800);
     canvasSpectrumRelErrorClosure[r] = new TCanvas( Form("canvasSpectrumRelErrorClosure%i",r), 	"canvasSpectrumRelErrorClosure_"+ RegionTypeOld[r], 1300, 800);
     canvasSpectrum[r] = new TCanvas( Form("canvasSpectrum%i",r), 	"canvasSpectrum_"+ RegionTypeOld[r], 1300, 800);
     canvasSpectrum[r]->Divide(3,2);
@@ -282,6 +302,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=8, Int_t ishhCorr=0, Float_
       if (IsParticleTrue) PathIn0+= "_IsParticleTrue";
       if (isEffMassSel) PathIn0+= "_IsEfficiencyMassSel";
       if (isMEFromHybrid) PathIn0+= "_IsMEFromHybrid";
+      if (isMEFromK0s) PathIn0+= "_IsMEFromK0s";
       if (isMEFromCorrectCentrality) PathIn0+= "_IsMEFromCorrectCentrality";
       if (isEtaEff) PathIn0+= "_IsEtaEff";
       }
@@ -324,6 +345,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=8, Int_t ishhCorr=0, Float_
       if (IsParticleTrue) PathInAC+= "_IsParticleTrue";
       if (isEffMassSel) PathInAC+= "_IsEfficiencyMassSel";
       if (isMEFromHybrid) PathInAC+= "_IsMEFromHybrid";
+      if (isMEFromK0s) PathInAC+= "_IsMEFromK0s";
       if (isMEFromCorrectCentrality) PathInAC+= "_IsMEFromCorrectCentrality";
       if (isEtaEff) PathInAC+= "_IsEtaEff";
       }
@@ -345,6 +367,20 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=8, Int_t ishhCorr=0, Float_
 
       fileinAC[i] = new TFile(PathInAC, "");
       if (!fileinAC[i]) return;
+
+      //************* here I take the trigger efficiency calculated in BarlowSys.C when running Hybrid ***********
+      if (isEventLoss==1 && i==0){
+	fHistEventLoss = (TH1F*) filein[i]->Get("fHistEventLoss");
+	fHistEventLossMultAll = (TH1F*) filein[i]->Get("fHistEventLossMultAll");
+	for(Int_t m=0; m<nummolt+1; m++){
+	  if (m!=nummolt) TriggerEff[m] = fHistEventLoss->GetBinContent(m+1);
+	  else TriggerEff[m] = fHistEventLossMultAll->GetBinContent(1);
+	  cout << TriggerEff[m] << endl;
+	}
+	canvasTriggerEfficiency->cd();
+	fHistEventLoss->Draw("");
+      }
+      //************* I have taken the trigger efficiency***********
 
       //return;
       cout << " hey there " << endl;
@@ -388,7 +424,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=8, Int_t ishhCorr=0, Float_
 	  for (Int_t b=1; b<=hSpectrumratio[r][m]->GetNbinsX(); b++){
 	    cout << "\n err uncorr" <<	    hSpectrumratio[r][m]->GetBinError(b)<<endl;
 	    Sigma[r][m][b-1] =  hSpectrumratio[r][m]->GetBinContent(b)* sqrt(pow(hSpectrum[r][0][m]->GetBinError(b)/ hSpectrum[r][0][m]->GetBinContent(b),2)+ pow(hSpectrum[r][1][m]->GetBinError(b)/ hSpectrum[r][1][m]->GetBinContent(b),2)-1./(hSpectrum[r][0][m]->GetBinContent(b)*hSpectrum[r][1][m]->GetBinContent(b))*pow(hSpectrum[r][1][m]->GetBinError(b),2));
-	    if (	    hSpectrumratio[r][m]->GetBinError(b)!=0){
+	    if (hSpectrumratio[r][m]->GetBinError(b)!=0){
 	    hSpectrumratio[r][m]->SetBinError(b, Sigma[r][m][b-1]);
 	    }
 	    cout << " err corr" <<	    hSpectrumratio[r][m]->GetBinError(b)<<endl;
@@ -469,6 +505,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=8, Int_t ishhCorr=0, Float_
 	}
 	hSpectrum[r][i][m]->Draw("same");
 	if(i==0)legend->Draw("");
+
 	canvasSpectrumRatio[r]->cd(m+1);
 	gPad->SetLeftMargin(0.15);
 	gStyle->SetOptStat(0);
@@ -477,6 +514,28 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=8, Int_t ishhCorr=0, Float_
 	hSpectrumratio[r][m]->GetYaxis()->SetTitleOffset(1.2);
 	if (i==1)	{
 	  hSpectrumratio[r][m]->Draw("same");
+	  lineat1->Draw("same");
+	}
+
+	if (isEventLoss==1 && i==1){
+	  cout << " here I am " << endl;
+	  canvasPtEfficiency[r]->cd();
+	  gPad->SetLeftMargin(0.15);
+	  gStyle->SetOptStat(0);
+	  hSpectrumPtEff[r][m] = (TH1F*) hSpectrumratio[r][m]->Clone("SpectrumEff"+RegionTypeOld[r]+ Form("_m%i",m));
+	  cout << "trigger " << TriggerEff[m] << endl;
+	  for (Int_t b=1; b<=  hSpectrumPtEff[r][m]->GetNbinsX(); b++){
+	    cout << 	    hSpectrumratio[r][m]->GetBinContent(b)<< endl;
+	    cout << " trigger eff " <<	    TriggerEff[m] << endl;
+	  }
+	  hSpectrumPtEff[r][m]->Scale(TriggerEff[m]);
+	  StyleHisto(hSpectrumPtEff[r][m], LimInfEff, LimSupEff, Colormult[m], 33, titleX, titleYEff,  title+SmoltLegend[m],  0, 0, 0);
+	  hSpectrumPtEff[r][m]->GetYaxis()->SetTitleSize(0.04);
+	  hSpectrumPtEff[r][m]->GetYaxis()->SetTitleOffset(1.2);
+	  for (Int_t b=1; b<=  hSpectrumPtEff[r][m]->GetNbinsX(); b++){
+	    cout << 	    hSpectrumPtEff[r][m]->GetBinContent(b)<< endl;
+	  }
+	  hSpectrumPtEff[r][m]->Draw("same ep");
 	  lineat1->Draw("same");
 	}
 
@@ -499,11 +558,12 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=8, Int_t ishhCorr=0, Float_
   }//end loop on regiontype
 
   TFile * fileout = new TFile(stringout, "RECREATE");
+  fileout->WriteTObject(canvasTriggerEfficiency);
   for (Int_t r =0; r<3; r++){ 
-  canvasFitResult[r]->SaveAs(stringoutpdf+"_fitresult"+RegionTypeOld[r]+".pdf");
-
+    canvasFitResult[r]->SaveAs(stringoutpdf+"_fitresult"+RegionTypeOld[r]+".pdf");
     fileout->WriteTObject(canvasSpectrum[r]);
     fileout->WriteTObject(canvasSpectrumRatio[r]);
+    if (isEventLoss==1) fileout->WriteTObject(canvasPtEfficiency[r]);
     fileout->WriteTObject(canvasSpectrumRelErrorClosure[r]);
     fileout->WriteTObject(canvasFitResult[r]);
     canvasSpectrumRatio[r]->SaveAs(stringoutpdf+"_PtRatio_"+RegionTypeOld[r]+".pdf");
