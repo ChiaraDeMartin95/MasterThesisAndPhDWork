@@ -36,10 +36,24 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void PtSpectraBis(Int_t type=8,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString year=/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"*/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/,  TString Path1 ="_Jet0.75"/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,  Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Int_t PtBinning=0, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,   Int_t sys=0, Bool_t ZeroYieldLowPt=0, Bool_t TwoFitFunctions=0, Bool_t isNormCorr=0, Bool_t isReanalysisEtaEff=1){
+void PtSpectraBis(Int_t type=8,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString year=/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"*/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/,  TString Path1 ="_Jet0.75"/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,  Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Int_t PtBinning=0, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,   Int_t sys=0, Bool_t ZeroYieldLowPt=0, Bool_t TwoFitFunctions=0, Bool_t isNormCorr=1, Bool_t isReanalysisWithEtaEff=0, Bool_t isReanalysisEtaEffComp=0, Bool_t isNormCorrFullyComputed=0, Int_t YieldComp=1){
 
-  //isReanalysisEtaEff = 1 : a comparison between spectra and yields obtained when using eta-dependent efficiency is done 
-  if (isReanalysisEtaEff && isNormCorr) {cout << "when comparing with eta-eff corrected results, I should not multiply by normalisation factor " << endl; return;}
+  //isReanalysisWithEtaEff = 1 : spectra and yields are obtained when using eta-dependent efficiency
+  //isReanalysisEtaEffComp = 1 : a comparison between spectra and yields obtained when using eta-dependent efficiency is done 
+  if (isReanalysisEtaEffComp && isNormCorr) {cout << "when comparing with eta-eff corrected results, I should not multiply by normalisation factor " << endl; return;}
+  if (isNormCorrFullyComputed==1) isNormCorr=0; //the two ways of normalization are different
+  if (YieldComp==1){ //I compare the results corrected by the complete norm factor to the preliminary ones
+    isNormCorr=1;
+    isNormCorrFullyComputed=0;
+    isReanalysisWithEtaEff=0;
+  }
+
+  if (YieldComp==2) {// I compare results corrected by complete norm factor and obtained using eta-dependence of efficiency to the preliminary ones
+    isNormCorr=1;
+    isNormCorrFullyComputed=0;
+    isReanalysisWithEtaEff=1;
+}
+  if (YieldComp>2) return; 
 
   if (TypeAnalysis>2) {cout << "sys errors not yet implemented for these regions " << endl; return;}
 
@@ -251,7 +265,12 @@ void PtSpectraBis(Int_t type=8,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
   //  stringout += "_LowPtExtr0.5";
   if (TwoFitFunctions) stringout += "_TwoFitFunctions";
   if (isNormCorr) stringout+="_isNormCorr";
-  stringout += "_Fixed";
+  if (isNormCorrFullyComputed) stringout+="_isNormCorrFullyComputed";
+  if (isReanalysisWithEtaEff) stringout+="_isEtaEff";
+  if (YieldComp ==1) stringout+="_isNormCorrFullyComputedComp";
+  if (YieldComp ==2) stringout+="_isNormCorrFullyComputedAndEtaEffComp";
+  //  stringout += "_Fixed";
+  TString PathOutPictures = stringout;
   stringout += ".root";
   TFile * fileout = new TFile(stringout, "RECREATE");
 
@@ -528,6 +547,9 @@ void PtSpectraBis(Int_t type=8,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
   TH1F* fHistSpectrumStatEtaEff[nummolt+1];
   TH1F* fHistSpectrumStatEtaEffRatio[nummolt+1];
   TH1F* fHistSpectrumStatEtaEffRatioRef[nummolt+1];
+  TH1F* fHistSpectrumStatNormCorr[nummolt+1];
+  TH1F* fHistSpectrumStatNormCorrRatio[nummolt+1];
+  TH1F* fHistSpectrumStatNormCorrRatioRef[nummolt+1];
   TH1F* fHistSpectrumSist[nummolt+1];
   TH1F* fHistSpectrum_max[nummolt+1];
   TH1F* fHistSpectrum_min[nummolt+1];
@@ -560,6 +582,8 @@ void PtSpectraBis(Int_t type=8,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
   TCanvas* canvasYield = new TCanvas ("canvasYield", "canvasYield", 1300, 800);
   TCanvas* canvasYieldEtaEff = new TCanvas ("canvasYieldEtaEff", "canvasYieldEtaEff", 1300, 800);
   TCanvas* canvasYieldEtaEffRatio = new TCanvas ("canvasYieldEtaEffRatio", "canvasYieldEtaEffRatio", 1300, 800);
+  TCanvas* canvasYieldNormCorr = new TCanvas ("canvasYieldNormCorr", "canvasYieldNormCorr", 1300, 800);
+  TCanvas* canvasYieldNormCorrRatio = new TCanvas ("canvasYieldNormCorrRatio", "canvasYieldNormCorrRatio", 1300, 800);
   TCanvas* canvasPtvsMult = new TCanvas ("canvasPtvsMult", "canvasPtvsMult", 1300, 800);
   TCanvas* canvasYieldErr = new TCanvas ("canvasYieldErr", "canvasYieldErr", 1300, 800);
 
@@ -580,6 +604,11 @@ void PtSpectraBis(Int_t type=8,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
   canvasEtaEff->Divide(3,2);
   TCanvas* canvasEtaEffRatio = new TCanvas ("canvasEtaEffRatio", "canvasEtaEffRatio", 1300, 800);
   canvasEtaEffRatio->Divide(3,2);
+
+  TCanvas* canvasNormCorr = new TCanvas ("canvasNormCorr", "canvasNormCorr", 1300, 800);
+  canvasNormCorr->Divide(3,2);
+  TCanvas* canvasNormCorrRatio = new TCanvas ("canvasNormCorrRatio", "canvasNormCorrRatio", 1300, 800);
+  canvasNormCorrRatio->Divide(3,2);
 
   TCanvas* canvasPtSpectraFit = new TCanvas ("canvasPtSpectraFit", "canvasPtSpectraFit", 1300, 800);
   canvasPtSpectraFit->Divide(3,2);
@@ -1448,23 +1477,24 @@ Int_t Varm = 0;
     }
   }
 
-  TString    PathInEtaEff;
+  TString  PathInEtaEff;
   TFile *  fileinEtaEff;
-  if (isReanalysisEtaEff){
+  PathInEtaEff = Dir+"/DATA"+year0+"/SystematicAnalysis" +year;
+  if (PtBinning>0) PathInEtaEff +=Form("_PtBinning%i",PtBinning);
+  if(type>=0){
+    PathInEtaEff +="_"+tipo[type];
+    PathInEtaEff +=Srap[israp];
+    PathInEtaEff +=SSkipAssoc[SkipAssoc];
+  }
+  //    if (IsHighPtExtr) PathInEtaEff+="_HighPtExtr";
+  PathInEtaEff+= hhCorr[ishhCorr]+"_"+RegionTypeOld[TypeAnalysis] +DataOrMC[isMC] + Form("_PtMin%.1f_IsEtaEff.root", PtTrigMin);
+  cout << "\n\n" << PathInEtaEff << endl;
+  fileinEtaEff = new TFile(PathInEtaEff, "");
+    
+  if (isReanalysisEtaEffComp){
     cout << "\n*******************************************"<<endl;
     cout<< "Reanalysis with eta-dependent efficiency " << endl;
     TLegend * legendEtaEff= new TLegend(0.6, 0.6, 0.9, 0.9);
-    PathInEtaEff = Dir+"/DATA"+year0+"/SystematicAnalysis" +year;
-    if (PtBinning>0) PathInEtaEff +=Form("_PtBinning%i",PtBinning);
-    if(type>=0){
-      PathInEtaEff +="_"+tipo[type];
-      PathInEtaEff +=Srap[israp];
-      PathInEtaEff +=SSkipAssoc[SkipAssoc];
-    }
-    //    if (IsHighPtExtr) PathInEtaEff+="_HighPtExtr";
-    PathInEtaEff+= hhCorr[ishhCorr]+"_"+RegionTypeOld[TypeAnalysis] +DataOrMC[isMC] + Form("_PtMin%.1f_IsEtaEff.root", PtTrigMin);
-    cout << "\n\n" << PathInEtaEff << endl;
-    fileinEtaEff = new TFile(PathInEtaEff, "");
     if (!fileinEtaEff) {cout << PathInEtaEff << " does not exist" << endl; return;}
 
     for(Int_t m=0; m<nummolt+1; m++){
@@ -1501,16 +1531,29 @@ Int_t Varm = 0;
 	fHistSpectrumStatEtaEffRatio[m]->SetBinError(v+1,0);
 	fHistSpectrumStatEtaEffRatioRef[m]->SetBinError(v+1, sqrt(pow(fHistSpectrumStat[m]->GetBinError(v+1),2) + pow(fHistSpectrumSistAll[m]->GetBinError(v+1),2)) / fHistSpectrumStat[m]->GetBinContent(v+1));
       }
-      StyleHisto(fHistSpectrumStatEtaEffRatio[m],0.9, 1.1, Color[TypeAnalysis],33, titleX, "Ratio to preliminary",  title+SmoltLegend[m], 0, 0, 0);
-      StyleHisto(fHistSpectrumStatEtaEffRatioRef[m],0.9, 1.1, 1, 1, titleX, "Ratio to preliminary",  title+SmoltLegend[m], 0, 0, 0);
+      StyleHisto(fHistSpectrumStatEtaEffRatio[m],0.85, 1.15, Color[TypeAnalysis],33, titleX, "Ratio to preliminary",  title+SmoltLegend[m], 0, 0, 0);
+      StyleHisto(fHistSpectrumStatEtaEffRatioRef[m],0.85, 1.15, 1, 1, titleX, "Ratio to preliminary",  title+SmoltLegend[m], 0, 0, 0);
       fHistSpectrumStatEtaEffRatioRef[m]->SetFillStyle(3001);
-      fHistSpectrumStatEtaEffRatioRef[m]->SetFillColorAlpha(kGray, 1);
+      fHistSpectrumStatEtaEffRatioRef[m]->SetFillColorAlpha(kGray+1, 1);
       fHistSpectrumStatEtaEffRatioRef[m]->Draw("p e2");
       fHistSpectrumStatEtaEffRatio[m]->Draw("same p");
     }//end loop m
   }//end loop to compare results obtained when considering eta dependence of efficiency
 
 
+  //*************** from now on spectra obtained using eta-dependent efficiency are taken! *******
+  if (isReanalysisWithEtaEff){
+    if (!fileinEtaEff) {cout << PathInEtaEff << " does not exist" << endl; return;}
+    for(Int_t m=0; m<nummolt+1; m++){
+      fHistSpectrumStat[m]    =(TH1F*)fileinEtaEff->Get(Form("fHistSpectrumPart_m%i_syst0", m)); 
+      fHistSpectrumStat[m] ->SetName("fHistSpectrum_"+Smolt[m]);
+      if (!fHistSpectrumStat[m]) {cout << " I was looking for histo in " << PathInEtaEff  << endl; return;}
+      for (Int_t b=1; b<=       fHistSpectrumSistAll[m]->GetNbinsX(); b++){
+	fHistSpectrumSistAll[m]->SetBinError(b,       fHistSpectrumSistAll[m]->GetBinError(b)/ fHistSpectrumSistAll[m]->GetBinContent(b)* fHistSpectrumStat[m]->GetBinContent(b));
+	fHistSpectrumSistAll[m]->SetBinContent(b,       fHistSpectrumStat[m]->GetBinContent(b));
+      }
+    }
+  }
   //*************spectra normalization ******************
   /*
   TString SfileNormCorr ="FinalOutput/DATA2016/MCClosureCheck_HybridtoTrue2018f1_extra_Hybrid_hK0s_vs_2018f1_extra_hK0s_PtBinning1_K0s_Eta0.8_PtMin3.0_IsParticleTrue_isEffMassSel.root";
@@ -1521,6 +1564,7 @@ Int_t Varm = 0;
   //  TH1F * fHistNormCorr[nummolt+1];
   TH1F * fHistNormCorr;
   TH1F * fHistNormCorrAllMult;
+  TLegend * legendNormCorr= new TLegend(0.6, 0.6, 0.9, 0.9);
   //  if (isNormCorr && type==0){
   if (isNormCorr){
     cout << " Normalization factor for comparison with event generators" << endl;
@@ -1534,10 +1578,9 @@ Int_t Varm = 0;
       fHistNormCorr[m] ->Sumw2();
       fHistSpectrumStat[m]->Divide(fHistNormCorr[m]);
       fHistSpectrumSistAll[m]->Divide(fHistNormCorr[m]);
-    cout << " spectrum " <<  fHistSpectrumStat[m]->GetNbinsX() << endl;
-    cout << " norm hist "<<     fHistNormCorr[m]->GetNbinsX()<< endl;
-
-    }
+      cout << " spectrum " <<  fHistSpectrumStat[m]->GetNbinsX() << endl;
+      cout << " norm hist "<<     fHistNormCorr[m]->GetNbinsX()<< endl;
+      }
     */
     //new
     fHistNormCorr = (TH1F*)fileNormCorr->Get("fHistEventLoss");
@@ -1553,6 +1596,84 @@ Int_t Varm = 0;
     fHistSpectrumSistAll[nummolt]->Scale(fHistNormCorrAllMult->GetBinContent(1)*Factorfn);
 
   }
+
+  TString SfileNormCorrFC ="FinalOutput/DATA2016/MCClosureCheck_HybridtoTrue1617GP_hK0s_Hybrid_vs_1617GP_hK0s_PtBinning1_K0s_Eta0.8_PtMin3.0.root";
+  TFile* fileNormCorrFC;
+  TH1F * fHistNormCorrFC[nummolt+1];
+  TH1F * fHistNormCorrAllMultFC[nummolt+1];
+  TString SfileNormCorrFCComp ="FinalOutput/DATA2016/PtSpectraBis_PtBinning1_K0s_Eta0.8_PtMin3.0_Jet_isNormCorrFullyComputed_Fixed.root";
+  TFile* fileNormCorrFCComp;
+
+  if (isNormCorrFullyComputed==1){ // In this case I perform a correction with the *comnplete* normalisation factor. When this is set to 0, I take the output produced here and compare it to the preliminary results
+    cout << " Normalization factor for comparison with event generators ---- fully computed!" << endl;
+    cout << " from file " << SfileNormCorrFC << endl;
+    fileNormCorrFC=new TFile(SfileNormCorrFC,"");
+    if (!fileNormCorrFC) {cout << "file norm not there " << endl; return;}
+    for(Int_t m=0; m<nummolt+1; m++){
+      fHistNormCorrFC[m] = (TH1F*)fileNormCorrFC->Get("SpectrumRatio"+RegionTypeOld[TypeAnalysis]+Form("_m%i",m));
+      fHistSpectrumStat[m]->Divide(fHistNormCorrFC[m]);
+      for (Int_t b=1; b<= fHistSpectrumSistAll[m]->GetNbinsX(); b++){ //I only have to *scale* sist error
+	cout <<       fHistNormCorrFC[m]->GetBinContent(b) << endl;
+	fHistSpectrumSistAll[m]->SetBinContent(b,fHistSpectrumSistAll[m]->GetBinContent(b)/fHistNormCorrFC[m]->GetBinContent(b));
+	fHistSpectrumSistAll[m]->SetBinError(b,fHistSpectrumSistAll[m]->GetBinError(b)/fHistNormCorrFC[m]->GetBinContent(b));
+      }
+    }
+  }
+  else if (isNormCorr && YieldComp!=0) { //comparison between preliminary results and results obtained by correcting for the full norm factor
+    if (YieldComp==1) {
+      cout << " comparison between preliminary results and results obtained by correcting for the full norm factor " << endl;
+      SfileNormCorrFCComp ="FinalOutput/DATA2016/PtSpectraBis_PtBinning1_K0s_Eta0.8_PtMin3.0_"+ RegionType[TypeAnalysis] +"_isNormCorrFullyComputed.root";
+    }
+    else if (YieldComp==2) {
+      cout << " comparison between preliminary results and results obtained by correcting for the full norm factor and by eta eff" << endl;
+      SfileNormCorrFCComp ="FinalOutput/DATA2016/PtSpectraBis_PtBinning1_K0s_Eta0.8_PtMin3.0_"+ RegionType[TypeAnalysis]+"_isNormCorrFullyComputed_isEtaEff.root";
+    }
+    fileNormCorrFCComp=new TFile(SfileNormCorrFCComp,"");
+    if (!fileNormCorrFCComp) {cout << "file norm not there " << endl; return;}
+    for(Int_t m=0; m<nummolt+1; m++){
+      fHistSpectrumStatNormCorr[m]    =(TH1F*)fileNormCorrFCComp->Get("fHistSpectrum_"+Smolt[m]); 
+      if (!fHistSpectrumStatNormCorr[m]) {cout << " I was looking for histo fHistSpectrum_"<<Smolt[m]<< " in " << SfileNormCorrFCComp  << endl; return;}
+
+      cout << " first canvas " << endl;
+      canvasNormCorr->cd(m+1);
+      gPad->SetLogy();
+      gPad->SetLeftMargin(0.15);
+      StyleHisto(fHistSpectrumStat[m], LimInf, LimSup, Color[TypeAnalysis], 1, titleX, titleY,  title+SmoltLegend[m], 0, 0, 0);
+      if (m==0)      legendNormCorr->AddEntry(fHistSpectrumStat[m], "Default", "ple");
+      fHistSpectrumStat[m]->DrawClone("ep");
+      fHistSpectrumSistAll[m]->SetFillStyle(0);
+      fHistSpectrumSistAll[m]->DrawClone("same e2");
+      StyleHisto(fHistSpectrumStatNormCorr[m], LimInf, LimSup, 1, 1, titleX, titleY,  title+SmoltLegend[m], 0, 0, 0);
+      if (m==0)      legendNormCorr->AddEntry(fHistSpectrumStatNormCorr[m], "Reanalysis", "ple");
+      fHistSpectrumStatNormCorr[m]->Draw("same ep");
+      legendNormCorr->Draw("");
+
+      cout << " second canvas " << endl;
+      canvasNormCorrRatio->cd(m+1);
+      gPad->SetLeftMargin(0.15);
+      fHistSpectrumStatNormCorrRatio[m] =(TH1F*) fHistSpectrumStatNormCorr[m] -> Clone(Form("fHistSpectrumNormCorrRatio_m%i", m));
+      fHistSpectrumStatNormCorrRatioRef[m] =(TH1F*) fHistSpectrumStat[m] -> Clone(Form("fHistSpectrumNormCorrRatioRef_m%i", m));
+      fHistSpectrumStatNormCorrRatio[m]->Divide(fHistSpectrumStat[m]);
+      fHistSpectrumStatNormCorrRatioRef[m]->Divide(fHistSpectrumStat[m]);
+
+      for(Int_t v=PtV0Min; v < numPtV0Max; v++){
+	if (v==1 && TypeAnalysis==0 && type==0 && (m==0 || m==1 || m==3)) continue;
+	if (v==1 && TypeAnalysis==0 && type==8) continue;
+	if (NPtV0[v] == 4 && TypeAnalysis==0 && type==8 && m==4) continue;
+	fHistSpectrumStatNormCorrRatio[m]->SetBinError(v+1,0);
+	fHistSpectrumStatNormCorrRatioRef[m]->SetBinError(v+1, sqrt(pow(fHistSpectrumStat[m]->GetBinError(v+1),2) + pow(fHistSpectrumSistAll[m]->GetBinError(v+1),2)) / fHistSpectrumStat[m]->GetBinContent(v+1));
+      }
+      StyleHisto(fHistSpectrumStatNormCorrRatio[m],0.8, 1.2, Color[TypeAnalysis],33, titleX, "Ratio to preliminary",  title+SmoltLegend[m], 0, 0, 0);
+      StyleHisto(fHistSpectrumStatNormCorrRatioRef[m],0.8, 1.2, 1, 1, titleX, "Ratio to preliminary",  title+SmoltLegend[m], 0, 0, 0);
+      fHistSpectrumStatNormCorrRatioRef[m]->SetFillStyle(3001);
+      fHistSpectrumStatNormCorrRatioRef[m]->SetFillColorAlpha(kGray+1, 1);
+      fHistSpectrumStatNormCorrRatioRef[m]->Draw("p e2");
+      fHistSpectrumStatNormCorrRatio[m]->Draw("same p");
+    }//end loop m
+
+
+  }
+
   //  return;
   //end of spectra normalization ***********************
 
@@ -2074,7 +2195,7 @@ Int_t Varm = 0;
   if(type==0) titlePtvsMultY=titlePtvsMultYType[0];
   else if(type==8) titlePtvsMultY=titlePtvsMultYType[1];
   TString titleYield[3]={"In-jet", "Out-of-jet", "Inclusive"};
-  TH1F* fHistYieldStat=new TH1F ("fHistYieldStat","fHistYieldStat",150,0,30);
+  TH1F* fHistYieldStat=new TH1F ("fHistYieldStatD","fHistYieldStatD",150,0,30);
   TH1F* fHistYieldSist=new TH1F ("fHistYieldSist","fHistYieldSist",150,0,30);
   TH1F* fHistPtvsMultStat = new TH1F ("fHistPtvsMultStat","fHistPtvsMultStat",150,0,30);
   TH1F* fHistPtvsMultSist = new TH1F ("fHistPtvsMultSist","fHistPtvsMultSist",150,0,30);
@@ -2090,6 +2211,9 @@ Int_t Varm = 0;
   TH1F* fHistYieldStatEtaEff=new TH1F ("fHistYieldStatEtaEff","fHistYieldStatEtaEff",150,0,30);
   TH1F* fHistYieldStatEtaEffRatio;
   TH1F* fHistYieldStatEtaEffRatioRef;
+  TH1F* fHistYieldStatNormCorr=new TH1F ("fHistYieldStatNormCorr","fHistYieldStatNormCorr",150,0,30);
+  TH1F* fHistYieldStatNormCorrRatio;
+  TH1F* fHistYieldStatNormCorrRatioRef;
 
   Float_t   mult[nummolt+1]={21.2, 16.17, 11.4625, 7.135, 3.33, 6.94};
 
@@ -2191,39 +2315,84 @@ Int_t Varm = 0;
   legendYield->Draw("");
   canvasYield->SaveAs("provay.pdf");
 
-  if (isReanalysisEtaEff && !isNormCorr){ //the yield obtained from reanalysis has not been multiplied by norm factor
-  fHistYieldStatEtaEff    =(TH1F*)fileinEtaEff->Get("fHistYieldvsErrSoloStat"); 
-  fHistYieldStatEtaEff->SetName("fHistYieldvsErrSoloStatEtaEff");
-  if (!fHistYieldStatEtaEff) {cout << " I was looking for histo in " << PathInEtaEff  << endl; return;}
-  fHistYieldStatEtaEff->Rebin(2); //binning is different
+  if (isReanalysisEtaEffComp && !isNormCorr){ //the yield obtained from reanalysis has not been multiplied by norm factor
+    fHistYieldStatEtaEff    =(TH1F*)fileinEtaEff->Get("fHistYieldvsErrSoloStat"); 
+    fHistYieldStatEtaEff->SetName("fHistYieldvsErrSoloStatEtaEff");
+    if (!fHistYieldStatEtaEff) {cout << " I was looking for histo in " << PathInEtaEff  << endl; return;}
+    fHistYieldStatEtaEff->Rebin(2); //binning is different
 
-  canvasYieldEtaEff->cd();
-  StyleHisto(fHistYieldStat, LimInfYield, LimSupYield, Color[TypeAnalysis], 33, titleYieldX, titleYieldY, titleYield[TypeAnalysis] + " yield vs multiplicity",1, 0, 25);
-  StyleHisto(fHistYieldStatEtaEff, LimInfYield, LimSupYield, 1, 33, titleYieldX, titleYieldY, titleYield[TypeAnalysis] + " yield vs multiplicity",1, 0, 25);
-  fHistYieldStat->DrawClone("e");
-  fHistYieldStatEtaEff  ->DrawClone("e same");  
+    canvasYieldEtaEff->cd();
+    StyleHisto(fHistYieldStat, LimInfYield, LimSupYield, Color[TypeAnalysis], 33, titleYieldX, titleYieldY, titleYield[TypeAnalysis] + " yield vs multiplicity",1, 0, 25);
+    StyleHisto(fHistYieldStatEtaEff, LimInfYield, LimSupYield, 1, 33, titleYieldX, titleYieldY, titleYield[TypeAnalysis] + " yield vs multiplicity",1, 0, 25);
+    fHistYieldStat->DrawClone("e");
+    fHistYieldStatEtaEff  ->DrawClone("e same");  
 
-  canvasYieldEtaEffRatio->cd();
-  fHistYieldStatEtaEffRatio = (TH1F*) fHistYieldStatEtaEff->Clone("fHistYieldvsErrSoloStatEtaEffRatio");
-  fHistYieldStatEtaEffRatioRef = (TH1F*) fHistYieldStat->Clone("fHistYieldvsErrSoloStatEtaEffRatioRef");
-  fHistYieldStatEtaEffRatioRef->Divide(fHistYieldStat);
-  fHistYieldStatEtaEffRatio->Divide(fHistYieldStat); 
-  cout << "\n\n*********************\n\n\n" << endl;
-  for (Int_t b=1; b<= fHistYieldStatEtaEff->GetNbinsX(); b++){
-    fHistYieldStatEtaEffRatio->SetBinError(b, 0);
-    if (fHistYieldStat->GetBinContent(b) !=0){
-    fHistYieldStatEtaEffRatioRef->SetBinError(b, sqrt(pow(fHistYieldStat->GetBinError(b),2) + pow(fHistYieldSist->GetBinError(b),2) ) / fHistYieldStat->GetBinContent(b));
+    canvasYieldEtaEffRatio->cd();
+    fHistYieldStatEtaEffRatio = (TH1F*) fHistYieldStatEtaEff->Clone("fHistYieldvsErrSoloStatEtaEffRatio");
+    fHistYieldStatEtaEffRatioRef = (TH1F*) fHistYieldStat->Clone("fHistYieldvsErrSoloStatEtaEffRatioRef");
+    fHistYieldStatEtaEffRatioRef->Divide(fHistYieldStat);
+    fHistYieldStatEtaEffRatio->Divide(fHistYieldStat); 
+    cout << "\n\n*********************\n\n\n" << endl;
+    for (Int_t b=1; b<= fHistYieldStatEtaEff->GetNbinsX(); b++){
+      fHistYieldStatEtaEffRatio->SetBinError(b, 0);
+      if (fHistYieldStat->GetBinContent(b) !=0){
+	fHistYieldStatEtaEffRatioRef->SetBinError(b, sqrt(pow(fHistYieldStat->GetBinError(b),2) + pow(fHistYieldSist->GetBinError(b),2) ) / fHistYieldStat->GetBinContent(b));
+      }
     }
+
+    StyleHisto(fHistYieldStatEtaEffRatio, 0.8, 1.2, Color[TypeAnalysis], 33, titleYieldX,"Ratio", titleYield[TypeAnalysis] + " yield ratio to preliminary vs multiplicity",1, 0, 25);
+    StyleHisto(fHistYieldStatEtaEffRatioRef, 0.8, 1.2, 1, 1, titleYieldX,"Ratio", titleYield[TypeAnalysis] + " yield ratio to preliminary vs multiplicity",1, 0, 25);
+    fHistYieldStatEtaEffRatioRef->SetFillStyle(3001);
+    fHistYieldStatEtaEffRatioRef->SetFillColorAlpha(kGray+1, 1);
+    fHistYieldStatEtaEffRatioRef->DrawClone("p e2");
+    fHistYieldStatEtaEffRatio   ->DrawClone("p same");  
+
   }
 
-  StyleHisto(fHistYieldStatEtaEffRatio, 0.8, 1.2, Color[TypeAnalysis], 33, titleYieldX,"Ratio", titleYield[TypeAnalysis] + " yield ratio to preliminary vs multiplicity",1, 0, 25);
-  StyleHisto(fHistYieldStatEtaEffRatioRef, 0.8, 1.2, 1, 1, titleYieldX,"Ratio", titleYield[TypeAnalysis] + " yield ratio to preliminary vs multiplicity",1, 0, 25);
-  fHistYieldStatEtaEffRatioRef->SetFillStyle(3001);
-  fHistYieldStatEtaEffRatioRef->SetFillColorAlpha(kGray, 1);
-  fHistYieldStatEtaEffRatioRef->DrawClone("p e2");
-  fHistYieldStatEtaEffRatio   ->DrawClone("p same");  
+  if (isNormCorr && YieldComp!=0){ //the yield obtained from reanalysis has not been multiplied by norm factor
+    for (Int_t b=1; b<= fHistYieldStat->GetNbinsX(); b++){
+      if (fHistYieldStat->GetBinContent(b)!=0){
+      cout <<     fHistYieldStat->GetBinContent(b) << endl;
+      }
+    }
+    fHistYieldStatNormCorr=(TH1F*)fileNormCorrFCComp->Get("fHistYieldStat"); 
+    if (!fHistYieldStatNormCorr) {cout << " I was looking for histo in " << SfileNormCorrFCComp  << endl; return;}
+    fHistYieldStatNormCorr->SetName("fHistYieldStatNormCorrFullyComputed");
+    for (Int_t b=1; b<= fHistYieldStat->GetNbinsX(); b++){
+      if (fHistYieldStat->GetBinContent(b)!=0){
+      cout <<     fHistYieldStatNormCorr->GetBinContent(b) << endl;
+      }
+    }
+
+    canvasYieldNormCorr->cd();
+    StyleHisto(fHistYieldStat, LimInfYield, LimSupYield, Color[TypeAnalysis], 33, titleYieldX, titleYieldY, titleYield[TypeAnalysis] + " yield vs multiplicity",1, 0, 25);
+    StyleHisto(fHistYieldStatNormCorr, LimInfYield, LimSupYield, 1, 33, titleYieldX, titleYieldY, titleYield[TypeAnalysis] + " yield vs multiplicity",1, 0, 25);
+    fHistYieldStat->DrawClone("e");
+    fHistYieldStatNormCorr  ->DrawClone("e same");  
+
+    canvasYieldNormCorrRatio->cd();
+    fHistYieldStatNormCorrRatio = (TH1F*) fHistYieldStatNormCorr->Clone("fHistYieldvsErrSoloStatNormCorrRatio");
+    fHistYieldStatNormCorrRatioRef = (TH1F*) fHistYieldStat->Clone("fHistYieldvsErrSoloStatNormCorrRatioRef");
+    fHistYieldStatNormCorrRatioRef->Divide(fHistYieldStat);
+    fHistYieldStatNormCorrRatio->Divide(fHistYieldStat); 
+    cout << "\n\n*********************\n\n\n" << endl;
+    for (Int_t b=1; b<= fHistYieldStatNormCorr->GetNbinsX(); b++){
+      fHistYieldStatNormCorrRatio->SetBinError(b, 0);
+      if (fHistYieldStat->GetBinContent(b) !=0){
+	fHistYieldStatNormCorrRatioRef->SetBinError(b, sqrt(pow(fHistYieldStat->GetBinError(b),2) + pow(fHistYieldSist->GetBinError(b),2) ) / fHistYieldStat->GetBinContent(b));
+      }
+    }
+
+    StyleHisto(fHistYieldStatNormCorrRatio, 0.8, 1.2, Color[TypeAnalysis], 33, titleYieldX,"Ratio", titleYield[TypeAnalysis] + " yield ratio to preliminary vs multiplicity",1, 0, 25);
+    StyleHisto(fHistYieldStatNormCorrRatioRef, 0.8, 1.2, 1, 1, titleYieldX,"Ratio", titleYield[TypeAnalysis] + " yield ratio to preliminary vs multiplicity",1, 0, 25);
+    fHistYieldStatNormCorrRatioRef->SetFillStyle(3001);
+    fHistYieldStatNormCorrRatioRef->SetFillColorAlpha(kGray+1, 1);
+    fHistYieldStatNormCorrRatioRef->DrawClone("p e2");
+    fHistYieldStatNormCorrRatio   ->DrawClone("p same");  
 
   }
+  fHistYieldStat->SetName("fHistYieldStat");
+  fHistYieldStat->SetTitle("fHistYieldStat");
 
   canvasPtvsMult->cd();
   StyleHisto(fHistPtvsMultStat, LimInfPtvsMult, LimSupPtvsMult, Color[TypeAnalysis], 1, titleYieldX, titlePtvsMultY, "<p_{T}> vs multiplicity "+ RegionTypeNew[TypeAnalysis],1, 0, 25);
@@ -2283,7 +2452,12 @@ Int_t Varm = 0;
 
   fileout->WriteTObject(canvasEtaEff);
   fileout->WriteTObject(canvasEtaEffRatio);
-
+  if (YieldComp!=0){
+  fileout->WriteTObject(canvasNormCorr);
+  fileout->WriteTObject(canvasNormCorrRatio);
+  fileout->WriteTObject(canvasYieldNormCorr);
+  fileout->WriteTObject(canvasYieldNormCorrRatio);
+  }
   fileout->WriteTObject(canvasYield);
   fileout->WriteTObject(canvasYieldEtaEff);
   fileout->WriteTObject(canvasYieldEtaEffRatio);
@@ -2337,11 +2511,17 @@ Int_t Varm = 0;
     if (isNormCorr)    fileout->WriteTObject(      fHistNormCorr);
   }
 
-  TString DirPicture = "PictureForNote/";
-  if (!isNormCorr) DirPicture = "PictureForNote/IsNotNormCorr_";
+  //  TString DirPicture = "PictureForNote/";
+  //if (!isNormCorr) DirPicture = "PictureForNote/IsNotNormCorr_";
+  TString DirPicture = PathOutPictures;
   canvasEtaEff->SaveAs(DirPicture+"PtSpectraEtaEffComp"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
   canvasEtaEffRatio->SaveAs(DirPicture+"PtSpectraEtaEffCompRatio"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
-
+  if (YieldComp!=0){
+  canvasNormCorr->SaveAs(DirPicture+"PtSpectraNormCorrComp.pdf");
+  canvasNormCorrRatio->SaveAs(DirPicture+"PtSpectraNormCorrCompRatio.pdf");
+  canvasYieldNormCorr->SaveAs(DirPicture+"YieldvsMultNormCorrComp.pdf");
+  canvasYieldNormCorrRatio->SaveAs(DirPicture+"YieldvsMultNormCorrCompRatio.pdf");
+  }
   if (ZeroYieldLowPt && TypeAnalysis==0){
   canvasYield->SaveAs(DirPicture+"YieldvsMult"+tipo[type]+RegionType[TypeAnalysis]+"_ZeroYieldLowPt.pdf");
   canvasYieldErr->SaveAs(DirPicture+"YieldvsMultErr"+tipo[type]+RegionType[TypeAnalysis]+"_ZeroYieldLowPt.pdf");
@@ -2365,7 +2545,7 @@ Int_t Varm = 0;
   if (TypeAnalysis==0)  cout <<" q " <<  pol0->GetParameter(0) << " red chisq " << pol0->GetChisquare()/pol0->GetNDF() << endl;
   cout << "starting from the file(s) "  << PathInDef<< endl;
   if (type==0 && TypeAnalysis==0)  cout << "starting from the file(s) "  << PathInpol0<< endl;
-  if (isReanalysisEtaEff) cout << " path in from where I get the files corrected by eta-dependent eff: " << PathInEtaEff << endl;
+  if (isReanalysisEtaEffComp) cout << " path in from where I get the files corrected by eta-dependent eff: " << PathInEtaEff << endl;
   cout << " I have created the file " << stringout << endl;
 }
 
