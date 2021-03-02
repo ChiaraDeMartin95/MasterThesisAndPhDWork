@@ -580,6 +580,27 @@ void AliAnalysisTaskCorrelationhhK0s::ProcessMCParticles(Bool_t Generated, AliAO
 	  if (fV0=="Lambda" && TMath::Abs(particle->GetPdgCode())==PDGCodeAssoc[ParticleType]) PAntiP=1;
 	  if (fV0=="Lambda" && TMath::Abs(particle->GetPdgCode())==-PDGCodeAssoc[ParticleType]) PAntiP=-1;
 
+	  //in order not to take as generated K0s the mothers of the trigger itself ***************
+	  Int_t labelPos = particle->GetDaughterLabel(0);
+	  Int_t labelNeg = particle->GetDaughterLabel(1);
+	  AliAODMCParticle *particlePos = static_cast<AliAODMCParticle*>(AODMCTrackArraybis->At(TMath::Abs(labelPos)));
+	  AliAODMCParticle *particleNeg = static_cast<AliAODMCParticle*>(AODMCTrackArraybis->At(TMath::Abs(labelNeg)));
+
+	  //	  cout << "\n\n\n\n**************************************************************************************************" << endl;
+	  //	  cout << "labelPtTMax " << track->GetLabel() << " label+ " << labelPos << " label- " <<labelNeg << endl;
+	  //	  cout << "pt trigger " <<   track->Pt() << " pt+ " << particlePos->Pt() << " pt- " <<particleNeg->Pt() << endl;    
+
+	  if ((track->GetLabel() == labelPos && TMath::Abs(track->Pt() - particlePos->Pt()) < 0.00001) || (track->GetLabel() == labelNeg) && TMath::Abs(track->Pt() - particleNeg->Pt()) <0.00001 )  {	    
+	    //continue;
+	  }
+	  //***************************************************************************************
+
+	  //in order to calculate efficiency starting from events with a PRIMARY trigger particle
+	  Int_t labelTrack = track->GetLabel();
+	  AliAODMCParticle * particleTrack = static_cast<AliAODMCParticle*>(AODMCTrackArraybis->At(TMath::Abs(labelTrack)));
+	  if (!particleTrack->IsPhysicalPrimary()) {
+	    continue;
+	  }
 	}
 	else if(ishhCorr){ //if associated particles are hadrons
 	  if((particle->Charge())==0) continue;	
@@ -588,7 +609,6 @@ void AliAnalysisTaskCorrelationhhK0s::ProcessMCParticles(Bool_t Generated, AliAO
 	  if ((particle->GetLabel()) == (static_cast<AliAODMCParticle*>(AODMCTrackArraybis->At(TMath::Abs(track->GetLabel()))))->GetLabel() ) continue;
 	  if (particle->Pt() == (static_cast<AliAODMCParticle*>(AODMCTrackArraybis->At(TMath::Abs(track->GetLabel()))))->Pt() ) continue; 
 	}
-
 
 	Float_t EtaAssoc = fEtaV0Assoc;
 	if (ishhCorr) EtaAssoc = fEtahAssoc;
@@ -1822,6 +1842,8 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
     else if(lPercentiles < 0.005) centralityBin=18;
     else if(lPercentiles < 0.01) centralityBin=17;
     else if(lPercentiles < 0.05) centralityBin=16;
+    else if(lPercentiles < 0.1) centralityBin=15;
+    else centralityBin = 14;
   }
   else {
     if(lPercentiles < 5.0) centralityBin=19;  // changed <= with < to be consistent with histogram binning, except last bin 
@@ -2642,7 +2664,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 
     if(fReadMCTruth){
       if (fMCEvent){
-	ProcessMCParticles(Generated, track, labelPrimOrSec, lPercentiles, isV0, 0, ptTriggerMassimoAll, fIshhCorr, VPdgTrig, VParticleTrigLabel);
+	ProcessMCParticles(Generated, trackPtTMax, labelPrimOrSec, lPercentiles, isV0, 0, ptTriggerMassimoAll, fIshhCorr, VPdgTrig, VParticleTrigLabel);
       }
     }
   
@@ -2954,11 +2976,15 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	// if(TMath::Abs((v0->MassLambda() - massLambda))< 0.005) continue;
 	// if(TMath::Abs((v0->MassAntiLambda() - massLambda))< 0.005) continue;
 
-	if (isHybridMCTruth){
-	  //	  cout << "\n\n" << endl;
-	  //	  cout << " label+ " << labelPos << " label- " << labelNeg << " label trigger " << labelPtTMax<< endl;
-	  if (labelPtTMax == labelPos || labelPtTMax == labelNeg) continue; //to avoid autocorrelations when pT, K0s > pt,Trigg
+	
+	if ((labelPtTMax == labelPos && TMath::Abs(ptTriggerMassimoDati - prongTrackPos->Pt()) < 0.00001) || (labelPtTMax == labelNeg) && TMath::Abs(ptTriggerMassimoDati - prongTrackNeg->Pt()) <0.00001 )  {
+	  //cout << "\n\n********************************************************************************************************************" << endl;
+	  //	  cout << "labelPtTMax " << labelPtTMax << " label+ " << labelPos << " label- " <<labelNeg << endl;
+	  //	  cout << "pt trigger " << 	ptTriggerMassimoDati << " pt+ " << prongTrackPos->Pt() << " pt- " <<prongTrackNeg->Pt() << endl;    
+	  //	  cout << "********************************************************************************************************************\n\n" << endl;
+	  //	  continue; //to avoid autocorrelations when pT, K0s > pt,Trigg
 	}
+	
 	fHistEventV0->Fill(16);    
 
 	//V0 daugthter DCA cut (just a check)
@@ -2970,25 +2996,28 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	Bool_t  DCAxyDaughters=kFALSE;
 	//      cout << " prongtrackneg id " << prongTrackNeg->GetID() << " prong track pos id " << prongTrackPos->GetID() << endl;
 
-	//      cout << " \ngetting track parameters for positive and negative V0 daughter " << endl;
+	//	cout << " \ngetting track parameters for positive and negative V0 daughter " << endl;
 	prongTrackPos->GetImpactParameters(&DCAxyPos, &DCAzPos);
 	prongTrackNeg->GetImpactParameters(&DCAxyNeg, &DCAzNeg);
-	//      cout << " DCAxyPos: "  << DCAxyPos <<  " DCAxyNeg: "  << DCAxyNeg <<  " DCAzPos: "  << DCAzPos <<  " DCAzNeg: "  << DCAzNeg <<endl;
+	//	cout << " DCAxyPos: "  << DCAxyPos <<  " DCAxyNeg: "  << DCAxyNeg <<  " DCAzPos: "  << DCAzPos <<  " DCAzNeg: "  << DCAzNeg <<endl;
       
-	//      cout << "\n******* getting track parameters for positive V0 daughter (globaltrack)" << endl;
+	//	cout << "\n******* getting track parameters for positive V0 daughter (globaltrack)" << endl;
 	etpPos.CopyFromVTrack(prongTrackPos); 
 	etpPos.PropagateToDCA(vertexmain,(InputEvent())->GetMagneticField(),100.,dzgPos,covargPos);    
 	DCAxyPosGlobal = dzgPos[0];
 	DCAzPosGlobal = dzgPos[1];
-	//      cout << " from prongtrackneg: DCAxyPosGlobal: "  << DCAxyPosGlobal <<  " DCAxyNegGlobal: "  << DCAxyNegGlobal <<  " DCAzPosGlobal: "  << DCAzPosGlobal <<  " DCAzNegGlobal: "  << DCAzNegGlobal <<endl;
+	//	cout << " from prongtrackneg: DCAxyPosGlobal: "  << DCAxyPosGlobal <<  " DCAxyNegGlobal: "  << DCAxyNegGlobal <<  " DCAzPosGlobal: "  << DCAzPosGlobal <<  " DCAzNegGlobal: "  << DCAzNegGlobal <<endl;
 
-	//      cout << "\n****** getting track parameters for negative V0 daughter (globaltrack)" << endl;
+	//	cout << "\n****** getting track parameters for negative V0 daughter (globaltrack)" << endl;
 	etpNeg.CopyFromVTrack(prongTrackNeg); 
 	etpNeg.PropagateToDCA(vertexmain,(InputEvent())->GetMagneticField(),100.,dzgNeg,covargNeg);    
 	DCAxyNegGlobal = dzgNeg[0];
 	DCAzNegGlobal = dzgNeg[1];
-	//      cout << " from prongtrackneg: DCAxyPosGlobal: "  << DCAxyPosGlobal <<  " DCAxyNegGlobal: "  << DCAxyNegGlobal <<  " DCAzPosGlobal: "  << DCAzPosGlobal <<  " DCAzNegGlobal: "  << DCAzNegGlobal <<endl;
+	//	cout << " from prongtrackneg: DCAxyPosGlobal: "  << DCAxyPosGlobal <<  " DCAxyNegGlobal: "  << DCAxyNegGlobal <<  " DCAzPosGlobal: "  << DCAzPosGlobal <<  " DCAzNegGlobal: "  << DCAzNegGlobal <<endl;
 
+	//	cout << " comparing user calculate dcatoPV to the one given by the method v0->DcaPosToPrimVertex()"<< endl;
+	//	cout << "pos " << sqrt(pow(DCAxyPosGlobal,2) + pow(DCAzPosGlobal,2)) << " vs " << v0->DcaPosToPrimVertex() << endl;
+	//	cout << "neg " << sqrt(pow(DCAxyNegGlobal,2) + pow(DCAzNegGlobal,2)) << " vs " << v0->DcaNegToPrimVertex() << endl;
 	/*
 	  Float_t fPositionPos[2]={-999.};
 	  prongTrackPos->GetPosition(fPositionPos);
@@ -3074,16 +3103,18 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 		  //
 		}
 
-		if (TMath::Abs(rapidityV0)< 0.5){
-		  fHistSelectedV0PtTMaxPhi[0]->Fill(ptTriggerMassimoDati, v0->Phi(), lPercentiles);
-		  fHistSelectedV0PtTMaxEta[0]->Fill(ptTriggerMassimoDati, v0->Eta(), lPercentiles);
-		  fHistSelectedV0PtPtTMax[0]->Fill(v0->Pt(),ptTriggerMassimoDati , lPercentiles);
-		  fHistSelectedV0PtEta[0]->Fill(v0->Pt(), v0->Eta() , lPercentiles);
-		  fHistSelectedGenV0PtPtTMax[0]->Fill(MotherPos->Pt(),ptTriggerMassimoDati , lPercentiles);
-		}
+		Int_t labelTrack = trackPtTMax->GetLabel();
+		AliAODMCParticle * particleTrack = static_cast<AliAODMCParticle*>(AODMCTrackArray->At(TMath::Abs(labelTrack)));
+		  if (TMath::Abs(rapidityV0)< 0.5){
+		    fHistSelectedV0PtTMaxPhi[0]->Fill(ptTriggerMassimoDati, v0->Phi(), lPercentiles);
+		    fHistSelectedV0PtTMaxEta[0]->Fill(ptTriggerMassimoDati, v0->Eta(), lPercentiles);
+		    fHistSelectedV0PtPtTMax[0]->Fill(v0->Pt(),ptTriggerMassimoDati , lPercentiles);
+		    fHistSelectedV0PtEta[0]->Fill(v0->Pt(), v0->Eta() , lPercentiles);
+		    fHistSelectedGenV0PtPtTMax[0]->Fill(MotherPos->Pt(),ptTriggerMassimoDati , lPercentiles);
+		  }
 
-		labelPrimOrSecV0=1;
-		NumberSecondParticleRecoTrue++;
+		  labelPrimOrSecV0=1;
+		  NumberSecondParticleRecoTrue++;
 	      }
 	      else if(MotherPos->IsSecondaryFromWeakDecay())      labelPrimOrSecV0=2;
 	      else if(MotherPos->IsSecondaryFromMaterial())      labelPrimOrSecV0=3;
@@ -3174,6 +3205,12 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	  particlePos = static_cast<AliAODMCParticle*>(AODMCTrackArray->At(TMath::Abs(labelPos)));
 	  particleNeg = static_cast<AliAODMCParticle*>(AODMCTrackArray->At(TMath::Abs(labelNeg)));
 	  
+	  if (isHybridMCTruth){
+	    if ((labelPtTMax == labelPos && TMath::Abs(ptTriggerMassimoDati - particlePos->Pt()) < 0.00001) || (labelPtTMax == labelNeg) && TMath::Abs(ptTriggerMassimoDati - particleNeg->Pt()) <0.00001 )  {	    
+	      continue; //to avoid autocorrelations when pT, K0s > pt,Trigg
+	    }
+	  }
+	
 	  //	  labelPos =  (particleV0->GetDaughterFirst());
 	  //	  labelNeg =  (particleV0->GetDaughterLast());
 	  //cout << "label pos " << labelPos << " labelNeg " << labelNeg << " q+ " << particlePos->Charge() << " q- " << particleNeg->Charge() << endl;
