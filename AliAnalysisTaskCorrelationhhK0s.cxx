@@ -580,27 +580,32 @@ void AliAnalysisTaskCorrelationhhK0s::ProcessMCParticles(Bool_t Generated, AliAO
 	  if (fV0=="Lambda" && TMath::Abs(particle->GetPdgCode())==PDGCodeAssoc[ParticleType]) PAntiP=1;
 	  if (fV0=="Lambda" && TMath::Abs(particle->GetPdgCode())==-PDGCodeAssoc[ParticleType]) PAntiP=-1;
 
-	  //in order not to take as generated K0s the mothers of the trigger itself ***************
+	  //********************************************************************************
+	  //Different options which can be applied in order not to take as generated K0s the mothers of the trigger itself:
 	  Int_t labelPos = particle->GetDaughterLabel(0);
 	  Int_t labelNeg = particle->GetDaughterLabel(1);
 	  AliAODMCParticle *particlePos = static_cast<AliAODMCParticle*>(AODMCTrackArraybis->At(TMath::Abs(labelPos)));
 	  AliAODMCParticle *particleNeg = static_cast<AliAODMCParticle*>(AODMCTrackArraybis->At(TMath::Abs(labelNeg)));
+	  AliAODMCParticle *particleTrigger = static_cast<AliAODMCParticle*>(AODMCTrackArraybis->At(TMath::Abs(track->GetLabel())));
 
-	  //	  cout << "\n\n\n\n**************************************************************************************************" << endl;
-	  //	  cout << "labelPtTMax " << track->GetLabel() << " label+ " << labelPos << " label- " <<labelNeg << endl;
-	  //	  cout << "pt trigger " <<   track->Pt() << " pt+ " << particlePos->Pt() << " pt- " <<particleNeg->Pt() << endl;    
-
-	  if ((track->GetLabel() == labelPos && TMath::Abs(track->Pt() - particlePos->Pt()) < 0.00001) || (track->GetLabel() == labelNeg) && TMath::Abs(track->Pt() - particleNeg->Pt()) <0.00001 )  {	    
+	  //OPTION 1: remove generated K0s which are mothers to the h of the considered event
+	  if (( particleTrigger->GetLabel() == labelPos && TMath::Abs(particleTrigger->Pt() - particlePos->Pt()) < 0.00001 ) || ( particleTrigger->GetLabel() == labelNeg && TMath::Abs(particleTrigger->Pt() - particleNeg->Pt()) <0.00001 ))  {	    
 	    //continue;
 	  }
-	  //***************************************************************************************
 
-	  //in order to calculate efficiency starting from events with a PRIMARY trigger particle
-	  Int_t labelTrack = track->GetLabel();
-	  AliAODMCParticle * particleTrack = static_cast<AliAODMCParticle*>(AODMCTrackArraybis->At(TMath::Abs(labelTrack)));
-	  if (!particleTrack->IsPhysicalPrimary()) {
-	    continue;
+	  //OPTION 2: calculate efficiency starting from events with a PRIMARY trigger particle
+	  if (!particleTrigger->IsPhysicalPrimary()) {
+	    //continue;
 	  }
+
+	  //OPTION 3: calculate efficiency starting from events with a trigger particle which is not a K0s daughter (in other words: remove generated K0s which are mothers to the h of the considered event and also other generated K0s found in that event)
+	  Int_t labelTriggerMother = particleTrigger->GetMother();
+	  AliAODMCParticle* MotherTrigger = static_cast<AliAODMCParticle*>(AODMCTrackArraybis->At(labelTriggerMother));
+	  if (!particleTrigger->IsPhysicalPrimary() && MotherTrigger->GetPdgCode() == 310){
+	    //continue;
+	  }
+	  //********************************************************************************
+
 	}
 	else if(ishhCorr){ //if associated particles are hadrons
 	  if((particle->Charge())==0) continue;	
@@ -1737,6 +1742,16 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
     return;  
   }
 
+  if (fisHM && lPercentiles > 0.1){
+    PostData(1,fOutputList );
+    PostData(2, fSignalTree );
+    PostData(3,fBkgTree); 
+    PostData(4, fOutputList2); 
+    PostData(5, fOutputList3);
+    PostData(6, fOutputList4);     
+    return;  
+  }
+
   fHistEventMult->Fill(5);
 
   //event must not be tagged as pileup
@@ -2130,7 +2145,8 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 
       if(TMath::Abs(dzglobal[0])> (0.0105 + 0.0350/pow(track->Pt(),1.1))) continue;
       fHistTrack->Fill(10);
-      if(TMath::Abs(dzglobal[1])> 2.) continue;
+      //      if(TMath::Abs(dzglobal[1])> 2.) continue;
+      if(TMath::Abs(dzglobal[1])> 0.04) continue;
       fHistTrack->Fill(11);
 
       NumberFirstParticleAllPt++; 
@@ -2977,14 +2993,31 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	// if(TMath::Abs((v0->MassAntiLambda() - massLambda))< 0.005) continue;
 
 	
-	if ((labelPtTMax == labelPos && TMath::Abs(ptTriggerMassimoDati - prongTrackPos->Pt()) < 0.00001) || (labelPtTMax == labelNeg) && TMath::Abs(ptTriggerMassimoDati - prongTrackNeg->Pt()) <0.00001 )  {
+	if ((labelPtTMax == labelPos && TMath::Abs(ptTriggerMassimoDati - prongTrackPos->Pt()) < 0.00001) || (labelPtTMax == labelNeg && TMath::Abs(ptTriggerMassimoDati - prongTrackNeg->Pt()) <0.00001)) {
 	  //cout << "\n\n********************************************************************************************************************" << endl;
-	  //	  cout << "labelPtTMax " << labelPtTMax << " label+ " << labelPos << " label- " <<labelNeg << endl;
+	  //cout << "labelPtTMax " << labelPtTMax << " label+ " << labelPos << " label- " <<labelNeg << endl;
 	  //	  cout << "pt trigger " << 	ptTriggerMassimoDati << " pt+ " << prongTrackPos->Pt() << " pt- " <<prongTrackNeg->Pt() << endl;    
 	  //	  cout << "********************************************************************************************************************\n\n" << endl;
-	  //	  continue; //to avoid autocorrelations when pT, K0s > pt,Trigg
+
+	  //continue; //to avoid autocorrelations when pT, K0s > pt,Trigg
+	  // in principle this should not be necessary: the DCA of Pos/Neg daughters is > 0.06, while DCAz (trigger) < 0.04 and DCAxy (trigger) < 0.02 when pt,trig > 3 GeV/c
+	} //OPTION 1 when dealing with generated
+
+
+	//ATTENTION: the option below would only work for MC K0s, so I don't think I should use it to calculate the efficiency (because I cannot use it when dealing with data)
+	/*
+	if(fReadMCTruth){
+	  if (fMCEvent){
+	    //remove reco K0s found in events where the trigger is the daugther of a non-reco K0s (OPTION 3 when dealing with generated)
+	    Int_t labelTriggerMother = particleTrigger->GetMother();
+	    AliAODMCParticle* MotherTrigger = static_cast<AliAODMCParticle*>(AODMCTrackArray->At(labelTriggerMother));
+	    if (!particleTrigger->IsPhysicalPrimary() && MotherTrigger->GetPdgCode() == 310){
+	      //continue;
+	    }
+	  }
 	}
-	
+	*/
+
 	fHistEventV0->Fill(16);    
 
 	//V0 daugthter DCA cut (just a check)
@@ -3199,27 +3232,29 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	  //question: should I take all daughter tracks or only those with |eta| < 0.8 as in the data?
 	  AliAODMCParticle* particlePos;
 	  AliAODMCParticle* particleNeg;
-	  
+	  AliAODMCParticle* particleTrigger;
+	  AliAODMCParticle* particleTriggerMother;
+
 	  Int_t labelPos = particleV0->GetDaughterLabel(0);
 	  Int_t labelNeg = particleV0->GetDaughterLabel(1);
 	  particlePos = static_cast<AliAODMCParticle*>(AODMCTrackArray->At(TMath::Abs(labelPos)));
 	  particleNeg = static_cast<AliAODMCParticle*>(AODMCTrackArray->At(TMath::Abs(labelNeg)));
-	  
+	  particleTrigger = static_cast<AliAODMCParticle*>(AODMCTrackArray->At(TMath::Abs(labelPtTMax)));
+	  Int_t labelTriggerMother = particleTrigger->GetMother();
+	  particleTriggerMother = static_cast<AliAODMCParticle*>(AODMCTrackArray->At(labelTriggerMother));
+
 	  if (isHybridMCTruth){
-	    if ((labelPtTMax == labelPos && TMath::Abs(ptTriggerMassimoDati - particlePos->Pt()) < 0.00001) || (labelPtTMax == labelNeg) && TMath::Abs(ptTriggerMassimoDati - particleNeg->Pt()) <0.00001 )  {	    
-	      continue; //to avoid autocorrelations when pT, K0s > pt,Trigg
+	    if ((particleTrigger->GetLabel() == labelPos && TMath::Abs(particleTrigger->Pt() - particlePos->Pt()) < 0.00001) || (particleTrigger->GetLabel() == labelNeg && TMath::Abs( particleTrigger->Pt() - particleNeg->Pt()) <0.00001 ))  {	    
+	      //continue; //to avoid autocorrelations when pT, K0s > pt,Trigg
+	      //option not tested: it might not work
 	    }
+	    //option alternative to the one above: not only I reject hK0s such that K0s->h but also all the other K0s associated to that h
+	    if (!particleTrigger->IsPhysicalPrimary() && particleTriggerMother->GetPdgCode() == 310){
+	      continue;
+	    }
+
 	  }
 	
-	  //	  labelPos =  (particleV0->GetDaughterFirst());
-	  //	  labelNeg =  (particleV0->GetDaughterLast());
-	  //cout << "label pos " << labelPos << " labelNeg " << labelNeg << " q+ " << particlePos->Charge() << " q- " << particleNeg->Charge() << endl;
-	  //cout << " PDG+ " << particlePos->GetPdgCode() << " PDG- " << particleNeg->GetPdgCode() << endl;
-	  //cout << "eta + " << particlePos->Eta() << endl;
-	  //cout << "eta - " << particleNeg->Eta() << endl;
-	  //	  EtaPos = particlePos->Eta();
-	  //	  EtaNeg = particleNeg->Eta();
-
 	  if (!isHybridMCTruth){
 	    if ((particleV0->Pt())>=ptTriggerMassimoMC) {
 	      skipV0_MC=kTRUE;
@@ -3381,10 +3416,20 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   fHistMultiplicityVsVertexZ->Fill(lBestPrimaryVtxPos[2], lPercentiles);
  
   for(Int_t i=0; i< 100; i++){
-    if(( lPercentiles <i+1) && (lPercentiles >= i) ) fHistTriggervsMult->AddBinContent(i+1,NumberFirstParticle);  
+    if (fisHM){
+      if(( lPercentiles <((float)i+1)/1000 ) && (lPercentiles >= (float)i/1000) ) fHistTriggervsMult->AddBinContent(i+1,NumberFirstParticle);  
+    }
+    else {
+      if(( lPercentiles <i+1) && (lPercentiles >= i) ) fHistTriggervsMult->AddBinContent(i+1,NumberFirstParticle);  
+    }
   }
   for(Int_t i=0; i< 100; i++){
-    if(( lPercentiles <i+1) && (lPercentiles >= i) ) fHistTriggervsMultMC->AddBinContent(i+1,NumberFirstParticleMC);  
+    if (fisHM){
+      if(( lPercentiles <((float)i+1)/1000 ) && (lPercentiles >= (float)i/1000) ) fHistTriggervsMultMC->AddBinContent(i+1,NumberFirstParticleMC);  
+    }
+    else{
+      if(( lPercentiles <i+1) && (lPercentiles >= i) ) fHistTriggervsMultMC->AddBinContent(i+1,NumberFirstParticleMC);  
+    }
   }
 
 
@@ -3434,7 +3479,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
     cout << " number first particle " <<   NumberSecondParticleAll << " mc " << NumberSecondParticleMC << " data " << NumberSecondParticle << endl;
   */
 
-  DoPairsh1h2((Int_t)lPercentiles, fieldsign, lBestPrimaryVtxPos[2], ptTriggerMassimo);  
+  DoPairsh1h2(lPercentiles, fieldsign, lBestPrimaryVtxPos[2], ptTriggerMassimo);  
 
   PostData(1, fOutputList);     
   PostData(2, fSignalTree);
