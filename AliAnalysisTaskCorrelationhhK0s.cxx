@@ -3245,12 +3245,12 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 
 	  if (isHybridMCTruth){
 	    if ((particleTrigger->GetLabel() == labelPos && TMath::Abs(particleTrigger->Pt() - particlePos->Pt()) < 0.00001) || (particleTrigger->GetLabel() == labelNeg && TMath::Abs( particleTrigger->Pt() - particleNeg->Pt()) <0.00001 ))  {	    
-	      //continue; //to avoid autocorrelations when pT, K0s > pt,Trigg
+	      continue; //to avoid autocorrelations when pT, K0s > pt,Trigg
 	      //option not tested: it might not work
 	    }
 	    //option alternative to the one above: not only I reject hK0s such that K0s->h but also all the other K0s associated to that h
 	    if (!particleTrigger->IsPhysicalPrimary() && particleTriggerMother->GetPdgCode() == 310){
-	      continue;
+	      //continue;
 	    }
 
 	  }
