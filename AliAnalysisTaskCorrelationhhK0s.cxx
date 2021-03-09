@@ -101,6 +101,7 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s() :AliAnalysisT
   fHist_multiplicity_EvwTrigger(0),
   fHistEventMult(0), 
   fHistEventV0(0), 
+  fHistEventV0Pt(0), 
   fHistTrack(0),
   fHistTOFBunchCrossing(0), 
   fHistLengthvsCrossedRowsAfterSel(0),
@@ -307,6 +308,7 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s(const char* nam
   fHist_multiplicity_EvwTrigger(0),
   fHistEventMult(0), 
   fHistEventV0(0), 
+  fHistEventV0Pt(0), 
   fHistTrack(0),
   fHistTOFBunchCrossing(0), 
   fHistLengthvsCrossedRowsAfterSel(0),
@@ -588,20 +590,32 @@ void AliAnalysisTaskCorrelationhhK0s::ProcessMCParticles(Bool_t Generated, AliAO
 	  AliAODMCParticle *particleNeg = static_cast<AliAODMCParticle*>(AODMCTrackArraybis->At(TMath::Abs(labelNeg)));
 	  AliAODMCParticle *particleTrigger = static_cast<AliAODMCParticle*>(AODMCTrackArraybis->At(TMath::Abs(track->GetLabel())));
 
+	  Int_t labelTriggerMother = particleTrigger->GetMother();
+	  AliAODMCParticle* MotherTrigger = static_cast<AliAODMCParticle*>(AODMCTrackArraybis->At(TMath::Abs(labelTriggerMother)));
+
+	  Bool_t Condition1Gen = ( particleTrigger->GetLabel() == particlePos->GetLabel() && TMath::Abs(particleTrigger->Pt() - particlePos->Pt()) < 0.00001 ) || ( particleTrigger->GetLabel() == particleNeg->GetLabel() && TMath::Abs(particleTrigger->Pt() - particleNeg->Pt()) <0.00001 );
+	  Bool_t Condition2Gen = (!(particleTrigger->IsPhysicalPrimary()) && MotherTrigger->GetPdgCode() == 310);
+
+
+	  fHistEventV0Pt->Fill(7, particle->Pt()); 
+	  if (Condition1Gen)	  fHistEventV0Pt->Fill(8, particle->Pt()); 
+	  if (Condition2Gen)	  fHistEventV0Pt->Fill(9, particle->Pt()); 
+	  if (Condition1Gen && !Condition2Gen)	  fHistEventV0Pt->Fill(10, particle->Pt()); 
+	  if (!Condition1Gen && Condition2Gen)	  fHistEventV0Pt->Fill(11, particle->Pt()); 
+	  if (Condition1Gen && Condition2Gen)	  fHistEventV0Pt->Fill(12, particle->Pt()); 
+
 	  //OPTION 1: remove generated K0s which are mothers to the h of the considered event
-	  if (( particleTrigger->GetLabel() == labelPos && TMath::Abs(particleTrigger->Pt() - particlePos->Pt()) < 0.00001 ) || ( particleTrigger->GetLabel() == labelNeg && TMath::Abs(particleTrigger->Pt() - particleNeg->Pt()) <0.00001 ))  {	    
+	  if (Condition1Gen)  {	    
 	    //continue;
 	  }
 
 	  //OPTION 2: calculate efficiency starting from events with a PRIMARY trigger particle
-	  if (!particleTrigger->IsPhysicalPrimary()) {
+	  if (!(particleTrigger->IsPhysicalPrimary())) {
 	    //continue;
 	  }
 
 	  //OPTION 3: calculate efficiency starting from events with a trigger particle which is not a K0s daughter (in other words: remove generated K0s which are mothers to the h of the considered event and also other generated K0s found in that event)
-	  Int_t labelTriggerMother = particleTrigger->GetMother();
-	  AliAODMCParticle* MotherTrigger = static_cast<AliAODMCParticle*>(AODMCTrackArraybis->At(labelTriggerMother));
-	  if (!particleTrigger->IsPhysicalPrimary() && MotherTrigger->GetPdgCode() == 310){
+	  if (Condition2Gen){
 	    //continue;
 	  }
 	  //********************************************************************************
@@ -942,7 +956,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   fHistEventMult->GetXaxis()->SetBinLabel(23,"All events");
   fHistEventMult->GetXaxis()->SetBinLabel(24,"AOD event");
 
-  fHistEventV0=new TH1F("fHistEventV0", "fHistEventV0",28, 0.5, 28.5);
+  fHistEventV0=new TH1F("fHistEventV0", "fHistEventV0",31, 0.5, 31.5);
   fHistEventV0->SetTitle("Number of V0 which progressively pass the listed selections");
   fHistEventV0->GetXaxis()->SetBinLabel(1,"All V0s");
   fHistEventV0->GetXaxis()->SetBinLabel(2,"V0s OnFly");
@@ -972,6 +986,29 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   fHistEventV0->GetXaxis()->SetBinLabel(26,"NV0(reco true) in SelEv");
   fHistEventV0->GetXaxis()->SetBinLabel(27,"NV0(MC) in SelEv"); 
   fHistEventV0->GetXaxis()->SetBinLabel(28,"!OOB (Balbino)"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(29,"All hybrid"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(30,"Not mother of trigger"); 
+  fHistEventV0->GetXaxis()->SetBinLabel(31,"Trigger not from K0s"); 
+
+  fHistEventV0Pt=new TH2F("fHistEventV0Pt", "fHistEventV0Pt",18, 0.5, 18.5, 300, 0 ,30);
+  fHistEventV0Pt->GetXaxis()->SetBinLabel(1,"All hybrid"); 
+  fHistEventV0Pt->GetXaxis()->SetBinLabel(2,"Mother of trigger"); 
+  fHistEventV0Pt->GetXaxis()->SetBinLabel(3,"Trigger from K0s"); 
+  fHistEventV0Pt->GetXaxis()->SetBinLabel(4,"2 && !3"); 
+  fHistEventV0Pt->GetXaxis()->SetBinLabel(5,"!2 && 3"); 
+  fHistEventV0Pt->GetXaxis()->SetBinLabel(6,"2 && 3"); 
+  fHistEventV0Pt->GetXaxis()->SetBinLabel(7,"All gen (eff)"); 
+  fHistEventV0Pt->GetXaxis()->SetBinLabel(8,"Mother of trigger"); 
+  fHistEventV0Pt->GetXaxis()->SetBinLabel(9,"Trigger from K0s"); 
+  fHistEventV0Pt->GetXaxis()->SetBinLabel(10,"2 && !3"); 
+  fHistEventV0Pt->GetXaxis()->SetBinLabel(11,"!2 && 3"); 
+  fHistEventV0Pt->GetXaxis()->SetBinLabel(12,"2 && 3"); 
+  fHistEventV0Pt->GetXaxis()->SetBinLabel(13,"All reco (MC)"); 
+  fHistEventV0Pt->GetXaxis()->SetBinLabel(14,"Mother of trigger"); 
+  fHistEventV0Pt->GetXaxis()->SetBinLabel(15,"Trigger from K0s"); 
+  fHistEventV0Pt->GetXaxis()->SetBinLabel(16,"2 && !3"); 
+  fHistEventV0Pt->GetXaxis()->SetBinLabel(17,"!2 && 3"); 
+  fHistEventV0Pt->GetXaxis()->SetBinLabel(18,"2 && 3"); 
 
   fHistTrack=new TH1F("fHistTrack", "fHistTrack", 19, 0.5, 19.5);
   fHistTrack->GetXaxis()->SetBinLabel(1,"All tracks");
@@ -1457,6 +1494,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   fOutputList->Add(fHistTrackBufferOverflow);
   fOutputList->Add(fHistEventMult);
   fOutputList->Add(fHistEventV0);
+  fOutputList->Add(fHistEventV0Pt);
   fOutputList->Add(fHistTrack); 
   fOutputList->Add(fHistTOFBunchCrossing);
   fOutputList->Add(fHistLengthvsCrossedRowsAfterSel);
@@ -2145,7 +2183,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 
       if(TMath::Abs(dzglobal[0])> (0.0105 + 0.0350/pow(track->Pt(),1.1))) continue;
       fHistTrack->Fill(10);
-      //      if(TMath::Abs(dzglobal[1])> 2.) continue;
+      //if(TMath::Abs(dzglobal[1])> 2.) continue;
       if(TMath::Abs(dzglobal[1])> 0.04) continue;
       fHistTrack->Fill(11);
 
@@ -2992,8 +3030,27 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	// if(TMath::Abs((v0->MassLambda() - massLambda))< 0.005) continue;
 	// if(TMath::Abs((v0->MassAntiLambda() - massLambda))< 0.005) continue;
 
-	
-	if ((labelPtTMax == labelPos && TMath::Abs(ptTriggerMassimoDati - prongTrackPos->Pt()) < 0.00001) || (labelPtTMax == labelNeg && TMath::Abs(ptTriggerMassimoDati - prongTrackNeg->Pt()) <0.00001)) {
+	Bool_t Condition1Reco = (labelPtTMax == labelPos && TMath::Abs(ptTriggerMassimoDati - prongTrackPos->Pt()) < 0.00001) || (labelPtTMax == labelNeg && TMath::Abs(ptTriggerMassimoDati - prongTrackNeg->Pt()) <0.00001);
+
+	Bool_t Condition2Reco=kFALSE;
+	if(fReadMCTruth){
+	  if (fMCEvent){
+	    //remove reco K0s found in events where the trigger is the daugther of a non-reco K0s (OPTION 3 when dealing with generated)
+	    AliAODMCParticle* trigParticle = static_cast<AliAODMCParticle*>(AODMCTrackArray->At(TMath::Abs(labelPtTMax)));
+	    Int_t labelTriggerMother = trigParticle->GetMother();
+	    AliAODMCParticle* MotherTrigger = static_cast<AliAODMCParticle*>(AODMCTrackArray->At(labelTriggerMother));
+	    Condition2Reco =(!trigParticle->IsPhysicalPrimary() && MotherTrigger->GetPdgCode() == 310);
+	  }
+	}
+
+	fHistEventV0Pt->Fill(13, v0->Pt()); 
+	if (Condition1Reco)	  fHistEventV0Pt->Fill(14, v0->Pt()); 
+	if (Condition2Reco)	  fHistEventV0Pt->Fill(15, v0->Pt()); 
+	if (Condition1Reco && !Condition2Reco)	  fHistEventV0Pt->Fill(16, v0->Pt()); 
+	if (!Condition1Reco && Condition2Reco)	  fHistEventV0Pt->Fill(17, v0->Pt()); 
+	if (Condition1Reco && Condition2Reco)	  fHistEventV0Pt->Fill(18, v0->Pt()); 
+
+	if (Condition1Reco) {
 	  //cout << "\n\n********************************************************************************************************************" << endl;
 	  //cout << "labelPtTMax " << labelPtTMax << " label+ " << labelPos << " label- " <<labelNeg << endl;
 	  //	  cout << "pt trigger " << 	ptTriggerMassimoDati << " pt+ " << prongTrackPos->Pt() << " pt- " <<prongTrackNeg->Pt() << endl;    
@@ -3004,19 +3061,15 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	} //OPTION 1 when dealing with generated
 
 
-	//ATTENTION: the option below would only work for MC K0s, so I don't think I should use it to calculate the efficiency (because I cannot use it when dealing with data)
-	/*
+	//ATTENTION: the option below would only work for MC K0s, so I don't think I should use it to calculate the efficiency (because I cannot use it when dealing with data) -> or al least I should estimate the contribution	
 	if(fReadMCTruth){
 	  if (fMCEvent){
 	    //remove reco K0s found in events where the trigger is the daugther of a non-reco K0s (OPTION 3 when dealing with generated)
-	    Int_t labelTriggerMother = particleTrigger->GetMother();
-	    AliAODMCParticle* MotherTrigger = static_cast<AliAODMCParticle*>(AODMCTrackArray->At(labelTriggerMother));
-	    if (!particleTrigger->IsPhysicalPrimary() && MotherTrigger->GetPdgCode() == 310){
+	    if (Condition2Reco){
 	      //continue;
 	    }
 	  }
 	}
-	*/
 
 	fHistEventV0->Fill(16);    
 
@@ -3241,18 +3294,37 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	  particleNeg = static_cast<AliAODMCParticle*>(AODMCTrackArray->At(TMath::Abs(labelNeg)));
 	  particleTrigger = static_cast<AliAODMCParticle*>(AODMCTrackArray->At(TMath::Abs(labelPtTMax)));
 	  Int_t labelTriggerMother = particleTrigger->GetMother();
-	  particleTriggerMother = static_cast<AliAODMCParticle*>(AODMCTrackArray->At(labelTriggerMother));
+	  particleTriggerMother = static_cast<AliAODMCParticle*>(AODMCTrackArray->At(TMath::Abs(labelTriggerMother)));
+
+	  fHistEventV0->Fill(29); 
+	  fHistEventV0Pt->Fill(1, particleV0->Pt()); 
 
 	  if (isHybridMCTruth){
-	    if ((particleTrigger->GetLabel() == labelPos && TMath::Abs(particleTrigger->Pt() - particlePos->Pt()) < 0.00001) || (particleTrigger->GetLabel() == labelNeg && TMath::Abs( particleTrigger->Pt() - particleNeg->Pt()) <0.00001 ))  {	    
+	    Bool_t Condition1 = (particleTrigger->GetLabel() == particlePos->GetLabel() && TMath::Abs(particleTrigger->Pt() - particlePos->Pt()) < 0.00001) || (particleTrigger->GetLabel() == particleNeg->GetLabel() && TMath::Abs( particleTrigger->Pt() - particleNeg->Pt()) <0.00001 );
+	    Bool_t Condition2 = (!(particleTrigger->IsPhysicalPrimary()) && (particleTriggerMother->GetPdgCode()) == 310);
+	    if (Condition1)  {	    
+	      fHistEventV0Pt->Fill(2, particleV0->Pt()); 
 	      continue; //to avoid autocorrelations when pT, K0s > pt,Trigg
-	      //option not tested: it might not work
+	      //it actually makes the fraction of non-primary trigger particles at pt,K0s > 3 GeV/c as the fraction at lower pt values
 	    }
 	    //option alternative to the one above: not only I reject hK0s such that K0s->h but also all the other K0s associated to that h
-	    if (!particleTrigger->IsPhysicalPrimary() && particleTriggerMother->GetPdgCode() == 310){
-	      //continue;
+	    else{
+	      fHistEventV0->Fill(30); 
 	    }
 
+	    if (Condition2){
+	      fHistEventV0Pt->Fill(3, particleV0->Pt());  
+	      //	      cout << "\n\n*************************************************************************\n" <<  particleTrigger->GetPdgCode() << " label " << particleTrigger->GetLabel() << " (pt : " << particleTrigger->Pt() << ") label mother " << particleTriggerMother->GetLabel() << " labels daughter K0s " << labelNeg << " (alt. label " << 	  particleNeg->GetLabel() << ") (pt: "<< particleNeg->Pt()<< ") " << labelPos << " (alt. label " << 	  particlePos->GetLabel() << ") (pt: " << particlePos->Pt()<< ") " <<endl;
+	      //	      cout << "condition1 " << Condition1 << endl;
+	      //continue;
+	      
+	    }
+	    else {
+	      fHistEventV0->Fill(31);
+	    }
+	    if (Condition1 && !Condition2)  fHistEventV0Pt->Fill(4, particleV0->Pt()); //i expect it to be empty
+	    if (!Condition1 && Condition2)  fHistEventV0Pt->Fill(5, particleV0->Pt()); //I expect it to be filled for pt<3 for all K0s for which Condition2 works and for pt> 3 for some K0s for which Condition2 holds
+	    if (Condition1 && Condition2)  fHistEventV0Pt->Fill(6, particleV0->Pt()); //I expect it to be filled only for pt>3 and just for some K0s (but it should not be empty)
 	  }
 	
 	  if (!isHybridMCTruth){

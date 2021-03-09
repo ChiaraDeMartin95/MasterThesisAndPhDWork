@@ -115,6 +115,7 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
   TH1F*                   fHist_multiplicity_EvwTrigger;//!
   TH1F*                   fHistEventMult;   		//!
   TH1F*                   fHistEventV0;   		//!
+  TH2F*                   fHistEventV0Pt;   		//!
   TH1F*                   fHistTrack;       		//!
   TH1F*                   fHistTOFBunchCrossing; //!
   TH2F*                   fHistLengthvsCrossedRowsAfterSel; //!
