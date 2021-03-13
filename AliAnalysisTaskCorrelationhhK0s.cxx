@@ -609,7 +609,7 @@ void AliAnalysisTaskCorrelationhhK0s::ProcessMCParticles(Bool_t Generated, AliAO
 
 	  //OPTION 1: remove generated K0s which are mothers to the h of the considered event
 	  if (Condition1Gen)  {	    
-	    //continue;
+	    continue;
 	  }
 
 	  //OPTION 2: calculate efficiency starting from events with a PRIMARY trigger particle
@@ -3335,12 +3335,12 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	  Int_t labelTriggerMother = particleTrigger->GetMother();
 	  particleTriggerMother = static_cast<AliAODMCParticle*>(AODMCTrackArray->At(TMath::Abs(labelTriggerMother)));
 
-	  fHistEventV0->Fill(29); 
-	  fHistEventV0Pt->Fill(1, particleV0->Pt()); 
-
 	  if (isHybridMCTruth){
 	    Bool_t Condition1 = (particleTrigger->GetLabel() == particlePos->GetLabel() && TMath::Abs(particleTrigger->Pt() - particlePos->Pt()) < 0.00001) || (particleTrigger->GetLabel() == particleNeg->GetLabel() && TMath::Abs( particleTrigger->Pt() - particleNeg->Pt()) <0.00001 );
 	    Bool_t Condition2 = (!(particleTrigger->IsPhysicalPrimary()) && (particleTriggerMother->GetPdgCode()) == 310);
+
+	    fHistEventV0->Fill(29); 
+	    fHistEventV0Pt->Fill(1, particleV0->Pt()); 
 
 	    if (Condition1)  {	    
 	      fHistEventV0Pt->Fill(2, particleV0->Pt()); 
