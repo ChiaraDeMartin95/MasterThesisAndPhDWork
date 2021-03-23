@@ -20,12 +20,28 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
   return sqrt(((Double_t)k+1)*((Double_t)k+2)/(n+2)/(n+3) - pow((Double_t)(k+1),2)/pow(n+2,2));
 }
 
-void readTreePLChiaraCasc_second(Int_t type=4, Bool_t SkipAssoc=1, Int_t israp=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=2,Float_t PtTrigMinFit=2, Int_t sysTrigger=0, Int_t sysV0=0,Int_t syst=0,bool isMC = 1, Bool_t isEfficiency=1,TString year0="2016", TString year="161718_MD_EtaEff_hXi"/*"2018f1g4_extra_EtaEff_hXi"/*"161718_MD_hXi_Hybrid"/*"LHC16_17_GP_Hybrid_hXi"/*"2018g4_extra_hXi_SelTrigger"/*"AllMC_hXi"/"Run2DataRed_MECorr_hXi"/*"2016k_pass2_TOFOOBPileUp"*/,  TString Path1 =""/*"_PtTrigMax2.5"/*"NewMultClassBis"*/,  Double_t ptjmax =15, Double_t nsigmamax=10, Bool_t isSigma=kFALSE, Int_t MultBinning=0, Bool_t IsTrueParticle=1, Bool_t isNotSigmaTrigger=0, Bool_t isEtaEff=1, TString yearMC = "161718_MD_EtaEff_hXi"/*"2018f1g4_extra_EtaEff_hXi"*/, Bool_t isEstimateRun3=0){
+void readTreePLChiaraCasc_second(Int_t type=4, Bool_t SkipAssoc=1, Int_t israp=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=0.15,Float_t PtTrigMinFit=0.15, Int_t sysTrigger=0, Int_t sysV0=0,Int_t syst=0,bool isMC = 0, Bool_t isEfficiency=0,TString year0="2016", TString year=/*"2016k_TOFOOBPileUp_XiV0Rad34_AOD234_Try2"/*"161718_MD_EtaEff_hXi"/*"2018f1g4_extra_EtaEff_hXi"/*"161718_MD_hXi_Hybrid"/*"LHC16_17_GP_Hybrid_hXi"/"2018g4_extra_hXi_SelTrigger"/*"AllMC_hXi"*/"Run2DataRed_MECorr_hXi"/*"2016k_pass2_TOFOOBPileUp"*/,  TString Path1 ="_PtTrigMax2.5"/*"NewMultClassBis"*/,  Double_t ptjmax =2.5, Double_t nsigmamax=10, Bool_t isSigma=kFALSE, Int_t MultBinning=0, Bool_t IsTrueParticle=0,Int_t TriggerPDGChoice=0, Bool_t isEtaEff=1, TString yearMC /*for efficiency*/="161718_MD_EtaEff_LowPtTrig_hXi"/*"161718_MD_EtaEff_hXi"/"2018f1g4_extra_EtaEff_hXi"*/, Bool_t isEstimateRun3=0, Bool_t isNewInputPath=0, Bool_t isHM=0){
 
   //isEstimateRun3=1: I use smaller mult classes
   //isMeanFixedPDG and isBkgParab are characteristics of the fit to the inv mass distributions 
   cout << isMC << endl;
   cout << " Pt Trigg Min è = " << PtTrigMin << endl;
+
+  if (!isMC){
+    IsTrueParticle=0;
+  }
+
+  //***************************************************************************                               
+  //******** What particles to choose as trigger whan analysing MC truth? *****   
+
+  // Since in data we are able to identify basically only pi, K, p, mu, e, also when analyzing the MC truth we want to take only these particles as trigger particles. And we want to exclude all the others already WHEN CHOOSING the trigger particle, so at the level of the TASK!                                                     
+  //Here some offline selections are implemented as well, but they are useless if the selection is done at the level of the task                                                                                              
+  //Check if fHistTriggerPDGCode and fHistTriggerPDGCodeAfterSel are the same. If it is so, the selections are correctly implemtned in the task 
+
+  //***************************************************************************                               
+
+  TString sTriggerPDGChoice[3] = {"", "_IsOnlypiKpemu", "_IsNotSigmaOnly"};
+  if (!isMC) TriggerPDGChoice=0;
 
   if (israp>1) return;
   if (type>5) {cout << "type value not allowed" << endl; return;}
@@ -56,7 +72,7 @@ void readTreePLChiaraCasc_second(Int_t type=4, Bool_t SkipAssoc=1, Int_t israp=0
   TString file;
 
   const Int_t numtipo=6;
-  const Int_t nummolt=5; //11 for estimate run3
+  const Int_t nummolt=5; //11 for estimate run3 (isEstimateRun3)
   const Int_t numzeta=1;
   const Int_t numPtV0=8; //14; //was 8 in my analysis
   const Int_t numPtTrigger=1;
@@ -146,9 +162,12 @@ void readTreePLChiaraCasc_second(Int_t type=4, Bool_t SkipAssoc=1, Int_t israp=0
   PathOut +=Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f",sysTrigger, sysV0, syst, PtTrigMin); 
   if (IsTrueParticle) PathOut+="_IsParticleTrue";
   //  PathOut+="_ciao";
-  if (isNotSigmaTrigger)  PathOut+="_IsNotSigmaTrigger";
+  PathOut+= sTriggerPDGChoice[TriggerPDGChoice];
   if (isEstimateRun3) PathOut += "_IsEstimateRun3";
   //  PathOut+="_thinptbins"; 
+  //  PathOut+= "_Try1";
+  if (isEtaEff) PathOut+="_isEtaEff";
+  //  PathOut+="_isEtaEff";
   PathOut+= ".root";
 
   cout << "file di input " << PathIn << endl;
@@ -192,8 +211,20 @@ void readTreePLChiaraCasc_second(Int_t type=4, Bool_t SkipAssoc=1, Int_t israp=0
   Float_t   EffRelErrBkg[nummolt+1][numPtV0]={0};
   TFile *fileMassSigma;
   TString dirinputtype[6] = {"Xi", "Xi", "Omega", "Omega", "Xi", "Omega"};
-  TDirectoryFile *d = (TDirectoryFile*)fin->Get("MyTask"+dirinputtype[type]);
-  TList *list = (TList*)d->Get("MyOutputContainer");
+  TDirectoryFile *d;
+  if (isNewInputPath){
+    //    dir = (TDirectoryFile*)fin->Get("MyTaskXi_PtTrigMin3.0_PtTrigMax15.0");               
+    d = (TDirectoryFile*)fin->Get("MyTask" +dirinputtype[type]+ Form("_PtTrigMin%.1f_PtTrigMax%.1f", PtTrigMin, ptjmax));
+  } else {
+    d = (TDirectoryFile*)fin->Get("MyTask"+dirinputtype[type]);
+  }
+  if (!d)  {cout << "dir input not available " ; return;}
+
+  TString NameContainer ="";
+  if (isNewInputPath) {
+    NameContainer = "_hK0s_Task_RecoAndEfficiency";
+  }
+  TList *list = (TList*)d->Get("MyOutputContainer" + NameContainer);
 
   //identità particelle di trigger nel MC
   TH1F* fHistTriggerPDGCode = new TH1F("fHistTriggerPDGCode", "fHistTriggerPDGCode", 11,0, 11);
@@ -209,10 +240,10 @@ void readTreePLChiaraCasc_second(Int_t type=4, Bool_t SkipAssoc=1, Int_t israp=0
   Float_t NTrigger[nummolt+1]={0};
   TH2D *fHistTriggervsMult         = (TH2D*)list->FindObject("fHistPtMaxvsMultBefAll");
   TH1D *fHistTriggervsMult_MultProj=(TH1D*)fHistTriggervsMult->ProjectionY("fHistTriggervsMult_MultProj", fHistTriggervsMult->GetXaxis()->FindBin(PtTrigMin+0.0001),fHistTriggervsMult->GetXaxis()->FindBin(ptjmax-0.00001));
+
   TH1F*  fHistTriggerXi = new TH1F ("fHistTriggerXi", "fHistTriggerXi", nummolt, Nmolt);
-  TH1F*  fHistTriggerSigma = new TH1F ("fHistTriggerSigma", "fHistTriggerSigma", nummolt, Nmolt);
   TH1F*  fHistTriggerAll = new TH1F ("fHistTriggerAll", "fHistTriggerAll", nummolt, Nmolt);
-  TH1F*  fHistTriggerAllButXi = (TH1F*)fHistTriggerAll->Clone("fHistTriggerAllButXi");
+
 
   for(Int_t m=0; m<nummolt+1; m++){
     if(m<nummolt){
@@ -227,6 +258,8 @@ void readTreePLChiaraCasc_second(Int_t type=4, Bool_t SkipAssoc=1, Int_t israp=0
       }
     }
   }
+
+  TH1F*  fHistTriggerAllButXi = (TH1F*)fHistTriggerAll->Clone("fHistTriggerAllButXi");
   //******************************
 
   //calcolo numero eventi INT7 in classi di molteplicità
@@ -284,6 +317,23 @@ void readTreePLChiaraCasc_second(Int_t type=4, Bool_t SkipAssoc=1, Int_t israp=0
 
 
   TString Szeta[numzeta]={""};
+
+  Int_t numMultBins=100;
+  Float_t UpperLimitMult = 100;
+  if (isHM) UpperLimitMult = 0.1;
+
+  if (isHM){
+    Nmolt[1] = 0.001;
+    Nmolt[2] = 0.005;
+    Nmolt[3] = 0.01;
+    Nmolt[4] = 0.05;
+    Nmolt[5] = 0.1;
+    Smolt[0] = "0-0.001";
+    Smolt[1] = "0.001-0.005";
+    Smolt[2] = "0.005-0.01";
+    Smolt[3] = "0.01-0.05";
+    Smolt[4] = "0.05-0.1";
+  }
 
   TString SPtV0[numPtV0]={"0-0.5","0.5-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8"};
   Double_t NPtV0[numPtV0+1]={0,0.5, 1,1.5, 2,2.5,3,4,8};
@@ -787,14 +837,6 @@ void readTreePLChiaraCasc_second(Int_t type=4, Bool_t SkipAssoc=1, Int_t israp=0
 	  }
 	}
       }
-
-      if (isNotSigmaTrigger){
-	if(TMath::Abs(fSignTreeVariablePDGCodeTrigger) == 3222 || TMath::Abs(fSignTreeVariablePDGCodeTrigger)== 3112){
-	  fHistTriggerSigma->Fill(fSignTreeVariableMultiplicity);
-	  continue;
-	}
-      }
-
     }
 
     if(isMC==0 || (isMC==1 && isEfficiency==1)){
@@ -853,7 +895,20 @@ void readTreePLChiaraCasc_second(Int_t type=4, Bool_t SkipAssoc=1, Int_t israp=0
       }
     }
     if (counterpdg==0)   fHistTriggerPDGCode->Fill(10);
-    //    cout << "pdg code trigger " << fSignTreeVariablePDGCodeTrigger<< endl;
+
+    Bool_t ispiKpemu=0; //choose species type for trigger particles (!be careful! a selection might have been applied at the level of the task!)
+    if (isMC && !isEfficiency){
+      if (TriggerPDGChoice==1){
+        for (Int_t i=0; i<5; i++){
+          if (TMath::Abs(fSignTreeVariablePDGCodeTrigger) == PDGCodeParticles[i])  ispiKpemu = kTRUE;
+        }
+        if(!ispiKpemu)    continue;
+      }
+      else if (TriggerPDGChoice==2){
+        if(TMath::Abs(fSignTreeVariablePDGCodeTrigger) == 3222 || TMath::Abs(fSignTreeVariablePDGCodeTrigger)== 3112)     continue;
+      }
+    }
+
     //**********************************************************************************************
     fSignTreeVariableDeltaPhi = fSignTreeVariablePhiV0-fSignTreeVariablePhiTrigger; 
     if (fSignTreeVariableDeltaPhi >  (1.5*TMath::Pi())) fSignTreeVariableDeltaPhi -= 2.0*TMath::Pi();
@@ -1018,12 +1073,6 @@ void readTreePLChiaraCasc_second(Int_t type=4, Bool_t SkipAssoc=1, Int_t israp=0
 	if(fBkgTreeVariablePDGCodeTrigger == PDGCode[0] || fBkgTreeVariablePDGCodeTrigger== PDGCode[1]) continue;
 	if (fBkgTreeVariablePtV0>3)      CounterTriggerNoXi++;
 
-	if (isNotSigmaTrigger){
-	  if(TMath::Abs(fBkgTreeVariablePDGCodeTrigger) == 3222 || TMath::Abs(fBkgTreeVariablePDGCodeTrigger)== 3112){
-	    continue;
-	  }
-	}
-
       }
 
       //************cuts on pT trigger min*********************************
@@ -1052,7 +1101,20 @@ void readTreePLChiaraCasc_second(Int_t type=4, Bool_t SkipAssoc=1, Int_t israp=0
 	  if (fBkgTreeVariablectau  > 3* ctauCasc[type])continue;
 	}
       }
-     
+
+      Bool_t ispiKpemu=0; //choose species type for trigger particles (!be careful! a selection might have been applied at the level of the task!)
+      if (isMC && !isEfficiency){
+	if (TriggerPDGChoice==1){
+	  for (Int_t i=0; i<5; i++){
+	    if (TMath::Abs(fBkgTreeVariablePDGCodeTrigger) == PDGCodeParticles[i])  ispiKpemu = kTRUE;
+	  }
+	  if(!ispiKpemu)    continue;
+	}
+	else if (TriggerPDGChoice==2){
+	  if(TMath::Abs(fBkgTreeVariablePDGCodeTrigger) == 3222 || TMath::Abs(fBkgTreeVariablePDGCodeTrigger)==3112)       continue;
+
+	}
+      }     
       //**********************************************************************************************
 
       Double_t fBkgTreeVariableDeltaPhiMinus = -fBkgTreeVariableDeltaPhi ;
@@ -1204,7 +1266,6 @@ void readTreePLChiaraCasc_second(Int_t type=4, Bool_t SkipAssoc=1, Int_t israp=0
   fout->WriteTObject(fHistTriggerPDGCode);
   fout->WriteTObject(fHistTriggerAllButXi);
   fout->WriteTObject(fHistTriggerXi);
-  fout->WriteTObject(fHistTriggerSigma);
   fout->WriteTObject(fHistTriggerAll);
 
   //new

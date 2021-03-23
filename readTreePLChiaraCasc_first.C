@@ -15,7 +15,7 @@
 #include <TTree.h>
 #include <TLatex.h>
 #include <TFile.h>
-void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=2, Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus, =2 for OmegaMinus, =3 for OmegaPlus */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, bool isMC =1,Bool_t isEfficiency=1,Int_t sysTrigger=0,TString year=/*"1617GP_hXi_EtaEff"/"AllMC_hXi_EtaEff"*/"161718_MD_EtaEff_hXi"/*"2016k_pass2_TOFOOBPileUp" /*"2016k_TOFOOBPileUp_XiV0Rad34_AOD234_Try2" /"161718_MD_EtaEff_PtTrig3_hXi"/*"2018f1g4_extra_EtaEff_hXi"/*"AllMC_hXi"/*"2015f"/*"2015g3b1"/"17d20bEPOS_hXi"/*"Run2DataRed_MECorr_hXi"/*"2016kl_hXi"/*"2016k_hXi_MECorr_25runs"/"1617GP_hXi"/*"2018f1_extra_hXi_CommonParton"/"2018f1g4_extra_hXi"/"161718_MD_hXi"/"2018f1_extra_DEtaEff_50runs"*/, TString year0="2016", TString Path1 ="", Bool_t CommonParton=0, Int_t MultBinning=0, Bool_t isSysStudy=0, Int_t numsysV0index=40, Bool_t isHybrid=0, Bool_t isEfficiencyMassSel=0, Int_t DEtaEff=0, Bool_t isNewInputPath=0)
+void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=2, Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus, =2 for OmegaMinus, =3 for OmegaPlus */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, bool isMC =1,Bool_t isEfficiency=1,Int_t sysTrigger=0,TString year=/*"1617GP_hXi_EtaEff"/"AllMC_hXi_EtaEff"*/"161718_MD_EtaEff_hXi"/*"2016k_pass2_TOFOOBPileUp" /*"2016k_TOFOOBPileUp_XiV0Rad34_AOD234_Try2" /"161718_MD_EtaEff_PtTrig3_hXi"/*"2018f1g4_extra_EtaEff_hXi"/*"AllMC_hXi"/*"2015f"/*"2015g3b1"/"17d20bEPOS_hXi"/*"Run2DataRed_MECorr_hXi"/*"2016kl_hXi"/*"2016k_hXi_MECorr_25runs"/"1617GP_hXi"/*"2018f1_extra_hXi_CommonParton"/"2018f1g4_extra_hXi"/"161718_MD_hXi"/"2018f1_extra_DEtaEff_50runs"*/, TString year0="2016", TString Path1 ="", Bool_t CommonParton=0, Int_t MultBinning=0, Bool_t isSysStudy=0, Int_t numsysV0index=40, Bool_t isHybrid=0, Bool_t isEfficiencyMassSel=0, Int_t DEtaEff=0, Bool_t isNewInputPath=0, Bool_t isHM=0)
 {
 
   if (sysV0index>40) return;
@@ -355,6 +355,19 @@ void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=2, Int_t type=4
 
   }
 
+  if (isHM){
+    Nmolt[1] = 0.001;
+    Nmolt[2] = 0.005;
+    Nmolt[3] = 0.01;
+    Nmolt[4] = 0.05;
+    Nmolt[5] = 0.1;
+    Smolt[0] = "0-0.001";
+    Smolt[1] = "0.001-0.005";
+    Smolt[2] = "0.005-0.01";
+    Smolt[3] = "0.01-0.05";
+    Smolt[4] = "0.05-0.1";
+  }
+
   //  TString Smolt[nummolt+1]={"0-0", "0-10", "10-30", "30-50", "50-100", "all"};
   //  Double_t Nmolt[nummolt+1]={0, 0, 10, 30, 50, 100};
 
@@ -398,6 +411,7 @@ void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=2, Int_t type=4
   if (!fHistEventMult) cout << "no info about total number of INT7 events analyzed" << endl;
   cout <<" bin label: " << fHistEventMult->GetXaxis()->GetBinLabel(7) << endl;
   Double_t TotEvtINT7 = fHistEventMult->GetBinContent(7);
+  if (isHM) TotEvtINT7 = fHistEventMult->GetBinContent(9);
 
   TH2F* hMultiplicity2D=(TH2F*)  d1->FindObject("fHistPtMaxvsMult");
   TH2F* hMultiplicity2DBefAll=(TH2F*)  d1->FindObject("fHistPtMaxvsMultBefAll");
@@ -535,6 +549,10 @@ void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=2, Int_t type=4
   
   TFile *fout = new TFile(PathOut,"RECREATE");
 
+  Int_t numMultBins =100;
+  Float_t UpperLimitMult=100;
+  if (isHM) UpperLimitMult = 0.1;
+
   TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPPtInt[nummolt+1][numzeta][numPtTrigger];
   TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt[nummolt+1][numzeta][numPtTrigger];
   TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt_BulkReg[nummolt+1][numzeta][numPtTrigger];
@@ -549,7 +567,7 @@ void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=2, Int_t type=4
   TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPTrue[nummolt+1][numzeta][numPtV0][numPtTrigger];
   TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPTrue[nummolt+1][numzeta][numPtV0][numPtTrigger];
 
-  TH1F * hMultiplicityDIstributionACEv = new TH1F ("hMultiplicityDIstributionACEv", "hMultiplicityDIstributionACEv", 100, 0,100);
+  TH1F * hMultiplicityDIstributionACEv = new TH1F ("hMultiplicityDIstributionACEv", "hMultiplicityDIstributionACEv", numMultBins, 0,UpperLimitMult);
 
   TH1F * HistoInfo = new TH1F("HistoInfo", "HistoInfo",22,0.5, 22.5);
   HistoInfo->GetXaxis()->SetBinLabel(1, "INT7 events");
@@ -579,43 +597,43 @@ void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=2, Int_t type=4
   hSign_PtAssoc_NOCPTrue->GetYaxis()->SetLabelSize(0.05);
 
   //------------------Histograms os selected particles (V0) for future efficiency calculation ----------------
-  TH3F*    fHistSelectedV0PtTMaxPhi=new TH3F(Form("fHistSelectedV0PtTMaxPhi_%i", sysV0), "p^{Trigg, Max}_{T} and #phi distribution of selected V0 particles (Casc, primary, events w T>0)", 120, -30, 30, 400,0, 2*TMath::Pi() ,  100, 0, 100);
+  TH3F*    fHistSelectedV0PtTMaxPhi=new TH3F(Form("fHistSelectedV0PtTMaxPhi_%i", sysV0), "p^{Trigg, Max}_{T} and #phi distribution of selected V0 particles (Casc, primary, events w T>0)", 120, -30, 30, 400,0, 2*TMath::Pi() ,  numMultBins, 0, UpperLimitMult);
   fHistSelectedV0PtTMaxPhi->GetXaxis()->SetTitle("p^{Trigg, Max}_{T}");
   fHistSelectedV0PtTMaxPhi->GetYaxis()->SetTitle("#phi");
 
-  TH3F*    fHistCPSelectedV0PtTMaxPhi=new TH3F(Form("fHistCPSelectedV0PtTMaxPhi_%i", sysV0), "p^{Trigg, Max}_{T} and #phi distribution of selected V0 particles (Casc, primary, events w T>0)", 120, -30, 30, 400,0, 2*TMath::Pi() ,  100, 0, 100);
+  TH3F*    fHistCPSelectedV0PtTMaxPhi=new TH3F(Form("fHistCPSelectedV0PtTMaxPhi_%i", sysV0), "p^{Trigg, Max}_{T} and #phi distribution of selected V0 particles (Casc, primary, events w T>0)", 120, -30, 30, 400,0, 2*TMath::Pi() ,  numMultBins, 0, UpperLimitMult);
   fHistCPSelectedV0PtTMaxPhi->GetXaxis()->SetTitle("p^{Trigg, Max}_{T}");
   fHistCPSelectedV0PtTMaxPhi->GetYaxis()->SetTitle("#phi");
 
-  TH3F*    fHistNOCPSelectedV0PtTMaxPhi=new TH3F(Form("fHistNOCPSelectedV0PtTMaxPhi_%i", sysV0), "p^{Trigg, Max}_{T} and #phi distribution of selected V0 particles (Casc, primary, events w T>0)", 120, -30, 30, 400,0, 2*TMath::Pi() ,  100, 0, 100);
+  TH3F*    fHistNOCPSelectedV0PtTMaxPhi=new TH3F(Form("fHistNOCPSelectedV0PtTMaxPhi_%i", sysV0), "p^{Trigg, Max}_{T} and #phi distribution of selected V0 particles (Casc, primary, events w T>0)", 120, -30, 30, 400,0, 2*TMath::Pi() ,  numMultBins, 0, UpperLimitMult);
   fHistNOCPSelectedV0PtTMaxPhi->GetXaxis()->SetTitle("p^{Trigg, Max}_{T}");
   fHistNOCPSelectedV0PtTMaxPhi->GetYaxis()->SetTitle("#phi");
 
-  TH3F *    fHistSelectedV0PtTMaxEta=new TH3F(Form("fHistSelectedV0PtTMaxEta_%i", sysV0), "p^{Trigg, Max}_{T} and #eta distribution of selected V0 particles (Casc, primary, events w T>0)", 120, -30, 30, 400,-1.2,1.2,  100, 0, 100 );
+  TH3F *    fHistSelectedV0PtTMaxEta=new TH3F(Form("fHistSelectedV0PtTMaxEta_%i", sysV0), "p^{Trigg, Max}_{T} and #eta distribution of selected V0 particles (Casc, primary, events w T>0)", 120, -30, 30, 400,-1.2,1.2,  numMultBins, 0, UpperLimitMult );
   fHistSelectedV0PtTMaxEta->GetXaxis()->SetTitle("p^{Trigg, max}_{T}");
   fHistSelectedV0PtTMaxEta->GetYaxis()->SetTitle("#eta");
 
-  TH3F *    fHistCPSelectedV0PtTMaxEta=new TH3F(Form("fHistCPSelectedV0PtTMaxEta_%i", sysV0), "p^{Trigg, Max}_{T} and #eta distribution of selected V0 particles with common parton (Casc, primary, events w T>0)", 120, -30, 30, 400,-1.2,1.2,  100, 0, 100 );
+  TH3F *    fHistCPSelectedV0PtTMaxEta=new TH3F(Form("fHistCPSelectedV0PtTMaxEta_%i", sysV0), "p^{Trigg, Max}_{T} and #eta distribution of selected V0 particles with common parton (Casc, primary, events w T>0)", 120, -30, 30, 400,-1.2,1.2,  numMultBins, 0, UpperLimitMult );
   fHistCPSelectedV0PtTMaxEta->GetXaxis()->SetTitle("p^{Trigg, max}_{T}");
   fHistCPSelectedV0PtTMaxEta->GetYaxis()->SetTitle("#eta");
 
-  TH3F *    fHistNOCPSelectedV0PtTMaxEta=new TH3F(Form("fHistNOCPSelectedV0PtTMaxEta_%i", sysV0), "p^{Trigg, Max}_{T} and #eta distribution of selected V0 particles with no common parton(Casc, primary, events w T>0)", 120, -30, 30, 400,-1.2,1.2,  100, 0, 100 );
+  TH3F *    fHistNOCPSelectedV0PtTMaxEta=new TH3F(Form("fHistNOCPSelectedV0PtTMaxEta_%i", sysV0), "p^{Trigg, Max}_{T} and #eta distribution of selected V0 particles with no common parton(Casc, primary, events w T>0)", 120, -30, 30, 400,-1.2,1.2,  numMultBins, 0, UpperLimitMult );
   fHistNOCPSelectedV0PtTMaxEta->GetXaxis()->SetTitle("p^{Trigg, max}_{T}");
   fHistNOCPSelectedV0PtTMaxEta->GetYaxis()->SetTitle("#eta");
 
-  TH3F *    fHistSelectedV0PtPtTMax=new TH3F(Form("fHistSelectedV0PtPtTMax_%i",sysV0), "p_{T} and p^{Trigg, Max}_{T} distribution of selected V0 particles (Casc, primary, events w T>0)", 300, 0, 30, 120, -30,30,  100, 0, 100 );
+  TH3F *    fHistSelectedV0PtPtTMax=new TH3F(Form("fHistSelectedV0PtPtTMax_%i",sysV0), "p_{T} and p^{Trigg, Max}_{T} distribution of selected V0 particles (Casc, primary, events w T>0)", 300, 0, 30, 120, -30,30,  numMultBins, 0, UpperLimitMult );
   fHistSelectedV0PtPtTMax->GetXaxis()->SetTitle("p_{T}");
   fHistSelectedV0PtPtTMax->GetYaxis()->SetTitle("p^{Trigg, Max}_{T}");
 
-  TH3F *    fHistCPSelectedV0PtPtTMax=new TH3F(Form("fHistCPSelectedV0PtPtTMax_%i",sysV0), "p_{T} and p^{Trigg, Max}_{T} distribution of selected V0 particles with common parton (Casc, primary, events w T>0)", 300, 0, 30, 120, -30,30,  100, 0, 100 );
+  TH3F *    fHistCPSelectedV0PtPtTMax=new TH3F(Form("fHistCPSelectedV0PtPtTMax_%i",sysV0), "p_{T} and p^{Trigg, Max}_{T} distribution of selected V0 particles with common parton (Casc, primary, events w T>0)", 300, 0, 30, 120, -30,30,  numMultBins, 0, UpperLimitMult );
   fHistCPSelectedV0PtPtTMax->GetXaxis()->SetTitle("p_{T}");
   fHistCPSelectedV0PtPtTMax->GetYaxis()->SetTitle("p^{Trigg, Max}_{T}");
 
-  TH3F *    fHistNOCPSelectedV0PtPtTMax=new TH3F(Form("fHistNOCPSelectedV0PtPtTMax_%i",sysV0), "p_{T} and p^{Trigg, Max}_{T} distribution of selected V0 particles with no common parton (Casc, primary, events w T>0)", 300, 0, 30, 120, -30,30,  100, 0, 100 );
+  TH3F *    fHistNOCPSelectedV0PtPtTMax=new TH3F(Form("fHistNOCPSelectedV0PtPtTMax_%i",sysV0), "p_{T} and p^{Trigg, Max}_{T} distribution of selected V0 particles with no common parton (Casc, primary, events w T>0)", 300, 0, 30, 120, -30,30,  numMultBins, 0, UpperLimitMult );
   fHistNOCPSelectedV0PtPtTMax->GetXaxis()->SetTitle("p_{T}");
   fHistNOCPSelectedV0PtPtTMax->GetYaxis()->SetTitle("p^{Trigg, Max}_{T}");
 
-  TH3F*  fHistSelectedV0PtEta=new TH3F(Form("fHistSelectedV0PtEta_%i", sysV0), "p_{T} and #eta distribution of selected V0 particles (Casc, primary, events w T>0)", 300, 0, 30, 450, -1.2, 1.2,  100, 0, 100);
+  TH3F*  fHistSelectedV0PtEta=new TH3F(Form("fHistSelectedV0PtEta_%i", sysV0), "p_{T} and #eta distribution of selected V0 particles (Casc, primary, events w T>0)", 300, 0, 30, 450, -1.2, 1.2,  numMultBins, 0, UpperLimitMult);
   fHistSelectedV0PtEta->GetXaxis()->SetTitle("p_{T}");
   fHistSelectedV0PtEta->GetYaxis()->SetTitle("#eta");
 
@@ -630,11 +648,11 @@ void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=2, Int_t type=4
   }
 
   //------------------Histograms os selected particles (trigger) for future efficiency calculation ----------------
-  TH3F*      fHistSelectedTriggerPtPhi=new TH3F(Form("fHistSelectedTriggerPtPhi_%i",sysTrigger), "p_{T} and #phi distribution of selected trigger particles (primary)", 300, 0, 30, 400,0   , 2*TMath::Pi() ,  100, 0, 100);
+  TH3F*      fHistSelectedTriggerPtPhi=new TH3F(Form("fHistSelectedTriggerPtPhi_%i",sysTrigger), "p_{T} and #phi distribution of selected trigger particles (primary)", 300, 0, 30, 400,0   , 2*TMath::Pi() ,  numMultBins, 0, UpperLimitMult);
   fHistSelectedTriggerPtPhi->GetXaxis()->SetTitle("p_{T}");
   fHistSelectedTriggerPtPhi->GetYaxis()->SetTitle("#phi");
 
-  TH3F*     fHistSelectedTriggerPtEta=new TH3F(Form("fHistSelectedTriggerPtEta_%i",sysTrigger), "p_{T} and #eta distribution of selected trigger particles (primary)", 300, 0, 30, 400,   1.2, 1.2,  100, 0, 100);
+  TH3F*     fHistSelectedTriggerPtEta=new TH3F(Form("fHistSelectedTriggerPtEta_%i",sysTrigger), "p_{T} and #eta distribution of selected trigger particles (primary)", 300, 0, 30, 400,   1.2, 1.2,  numMultBins, 0, UpperLimitMult);
   fHistSelectedTriggerPtEta->GetXaxis()->SetTitle("p_{T}");
   fHistSelectedTriggerPtEta->GetYaxis()->SetTitle("#eta");
 
