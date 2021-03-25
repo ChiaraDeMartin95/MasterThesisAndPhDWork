@@ -36,7 +36,7 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0, Int_t NSystems =2, Int_t type=0, Int_t mRatio=4){
+void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSystems =2,  Int_t type=0, Int_t mRatio=4){
 
   const Int_t nummolt=5;
   const Int_t numPtV0 = 9;
@@ -54,11 +54,11 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0, Int_t NSystems =2,
   TFile *file[NSystems];
   TFile *fileSpectra[NSystems];
   TFile *fileEff[NSystems];
-  TString pathin[NSystems] = {"", ""}; // pp MB - pp HM 
+  TString pathin[3] = {"", "", ""}; // pp MB - pp HM 
   pathin[0] = "FinalOutput/DATA2016/histo/AngularCorrelation1617_hK0s_PtBinning1_K0s_Eta0.8_SysT0_SysV00_Sys0_PtMin3.0_Output_IsEtaEff.root"; //ppMB
   pathin[1] = "FinalOutput/DATA2016/histo/AngularCorrelation2016k_HM_hK0s_PtBinning1_K0s_Eta0.8_SysT0_SysV00_Sys0_PtMin3.0_Output_IsEtaEff.root"; //ppHM
 
-  TString pathinSpectra[NSystems] = {"", ""}; // pp MB - pp HM 
+  TString pathinSpectra[3] = {"", "", ""}; // pp MB - pp HM 
   pathinSpectra[0] = "FinalOutput/DATA2016/SystematicAnalysis1617_hK0s_PtBinning1_K0s_Eta0.8_";
   pathinSpectra[0] += Region[TypeAnalysis];
   pathinSpectra[0] += "Data_PtMin3.0_IsEtaEff.root"; //pp MB                                                      
@@ -66,9 +66,10 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0, Int_t NSystems =2,
   pathinSpectra[1] += Region[TypeAnalysis];
   pathinSpectra[1] += "Data_PtMin3.0_IsEtaEff.root";
 
-  TString pathinEff[NSystems] = {"", ""}; // pp MB - pp HM 
+  TString pathinEff[3] = {"", "", ""}; // pp MB - pp HM 
   pathinEff[0] = "FinalOutput/DATA2016/Efficiency/Efficiency1617MC_hK0s_PtBinning1_K0s_Eta0.8_SysT0_SysV00_PtMin3.0.root"; //ppMB
   pathinEff[1] = "FinalOutput/DATA2016/Efficiency/Efficiency2019h11c_extra_HM_hK0s_PtBinning1_K0s_Eta0.8_SysT0_SysV00_PtMin3.0.root"; //ppHM
+  pathinEff[2] = "FinalOutput/DATA2016/Efficiency/Efficiency1617MC_hK0s_PtBinning1_K0s_Eta0.8_SysT0_SysV00_PtMin3.0_HM.root"; //ppHM 0-1% of the MB
 
   cout << " starting from files for MB: " << endl;
   cout << pathin[0] << "\n" << pathinSpectra[0] << "\n" << pathinEff[0] << endl;
@@ -115,7 +116,7 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0, Int_t NSystems =2,
 
   //NPtV0
   Double_t NPtV0[numPtV0+1]={0};
-  TString  SPtV0[numPtV0+1];
+  TString  SPtV0[numPtV0];
   Double_t NPtV0_V0[numPtV0+1]={0.1,0.5,0.8, 1.2,1.6,2,2.5,3,4,8};
   TString  SPtV0_V0[numPtV0]={"0.1-0.5", "0.5-0.8", "0.8-1.2", "1.2-1.6","1.6-2", "2-2.5","2.5-3", "3-4", "4-8"};
   Double_t NPtV0_Casc[numPtV0+1]={0,0.5,1,1.5,2,2.5,3,4,8,8};
@@ -123,7 +124,9 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0, Int_t NSystems =2,
   for(Int_t v=0; v<=numPtV0; v++){
     if (type==0){
       NPtV0[v] = NPtV0_V0[v];
-      if (v<numPtV0) SPtV0[v] = SPtV0_V0[v];
+      if (v<numPtV0) {
+	SPtV0[v] = SPtV0_V0[v];
+      }
     }
     else{
       NPtV0[v] = NPtV0_Casc[v];
@@ -173,7 +176,7 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0, Int_t NSystems =2,
 	NameHisto[i][m][v] = "ME_m"+ Smolt[m]+ "_v"+ SPtV0[v] + "_AC_phi_V0Sub_"+RegionName[TypeAnalysis] +"EffCorr_TrCorr";
 	if (i==0) NameHisto[i][mRatio][v] = "ME_m"+ Smolt[mRatio]+ "_v"+ SPtV0[v] + "_AC_phi_V0Sub_"+RegionName[TypeAnalysis] +"EffCorr_TrCorr";
 	histoPhiDistr[i][m][v] = (TH1F*) file[i]->Get(NameHisto[i][m][v]);
-	if (!histoPhiDistr[i][m][v] ) {cout << " phi distr file not found " << endl; return;}
+	if (!histoPhiDistr[i][m][v] ) {cout << " phi distr file not found: " << NameHisto[i][m][v] << endl; return;}
 	//histoPhiDistr[i][m][v]->Sumw2();
 
 	Float_t DeltaPt = NPtV0[v+1] - NPtV0[v];
@@ -233,7 +236,6 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0, Int_t NSystems =2,
       }
       if (i==1 && m<3 && TypeAnalysis==0) continue;
       if (i==1 && m<3 && TypeAnalysis==1) continue;
-      cout << " m " << Smolt[m] << endl;
       legendMult->AddEntry(histoPhiDistr[i][m][PtV0Min], Smolt[m] , "pl");
     }
   }
@@ -271,7 +273,6 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0, Int_t NSystems =2,
       if (i==1 && m<3 && TypeAnalysis==0) continue;
       if (i==1 && m<3 && TypeAnalysis==1) continue;
       if (i==1 && m==nummolt) continue; //I am interested in 0-100% only
-      cout << Smolt[m] << endl;
       NameHistoSpectrum[i][m] = Form("fHistSpectrumPart_m%i_syst0", m);
       NameHistoSpectrumFinal[i][m] = "fHistSpectrumPart_m_" + Smolt[m] + "syst0";
       histoSpectrum[i][m] = (TH1F*) fileSpectra[i]->Get(NameHistoSpectrum[i][m]);
@@ -321,7 +322,7 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0, Int_t NSystems =2,
       Smolt[4] = "50-100";
 
     }
-    else if (i==1) {
+    else if (i==1 || i==2) {
       Nmolt[1] = 0.001;
       Nmolt[2] = 0.005;
       Nmolt[3] = 0.01;
@@ -338,10 +339,11 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0, Int_t NSystems =2,
       Color[3] = 857;
       Color[4] = 601;
     }
+    if (i==2) Color[0] = 922;
     for (Int_t m=0; m<=nummolt; m++){
       //      if (i==1 && m<3 && TypeAnalysis==0) continue;
       if (i==1 && m==nummolt) continue; //I am interested in 0-100% only
-      cout << Smolt[m] << endl;
+      if (i==2 && m!=0) continue; //I am interested in 0-1% only 
       NameHistoEff[i][m] = "fHistV0EfficiencyPtBins_"+Smolt[m];
       NameHistoEffFinal[i][m] = "fHistEff_m_" + Smolt[m];
       histoEff[i][m] = (TH1F*) fileEff[i]->Get(NameHistoEff[i][m]);
