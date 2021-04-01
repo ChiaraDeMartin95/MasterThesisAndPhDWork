@@ -36,7 +36,7 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSystems =2,  Int_t type=0, Int_t mRatio=4){
+void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSystems =2,  Int_t type=0, Int_t mRatio=0){
 
   const Int_t nummolt=5;
   const Int_t numPtV0 = 9;
@@ -56,18 +56,21 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSys
   TFile *fileEff[NSystems];
   TString pathin[3] = {"", "", ""}; // pp MB - pp HM 
   pathin[0] = "FinalOutput/DATA2016/histo/AngularCorrelation1617_hK0s_PtBinning1_K0s_Eta0.8_SysT0_SysV00_Sys0_PtMin3.0_Output_IsEtaEff.root"; //ppMB
-  pathin[1] = "FinalOutput/DATA2016/histo/AngularCorrelation2016k_HM_hK0s_PtBinning1_K0s_Eta0.8_SysT0_SysV00_Sys0_PtMin3.0_Output_IsEtaEff.root"; //ppHM
+  //  pathin[1] = "FinalOutput/DATA2016/histo/AngularCorrelation2016k_HM_hK0s_PtBinning1_K0s_Eta0.8_SysT0_SysV00_Sys0_PtMin3.0_Output_IsEtaEff.root"; //ppHM
+  pathin[1] = "FinalOutput/DATA2016/histo/AngularCorrelationAllhK0sHM_RedNo16k_PtBinning1_K0s_Eta0.8_SysT0_SysV00_Sys0_PtMin3.0_Output_IsEtaEff.root"; //ppHM
 
   TString pathinSpectra[3] = {"", "", ""}; // pp MB - pp HM 
   pathinSpectra[0] = "FinalOutput/DATA2016/SystematicAnalysis1617_hK0s_PtBinning1_K0s_Eta0.8_";
   pathinSpectra[0] += Region[TypeAnalysis];
   pathinSpectra[0] += "Data_PtMin3.0_IsEtaEff.root"; //pp MB                                                      
-  pathinSpectra[1] = "FinalOutput/DATA2016/SystematicAnalysis2016k_HM_hK0s_PtBinning1_K0s_Eta0.8_";
+  //  pathinSpectra[1] = "FinalOutput/DATA2016/SystematicAnalysis2016k_HM_hK0s_PtBinning1_K0s_Eta0.8_";
+  pathinSpectra[1] = "FinalOutput/DATA2016/SystematicAnalysisAllhK0sHM_RedNo16k_PtBinning1_K0s_Eta0.8_";
   pathinSpectra[1] += Region[TypeAnalysis];
   pathinSpectra[1] += "Data_PtMin3.0_IsEtaEff.root";
 
   TString pathinEff[3] = {"", "", ""}; // pp MB - pp HM 
   pathinEff[0] = "FinalOutput/DATA2016/Efficiency/Efficiency1617MC_hK0s_PtBinning1_K0s_Eta0.8_SysT0_SysV00_PtMin3.0.root"; //ppMB
+  //pathinEff[0] = "FinalOutput/DATA2016/Efficiency/Efficiency2018g4_extra_EtaEff_hK0s_PtBinning1_K0s_Eta0.8_SysT0_SysV00_PtMin3.0.root";
   pathinEff[1] = "FinalOutput/DATA2016/Efficiency/Efficiency2019h11c_extra_HM_hK0s_PtBinning1_K0s_Eta0.8_SysT0_SysV00_PtMin3.0.root"; //ppHM
   pathinEff[2] = "FinalOutput/DATA2016/Efficiency/Efficiency1617MC_hK0s_PtBinning1_K0s_Eta0.8_SysT0_SysV00_PtMin3.0_HM.root"; //ppHM 0-1% of the MB
 
@@ -81,6 +84,10 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSys
   TString NameHistoSpectrumFinal[NSystems][nummolt+1];
   TString NameHistoEff[NSystems][nummolt+1];
   TString NameHistoEffFinal[NSystems][nummolt+1];
+  TString NameHistoEffEta[NSystems][nummolt+1];
+  TString NameHistoEffEtaFinal[NSystems][nummolt+1];
+  TString NameHistoEff2D[NSystems][nummolt+1];
+  TString NameHistoEff2DFinal[NSystems][nummolt+1];
 
   TCanvas * canvas= new TCanvas("canvas", "canvas", 1300, 800);
   canvas->Divide(5,2);
@@ -98,6 +105,15 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSys
   canvasEff->Divide(2,1);
   gStyle->SetOptStat(0);
 
+  TCanvas * canvasEffEta= new TCanvas("canvasEffEta", "canvasEffEta", 1300, 800);
+  canvasEffEta->Divide(2,1);
+  gStyle->SetOptStat(0);
+
+  TCanvas * canvasEff2D= new TCanvas("canvasEff2D", "canvasEff2D", 1300, 800);
+  canvasEff2D -> Divide(5,2);
+  TCanvas * canvasEff2DRatio= new TCanvas("canvasEff2DRatio", "canvasEff2DRatio", 1300, 800);
+  canvasEff2DRatio -> Divide(5,2);
+
   TLegend * legendMult = new TLegend(0.3, 0.3, 0.9, 0.9);
 
   TH1F * histoPhiDistr[NSystems][nummolt+1][numPtV0];
@@ -113,6 +129,18 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSys
   TH1F * histoEffFinal[NSystems][nummolt+1];
   TH1F * histoEffMBFinal;
   TH1F * histoEffRatio[NSystems][nummolt+1];
+
+  TH1F * histoEffEta[NSystems][nummolt+1];
+  TH1F * histoEffEtaMB;
+  TH1F * histoEffEtaFinal[NSystems][nummolt+1];
+  TH1F * histoEffEtaMBFinal;
+  TH1F * histoEffEtaRatio[NSystems][nummolt+1];
+
+  TH2F * histoEff2D[NSystems][nummolt+1];
+  TH2F * histoEff2DMB;
+  TH2F * histoEff2DFinal[NSystems][nummolt+1];
+  TH2F * histoEff2DMBFinal;
+  TH2F * histoEff2DRatio[NSystems][nummolt+1];
 
   //NPtV0
   Double_t NPtV0[numPtV0+1]={0};
@@ -170,8 +198,8 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSys
       Color[4] = 601;
     }
     for (Int_t m=0; m< nummolt; m++){
-      if (i==1 && m<3 && TypeAnalysis==0) continue;
-      if (i==1 && m<3 && TypeAnalysis==1) continue;
+      //      if (i==1 && m<3 && TypeAnalysis==0) continue;
+      //      if (i==1 && m<3 && TypeAnalysis==1) continue;
       for(Int_t v=PtV0Min; v<numPtV0Max; v++){
 	NameHisto[i][m][v] = "ME_m"+ Smolt[m]+ "_v"+ SPtV0[v] + "_AC_phi_V0Sub_"+RegionName[TypeAnalysis] +"EffCorr_TrCorr";
 	if (i==0) NameHisto[i][mRatio][v] = "ME_m"+ Smolt[mRatio]+ "_v"+ SPtV0[v] + "_AC_phi_V0Sub_"+RegionName[TypeAnalysis] +"EffCorr_TrCorr";
@@ -234,8 +262,8 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSys
 	Smolt[3] = "30-50";
 	Smolt[4] = "50-100";
       }
-      if (i==1 && m<3 && TypeAnalysis==0) continue;
-      if (i==1 && m<3 && TypeAnalysis==1) continue;
+      //      if (i==1 && m<3 && TypeAnalysis==0) continue;
+      //      if (i==1 && m<3 && TypeAnalysis==1) continue;
       legendMult->AddEntry(histoPhiDistr[i][m][PtV0Min], Smolt[m] , "pl");
     }
   }
@@ -270,8 +298,8 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSys
       Color[4] = 601;
     }
     for (Int_t m=0; m<=nummolt; m++){
-      if (i==1 && m<3 && TypeAnalysis==0) continue;
-      if (i==1 && m<3 && TypeAnalysis==1) continue;
+      //      if (i==1 && m<3 && TypeAnalysis==0) continue;
+      //      if (i==1 && m<3 && TypeAnalysis==1) continue;
       if (i==1 && m==nummolt) continue; //I am interested in 0-100% only
       NameHistoSpectrum[i][m] = Form("fHistSpectrumPart_m%i_syst0", m);
       NameHistoSpectrumFinal[i][m] = "fHistSpectrumPart_m_" + Smolt[m] + "syst0";
@@ -344,12 +372,31 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSys
       //      if (i==1 && m<3 && TypeAnalysis==0) continue;
       if (i==1 && m==nummolt) continue; //I am interested in 0-100% only
       if (i==2 && m!=0) continue; //I am interested in 0-1% only 
+
       NameHistoEff[i][m] = "fHistV0EfficiencyPtBins_"+Smolt[m];
       NameHistoEffFinal[i][m] = "fHistEff_m_" + Smolt[m];
       histoEff[i][m] = (TH1F*) fileEff[i]->Get(NameHistoEff[i][m]);
-      if (!histoEff[i][m]) {cout << NameHistoEff[i][m] << endl; return;}
+      if (!histoEff[i][m]) {cout << "1D eff " << NameHistoEff[i][m] << endl; return;}
       histoEffFinal[i][m] = (TH1F*)       histoEff[i][m]->Clone(NameHistoEffFinal[i][m]);
-      //      histoEffFinal[i][m] ->Sumw2();
+
+      NameHistoEffEta[i][m] = "fHistV0EfficiencyEta_"+Smolt[m];
+      NameHistoEffEtaFinal[i][m] = "fHistEffEta_m_" + Smolt[m];
+      histoEffEta[i][m] = (TH1F*) fileEff[i]->Get(NameHistoEffEta[i][m]);
+      if (!histoEffEta[i][m]) {cout << "1D eff " << NameHistoEffEta[i][m] << endl; return;}
+      histoEffEtaFinal[i][m] = (TH1F*)       histoEffEta[i][m]->Clone(NameHistoEffEtaFinal[i][m]);
+
+      if (!(pathinEff[0].Index("2018g4_extra") !=1)) {
+	NameHistoEff2D[i][m] = "fHistV0EfficiencyPtV0EtaV0PtBins_"+Smolt[m];
+	NameHistoEff2DFinal[i][m] = "fHistEff2D_m_" + Smolt[m];
+	histoEff2D[i][m] = (TH2F*) fileEff[i]->Get(NameHistoEff2D[i][m]);
+	if (!histoEff2D[i][m]) {cout << NameHistoEff2D[i][m] << endl; return;}
+	histoEff2DFinal[i][m] = (TH2F*)       histoEff2D[i][m]->Clone(NameHistoEff2DFinal[i][m]);
+	histoEff2DFinal[i][m] -> GetZaxis()->SetRangeUser(0,0.5);
+	cout << " i " << i << " m" << m << endl;
+	cout << " num bins x axis " << histoEff2DFinal[i][m]->GetNbinsX() << endl;
+	cout << " num bins y axis " << histoEff2DFinal[i][m]->GetNbinsY() << endl;
+	//      histoEffFinal[i][m] ->Sumw2();
+      }
 
       if (m==0 && i==0){
 	NameHistoEff[i][mRatio] = "fHistV0EfficiencyPtBins_"+Smolt[mRatio];
@@ -357,35 +404,86 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSys
 	if (!histoEffMB) {cout << NameHistoEff[i][mRatio] << endl; return;}
 	histoEffMBFinal = (TH1F*)       histoEffMB->Clone("fhistoEffMB");
 	//	histoEffMBFinal->Sumw2();
+	NameHistoEffEta[i][mRatio] = "fHistV0EfficiencyEta_"+Smolt[mRatio];
+	histoEffEtaMB = (TH1F*) fileEff[i]->Get(NameHistoEffEta[i][mRatio]);
+	if (!histoEffEtaMB) {cout << NameHistoEffEta[i][mRatio] << endl; return;}
+	histoEffEtaMBFinal = (TH1F*)       histoEffEtaMB->Clone("fhistoEffMB");
+
+	if (!(pathinEff[0].Index("2018g4_extra") !=1)) {
+	  NameHistoEff2D[i][mRatio] = "fHistV0EfficiencyPtV0EtaV0PtBins_"+Smolt[mRatio];
+	  histoEff2DMB = (TH2F*) fileEff[i]->Get(NameHistoEff2D[i][mRatio]);
+	  if (!histoEff2DMB) {cout << NameHistoEff2D[i][mRatio] << endl; return;}
+	  histoEff2DMBFinal = (TH2F*)       histoEff2DMB->Clone("fhistoEff2DMB");
+	}
       }
 
       histoEffRatio[i][m] = (TH1F*)       histoEffFinal[i][m]->Clone(NameHistoEffFinal[i][m]+ "_Ratio");
       histoEffRatio[i][m] ->Divide(histoEffMBFinal);
 
+      histoEffEtaRatio[i][m] = (TH1F*)       histoEffEtaFinal[i][m]->Clone(NameHistoEffEtaFinal[i][m]+ "_Ratio");
+      histoEffEtaRatio[i][m] ->Divide(histoEffEtaMBFinal);
+
+      if (!(pathinEff[0].Index("2018g4_extra") !=1)) {
+	histoEff2DRatio[i][m] = (TH2F*)       histoEff2DFinal[i][m]->Clone(NameHistoEff2DFinal[i][m]+ "_Ratio");
+	histoEff2DRatio[i][m] ->Divide(histoEff2DMBFinal);
+	histoEff2DRatio[i][m] -> GetZaxis()->SetRangeUser(0.8, 1.2);
+      }
+
       StyleHisto(histoEffFinal[i][m],3*10e-4, UpEff[TypeAnalysis], Color[m], 33, "p_{T}", "Efficiency", "", 0,0,0);
+      StyleHisto(histoEffEtaFinal[i][m],3*10e-4, UpEff[TypeAnalysis], Color[m], 33, "#eta", "Efficiency", "", 0,0,0);
 
       canvasEff->cd(1);
       gPad->SetLeftMargin(0.15);
       histoEffFinal[i][m]->Draw("same");
       legendMult->Draw();
 
+      canvasEffEta->cd(1);
+      gPad->SetLeftMargin(0.15);
+      histoEffEtaFinal[i][m]->Draw("same p");
+      legendMult->Draw();
+
       StyleHisto(histoEffRatio[i][m],0.5, 1.5, Color[m], 33, "p_{T}", "Ratio to MB", "", 0,0,0);
+      StyleHisto(histoEffEtaRatio[i][m],0.5, 1.5, Color[m], 33, "#eta", "Ratio to MB", "", 0,0,0);
 
       canvasEff->cd(2);
       gPad->SetLeftMargin(0.15);
       if (!(m==mRatio && i==0))      histoEffRatio[i][m]->Draw("same");
 
+      canvasEffEta->cd(2);
+      gPad->SetLeftMargin(0.15);
+      if (!(m==mRatio && i==0))      histoEffEtaRatio[i][m]->Draw("same p");
+
+      if (!(pathinEff[0].Index("2018g4_extra") !=1)) {
+	if (i==0)   canvasEff2D->cd(nummolt-m);
+	else   canvasEff2D->cd(nummolt+m+1);
+	gPad->SetLeftMargin(0.15);
+	histoEff2DFinal[i][m]->GetYaxis()->SetRangeUser(-0.8, 0.8);
+	histoEff2DFinal[i][m]->Draw("same colz");
+
+	if (i==0)   canvasEff2DRatio->cd(nummolt-m);
+	else   canvasEff2DRatio->cd(nummolt+m+1);
+	gPad->SetLeftMargin(0.15);
+	histoEff2DRatio[i][m]->GetYaxis()->SetRangeUser(-0.8, 0.8);
+	histoEff2DRatio[i][m]->Draw("same colz");
+      }
     }
   }
 
-  TString outname = "ComparePhiDistrDifferentCollisions" + Region[TypeAnalysis] +".root";
-  TFile * fileout = new TFile (outname, "RECREATE");
+  TString NameFileout ="ComparePhiDistrDifferentCollisions";
+  if (pathin[1].Index("2016k_HM_hK0s")!=-1) NameFileout += "_HM16k";
+  if (pathinEff[0].Index("18g4_extra")!=-1) NameFileout += "_MBEff18g4extra";
+  NameFileout += Region[TypeAnalysis]+ ".root";
+
+  TFile * fileout = new TFile (NameFileout, "RECREATE");
   canvas->Write();
   canvasRatio->Write();
   canvasSpectrum->Write();
   canvasEff->Write();
+  canvasEffEta->Write();
+  canvasEff2D->Write();
+  canvasEff2DRatio->Write();
   fileout->Close();
   canvas->SaveAs("ComparePhiDistrDifferentCollisions"+ Region[TypeAnalysis]+".pdf");
 
-  cout << " I have produced the file ComparePhiDistrDifferentCollisions"<< Region[TypeAnalysis] << ".root" << endl;
+  cout << " I have produced the file " << NameFileout << endl;
 }

@@ -19,7 +19,6 @@
 #include "TFitResult.h"
 #include </data/dataalice/AliceSoftware/aliphysics/master_chiara/src/PWG/Tools/AliPWGFunc.h>
 
-
 void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, TString titleX, TString titleY, TString title, Bool_t XRange, Float_t XLow, Float_t XUp){
   histo->GetYaxis()->SetRangeUser(Low, Up);
   if (XRange)   histo->GetXaxis()->SetRangeUser(XLow, XUp);
@@ -46,7 +45,9 @@ void CompareYieldDifferentCollisions(Int_t TypeAnalysis=0, Int_t NSystems =2, In
   pathin[0] = "FinalOutput/DATA2016/SystematicAnalysis1617_hK0s_PtBinning1_K0s_Eta0.8_";
   pathin[0] += Region[TypeAnalysis];
   pathin[0] += "Data_PtMin3.0_IsEtaEff.root"; //pp MB
-  pathin[1] = "FinalOutput/DATA2016/SystematicAnalysis2016k_HM_hK0s_PtBinning1_K0s_Eta0.8_";
+  //pathin[0] += "Data_PtMin3.0_Eff18g4extra.root"; //pp MB
+  //pathin[1] = "FinalOutput/DATA2016/SystematicAnalysis2016k_HM_hK0s_PtBinning1_K0s_Eta0.8_";
+  pathin[1] = "FinalOutput/DATA2016/SystematicAnalysisAllhK0sHM_RedNo16k_PtBinning1_K0s_Eta0.8_";
   pathin[1] += Region[TypeAnalysis];
   pathin[1] += "Data_PtMin3.0_IsEtaEff.root"; 
 
@@ -77,7 +78,7 @@ void CompareYieldDifferentCollisions(Int_t TypeAnalysis=0, Int_t NSystems =2, In
     for (Int_t b=1; b<= histoYieldFinal[i]->GetNbinsX(); b++){
       if (histoYieldFinal[i]->GetBinContent(b)==0)	continue;
       bin = histoYieldComparison ->FindBin(histoYieldFinal[i]-> GetBinCenter(b));
-      if (histoYieldFinal[i]-> GetBinCenter(b) > 34 && TypeAnalysis==0) continue;
+      //      if (histoYieldFinal[i]-> GetBinCenter(b) > 34 && TypeAnalysis==0) continue;
       histoYieldComparison -> SetBinContent( bin , histoYieldFinal[i]->GetBinContent(b));
       histoYieldComparison -> SetBinError( bin , histoYieldFinal[i]->GetBinError(b));
     }
@@ -86,14 +87,21 @@ void CompareYieldDifferentCollisions(Int_t TypeAnalysis=0, Int_t NSystems =2, In
       cout <<      histoYieldComparison->GetBinContent(b) << endl;
       }
     }
-    if (TypeAnalysis!=0)    histoYieldComparison->Fit(pol1);
+    //    if (TypeAnalysis!=0)    histoYieldComparison->Fit(pol1);
   }
 
-  TFile * fileout = new TFile ("CompareYieldDifferentCollisions.root", "RECREATE");
+  TString NameFileout ="CompareYieldDifferentCollisions";
+  if (pathin[1].Index("2016k_HM_hK0s")!=-1) NameFileout += "_HM16k";
+  if (pathin[0].Index("18g4extra")!=-1) NameFileout += "_MBEff18g4extra_NoEtaEff";
+  NameFileout += Region[TypeAnalysis]+ ".root";
+
+  TFile * fileout = new TFile (NameFileout, "RECREATE");
   StyleHisto(histoYieldComparison, Low[TypeAnalysis] , Up[TypeAnalysis], Color[TypeAnalysis], 33, "", "N/N_{Trigg} 1/#Delta#eta #Delta#phi", "Yield vs multiplicity" , 0,0, 45);
   histoYieldComparison->Draw("");
   canvas->Draw("");
+  histoYieldComparison->Write("");
+  canvas->Write("");
   fileout->Close();
   canvas->SaveAs("CompareYieldDifferentCollisions"+ Region[TypeAnalysis]+".pdf");
-  cout << " I have produced the file CompareYieldDifferentCollisions.root" << endl;
+  cout << " I have produced the file " << NameFileout << endl;
 }
