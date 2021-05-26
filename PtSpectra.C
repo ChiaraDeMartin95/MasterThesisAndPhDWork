@@ -34,8 +34,12 @@ void StyleHisto(TH1D *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void PtSpectra( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=400, Int_t numsysTriggerindex=99, Int_t sysPhi =0, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString year="1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/,  TString Path1 ="_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/, Bool_t isEfficiency=1,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Int_t PtBinning=1, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,   Int_t sys=0, Bool_t SysTuvaWay=0){
+void PtSpectra( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, Int_t numsysTriggerindex=99, Int_t sysPhi =0, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString year="1617_AOD234_hK0s"/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/, TString yearDCAzTrigger = "1617_hK0s",  TString Path1 =""/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/, Bool_t isEfficiency=1,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Int_t PtBinning=1, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/, Int_t sys=0, Bool_t SysTuvaWay=0, Bool_t isPreliminary=0, Bool_t isNewInputPath=1){
 
+  if (isPreliminary) {
+    isNewInputPath=0;
+    numsysV0index=400;
+  }
   if (TypeAnalysis>2) {cout << "sys errors not yet implemented for these regions " << endl; return;}
 
   if (TypeAnalysis==0 && sysPhi>2) return;
@@ -44,8 +48,14 @@ void PtSpectra( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=400, Int
 
   if (type==0){
     PtBinning=1;
-    if (!isMC) year= "1617_hK0s";
-    else  year= "1617MC_hK0s";
+    if (isPreliminary){
+      if (!isMC) year= "1617_hK0s";
+      else  year= "1617MC_hK0s";
+    }
+    else {
+      if (!isMC) year= "1617_AOD234_hK0s";
+      isNewInputPath=1;
+    }
   }
   else if (type==8){
     PtBinning=0;
@@ -87,6 +97,7 @@ void PtSpectra( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=400, Int
   TString PathInDeltaEtaSys;
   TString PathInSignalSys;
   TString PathInDCAzSys;
+  TString PurityPath;
 
   TString PathIn0;
   TString PathIn1;
@@ -240,7 +251,7 @@ void PtSpectra( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=400, Int
       NPtV0[v] = NPtV02[v];
     }
   }
-  cout << "ok " << endl;
+
   TString SErrorSpectrum[3]={"stat.","syst. uncorr.","syst. corr."};
   TString SSystJet[2]={"BC [-1.0, 1.0]", "BC [-1.2, 1.2]"};
   TString SSystBulk[3]={"BC [1.0, 2.0]", "BC [2.0, 4.28]", "BC [1.0, 4.28]"};
@@ -299,6 +310,7 @@ void PtSpectra( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=400, Int
 
   TH1D* fHistPhiDistr[nummolt+1][numPtV0];
   TH1D* fHistPhiDistr_solosist[nummolt+1][numPtV0];
+  TH1D* fHistPhiDistr_solosistCorr[nummolt+1][numPtV0];
   TH1D* fHistPhiDistr_solosistRelError[nummolt+1][numPtV0];
   TH1D* fHistPhiDistr_solosistRelErrSE[nummolt+1][numPtV0];
   TH1D* fHistPhiDistr_solosistSE[nummolt+1][numPtV0];
@@ -308,6 +320,7 @@ void PtSpectra( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=400, Int
   TH1D* fHistPhiDistr_solosistDeltaEta[nummolt+1][numPtV0];
   TH1D* fHistPhiDistr_solostat[nummolt+1][numPtV0];
   TH1D* fHistPhiDistr_master[nummolt+1][numPtV0];
+  TH1F* hRelErrorPurity[nummolt+1];
 
   TF1*  gauss[nummolt+1][numPtV0][numSyst];
   TF1*  gaussint[nummolt+1][numPtV0][numSyst];
@@ -319,15 +332,29 @@ void PtSpectra( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=400, Int
   TH1F*   HistContV0PtBins[nummolt];
 
   TString dirinputtype[numtipo] = {"", "Lambda", "Lambda", "Lambda", "Xi","Xi", "Omega", "Omega", "Xi", "Omega"};
-  TDirectoryFile *dir = (TDirectoryFile*)fileinbis->Get("MyTask"+dirinputtype[type]);
+  TString TaskName = "";
+  if (isNewInputPath){
+    if (isMC)  TaskName = "_MCTruth_PtTrigMin3.0_PtTrigMax15.0";
+    else TaskName = "_PtTrigMin3.0_PtTrigMax15.0";
+  }
+  cout << "TaskName " << TaskName << endl;
+  TDirectoryFile *dir = (TDirectoryFile*)fileinbis->Get("MyTask"+dirinputtype[type]+TaskName);
   if (!dir) {cout << " input dir not found " << endl; return;}
 
-  TList *list = (TList*)dir->Get("MyOutputContainer");
+  TString ContainerName ="";
+  if (isNewInputPath) {
+    if (year.Index("AOD234")!=-1) ContainerName= "_hK0s_Task_";
+    else if (year.Index("AOD235")!=-1) ContainerName= "_hK0s_Task_RecoAndEfficiency";
+    else  ContainerName= "_hK0s_Task_";
+  }
+  cout << "Container name " << ContainerName << endl;
+  TList *list = (TList*)dir->Get("MyOutputContainer"+ ContainerName);
   if (!list) {cout << " input list not found " << endl; return;}
 
 
   TString stringout;
   stringout = Dir+"/DATA"+year0+"/PtSpectra" +hhCorr[ishhCorr];
+  if (!isPreliminary) stringout+="_"+ year;
   if (PtBinning>0) stringout +=Form("_PtBinning%i",PtBinning);
   if(type>=0){
     if (!ishhCorr)      stringout +="_"+tipo[type];
@@ -518,19 +545,20 @@ void PtSpectra( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=400, Int
 	}
       }
     }
-  }
-
-  if (MultBinning==1 && type==8){
-    for (Int_t m=0; m<nummolt+1; m++){
-      if (!isMC)      LowRangeJet[m] = LowRangeJet1[m];
-      else if (isMC)      LowRangeJet[m] = LowRangeJet1MC[m];
-    }
-  }
-
-  if (MultBinning==2 && type==8){
-    for (Int_t m=0; m<nummolt+1; m++){
-      if (!isMC)      LowRangeJet[m] = LowRangeJet2[m];
-      else if (isMC)      LowRangeJet[m] = LowRangeJet2MC[m];
+    else if (PtBinning==1 && year=="1617_AOD234_hK0s") {
+      for (Int_t m =0; m<nummolt+1; m++){
+	if (PtTrigMin==3){
+	  LowRangeJet[m] = 0.5;     LowRangeJetBFit[m] =     LowRangeJetZYAM[m]= 0.5;
+	  UpRangeJet[m] = UpRangeJetBFit[m] = UpRangeJetZYAM[m]=3;
+	  if (m==4) UpRangeJet[m] = UpRangeJetBFit[m] = UpRangeJetZYAM[m]=3;
+	  LowRangeBulk[m]= 0.5;
+	  LowRangeAll[m]= 0.5;
+	  UpRangeAll[m]= 2;
+	  UpRangeBulk[m]= 2;
+	  LowRangeASBFit[m]=      LowRangeASZYAM[m]= 0.1;
+	  UpRangeASBFit[m]=       UpRangeASZYAM[m]= 2;
+	}
+      }
     }
   }
 
@@ -616,8 +644,10 @@ void PtSpectra( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=400, Int
     if (type==8 && TypeAnalysis==1 && m==4) UpRangeSpectrumPart[m] = 4.;
     else if (type==8 && TypeAnalysis==0 && m==4) UpRangeSpectrumPart[m] = 4.;
     else UpRangeSpectrumPart[m] = 8.;
+    if (year== "1617_AOD234_hK0s"){
+      if (m==4) UpRangeSpectrumPart[m] = 4; //not enough stat above                                           
+    }
     //    else  LowRangeSpectrumPart[m] = 8;
-    cout << " ok " << endl;
     for(Int_t v=0; v < numPtV0Max; v++){
       if (LowRangeSpectrumPart[m]<=NPtV0[v]) break;
       PtBinMin[m]++;
@@ -730,24 +760,31 @@ void PtSpectra( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=400, Int
     //    cout << "\n\n" << PathIn1 << endl;
 
     //PathInSignalSys definition
+    TString PathInSysDCAz="";
     TString PathInSys=Dir+"/DATA2016/histo/SignalExtractionStudy";
     TString PathInSysTuva=Dir+"/DATA2016/LoosestTightestTopoSel";
+    PathInSysDCAz=PathInSys;
+    PathInSysDCAz+=yearDCAzTrigger ;
     PathInSys+=year ;
     PathInSysTuva+=year ;
     TString PathInSysDeltaEta=Dir+"/DATA2016/SysDeltaEta";
     if (PtBinning>0) {
       PathInSys +=Form("_PtBinning%i",PtBinning);
+      PathInSysDCAz +=Form("_PtBinning%i",PtBinning);
       PathInSysTuva +=Form("_PtBinning%i",PtBinning);
       PathInSysDeltaEta +=Form("_PtBinning%i",PtBinning);
     }
     if(type>=0){
       if (!ishhCorr) {
 	PathInSys +="_"+tipo[type];
+	PathInSysDCAz +="_"+tipo[type];
 	PathInSysTuva +="_"+tipo[type];
 	PathInSysDeltaEta +="_"+tipo[type];
       }
       PathInSys +=Srap[israp];
       PathInSys +=SSkipAssoc[SkipAssoc];
+      PathInSysDCAz +=Srap[israp];
+      PathInSysDCAz +=SSkipAssoc[SkipAssoc];
       PathInSysTuva +=Srap[israp];
       PathInSysTuva +=SSkipAssoc[SkipAssoc];
       PathInSysDeltaEta +=Srap[israp];
@@ -756,9 +793,18 @@ void PtSpectra( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=400, Int
 
     PathInSignalSys= PathInSys+  Form("_SysT%i_SysV0Num%i_Sys%i_PtMin%.1f.root", 0, numsysV0index, sys, PtTrigMin);
     PathInSysTuva= PathInSysTuva+  Form("_PtMin%.1f_", PtTrigMin)+RegionTypeOld[TypeAnalysis]+".root" ;
-    PathInDCAzSys= PathInSys +  Form("_SysTNum%i_SysV0%i_Sys%i_PtMin%.1f.root", numsysTriggerindex, 0, sys, PtTrigMin);
+    PathInDCAzSys= PathInSysDCAz +  Form("_SysTNum%i_SysV0%i_Sys%i_PtMin%.1f.root", numsysTriggerindex, 0, sys, PtTrigMin);
 
-    //    filein = new TFile(PathIn1, "");
+    //file from where I get the syst uncertainty on pt spectra associated to fit procedure --- just for !isPreliminary
+    PurityPath = "FinalOutput/DATA2016/SysPurity";
+    PurityPath +=year;
+    if (PtBinning>0)      PurityPath+="_PtBinning1";
+    PurityPath +="_"+tipo[type];
+    PurityPath +=Srap[israp];
+    PurityPath +=SSkipAssoc[SkipAssoc];
+    PurityPath +=Form("_PtMin%.1f",PtTrigMin);
+    PurityPath +=".root";
+
     cout <<"systematics assoc to signal extraction from file " <<  PathInSignalSys << endl;
     fileSignalSys = new TFile(PathInSignalSys, "");
     if (SysTuvaWay)    fileSysTuva = new TFile(PathInSysTuva, "");
@@ -816,40 +862,53 @@ void PtSpectra( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=400, Int
 	fHistPhiDistr_solosistDeltaEta[m][v]->SetName("PhiDistrSysDEta_m"+Smolt[m]+"_v"+SPtV0[v]);
       }
 
-      cout << " I might end if histograms not present...." << endl;
-
-
-      //      cout << " Histogram is present!" << endl;
+      //*************************************************************************
+      //Systematic sources correlated in dphi
+      //A) Fit procedure
+      if (!isPreliminary){
+	cout << " Syst associated to fit procedure" << endl;
+	TFile *PurityFile = new TFile(PurityPath, "");
+	if (!PurityFile) return;
+	hRelErrorPurity[m] = (TH1F*) PurityFile->Get(Form("hRelError_m%i", m));
+	if (!hRelErrorPurity[m]) return;
+      }
+      //*************************************************************************
 
       fHistPhiDistr[m][v] = (TH1D*) fHistPhiDistr_master[m][v]->Clone("PhiDistr_m"+Smolt[m]+"_v"+SPtV0[v]);
       fHistPhiDistr_solostat[m][v] = (TH1D*) fHistPhiDistr_master[m][v]->Clone("PhiDistr_solostat_m"+Smolt[m]+"_v"+SPtV0[v]);
       fHistPhiDistr_solosist[m][v] = (TH1D*) fHistPhiDistr_master[m][v]->Clone("PhiDistr_solosist_m"+Smolt[m]+"_v"+SPtV0[v]);
+      fHistPhiDistr_solosistCorr[m][v] = (TH1D*) fHistPhiDistr_master[m][v]->Clone("PhiDistr_solosistCorr_m"+Smolt[m]+"_v"+SPtV0[v]);
       fHistPhiDistr_solosistPurity[m][v] = (TH1D*) fHistPhiDistr_master[m][v]->Clone("PhiDistr_solosistPurity_m"+Smolt[m]+"_v"+SPtV0[v]);
       fHistPhiDistr_solosistRelError[m][v] = (TH1D*) fHistPhiDistr_master[m][v]->Clone("PhiDistr_solosistRelError_m"+Smolt[m]+"_v"+SPtV0[v]);
       fHistPhiDistr_solosistRelErrSE[m][v] = (TH1D*) fHistPhiDistr_master[m][v]->Clone("PhiDistr_solosistRelErrSE_m"+Smolt[m]+"_v"+SPtV0[v]);
 
-      //setting 2% error on sist purity
-      for (Int_t b=1; b<=fHistPhiDistr_master[m][v]->GetNbinsX(); b++){
+
+      if (isPreliminary){ 
+	//setting 2% error on sist purity
+	for (Int_t b=1; b<=fHistPhiDistr_master[m][v]->GetNbinsX(); b++){
 	//	if (TypeAnalysis!=0) 	fHistPhiDistr_solosistPurity[m][v]->SetBinError(b, fHistPhiDistr_solosistPurity[m][v]->GetBinContent(b)*0.02);
-	fHistPhiDistr_solosistPurity[m][v]->SetBinError(b, fHistPhiDistr_solosistPurity[m][v]->GetBinContent(b)*0.02);
-	//	else 	fHistPhiDistr_solosistPurity[m][v]->SetBinError(b,0);
+	  fHistPhiDistr_solosistPurity[m][v]->SetBinError(b, fHistPhiDistr_solosistPurity[m][v]->GetBinContent(b)*0.02);
+	}
       }
-      //
+      else {
+	for (Int_t b=1; b<=fHistPhiDistr_master[m][v]->GetNbinsX(); b++){
+	  fHistPhiDistr_solosistPurity[m][v]->SetBinError(b, 0); //Since it's correlated in dphi, I add it to fHistPhiDistr_solosistCorr and put this to zero in order not to propagate it to the spectrum as uncorrelated source
+	}
+      }
 
       for(Int_t i =0; i <3; i++){
 	DeltaPhiWidth[i]=TMath::Abs(fHistPhiDistr_master[m][v]->GetXaxis()->GetBinLowEdge(fHistPhiDistr_master[m][v]->FindBin(ALowBinFit[sysPhi])) - fHistPhiDistr_master[m][v]->GetXaxis()->GetBinUpEdge(fHistPhiDistr_master[m][v]->FindBin(AUpBinFit[sysPhi])));
 	DeltaPhiWidthApprox[i]=TMath::Abs(AUpBinFit[i]-ALowBinFit[i]);
 	if (TypeAnalysis==0)            DeltaPhiWidth[i]=TMath::Abs(fHistPhiDistr_master[m][v]->GetXaxis()->GetBinLowEdge(fHistPhiDistr_master[m][v]->FindBin(ALowBinFit[0])) - fHistPhiDistr_master[m][v]->GetXaxis()->GetBinUpEdge(fHistPhiDistr_master[m][v]->FindBin(AUpBinFit[0])));
 	if (TypeAnalysis==8 || TypeAnalysis==9 || TypeAnalysis==10) DeltaPhiWidth[i]=1; //not scaled for AS and JetNS                                                                            
-	cout << " ciao " << endl;
       }
       cout << " v " << v << endl;
     } //end loop v
     cout << " end loop " << endl;
   } //end loop m
 
-  cout << " new loop " << endl;
   for(Int_t m=0; m<nummolt+1; m++){
+    cout << "\n";
     for(Int_t v=PtV0Min; v < numPtV0Max; v++){
       //      cout << "I've set errors " << endl;
       for(Int_t dphi=1; dphi<=fHistPhiDistr_solostat[m][v]->GetNbinsX(); dphi++){
@@ -862,6 +921,9 @@ void PtSpectra( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=400, Int
 	*/ 
 	if (TypeAnalysis==2) fHistPhiDistr_solosist[m][v]->SetBinError(dphi,    sqrt(pow(fHistPhiDistr_solosistSE[m][v]->GetBinError(dphi),2)+ pow(fHistPhiDistr_solosistDCAz[m][v]->GetBinError(dphi),2) + pow(fHistPhiDistr_solosistPurity[m][v]->GetBinError(dphi),2)));
 	else 	if (TypeAnalysis==1 || TypeAnalysis==0) fHistPhiDistr_solosist[m][v]->SetBinError(dphi,    sqrt(pow(fHistPhiDistr_solosistSE[m][v]->GetBinError(dphi),2)+ pow(fHistPhiDistr_solosistDeltaEta[m][v]->GetBinError(dphi),2) + pow(fHistPhiDistr_solosistDCAz[m][v]->GetBinError(dphi),2) +  pow(fHistPhiDistr_solosistPurity[m][v]->GetBinError(dphi),2)));
+
+	if (!isPreliminary)	fHistPhiDistr_solosistCorr[m][v]->SetBinError(dphi,  hRelErrorPurity[m] ->GetBinContent( hRelErrorPurity[m] ->FindBin(NPtV0[v]+0.001)) *fHistPhiDistr_solosistCorr[m][v]->GetBinContent(dphi));
+	else 	fHistPhiDistr_solosistCorr[m][v]->SetBinError(dphi, 0);
 
 	  fHistPhiDistr_solosistRelError[m][v]->SetBinContent( dphi,   TMath::Abs(  fHistPhiDistr_solosist[m][v]->GetBinError(dphi)/fHistPhiDistr_solosist[m][v]->GetBinContent(dphi)));
 	  fHistPhiDistr_solosistRelErrSE[m][v]->SetBinContent( dphi,   TMath::Abs(  fHistPhiDistr_solosistSE[m][v]->GetBinError(dphi)/fHistPhiDistr_solosist[m][v]->GetBinContent(dphi)));
@@ -902,14 +964,23 @@ void PtSpectra( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=400, Int
 	if (TypeAnalysis!=2)	YieldPtErrSistDeltaEta[m][v]+= pow(fHistPhiDistr_solosistDeltaEta[m][v]->GetBinError(dphi),2);
       }
       YieldPtErrStat[m][v]= sqrt(YieldPtErrStat[m][v]);
-      YieldPtErrSist[m][v]= sqrt(YieldPtErrSist[m][v]);
       YieldPtErrSistSE[m][v]= sqrt(YieldPtErrSistSE[m][v]);
       YieldPtErrSistSETuva[m][v]= sqrt(YieldPtErrSistSETuva[m][v]);
       YieldPtErrSistDCAz[m][v]= sqrt(YieldPtErrSistDCAz[m][v]);
       YieldPtErrSistPurity[m][v]= sqrt(YieldPtErrSistPurity[m][v]);
       YieldPtErrSistDeltaEta[m][v]= sqrt(YieldPtErrSistDeltaEta[m][v]);
 
-      cout << " m " << m << " v " << NPtV0[v] << "Purity " <<     YieldPtErrSistPurity[m][v]/YieldPt[m][v] << " DCAz " <<       YieldPtErrSistDCAz[m][v]/YieldPt[m][v] << " DeltaEta " <<       YieldPtErrSistDeltaEta[m][v]/YieldPt[m][v] << " SE " <<       YieldPtErrSistSE[m][v]/YieldPt[m][v] << " tot: " <<       YieldPtErrSist[m][v]/YieldPt[m][v]<<endl;
+      //Below I add systematic effects correlated in DeltaPhi (->I do not add them in quadrature to get the syst. uncert. on pt spectra, I directly associate them to the pt spectra)
+      if (!isPreliminary){
+	cout << " Syst associated to fit procedure" << endl;
+	YieldPtErrSistPurity[m][v]= hRelErrorPurity[m]->GetBinContent(hRelErrorPurity[m]->FindBin(NPtV0[v]+0.0001))*YieldPt[m][v];
+
+	YieldPtErrSist[m][v]+= pow(YieldPtErrSistPurity[m][v],2);
+      }
+
+      YieldPtErrSist[m][v]= sqrt(YieldPtErrSist[m][v]);
+
+      cout << "m " << m << " v " << NPtV0[v] << " Purity: " <<     YieldPtErrSistPurity[m][v]/YieldPt[m][v] << " DCAz: " <<       YieldPtErrSistDCAz[m][v]/YieldPt[m][v] << " DeltaEta: " <<       YieldPtErrSistDeltaEta[m][v]/YieldPt[m][v] << " Topo sel: " <<       YieldPtErrSistSE[m][v]/YieldPt[m][v] << " tot: " <<       YieldPtErrSist[m][v]/YieldPt[m][v]<<endl;
       //      for(Int_t v=fHistSpectrumStat[m]->FindBin(LowRangeSpectrumPart[m]-0.001); v<fHistSpectrumStat[m]->GetNbinsX() ; v++ ){
       for(Int_t v=fHistSpectrumStat[m]->FindBin(LowRangeSpectrumPart[m]-0.001); v<fHistSpectrumStat[m]->FindBin(UpRangeSpectrumPart[m]-0.001); v++){
       fHistSpectrumStat[m]->SetBinContent(v+1, YieldPt[m][v]/fHistSpectrumStat[m]->GetBinWidth(v+1));
@@ -953,9 +1024,13 @@ void PtSpectra( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=400, Int
       canvasPlotProj[m]->cd(v+1);
       fHistPhiDistr_solostat[m][v]->GetYaxis()->SetRangeUser(YInf, YSup);
       fHistPhiDistr_solosist[m][v]->GetYaxis()->SetRangeUser(YInf, YSup);
+      fHistPhiDistr_solosistCorr[m][v]->GetYaxis()->SetRangeUser(YInf, YSup);
       fHistPhiDistr_solostat[m][v]->Draw("same");
       fHistPhiDistr_solosist[m][v]->SetFillStyle(0);
       fHistPhiDistr_solosist[m][v]->Draw("same e2");
+      fHistPhiDistr_solosistCorr[m][v]->SetFillStyle(3001);
+      fHistPhiDistr_solosistCorr[m][v]->SetFillColorAlpha(kGreen+3,1);
+      fHistPhiDistr_solosistCorr[m][v]->Draw("same e2");
       if (TypeAnalysis==0) lineat1->Draw("same");
       
     } //end loop on pt v0
@@ -979,6 +1054,7 @@ void PtSpectra( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=400, Int
 
     //    for(Int_t  b=fHistSpectrumStat[m]->FindBin(LowRangeSpectrumPart[m]+0.001); b<=  fHistSpectrumStat[m]->GetNbinsX(); b++){
     for(Int_t  b=fHistSpectrumStat[m]->FindBin(LowRangeSpectrumPart[m]+0.001); b<=fHistSpectrumStat[m]->FindBin(UpRangeSpectrumPart[m]-0.001) ; b++){
+      if (fHistSpectrumStat[m]->GetBinContent(b)!=0){
       fHistSpectrumStatRelError[m]->SetBinContent(b,    fHistSpectrumStat[m]->GetBinError(b)/    fHistSpectrumStat[m] ->GetBinContent(b));
       fHistSpectrumSistRelError[m]->SetBinContent(b,    fHistSpectrumSist[m]->GetBinError(b)/    fHistSpectrumSist[m] ->GetBinContent(b));
       fHistSpectrumSistRelErrorSE[m]->SetBinContent(b,    fHistSpectrumSistSE[m]->GetBinError(b)/    fHistSpectrumSist[m] ->GetBinContent(b));
@@ -993,6 +1069,16 @@ void PtSpectra( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=400, Int
       fHistSpectrumSistRelErrorDCAz[m]->SetBinError(b,0);
       fHistSpectrumSistRelErrorPurity[m]->SetBinError(b,0);
       fHistSpectrumSistRelErrorDeltaEta[m]->SetBinError(b,0);
+      }
+      else {
+	fHistSpectrumStatRelError[m]->SetBinContent(b,0);
+	fHistSpectrumSistRelError[m]->SetBinContent(b,0);
+	fHistSpectrumSistRelErrorSE[m]->SetBinContent(b,0);
+	fHistSpectrumSistRelErrorSETuva[m]->SetBinContent(b,0);
+	fHistSpectrumSistRelErrorDCAz[m]->SetBinContent(b,0);
+	fHistSpectrumSistRelErrorPurity[m]->SetBinContent(b,0);
+	fHistSpectrumSistRelErrorDeltaEta[m]->SetBinContent(b,0);
+      }
     }
 
     canvasPtSpectra->cd(m+1);
@@ -1036,7 +1122,7 @@ void PtSpectra( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=400, Int
     fHistSpectrumSistRelError[m]->Draw("same p");
     fHistSpectrumStatRelError[m]->Draw("same p");
   }//end loop on m
-  cout << " going to write on file " << endl;   
+  cout << "\nGoing to write on file " << endl;   
   fileout->WriteTObject(canvasPtSpectra);
   fileout->WriteTObject(canvasPtSpectraRelError);
   fileout->WriteTObject(canvasPtSpectraRelErrorAll);
@@ -1049,6 +1135,7 @@ void PtSpectra( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=400, Int
     for(Int_t v=PtV0Min; v < numPtV0Max; v++){
       fileout->WriteTObject(fHistPhiDistr_solostat[m][v]);
       fileout->WriteTObject(fHistPhiDistr_solosist[m][v]);
+      fileout->WriteTObject(fHistPhiDistr_solosistCorr[m][v]);
     }
     fileout->WriteTObject(      fHistSpectrumSist[m]);
     fileout->WriteTObject(      fHistSpectrumStat[m]);
@@ -1063,14 +1150,15 @@ void PtSpectra( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=400, Int
   fileout->WriteTObject(  DeltaPhiLimit);
 
   fileout->Close();
-  cout << "pt spectra value for m==5 " << endl;
+  //  cout << "pt spectra value for m==5 " << endl;
     for(Int_t v=PtV0Min; v < numPtV0Max; v++){
-      cout << "v: " << v << " " << fHistSpectrumStat[5]->GetBinContent(v+1);
+      //  cout << "v: " << v << " " << fHistSpectrumStat[5]->GetBinContent(v+1);
     }
   cout << "DeltaPhi width of one histo bin " << fHistPhiDistr_master[1][1]->GetBinWidth(1)<< endl;
   cout << "\nDeltaPhiWidth " << DeltaPhiWidth[sysPhi] << "("<< ALowBin[sysPhi]<<" ; "<<AUpBin[sysPhi] << ")"<<endl;
   cout <<  "effective range ("<<  fHistPhiDistr_master[1][1]->GetXaxis()->GetBinLowEdge( fHistPhiDistr_master[1][1]->FindBin(ALowBin[sysPhi] ))<<" ; "<< fHistPhiDistr_master[1][1]->GetXaxis()->GetBinUpEdge( fHistPhiDistr_master[1][1]->FindBin(AUpBin[sysPhi] ))<< ")"<<endl;
-  cout << "starting from the files "  << PathInSignalSys << ", " << PathInDeltaEtaSys << " and " << PathInDCAzSys << endl;
-  cout << " I have created the file " << stringout << endl;
+  cout << "\nStarting from the files:\nFor syst. associated to topo sel:\n "  << PathInSignalSys << "\nFor syst. associated to DeltaEta region:\n " << PathInDeltaEtaSys << "\nFor syst. associated to DCAz trigger:\n " << PathInDCAzSys << endl;
+  if (!isPreliminary) cout << "For syst. associated to fit procedure: " << endl;
+  cout << "\nI have created the file " << stringout << "\n" << endl;
 }
 
