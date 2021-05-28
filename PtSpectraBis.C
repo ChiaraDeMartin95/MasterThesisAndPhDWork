@@ -36,7 +36,7 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void PtSpectraBis(Int_t type=8,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString year=/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"*/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/,  TString Path1 ="_Jet0.75"/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,  Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Int_t PtBinning=0, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,   Int_t sys=0, Bool_t ZeroYieldLowPt=0, Bool_t TwoFitFunctions=0, Bool_t isNormCorr=1, Bool_t isReanalysisWithEtaEff=0, Bool_t isReanalysisEtaEffComp=0, Bool_t isNormCorrFullyComputed=0, Int_t YieldComp=1){
+void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0, TString year="1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, TString yearEtaEff = "1617_AOD234_hK0s",  TString Path1 ="_Jet0.75"/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,  Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Int_t PtBinning=0, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,   Int_t sys=0, Bool_t ZeroYieldLowPt=0, Bool_t TwoFitFunctions=0, Bool_t isNormCorr=0, Bool_t isReanalysisWithEtaEff=0, Bool_t isReanalysisEtaEffComp=0, Bool_t isNormCorrFullyComputed=0, Int_t YieldComp=2){
 
   //isReanalysisWithEtaEff = 1 : spectra and yields are obtained when using eta-dependent efficiency
   //isReanalysisEtaEffComp = 1 : a comparison between spectra and yields obtained when using eta-dependent efficiency is done 
@@ -51,7 +51,7 @@ void PtSpectraBis(Int_t type=8,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
   if (YieldComp==2) {// I compare results corrected by complete norm factor and obtained using eta-dependence of efficiency to the preliminary ones
     isNormCorr=1;
     isNormCorrFullyComputed=0;
-    isReanalysisWithEtaEff=1;
+    isReanalysisWithEtaEff=0;
 }
   if (YieldComp>2) return; 
 
@@ -254,6 +254,8 @@ void PtSpectraBis(Int_t type=8,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
   stringout = Dir+"/DATA"+year0+"/";
   stringout += "PtSpectraBis" +hhCorr[ishhCorr];
   if (PtBinning>0) stringout +=Form("_PtBinning%i",PtBinning);
+  //  if (year!="1617_hK0s" && year!="Run2DataRed_MECorr_hXi") stringout+= "_"+year;
+  if (yearEtaEff=="1617_AOD234_hK0s" && isReanalysisWithEtaEff) stringout+= "_"+yearEtaEff;
   if(type>=0){
     if (!ishhCorr)      stringout +="_"+tipo[type];
     stringout +=Srap[israp];
@@ -325,34 +327,7 @@ void PtSpectraBis(Int_t type=8,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
   Double_t UpRangeJet2MC[nummolt+1]= {8,8,8,8,8,8}; 
 
   if (!ishhCorr && type==0){
-    for (Int_t m =0; m<nummolt+1; m++){
-      if (m==4 && !isMC)     LowRangeJet[m] =     LowRangeJetBFit[m] =     LowRangeJetZYAM[m]= 1.0;
-      else   LowRangeJet[m] =     LowRangeJetBFit[m] =     LowRangeJetZYAM[m]= 0.5;
-      LowRangeBulk[m]= 0; //0
-      LowRangeAll[m]= 0; //0 
-      UpRangeAll[m]= 4; 
-    }
-    if (PtBinning==1) {
-      for (Int_t m =0; m<nummolt+1; m++){
-	if (!isMC){
-	  //	  if (m==4 || m==3)     LowRangeJet[m] =     LowRangeJetBFit[m] =     LowRangeJetZYAM[m]= 0.5;
-	  //	  else if (m==5 )     LowRangeJet[m] =     LowRangeJetBFit[m] =     LowRangeJetZYAM[m]= 0;
-	  //	  else  if (m==2)  {LowRangeJet[m] = 0.5;     LowRangeJetBFit[m] =     LowRangeJetZYAM[m]= 0;}
-	  //	  else   {LowRangeJet[m] = 0.8;     LowRangeJetBFit[m] =     LowRangeJetZYAM[m]= 0.5;}
-	  LowRangeJet[m] = 0.8;     LowRangeJetBFit[m] =     LowRangeJetZYAM[m]= 0.5;
-	  if (m==4) UpRangeJet[m] = UpRangeJetBFit[m] = UpRangeJetZYAM[m]=3;
-	  else	if (m==3) UpRangeJet[m] = UpRangeJetBFit[m] = UpRangeJetZYAM[m]=4;
-	  else UpRangeJet[m] = UpRangeJetBFit[m] = UpRangeJetZYAM[m]=4;
-	  LowRangeBulk[m]= 0.1; 
-	  LowRangeASBFit[m]= 	  LowRangeASZYAM[m]= 0.1; 
-	  UpRangeAll[m]= 2; 
-	  UpRangeBulk[m]= 2; 
-	  UpRangeASBFit[m]= 	  UpRangeASZYAM[m]= 2; 
-	}
-      }
-    }
     if (PtBinning==1 && year=="1617_hK0s") {
-
       for (Int_t m =0; m<nummolt+1; m++){
 	if (PtTrigMin==3){
 	  if (!isMC){
@@ -383,27 +358,24 @@ void PtSpectraBis(Int_t type=8,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
 	    LowRangeASBFit[m]= 	  LowRangeASZYAM[m]= 0.1; 
 	    UpRangeASBFit[m]= 	  UpRangeASZYAM[m]= 2; 
 	  }
-
 	}
       }
     }
-
-
-  }
-
-  if (MultBinning==1 && type==8){
-    for (Int_t m=0; m<nummolt+1; m++){
-      if (!isMC)      LowRangeJet[m] = LowRangeJet1[m];
-      else if (isMC)      LowRangeJet[m] = LowRangeJet1MC[m];
+    
+    if (PtBinning==1 && yearEtaEff=="1617_AOD234_hK0s" && isReanalysisWithEtaEff) {
+      for (Int_t m=0; m<nummolt+1; m++){
+	if (PtTrigMin==3){
+	  LowRangeJet[m] = 0.5;     LowRangeJetBFit[m] =     LowRangeJetZYAM[m]= 0.1;
+	  UpRangeJet[m] = UpRangeJetBFit[m] = UpRangeJetZYAM[m]=3;
+	  LowRangeBulk[m]= 0.5; 
+	  LowRangeAll[m]= 0.5; 
+	  UpRangeAll[m]= 2; 
+	  UpRangeBulk[m]= 2; 
+	}
+      }
     }
   }
 
-  if (MultBinning==2 && type==8){
-    for (Int_t m=0; m<nummolt+1; m++){
-      if (!isMC)      LowRangeJet[m] = LowRangeJet2[m];
-      else if (isMC)      LowRangeJet[m] = LowRangeJet2MC[m];
-    }
-  }
 
   if (MultBinning==0 && type==8){
     for (Int_t m=0; m<nummolt+1; m++){
@@ -430,6 +402,7 @@ void PtSpectraBis(Int_t type=8,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
 	if (m==5 || m==3) 	LowRangeASBFit[m]= 	  LowRangeASZYAM[m]= 1; 
 	UpRangeASBFit[m]= 	  UpRangeASZYAM[m]= 4; 
 	if (m==0 || m==1 || m==4)	UpRangeJet[m] = UpRangeJetBFit[m] = UpRangeJetZYAM[m]=4;
+	if (isNormCorrFullyComputed) LowRangeJet[m] = 1.5;
 	//if (m==3) LowRangeBulk[m] = 1;
       }
     }
@@ -500,6 +473,7 @@ void PtSpectraBis(Int_t type=8,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
 
     UpRangeSpectrumPart[m] =8;
     if (type==8 && m==4 && (TypeAnalysis==0 || TypeAnalysis==1))    UpRangeSpectrumPart[m] =4;
+    if (type==0 && m==4 && yearEtaEff=="1617_AOD234_hK0s" &&  isReanalysisWithEtaEff)    UpRangeSpectrumPart[m] =4;
   }
 
   //syst1_limit indica gli effetti sistematici sullo spettro in pT
@@ -768,8 +742,17 @@ void PtSpectraBis(Int_t type=8,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
     if (TypeAnalysis==0) LimSup =0.001;
     else   if (TypeAnalysis==1) LimSup =0.01;
     else   if (TypeAnalysis==2) LimSup =0.01;
-    LimInf =10e-10;
+    //    LimInf =10e-10;
+    LimInf =10e-6;
   }
+
+  Float_t LimSupNormComp=1.2;
+  Float_t LimInfNormComp=0.8;
+  if (type==8) {
+    LimSupNormComp=1.4;
+    LimInfNormComp=0.6;
+  }
+
   Float_t LimSupError=0.01;
   Float_t LimInfError=0;
   Float_t LimSupErrorLog=0.01;
@@ -924,7 +907,7 @@ void PtSpectraBis(Int_t type=8,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
 	  if (TMath::Abs(BarlowVar[m][v][sysDPhi])>2) BarlowSign[m][sysDPhi]++;
 	  hBarlowVar[m][sysDPhi] ->SetBinContent(v+1, BarlowVar[m][v][sysDPhi]) ;
 	  hBarlowVar[m][sysDPhi] ->SetBinError(v+1, 0) ;
-	  cout << "barlow var v" << v << " "  << 	  hBarlowVar[m][sysDPhi] ->GetBinContent(v+1)<<" " <<	  hBarlowVar[m][sysDPhi] ->GetBinError(v+1) << endl;
+	  //cout << "barlow var v" << v << " "  << 	  hBarlowVar[m][sysDPhi] ->GetBinContent(v+1)<<" " <<	  hBarlowVar[m][sysDPhi] ->GetBinError(v+1) << endl;
 
 	}//end loop v
 	if (BarlowSign[m][sysDPhi]>= NSign) BarlowPassed[m][sysDPhi]=1;
@@ -967,8 +950,8 @@ void PtSpectraBis(Int_t type=8,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
 	if (NPtV0[v] == 4 && TypeAnalysis==0 && type==8 && m==4) continue;
 	//      cout << " v: " << v << endl;
 	ErrDPhi[m][v]= TMath::Abs(	  fHistSpectrum_min[m]->GetBinContent(v+1) - 	  fHistSpectrum_max[m]->GetBinContent(v+1))/2;
-	cout << fHistSpectrum_min[m]->GetBinContent(v+1)<< " << " << fHistSpectrumStat[m]->GetBinContent(v+1)<< " << " <<fHistSpectrum_max[m]->GetBinContent(v+1)<<endl;
-	cout << "err dphi " << ErrDPhi[m][v] << endl;
+	//	cout << fHistSpectrum_min[m]->GetBinContent(v+1)<< " << " << fHistSpectrumStat[m]->GetBinContent(v+1)<< " << " <<fHistSpectrum_max[m]->GetBinContent(v+1)<<endl;
+	//	cout << "err dphi " << ErrDPhi[m][v] << endl;
 	fHistSpectrumSistDPhi[m]->SetBinError(v+1,ErrDPhi[m][v]);
 
 	if ( fHistSpectrumStat[m]->GetBinContent(v+1)!=0){
@@ -1022,7 +1005,7 @@ void PtSpectraBis(Int_t type=8,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
 	if (TMath::Abs(BarlowVarLeadTrackDef[m][v])>2) BarlowSignLeadTrackDef[m]++;
 	hBarlowVarLeadTrackDef[m] ->SetBinContent(v+1, BarlowVarLeadTrackDef[m][v]) ;
 	hBarlowVarLeadTrackDef[m] ->SetBinError(v+1, 0) ;
-	cout << "barlow var v" << v << " "  << 	  hBarlowVarLeadTrackDef[m] ->GetBinContent(v+1)<<" " <<	  hBarlowVarLeadTrackDef[m] ->GetBinError(v+1) << endl;
+	//cout << "barlow var v" << v << " "  << 	  hBarlowVarLeadTrackDef[m] ->GetBinContent(v+1)<<" " <<	  hBarlowVarLeadTrackDef[m] ->GetBinError(v+1) << endl;
 
       }//end loop v
 
@@ -1073,7 +1056,7 @@ Int_t Varm = 0;
   }
   if (type==0 || type==8){
     cout << "\n*******************************************"<<endl;
-    cout<< "hXi: systematic effect associated to choice of MC used to calculat K0s/Xi efficiency  " << endl;
+    cout<< "Systematic effect associated to choice of MC used to calculat K0s/Xi efficiency  " << endl;
     PathInMCChoiceDef = Dir+"/DATA"+year0+"/SystematicAnalysis" +year;
     //    PathInMCChoiceDef +=Path1; //it was without year                                                    
     if (PtBinning>0) PathInMCChoiceDef +=Form("_PtBinning%i",PtBinning);
@@ -1255,7 +1238,6 @@ Int_t Varm = 0;
   }
   //end pt < pt,trig
 
-  cout << "here I am" << endl;
   cout << "\n\n error on closure ****************"<< endl;
   //error associated to closure
   TH1F* fHistRelErrorClosure[nummolt+1];
@@ -1276,11 +1258,11 @@ Int_t Varm = 0;
       fHistRelErrorClosureK0s[m] = (TH1F*) fileMCClosure->Get("SpectrumRelErrorClosure"+RegionTypeOld[TypeAnalysis]+Form("_m%i",5));
       fHistRelErrorClosureK0s[m] ->SetName("SpectrumRelErrorClosure"+RegionTypeOld[TypeAnalysis]+Form("_m%i",m));
       for (Int_t b=1; b<= fHistRelErrorClosure[m]->GetNbinsX(); b++){
-	cout << "before " << fHistRelErrorClosure[m]->GetBinContent(b) << endl;
-	cout << "I should put " << 	fHistRelErrorClosureK0s[m]->GetBinContent( fHistRelErrorClosureK0s[m]->FindBin( fHistRelErrorClosure[m]->GetBinCenter(b))) << endl; 
+	//	cout << "before " << fHistRelErrorClosure[m]->GetBinContent(b) << endl;
+	//cout << "I should put " << 	fHistRelErrorClosureK0s[m]->GetBinContent( fHistRelErrorClosureK0s[m]->FindBin( fHistRelErrorClosure[m]->GetBinCenter(b))) << endl; 
 	fHistRelErrorClosure[m]->SetBinContent(b, fHistRelErrorClosureK0s[m]->GetBinContent( fHistRelErrorClosureK0s[m]->FindBin( fHistRelErrorClosure[m]->GetBinCenter(b))));
 	fHistRelErrorClosure[m]->SetBinError(b,0);
-	cout << "after " <<fHistRelErrorClosure[m]->GetBinContent(b) << endl;
+	//cout << "after " <<fHistRelErrorClosure[m]->GetBinContent(b) << endl;
       }
     }
     if (!fHistRelErrorClosure[m]) return;
@@ -1296,12 +1278,19 @@ Int_t Varm = 0;
     for(Int_t v=PtV0Min; v < numPtV0Max; v++){
       //new entry! 
       if ( fHistSpectrumStat[m]->GetBinContent(v+1)!=0){
-      fHistSpectrumSistRelErrorMCclosure[m]->SetBinContent(v+1,0.05);
+	fHistSpectrumSistRelErrorMCclosure[m]->SetBinContent(v+1,0.05);
       }
       if (TypeAnalysis!=2 && type==8 && m==4 && NPtV0[v]==4){
 	fHistSpectrumSistRelErrorMCclosure[m]->SetBinContent(v+1,0);
-	cout << "\n\n\n ciao " << endl;
 	cout <<	fHistSpectrumSistRelErrorMCclosure[m]->GetBinContent(v+1)<<endl;
+      }
+    }
+  }
+
+  if (isReanalysisWithEtaEff){
+    for(Int_t m=0; m<nummolt+1; m++){
+      for(Int_t v=PtV0Min; v < numPtV0Max; v++){
+	fHistSpectrumSistRelErrorMCclosure[m]->SetBinContent(v+1,0);
       }
     }
   }
@@ -1479,7 +1468,7 @@ Int_t Varm = 0;
 
   TString  PathInEtaEff;
   TFile *  fileinEtaEff;
-  PathInEtaEff = Dir+"/DATA"+year0+"/SystematicAnalysis" +year;
+  PathInEtaEff = Dir+"/DATA"+year0+"/SystematicAnalysis" +yearEtaEff;
   if (PtBinning>0) PathInEtaEff +=Form("_PtBinning%i",PtBinning);
   if(type>=0){
     PathInEtaEff +="_"+tipo[type];
@@ -1597,11 +1586,13 @@ Int_t Varm = 0;
 
   }
 
-  TString SfileNormCorrFC ="FinalOutput/DATA2016/MCClosureCheck_HybridtoTrue1617GP_hK0s_Hybrid_vs_1617GP_hK0s_PtBinning1_K0s_Eta0.8_PtMin3.0.root";
+  TString SfileNormCorrFC ="FinalOutput/DATA2016/MCClosureCheck_HybridtoTrue1617GP_hK0s_Hybrid_New_vs_1617GP_hK0s_PtBinning1_K0s_Eta0.8_PtMin3.0.root";
+  if (type==8)  SfileNormCorrFC = "FinalOutput/DATA2016/MCClosureCheck_HybridtoTrue161718_hXi_Hybrid_vs_161718_hXi_Xi_Eta0.8_PtMin3.0.root";
   TFile* fileNormCorrFC;
   TH1F * fHistNormCorrFC[nummolt+1];
   TH1F * fHistNormCorrAllMultFC[nummolt+1];
   TString SfileNormCorrFCComp ="FinalOutput/DATA2016/PtSpectraBis_PtBinning1_K0s_Eta0.8_PtMin3.0_Jet_isNormCorrFullyComputed_Fixed.root";
+  if (type==8) SfileNormCorrFCComp= "FinalOutput/DATA2016/PtSpectraBis_Xi_Eta0.8_PtMin3.0_Jet_isNormCorrFullyComputed.root";
   TFile* fileNormCorrFCComp;
 
   if (isNormCorrFullyComputed==1){ // In this case I perform a correction with the *comnplete* normalisation factor. When this is set to 0, I take the output produced here and compare it to the preliminary results
@@ -1622,11 +1613,14 @@ Int_t Varm = 0;
   else if (isNormCorr && YieldComp!=0) { //comparison between preliminary results and results obtained by correcting for the full norm factor
     if (YieldComp==1) {
       cout << " comparison between preliminary results and results obtained by correcting for the full norm factor " << endl;
-      SfileNormCorrFCComp ="FinalOutput/DATA2016/PtSpectraBis_PtBinning1_K0s_Eta0.8_PtMin3.0_"+ RegionType[TypeAnalysis] +"_isNormCorrFullyComputed.root";
+      if (type==0)  SfileNormCorrFCComp ="FinalOutput/DATA2016/PtSpectraBis_PtBinning1_K0s_Eta0.8_PtMin3.0_"+ RegionType[TypeAnalysis] +"_isNormCorrFullyComputed.root";
+      else if (type==8) SfileNormCorrFCComp= "FinalOutput/DATA2016/PtSpectraBis_Xi_Eta0.8_PtMin3.0_" + RegionType[TypeAnalysis]+ "_isNormCorrFullyComputed.root";
     }
     else if (YieldComp==2) {
       cout << " comparison between preliminary results and results obtained by correcting for the full norm factor and by eta eff" << endl;
-      SfileNormCorrFCComp ="FinalOutput/DATA2016/PtSpectraBis_PtBinning1_K0s_Eta0.8_PtMin3.0_"+ RegionType[TypeAnalysis]+"_isNormCorrFullyComputed_isEtaEff.root";
+      //      if (type==0) SfileNormCorrFCComp ="FinalOutput/DATA2016/PtSpectraBis_PtBinning1_K0s_Eta0.8_PtMin3.0_"+ RegionType[TypeAnalysis]+"_isNormCorrFullyComputed_isEtaEff.root";
+      if (type==0) SfileNormCorrFCComp ="FinalOutput/DATA2016/PtSpectraBis_PtBinning1_1617_AOD234_hK0s_K0s_Eta0.8_PtMin3.0_"+ RegionType[TypeAnalysis]+"_isNormCorrFullyComputed_isEtaEff.root";
+      else if (type==8) SfileNormCorrFCComp= "FinalOutput/DATA2016/PtSpectraBis_Xi_Eta0.8_PtMin3.0_" + RegionType[TypeAnalysis]+ "_isNormCorrFullyComputed_isEtaEff.root";
     }
     fileNormCorrFCComp=new TFile(SfileNormCorrFCComp,"");
     if (!fileNormCorrFCComp) {cout << "file norm not there " << endl; return;}
@@ -1663,15 +1657,13 @@ Int_t Varm = 0;
 	fHistSpectrumStatNormCorrRatio[m]->SetBinError(v+1,0);
 	fHistSpectrumStatNormCorrRatioRef[m]->SetBinError(v+1, sqrt(pow(fHistSpectrumStat[m]->GetBinError(v+1),2) + pow(fHistSpectrumSistAll[m]->GetBinError(v+1),2)) / fHistSpectrumStat[m]->GetBinContent(v+1));
       }
-      StyleHisto(fHistSpectrumStatNormCorrRatio[m],0.8, 1.2, Color[TypeAnalysis],33, titleX, "Ratio to preliminary",  title+SmoltLegend[m], 0, 0, 0);
-      StyleHisto(fHistSpectrumStatNormCorrRatioRef[m],0.8, 1.2, 1, 1, titleX, "Ratio to preliminary",  title+SmoltLegend[m], 0, 0, 0);
+      StyleHisto(fHistSpectrumStatNormCorrRatio[m],0.7, 1.3, Color[TypeAnalysis],33, titleX, "Ratio to preliminary",  title+SmoltLegend[m], 0, 0, 0);
+      StyleHisto(fHistSpectrumStatNormCorrRatioRef[m],0.7, 1.3, 1, 1, titleX, "Ratio to preliminary",  title+SmoltLegend[m], 0, 0, 0);
       fHistSpectrumStatNormCorrRatioRef[m]->SetFillStyle(3001);
       fHistSpectrumStatNormCorrRatioRef[m]->SetFillColorAlpha(kGray+1, 1);
       fHistSpectrumStatNormCorrRatioRef[m]->Draw("p e2");
       fHistSpectrumStatNormCorrRatio[m]->Draw("same p");
     }//end loop m
-
-
   }
 
   //  return;
@@ -2319,7 +2311,7 @@ Int_t Varm = 0;
     fHistYieldStatEtaEff    =(TH1F*)fileinEtaEff->Get("fHistYieldvsErrSoloStat"); 
     fHistYieldStatEtaEff->SetName("fHistYieldvsErrSoloStatEtaEff");
     if (!fHistYieldStatEtaEff) {cout << " I was looking for histo in " << PathInEtaEff  << endl; return;}
-    fHistYieldStatEtaEff->Rebin(2); //binning is different
+    //    fHistYieldStatEtaEff->Rebin(2); //binning is different
 
     canvasYieldEtaEff->cd();
     StyleHisto(fHistYieldStat, LimInfYield, LimSupYield, Color[TypeAnalysis], 33, titleYieldX, titleYieldY, titleYield[TypeAnalysis] + " yield vs multiplicity",1, 0, 25);
@@ -2518,9 +2510,9 @@ Int_t Varm = 0;
   canvasEtaEffRatio->SaveAs(DirPicture+"PtSpectraEtaEffCompRatio"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
   if (YieldComp!=0){
   canvasNormCorr->SaveAs(DirPicture+"PtSpectraNormCorrComp.pdf");
-  canvasNormCorrRatio->SaveAs(DirPicture+"PtSpectraNormCorrCompRatio.pdf");
-  canvasYieldNormCorr->SaveAs(DirPicture+"YieldvsMultNormCorrComp.pdf");
-  canvasYieldNormCorrRatio->SaveAs(DirPicture+"YieldvsMultNormCorrCompRatio.pdf");
+  canvasNormCorrRatio->SaveAs(DirPicture+"PtSpectraNormCorrCompRatio.png");
+  canvasYieldNormCorr->SaveAs(DirPicture+"YieldvsMultNormCorrComp.png");
+  canvasYieldNormCorrRatio->SaveAs(DirPicture+"YieldvsMultNormCorrCompRatio.png");
   }
   if (ZeroYieldLowPt && TypeAnalysis==0){
   canvasYield->SaveAs(DirPicture+"YieldvsMult"+tipo[type]+RegionType[TypeAnalysis]+"_ZeroYieldLowPt.pdf");
@@ -2543,9 +2535,19 @@ Int_t Varm = 0;
   fileout->Close();
 
   if (TypeAnalysis==0)  cout <<" q " <<  pol0->GetParameter(0) << " red chisq " << pol0->GetChisquare()/pol0->GetNDF() << endl;
-  cout << "starting from the file(s) "  << PathInDef<< endl;
-  if (type==0 && TypeAnalysis==0)  cout << "starting from the file(s) "  << PathInpol0<< endl;
-  if (isReanalysisEtaEffComp) cout << " path in from where I get the files corrected by eta-dependent eff: " << PathInEtaEff << endl;
-  cout << " I have created the file " << stringout << endl;
+
+  if (isReanalysisWithEtaEff) cout << "\n\n**The syst uncertainty associated to the non-closure has been removed! " << endl;
+
+  cout << "\nStarting from the file(s):"<< endl;
+  cout  << "->for default spectra: ";
+  if (isReanalysisWithEtaEff) cout  << PathInEtaEff<< endl;
+  else cout  << PathInDef<< endl;
+  if (type==0 && TypeAnalysis==0)  cout << "->to get uncertainty related to OOJ subtraction " << PathInpol0<< endl;
+  if (isReanalysisWithEtaEff || isReanalysisEtaEffComp) cout << "->to get the pt spectra corrected by eta-dependent efficiency " << PathInEtaEff << endl;
+
+  if (YieldComp!=0)  cout << "Path where spectra to be compared with default ones are found: " << SfileNormCorrFCComp << endl;
+  else if (isReanalysisEtaEffComp)  cout << "Path where spectra to be compared with default ones are found: " <<PathInEtaEff << endl;
+
+  cout << "\nI have created the file:\n" << stringout << "\n" <<endl;
 }
 
