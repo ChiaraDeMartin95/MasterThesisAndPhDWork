@@ -38,7 +38,8 @@
 #include "AliVVertex.h"
 #include "AliESDtrack.h"
 #include "AliESDEvent.h"
-
+#include "AliAnalysisDataSlot.h"
+#include "AliAnalysisDataContainer.h"
 
 class AliAnalysisTaskCorrelationhCasc;   
 using namespace std;          
@@ -845,7 +846,8 @@ void AliAnalysisTaskCorrelationhCasc::UserCreateOutputObjects()
   fOutputList4 = new TList();         
   fOutputList4->SetOwner(kTRUE);     
   
-  fSignalTree= new TTree("fSignalTree","fSignalTree");
+  const char* nameoutputSignalTree = GetOutputSlot(2)->GetContainer()->GetName();
+  fSignalTree= new TTree(nameoutputSignalTree,"fSignalTree");
   fSignalTree->Branch("fTreeVariablePtTrigger",          &fTreeVariablePtTrigger   , "fTreeVariablePtTrigger/D");
   fSignalTree->Branch("fTreeVariableChargeTrigger",      &fTreeVariableChargeTrigger, "fTreeVariableChargeTrigger/I");
   fSignalTree->Branch("fTreeVariableEtaTrigger",         &fTreeVariableEtaTrigger  , "fTreeVariableEtaTrigger/D");
@@ -880,8 +882,8 @@ void AliAnalysisTaskCorrelationhCasc::UserCreateOutputObjects()
   fSignalTree->Branch("fTreeVariablePDGCodeTrigger",     &fTreeVariablePDGCodeTrigger  , "fTreeVariablePDGCodeTrigger/I");
   fSignalTree->Branch("fTreeVariablePDGCodeAssoc",       &fTreeVariablePDGCodeAssoc  , "fTreeVariablePDGCodeAssoc/I");
 
-
-  fBkgTree= new TTree("fBkgTree","fBkgTree");
+  const char* nameoutputBkgTree = GetOutputSlot(3)->GetContainer()->GetName();
+  fBkgTree= new TTree(nameoutputBkgTree, "fBkgTree");
   fBkgTree->Branch("fTreeVariablePtTrigger",                  &fTreeVariablePtTrigger   ,  "fTreeVariablePtTrigger/D");
   fBkgTree->Branch("fTreeVariableChargeTrigger",              &fTreeVariableChargeTrigger, "fTreeVariableChargeTrigger/I");
   fBkgTree->Branch("fTreeVariableEtaTrigger",                 &fTreeVariableEtaTrigger  , "fTreeVariableEtaTrigger/D");
@@ -2392,14 +2394,12 @@ void AliAnalysisTaskCorrelationhCasc::UserExec(Option_t *)
 	  PostData(4, fOutputList2);
 	  PostData(5, fOutputList3);
 	  PostData(6, fOutputList4);
-	  // cout  << "event does not have Trigger particles " << endl;                                         
+	  // cout  << "event does not have Trigger particles " << endl;                                      
 	  return;
 	}
 	fHistPtMaxvsMultAfterRSelection->Fill(ptTriggerMassimoDati, lPercentiles);
       }
     }
-
-
   }
 
   TClonesArray* AODMCTrackArray =0x0;  
