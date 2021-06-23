@@ -47,7 +47,9 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
 }
 
 
-void histos_exercise_AllParticles(Int_t sysV0=0, Int_t sysV0index=0, Int_t sysTrigger=0, Int_t indexsysTrigger=0, Float_t PtTrigMin=3,Float_t PtTrigMax=15, Bool_t SkipAssoc=1, Int_t rap=0,Int_t type=0, Int_t syst=0, Double_t nsigmamax=9, TString year0="2016", TString year=/*"LHC17_AOD234_Red"/*"AllhK0sHM_RedNo16k"/*"2019h11c_extra_HM_hK0s"*/"2016k_HM_hK0s"/*"2016k_pass2_TOFOOBPileUp"/"2016k_TOFOOBPileUp_XiV0Rad34_AOD234_Try2"/*"161718_MD_EtaEff_hXi"/*"2016k_pass2_TOFOOBPileUp"/*"2018f1g4_extra_EtaEff_hXi"/"2018g4_extra_EtaEff_hK0s"/*"LHC17_hK0s"/"2016k_hK0s"/"1617_hK0s"/*"AllMC_hXi"/"Run2DataRed_MECorr_hXi"/*"2018f1_extra_hK0s"/*"2016k_hK0s"/"2016kehjl_hK0s"*/, TString yearMC=""/*"2019h11c_extra_HM_hK0s"/*"2018f1g4_extra_EtaEff_hXi"/"2018g4_extra_EtaEff_hK0s"/*"2018f1_extra_hK0s"/"1617MC_hK0s"/*"AllMC_hXi"/"2018f1_extra_hK0s"/*"2015g3b1"/*"2018f1_extra_hK0s_30runs_150MeV"*/,Bool_t isMC=0, Bool_t isEfficiency=0, TString path1=""/*"_PtTrigMax2.5"/*"_NewMultClassBis"*/, Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1,   Double_t sigmacentral=4, Double_t nsigmamin=5, Int_t MultBinning=1, Int_t PtBinning=1, Int_t isSysStudy=0, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsPtTrigMultDep=0, Int_t Region=0, Bool_t isAlsoEff=0, Bool_t isHM=1, Bool_t isNewInputPath=1){
+void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0index=0, Int_t sysTrigger=0, Int_t indexsysTrigger=0, Float_t PtTrigMin=3,Float_t PtTrigMax=15, Bool_t SkipAssoc=1, Int_t rap=0,Int_t type=0, Int_t syst=0, Double_t nsigmamax=9, TString year0="2016", TString year=/*"2018f1_extra_hK0s"/*"17pq_hK0s"*/"1617_AOD234_hK0s"/*"2018f1_extra_AOD235_hK0s"/*"LHC17_GP_AOD235_18c12"/*"17pq_hK0s"/*"LHC17_AOD234_Red"/*"AllhK0sHM_RedNo16k"/*"2019h11c_extra_HM_hK0s"/"2016k_HM_hK0s"/*"2016k_pass2_TOFOOBPileUp"/"2016k_TOFOOBPileUp_XiV0Rad34_AOD234_Try2"/*"161718_MD_EtaEff_hXi"/*"2016k_pass2_TOFOOBPileUp"/*"2018f1g4_extra_EtaEff_hXi"/"2018g4_extra_EtaEff_hK0s"/*"LHC17_hK0s"/"2016k_hK0s"/"1617_hK0s"/*"AllMC_hXi"/"Run2DataRed_MECorr_hXi"/*"2018f1_extra_hK0s"/*"2016k_hK0s"/"2016kehjl_hK0s"*/, TString yearMC="1617_GP_AOD235_With18c12b"/*"17pq_hK0s"/*"2018f1_extra_AOD235_hK0s"/*"LHC17_GP_AOD235_18c12"/*"2017e5_extra_AOD235_hK0s"/*"17pq_hK0s"/*"2019h11c_extra_HM_hK0s"/*"2018f1g4_extra_EtaEff_hXi"/"2018g4_extra_EtaEff_hK0s"/*"2018f1_extra_hK0s"/"1617MC_hK0s"/*"AllMC_hXi"/"2018f1_extra_hK0s"/*"2015g3b1"/*"2018f1_extra_hK0s_30runs_150MeV"*/,Bool_t isMC=0, Bool_t isEfficiency=0, TString path1=""/*"_PtTrigMax2.5"/*"_NewMultClassBis"*/, Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1,   Double_t sigmacentral=4, Double_t nsigmamin=5, Int_t MultBinning=0, Int_t PtBinning=1, Int_t isSysStudy=0, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsPtTrigMultDep=0, Int_t Region=0, Bool_t isAlsoEff=0, Bool_t isHM=0, Bool_t isNewInputPath=1){//, Int_t VarRange=0){
+
+  //RangeVar =0 : default range is chosen
 
   //  if (isAlsoEff) efficiency is shown and spectr are corrected by the efficiency
   //Region=0; default, no selections on  dEta and dPhi                                                           
@@ -353,6 +355,7 @@ void histos_exercise_AllParticles(Int_t sysV0=0, Int_t sysV0index=0, Int_t sysTr
       else if (Region==2) nome_file_output[sysTrigger][sysV0]+="_dEtadPhiOOJRegion";
       nome_file_output[sysTrigger][sysV0]+=Form("_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f", molt, sysTrigger, sysV0, syst,PtTrigMin);
       if (MultBinning!=0) nome_file_output[sysTrigger][sysV0]+= Form("_MultBinning%i",MultBinning);
+      if (VarRange>0)       nome_file_output[sysTrigger][sysV0]+= Form("_VarRange%i",VarRange);
       nome_file_output[sysTrigger][sysV0]+= ".root";
     }
     else if (isSysStudy){
@@ -395,6 +398,9 @@ void histos_exercise_AllParticles(Int_t sysV0=0, Int_t sysV0index=0, Int_t sysTr
     TDirectoryFile *dirinput;
     if (isNewInputPath){
       if (year == "2016k_HM_hK0s") dirinput = (TDirectoryFile*)myfileAnalysis->Get(nome_TDir + "_PtTrigMin3.0_PtTrigMax30.0");
+      else if (year=="17pq_hK0s" && isMC) dirinput = (TDirectoryFile*)myfileAnalysis->Get("MyTask_MCTruth_PtTrigMin3.0_PtTrigMax15.0");
+      else if (year=="17pq_hK0s_pttrig0.15" && !isMC) dirinput = (TDirectoryFile*)myfileAnalysis->Get("MyTask_PtTrigMin0.2_PtTrigMax15.0");
+      else if (isMC)  dirinput = (TDirectoryFile*)myfileAnalysis->Get("MyTask_MCTruth_PtTrigMin3.0_PtTrigMax15.0");
       else  dirinput = (TDirectoryFile*)myfileAnalysis->Get(nome_TDir + "_PtTrigMin3.0_PtTrigMax15.0");
     }
     else {
@@ -407,6 +413,8 @@ void histos_exercise_AllParticles(Int_t sysV0=0, Int_t sysV0index=0, Int_t sysTr
     if (isNewInputPath) {
       if (type==0){
 	if (year=="2016k_HM_hK0s") 	ContainerName= "_hK0s_Task_suffix";
+	else if (year=="17pq_hK0s" && isMC) 	ContainerName= "_hK0s_Task_RecoAndEfficiency";
+	else if (isMC && isEfficiency) 	ContainerName= "_hK0s_Task_RecoAndEfficiency";
 	else ContainerName= "_hK0s_Task_";
       }
       else ContainerName= "_hXi_Task_";
@@ -592,6 +600,22 @@ void histos_exercise_AllParticles(Int_t sysV0=0, Int_t sysV0index=0, Int_t sysTr
       if (type==0){
 	liminf[type]=0.46;//where the bkg and total fit is performed (the 2 gaussian fit is performed in the min_range_histo range
 	limsup[type]=0.54;
+	if (isBkgParab){
+	  if (VarRange==1){
+	    liminf[type]=0.465;
+	    limsup[type]=0.53;
+	  }
+	  else if (VarRange==2){
+	    liminf[type]=0.45;
+	    limsup[type]=0.55;
+	  }
+	}
+	else {
+	  if (VarRange==1){
+	    liminf[type]=0.465;
+	    limsup[type]=0.53;
+	  }
+	}
 	min_histo[type]=0.455; //where final bkg function is displayed and sideband integral is calculated
 	max_histo[type]=0.54;
       }
@@ -1099,6 +1123,7 @@ void histos_exercise_AllParticles(Int_t sysV0=0, Int_t sysV0index=0, Int_t sysTr
       entries_sideband[j]=0;
       entries_sideband_false[j]=0;      
       entries_sideband_true[j]=0;
+      bside[j] = 0;
 
       for(Int_t l=isto_tagli[j]->GetXaxis()->FindBin(mean[j]-sigmacentral*sigma[j]); l<=isto_tagli[j]->GetXaxis()->FindBin(mean[j]+sigmacentral*sigma[j]); l++){
 	entries_range[j]+=isto_tagli[j]->GetBinContent(l);
@@ -1118,14 +1143,16 @@ void histos_exercise_AllParticles(Int_t sysV0=0, Int_t sysV0index=0, Int_t sysTr
       }
       entries_sideband_false[j]=entries_sideband[j]-entries_sideband_true[j];
       err_sideband_false[j]=sqrt(entries_sideband[j]+entries_sideband_true[j]);
-      ////////////////////////////////////
-      //never used    s1[j]=functions1[j]->Integral(functions1[j]->GetParameter(1)-sigmacentral*functions1[j]->GetParameter(2),functions1[j]->GetParameter(1)+sigmacentral*functions1[j]->GetParameter(2));
-      //never used    s2[j]=functions2[j]->Integral(functions2[j]->GetParameter(1)-sigmacentral*functions2[j]->GetParameter(2),functions2[j]->GetParameter(1)+sigmacentral*functions2[j]->GetParameter(2));
+
+      for (Int_t b= isto_tagli[j]->GetXaxis()->FindBin(min_histo[type]); b<= isto_tagli[j]->GetXaxis()->FindBin(mean[j]-nsigmamin*sigma[j]) ; b++){
+	bside[j]+=  (isto_tagli[j]->GetBinContent(b)* isto_tagli[j]->GetBinWidth(1));
+      }
+      for (Int_t b= isto_tagli[j]->GetXaxis()->FindBin(mean[j]+nsigmamin*sigma[j]) ; b<= isto_tagli[j]->GetXaxis()->FindBin(max_histo[type]) ; b++){
+	bside[j]+=  (isto_tagli[j]->GetBinContent(b)* isto_tagli[j]->GetBinWidth(1));
+      }
+
       st[j]=total[j]->Integral(mean[j]-sigmacentral*sigma[j],mean[j]+sigmacentral*sigma[j]); //la funzione total ha parametri del bkg settati a zero!
       IntegralSignalAllRange[j]=total[j]->Integral(min_histo[type], max_histo[type]); //la funzione total ha parametri del bkg settati a zero!
-      // cout <<"con totale " <<  st[j]<< endl;
-      //   st[j]=s1[j]+s2[j];
-      // cout <<"con somma " <<  st[j]<< endl;
 
       tot[j]=entries_range[j]*isto_tagli[j]->GetBinWidth(1);
 
@@ -1137,14 +1164,6 @@ void histos_exercise_AllParticles(Int_t sysV0=0, Int_t sysV0index=0, Int_t sysTr
 	b[j]=bkg1[j]->Integral(mean[j]-sigmacentral*sigma[j],mean[j]+sigmacentral*sigma[j]);
 	//bside[j]=bkg1[j]->Integral(min_histo[type],mean[j]-nsigmamin*sigma[j]) + bkg1[j]->Integral(mean[j]+nsigmamin*sigma[j], max_histo[type]);
       }
-
-      for (Int_t b= isto_tagli[j]->FindBin(min_histo[type]); b<= isto_tagli[j]->FindBin(mean[j]-nsigmamin*sigma[j]) ; b++){
-	bside[j]+=  isto_tagli[j]->GetBinContent(b)* isto_tagli[j]->GetBinWidth(b);
-      }
-      for (Int_t b= isto_tagli[j]->FindBin(mean[j]+nsigmamin*sigma[j]) ; b<= isto_tagli[j]->FindBin(max_histo[type]) ; b++){
-	bside[j]+=  isto_tagli[j]->GetBinContent(b)* isto_tagli[j]->GetBinWidth(b);
-      }
-
 
       //    errbside[j]=bkg2[j]->IntegralError(mean[j]-nsigmamax*sigma[j], mean[j]-nsigmamin*sigma[j]) + bkg2[j]->IntegralError(mean[j]+nsigmamin*sigma[j], mean[j]+nsigmamax*sigma[j]);
       bin_contentS1[j]=st[j]; //errS1 e' l'errore associato
@@ -1407,8 +1426,7 @@ void histos_exercise_AllParticles(Int_t sysV0=0, Int_t sysV0index=0, Int_t sysTr
     histo_BRatioSide->Write();
     histo_BDoubleRatio->Write();
     histo_NTrigger->Write();
-    f->Close();
-   
+    f->Close();   
 
     cout << endl;
     cout << "*******************" << endl;
