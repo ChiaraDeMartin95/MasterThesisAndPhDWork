@@ -20,6 +20,8 @@
 #include "TGraphAsymmErrors.h"
 #include <TRandom.h>
 #include </data/dataalice/AliceSoftware/aliphysics/master_chiara/src/PWG/Tools/AliPWGFunc.h>
+//#include </data/dataalice/cdemart/AliPhysicsChiara/AliPhysics/PWGLF/SPECTRA/UTILS/YieldMean.C>
+#include </data/dataalice/cdemart/ALICE_analysis_tutorial/YieldMean.C>
 
 void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, TString titleX, TString titleY, TString title, Bool_t XRange, Float_t XLow, Float_t XUp){
   histo->GetYaxis()->SetRangeUser(Low, Up);
@@ -36,7 +38,7 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0, TString year=""/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, TString yearEtaEff = "1617_AOD234_hK0s",  TString Path1 ="_Jet0.75"/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,  Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Int_t PtBinning=0, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,   Int_t sys=0, Bool_t ZeroYieldLowPt=0, Bool_t TwoFitFunctions=0, Bool_t isNormCorr=0, Bool_t isReanalysisWithEtaEff=0, Bool_t isReanalysisEtaEffComp=0, Bool_t isNormCorrFullyComputed=1, Int_t YieldComp=0, Bool_t isPreliminary=0){
+void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0, TString year=""/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, TString yearEtaEff = "1617_AOD234_hK0s",  TString Path1 ="_Jet0.75"/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,  Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Int_t PtBinning=0, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,   Int_t sys=0, Bool_t ZeroYieldLowPt=0, Bool_t TwoFitFunctions=0, Bool_t isNormCorr=0, Bool_t isReanalysisWithEtaEff=0, Bool_t isReanalysisEtaEffComp=0, Bool_t isNormCorrFullyComputed=1, Int_t YieldComp=0, Bool_t isPreliminary=0, Bool_t isMeanMacro=0){
 
   if (!isPreliminary){
     isReanalysisWithEtaEff=0;
@@ -291,6 +293,7 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
   if (YieldComp ==1) stringout+="_isNormCorrFullyComputedComp";
   if (YieldComp ==2) stringout+="_isNormCorrFullyComputedAndEtaEffComp";
   //  stringout += "_Fixed";
+  if (isMeanMacro)  stringout += "_YieldMeanMacro"; 
   TString PathOutPictures = stringout;
   stringout += ".root";
   TFile * fileout = new TFile(stringout, "RECREATE");
@@ -1903,6 +1906,31 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
   const Int_t numfittipo=4;
   TLegend *legendfit=new TLegend(0.6, 0.6, 0.9, 0.9);
   TString   nameMTscaling[nummolt+1][numfittipo];
+
+  TH1F* hhoutYield[nummolt+1];
+  TH1F* hhoutYieldMy[nummolt+1];
+  TH1F* hhoutRelStat[nummolt+1];
+  TH1F* hhoutRelStatMy[nummolt+1];
+  TH1F* hhoutRelSystHigh[nummolt+1];
+  TH1F* hhoutRelSystHighMy[nummolt+1];
+  TH1F* hhoutRelSystLow[nummolt+1];
+  TH1F* hhoutRelSystLowMy[nummolt+1];
+  Float_t hhoutYieldAvg[nummolt+1]={0};
+  Float_t hhoutRelStatAvg[nummolt+1]={0};
+  Float_t hhoutRelSystHighAvg[nummolt+1]={0};
+  Float_t hhoutRelSystLowAvg[nummolt+1]={0};
+
+  TH1 *hhout[numfittipo][nummolt+1];
+  TString  Titlehhout[9] = {"kYield",
+    "kYieldStat",
+    "kYieldSysHi",
+    "kYieldSysLo",
+    "kMean",
+    "kMeanStat",
+    "kMeanSysHi",
+    "kMeanSysLo",
+    "kExtra"};
+
   Int_t ColorFit[numfittipo+1]={860, 881, 868, 628, 419};
   TFitResultPtr fFitResultPtr0[nummolt+1][numfittipo];
   TFitResultPtr fFitResultPtrUp[nummolt+1][numfittipo];
@@ -1970,6 +1998,7 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
   Float_t    Yield[nummolt+1]={0};
   Float_t    YieldErrStat[nummolt+1]={0};
   Float_t    YieldErrSist[nummolt+1]={0};
+  Float_t    YieldErrSistMy[nummolt+1]={0};
   Float_t    YieldErrSistUp[nummolt+1]={0};
   Float_t    YieldErrSistLow[nummolt+1]={0};
   Float_t    YieldErrNormFactor[nummolt+1]={0};
@@ -1983,6 +2012,14 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
     hFitResult[typefit] = new TH1F ("hFitResult"+nameFit[typefit], "hFitResult",nummolt, Nmolt);
   }
   for(Int_t m=0; m<nummolt+1; m++){
+    hhoutYield[m] = new TH1F(Form("hhoutYield_m%i", m),Form("hhoutYield_m%i", m) , numfittipo+1, 0, numfittipo+1);
+    hhoutYieldMy[m] = new TH1F(Form("hhoutYieldMy_m%i", m),Form("hhoutYieldMy_m%i", m) , numfittipo+1, 0, numfittipo+1);
+    hhoutRelStat[m] = new TH1F(Form("hhoutRelStat_m%i", m),Form("hhoutRelStat_m%i", m) , numfittipo+1, 0, numfittipo+1);
+    hhoutRelStatMy[m] = new TH1F(Form("hhoutRelStatMy_m%i", m),Form("hhoutRelStatMy_m%i", m) , numfittipo+1, 0, numfittipo+1);
+    hhoutRelSystHigh[m] = new TH1F(Form("hhoutRelSystHigh_m%i", m),Form("hhoutRelSystHigh_m%i", m) , numfittipo+1, 0, numfittipo+1);
+    hhoutRelSystHighMy[m] = new TH1F(Form("hhoutRelSystHighMy_m%i", m),Form("hhoutRelSystHighMy_m%i", m) , numfittipo+1, 0, numfittipo+1);
+    hhoutRelSystLow[m] = new TH1F(Form("hhoutRelSystLow_m%i", m),Form("hhoutRelSystLow_m%i", m) , numfittipo+1, 0, numfittipo+1);
+    hhoutRelSystLowMy[m] = new TH1F(Form("hhoutRelSystLowMy_m%i", m),Form("hhoutRelSystLowMy_m%i", m) , numfittipo+1, 0, numfittipo+1);
 
     for (Int_t typefit =0; typefit<numfittipo; typefit++){
       if (type==8 && TypeAnalysis==10) factor=2; //otherwise fit is not properly done                 
@@ -2012,7 +2049,38 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
 	fit_MTscaling[m][typefit]->SetRange(LowRange[m], 1.5);
 	fit_MTscalingBis[m][typefit]->SetRange(2, UpRange[m]);
       }
-      fFitResultPtr0[m][typefit]=       fHistSpectrumStat[m]->Fit(    fit_MTscaling[m][typefit],"SR0");
+
+      if (isMeanMacro){
+	cout << "m " << m << " typefit " << typefit << endl;
+	hhout[typefit][m] = YieldMean(fHistSpectrumStat[m], fHistSpectrumSistAll[m],  fit_MTscalingBis[m][typefit], 0, 50, 0.01, 0.1, "0qI", "log.root", LowRange[m], UpRange[m]);
+	cout << "m " << m << " typefit " << typefit << endl;
+	hhout[typefit][m] -> SetLineColor(ColorFit[typefit]);
+	hhout[typefit][m] -> SetName("hhout_"+ nameFit[typefit]+Form("_m%i", m));
+	hhout[typefit][m]->GetYaxis()->SetRangeUser(0,2);
+	for (Int_t b=1; b<= hhout[typefit][m]->GetNbinsX(); b++){
+	  hhout[typefit][m] ->GetXaxis() ->SetBinLabel(b,Titlehhout[b-1] );
+	}
+	cout << "m " << m << " typefit " << typefit << endl;
+	hhoutYield[m]       ->GetXaxis()->SetBinLabel(typefit+1, nameFit[typefit]);
+	hhoutRelStat[m]     ->GetXaxis()->SetBinLabel(typefit+1, nameFit[typefit]);
+	hhoutRelSystHigh[m] ->GetXaxis()->SetBinLabel(typefit+1, nameFit[typefit]);
+	hhoutRelSystLow[m]  ->GetXaxis()->SetBinLabel(typefit+1, nameFit[typefit]);
+	cout << "m " << m << " typefit " << typefit << endl;
+	hhoutYield[m] ->SetBinContent(typefit+1, hhout[typefit][m]->GetBinContent(9)); //extrapolatedfraction
+	hhoutYieldAvg[m] +=       hhoutYield[m] ->GetBinContent(typefit+1); 
+
+	hhoutRelStat[m] ->SetBinContent(typefit+1, hhout[typefit][m]->GetBinContent(2)); //rel stat error
+	hhoutRelStatAvg[m] +=       hhoutRelStat[m] ->GetBinContent(typefit+1); 
+
+	hhoutRelSystHigh[m] ->SetBinContent(typefit+1, hhout[typefit][m]->GetBinContent(3)); //rel syst error
+	hhoutRelSystHighAvg[m] +=       hhoutRelSystHigh[m] ->GetBinContent(typefit+1); 
+
+	hhoutRelSystLow[m] ->SetBinContent(typefit+1, hhout[typefit][m]->GetBinContent(4)); //rel syst error
+	hhoutRelSystLowAvg[m] +=       hhoutRelSystLow[m] ->GetBinContent(typefit+1); 
+      }
+      cout << "Ciao " << endl;
+
+      fFitResultPtr0[m][typefit] = fHistSpectrumStat[m]->Fit(fit_MTscaling[m][typefit],"SR0I");
       fit_MTscaling[m][typefit]->SetRange(0,50);
       canvasPtSpectraFit->cd(m+1);
       gPad->SetLeftMargin(0.15);
@@ -2020,7 +2088,7 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
       fit_MTscaling[m][typefit]->Draw("same");
       legendfit->Draw("");
 
-      fFitResultPtr1[m][typefit]=       fHistSpectrumStat[m]->Fit(    fit_MTscalingBis[m][typefit],"SR0");
+      fFitResultPtr1[m][typefit]=       fHistSpectrumStat[m]->Fit(    fit_MTscalingBis[m][typefit],"SR0I");
       fit_MTscalingBis[m][typefit]->SetRange(0,50);
       canvasPtSpectraFitBis->cd(m+1);
       gPad->SetLeftMargin(0.15);
@@ -2037,7 +2105,7 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
       //fit +1sigma sistematica
       fit_MTscalingUp[m][typefit]= (TF1*)       fit_MTscaling[m][typefit]->Clone(      nameMTscaling[m][typefit]+ "_Up");      
       fit_MTscalingUp[m][typefit]->SetRange(LowRange[m], UpRange[m]);
-      fFitResultPtrUp[m][typefit]=       fHistSpectrumStatUp[m]->Fit(    fit_MTscalingUp[m][typefit],"SR0");
+      fFitResultPtrUp[m][typefit]=       fHistSpectrumStatUp[m]->Fit(    fit_MTscalingUp[m][typefit],"SR0I");
       fit_MTscalingUp[m][typefit]->SetRange(0,50);
       canvasPtSpectraFitUp->cd(m+1);
       gPad->SetLeftMargin(0.15);
@@ -2048,7 +2116,7 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
       //fit -1sigma sistematica
       fit_MTscalingDown[m][typefit]= (TF1*)       fit_MTscaling[m][typefit]->Clone(      nameMTscaling[m][typefit]+ "_Down");      
       fit_MTscalingDown[m][typefit]->SetRange(LowRange[m], UpRange[m]);
-      fFitResultPtrDown[m][typefit]=       fHistSpectrumStatDown[m]->Fit(    fit_MTscalingDown[m][typefit],"SR0");
+      fFitResultPtrDown[m][typefit]=       fHistSpectrumStatDown[m]->Fit(    fit_MTscalingDown[m][typefit],"SR0I");
       fit_MTscalingDown[m][typefit]->SetRange(0,50);
       canvasPtSpectraFitDown->cd(m+1);
       gPad->SetLeftMargin(0.15);
@@ -2056,10 +2124,20 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
       fit_MTscalingDown[m][typefit]->Draw("same");
       legendfit->Draw("");
 
-
       //calculatin yields
       YieldExtrLowPt[m][typefit]= fit_MTscaling[m][typefit]->Integral(0,LowRangeSpectrumPart[m]);
       YieldExtrHighPt[m][typefit] = fit_MTscalingBis[m][typefit]->Integral(UpRangeSpectrumPart[m],50);
+
+      hhoutYieldMy[m]       ->GetXaxis()->SetBinLabel(typefit+1, nameFit[typefit]);
+      hhoutRelStatMy[m]     ->GetXaxis()->SetBinLabel(typefit+1, nameFit[typefit]);
+      hhoutRelSystHighMy[m] ->GetXaxis()->SetBinLabel(typefit+1, nameFit[typefit]);
+      hhoutRelSystLowMy[m]  ->GetXaxis()->SetBinLabel(typefit+1, nameFit[typefit]);
+
+      hhoutYieldMy[m] ->SetBinContent(typefit+1, YieldExtrLowPt[m][typefit] + YieldExtrHighPt[m][typefit]);
+      //      hhoutRelStatMy[m] ->SetBinContent(typefit+1, sqrt(pow(    fit_MTscaling[m][typefit]->IntegralError(0,LowRangeSpectrumPart[m],fFitResultPtr0[m][typefit] ->GetParams(),(fFitResultPtr0[m][typefit]->GetCovarianceMatrix()).GetMatrixArray() ), 2) + pow ( fit_MTscalingBis[m][typefit]->IntegralError(UpRangeSpectrumPart[m],50,fFitResultPtr1[m][typefit] ->GetParams(),(fFitResultPtr1[m][typefit]->GetCovarianceMatrix()).GetMatrixArray() ),2)) ); //this is only the stat uncertainty related to the extrapolated part!
+      hhoutRelStatMy[m] ->SetBinContent(typefit+1, 0);
+      hhoutRelSystHighMy[m] ->SetBinContent(typefit+1, 0);
+      hhoutRelSystLowMy[m] ->SetBinContent(typefit+1, 0);
 
       if (typefit==0){
 	YieldExtrMaxLowPt[m] =  YieldExtrLowPt[m][typefit];
@@ -2132,7 +2210,7 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
 	  //	  cout <<" stat " <<  fHistSpectrumStat[m]->GetBinContent(b) << " temp " <<  fHistSpectrumTemp[m]->GetBinContent(b) << endl;
 	}
 	fit_MTscalingTemp[m][typefit]->SetRange(LowRange[m], UpRange[m]);
-	fFitResultPtrTemp[m][typefit]=       fHistSpectrumTemp[m]->Fit(fit_MTscalingTemp[m][typefit],"SR0Q");
+	fFitResultPtrTemp[m][typefit]=       fHistSpectrumTemp[m]->Fit(fit_MTscalingTemp[m][typefit],"SR0QI");
 	fit_MTscalingTemp[m][typefit]->SetRange(0,50);
 	AvgPtFitTemp[m][typefit]=0;
 	for (Int_t l=0; l<= numInt; l++){
@@ -2227,12 +2305,11 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
     YieldErrStatHighPtAvg[m]=sqrt(YieldErrStatHighPtAvg[m])/numfittipo;
     YieldErrStatLowPtAvg[m]=sqrt(YieldErrStatLowPtAvg[m])/numfittipo;
 
-
     YieldExtr[m] =     YieldExtrHighPtAvg[m]+    YieldExtrLowPtAvg[m];
     YieldExtrErrStat[m] = sqrt(    pow(YieldErrStatHighPtAvg[m],2)+    pow(YieldErrStatLowPtAvg[m],2));
 
-    YieldExtrErrSistHighPt[m] = (YieldExtrMaxHighPt[m]-YieldExtrMinHighPt[m])/2;
-    YieldExtrErrSistLowPt[m] = (YieldExtrMaxLowPt[m]-YieldExtrMinLowPt[m])/2;
+    YieldExtrErrSistHighPt[m] = (YieldExtrMaxHighPt[m]-YieldExtrMinHighPt[m])/2; //related to choice of fit function
+    YieldExtrErrSistLowPt[m] = (YieldExtrMaxLowPt[m]-YieldExtrMinLowPt[m])/2; //related to choice of fit function
     YieldErrSystExtrLowPt[m] = (YieldExtrLowPtAvgUp[m]- YieldExtrLowPtAvgDown[m])/2;
     YieldErrSystExtrHighPt[m] = (YieldExtrHighPtAvgUp[m]- YieldExtrHighPtAvgDown[m])/2;
 
@@ -2240,28 +2317,45 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
     YieldExtrErrSistLow[m] = YieldExtrLowPtAvg[m];
     //    YieldExtrErrSist[m]=sqrt(pow(    YieldExtrErrSistUp[m],2) + pow(    YieldExtrErrSistLow[m],2)) ;
     YieldExtrErrSistFourFit[m]=sqrt(pow(    YieldExtrErrSistHighPt[m],2) + pow(    YieldExtrErrSistLowPt[m],2));
-    YieldExtrErrSist[m]=sqrt(pow(  YieldErrSystExtrLowPt[m],2) + pow(  YieldErrSystExtrHighPt[m] ,2)) ;
+
+    if (isPreliminary){
+      YieldExtrErrSist[m]=sqrt(pow(  YieldErrSystExtrLowPt[m],2) + pow(  YieldErrSystExtrHighPt[m] ,2)) ;
+    }
+    else {
+      YieldExtrErrSist[m]= YieldErrSystExtrLowPt[m]  + YieldErrSystExtrHighPt[m] ;
+    }
 
     for(Int_t v = PtBinMin[m]; v < numPtV0Max; v++){
       YieldSpectrum[m] +=  ( fHistSpectrumStat[m]->GetBinContent(v+1)*fHistSpectrumStat[m]->GetBinWidth(v+1));
       YieldSpectrumErrStat[m] += pow ( fHistSpectrumStat[m]->GetBinError(v+1)*fHistSpectrumStat[m]->GetBinWidth(v+1),2);
-      //errlin
+      if (isPreliminary){
       YieldSpectrumErrSist[m] += pow ( fHistSpectrumSistAll[m]->GetBinError(v+1)*fHistSpectrumSistAll[m]->GetBinWidth(v+1),2);
-      //errlin      YieldSpectrumErrSist[m] += fHistSpectrumSistAll[m]->GetBinError(v+1)*fHistSpectrumSistAll[m]->GetBinWidth(v+1);
-     
+      }
+      else {
+	YieldSpectrumErrSist[m] += fHistSpectrumSistAll[m]->GetBinError(v+1)*fHistSpectrumSistAll[m]->GetBinWidth(v+1);
+      }
     }
     YieldSpectrumErrStat[m]=sqrt( YieldSpectrumErrStat[m]);
-    //errlin 
-    YieldSpectrumErrSist[m]=sqrt( YieldSpectrumErrSist[m]);
+
+    if (isPreliminary){
+      YieldSpectrumErrSist[m]=sqrt( YieldSpectrumErrSist[m]);
+    }
 
     Yield[m] =  YieldSpectrum[m]+YieldExtr[m];
     YieldErrNormFactor[m] = YieldErrRelNormFactor[m]*Yield[m];
     YieldErrStat[m] = sqrt(    pow(YieldSpectrumErrStat[m],2) + pow(YieldExtrErrStat[m],2));
+
     //errlin    YieldErrSist[m] = sqrt(    pow(YieldSpectrumErrSist[m],2) + pow(YieldExtrErrSistHighPt[m],2) +  pow(YieldExtrErrSistLowPt[m],2) + pow(YieldSpectrumErrOOJSub[m],2) +  pow(YieldErrSystExtrLowPt[m],2) + pow( YieldErrSystExtrHighPt[m],2));
     //way1      YieldErrSist[m] =   YieldSpectrumErrSist[m] + YieldExtrErrSistHighPt[m] +  YieldExtrErrSistLowPt[m] + YieldSpectrumErrOOJSub[m] +  YieldErrSystExtrLowPt[m] +  YieldErrSystExtrHighPt[m];
     
     //prelimnary error YieldErrSist[m] =   YieldSpectrumErrSist[m] + YieldSpectrumErrOOJSub[m] +  YieldErrSystExtrLowPt[m] +  YieldErrSystExtrHighPt[m];
-    YieldErrSist[m] = sqrt(pow(YieldSpectrumErrSist[m],2) + pow(YieldSpectrumErrOOJSub[m],2) +  pow(YieldErrSystExtrLowPt[m],2) + pow( YieldErrSystExtrHighPt[m],2));
+    if (isPreliminary){
+      YieldErrSist[m] = sqrt(pow(YieldSpectrumErrSist[m],2) + pow(YieldSpectrumErrOOJSub[m],2) +  pow(YieldErrSystExtrLowPt[m],2) + pow( YieldErrSystExtrHighPt[m],2));
+    }
+    else {
+      YieldErrSist[m] = sqrt(pow(YieldSpectrumErrSist[m],2) + pow(YieldSpectrumErrOOJSub[m],2)) +  YieldErrSystExtrLowPt[m] + YieldErrSystExtrHighPt[m];
+    }
+    YieldErrSistMy[m] =     YieldErrSist[m];
     if (isNormCorr)    YieldErrSist[m]= sqrt(pow(      YieldErrSist[m],2) + pow(YieldExtrErrSistLowPt[m],2) + pow(YieldExtrErrSistHighPt[m],2) + pow(YieldErrNormFactor[m],2));
     else     YieldErrSist[m]= sqrt(pow(      YieldErrSist[m],2) + pow(YieldExtrErrSistLowPt[m],2) + pow(YieldExtrErrSistHighPt[m],2) );
 
@@ -2273,6 +2367,33 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
       YieldErrStat[m] = sqrt(    pow(YieldSpectrumErrStat[m],2) + pow(YieldErrStatHighPtAvg[m],2));
       YieldErrSist[m] = sqrt(    pow(YieldSpectrumErrSist[m],2) + pow(YieldExtrErrSistHighPt[m],2) + pow(YieldSpectrumErrOOJSub[m],2) + pow( YieldErrSystExtrHighPt[m],2));
     }
+
+    hhoutYield[m] ->SetBinContent(numfittipo+1, hhoutYieldAvg[m]/numfittipo);
+    hhoutYieldMy[m] ->SetBinContent(numfittipo+1, YieldExtr[m]);
+
+    hhoutRelStat[m] ->SetBinContent(numfittipo+1, hhoutRelStatAvg[m]/numfittipo);
+    hhoutRelSystHigh[m] ->SetBinContent(numfittipo+1, hhoutRelSystHighAvg[m]/numfittipo);
+    hhoutRelSystLow[m] ->SetBinContent(numfittipo+1, hhoutRelSystLowAvg[m]/numfittipo);
+    hhoutRelStat[m] ->Scale(1./Yield[m]);
+    hhoutRelSystHigh[m] ->Scale(1./Yield[m]);
+    hhoutRelSystLow[m] ->Scale(1./Yield[m]);
+    hhoutRelStat[m]->GetYaxis()->SetRangeUser(0,0.02);
+    hhoutRelSystHigh[m]->GetYaxis()->SetRangeUser(0,0.05);
+    hhoutRelSystLow[m]->GetYaxis()->SetRangeUser(0,0.05);
+    hhoutRelStat[m]->SetLineColor(ColorMult[m]);
+    hhoutRelSystHigh[m]->SetLineColor(ColorMult[m]);
+    hhoutRelSystLow[m]->SetLineColor(ColorMult[m]);
+
+    hhoutRelStatMy[m] ->SetBinContent(numfittipo+1, YieldErrStat[m]);
+    hhoutRelStatMy[m] ->Scale(1./Yield[m]);
+    hhoutRelSystHighMy[m] ->SetBinContent(numfittipo+1, YieldErrSistMy[m]/Yield[m]);
+    hhoutRelSystLowMy[m] ->SetBinContent(numfittipo+1, YieldErrSistMy[m]/ Yield[m]);
+    hhoutRelStatMy[m]->GetYaxis()->SetRangeUser(0,0.02);
+    hhoutRelSystHighMy[m]->GetYaxis()->SetRangeUser(0,0.05);
+    hhoutRelSystLowMy[m]->GetYaxis()->SetRangeUser(0,0.05);
+    hhoutRelStatMy[m]->SetLineColor(ColorMult[m]);
+    hhoutRelSystHighMy[m]->SetLineColor(ColorMult[m]);
+    hhoutRelSystLowMy[m]->SetLineColor(ColorMult[m]);
 
     cout << " m " << m << endl;
     for(Int_t v = PtBinMin[m]; v < numPtV0Max; v++){
@@ -2565,7 +2686,22 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
   //fifth part: syst associated to bkg used for OOJ subtraction  (only for Xi and jet)
 
   cout << "\n\n going to write on file " << endl;   
+  if (isMeanMacro){
+    for(Int_t m=0; m<nummolt+1; m++){
+      fileout->WriteTObject(hhoutYield[m]);
+      fileout->WriteTObject(hhoutYieldMy[m]);
+      fileout->WriteTObject(hhoutRelStat[m]);
+      fileout->WriteTObject(hhoutRelStatMy[m]);
+      fileout->WriteTObject(hhoutRelSystHigh[m]);
+      fileout->WriteTObject(hhoutRelSystHighMy[m]);
+      fileout->WriteTObject(hhoutRelSystLow[m]);
+      fileout->WriteTObject(hhoutRelSystLowMy[m]);
 
+      for (Int_t typefit=0; typefit<numfittipo; typefit++){
+	fileout->WriteTObject(hhout[typefit][m]);
+      }
+    }
+  }
   fileout->WriteTObject(canvasEtaEff);
   fileout->WriteTObject(canvasEtaEffRatio);
   if (YieldComp!=0){
