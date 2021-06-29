@@ -118,18 +118,35 @@ void DoAnalysis(string filepath, const int nChips, string skipruns){
 
   int ibinMin=1;
   int ibinMax=1;
+  int IBorOBindex = 0;
+  int IBorOB = 0;
+  if (hSummary->GetNbinsX() == 144) {  //for backward compatibility (plots for IB only)                        
+    ibinMax = hSummary->GetNbinsX();
+    IBorOB = 0;
+    IBorOBindex = 0;
+  }
+  else if (hSummary->GetNbinsX() == 288) { //for backward compatibility (plots for OB only)                    
+    IBorOB = 1;
+    IBorOBindex = 1;
+    ibinMax = hSummary->GetNbinsX();
+  }
+  else IBorOB=2; //plots for IB + OB     
+
   int ir = 0;
   double max[2] = {-1., -1.};
   TH1D *hproj;
   for(int iplot=0; iplot<(int)herr.size(); iplot++){
     for (Int_t i=0; i<=1; i++){
-      if (i==0) {ibinMin =1; ibinMax = 144;} //IB                                                             
-      else  {ibinMin =144; ibinMax = herr[iplot]->GetNbinsX();} //OB                                          
+      if (IBorOB==2){
+        IBorOBindex = i;
+	if (i==0) {ibinMin =1; ibinMax = 144;} //IB                                                        
+	else  {ibinMin =144; ibinMax = herr[iplot]->GetNbinsX();} //OB                               
+      }   
       hproj = (TH1D*)herr[iplot]->ProjectionY(Form("herr_%d",iplot), ibinMin, ibinMax);
       for(int ibin=1; ibin<=hSummary->GetNbinsY(); ibin++){
 	if(ir==0){
           trend[ibin-1][i] = new TGraph();
-          trend[ibin-1][i]->SetName(Form("gr_trgID%d_%s",ibin, SIBorOB[i]));
+          trend[ibin-1][i]->SetName(Form("gr_trgID%d_%s",ibin, SIBorOB[IBorOBindex]));
 	  SetStyle(trend[ibin-1][i], col[ibin<=10?ibin-1:ibin-11], ibin<=10?24:25);
         }
         trend[ibin-1][i]->SetPoint(ir,ir, hproj->GetBinContent(ibin));
@@ -140,6 +157,8 @@ void DoAnalysis(string filepath, const int nChips, string skipruns){
     delete hproj;
     ir++;
   }
+
+  if (IBorOB==2) IBorOBindex=0;
 
   //Draw summary plot
   TCanvas canvas;
@@ -185,7 +204,7 @@ void DoAnalysis(string filepath, const int nChips, string skipruns){
   canvas2.SetMargin(0.0988,0.1,0.194,0.0993);
 
   hfake->GetXaxis()->SetTitleOffset(2.8);
-  hfake->SetTitle(Form("IB, Trigger & Flag trends %s", filepath.substr(filepath.find("from"), filepath.find(".root")-filepath.find("from")).c_str()));
+  hfake->SetTitle(SIBorOB[IBorOBindex] + Form(", Trigger & Flag trends %s", filepath.substr(filepath.find("from"), filepath.find(".root")-filepath.find("from")).c_str()));
   hfake->GetYaxis()->SetRangeUser(1, 10*max[0]);
   hfake->GetXaxis()->SetTitleOffset(2.8);
   hfake->Draw();
@@ -195,6 +214,7 @@ void DoAnalysis(string filepath, const int nChips, string skipruns){
   leg->Draw("same");
 
   canvas2.SaveAs(Form("../Plots/FHRTrgFlgPlotSummary_%s.pdf", filepath.substr(filepath.find("from"), filepath.find(".root")-filepath.find("from")).c_str()));
+  if (IBorOB!=2)    canvas2.SaveAs(Form("../Plots/FHRTrgFlgPlotSummary_%s.pdf]", filepath.substr(filepath.find("from"), filepath.find(".root")-filepath.find("from")).c_str()));
 
   TCanvas canvas3;
   canvas3.cd();
@@ -211,6 +231,9 @@ void DoAnalysis(string filepath, const int nChips, string skipruns){
   }
   leg->Draw("same");
 
-  canvas3.SaveAs(Form("../Plots/FHRTrgFlgPlotSummary_%s.pdf]", filepath.substr(filepath.find("from"), filepath.find(".root")-filepath.find("from")).c_str()));
+  if (IBorOB ==2){
+    canvas3.SaveAs(Form("../Plots/FHRTrgFlgPlotSummary_%s.pdf", filepath.substr(filepath.find("from"), filepath.find(".root")-filepath.find("from")).c_str()));
+    canvas3.SaveAs(Form("../Plots/FHRTrgFlgPlotSummary_%s.pdf]", filepath.substr(filepath.find("from"), filepath.find(".root")-filepath.find("from")).c_str()));
+  }
 
 }
