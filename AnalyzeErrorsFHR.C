@@ -17,7 +17,7 @@
 using namespace std;
 
 void SetStyle(TGraph *h, Int_t col, Style_t mkr);
-void DoAnalysis(string filepath, const int nChips, string skipruns, int IBorOB);
+void DoAnalysis(string filepath, const int nChips, string skipruns);
 TString SIBorOB[2]={"IB", "OB"};
 
 //
@@ -31,35 +31,6 @@ void AnalyzeErrorsFHR(){
   cout<<"\nCopy file name: ";
   cin>>fpath;
   cout<<endl;
-
-  int IBorOB;
-  int IBorOBmin=0;
-  int IBorOBmax=0;
-  //IBorOB = 0 if I want to check all IB layers                                                              
-  //IBorOB = 1 if I want to check all OB layers                                                              
-  //IBorOB = 2 if I want to check all IB + OB layers or if I want to check a single layer                    
-
-  if(fpath.find("IB")!=string::npos){
-    IBorOB = 0;
-    // IBorOBmin=0;
-    // IBorOBmax=0;
-  }
-  else if (fpath.find("OB")!=string::npos){
-    IBorOB = 1;
-    // IBorOBmin=1;
-    // IBorOBmax=1;
-  }
-  else if (fpath.find("all")!=string::npos){
-    IBorOB = 2;
-    // IBorOBmin=0;
-    // IBorOBmax=1;
-  }
-  else{
-    string layernum = fpath.substr(fpath.find("Layer")+5, 1);
-    IBorOB = 2;
-    // IBorOBmin=0;
-    // IBorOBmax=0;
-  }
 
   //Choose whether to skip runs
   string skipans, skipruns;
@@ -77,7 +48,7 @@ void AnalyzeErrorsFHR(){
 
 
   //Call
-  DoAnalysis(fpath, nchips, skipruns, IBorOB);
+  DoAnalysis(fpath, nchips, skipruns);
 
 }
 
@@ -96,7 +67,7 @@ void SetStyle(TGraph *h, Int_t col, Style_t mkr){
 //
 // Analyse data
 //
-void DoAnalysis(string filepath, const int nChips, string skipruns, int IBorOB){
+void DoAnalysis(string filepath, const int nChips, string skipruns){
 
   gStyle->SetOptStat(0000);
 
@@ -135,24 +106,6 @@ void DoAnalysis(string filepath, const int nChips, string skipruns, int IBorOB){
 
   int nRuns = (int)runnumbers.size();
 
-  /*
-    Int_t iplotmin=1;
-    Int_t iplotmax=(int)herr.size();
-    Int_t indexSOBorOB=0;
-  for (Int_t IBorOBindex = IBorOBmin; IBorOBindex<= IBorOBmax; IBorOBindex++)
-  if (IBorOB==2){ //exclude case when only 1 layer is analysed
-  if (IBorOBindex==0) {
-  iplotmin =1; 
-  iplotmax = (int)herr.size()/2;
-  }
-  else {
-  iplotmin = (int)herr.size()/2; 
-  iplotmax = (int)herr.size();
-  }
-  }
-  SindexIBorOB = IBorOBindex; --> if analysing just one layer: if (layernum < =2) = 0, else =1
-  */
-
   //sum all the histos in a single histogram (for summary plot) for each layer
   TH2D *hSummary =  (TH2D*)herr[0]->Clone("hSummary");
   for(int iplot=1; iplot<(int)herr.size(); iplot++){
@@ -162,27 +115,49 @@ void DoAnalysis(string filepath, const int nChips, string skipruns, int IBorOB){
   //Make plots with Error IDs vs Run for each layer
   TGraph *trend[hSummary->GetNbinsY()][2];
 
+  int ibinMin=1;
+  int ibinMax=1;
+  int IBorOBindex = 0;
+  int IBorOB = 0;
+  if (hSummary->GetNbinsX() == 144) {  //for backward compatibility (plots for IB only)
+    ibinMax = hSummary->GetNbinsX();    
+    IBorOB = 0;
+    IBorOBindex = 0;
+  }
+  else if (hSummary->GetNbinsX() == 288) { //for backward compatibility (plots for OB only)
+    IBorOB = 1;
+    IBorOBindex = 1;
+    ibinMax = hSummary->GetNbinsX();    
+  }
+  else IBorOB=2; //plots for IB + OB
+
   int ir = 0;
-  double max = -1.;
+  double max[2] = {-1., -1.};
+  TH1D *hproj;
   for(int iplot=0; iplot<(int)herr.size(); iplot++){
     for (Int_t i=0; i<=1; i++){
-      if (i==0) {ibinMin =1; ibinMax = 144;} //IB
-      else  {ibinMin =144; ibinMax = herr[iplot]->GetNbinsX();} //OB
-      TH1D *hproj = (TH1D*)herr[iplot]->ProjectionY(Form("herr_%d",iplot), ibinMin, ibinMax);
+      if (IBorOB==2){
+	IBorOBindex = i;
+	if (i==0) {ibinMin =1; ibinMax = 144;} //IB
+	else  {ibinMin =144; ibinMax = herr[iplot]->GetNbinsX();} //OB
+      }
+      hproj = (TH1D*)herr[iplot]->ProjectionY(Form("herr_%d",iplot), ibinMin, ibinMax);
       for(int ibin=1; ibin<=hproj->GetNbinsX(); ibin++){
 	if(ir==0){
 	  trend[ibin-1][i] = new TGraph();
-	  trend[ibin-1][i]->SetName(Form("gr_errID%d_%s",ibin, SIBorOB[i].c_str()));
+	  trend[ibin-1][i]->SetName(Form("gr_errID%d_%s",ibin, SIBorOB[IBorOBindex]));
 	  SetStyle(trend[ibin-1][i], col[ibin<=10?ibin-1:ibin<=20?ibin-11:ibin-21], ibin<=10?24:ibin<=20?25:26);
 	}
 	trend[ibin-1][i]->SetPoint(ir,ir, hproj->GetBinContent(ibin));
-	if(hproj->GetBinContent(ibin)>max)
-	  max=hproj->GetBinContent(ibin);
+	if(hproj->GetBinContent(ibin)>max[i])
+	  max[i]=hproj->GetBinContent(ibin);
       }
     }
     delete hproj;
     ir++;
   }
+
+  if (IBorOB==2) IBorOBindex=0;
 
   //Draw summary plot
   TCanvas canvas;
@@ -209,7 +184,7 @@ void DoAnalysis(string filepath, const int nChips, string skipruns, int IBorOB){
   canvas.SaveAs(Form("../Plots/FHRErrorPlotSummary_%s.pdf", filepath.substr(filepath.find("from"), filepath.find(".root")-filepath.find("from")).c_str()));
 
   //Draw trends
-  int npoints = trend[0]->GetN();
+  int npoints = trend[0][0]->GetN();
   TH1F *hfake = new TH1F("hfake", "; Run; # Errors", npoints, -0.5, (double)npoints-0.5);
   for(int ir=0; ir<(int)runnumbers.size(); ir++)
     hfake->GetXaxis()->SetBinLabel(ir+1, Form("run%06d", stoi(runnumbers[runnumbers.size()-1-ir])));
@@ -218,7 +193,7 @@ void DoAnalysis(string filepath, const int nChips, string skipruns, int IBorOB){
   leg->SetHeader("Error IDs");
   leg->SetNColumns(2);
   for(int iid=1; iid<=hSummary->GetNbinsY();iid++)
-    leg->AddEntry(trend[iid-1], Form("%d",iid), "p");
+    leg->AddEntry(trend[iid-1][0], Form("%d",iid), "p");
 
   TCanvas canvas2;
   canvas2.cd();
@@ -228,7 +203,7 @@ void DoAnalysis(string filepath, const int nChips, string skipruns, int IBorOB){
   canvas2.SetMargin(0.0988,0.1,0.194,0.0993);
 
   hfake->GetXaxis()->SetTitleOffset(2.8);
-  hfake->SetTitle(Form("IB, Error trends %s", filepath.substr(filepath.find("from"), filepath.find(".root")-filepath.find("from")).c_str()));
+  hfake->SetTitle(SIBorOB[IBorOBindex] + Form(", Error trends %s", filepath.substr(filepath.find("from"), filepath.find(".root")-filepath.find("from")).c_str()));
   hfake->GetYaxis()->SetRangeUser(1, 10*max[0]);
   hfake->GetXaxis()->SetTitleOffset(2.8);
   hfake->DrawClone();
@@ -238,8 +213,15 @@ void DoAnalysis(string filepath, const int nChips, string skipruns, int IBorOB){
   leg->Draw("same");
 
   canvas2.SaveAs(Form("../Plots/FHRErrorPlotSummary_%s.pdf", filepath.substr(filepath.find("from"), filepath.find(".root")-filepath.find("from")).c_str()));
+  if (IBorOB!=2)   canvas2.SaveAs(Form("../Plots/FHRErrorPlotSummary_%s.pdf]", filepath.substr(filepath.find("from"), filepath.find(".root")-filepath.find("from")).c_str()));
 
-  TCanvas canvas3 = (TCanvas)canvas2->Clone();
+  TCanvas canvas3;
+  canvas3.cd();
+  canvas3.SetTickx();
+  canvas3.SetTicky();
+  canvas3.SetLogy();
+  canvas3.SetMargin(0.0988,0.1,0.194,0.0993);
+
   hfake->SetTitle(Form("OB, Error trends %s", filepath.substr(filepath.find("from"), filepath.find(".root")-filepath.find("from")).c_str()));
   hfake->GetYaxis()->SetRangeUser(1, 10*max[1]);
   hfake->Draw();
@@ -248,7 +230,8 @@ void DoAnalysis(string filepath, const int nChips, string skipruns, int IBorOB){
   }
   leg->Draw("same");
 
-  canvas3.SaveAs(Form("../Plots/FHRErrorPlotSummary_%s.pdf", filepath.substr(filepath.find("from"), filepath.find(".root")-filepath.find("from")).c_str()));
-  canvas3.SaveAs(Form("../Plots/FHRErrorPlotSummary_%s.pdf]", filepath.substr(filepath.find("from"), filepath.find(".root")-filepath.find("from")).c_str()));
-
+  if (IBorOB ==2){
+    canvas3.SaveAs(Form("../Plots/FHRErrorPlotSummary_%s.pdf", filepath.substr(filepath.find("from"), filepath.find(".root")-filepath.find("from")).c_str()));
+    canvas3.SaveAs(Form("../Plots/FHRErrorPlotSummary_%s.pdf]", filepath.substr(filepath.find("from"), filepath.find(".root")-filepath.find("from")).c_str()));
+  }
 }
