@@ -145,7 +145,7 @@ void DoAnalysis(string filepath, const int nChips, string skipruns){
       for(int ibin=1; ibin<=hproj->GetNbinsX(); ibin++){
 	if(ir==0){
 	  trend[ibin-1][i] = new TGraph();
-	  trend[ibin-1][i]->SetName(Form("gr_errID%d_%s",ibin, SIBorOB[IBorOBindex]));
+	  trend[ibin-1][i]->SetName(Form("gr_errID%d_%s",ibin, SIBorOB[IBorOBindex].Data()));
 	  SetStyle(trend[ibin-1][i], col[ibin<=10?ibin-1:ibin<=20?ibin-11:ibin-21], ibin<=10?24:ibin<=20?25:26);
 	}
 	trend[ibin-1][i]->SetPoint(ir,ir, hproj->GetBinContent(ibin));
