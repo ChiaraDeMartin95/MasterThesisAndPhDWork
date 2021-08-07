@@ -38,7 +38,7 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0, TString year=""/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, TString yearEtaEff = "1617_AOD234_hK0s",  TString Path1 ="_Jet0.75"/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,  Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Int_t PtBinning=0, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,   Int_t sys=0, Bool_t ZeroYieldLowPt=0, Bool_t TwoFitFunctions=0, Bool_t isNormCorr=0, Bool_t isReanalysisWithEtaEff=0, Bool_t isReanalysisEtaEffComp=0, Bool_t isNormCorrFullyComputed=1, Int_t YieldComp=0, Bool_t isPreliminary=0, Bool_t isMeanMacro=0){
+void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0, TString year=""/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, TString yearEtaEff = "161718Full_AOD234_hXi"/*"1617_AOD234_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,  Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Int_t PtBinning=1, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,   Int_t sys=0, Bool_t ZeroYieldLowPt=0, Bool_t TwoFitFunctions=0, Bool_t isNormCorr=0, Bool_t isReanalysisWithEtaEff=1, Bool_t isReanalysisEtaEffComp=0, Bool_t isNormCorrFullyComputed=1, Int_t YieldComp=0, Bool_t isPreliminary=1, Bool_t isMeanMacro=0){
 
   if (!isPreliminary){
     isReanalysisWithEtaEff=0;
@@ -86,7 +86,7 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
     }
     else if (type==8){
       PtBinning=0;
-      if (!isMC) year="";
+      if (!isMC) year="161718Full_AOD234_hXi";
       else  year=  "";
     }
   }
@@ -285,15 +285,17 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
   stringout+=   Form("_PtMin%.1f_", PtTrigMin);
   stringout+= RegionType[TypeAnalysis];
   if (ZeroYieldLowPt && TypeAnalysis==0) stringout +="_ZeroYLowPtJet";
-  //  stringout += "_LowPtExtr0.5";
+  //stringout += "_LowPtExtr0.5";
   if (TwoFitFunctions) stringout += "_TwoFitFunctions";
   if (isNormCorr) stringout+="_isNormCorr";
   if (isNormCorrFullyComputed) stringout+="_isNormCorrFullyComputed";
   if (isReanalysisWithEtaEff) stringout+="_isEtaEff";
   if (YieldComp ==1) stringout+="_isNormCorrFullyComputedComp";
   if (YieldComp ==2) stringout+="_isNormCorrFullyComputedAndEtaEffComp";
-  //  stringout += "_Fixed";
+  if (isReanalysisEtaEffComp) stringout+="_isEtaEffComp";
+  //stringout += "_Fixed";
   if (isMeanMacro)  stringout += "_YieldMeanMacro"; 
+  //  stringout +="_Ter";
   TString PathOutPictures = stringout;
   stringout += ".root";
   TFile * fileout = new TFile(stringout, "RECREATE");
@@ -400,8 +402,8 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
       for (Int_t m=0; m<nummolt+1; m++){
 	LowRangeJet[m] = 0.5;     LowRangeJetBFit[m] =     LowRangeJetZYAM[m]= 0.1;
 	UpRangeJet[m] = UpRangeJetBFit[m] = UpRangeJetZYAM[m]=3;
-	LowRangeBulk[m]= 0.5; 
-	LowRangeAll[m]= 0.5; 
+	LowRangeBulk[m]= 0.1; 
+	LowRangeAll[m]= 0.1; 
 	UpRangeAll[m]= 2.5; 
 	UpRangeBulk[m]= 2.5; 
       }
@@ -436,6 +438,16 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
 	if (m==0 || m==1 || m==4)	UpRangeJet[m] = UpRangeJetBFit[m] = UpRangeJetZYAM[m]=4;
 	if (isNormCorrFullyComputed) LowRangeJet[m] = 1.5;
 	//if (m==3) LowRangeBulk[m] = 1;
+	if (yearEtaEff=="161718Full_AOD234_hXi" && isReanalysisWithEtaEff) {
+	  UpRangeJet[m] = UpRangeJetBFit[m] = UpRangeJetZYAM[m]=4;
+	  LowRangeJet[m] = 1;
+	  if (m==0 || m ==1) 	  LowRangeJet[m] = 1.5;
+	  LowRangeBulk[m]= 0.5;                      
+	  LowRangeAll[m]= 0.5;
+	  if (m==3 || m ==4) {	  LowRangeAll[m]= 1; 	  LowRangeBulk[m]= 1;}
+	  UpRangeAll[m]= 3;
+	  UpRangeBulk[m]= 3;
+	}
       }
     }
   }
@@ -494,6 +506,16 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
       if (type==8)       LowRangeSpectrumPart[m] = LowRange[m];
     }
     //    else  LowRangeSpectrumPart[m] = 8;
+
+    UpRangeSpectrumPart[m] =8;
+    if (type==8 && m==4 && (TypeAnalysis==0 || TypeAnalysis==1))    UpRangeSpectrumPart[m] =4;
+    if (type==0 && m==4 && yearEtaEff=="1617_AOD234_hK0s" &&  isReanalysisWithEtaEff)    UpRangeSpectrumPart[m] =4;
+
+    if (type==8 && (m==3 || m==4) && yearEtaEff=="161718Full_AOD234_hXi" &&  isReanalysisWithEtaEff)  {  
+      UpRangeSpectrumPart[m] =4.; 
+      LowRangeSpectrumPart[m] = 1.0;
+    }
+
     for(Int_t v=0; v < numPtV0Max; v++){
       if (LowRangeSpectrumPart[m]<=NPtV0[v]) break;
       PtBinMin[m]++;
@@ -501,11 +523,13 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
       cout << "PtBinMin " << PtBinMin[m] << endl;
     }
 
-    UpRangeSpectrumPart[m] =8;
-    if (type==8 && m==4 && (TypeAnalysis==0 || TypeAnalysis==1))    UpRangeSpectrumPart[m] =4;
-    if (type==0 && m==4 && yearEtaEff=="1617_AOD234_hK0s" &&  isReanalysisWithEtaEff)    UpRangeSpectrumPart[m] =4;
   }
 
+  for (Int_t m=0; m<nummolt+1; m++){
+    cout << "\n\e[32m*******Multiplicity: " << SmoltLegend[m] << " *************\e[39m" << endl;
+    cout << "fit range " << LowRange[m] << "- " << UpRange[m] << endl;
+    cout << "!extrapolation range " << LowRangeSpectrumPart[m] << "- " << UpRangeSpectrumPart[m] << endl;
+  }
   cout << "...Done! " << endl;
 
   //syst1_limit indica gli effetti sistematici sullo spettro in pT
@@ -590,7 +614,8 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
   TCanvas* canvasYieldNormCorrRatio = new TCanvas ("canvasYieldNormCorrRatio", "canvasYieldNormCorrRatio", 1300, 800);
   TCanvas* canvasPtvsMult = new TCanvas ("canvasPtvsMult", "canvasPtvsMult", 1300, 800);
   TCanvas* canvasYieldErr = new TCanvas ("canvasYieldErr", "canvasYieldErr", 1300, 800);
-
+  TCanvas* canvasNormFactor = new TCanvas ("canvasNormFactor", "canvasNormFactor", 1300, 800);
+  canvasNormFactor->Divide(3,2);
   TCanvas* canvasPtSpectra = new TCanvas ("canvasPtSpectra", "canvasPtSpectra", 1300, 800);
   canvasPtSpectra->Divide(3,2);
   TCanvas* canvaspol0 = new TCanvas ("canvaspol0", "canvaspol0", 1300, 800);
@@ -620,6 +645,8 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
   canvasPtSpectraFitUp->Divide(3,2);
   TCanvas* canvasPtSpectraFitDown = new TCanvas ("canvasPtSpectraFitDown", "canvasPtSpectraFitDown", 1300, 800);
   canvasPtSpectraFitDown->Divide(3,2);
+  TCanvas* canvasPtSpectraFitRatio = new TCanvas ("canvasPtSpectraFitRatio", "canvasPtSpectraFitRatio", 1300, 800);
+  canvasPtSpectraFitRatio->Divide(3,2);
 
   TCanvas* canvasPtSpectraFitBis = new TCanvas ("canvasPtSpectraFitBis", "canvasPtSpectraFitBis", 1300, 800);
   canvasPtSpectraFitBis->Divide(3,2);
@@ -645,7 +672,14 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
   TCanvas* canvasPtSpectraRelErrorAll = new TCanvas ("canvasPtSpectraRelErrorAll", "canvasPtSpectraRelErrorAll", 1300, 800);
   canvasPtSpectraRelErrorAll->Divide(3,2);
 
-  // cout << "\nprendo histo per confronto con dati pubblicati " << endl;                                        
+
+  Float_t HighPtRatio[numtipo] = {1.15, 0, 0, 0, 0, 0, 0, 0, 1.2, 0};
+  Float_t LowPtRatio[numtipo] = {0.85, 0, 0, 0, 0, 0, 0, 0, 0.8, 0};
+  if (type==8 && TypeAnalysis==0) {
+    LowPtRatio[type] = 0.7; 
+    HighPtRatio[type] = 1.3;
+  }
+// cout << "\nprendo histo per confronto con dati pubblicati " << endl;                                        
   TString PathDatiPubblicati ="";                                                                                 
   if (type==0) PathDatiPubblicati = "HEPData-ins1748157-v1-Table_1.root";                                         
   else if (type==8) PathDatiPubblicati = "HEPData-1583750454-v1-Table_3.root";                                    
@@ -1594,6 +1628,7 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
   TString  PathInEtaEff;
   TFile *  fileinEtaEff;
   PathInEtaEff = Dir+"/DATA"+year0+"/SystematicAnalysis" +yearEtaEff;
+  if (type==8 && TypeAnalysis==0) PathInEtaEff += "_OOJNoTriggerSmoothed";
   if (PtBinning>0) PathInEtaEff +=Form("_PtBinning%i",PtBinning);
   if(type>=0){
     PathInEtaEff +="_"+tipo[type];
@@ -1645,8 +1680,9 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
 	fHistSpectrumStatEtaEffRatio[m]->SetBinError(v+1,0);
 	fHistSpectrumStatEtaEffRatioRef[m]->SetBinError(v+1, sqrt(pow(fHistSpectrumStat[m]->GetBinError(v+1),2) + pow(fHistSpectrumSistAll[m]->GetBinError(v+1),2)) / fHistSpectrumStat[m]->GetBinContent(v+1));
       }
-      StyleHisto(fHistSpectrumStatEtaEffRatio[m],0.85, 1.15, Color[TypeAnalysis],33, titleX, "Ratio to preliminary",  title+SmoltLegend[m], 0, 0, 0);
-      StyleHisto(fHistSpectrumStatEtaEffRatioRef[m],0.85, 1.15, 1, 1, titleX, "Ratio to preliminary",  title+SmoltLegend[m], 0, 0, 0);
+
+      StyleHisto(fHistSpectrumStatEtaEffRatio[m], LowPtRatio[type], HighPtRatio[type], Color[TypeAnalysis],33, titleX, "Ratio to preliminary",  title+SmoltLegend[m], 0, 0, 0);
+      StyleHisto(fHistSpectrumStatEtaEffRatioRef[m],LowPtRatio[type], HighPtRatio[type], 1, 1, titleX, "Ratio to preliminary",  title+SmoltLegend[m], 0, 0, 0);
       fHistSpectrumStatEtaEffRatioRef[m]->SetFillStyle(3001);
       fHistSpectrumStatEtaEffRatioRef[m]->SetFillColorAlpha(kGray+1, 1);
       fHistSpectrumStatEtaEffRatioRef[m]->Draw("p e2");
@@ -1715,9 +1751,10 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
   TFile* fileNormCorrFC;
   TH1F * fHistNormCorrFC[nummolt+1];
   TH1F * fHistNormCorrAllMultFC[nummolt+1];
-  TString SfileNormCorrFCComp ="FinalOutput/DATA2016/PtSpectraBis_PtBinning1_K0s_Eta0.8_PtMin3.0_Jet_isNormCorrFullyComputed_Fixed.root";
-  if (type==8) SfileNormCorrFCComp= "FinalOutput/DATA2016/PtSpectraBis_Xi_Eta0.8_PtMin3.0_Jet_isNormCorrFullyComputed.root";
+  TString SfileNormCorrFCComp ="";
   TFile* fileNormCorrFCComp;
+  TF1 * pol0NormFactor[nummolt+1];
+  Float_t SpectrumStatValueBeforeScaling[nummolt+1] = {0};
 
   if (isNormCorrFullyComputed==1){ // In this case I perform a correction with the *comnplete* normalisation factor. When this is set to 0, I take the output produced here and compare it to the preliminary results
     cout << "Normalization factor for comparison with event generators ---- fully computed!" << endl;
@@ -1726,11 +1763,32 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
     if (!fileNormCorrFC) {cout << "file norm not there " << endl; return;}
     for(Int_t m=0; m<nummolt+1; m++){
       fHistNormCorrFC[m] = (TH1F*)fileNormCorrFC->Get("SpectrumRatio"+RegionTypeOld[TypeAnalysis]+Form("_m%i",m));
-      fHistSpectrumStat[m]->Divide(fHistNormCorrFC[m]);
+      pol0NormFactor[m] = new TF1(Form("pol0NormFactor_m%i", m), "pol0", 0, 8);
+      fHistNormCorrFC[m]-> Fit(pol0NormFactor[m], "R+");
+      canvasNormFactor->cd(m+1);
+      fHistNormCorrFC[m]-> Draw("");
+      if (TypeAnalysis == 0 && type==8)  {
+	for (Int_t b=PtBinMin[m]+1; b<= fHistSpectrumSistAll[m]->GetNbinsX(); b++){ 
+	  SpectrumStatValueBeforeScaling[m] = 	fHistSpectrumStat[m]->GetBinContent(b);
+	}
+	fHistSpectrumStat[m]->Scale(1./pol0NormFactor[m]->GetParameter(0));
+	for (Int_t b=PtBinMin[m]+1; b<= fHistSpectrumSistAll[m]->GetNbinsX(); b++){ 
+	  fHistSpectrumStat[m]->SetBinError(b, fHistSpectrumStat[m]->GetBinContent(b) * sqrt(pow(fHistSpectrumStat[m]->GetBinError(b)/SpectrumStatValueBeforeScaling[m], 2) + pow(pol0NormFactor[m]->GetParError(0)/pol0NormFactor[m]->GetParameter(0), 2)));
+	  cout << "pol0 error " << pol0NormFactor[m]->GetParError(0) << endl;
+	  cout << fHistSpectrumStat[m]->GetBinError(b) / fHistSpectrumStat[m]->GetBinContent(b) << endl;
+	}
+      }
+      else  fHistSpectrumStat[m]->Divide(fHistNormCorrFC[m]);
       for (Int_t b=PtBinMin[m]+1; b<= fHistSpectrumSistAll[m]->GetNbinsX(); b++){ //I only have to *scale* sist error
 	//	cout <<       fHistNormCorrFC[m]->GetBinContent(b) << endl;
-	fHistSpectrumSistAll[m]->SetBinContent(b,fHistSpectrumSistAll[m]->GetBinContent(b)/fHistNormCorrFC[m]->GetBinContent(b));
-	fHistSpectrumSistAll[m]->SetBinError(b,fHistSpectrumSistAll[m]->GetBinError(b)/fHistNormCorrFC[m]->GetBinContent(b));
+	if (TypeAnalysis == 0 && type==8)  {
+	  fHistSpectrumSistAll[m]->SetBinContent(b,fHistSpectrumSistAll[m]->GetBinContent(b)/pol0NormFactor[m]->GetParameter(0));
+	  fHistSpectrumSistAll[m]->SetBinError(b,fHistSpectrumSistAll[m]->GetBinError(b)/pol0NormFactor[m]->GetParameter(0));
+	}
+	else {
+	  fHistSpectrumSistAll[m]->SetBinContent(b,fHistSpectrumSistAll[m]->GetBinContent(b)/fHistNormCorrFC[m]->GetBinContent(b));
+	  fHistSpectrumSistAll[m]->SetBinError(b,fHistSpectrumSistAll[m]->GetBinError(b)/fHistNormCorrFC[m]->GetBinContent(b));
+	}
       }
     }
   }
@@ -1838,12 +1896,12 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
   //*************************************************************************
   Float_t   YieldSpectrumErrOOJSub[nummolt+1]={0};
   TString    PathInOOJSubDef;
-  if (TypeAnalysis==0 && type==8){
+  if (TypeAnalysis==0 && type==8 && !isReanalysisWithEtaEff && !isReanalysisEtaEffComp){
     cout << "\n*******************************************"<<endl;
     cout<< "hXi: systematic effect associated to OOJ subtraction " << endl;
     PathInOOJSubDef = Dir+"/DATA"+year0+"/SystematicAnalysis" +year;
     PathInOOJSubDef +=Path1; //it was without year                                                        
-    //PathInOOJSubDef +="_Jet0.75"; //it was without year                                                        
+    PathInOOJSubDef +="_Jet0.75"; //it was without year                                                        
     if(type>=0){
       PathInOOJSubDef +="_"+tipo[type];
       PathInOOJSubDef +=Srap[israp];
@@ -1907,6 +1965,10 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
   TLegend *legendfit=new TLegend(0.6, 0.6, 0.9, 0.9);
   TString   nameMTscaling[nummolt+1][numfittipo];
 
+  TF1 * rettaUno= new TF1("rettaUno", "pol0",0,8);
+  rettaUno->FixParameter(0,1);
+
+  TH1F* fHistSpectrumRatioFit[nummolt+1][numfittipo];
   TH1F* hhoutYield[nummolt+1];
   TH1F* hhoutYieldMy[nummolt+1];
   TH1F* hhoutRelStat[nummolt+1];
@@ -1986,8 +2048,8 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
   Float_t    YieldExtrErrStat[nummolt+1]={0};
   Float_t    YieldExtrErrSist[nummolt+1]={0};
   Float_t    YieldExtrErrSistFourFit[nummolt+1]={0};
-  Float_t    YieldExtrErrSistLowPt[nummolt+1]={0};
-  Float_t    YieldExtrErrSistHighPt[nummolt+1]={0};
+  Float_t    Yield4FitErrSistLowPt[nummolt+1]={0};
+  Float_t    Yield4FitErrSistHighPt[nummolt+1]={0};
   Float_t    YieldExtrErrSistUp[nummolt+1]={0};
   Float_t    YieldExtrErrSistLow[nummolt+1]={0};
   Float_t    YieldErrSystExtrLowPt[nummolt+1]={0};
@@ -2094,6 +2156,16 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
       gPad->SetLeftMargin(0.15);
       fHistSpectrumStat[m]->Draw("same");
       fit_MTscalingBis[m][typefit]->Draw("same");
+      legendfit->Draw("");
+
+      fHistSpectrumRatioFit[m][typefit] = (TH1F*) fHistSpectrumStat[m]->Clone(Form("HistRatioFit_m%i_typefit%i", m, typefit));
+      fHistSpectrumRatioFit[m][typefit]->Divide(fit_MTscaling[m][typefit]);
+      canvasPtSpectraFitRatio->cd(m+1);
+      gPad->SetLeftMargin(0.15);
+      StyleHisto(fHistSpectrumRatioFit[m][typefit], 0.4, 2, ColorFit[typefit], 33, "p_{T} (GeV/c)", "", "Spectra/Fit ratio", 0, 0, 0);
+      rettaUno->SetLineColor(kBlack);
+      fHistSpectrumRatioFit[m][typefit]->Draw("samee");
+      if (typefit==0)      rettaUno->Draw("same");
       legendfit->Draw("");
 
       hFitResult[typefit] ->SetBinContent(m+1,fit_MTscaling[m][typefit]->GetChisquare()/fit_MTscaling[m][typefit]->GetNDF());
@@ -2308,15 +2380,15 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
     YieldExtr[m] =     YieldExtrHighPtAvg[m]+    YieldExtrLowPtAvg[m];
     YieldExtrErrStat[m] = sqrt(    pow(YieldErrStatHighPtAvg[m],2)+    pow(YieldErrStatLowPtAvg[m],2));
 
-    YieldExtrErrSistHighPt[m] = (YieldExtrMaxHighPt[m]-YieldExtrMinHighPt[m])/2; //related to choice of fit function
-    YieldExtrErrSistLowPt[m] = (YieldExtrMaxLowPt[m]-YieldExtrMinLowPt[m])/2; //related to choice of fit function
+    Yield4FitErrSistHighPt[m] = (YieldExtrMaxHighPt[m]-YieldExtrMinHighPt[m])/2; //related to choice of fit function
+    Yield4FitErrSistLowPt[m] = (YieldExtrMaxLowPt[m]-YieldExtrMinLowPt[m])/2; //related to choice of fit function
     YieldErrSystExtrLowPt[m] = (YieldExtrLowPtAvgUp[m]- YieldExtrLowPtAvgDown[m])/2;
     YieldErrSystExtrHighPt[m] = (YieldExtrHighPtAvgUp[m]- YieldExtrHighPtAvgDown[m])/2;
 
     YieldExtrErrSistUp[m] = YieldExtrMaxLowPt[m]-YieldExtrLowPtAvg[m];
     YieldExtrErrSistLow[m] = YieldExtrLowPtAvg[m];
     //    YieldExtrErrSist[m]=sqrt(pow(    YieldExtrErrSistUp[m],2) + pow(    YieldExtrErrSistLow[m],2)) ;
-    YieldExtrErrSistFourFit[m]=sqrt(pow(    YieldExtrErrSistHighPt[m],2) + pow(    YieldExtrErrSistLowPt[m],2));
+    YieldExtrErrSistFourFit[m]=sqrt(pow(    Yield4FitErrSistHighPt[m],2) + pow(    Yield4FitErrSistLowPt[m],2));
 
     if (isPreliminary){
       YieldExtrErrSist[m]=sqrt(pow(  YieldErrSystExtrLowPt[m],2) + pow(  YieldErrSystExtrHighPt[m] ,2)) ;
@@ -2345,8 +2417,8 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
     YieldErrNormFactor[m] = YieldErrRelNormFactor[m]*Yield[m];
     YieldErrStat[m] = sqrt(    pow(YieldSpectrumErrStat[m],2) + pow(YieldExtrErrStat[m],2));
 
-    //errlin    YieldErrSist[m] = sqrt(    pow(YieldSpectrumErrSist[m],2) + pow(YieldExtrErrSistHighPt[m],2) +  pow(YieldExtrErrSistLowPt[m],2) + pow(YieldSpectrumErrOOJSub[m],2) +  pow(YieldErrSystExtrLowPt[m],2) + pow( YieldErrSystExtrHighPt[m],2));
-    //way1      YieldErrSist[m] =   YieldSpectrumErrSist[m] + YieldExtrErrSistHighPt[m] +  YieldExtrErrSistLowPt[m] + YieldSpectrumErrOOJSub[m] +  YieldErrSystExtrLowPt[m] +  YieldErrSystExtrHighPt[m];
+    //errlin    YieldErrSist[m] = sqrt(    pow(YieldSpectrumErrSist[m],2) + pow(Yield4FitErrSistHighPt[m],2) +  pow(Yield4FitErrSistLowPt[m],2) + pow(YieldSpectrumErrOOJSub[m],2) +  pow(YieldErrSystExtrLowPt[m],2) + pow( YieldErrSystExtrHighPt[m],2));
+    //way1      YieldErrSist[m] =   YieldSpectrumErrSist[m] + Yield4FitErrSistHighPt[m] +  Yield4FitErrSistLowPt[m] + YieldSpectrumErrOOJSub[m] +  YieldErrSystExtrLowPt[m] +  YieldErrSystExtrHighPt[m];
     
     //prelimnary error YieldErrSist[m] =   YieldSpectrumErrSist[m] + YieldSpectrumErrOOJSub[m] +  YieldErrSystExtrLowPt[m] +  YieldErrSystExtrHighPt[m];
     if (isPreliminary){
@@ -2356,16 +2428,16 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
       YieldErrSist[m] = sqrt(pow(YieldSpectrumErrSist[m],2) + pow(YieldSpectrumErrOOJSub[m],2)) +  YieldErrSystExtrLowPt[m] + YieldErrSystExtrHighPt[m];
     }
     YieldErrSistMy[m] =     YieldErrSist[m];
-    if (isNormCorr)    YieldErrSist[m]= sqrt(pow(      YieldErrSist[m],2) + pow(YieldExtrErrSistLowPt[m],2) + pow(YieldExtrErrSistHighPt[m],2) + pow(YieldErrNormFactor[m],2));
-    else     YieldErrSist[m]= sqrt(pow(      YieldErrSist[m],2) + pow(YieldExtrErrSistLowPt[m],2) + pow(YieldExtrErrSistHighPt[m],2) );
+    if (isNormCorr)    YieldErrSist[m]= sqrt(pow(      YieldErrSist[m],2) + pow(Yield4FitErrSistLowPt[m],2) + pow(Yield4FitErrSistHighPt[m],2) + pow(YieldErrNormFactor[m],2));
+    else     YieldErrSist[m]= sqrt(pow(      YieldErrSist[m],2) + pow(Yield4FitErrSistLowPt[m],2) + pow(Yield4FitErrSistHighPt[m],2) );
 
-    YieldErrSistUp[m] = sqrt(    pow(YieldSpectrumErrSist[m],2) + pow(YieldExtrErrSistUp[m],2) +  pow(YieldExtrErrSistHighPt[m],2)  + pow(YieldSpectrumErrOOJSub[m],2) + pow( YieldErrSystExtrHighPt[m],2));
-    YieldErrSistLow[m] = sqrt(    pow(YieldSpectrumErrSist[m],2) + pow(YieldExtrErrSistLow[m],2) +  pow(YieldExtrErrSistHighPt[m],2)  + pow(YieldSpectrumErrOOJSub[m],2) +  pow(YieldErrSystExtrLowPt[m],2));
+    YieldErrSistUp[m] = sqrt(    pow(YieldSpectrumErrSist[m],2) + pow(YieldExtrErrSistUp[m],2) +  pow(Yield4FitErrSistHighPt[m],2)  + pow(YieldSpectrumErrOOJSub[m],2) + pow( YieldErrSystExtrHighPt[m],2));
+    YieldErrSistLow[m] = sqrt(    pow(YieldSpectrumErrSist[m],2) + pow(YieldExtrErrSistLow[m],2) +  pow(Yield4FitErrSistLowPt[m],2)  + pow(YieldSpectrumErrOOJSub[m],2) +  pow(YieldErrSystExtrLowPt[m],2));
 
     if (ZeroYieldLowPt){
       Yield[m] =  YieldSpectrum[m]+ YieldExtrHighPtAvg[m];
       YieldErrStat[m] = sqrt(    pow(YieldSpectrumErrStat[m],2) + pow(YieldErrStatHighPtAvg[m],2));
-      YieldErrSist[m] = sqrt(    pow(YieldSpectrumErrSist[m],2) + pow(YieldExtrErrSistHighPt[m],2) + pow(YieldSpectrumErrOOJSub[m],2) + pow( YieldErrSystExtrHighPt[m],2));
+      YieldErrSist[m] = sqrt(    pow(YieldSpectrumErrSist[m],2) + pow(Yield4FitErrSistHighPt[m],2) + pow(YieldSpectrumErrOOJSub[m],2) + pow( YieldErrSystExtrHighPt[m],2));
     }
 
     hhoutYield[m] ->SetBinContent(numfittipo+1, hhoutYieldAvg[m]/numfittipo);
@@ -2406,7 +2478,7 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
     if (type==8 && TypeAnalysis==0)    cout << "from OOJ Sub " <<      YieldSpectrumErrOOJSub[m] << endl;
     cout << "from extr: " <<     YieldExtr[m] << "+- " <<     YieldExtrErrStat[m]<< " (stat)  +- " << YieldExtrErrSistFourFit[m]<< " (sist 4 fit) " << YieldExtrErrSist[m] << " (sist extr) "<< endl;
     cout << "rel uncertainties " << "syst on low pt extr " <<  YieldExtrErrSist[m]/Yield[m] << " syst on choice fit function " <<  YieldExtrErrSistFourFit[m]/Yield[m] <<endl;
-    cout << " extr at low pt " << YieldExtrLowPtAvg[m]<<" " << "err extrap high pt " << YieldExtrHighPtAvg[m]<< endl; 
+    cout << " extr at high pt " << YieldExtrHighPtAvg[m]<<" " << "err extrap high pt " << YieldExtrHighPtAvg[m]<< endl; 
     cout << " extr at low pt " << YieldExtrLowPtAvg[m]<<" " << "err extrap low pt " << YieldExtrErrSistLow[m]<< endl; 
     if (TypeAnalysis==0 && type==8)     cout << Yield[m] << "+-" << YieldErrStat[m]<< " (stat) + "<< YieldErrSistUp[m]<< " - " << YieldErrSistLow[m] << " (sist) "<< endl;
 
@@ -2416,6 +2488,28 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
     cout << "!extrapolation range " << LowRangeSpectrumPart[m] << "- " << UpRangeSpectrumPart[m] << endl;
   }//end loop m
 
+  cout << "\n\nYields : " << endl;
+  for (Int_t m=0; m<nummolt +1; m++){
+    cout <<"\n\e[32m************ Multiplicity: " << SmoltLegend[m] << " *****************\e[39m"  << endl;
+
+    cout << "pT integrated yield: " << Yield[m] << "+-" << YieldErrStat[m]<< " (stat) +- "<< YieldErrSist[m] << " (sist) "<< endl;
+    cout << " (stat rel: " <<  YieldErrStat[m]/ Yield[m] << ") " << endl;
+    cout << " (sist rel: " <<  YieldErrSist[m]/ Yield[m] << ") " << endl;
+
+    cout << "\nYield from spectrum: " <<   YieldSpectrum[m] << " +- " << YieldSpectrumErrStat[m]<<" (stat) +- " <<YieldSpectrumErrSist[m]<< " (sist)"  << endl;
+    cout << " (stat rel: " <<  YieldSpectrumErrStat[m]/Yield[m] << ") " << endl;
+    cout << " (sist rel: " <<  YieldSpectrumErrSist[m]/Yield[m] << ") "<<endl;
+
+    cout << "\nYield from extrapolation: " <<     YieldExtr[m] << " +- " <<     YieldExtrErrStat[m]<< " (stat)  +- " << YieldExtrErrSistFourFit[m]<< " (sist 4 fit) " << YieldExtrErrSist[m] << " (sist extr) "<< endl;
+    cout << " (stat rel: " <<  YieldExtrErrStat[m]/Yield[m] << ") " << endl;
+    cout << " (sist 4 fit rel: " <<  YieldExtrErrSistFourFit[m]/Yield[m] << ") "<<endl;
+    cout << " (sist rel: " <<  YieldExtrErrSist[m]/Yield[m] << ") "<<endl;
+
+    cout << "\nFraction of yield from low pt extrapolation " <<  YieldExtrLowPtAvg[m]/Yield[m] << endl;
+    cout << "Fraction of yield from high pt extrapolation " <<  YieldExtrHighPtAvg[m]/Yield[m] << endl;
+    cout << "\nFit range: " << LowRange[m] << " - " << UpRange[m] << endl;
+    cout << "Bin content range: " << LowRangeSpectrumPart[m] << " - " << UpRangeSpectrumPart[m] << endl;
+  }
 
   TLegend *legendYield=new TLegend(0.7, 0.7, 0.9, 0.9);
   TLegend *legendPtvsMult=new TLegend(0.7, 0.7, 0.9, 0.9);
@@ -2747,6 +2841,7 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
   fileout->WriteTObject(canvaspol0);
   fileout->WriteTObject(canvasPtSpectra);
   fileout->WriteTObject(canvasPtSpectraFit);
+  fileout->WriteTObject(canvasPtSpectraFitRatio);
   fileout->WriteTObject(canvasPtSpectraFitUp);
   fileout->WriteTObject(canvasPtSpectraFitDown);
   fileout->WriteTObject(canvasPtSpectraFitBis);
@@ -2755,6 +2850,7 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
   fileout->WriteTObject(canvasPtSpectraRelError);
   fileout->WriteTObject(canvasPtSpectraRelErrorAll);
   fileout->WriteTObject(canvasFitResult);
+  if (isNormCorrFullyComputed==1) fileout->WriteTObject(canvasNormFactor);
   for(Int_t m=0; m<nummolt+1; m++){
     fileout->WriteTObject(     fHistSpectrumSistRelErrorMCclosure[m]);
     fileout->WriteTObject(    fHistSpectrumSistFakeSB[m]);
@@ -2768,10 +2864,10 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
   //  TString DirPicture = "PictureForNote/";
   //if (!isNormCorr) DirPicture = "PictureForNote/IsNotNormCorr_";
   TString DirPicture = PathOutPictures;
-  canvasEtaEff->SaveAs(DirPicture+"PtSpectraEtaEffComp"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
-  canvasEtaEffRatio->SaveAs(DirPicture+"PtSpectraEtaEffCompRatio"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
+  canvasEtaEff->SaveAs(DirPicture+"PtSpectraEtaEffComp"+tipo[type]+RegionType[TypeAnalysis]+".png");
+  canvasEtaEffRatio->SaveAs(DirPicture+"PtSpectraEtaEffCompRatio"+tipo[type]+RegionType[TypeAnalysis]+".png");
   if (YieldComp!=0){
-    canvasNormCorr->SaveAs(DirPicture+"PtSpectraNormCorrComp.pdf");
+    canvasNormCorr->SaveAs(DirPicture+"PtSpectraNormCorrComp.png");
     canvasNormCorrRatio->SaveAs(DirPicture+"PtSpectraNormCorrCompRatio.png");
     canvasYieldNormCorr->SaveAs(DirPicture+"YieldvsMultNormCorrComp.png");
     canvasYieldNormCorrRatio->SaveAs(DirPicture+"YieldvsMultNormCorrCompRatio.png");
@@ -2784,8 +2880,8 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0,Int_t ishhCorr=0, Float_t 
     canvasYield->SaveAs(DirPicture+"YieldvsMult"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
     canvasYieldErr->SaveAs(DirPicture+"YieldvsMultErr"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
   }
-  canvasYieldEtaEff->SaveAs(DirPicture+"YieldvsMultEtaEffComp"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
-  canvasYieldEtaEffRatio->SaveAs(DirPicture+"YieldvsMultEtaEffCompRatio"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
+  canvasYieldEtaEff->SaveAs(DirPicture+"YieldvsMultEtaEffComp"+tipo[type]+RegionType[TypeAnalysis]+".png");
+  canvasYieldEtaEffRatio->SaveAs(DirPicture+"YieldvsMultEtaEffCompRatio"+tipo[type]+RegionType[TypeAnalysis]+".png");
   canvasPtvsMult->SaveAs(DirPicture+"AvgPtvsMult"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
   canvasPtSpectra->SaveAs(DirPicture+"PtSpectra"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
   canvasPtSpectraFit->SaveAs(DirPicture+"PtSpectraFit"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
