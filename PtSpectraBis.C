@@ -38,7 +38,7 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0, TString year=""/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, TString yearEtaEff = "161718Full_AOD234_hXi"/*"1617_AOD234_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,  Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Int_t PtBinning=1, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,  Bool_t ZeroYieldLowPt=0, Bool_t TwoFitFunctions=0, Bool_t isNormCorr=0, Bool_t isReanalysisWithEtaEff=1, Bool_t isReanalysisEtaEffComp=0, Bool_t isNormCorrFullyComputed=1, Int_t YieldComp=0, Bool_t isPreliminary=1, Bool_t isMeanMacro=0){
+void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0, TString year=""/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, TString yearEtaEff = /*"161718Full_AOD234_hXi"*/"1617_AOD234_hK0s",  TString Path1 =""/*"_Jet0.75"/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,  Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Int_t PtBinning=1, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,  Bool_t ZeroYieldLowPt=0, Bool_t TwoFitFunctions=0, Bool_t isNormCorr=0, Bool_t isReanalysisWithEtaEff=1, Bool_t isReanalysisEtaEffComp=0, Bool_t isNormCorrFullyComputed=1, Int_t YieldComp=0, Bool_t isPreliminary=0, Bool_t isMeanMacro=0){
 
   if (!isPreliminary){
     isReanalysisWithEtaEff=0;
@@ -360,10 +360,10 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0, Float_t PtTrigMin =3, Flo
 	if (PtTrigMin==3){
 	  LowRangeJet[m] = 0.5;     LowRangeJetBFit[m] =     LowRangeJetZYAM[m]= 0.1;
 	  UpRangeJet[m] = UpRangeJetBFit[m] = UpRangeJetZYAM[m]=3;
-	  LowRangeBulk[m]= 0.5; 
-	  LowRangeAll[m]= 0.5; 
-	  UpRangeAll[m]= 2; 
-	  UpRangeBulk[m]= 2; 
+	  LowRangeBulk[m]= 0.1; 
+	  LowRangeAll[m]= 0.1; 
+	  UpRangeAll[m]= 2.0; 
+	  UpRangeBulk[m]= 2.0; 
 	}
       }
     }
@@ -371,8 +371,8 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0, Float_t PtTrigMin =3, Flo
       for (Int_t m=0; m<nummolt+1; m++){
 	LowRangeJet[m] = 0.5;     LowRangeJetBFit[m] =     LowRangeJetZYAM[m]= 0.1;
 	UpRangeJet[m] = UpRangeJetBFit[m] = UpRangeJetZYAM[m]=3;
-	LowRangeBulk[m]= 0.1; 
-	LowRangeAll[m]= 0.1; 
+	LowRangeBulk[m]= 0.5; 
+	LowRangeAll[m]= 0.5; 
 	UpRangeAll[m]= 2.5; 
 	UpRangeBulk[m]= 2.5; 
       }
@@ -931,14 +931,14 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0, Float_t PtTrigMin =3, Flo
 	  if (TMath::Abs(BarlowVar[m][v][sysDPhi])>2) BarlowSign[m][sysDPhi]++;
 	  hBarlowVar[m][sysDPhi] ->SetBinContent(v+1, BarlowVar[m][v][sysDPhi]) ;
 	  hBarlowVar[m][sysDPhi] ->SetBinError(v+1, 0) ;
-	  cout << "barlow var " << NPtV0[v] << " "  << 	  hBarlowVar[m][sysDPhi] ->GetBinContent(v+1)<<" " <<	  hBarlowVar[m][sysDPhi] ->GetBinError(v+1) << endl;
+	  //cout << "barlow var " << NPtV0[v] << " "  << 	  hBarlowVar[m][sysDPhi] ->GetBinContent(v+1)<<" " <<	  hBarlowVar[m][sysDPhi] ->GetBinError(v+1) << endl;
 
 	}//end loop v
 	if (BarlowSign[m][sysDPhi]>= NSign) BarlowPassed[m][sysDPhi]=1;
 	StyleHisto(hBarlowVar[m][sysDPhi], -5, 5, ColorsysDPhi[sysDPhi], 33, titleX, "N_{#sigma}(Barlow)",  title+SmoltLegend[m],  0, 0, 0);
 	if ( BarlowPassed[m][sysDPhi])       StyleHisto(hBarlowVar[m][sysDPhi], -5, 5, ColorsysDPhi[sysDPhi], 27,  titleX, "N_{#sigma}(Barlow)",  title+SmoltLegend[m],  0, 0, 0);
 
-	cout << "Barlow passed " << BarlowPassed[m][sysDPhi] << endl;
+	//	cout << "Barlow passed " << BarlowPassed[m][sysDPhi] << endl;
 	canvasBarlow->cd(m+1);
 	gPad->SetLeftMargin(0.15);
 	hBarlowVar[m][sysDPhi] ->Draw("same p");
@@ -1051,7 +1051,7 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0, Float_t PtTrigMin =3, Flo
       StyleHisto(hBarlowVarLeadTrackDef[m], -5, 5, Color[TypeAnalysis], 33, titleX, "N_{#sigma}(Barlow)",  title+SmoltLegend[m], 0, 0, 0);
       if (BarlowPassedLeadTrackDef[m]) StyleHisto(hBarlowVarLeadTrackDef[m], -5, 5, Color[TypeAnalysis], 27,  titleX, "N_{#sigma}(Barlow)",  title+SmoltLegend[m], 0, 0, 0);
 
-      cout << "Barlow passed " << BarlowPassedLeadTrackDef[m] << endl;
+      //      cout << "Barlow passed " << BarlowPassedLeadTrackDef[m] << endl;
       canvasBarlowLeadTrackDef->cd(m+1);
       gPad->SetLeftMargin(0.15);
       hBarlowVarLeadTrackDef[m] ->Draw("same p");
@@ -1722,7 +1722,10 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0, Float_t PtTrigMin =3, Flo
     for(Int_t m=0; m<nummolt+1; m++){
       fHistNormCorrFC[m] = (TH1F*)fileNormCorrFC->Get("SpectrumRatio"+RegionTypeOld[TypeAnalysis]+Form("_m%i",m));
       pol0NormFactor[m] = new TF1(Form("pol0NormFactor_m%i", m), "pol0", 0, 8);
-      fHistNormCorrFC[m]-> Fit(pol0NormFactor[m], "R+");
+      if (TypeAnalysis == 0 && type==8) {
+	cout << "pol0 fit to normalization factor (only for Xi in jet)" << endl;
+	fHistNormCorrFC[m]-> Fit(pol0NormFactor[m], "R+");
+      }
       canvasNormFactor->cd(m+1);
       fHistNormCorrFC[m]-> Draw("");
       if (TypeAnalysis == 0 && type==8)  {
@@ -1822,10 +1825,10 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0, Float_t PtTrigMin =3, Flo
       legendError2->AddEntry(fHistSpectrumSist[m], "syst.", "fe");
     }
     legendError2->Draw("");
-    cout << "mult. : " << m << endl;
+    cout << "\n\e[32mMultiplicity: " << SmoltLegend[m]  << "\e[39m" << endl;
     for (Int_t b= PtBinMin[m] ; b<= fHistSpectrumStat[m]->GetNbinsX(); b++){
-      cout << NPtV0[b-1] << " " << fHistSpectrumStat[m]->GetBinContent(b) << ", rel stat: " << fHistSpectrumStat[m]->GetBinError(b)/ fHistSpectrumStat[m]->GetBinContent(b) << endl;
-      cout << NPtV0[b-1] << " " << fHistSpectrumSistAll[m]->GetBinContent(b) << ", rel stat: " << fHistSpectrumSistAll[m]->GetBinError(b)/ fHistSpectrumSistAll[m]->GetBinContent(b) << endl;
+      cout << " " << NPtV0[b-1] << " < pt < " << NPtV0[b] << " GeV/c , Yield: " << fHistSpectrumStat[m]->GetBinContent(b) << ", rel. stat. error: " << fHistSpectrumStat[m]->GetBinError(b)/ fHistSpectrumStat[m]->GetBinContent(b) << endl;
+      cout << " " << NPtV0[b-1] << "< pt < " << NPtV0[b] << " GeV/c, Yield: " << fHistSpectrumSistAll[m]->GetBinContent(b) << ", rel. sist. error: " << fHistSpectrumSistAll[m]->GetBinError(b)/ fHistSpectrumSistAll[m]->GetBinContent(b) << endl;
     }
     canvasPtSpectraRelErrorAll->cd(m+1);
     gPad->SetLeftMargin(0.15);
@@ -1885,7 +1888,7 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0, Float_t PtTrigMin =3, Flo
 	if (TMath::Abs(BarlowVarOOJSubDef[m][v])>2) BarlowSignOOJSubDef[m]++;
 	hBarlowVarOOJSubDef[m] ->SetBinContent(v+1, BarlowVarOOJSubDef[m][v]) ;
 	hBarlowVarOOJSubDef[m] ->SetBinError(v+1, 0) ;
-	cout << "barlow var v" << v << " "  << 	  hBarlowVarOOJSubDef[m] ->GetBinContent(v+1)<<" " <<	  hBarlowVarOOJSubDef[m] ->GetBinError(v+1) << endl;
+	//cout << "barlow var v" << v << " "  << 	  hBarlowVarOOJSubDef[m] ->GetBinContent(v+1)<<" " <<	  hBarlowVarOOJSubDef[m] ->GetBinError(v+1) << endl;
 
       }//end loop v
 
@@ -1893,7 +1896,7 @@ void PtSpectraBis(Int_t type=0,  Int_t TypeAnalysis=0, Float_t PtTrigMin =3, Flo
       StyleHisto(hBarlowVarOOJSubDef[m], -5, 5, Color[TypeAnalysis], 33, titleX, "N_{#sigma}(Barlow)",  title+SmoltLegend[m], 0, 0, 0);
       if (BarlowPassedOOJSubDef[m]) StyleHisto(hBarlowVarOOJSubDef[m], -5, 5, Color[TypeAnalysis], 27,  titleX, "N_{#sigma}(Barlow)",  title+SmoltLegend[m], 0, 0, 0);
 
-      cout << "Barlow passed " << BarlowPassedOOJSubDef[m] << endl;
+      //      cout << "Barlow passed " << BarlowPassedOOJSubDef[m] << endl;
       canvasBarlowOOJSubDef->cd(m+1);
       gPad->SetLeftMargin(0.15);
       hBarlowVarOOJSubDef[m] ->Draw("same p");
