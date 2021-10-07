@@ -35,16 +35,16 @@ void StyleHistoYield(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t st
   histo->GetXaxis()->SetTitleOffset(xOffset);
   histo->GetYaxis()->SetTitle(titleY);
   histo->GetYaxis()->SetTitleSize(0.05);
-  histo->GetYaxis()->SetTitleOffset(yOffset); //1.2                                                                                       
+  histo->GetYaxis()->SetTitleOffset(yOffset); //1.2                                                                   
   histo->GetYaxis()->SetLabelSize(0.05);
   histo->SetTitle(title);
 }
 
-void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given multiplicity has to be manually selected*/, Int_t type =0, Int_t AnalysisType =0, TString  CommonFileName = ""/*name common to all files */,  TString OutputName ="", Bool_t isBarlow=1, Bool_t ispp5TeV=0){
+void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=5, Int_t multDef = 5 /*only used when a given multiplicity has to be manually selected*/, Int_t type =0, Int_t AnalysisType =0, TString  CommonFileName = ""/*name common to all files */,  TString OutputName ="", Bool_t isBarlow=1, Bool_t ispp5TeV=0, Bool_t isppHM =0, Float_t ScalingFactorXiK0s = 0.8458/1.08747){
 
   //RunVar should be increased when you want to do a new comparison; also, OutputName And CommonFileName should be updated below!!
-  TString TypeAnalysis[3] = {"Jet", "Bulk", "All"};
-  TString TypeAnalysisBis[3] = {"Jet", "Bulk", "Inclusive"};
+  TString TypeAnalysis[3] = {"Jet", "BulkBlue", "All"};
+  TString TypeAnalysisBis[3] = {"Jet", "BulkBlue", "Inclusive"};
   TString TypeAnalysisTer[3] = {"near-side jet", "out of jet", "full"};
   TString tipo[2] = {"K0s", "Xi"};
   TString SCorrelation[3] = {"No corr.", "Full", "Partial"};
@@ -363,6 +363,10 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
     //OutputName = "CompareOOJMethodsK0s_Default_vs_NewOOJScaledtoDefBulk_MultCorr";
     numFiles=12; 
     TypeOfComparison=2;
+    if (type==1 && isppHM){
+      CommonFileName = "FinalOutput/DATA2016/SystematicAnalysis161718_HM_hXi_";
+      OutputName = "CompareOOJMethodsXi_Default_vs_OOJNoTriggeredSmoothed";
+    }
   }
   else if (RunVar==40){
     //ratio between Xi and K0s yields
@@ -394,6 +398,104 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
     NSign = 4;
     NSigma=2;
   }
+  else if (RunVar==44){
+    //ratio between Xi and K0s yields (MB + HM 13 TeV)
+    CommonFileName = "FinalOutput/DATA2016/";
+    OutputName = "CompareXiK0sYields_13TeVMBvsHM";
+    numFiles=12; 
+    TypeOfComparison=2;
+  }
+  else if (RunVar==45){
+    //comparison norm factor across multiplicity (13 TeV MB)
+    CommonFileName = "FinalOutput/DATA2016/MCClosureCheck_HybridtoTrue";
+    OutputName = "FinalOutput/DATA2016/MultiplicityComparisonNormFactor"+tipo[type] + TypeAnalysis[AnalysisType] + Form("_m%i", multChosen);
+    numFiles=6; // 6 mult classes
+    TypeOfComparison = 1; 
+  }
+  else if (RunVar==46){
+    //comparison of ooj spectra obtained from bulk projections and from full projections
+    CommonFileName = "FinalOutput/DATA2016/SystematicAnalysis";
+    OutputName = "FinalOutput/DATA2016/ComparisonOOJSpectra"+tipo[type];
+    numFiles=12; // 2x6 mult classes
+    TypeOfComparison = 2; 
+    NSigma =2;
+    NSign =2;
+  }
+  else if (RunVar==47){
+    //comparison of ooj pt integrated yields obtained from bulk projections and from full projections
+    CommonFileName = "FinalOutput/DATA2016/SystematicAnalysis";
+    OutputName = "FinalOutput/DATA2016/ComparisonOOJYields"+tipo[type];
+    numFiles=2; // 2
+    TypeOfComparison = 2; 
+    NSigma =2;
+    NSign =2;
+  }
+  else if (RunVar==48){
+    //comparison norm factor across energy (13 TeV vs 5 TeV)
+    CommonFileName = "FinalOutput/DATA2016/MCClosureCheck_HybridtoTrue";
+    OutputName = "FinalOutput/DATA2016/EnergyComparisonNormFactor"+tipo[type] + TypeAnalysis[AnalysisType];
+    numFiles=12; // 6 mult classes
+    TypeOfComparison = 2; 
+  }
+  else if (RunVar==49 || RunVar==54){
+    //comparison of spectra of Xi obtained from Xi ME from those obtained from K0s ME (49)
+    //comparison of spectra of Xi obtained from Xi MB ME from those obtained from Xi HM ME (54)
+    CommonFileName = "FinalOutput/DATA2016/SystematicAnalysis";
+    OutputName = "FinalOutput/DATA2016/ComparisonSpectraXivsMEXiHM_"+TypeAnalysis[AnalysisType];
+    numFiles=12; // 2x6 mult classes
+    TypeOfComparison = 2; 
+    NSigma =2;
+    NSign =2;
+  }
+  else if (RunVar==50 || RunVar==53){
+    //comparison of Xi ME to K0s ME (50)
+    //comparison of Xi HM ME to Xi MB ME (53)
+    CommonFileName = "FinalOutput/DATA2016/histo/AngularCorrelation161718Full_AOD234_hXi_Xi_Eta0.8_SysT0_SysV00_Sys0_PtMin3.0_Output_";
+    OutputName = "FinalOutput/DATA2016/ComparisonMEXiK0s";
+    if (RunVar==53){
+      CommonFileName = "FinalOutput/DATA2016/histo/AngularCorrelation";
+      OutputName = "FinalOutput/DATA2016/ComparisonMEXi_MBvsHM";
+    }
+    numFiles=14; // 2x7 pt intervals
+    TypeOfComparison = 2; 
+    NSigma =2;
+    NSign =2;
+  }
+  else if (RunVar==51){
+    //comparison of eta distributions of Xi and K0s (MB)
+    CommonFileName = "FinalOutput/DATA2016/histo/AngularCorrelation";
+    OutputName = "FinalOutput/DATA2016/ComparisonEtaDistributionsXiK0s";
+    numFiles=12; // 2x6 multiplicity classes
+    TypeOfComparison = 2; 
+    NSigma =2;
+    NSign =2;
+  }
+  else if (RunVar==52 || RunVar==55){
+    //comparison of yields of Xi obtained from Xi ME from those obtained from K0s ME (52)
+    //comparison of yields of Xi obtained from Xi ME from those obtained from Xi HM ME (55)
+    CommonFileName = "FinalOutput/DATA2016/SystematicAnalysis";
+    OutputName = "FinalOutput/DATA2016/ComparisonYieldsXivsMEK0s_"+TypeAnalysis[AnalysisType];
+    if (RunVar==55){
+      OutputName = "FinalOutput/DATA2016/ComparisonYieldsXivsMEXiHM_"+TypeAnalysis[AnalysisType];
+    }
+    numFiles=2; // 2
+    TypeOfComparison = 2; 
+    NSigma =2;
+    NSign =2;
+  }
+  else if (RunVar==56 || RunVar==57){
+    //comparison of near-side jet spectra (56) or yields (57) of Xi obtained by default OOJ subtraction (OOJ from low pt trigger events) to those obtained by subtracting the OOJ distribution of K0s
+    CommonFileName = "FinalOutput/DATA2016/SystematicAnalysis";
+    OutputName = "FinalOutput/DATA2016/Comparison";
+    if (RunVar==56) OutputName += "Spectra";
+    else if (RunVar==57) OutputName += "Yields";
+    OutputName += "XivsOOJK0s_"+TypeAnalysis[AnalysisType];
+    numFiles=12; // 2x6 mult classes
+    if (RunVar==57) numFiles=2;
+    TypeOfComparison = 2; 
+    NSigma =2;
+    NSign =2;
+  }
 
   //this macros superimpose in a same canvas pad same histos found in different files. A loop over the files is done. The ratio of the histos to the histo found in the first file is performed. You can choose if histos have to be considered fully correlated, uncorrelated, or if the histos are obtaiend from a subsample of the data used to obtain the histo found in the first file (i.e. partial correlation)
 
@@ -403,9 +505,9 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
   if (RunVar==6) histoName = "histo_S";
   else   if (RunVar==7 || RunVar==11 || RunVar==14 || RunVar==18 || RunVar==19 || RunVar==20 || RunVar==21 || RunVar==24 || RunVar==25 || RunVar==32 || RunVar==37 || RunVar==38 || RunVar==41) histoName = "fHistV0EfficiencyPtBins";
   else if (RunVar==22 || RunVar==23 || RunVar==42) histoName = "fHistV0EfficiencyEta";
-  else   if (RunVar==8 || RunVar==9 || RunVar==43) histoName = "SpectrumRatio" +  TypeAnalysis[AnalysisType]+"_m"; //All -> Jet, Bulk
+  else if (RunVar==8 || RunVar==9 || RunVar==43 || RunVar==45 || RunVar==48) histoName = "SpectrumRatio" +  TypeAnalysis[AnalysisType]+"_m"; //All -> Jet, Bulk
   else if (RunVar==10 || RunVar==12) histoName = "histoYieldComparison";
-  else if (RunVar==13) histoName = "fHistYieldvsErrSoloStat";
+  else if (RunVar==13 || RunVar==47 || RunVar==52 || RunVar==55 || RunVar==57) histoName = "fHistYieldvsErrSoloStat";
   else if (RunVar==15 || RunVar==16) histoName = "";
   else if (RunVar==17) histoName = "histo_SSB";
   else if (RunVar>=26 && RunVar<=29) histoName = "";
@@ -413,8 +515,10 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
   else if (RunVar==31) histoName = "histo_SEffCorr";
   else if (RunVar==33 || RunVar==34) histoName = "";
   else if (RunVar==36) histoName = "histo_SSB";
-  else if (RunVar==39) histoName = "fHistSpectrumPart_";
-  else if (RunVar==40) histoName = "";
+  else if (RunVar==39 || RunVar==46 || RunVar==49 || RunVar==54 || RunVar==56) histoName = "fHistSpectrumPart_";
+  else if (RunVar==40 || RunVar ==44) histoName = "";
+  else if (RunVar==50) histoName = "ME_m_all_v";
+  else if (RunVar==51) histoName = "hSign_EtaV0";
 
   Int_t numDef=3;
   if (RunVar>=7) numDef=0;
@@ -424,15 +528,19 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
   Float_t LimSupPol0=8;
   Float_t LimInfPol0 = 0;
   if (RunVar==10 || RunVar==13) LimSupPol0 = 45;
-  else if (RunVar==15 || RunVar==30) LimSupPol0 = 30;
+  else if (RunVar==15 || RunVar==30 || RunVar==47) LimSupPol0 = 30;
   if (RunVar==13) LimInfPol0 = 25;
+  if (RunVar==52 || RunVar==55 || RunVar==57) LimSupPol0=25;
   if (RunVar==22 || RunVar==23) {LimInfPol0 = -0.8; LimSupPol0 = 0.8;}
+  if (isppHM) LimInfPol0 = 25;
+  if (isppHM) LimSupPol0 = 40;
+  if (RunVar==50 || RunVar==53) { LimInfPol0 = -1.5; LimSupPol0 = 1.5;}
   TF1 * pol0At1 = new TF1("pol0", "pol0", LimInfPol0, LimSupPol0);
   pol0At1->SetParameter(0,1);
   pol0At1->SetLineColor(1);
   pol0At1->SetLineWidth(0.5);
   TF1 * pol1[numFiles]; 
-  TF1* 	lineatB0 = new TF1("pol0B", "pol0", 0, 2.5);
+  TF1* 	lineatB0 = new TF1("pol0B", "pol0", LimInfPol0, LimSupPol0);
   lineatB0->SetParameter(0,0);
   lineatB0->SetLineColor(1);
 
@@ -454,12 +562,18 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
   TString titleRatio="Ratio to #it{p}_{T}^{trigg} > 3 GeV/#it{c}";
   TString Smolt[6] = {"_0-5", "_5-10", "_10-30", "_30-50", "_50-100", "__all"};  
   TString Smolt5TeV[6] = {"_0-10", "_10-100", "_100-100", "_100-100", "_100-100", "__all"};  
-  TString SmoltHM[6] = {"_0-0.001", "_0.001-0.005", "_0.005-0.01", "_0.01-0.05", "_0.05-0.1", "__all"};  
+  //  TString SmoltHM[6] = {"_0-0.001", "_0.001-0.005", "_0.005-0.01", "_0.01-0.05", "_0.05-0.1", "__all"};  
+  TString SmoltHM[6] = {"_0-0a", "_0-0b", "_0-0.01", "_0.01-0.05", "_0.05-0.1", "__all"};  
+  TString SmoltBisHM[6] = {"_0-0a", "_0-0b", "0-0.01%", "0.01-0.05%", "0.05-0.1%", "0-0.1%"};  
   TString SmoltBis[6] = {" 0-5%", " 5-10%", " 10-30%", " 30-50%", " 50-100%", " 0-100%"};  
   TString SmoltBis5TeV[6] = {" 0-10%", " 10-100%", " 100-100%", " 100-100%", " 100-100%", " 0-100%"};  
+  TString PtInterval[7]={"0.5-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8"};
 
   if (ispp5TeV){
     for (Int_t i=0; i<6; i++) { Smolt[i] = Smolt5TeV[i];  SmoltBis[i] = SmoltBis5TeV[i];}
+  }
+  if (isppHM){
+    for (Int_t i=0; i<6; i++) { Smolt[i] = SmoltHM[i];  SmoltBis[i] = SmoltBisHM[i];}
   }
 
   if (RunVar==2){
@@ -767,6 +881,11 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
     Up = 0.02;
     LowRatio = 0.85;
     UpRatio = 1.15;
+    if (type==1) {
+      Up = 0.001;
+      LowRatio = 0.6;
+      UpRatio = 1.6;
+    }   
     LowBarlow=-7;
     UpBarlow=7;
     UpError=0.1;
@@ -774,16 +893,17 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
     //titleY = "Xi efficiency";
     titleX = "p_{T} (GeV/c)";
     title = "K0s yield";
-    //title = "Xi efficiency";
+    if (type==1) title = "Xi efficiency";
   }
-  else  if (RunVar==40){
+  else  if (RunVar==40 || RunVar==44){
     titleRatio = "Xi/K0s yield";
     Low = 0;
-    Up = 0.02;
+    Up = 0.3;
     LowRatio = 0.02;
     UpRatio = 0.13;
+    if (RunVar==40) UpRatio = 0.1;
     titleY = "";
-    titleX = "dN/d{#eta}";
+    titleX = "dN/d#eta";
     title = "yield";
   }
   else  if (RunVar==41){
@@ -819,12 +939,111 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
     titleX = "p_{T} (GeV/c)";
     title = "K0s norm factor";
   }
+  else  if (RunVar==45){
+    titleRatio = "Ratio to 0-100%";
+    Low = 0.9;
+    Up = 1.2;
+    LowRatio = 0.9;
+    UpRatio = 1.1;
+    titleY = "Norm factor";
+    titleX = "p_{T} (GeV/c)";
+    title = tipo[type] + "Norm factor";
+  }
+  else  if (RunVar==46 || RunVar==49 || RunVar==54 || RunVar==56){
+    if (RunVar==46)    titleRatio = "Ratio to default bulk";
+    else titleRatio = "Ratio to default";
+    Low = 0;
+    Up = 0.01;
+    if (RunVar==56) Up = 0.001;
+    LowRatio = 0.85;
+    UpRatio = 1.15;
+    LowBarlow=-7;
+    UpBarlow=7;
+    UpError=0.1;
+    if (RunVar==49 || RunVar==54 || RunVar==56)     LimSupSys = 0.1;
+    titleY = "dN/dp_{T}";
+    titleX = "p_{T} (GeV/c)";
+    title = "Xi yield";
+  }
+  else  if (RunVar==47){
+    titleRatio = "Default/full bulk yield";
+    Low = 0;
+    Up = 0.02;
+    if (isppHM) Up = 0.05;
+    LowRatio = 0.8;
+    UpRatio = 1.2;
+    titleY = "";
+    titleX = "dN/d#eta";
+    title = "yield";
+  }
+  else  if (RunVar==48){
+    titleRatio = "Ratio to 5 TeV";
+    Low = 0.9;
+    Up = 1.2;
+    LowRatio = 0.9;
+    UpRatio = 1.1;
+    titleY = "Norm factor";
+    titleX = "p_{T} (GeV/c)";
+    title = tipo[type] + "Norm factor";
+  }
+  else  if (RunVar==50 || RunVar==53){
+    titleRatio = "ME Xi to ME K0s";
+    if (RunVar==53)     titleRatio = "ME Xi HM to ME Xi MB";
+    Low = 0;
+    Up = 60;
+    LowRatio = 0.8;
+    UpRatio = 1.2;
+    LowBarlow=-7;
+    UpBarlow=7;
+    UpError=0.1;
+    LimSupSys = 0.2;
+    titleY = "";
+    titleX = "dEta";
+    title = "ME projections";
+  }
+  else  if (RunVar==51){
+    titleRatio = "Eta K0s to Eta Xi";
+    Low = 0;
+    Up = 0.05;
+    LowRatio = 0.8;
+    UpRatio = 1.2;
+    LowBarlow=-7;
+    UpBarlow=7;
+    UpError=0.1;
+    LimSupSys = 0.2;
+    titleY = "";
+    titleX = "Eta";
+    title = "Eta distributions of signal candidates (no tight mass selection)";
+  }
+  else  if (RunVar==52 || RunVar==55){
+    titleRatio = "ME from K0s / ME from Xi yield";
+    if (RunVar==55)     titleRatio = "ME from Xi HM / ME from Xi yield";
+    Low = 0;
+    Up = 0.02;
+    if (isppHM) Up = 0.05;
+    LowRatio = 0.8;
+    UpRatio = 1.2;
+    titleY = "";
+    titleX = "dN/d#eta";
+    title = "yield";
+  }
+  else  if (RunVar==57){
+    titleRatio = "OOJ K0s / OOJ Xi low pt,trig";
+    Low = 0;
+    Up = 0.004;
+    LowRatio = 0.8;
+    UpRatio = 1.2;
+    titleY = "";
+    titleX = "dN/d#eta";
+    title = "yield";
+  }
 
   TLegend * legend = new TLegend (0.6, 0.7, 0.9, 0.9);
   if (RunVar<6) legend->SetHeader("#it{p}_{T}^{trigg} > ");
   TString LegendName[numFiles]={""};
 
   TH1F * histo[numFiles];
+  TH2F * histo2D[numFiles];
   TH1F * hdummy[numFiles];
   TH1F * histoRatio[numFiles];
   TH1F * histoBarlow[numFiles];
@@ -846,14 +1065,16 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
   cout << "TypeOfComparison: " <<     TypeOfComparison<< endl;
 
   for (Int_t i=0; i<numFiles; i++){
-    cout << "\n\e[35mLoop n. " << i << " \e[39m\nfile name: " << InputName << endl;
+    //    cout << "\n\e[35mLoop n. " << i << " \e[39m\nfile name: " << InputName << endl;
     NameHisto[i] = "";
     num = numDef+i;
     numEff= num;
-
-    if (RunVar==9 || RunVar==19) numEff = numFiles-num-1; 
-
-    if (TypeOfComparison==2){
+    if (TypeOfComparison==1){
+      numEff = multChosen +i;
+      if (numEff > (numFiles-1)) numEff = numEff - numFiles; 
+      cout << "numEff " << numEff << endl;
+    }
+    else  if (TypeOfComparison==2){
       if (i<numFiles/2)      numEff = num;
       else if (i>=numFiles/2) numEff=num-numFiles/2;
     }
@@ -862,6 +1083,17 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
       else if (i>=numFiles/2) numEff=numFiles-num-1;
     }
 
+    if (RunVar==9 || RunVar==19) numEff = numFiles-num-1; 
+
+    //    if (isppHM && RunVar==46){
+    if (isppHM){
+      if (numEff<2) continue;
+    }
+    if (ispp5TeV) {
+      if (numEff!=5 && numEff>1) continue;
+    }
+    if (RunVar==51 && numEff!=5) continue; 
+    if (RunVar==53 && numEff>=4) continue;
     if (RunVar==0 || RunVar==1 || RunVar==4)    VarName[i] = Form("PtMin%.1f", num);
     else if (RunVar==2){
       if (i>=0 && i<numFiles/2) VarName[i] = Form("Run2DataRed_MECorr_hXi_Xi_Eta0.8_SysT0_SysV00_Sys0_PtMin%.1f", (float)numEff);
@@ -936,8 +1168,17 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
 	  NameHisto[i]+= "fHistYieldStat";
 	}
 	else if(type==1){
-	  //	  VarName[i] += "PtSpectraBis_Xi_Eta0.8_PtMin3.0_" + TypeAnalysisBis[AnalysisType]+".root";
-	  VarName[i] += "SystematicAnalysisRun2DataRed_MECorr_hXi_Jet0.75_Xi_Eta0.8_"+ TypeAnalysis[AnalysisType] +"Data_PtMin3.0.root"; 
+	  
+	  VarName[i] += "SystematicAnalysis161718Full_AOD234_hXi_";
+	  if ( TypeAnalysis[AnalysisType]=="Jet")     VarName[i]+= "OOJNoTriggerSmoothed_";
+	  VarName[i] += "Xi_Eta0.8_";
+	  VarName[i] += TypeAnalysis[AnalysisType];
+	  if ( TypeAnalysis[AnalysisType]=="Bulk") 	  VarName[i] += "Blue";
+	  VarName[i] += "Data_PtMin3.0_IsEtaEff.root"; //pp MB         
+	  
+	  //OLD - PRELIMINARY	  
+	  //VarName[i] += "PtSpectraBis_Xi_Eta0.8_PtMin3.0_" + TypeAnalysisBis[AnalysisType]+".root";
+	  //OLD - PRELIMINARY	  VarName[i] += "SystematicAnalysisRun2DataRed_MECorr_hXi_Jet0.75_Xi_Eta0.8_"+ TypeAnalysis[AnalysisType] +"Data_PtMin3.0.root"; 
 	  //NameHisto[i]+= "fHistYieldStat";
 	  NameHisto[i] = "fHistYieldvsErrSoloStat";
 	}
@@ -949,8 +1190,13 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
 	  NameHisto[i] = "fHistYieldvsErrSoloStat";
 	}
 	else if (type==1){
-	  VarName[i] = "SystematicAnalysis17pq_hXi_Xi_Eta0.8_" + TypeAnalysis[AnalysisType]+ "Data_PtMin3.0_IsEtaEff_MultBinning3.root";
-	  if (AnalysisType==0)  	  VarName[i] = "SystematicAnalysis17pq_hXi_OOJNoTriggerSmoothed_Xi_Eta0.8_" + TypeAnalysis[AnalysisType]+ "Data_PtMin3.0_IsEtaEff_MultBinning3.root";
+	  VarName[i] = "SystematicAnalysis17pq_hXi_";
+	  if ( TypeAnalysis[AnalysisType]=="Jet")     VarName[i]+= "OOJNoTriggerSmoothed_";
+	  VarName[i] += "Xi_Eta0.8_";
+	  VarName[i] += TypeAnalysis[AnalysisType];
+	  if ( TypeAnalysis[AnalysisType]=="Bulk") 	  VarName[i] += "Blue";
+	  //	  VarName[i] += "Data_PtMin3.0_IsEtaEff_MultBinning3.root";
+	  VarName[i] += "Data_PtMin3.0_IsMEFrom13TeV_IsEtaEff_MultBinning3.root";
 	  NameHisto[i] = "fHistYieldvsErrSoloStat";
 	}
       }
@@ -1118,35 +1364,61 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
       NameHisto[i] = Form("m%i_syst0", numEff);
       if (i<numFiles/2)  {
 	VarName[i] = "K0s_Eta0.8_JetData_PtMin3.0.root";
+	if (type==1 && isppHM) 	VarName[i] = "Xi_Eta0.8_JetData_PtMin3.0_IsEtaEff_MultBinning1.root";
       }
       else {
 	VarName[i] = "OOJNoTriggerSmoothed_K0s_Eta0.8_JetData_PtMin3.0.root";
 	//	VarName[i] = "OOJNoTriggerSmoothedCorrMult_K0s_Eta0.8_JetData_PtMin3.0.root";
 	//	VarName[i] = "OOJSmoothedBis_K0s_Eta0.8_JetData_PtMin3.0.root";
 	//	VarName[i] = "OOJSmoothedBisCorrMult_K0s_Eta0.8_JetData_PtMin3.0.root";
+	if (type==1 && isppHM) 	VarName[i] = "OOJNoTriggerSmoothed_Xi_Eta0.8_JetData_PtMin3.0_IsEtaEff_MultBinning1.root";
       }
     }
-    else if (RunVar==40){
+    else if (RunVar==40 || RunVar==44){
       if (i<numFiles/2)  { //K0s
 	if (i<numFiles/4) { //13 TeV
 	  VarName[i] += "PtSpectraBis_PtBinning1_1617_AOD234_hK0s_K0s_Eta0.8_PtMin3.0_" + TypeAnalysisBis[i]+"_isNormCorrFullyComputed.root";
 	  NameHisto[i]+= "fHistYieldStat";
 	}
-	else { //5 TeV
-	  VarName[i] = "SystematicAnalysis17pq_hK0s_PtBinning1_K0s_Eta0.8_" +  TypeAnalysis[i-numFiles/4] +"Data_PtMin3.0_IsEtaEff_MultBinning3_isNormCorr.root";
-	  NameHisto[i] = "fHistYieldvsErrSoloStat";
+	else {
+	  if (RunVar==40){ //5 TeV
+	    VarName[i] = "SystematicAnalysis17pq_hK0s_PtBinning1_K0s_Eta0.8_" +  TypeAnalysis[i-numFiles/4] +"Data_PtMin3.0_IsEtaEff_MultBinning3_isNormCorr.root";
+	  } 
+	  else if (RunVar==44){ //13 TeV HM
+	    VarName[i] = "SystematicAnalysisAllhK0sHM_RedNo16k_PtBinning1_K0s_Eta0.8_" +  TypeAnalysis[i-numFiles/4] +"Data_PtMin3.0_IsEtaEff_MultBinning1.root";
+	  }
+	    NameHisto[i] = "fHistYieldvsErrSoloStat";
 	}
       }
       else { //Xi
 	if (i<3*numFiles/4){
-	  VarName[i] += "PtSpectraBis_Xi_Eta0.8_PtMin3.0_" + TypeAnalysisBis[i-numFiles/2]+".root";
-	  NameHisto[i] = "fHistYieldStat";
-	  //	  VarName[i] += "SystematicAnalysisRun2DataRed_MECorr_hXi_Jet0.75_Xi_Eta0.8_"+ TypeAnalysis[i-numFiles/2] +"Data_PtMin3.0.root"; 
-	  //	  NameHisto[i] = "fHistYieldvsErrSoloStat";
+	  VarName[i] += "SystematicAnalysis161718Full_AOD234_hXi_";
+	  if ( TypeAnalysis[i-numFiles/2]=="Jet")     VarName[i]+= "OOJNoTriggerSmoothed_";
+	  VarName[i] += "Xi_Eta0.8_";
+	  VarName[i] += TypeAnalysis[i-numFiles/2];
+	  if ( TypeAnalysis[i-numFiles/2]=="Bulk") 	  VarName[i] += "Blue";
+	  VarName[i] += "Data_PtMin3.0_IsEtaEff.root"; //pp MB         
+	  //OLD - PRELIMINARY	  VarName[i] += "PtSpectraBis_Xi_Eta0.8_PtMin3.0_" + TypeAnalysisBis[i-numFiles/2]+".root";
+	  //	  NameHisto[i] = "fHistYieldStat";
+	  NameHisto[i] = "fHistYieldvsErrSoloStat";
 	}
-	else { //5 TeV
-	  VarName[i] = "SystematicAnalysis17pq_hXi_Xi_Eta0.8_" + TypeAnalysis[i-numFiles/4*3]+ "Data_PtMin3.0_IsEtaEff_MultBinning3.root";
-	  if (i==3*numFiles/4) VarName[i] = "SystematicAnalysis17pq_hXi_OOJNoTriggerSmoothed_Xi_Eta0.8_" + TypeAnalysis[AnalysisType]+ "Data_PtMin3.0_IsEtaEff_MultBinning3.root";
+	else { 
+	  if (RunVar==40){//5 TeV
+	    VarName[i] += "SystematicAnalysis17pq_hXi_";
+	    if ( TypeAnalysis[i-numFiles/4*3]=="Jet")     VarName[i]+= "OOJNoTriggerSmoothed_";
+	    VarName[i] += "Xi_Eta0.8_";
+	    VarName[i] += TypeAnalysis[i-numFiles/4*3];
+	    if ( TypeAnalysis[i-numFiles/4*3]=="Bulk") 	  VarName[i] += "Blue";
+	    VarName[i]+="Data_PtMin3.0_IsEtaEff_MultBinning3.root";
+	  } 
+	  else if (RunVar==44){ //13 TeV HM
+	    VarName[i] = "SystematicAnalysis161718_HM_hXi_";
+	    if ( TypeAnalysis[i-numFiles/4*3]=="Jet")     VarName[i]+= "OOJNoTriggerSmoothed_";
+	    VarName[i] += "Xi_Eta0.8_";
+	    VarName[i] += TypeAnalysis[i-numFiles/4*3];
+	    if ( TypeAnalysis[i-numFiles/4*3]=="Bulk") 	  VarName[i] += "Blue";
+	    VarName[i]+=	  "Data_PtMin3.0_IsEtaEff_MultBinning1.root";
+	  }
 	  NameHisto[i] = "fHistYieldvsErrSoloStat";
 	}
       }
@@ -1194,19 +1466,111 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
       else   VarName[i] = ".root";
       NameHisto[i] = Form("%i", multDef);
     }
+    else if (RunVar==45){
+      if (type==0) VarName[i] = "1617GP_hK0s_Hybrid_New_vs_1617GP_hK0s_PtBinning1_K0s_Eta0.8_PtMin3.0.root";
+      else VarName[i] = "161718_hXi_Hybrid_vs_161718_hXi_Xi_Eta0.8_PtMin3.0.root";
+      NameHisto[i] = Form("%i",numEff);
+    }
+    else if (RunVar==46 || RunVar==47){
+      if (RunVar==46)      NameHisto[i] = Form("m%i_syst0", numEff);
+      if (i<numFiles/2)  {
+	if (type==0){
+	  VarName[i] = "1617_AOD234_hK0s_PtBinning1_K0s_Eta0.8_BulkData_PtMin3.0_IsEtaEff.root";
+	}
+	if (type==1){
+	  VarName[i] = "161718Full_AOD234_hXi_Xi_Eta0.8_BulkData_PtMin3.0_IsEtaEff.root";
+	  if (isppHM) VarName[i] = "161718_HM_hXi_Xi_Eta0.8_BulkData_PtMin3.0_IsEtaEff_MultBinning1.root";
+	  if (ispp5TeV) VarName[i] = "17pq_hXi_Xi_Eta0.8_BulkData_PtMin3.0_IsEtaEff_MultBinning3.root";
+	}
+      }
+      else {
+	if (type==0){
+	  VarName[i] = "1617_AOD234_hK0s_PtBinning1_K0s_Eta0.8_BulkBlueData_PtMin3.0_IsEtaEff.root";
+	}
+	if (type==1) {
+	  VarName[i] = "161718Full_AOD234_hXi_Xi_Eta0.8_BulkBlueData_PtMin3.0_IsEtaEff.root";
+	  if (isppHM) VarName[i] = "161718_HM_hXi_Xi_Eta0.8_BulkBlueData_PtMin3.0_IsEtaEff_MultBinning1.root";
+	  if (ispp5TeV) VarName[i] = "17pq_hXi_Xi_Eta0.8_BulkBlueData_PtMin3.0_IsEtaEff_MultBinning3.root";
+	}
+      }
+    }
+    else if (RunVar==48){
+      if (type==0) {
+	if (i<numFiles/2) VarName[i] = "1617GP_hK0s_Hybrid_New_vs_1617GP_hK0s_PtBinning1_K0s_Eta0.8_PtMin3.0.root";
+	else  VarName[i] = "17pq_pp5TeV_Hybrid_vs_17pq_pp5TeV_PtBinning1_K0s_Eta0.8_PtMin3.0.root";
+      }
+      NameHisto[i] = Form("%i",numEff);
+    }
+    else if (RunVar==49 || RunVar ==52 || RunVar==54 || RunVar==55){
+      if (RunVar==49 || RunVar==54)      NameHisto[i] = Form("m%i_syst0", numEff);
+      VarName[i] = "161718Full_AOD234_hXi_Xi_Eta0.8_" + TypeAnalysis[AnalysisType] +"Data_PtMin3.0";
+      if (isppHM) VarName[i] = "161718_HM_hXi_Xi_Eta0.8_" + TypeAnalysis[AnalysisType]+ "Data_PtMin3.0";
+      if (ispp5TeV) VarName[i] = "17pq_hXi_Xi_Eta0.8_" + TypeAnalysis[AnalysisType] + "Data_PtMin3.0_IsEtaEff_MultBinning3.root";
+      if (i>=numFiles/2)  {
+	if (RunVar==49 || RunVar==52)	VarName[i] += "_IsMEFromK0s";
+	else 	VarName[i] += "_IsMEFromHM";
+      }
+      VarName[i] += "_IsEtaEff.root";
+      if (isppHM) 	VarName[i] +="_IsEtaEff_MultBinning1.root";
+      if (ispp5TeV) 	VarName[i] +="_IsEtaEff_MultBinning3.root";
+    }
+    else if (RunVar==50){
+      NameHisto[i] = PtInterval[numEff] +"_norm";
+      if (i< numFiles/2){
+	VarName[i] += "IsMEFromK0s_";
+      }
+      VarName[i] += "IsEtaEff.root";
+    }
+    else if (RunVar==53){
+      NameHisto[i] = PtInterval[numEff] +"_norm";
+      if (i< numFiles/2){
+	histoName = "ME_m_all_v";
+	VarName[i] += "161718Full_AOD234_hXi_Xi_Eta0.8_SysT0_SysV00_Sys0_PtMin3.0_Output_IsEtaEff.root";
+      }
+      else {
+	histoName = "ME_m0-0.1_v";
+	VarName[i] += "161718_HM_hXi_Xi_Eta0.8_SysT0_SysV00_Sys0_PtMin3.0_Output_IsEtaEff_MultBinning1.root";
+      }
+    }
+    else if (RunVar==51){
+      NameHisto[i] = Smolt[numEff]+"_0";
+      if (i< numFiles/2){
+	VarName[i] += "161718Full_AOD234_hXi_Xi";
+      }
+      else {
+	VarName[i] += "1617_AOD234_hK0s_K0s";
+      }
+      VarName[i] += "_Eta0.8_SysT0_SysV00_Sys0_PtMin3.0_isEtaEff.root";
+    }
+    else if (RunVar==56 || RunVar==57){
+      if (RunVar==56)      NameHisto[i] = Form("m%i_syst0", numEff);
+      if (i<numFiles/2)  VarName[i] = "161718Full_AOD234_hXi_OOJNoTriggerSmoothed_Xi_Eta0.8_JetData_PtMin3.0_IsEtaEff.root";
+      else       VarName[i] = "161718Full_AOD234_hXi_OOJNoTriggerSmoothed_AllPtIntervals_OOJFromK0s_Xi_Eta0.8_JetData_PtMin3.0_IsEtaEff.root";
+      //else       VarName[i] = "161718Full_AOD234_hXi_Xi_Eta0.8_JetZYAMData_PtMin3.0_IsEtaEff.root";
+    }
 
     if (RunVar==43 && sys==5 && AnalysisType==0) continue;
 
     InputName = CommonFileName + VarName[i];
     //    if (RunVar==4) InputName += "_IsOnlypiKpemu";
     if (RunVar<6) InputName+="_IsEstimateRun3.root";
+    cout << "\n\e[35mLoop n. " << i << " \e[39m\nfile name: " << InputName << endl;
     InputFile = new TFile (InputName, "");
     if (!InputFile) return;
-    histo[i] = (TH1F*)InputFile->Get(histoName + NameHisto[i]);
     cout << "histo name " << histoName << NameHisto[i]<< endl;
-    if (!histo[i]) {cout << "histogram is not there: " << histoName << NameHisto[i] << endl; return;}
+    if (RunVar==50 || RunVar==53) {
+      histo2D[i] = (TH2F*)InputFile->Get(histoName + NameHisto[i]);
+      if (!histo2D[i]) {cout << "histogram is not there: " << histoName << NameHisto[i] << endl; return;}
+      histo[i] = (TH1F*) histo2D[i]->ProjectionX(histoName + NameHisto[i]+ "_px", 0, -1);
+    }
+    else{
+      histo[i] = (TH1F*)InputFile->Get(histoName + NameHisto[i]);
+      if (!histo[i]) {cout << "histogram is not there: " << histoName << NameHisto[i] << endl; return;}
+    }
+
     histo[i] ->SetName(Form("histoName%i", i));
     histo[i]->Sumw2();
+    if (RunVar==51)     histo[i]->Scale(1./histo[i]->Integral());
 
     canvas->cd(1);
     if (RunVar<7 || RunVar==16 || (RunVar>=26 && RunVar<=29) || RunVar==33 || RunVar==34)    gPad->SetLogy();
@@ -1223,7 +1587,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
     }
     Float_t msize = 1;
     if (RunVar==30) msize = 2;
-    if (RunVar==40) msize = 2;
+    if (RunVar==40 || RunVar==44 || RunVar==47) msize = 2;
     StyleHistoYield(histo[i], Low, Up, color[numEff-numDef], style, titleX, titleY, title, msize, 1.2, 1.5);
     if ((RunVar==26 || RunVar==27) && AnalysisType==0){
       //      histo[i]->GetYaxis()->SetLabelSize(0.03);
@@ -1378,6 +1742,60 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
     else if (RunVar==43){
       if (i==0) LegendName[i] = "Default  " + SmoltBis[multDef];
     }
+    else if (RunVar==44){
+      if (i<numFiles/4)   LegendName[i] = "K0s yield 13 TeV " + TypeAnalysis[i];
+      else if (i<numFiles/4*2)   LegendName[i] = "K0s yield 13 TeV HM" + TypeAnalysis[i-3];
+      else if (i<numFiles/4*3)   LegendName[i] = "Xi yield 13 TeV " + TypeAnalysis[i-6];
+      else  LegendName[i] = "Xi yield 13 TeV HM" + TypeAnalysis[i-9];
+    }
+    else if (RunVar==45){
+      LegendName[i] = tipo[type] + " "+ SmoltBis[numEff];
+    }
+    else if (RunVar==46){
+      if (i<numFiles/2)   LegendName[i] = "Default bulk " + SmoltBis[numEff];
+      else LegendName[i] = "Bulk from full " + SmoltBis[numEff];
+    }
+    else if (RunVar==47){
+      if (i<numFiles/2)   LegendName[i] = "Default bulk " ;
+      else LegendName[i] = "Bulk from full ";
+    }
+    else if (RunVar==48){
+      if (i<numFiles/2)  LegendName[i] = tipo[type] + " pp 13 TeV "+ SmoltBis[numEff];
+      else  LegendName[i] = tipo[type] + " pp 5 TeV "+ SmoltBis[numEff];
+    }
+    else if (RunVar==49){
+      if (i<numFiles/2)   LegendName[i] = "Default " + SmoltBis[numEff];
+      else LegendName[i] = "ME from K0s " + SmoltBis[numEff];
+    }
+    else if (RunVar==50){
+      if (i<numFiles/2)   LegendName[i] = "ME K0s " +PtInterval[numEff];
+      else LegendName[i] = "ME Xi " + PtInterval[numEff];
+    }
+    else if (RunVar==53){
+      if (i<numFiles/2)   LegendName[i] = "ME Xi MB " +PtInterval[numEff];
+      else LegendName[i] = "ME Xi HM" + PtInterval[numEff];
+    }
+    else if (RunVar==51){
+      if (i<numFiles/2)   LegendName[i] = " Xi " +SmoltBis[numEff];
+      else LegendName[i] = "K0s " + SmoltBis[numEff];
+    }
+    else if (RunVar==52){
+      if (i<numFiles/2)   LegendName[i] = "ME from Xi (default) " ;
+      else LegendName[i] = "ME from K0s ";
+    }
+    else if (RunVar==54){
+      if (i<numFiles/2)   LegendName[i] = "Default " + SmoltBis[numEff];
+      else LegendName[i] = "ME from HM Xi 0-0.1 " + SmoltBis[numEff];
+    }
+    else if (RunVar==55){
+      if (i<numFiles/2)   LegendName[i] = "ME from Xi (default) " ;
+      else LegendName[i] = "ME from Xi HM ";
+    }
+    else if (RunVar==56 || RunVar==57){
+      if (i<numFiles/2)   LegendName[i] = "Default ";
+      else LegendName[i] = "OOJ from K0s MB ";
+    }
+
     legend->AddEntry(histo[i], LegendName[i], "pl");
     //    cout << " n bins " <<     histo[i]->GetNbinsX() << endl;
     pol1[i] = new TF1(Form("pol1_%i", i), "pol1", 0,30);
@@ -1399,21 +1817,23 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
       }
       histo[i]->Draw("same ep");
     }
-    else histo[i]->Draw("same pe");
+    else {
+      if (RunVar!=44) histo[i]->Draw("same pe");
+    }
 
-    if (RunVar==15 && AnalysisType!=0) {
+    if ((RunVar==15 && AnalysisType!=0) || RunVar==47 || RunVar==52 || RunVar==55) {
       if (i==1) pol1[i]->SetLineStyle(8);
       pol1[i]->SetLineColor(1);
       pol1[i]->SetLineWidth(0.3);
       histo[i]->Fit(pol1[i], "R+");
     }
-    if (i==numFiles-1) legend->Draw("");
+    if (RunVar!=44){    if (i==numFiles-1) legend->Draw("");}
 
     //    cout << " first canvas ok " << endl;
     canvas->cd(2);
     gPad->SetLeftMargin(0.15);
     gPad->SetBottomMargin(0.15);
-    if (RunVar == 22 || RunVar == 23) {
+    if (RunVar == 22 || RunVar == 23 || RunVar==51) {
       histo[i]->GetXaxis()->SetRangeUser(-0.8, 0.8);
       // histo[i] ->Rebin(2);
     }
@@ -1422,18 +1842,21 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
     if (TypeOfComparison==2){
       if (i>=numFiles/2){
 	histoRatio[i]->Divide(histo[i-numFiles/2]);
-	if (RunVar!=22 && RunVar!=23 && RunVar!=26 && RunVar!=27){
-	  ErrRatioCorr(histo[i], histo[i-numFiles/2], histoRatio[i], 0);
-	  CorrelationBtwHistos = 2;
+	if (RunVar==40 || RunVar==44 || RunVar==50 || RunVar==53) {
+	  CorrelationBtwHistos = 0;
 	}
-	if (RunVar==39 || RunVar==34) {
+	else if (RunVar==39 || RunVar==34 || RunVar==46 || RunVar==49 || RunVar==52 || RunVar==54 || RunVar==55 || RunVar==56 || RunVar==57) {
 	  ErrRatioCorr(histo[i], histo[i-numFiles/2], histoRatio[i], 1);
 	  CorrelationBtwHistos = 1;
 	}
-	if (RunVar==22 && RunVar==23) {
+	else if (RunVar==22 && RunVar==23) {
 	  for (Int_t b=1; b<= histoRatio[i]->GetNbinsX(); b++){
 	    histoRatio[i]->SetBinError(b, 0);
 	  }
+	}
+	else if (RunVar!=26 && RunVar!=27){
+	  ErrRatioCorr(histo[i], histo[i-numFiles/2], histoRatio[i], 0);
+	  CorrelationBtwHistos = 2;
 	}
       }
     }
@@ -1473,16 +1896,25 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
       }
     }
 
+    if (RunVar==40 || RunVar==52 || RunVar==55 || RunVar==57) histoRatio[i]->GetXaxis()->SetRangeUser(0, 25);
+    if (RunVar==40 || RunVar==44) {
+      if (i>=numFiles/2 && InputName.Index("Jet")!=-1) {
+	histoRatio[i]->Scale(ScalingFactorXiK0s);
+      }
+    }
+    if (RunVar==44) {
+      histoRatio[i]->GetXaxis()->SetRangeUser(0, 40);
+      histo[i]->GetXaxis()->SetRangeUser(0, 40);
+    }
     StyleHistoYield(histoRatio[i], LowRatio, UpRatio, color[numEff-numDef], style, titleX, "Ratio", titleRatio, msize, 1.2, 1.4);
-    if (RunVar==39) histoRatio[i]->GetXaxis()->SetRangeUser(0, 2.5);
-    if (RunVar==40) histoRatio[i]->GetXaxis()->SetRangeUser(0, 25);
 
-    //old    if (RunVar==2 || RunVar==3 || RunVar==5 || RunVar==7 || RunVar==8 || RunVar==9 || RunVar==11 || RunVar==14 || RunVar==18 || RunVar==19) {
     if (TypeOfComparison==2) {
       if (i>=numFiles/2) {
-	histoRatio[i]->Draw("same pe");
-	//	if (RunVar==8 || RunVar==14 || RunVar==18 || RunVar==22) pol0At1->Draw("same");
-	pol0At1->Draw("same");
+	if (RunVar!=44) {
+	  if (RunVar==51) 	  histoRatio[i]->Draw("same p");
+	  else 	  histoRatio[i]->Draw("same pe");
+	  pol0At1->Draw("same");
+	}
       }
     }
     else if (TypeOfComparison==3){
@@ -1496,9 +1928,8 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
       }
     }
     else {
-      if (i!=0) histoRatio[i]->Draw("same");
-      //      if (i==numFiles-1) legend->Draw("");
-      if (i!=0 && (RunVar==10 || RunVar==13 || RunVar==15 || RunVar==19 || RunVar==30 || RunVar==31 || RunVar==41)) pol0At1->Draw("same");
+      if (i!=0) histoRatio[i]->Draw("same pe");
+      if (i!=0 && (RunVar==10 || RunVar==13 || RunVar==15 || RunVar==19 || RunVar==30 || RunVar==31 || RunVar==41 || RunVar==45)) pol0At1->Draw("same");
     }
 
     hdummy[i]= new TH1F (Form("hdummy%i", i), Form("hdummy%i", i), 1000, 0, 30);
@@ -1509,7 +1940,15 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
 	hdummy[1]->Draw("same");
       }
     }
-  
+
+    /* Print the value + error on the ratio: */
+    /*
+    cout <<"Ratio histogram: " << endl;
+    for (Int_t b=1; b <= histoRatio[i]->GetNbinsX(); b++){
+      cout << "Bin: " << b << " " << histoRatio[i]->GetBinContent(b) << " +- " << histoRatio[i]->GetBinError(b) << endl; 
+    }
+    */
+
     IsBarlowSign=0;
     if (isBarlow){
       canvasB->cd(1);
@@ -1520,8 +1959,10 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
       StyleHistoYield(histoBarlow[i], LowBarlow, UpBarlow, color[numEff-numDef], style, titleX,"Barlow variable" , "Barlow variable", 2, 1.2, 1.5);
       StyleHistoYield(histoSysError[i], 0, UpError, color[numEff-numDef], style, titleX,"Relative syst. uncertainty (%)" , "Syst. uncertainty", msize, 1.2, 1.5);
       if (TypeOfComparison==2 && i>=numFiles/2) {
-	BarlowVariable(histo[i], histo[i-numFiles/2], histoBarlow[i], histoSysError[i], 2 ,2, IsBarlowSign);
-	histoBarlow[i]->GetXaxis()->SetRangeUser(0,2.5);
+	BarlowVariable(histo[i], histo[i-numFiles/2], histoBarlow[i], histoSysError[i], NSigma ,NSign, IsBarlowSign);
+	//	histoBarlow[i]->GetXaxis()->SetRangeUser(0,2.5);
+	if (RunVar==46) 	histoBarlow[i]->GetXaxis()->SetRangeUser(0,8);
+	if (RunVar==47 || RunVar==52 || RunVar==55 || RunVar==57) 	histoBarlow[i]->GetXaxis()->SetRangeUser(0,LimSupPol0);
 	histoBarlow[i]->Draw("same p");
 	lineatB0->Draw("same");
 	if (i==numFiles-1) legend->Draw("");
@@ -1545,6 +1986,21 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multDef = 5 /*only used when a given
       }
     }
   }
+  
+  if (RunVar==44){
+    canvas->cd(1);
+    for (Int_t i=numFiles-1; i>=0; i--){
+      histo[i]->Draw("same pe");
+      if (i==numFiles-1) legend->Draw("");
+    }
+    canvas->cd(2);
+    for (Int_t i=numFiles-1; i>=numFiles/2; i--){
+      histoRatio[i]->Draw("same pe");
+      pol0At1->Draw("same");
+    }
+  }
+  
+
   cout << "\n\n"<< endl;
   canvas->SaveAs(OutputNamepdf);
   OutputFile->WriteTObject(canvas);
