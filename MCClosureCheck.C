@@ -117,9 +117,9 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
   TString titleY=  "1/#Delta#eta #Delta#phi 1/N_{trigg} dN/dp_{T}";
   TString titleYPhi=  "N/N_{trigg} per #Delta#eta";
   //  TString titleYRatio = "Ratio to MC truth";
-  TString titleYRatio = "N/N_{Trigg} (MC reco) / N/N_{Trigg} (MC gen)";
-  if (isEventLoss) titleYRatio = "#epsilon_{part}/#epsilon_{Trigg event}"; 
-  //  TString titleYRatio = "#epsilon_{part} / #epsilon_{Trigg event}";
+  //  TString titleYRatio = "N/N_{Trigg} (MC reco) / N/N_{Trigg} (MC gen)";
+  //  if (isEventLoss) titleYRatio = "#epsilon_{part}/#epsilon_{Trigg event}"; 
+  TString titleYRatio = "#epsilon_{part} / #epsilon_{Trigg event}";
   TString title = "Multiplicity class ";
 
   Int_t Color[3] ={628, 418, 600};
@@ -148,10 +148,16 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
   Float_t LimInf=0;
   Float_t LimInfEff=0.8;
   Float_t LimSupEff=1;
-  //  Float_t LimInfRatioSpectra[3] = {0.75, 0.75, 0.85};
   Float_t LimInfRatioSpectra[3] = {0.9, 0.9, 0.9};
-  //  Float_t LimSupRatioSpectra[3] = {1.25, 1.25, 1.15};
   Float_t LimSupRatioSpectra[3] = {1.1, 1.1, 1.1};
+  if (type==8){
+    LimInfRatioSpectra[0] = 0.75;
+    LimInfRatioSpectra[1] = 0.75;
+    LimInfRatioSpectra[2] = 0.85;
+    LimSupRatioSpectra[0] = 1.25;
+    LimSupRatioSpectra[1] = 1.25;
+    LimSupRatioSpectra[2] = 1.15;
+  }
 
   TString  stringout = Dir+"/DATA"+year0+"/MCClosureCheck";
   if (isEventLoss==0) stringout += "_RecotoTrue";
@@ -614,6 +620,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
   fileout->WriteTObject(fHistEventLossMultAll);
   fileout->WriteTObject(fHistEventLoss);
   fileout->WriteTObject(canvasTriggerEfficiency);
+  canvasTriggerEfficiency->SaveAs(stringoutpdf+"_TriggerEfficiency.pdf");
   for (Int_t r =0; r<3; r++){ 
     if ((sys!=0 || sysPhi!=0) && r==2) continue;
     if (sys==5 && r==0) continue;
