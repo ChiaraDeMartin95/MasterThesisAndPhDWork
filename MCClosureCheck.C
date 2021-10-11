@@ -204,6 +204,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
   TH1F *hSpectrumPtEff[3][nummolt+1];
   TH1F *hSpectrumratio[3][nummolt+1];
   TH1F *hSpectrumRelErrorClosure[3][nummolt+1];
+  TF1* pol0NormFactor[nummolt+1];
   TH1F*  hPhiFit[3][nummolt+1];
   TH1F*   hDeltaEtaDeltaPhi_PhiProj[3][2][nummolt+1][numPtV0];
   TH1F*   hDeltaEtaDeltaPhi_PhiProjRatio[3][nummolt+1][numPtV0];
@@ -485,16 +486,25 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
 
 	if (isEventLoss==1){
 	  if (i==1){
-	  for (Int_t b=1; b<=hSpectrumratio[r][m]->GetNbinsX(); b++){
-	    //cout << "\n err uncorr" <<	    hSpectrumratio[r][m]->GetBinError(b)<<endl;
-	    Sigma[r][m][b-1] =  hSpectrumratio[r][m]->GetBinContent(b)* sqrt(pow(hSpectrum[r][0][m]->GetBinError(b)/ hSpectrum[r][0][m]->GetBinContent(b),2)+ pow(hSpectrum[r][1][m]->GetBinError(b)/ hSpectrum[r][1][m]->GetBinContent(b),2)-1./(hSpectrum[r][0][m]->GetBinContent(b)*hSpectrum[r][1][m]->GetBinContent(b))*pow(hSpectrum[r][1][m]->GetBinError(b),2));
-	    if (hSpectrumratio[r][m]->GetBinError(b)!=0){
-	    hSpectrumratio[r][m]->SetBinError(b, Sigma[r][m][b-1]);
+	    for (Int_t b=1; b<=hSpectrumratio[r][m]->GetNbinsX(); b++){
+	      //cout << "\n err uncorr" <<	    hSpectrumratio[r][m]->GetBinError(b)<<endl;
+	      Sigma[r][m][b-1] =  hSpectrumratio[r][m]->GetBinContent(b)* sqrt(pow(hSpectrum[r][0][m]->GetBinError(b)/ hSpectrum[r][0][m]->GetBinContent(b),2)+ pow(hSpectrum[r][1][m]->GetBinError(b)/ hSpectrum[r][1][m]->GetBinContent(b),2)-1./(hSpectrum[r][0][m]->GetBinContent(b)*hSpectrum[r][1][m]->GetBinContent(b))*pow(hSpectrum[r][1][m]->GetBinError(b),2));
+	      if (hSpectrumratio[r][m]->GetBinError(b)!=0){
+		hSpectrumratio[r][m]->SetBinError(b, Sigma[r][m][b-1]);
+	      }
+	      //cout << " err corr" <<	    hSpectrumratio[r][m]->GetBinError(b)<<endl;
 	    }
-	    //cout << " err corr" <<	    hSpectrumratio[r][m]->GetBinError(b)<<endl;
+	    if (r==0 && type==8) {
+	      pol0NormFactor[m] = new TF1(Form("pol0NormFactor_m%i", m), "pol0", 0, 8);
+	      pol0NormFactor[m]->SetLineColor(634);
+	      pol0NormFactor[m]->SetLineWidth(0.4);
+	      cout << "pol0 fit to normalization factor (only for Xi in jet)" << endl;
+	      hSpectrumratio[r][m]-> Fit(pol0NormFactor[m], "R+");
+	      cout << "Fit to normalisation factor:\nConst = "<< pol0NormFactor[m]->GetParameter(0) << " +- " << pol0NormFactor[m]->GetParError(0) << endl;
+	    }
 	  }
-	  }
-	}
+       	}
+
 	for(Int_t v=PtV0Min; v<numPtV0Max; v++){
 	  canvasProj[m][r]->cd(v+1);
 	  //	  if (m==0 && type==0) YSup = 0.014;
