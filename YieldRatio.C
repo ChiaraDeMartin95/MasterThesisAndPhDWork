@@ -22,6 +22,7 @@
 #include "TFitResult.h"
 #include "TGraphAsymmErrors.h"
 #include </data/dataalice/AliceSoftware/aliphysics/master_chiara/src/PWG/Tools/AliPWGFunc.h>
+#include </data/dataalice/cdemart/ALICE_analysis_tutorial/Macros/ErrRatioCorr.C>
 
 void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, TString titleX, TString titleY, TString title){
   histo->GetYaxis()->SetRangeUser(Low, Up);
@@ -54,33 +55,17 @@ void StyleHistoYield(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t st
   histo->SetTitle(title);
 }
 
-void ErrRatioCorr(TH1F* hNum, TH1F* hDenom, TH1F* hRatio, Bool_t FullCorr){
-  //FullCorr == 1 means ro = 1;
-  //FullCorr == 0 means ro = 
-  Float_t Err1=0;
-  Float_t Err2=0;
-  Float_t ErrC=0;
-  Float_t Err=0;
-  for (Int_t b=1; b<=hNum->GetNbinsX();b++){
-    if (hNum->GetBinContent(b)==0 ||hDenom->GetBinContent(b)==0){
-      hRatio->SetBinError(b,0);
-      continue;
-    }
-    Err1=pow(hNum->GetBinError(b)/hNum->GetBinContent(b),2);
-    Err2=pow(hDenom->GetBinError(b)/hDenom->GetBinContent(b),2);
-    if (FullCorr==0){
-      ErrC=pow(hDenom->GetBinError(b),2)/(hNum->GetBinContent(b)*hDenom->GetBinContent(b));
-    }
-    else {
-      ErrC=hDenom->GetBinError(b) * hNum->GetBinError(b)/(hNum->GetBinContent(b)*hDenom->GetBinContent(b));
-    }
-    Err=sqrt(Err1+Err2-ErrC);
-    hRatio->SetBinError(b,Err*hRatio->GetBinContent(b));
-  }
-  //  return hRatio;                                                                                  
-}
 
-void YieldRatio(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString yearK0s="1617_hK0s", TString yearK0sMC = "1617MC_hK0s", TString yearXi = "Run2DataRed_MECorr_hXi", TString yearXiMC = "AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,    TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Bool_t ZeroYieldLowPt=0){
+void YieldRatio(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString yearK0s="1617_hK0s", TString yearK0sMC = "1617MC_hK0s", TString yearXi = "Run2DataRed_MECorr_hXi", TString yearXiMC = "AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,    TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Bool_t ZeroYieldLowPt=0, Bool_t isPreliminary=0, Int_t ChosenMult=5){
+
+  Float_t DPhiFactor =1;
+  if (!isPreliminary){
+    yearK0s="1617_AOD234_hK0s";
+    //    yearXi="161718Full_AOD234_hXi";
+    yearXi ="";
+    isNormCorr=1;
+    DPhiFactor = 0.845813/1.08747;
+  }
 
   TString RegionType[3] = {"Jet", "Bulk", "Inclusive"};
   TString SRegionType[3] = {"Near-side Jet", "Out-of-jet", "Full"};
@@ -93,33 +78,17 @@ void YieldRatio(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, Flo
 
   TString hhCorr[2]={"", "_hhCorr"};
 
-  TString isMCOrData[3] = {"_Data", "_MC", "_DataMC"};
-
   const Int_t nummolt=5;
-  const Int_t numzeta=1;
-  const Int_t numPtV0=10;//9
-  const Int_t numPtTrigger=1;
-  const Int_t numSelTrigger=3;
-  const Int_t numSelV0=6;
-  const Int_t numSysTrigger = 3;
-
-  const Int_t numsysDPhi =3;
+  const Int_t numtipo=10;
+  const Int_t numregions=3;
 
   //latexnames
   //  TLatex LatexTitle="ALICE Preliminary";
-  Int_t PtV0Min = 1; //0 el
-
-  cout << "ok " << endl;
-  TString DataOrMC[2]={"Data", "MC"};
-
-  cout << "ok " << endl;
-  const Int_t numtipo=10;
   Float_t massParticle[numtipo]= {0.497611, 1.115683, 1.115683, 1.115683, 1.32171, 1.32171, 1.67245, 1.67245, 1.32171, 1.67245};
   TString tipo[numtipo]={"K0s", "Xi"};
   TString Stipo[numtipo]={"K^{0}_{S}", "#Xi"};
   //  TString tipo[numtipo]={"K0s", "Lambda", "AntiLambda","LambdaAntiLambda", "XiNeg", "XiPos", "OmegaNeg", "OmegaPlus", "Xi", "Omega"};
   TString tipoTitle[numtipo]={"K0s", "#Lambda", "#AntiLambda","#Lambda + #AntiLambda", "Xi^{-}", "Xi^{+}", "Omega^{-}", "Omega^{+}", "Xi", "Omega"};
-  cout << "ok " << endl;
   TString Srap[2] = {"_Eta0.8", "_y0.5"};
   TString SSkipAssoc[2] = {"_AllAssoc", ""};
 
@@ -128,9 +97,6 @@ void YieldRatio(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, Flo
   TString SmoltLegend[nummolt+1]={"0-1 %", "1-5 %", "5-15 %", "15-30 %", "30-100 %", "0-100 %"};
 
   Double_t Nmolt[nummolt+1]={0,1,5,15,30,100}; 
-  TString Szeta[numzeta]={""};
-  //  Double_t Nzeta[numzeta+1]={};
-
   Double_t Nmolt0[nummolt+1]={0,5,10,30,50,100}; 
   Double_t Nmolt1[nummolt+1]={0,1,5,15,30,100}; 
   Double_t Nmolt2[nummolt+1]={0,2,7,15,30,100}; 
@@ -157,53 +123,45 @@ void YieldRatio(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, Flo
       Smolt[m] = Smolt2[m];
       SmoltLegend[m] = SmoltLegend2[m];
     }
-
   }
 
-
-  TString SPtV01[numPtV0]={"0-0.1","0.1-0.5", "0.5-0.8", "0.8-1.2", "1.2-1.6","1.6-2", "2-2.5","2.5-3", "3-4", "4-8"};
-  Double_t NPtV01[numPtV0+1]={0, 0.1,0.5,0.8, 1.2,1.6,2,2.5,3,4,8};
-  TString SPtV02[numPtV0]={"0-0.1", "0.1-0.4", "0.4-0.6", "0.6-0.8", "0.8-1.6","1.6-2", "2-2.5","2.5-3", "3-4", "4-8"};
-  Double_t NPtV02[numPtV0+1]={0,0.1,0.4,0.6, 0.8,1.6,2,2.5,3,4,8};
-  Int_t numPtV0Max=numPtV0;
   TString SErrorSpectrum[3]={"stat.","syst. uncorr.","syst. corr."};
-  TString SSystJet[2]={"BC [-1.0, 1.0]", "BC [-1.2, 1.2]"};
-  TString SSystBulk[3]={"BC [1.0, 2.0]", "BC [2.0, 4.28]", "BC [1.0, 4.28]"};
-
   //  Int_t Marker[numSyst]={20,21, 22, 23, 20, 25, 26, 25, 25, 29, 29, 31, 32};
   //  Int_t MarkerBetter[numSyst]={1,22, 32, 1, 29, 1,   3,  34, 33, 1, 20, 21, 22};
   //  Int_t Color[numSyst]= {1,  2,  3,  4,  5,  6,  7,  7,  4, 10,  6,  1,  2};
   //  Int_t Color[numSyst]= {1, 401,801,628, 909, 881,860,868,841,  418, 881, 7, 1};
-  //  Int_t ColorBetter[numSyst]= {1, 628,868,1, 909, 1,801,418,860,  1, 881, 7, 1};
-  //  Int_t ColorBetter[numSyst]= {1, 401,801,628, 909, 881,860,868,841,  418, 881, 7, 1};
-  // Int_t ColorSysTrigger[numSysTrigger]={2,3,4};
-  // Int_t ColorSysV0[numSysV0]={2,3,4, 6,8,9};
-  //  Int_t ColorMult[nummolt+1] ={1,2,8,4,6,868};
   Int_t Ymarker = 20;
   Int_t YmarkerRegion[3] = {20, 21, 33};
+  Int_t MarkerRegion[3] = {20, 21, 33};
   Int_t YmarkerRegionBis[3] = {24, 25, 27};
   Float_t YoffsetSpectra[2] = {1.6, 1.65};
   Int_t ColorMult[nummolt+1] ={628,801,418,867,601,1};
   //Int_t ColorMult[nummolt+1] ={1,2,8,4,6,868};
   Float_t FracTrig[nummolt+1] ={0.27, 0.18, 0.11, 0.05, 0.013,0.06};
   Float_t size[nummolt+1] ={2, 2, 2.5, 2.5, 2.5, 2};
+  Float_t sizeRegion[nummolt+1] ={2.3, 2.2, 3};
   Float_t MarkerSize[nummolt+1] ={2, 2, 3};
   Int_t MarkerMult[nummolt+1] ={20,21,33,34,29,25};
   Int_t Color[3] ={628, 418, 600};
   Int_t ColorType[2] ={628,881};
 
   TString stringout;
-
+  TString stringoutpdf;
   stringout = Dir+"/DATA"+year0+"/YieldRatio" +hhCorr[ishhCorr];
+  if (!isPreliminary) stringout+="_ReanalysisBothK0sAndXi";
   stringout +=Srap[israp];
   stringout +=SSkipAssoc[SkipAssoc];
   stringout+=   Form("_PtMin%.1f", PtTrigMin);
   if (ZeroYieldLowPt)  stringout += "_ZeroYLowPtJet";
   if (isNormCorr) stringout+="_isNormCorr";
-  stringout += "_.root";
+  if (isPreliminary)  stringout += "_Fixed";
+  //  stringout += "_SystPtCorr";
+  //  stringout += "_Try";
+  if (!isPreliminary)  stringout+="_isErrorAssumedPtCorr";;
+  stringoutpdf = stringout;
+  stringout += ".root";
   TFile * fileout = new TFile(stringout, "RECREATE");
 
-  //here I start the newly  created part!!
 
   TString  TitleYPtRatio = "N_{#Xi}/N_{K^{0}_{S}}";
   TString  TitleYPtDRatio = "N_{#Xi}/N_{K^{0}_{S}}_{mult} / N_{#Xi}/N_{K^{0}_{S}}_{0-100%}_{0-100%}";
@@ -231,23 +189,25 @@ void YieldRatio(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, Flo
   TCanvas* canvasYieldFinal[2];
   TCanvas* canvasPtvsMult[2];
   TCanvas* canvasPtvsMultMethodComp[2];
-  TCanvas*  canvasYieldSeparate[3][2];
-  TCanvas*  canvasPtSpectra[3][2];
-  TCanvas*  canvasPtSpectraMultRatio[3][2];
-  TCanvas*  canvasYieldErrSeparate[3][2];
-  TCanvas*  canvasPtvsMultErrSeparate[3][2];
+  TCanvas* canvasYieldSeparate[3][2];
+  TCanvas* canvasPtSpectra[3][2];
+  TCanvas* canvasPtSpectraOneMult[2];
+  TCanvas* canvasPtSpectraMultRatio[3][2];
+  TCanvas* canvasYieldErrSeparate[3][2];
+  TCanvas* canvasPtvsMultErrSeparate[3][2];
   TCanvas* canvasYieldRatio = new TCanvas ("canvasYieldRatio", "canvasYieldRatio", 1300, 800);
   TCanvas* canvasYieldJet = new TCanvas ("canvasYieldJet", "canvasYieldJet", 1300, 800);
 
   TCanvas * 	canvasPtSpectraRatio= new TCanvas("canvasPtSpectraRatio", "canvasPtSpectraRatio", 1300, 800);
   canvasPtSpectraRatio->Divide(3,2);
-TCanvas * 	canvasPtSpectraRatioAllMult= new TCanvas("canvasPtSpectraRatioAllMult", "canvasPtSpectraRatioAllMult", 1300, 400);
+  TCanvas * 	canvasPtSpectraRatioAllMult= new TCanvas("canvasPtSpectraRatioAllMult", "canvasPtSpectraRatioAllMult", 1300, 400);
   canvasPtSpectraRatioAllMult->Divide(3,1);
     
-TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectraK0s", 1300, 800);
+  TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectraK0s", 1300, 800);
   canvasPtSpectraK0s->Divide(3,2);
 
   for (Int_t type=0; type<2; type++){
+    canvasPtSpectraOneMult[type] = new TCanvas("canvasPtSpectraOneMult"+tipo[type], "canvasPtSpectraOneMult"+tipo[type], 900, 1000);
     for (Int_t iregion=0; iregion<3; iregion++){
       canvasYieldSeparate[iregion][type] = new TCanvas("canvasYield"+RegionType[iregion]+tipo[type], "canvasYield"+RegionType[iregion]+tipo[type], 1300, 800);
       canvasYieldErrSeparate[iregion][type] = new TCanvas("canvasRelErrorYield"+RegionType[iregion]+tipo[type], "canvasRelErrorYield"+RegionType[iregion]+tipo[type], 1300, 800);
@@ -257,12 +217,11 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
     }
   }
   Float_t LimSupYield[2] ={0.25, 0.02};
-  Float_t  LimSupMultRatio[2]= {3.1,3.9};
+  Float_t LimSupMultRatio[2]= {3.1,3.9};
   //  Float_t LimSupYieldF[2][3] ={{0.07, 0.25, 0.25},{0.003, 0.02, 0.02}};
   Float_t LimSupYieldF[2][3] ={{0.0699, 0.24999, 0.24999},{0.002999, 0.01999, 0.01999}};
   Float_t LimSupYieldFAll[2][3] ={{0.2699, 0.26999, 0.26999},{0.002999, 0.01999, 0.01999}};
-  //  Float_t LimSupYieldFAll[2][3] ={{0.1, 0.1, 0.1},{0.006, 0.006, 0.006}}; This for Yield/event
-  
+  //  Float_t LimSupYieldFAll[2][3] ={{0.1, 0.1, 0.1},{0.006, 0.006, 0.006}}; This for Yield/event  
   //Float_t LimSupSpectra[2][3] ={{0.02, 0.2, 0.2},{0.001, 0.01, 0.01}};
   //Float_t LimSupSpectra[2][3] ={{100, 100, 100},{10, 10, 10}};
   Float_t LimSupSpectra[2][3] ={{299.999, 299.999, 299.999},{29.999, 29.999, 29.999}};
@@ -276,8 +235,10 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
   Float_t LimInfRatioYield = 0.015;
   Float_t LimSupRatioYield = 0.13999; //0.12
   Float_t ScaleFactor[nummolt+1]={128,64, 32,16,8,1};
+  Int_t ScaleFactorRegion[3]={1,8,16};
   TString sScaleFactor[nummolt+1]={" (x2^{7})"," (x2^{6})"," (x2^{5})"," (x2^{4})"," (x2^{3})",""};
-  const Int_t numregions=3;
+  TString sScaleFactorRegion[3]={""};
+  //" (x2^{7})"," (x2^{6})"," (x2^{5})"," (x2^{4})"," (x2^{3})",""};
 
   TString PathIn[2];
   TString PathIn0[2];
@@ -288,6 +249,12 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
   //  TFile * fileInDPhiProj[2];
   for (Int_t type=0; type<2; type++){
     if (type==0) PathIn0[type] =Form("_PtBinning%i",1);
+    if (!isPreliminary && type==0) {
+      PathIn0[type]+="_"+yearK0s;
+    } 
+    if (!isPreliminary && type==1) {
+      //      PathIn0[type]+="_"+yearXi;
+    } 
     if(type>=0){
       if (!ishhCorr)      PathIn0[type] +="_"+tipo[type];
       PathIn0[type] +=Srap[israp];
@@ -309,6 +276,7 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
   TH1F* fHistYieldSistBlack[2][numregions];
   TH1F* fHistYieldStatErr[2][numregions];
   TH1F* fHistYieldSistErr[2][numregions];
+  TH1F* fHistYieldSistErrNoExtr[2][numregions];
   TH1F* fHistPtvsMultStatErr[2][numregions];
   TH1F* fHistPtvsMultSistErr[2][numregions];
   TH1F* fHistPtvsMultStatErrFS[2][numregions];
@@ -354,7 +322,7 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
   TDirectoryFile *dir;
   filedatipubbl= new TFile("HEPData-1574358449-v1-Table_8c.root", "");
   if (!filedatipubbl) return;
-  cout << " I got the files where published data are stored " << endl;
+  //  cout << " I got the files where published data are stored " << endl;
   dir  = (TDirectoryFile*)filedatipubbl->Get("Table 8c");
   if (!dir) return;
 
@@ -362,7 +330,7 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
   TDirectoryFile *dirNE;
   filedatipubblNoExtr= new TFile("HEPData-ins1748157-v1-Table_9c.root", "");
   if (!filedatipubblNoExtr) return;
-  cout << " I got the files where published data are stored " << endl;
+  //  cout << " I got the files where published data are stored " << endl;
   dirNE  = (TDirectoryFile*)filedatipubblNoExtr->Get("Table 9c");
   if (!dirNE) return;
   TH1F * fHistYieldPubNoExtrSyst[2]; 
@@ -371,10 +339,10 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
   TString nameYield[2] = {"Hist1D_y1", "Hist1D_y3"};
   TString nameYieldErr[2] = {"Hist1D_y1_e2", "Hist1D_y3_e2"};
   for (Int_t i =0; i<2 ; i++){
-  fHistYieldPubNoExtr[i] = (TH1F*) dirNE->Get(nameYield[i]);
-  fHistYieldPubNoExtrSyst[i] = (TH1F*) dirNE->Get(nameYieldErr[i]);
-  fHistYieldPubNoExtrRelSyst[i] = (TH1F*)   fHistYieldPubNoExtrSyst[i]->Clone("fHistYieldPubNoExtrRelSystK0s");
-  fHistYieldPubNoExtrRelSyst[i]->Divide(  fHistYieldPubNoExtr[i]);
+    fHistYieldPubNoExtr[i] = (TH1F*) dirNE->Get(nameYield[i]);
+    fHistYieldPubNoExtrSyst[i] = (TH1F*) dirNE->Get(nameYieldErr[i]);
+    fHistYieldPubNoExtrRelSyst[i] = (TH1F*)   fHistYieldPubNoExtrSyst[i]->Clone("fHistYieldPubNoExtrRelSyst" + tipo[i]);
+    fHistYieldPubNoExtrRelSyst[i]->Divide(  fHistYieldPubNoExtr[i]);
   }
 
   Int_t bcorr=0;
@@ -382,6 +350,8 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
   TH1F *fHistSpectrumSist[nummolt+1][2][numregions];
   TH1F *fHistSpectrumStatScaled[nummolt+1][2][numregions];
   TH1F *fHistSpectrumSistScaled[nummolt+1][2][numregions];
+  TH1F *fHistSpectrumStatScaledRegion[nummolt+1][2][numregions];
+  TH1F *fHistSpectrumSistScaledRegion[nummolt+1][2][numregions];
   TH1F *fHistSpectrumStatScaledB[nummolt+1][2][numregions];
   TH1F *fHistSpectrumSistScaledB[nummolt+1][2][numregions];
   TH1F *fHistSpectrumStatRatio[nummolt+1][numregions];
@@ -402,7 +372,6 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
   TLegend *legendYield=new TLegend(0.6, 0.75, 0.74, 0.9);
   TLegend *legendRegion=new TLegend(0.75, 0.75, 0.9, 0.9);
   TLegend *legendJet=new TLegend(0.75, 0.75, 0.9, 0.9);
-
   TLegend *legendMult = new TLegend(0.6, 0.7, 0.9, 0.9);
   legendMult->SetHeader("Multiplicity classes");
   TLegend *legendAllMult = new TLegend(0.6, 0.6, 0.9, 0.9);
@@ -420,17 +389,12 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
   legendRegionAllF->SetMargin(0.07);
   TLegendEntry * lReAll1[3];
   TLegendEntry *lReAll2[3];
-  /*
-  TLegend *legendRegionAllFJet=new TLegend(0.49, 0.82, 0.95, 0.905);
-  legendRegionAllFJet->SetFillStyle(0);
-  legendRegionAllFJet->SetMargin(1);
-  TLegend *legendRegionAllFBulk=new TLegend(0.495, 0.72, 0.955, 0.805);
-  legendRegionAllFBulk->SetFillStyle(0);
-  legendRegionAllFBulk->SetMargin(1.12);
-  TLegend *legendRegionAllFAll=new TLegend(0.4987, 0.62, 0.9587, 0.705);
-  legendRegionAllFAll->SetFillStyle(0);
-  legendRegionAllFAll->SetMargin(1.2);
-  */
+  TLegend *legendRegionAllFSpectra=new TLegend(0.23, 0.14, 0.61, 0.45);
+  legendRegionAllFSpectra->SetFillStyle(0);
+  legendRegionAllFSpectra->SetMargin(0.1);
+  TLegendEntry * lReAll1Spectra[3];
+  TLegendEntry *lReAll2Spectra[3];
+
   TLegend *legendRegionAllFJet=new TLegend(0.15, 0.82, 0.61, 0.905);
   legendRegionAllFJet->SetFillStyle(0);
   legendRegionAllFJet->SetMargin(0.1);
@@ -494,7 +458,7 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
   //************ end of published yields *********************************
 
   //************ Peng Yao yields *****************************************
-  cout << "Peng Yao ratio: get the files... " << endl;
+  //  cout << "\nPeng Yao ratio: get the files... " << endl;
   TFile * filePY = new TFile("PengYaoXiK0sRatiopp.root", "");
   if (!filePY) {cout << "file PengYaoXiK0sRatiopp.root missing "<< endl; return;}
   TDirectoryFile *dirPY = (TDirectoryFile*)filePY->Get("Xi_toKRatio");
@@ -510,7 +474,7 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
   //*************end of PengYao yield ************************************
 
   cout << "\n**************************"<<endl;
-  cout << "first part:I plot the yields vs mult for all the three regions " << endl;
+  cout << "\e[35mFirst part: I plot the yields and the <pt> vs mult for all the three regions \e[39m" << endl;
   for (Int_t type=1; type>=0; type--){
     canvasYield[type]    = new TCanvas (Form("canvasYield_%i", type), Form("canvasYield_%i",type), 1300, 800);
     canvasYieldFinal[type]    = new TCanvas (Form("canvasYieldFinal_%i", type), Form("canvasYieldFinal_%i",type), 1300, 800);
@@ -518,41 +482,54 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
     canvasPtvsMultMethodComp[type]    = new TCanvas (Form("canvasPtMultMethodComp_%i", type), Form("canvasPtMultMethodComp_%i",type), 1300, 800);
 
     for (Int_t iregion=0; iregion<numregions; iregion++){
-      PathInYield[type] = Dir+"/DATA"+year0+"/PtSpectraBis" +hhCorr[ishhCorr] + PathIn0[type] +  RegionType[iregion];
+      PathInYield[type] = Dir+"/DATA"+year0+"/PtSpectraBis"+ hhCorr[ishhCorr] + PathIn0[type] +  RegionType[iregion];
       if (ZeroYieldLowPt && iregion==0 && type==1) PathInYield[type] = Dir+"/DATA"+year0+"/PtSpectraBis" +hhCorr[ishhCorr] + PathIn0[type] +  RegionType[iregion]+ "_ZeroYLowPtJet"; 
       //      PathInDPhiProj[type] = Dir+"/DATA"+year0+"/PtSpectra" +hhCorr[ishhCorr] + PathIn1[type] +  RegionType[iregion]+ ".root";
-      if (isNormCorr)       PathInYield[type]+="_isNormCorr";
+      if (isPreliminary){
+	if (isNormCorr) PathInYield[type]+="_isNormCorr";
+      }
+      else {
+	//	if (type==1)  PathInYield[type]+="_isNormCorr";
+	if (type==1)  PathInYield[type]+="_isNormCorrFullyComputed_isEtaEff";
+	else PathInYield[type]+= "_isNormCorrFullyComputed";
+      }
+      //     if (isPreliminary || type==8)      PathInYield[type]+="_Fixed";
+      if (type==1)      PathInYield[type]+="_isErrorAssumedPtCorr";
       PathInYield[type]+=".root";
-      cout << PathInYield[type]<< endl;
+      cout << "\n\e[35mInput path\e[39m: " <<PathInYield[type]<< endl;
       //      cout << PathInDPhiProj[type]<< endl;
       fileInYield[type] = new TFile(PathInYield[type], "");
       //      fileInDPhiProj[type] = new TFile(PathInDPhiProj[type], "");
-
+      if (!fileInYield[type] ) return;
       fHistYieldStat[type][iregion]=(TH1F*)      fileInYield[type]->Get("fHistYieldStat");
       fHistYieldSist[type][iregion]=(TH1F*)      fileInYield[type]->Get("fHistYieldSist");
       fHistYieldSistNoExtr[type][iregion]=(TH1F*)      fileInYield[type]->Get("fHistYieldSistNoExtr");
       if (type==1 && iregion==0){
-      fHistYieldSistLowRelErr[type][iregion] = (TH1F*) fileInYield[type]->Get("fHistYieldSistLowRelErr");
-      fHistYieldSistUpRelErr[type][iregion] = (TH1F*) fileInYield[type]->Get("fHistYieldSistUpRelErr");
+	fHistYieldSistLowRelErr[type][iregion] = (TH1F*) fileInYield[type]->Get("fHistYieldSistLowRelErr");
+	fHistYieldSistUpRelErr[type][iregion] = (TH1F*) fileInYield[type]->Get("fHistYieldSistUpRelErr");
       }
       fHistPtvsMultStat[type][iregion]=(TH1F*) fileInYield[type]->Get("fHistPtvsMultStat");
       fHistPtvsMultSist[type][iregion]=(TH1F*) fileInYield[type]->Get("fHistPtvsMultSist");
       fHistPtvsMultStatFS[type][iregion]=(TH1F*) fileInYield[type]->Get("fHistPtvsMultStatFromSpectrum");
       fHistPtvsMultSistFS[type][iregion]=(TH1F*) fileInYield[type]->Get("fHistPtvsMultSistFromSpectrum");
+
+      if (!fHistYieldStat[type][iregion])       {cout << " missing histo YieldStat " << endl; return;}
+      if (!fHistYieldSist[type][iregion])       {cout << " missing histo YieldSist " << endl; return;}
+      if (!fHistYieldSistNoExtr[type][iregion]) {cout << " missing histo YieldSistNoExtr " << endl; return;}
+      if (!fHistPtvsMultStat[type][iregion])    {cout << " missing histo PtvsMultStat " << endl; return;}
+      if (!fHistPtvsMultSist[type][iregion])    {cout << " missing histo PtvsMultSist " << endl; return;}
+      if (!fHistPtvsMultStatFS[type][iregion])  {cout << " missing histo PtvsMultStatFS " << endl; return;}
+      if (!fHistPtvsMultSistFS[type][iregion])  {cout << " missing histo PtvsMultSistFS " << endl; return;}
+
       fHistPtvsMultStatMethodComp[type][iregion]=(TH1F*)      fHistPtvsMultSistFS[type][iregion]->Clone("fHistPtvsMultStatMethodComp");
       fHistPtvsMultSistMethodComp[type][iregion]=(TH1F*)      fHistPtvsMultSistFS[type][iregion]->Clone("fHistPtvsMultSistMethodComp");
-
-
-      if (!fHistYieldStat[type][iregion]) {cout << " missing histo 1 " << endl; return;}
-      if (!fHistYieldSist[type][iregion]) {cout << " missing histo 1 " << endl; return;}
-      if (!fHistYieldSistNoExtr[type][iregion]) {cout << " missing histo 1 " << endl; return;}
 
       fHistYieldStat[type][iregion]->SetName(Form("fHistYieldStat_type%i_%region%i", type, iregion));
       fHistYieldSist[type][iregion]->SetName(Form("fHistYieldSist_type%i_%region%i", type, iregion));
       fHistYieldSistNoExtr[type][iregion]->SetName(Form("fHistYieldSistNoExtr_type%i_%region%i", type, iregion));
-
       fHistYieldStatErr[type][iregion]=(TH1F*) fHistYieldStat[type][iregion]-> Clone("fHistYieldStatErr");
       fHistYieldSistErr[type][iregion]=(TH1F*) fHistYieldSist[type][iregion]-> Clone("fHistYieldSistErr");
+      fHistYieldSistErrNoExtr[type][iregion]=(TH1F*) fHistYieldSistNoExtr[type][iregion]-> Clone("fHistYieldSistErrNoExtr");
 
       fHistPtvsMultStatErr[type][iregion]=(TH1F*) fHistPtvsMultStat[type][iregion]-> Clone("fHistPtvsMultStatErr");
       fHistPtvsMultSistErr[type][iregion]=(TH1F*) fHistPtvsMultSist[type][iregion]-> Clone("fHistPtvsMultSistErr");
@@ -561,10 +538,12 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 
       for (Int_t b=1; b<=fHistYieldStatErr[type][iregion]->GetNbinsX(); b++){
 	if (fHistYieldStatErr[type][iregion]->GetBinContent(b)!=0){
-	  fHistYieldStatErr[type][iregion]->SetBinContent(b, fHistYieldStatErr[type][iregion]->GetBinError(b)/fHistYieldStatErr[type][iregion]->GetBinContent(b));
-	  fHistYieldSistErr[type][iregion]->SetBinContent(b, fHistYieldSistErr[type][iregion]->GetBinError(b)/fHistYieldSistErr[type][iregion]->GetBinContent(b));
+	  fHistYieldStatErr[type][iregion]->SetBinContent(b, fHistYieldStatErr[type][iregion]->GetBinError(b)/fHistYieldStat[type][iregion]->GetBinContent(b));
+	  fHistYieldSistErr[type][iregion]->SetBinContent(b, fHistYieldSistErr[type][iregion]->GetBinError(b)/fHistYieldSist[type][iregion]->GetBinContent(b));
+	  fHistYieldSistErrNoExtr[type][iregion]->SetBinContent(b, fHistYieldSistErrNoExtr[type][iregion]->GetBinError(b)/fHistYieldSist[type][iregion]->GetBinContent(b));
 	  fHistYieldStatErr[type][iregion]->SetBinError(b, 0);
 	  fHistYieldSistErr[type][iregion]->SetBinError(b, 0);
+	  fHistYieldSistErrNoExtr[type][iregion]->SetBinError(b, 0);
 
 	  fHistPtvsMultStatErr[type][iregion]->SetBinContent(b, fHistPtvsMultStatErr[type][iregion]->GetBinError(b)/fHistPtvsMultStat[type][iregion]->GetBinContent(b));
 	  fHistPtvsMultSistErr[type][iregion]->SetBinContent(b, fHistPtvsMultSistErr[type][iregion]->GetBinError(b)/fHistPtvsMultSist[type][iregion]->GetBinContent(b));
@@ -575,20 +554,18 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 	  fHistPtvsMultSistErrFS[type][iregion]->SetBinContent(b, fHistPtvsMultSistErrFS[type][iregion]->GetBinError(b)/fHistPtvsMultSistFS[type][iregion]->GetBinContent(b));
 	  fHistPtvsMultStatErrFS[type][iregion]->SetBinError(b, 0);
 	  fHistPtvsMultSistErrFS[type][iregion]->SetBinError(b, 0);
-
 	}
       }
 
       if (type==1  && iregion==0){
-      fHistYieldSistLowRelErr[type][iregion]->SetName(Form("fHistYieldSistLowRelErr_type%i_%region%i", type, iregion));
-      fHistYieldSistUpRelErr[type][iregion]->SetName(Form("fHistYieldSistUpRelErr_type%i_%region%i", type, iregion));
+	fHistYieldSistLowRelErr[type][iregion]->SetName(Form("fHistYieldSistLowRelErr_type%i_%region%i", type, iregion));
+	fHistYieldSistUpRelErr[type][iregion]->SetName(Form("fHistYieldSistUpRelErr_type%i_%region%i", type, iregion));
       }
 
       if (type==1 && iregion==0)   {
 	gYield=(TGraphAsymmErrors*)fileInYield[type]->Get("Graph");
 	if (!	gYield) return;
       }
-
 
       if (type==1) {
 	fHistYieldStatRatio[iregion]=(TH1F*)      fHistYieldStat[type][iregion]->Clone(Form("fHistYieldStatRatio_iregion%i", iregion));
@@ -600,7 +577,6 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 	fHistYieldStatRatio[iregion]->Divide(fHistYieldStat[type][iregion]);
 	fHistYieldSistRatio[iregion]->Divide(fHistYieldSist[type][iregion]);
 	fHistYieldSistNoExtrRatio[iregion]->Divide(fHistYieldSistNoExtr[type][iregion]);
-
 	fHistYieldTotErrRatio[iregion]= (TH1F*)fHistYieldSistRatio[iregion]->Clone(Form("fHistYieldTotErrRatio_iregion%i", iregion));
 	for (Int_t b=1; b <= fHistYieldTotErrRatio[iregion]->GetNbinsX(); b++){
 	  fHistYieldTotErrRatio[iregion]->SetBinContent(b, fHistYieldStatRatio[iregion]->GetBinContent(b));
@@ -623,23 +599,17 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 	  bin[m] =   fHistYieldStat[type][iregion]->FindBin(mult[m]);
 	  multctrbin[m] =   fHistYieldStat[type][iregion]->GetXaxis()->GetBinCenter(bin[m]);
 	  YieldRatio[m] =      fHistYieldStatRatio[iregion]->GetBinContent( bin[m]);
-  
 	  YieldRatioErrSistLow[m] = sqrt(pow(fHistYieldSistLowRelErr[1][iregion]->GetBinContent( bin[m]),2) + pow( fHistYieldSist[0][iregion]->GetBinError(bin[m])/ fHistYieldSist[0][iregion]->GetBinContent(bin[m]),2)) *  fHistYieldSistRatio[iregion]->GetBinContent(bin[m]);
 	  YieldRatioErrSistUp[m] = sqrt(pow(fHistYieldSistUpRelErr[1][iregion]->GetBinContent( bin[m]),2) + pow( fHistYieldSist[0][iregion]->GetBinError(bin[m])/ fHistYieldSist[0][iregion]->GetBinContent(bin[m]),2)) *  fHistYieldSistRatio[iregion]->GetBinContent(bin[m]);
-
 	}
 
 	gYieldRatio= new TGraphAsymmErrors(nummolt,multctrbin,YieldRatio,Xl, Xh, YieldRatioErrSistLow, YieldRatioErrSistUp);
-
 	gYieldRatio->SetMarkerColor(kBlue);
 	gYieldRatio->SetLineColor(kBlue);
 	gYieldRatio->SetMarkerStyle(1);
       }
 
       canvasYield[type]->cd();
-//      fHistYieldStat[type][iregion]->GetYaxis()->SetRangeUser(LimInfYield[type], LimSupYield[type])  ;
-//      fHistYieldSist[type][iregion]->GetYaxis()->SetRangeUser(LimInfYield[type], LimSupYield[type])  ;
-//      fHistYieldSistNoExtr[type][iregion]->GetYaxis()->SetRangeUser(LimInfYield[type], LimSupYield[type])  ;
 
       StyleHisto(fHistYieldStat[type][iregion], LimInfYield[type], LimSupYield[type], Color[iregion], 1, titleYieldX, titleYieldYType[type], titleYield[type] + " yield vs multiplicity");
       StyleHisto(fHistYieldSist[type][iregion], LimInfYield[type], LimSupYield[type], Color[iregion], 1, titleYieldX, titleYieldYType[type], titleYield[type] + " yield vs multiplicity");
@@ -664,7 +634,7 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 	legendYield->AddEntry(fHistYieldStat[type][iregion], "stat.", "pel");
       }
 
-
+      //      cout << "\nDrawing histos separately" << endl;
       //drawing histos separately
       canvasYieldSeparate[iregion][type]->cd();
       canvasYieldSeparate[iregion][type]->SetFillColor(0);
@@ -744,6 +714,8 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
       legendYieldF->Draw("");
       legendRegionF->Draw("");
 
+      //      cout <<"\nDrawing histos altogether (final version)\e[39m" << endl;
+
       //Drawing Yields altogether (final)
       canvasYieldFinal[type]->cd();
       //      gPad->SetLogy();
@@ -774,8 +746,8 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
       }
       
       /*
-      Int_t m=nummolt;
-      for (Int_t b=0; b<=fHistYieldStat[type][iregion]->GetNbinsX(); b++){
+	Int_t m=nummolt;
+	for (Int_t b=0; b<=fHistYieldStat[type][iregion]->GetNbinsX(); b++){
 	if (	fHistYieldStat[type][iregion]->GetBinContent(b)!=0) m--;
 	else continue;
 	cout << " trigger fraction" << FracTrig[m] << endl;
@@ -784,7 +756,7 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 	fHistYieldSist[type][iregion]->SetBinContent(b,       fHistYieldSist[type][iregion]->GetBinContent(b)*FracTrig[m]);
 	fHistYieldSist[type][iregion]->SetBinError(b, fHistYieldSist[type][iregion]->GetBinError(b)*FracTrig[m]);
 
-      }
+	}
       */
       fHistYieldStat[type][iregion]->DrawClone("same e0x0");  
       fHistYieldSist[type][iregion]->SetFillStyle(0);
@@ -796,7 +768,7 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
       legendStatBox->Draw("");
       legendRegionAllF->Draw("");
 
-
+      //      cout <<"\nDrawing yield errors\e[39m" << endl;
       canvasYieldErrSeparate[iregion][type]->cd();
       for (Int_t b=1; b<=fHistYieldErroriDatiPubblicatiDenom->GetNbinsX(); b++){
 	if (fHistYieldErroriDatiPubblicatiDenom->GetBinContent(b)!=0){
@@ -813,20 +785,23 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 
       StyleHisto(fHistYieldStatErr[type][iregion], LimInfYield[type], LimSupYieldErr[type], Color[iregion], 33, titleYieldX, titleYieldYRelErr, "");
       StyleHisto(fHistYieldSistErr[type][iregion], LimInfYield[type], LimSupYieldErr[type], Color[iregion], 24, titleYieldX, titleYieldYRelErr, "");
+      StyleHisto(fHistYieldSistErrNoExtr[type][iregion], LimInfYield[type], LimSupYieldErr[type], Color[iregion], 20, titleYieldX, titleYieldYRelErr, "");
       StyleHisto(  fHistYieldErroriRelDatiPubblicatiDenom, LimInfYield[type], LimSupYieldErr[type], 922, 33, titleYieldX, titleYieldYRelErr, "");
       StyleHisto(  fHistYieldErroriRelDatiPubblicati, LimInfYield[type], LimSupYieldErr[type], 922, 33, titleYieldX, titleYieldYRelErr, "");
       for (Int_t i=0;i<2; i++){
-      StyleHisto(fHistYieldPubNoExtrRelSyst[i], LimInfYield[type], LimSupYieldErr[type], 1, 33, titleYieldX, titleYieldYRelErr, "");
+	StyleHisto(fHistYieldPubNoExtrRelSyst[i], LimInfYield[type], LimSupYieldErr[type], 1, 33, titleYieldX, titleYieldYRelErr, "");
       }
 
 
       TLegend* legendYieldErr = new TLegend(0.6, 0.6, 0.9, 0.9);
       legendYieldErr->AddEntry(fHistYieldStatErr[type][iregion], "stat.", "pl");
       legendYieldErr->AddEntry(fHistYieldSistErr[type][iregion], "syst.", "pl");
+      legendYieldErr->AddEntry(fHistYieldSistErrNoExtr[type][iregion], "syst. no extr.", "pl");
       legendYieldErr->AddEntry(fHistYieldPubNoExtrRelSyst[0], "syst. pub. no extr.", "pl");
       legendYieldErr->AddEntry(fHistYieldErroriRelDatiPubblicatiDenom, "syst. pub.", "pl");
       fHistYieldStatErr[type][iregion]->Draw("same p"); 
       fHistYieldSistErr[type][iregion]->Draw("same p"); 
+      fHistYieldSistErrNoExtr[type][iregion]->Draw("same p");
       if (type==0) {
 	fHistYieldErroriRelDatiPubblicatiDenom->Draw("same p hist");
 	fHistYieldPubNoExtrRelSyst[0]->Draw("same p hist");
@@ -855,7 +830,6 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
       fHistPtvsMultSistErrFS[type][iregion]->Draw("same p"); 
       legendPtvsMultErr->Draw("");
 
-
       if (type==0){
 	canvasYieldRatio->cd();
 	canvasYieldRatio->SetFillColor(0);
@@ -879,16 +853,12 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 	TLegendEntry* E3Bis =   	Legend1B->AddEntry(""/*(TObject*)0*/, "#it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
 	E3Bis->SetTextAlign(32);
 
-	//	Legend1B->AddEntry(""/*(TObject*)0*/, NameP[1]+ " correlation, #it{p}_{T}^{trigg} > 3 GeV", "");
-
-	//	fHistYieldStatRatio[iregion]->SetTitle(TitleYieldRatio);
-	//	fHistYieldSistRatio[iregion]->SetTitle(TitleYieldRatio);
-	//	fHistYieldSistNoExtrRatio[iregion]->SetTitle(TitleYieldRatio);
-	//	gYieldRatio->Draw("same AP");
-
-	//	fHistYieldStatRatio[iregion]->GetXaxis()->SetRangeUser(0,27);
-	//	fHistYieldSistRatio[iregion]->GetXaxis()->SetRangeUser(0,27);
-	//	fHistYieldSistNoExtrRatio[iregion]->GetXaxis()->SetRangeUser(0,27);
+	if (!isPreliminary && iregion ==0) {
+	  fHistYieldStatRatio[iregion]->Scale(DPhiFactor);
+	  fHistYieldSistRatio[iregion]->Scale(DPhiFactor);
+	  fHistYieldSistNoExtrRatio[iregion]->Scale(DPhiFactor);
+	  fHistYieldTotErrRatio[iregion]->Scale(DPhiFactor);
+	}
 
 	StyleHistoYield(	fHistYieldDatiPubblicatiRatio, LimInfRatioYield, LimSupRatioYield, 857, YmarkerRegion[iregion], titleYieldX, TitleYYieldRatio,  "",  MarkerSize[iregion],1.4, 1.25);
 	StyleHistoYield(	fHistYieldDatiPubblicatiRatioStat, LimInfRatioYield, LimSupRatioYield, 857, YmarkerRegion[iregion], titleYieldX, TitleYYieldRatio,  "",  MarkerSize[iregion],1.4, 1.25);
@@ -919,25 +889,23 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 	pol1Ratio[iregion]->SetLineColor(Color[iregion]);
 	pol1Ratio[iregion]->SetLineStyle(2);
 
-
 	fHistYieldStatRatio[iregion]->DrawClone("same e0x0");  
 	fHistYieldSistRatio[iregion]->SetFillStyle(0);
 	fHistYieldSistRatio[iregion]->DrawClone("same e2");
 
 	fHistYieldTotErrRatio[iregion]->Fit(pol0Ratio[iregion], "R0");
 	fHistYieldTotErrRatio[iregion]->Fit(pol1Ratio[iregion], "R0");
-	pol0Ratio[iregion]->Draw("same");
-	pol1Ratio[iregion]->Draw("same");
+	//pol0Ratio[iregion]->Draw("same");
+	//	pol1Ratio[iregion]->Draw("same");
 	fHistYieldTotErrRatio[iregion]->SetLineColorAlpha(Color[iregion], 0);
 
 	if (iregion==2){
-	fHistYieldStatRatio[iregion]->DrawClone("same e0x0");  
-	fHistYieldSistRatio[iregion]->SetFillStyle(0);
-	fHistYieldSistRatio[iregion]->DrawClone("same e2");
-	//	cout << "\n\n\n hey thee " << 	fHistYieldSistRatio[1]->GetBinContent(3)<< endl;
-	fHistYieldStatRatio[1]->DrawClone("same e0x0");  
-	fHistYieldSistRatio[1]->DrawClone("same e2");
-
+	  fHistYieldStatRatio[iregion]->DrawClone("same e0x0");  
+	  fHistYieldSistRatio[iregion]->SetFillStyle(0);
+	  fHistYieldSistRatio[iregion]->DrawClone("same e2");
+	  //	cout << "\n\n\n hey thee " << 	fHistYieldSistRatio[1]->GetBinContent(3)<< endl;
+	  fHistYieldStatRatio[1]->DrawClone("same e0x0");  
+	  fHistYieldSistRatio[1]->DrawClone("same e2");
 	}
 
 	fHistYieldSistNoExtrRatio[iregion]->SetFillStyle(3001);  
@@ -949,9 +917,9 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 	fHistYieldDatiPubblicatiRatio->GetXaxis()->SetRangeUser(0,27);
 	fHistYieldDatiPubblicatiRatioStat->GetXaxis()->SetRangeUser(0,27);
 	fHistYieldDatiPubblicatiRatioSistUncorr->GetXaxis()->SetRangeUser(0,27);
-	//			fHistYieldDatiPubblicatiRatio->Draw("same e2");
-	//			fHistYieldDatiPubblicatiRatioSistUncorr->Draw("same e2");
-	//			fHistYieldDatiPubblicatiRatioStat->Draw("same");
+	//	fHistYieldDatiPubblicatiRatio->Draw("same e2");
+	//	fHistYieldDatiPubblicatiRatioSistUncorr->Draw("same e2");
+	//	fHistYieldDatiPubblicatiRatioStat->Draw("same");
 	//fHistYieldStatRatio[iregion]->GetXaxis()->SetRangeUser(0,25);
 	//fHistYieldSistRatio[iregion]->GetXaxis()->SetRangeUser(0,25);
 	//fHistYieldSistNoExtrRatio[iregion]->GetXaxis()->SetRangeUser(0,25);
@@ -962,10 +930,10 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 	legendRegionAllFBulk->Draw("");
 	legendRegionAllFAll->Draw("");
 	legendStatBoxBis->Draw("");
-
       }
 
-      Int_t nscale =25;
+      //      cout <<"\nDrawing jet yield of K0s and Xi for comparison \e[39m" << endl;
+      Int_t nscale =20;
       TGraphAsymmErrors*	gYieldJet;
       Float_t YieldJetErrSistUp[nummolt+1]={0};
       Float_t YieldJetErrSistLow[nummolt+1]={0};
@@ -1016,21 +984,23 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 
       //      for (Int_t m=0; m<nummolt+1; m++){
       for (Int_t m=nummolt; m>=0; m--){
-	cout << " ratio between spectra; m= "<< m  << endl;
+	//	cout << "\nRatio between spectra; m= "<< m  << endl;
 	fHistSpectrumSist[m][type][iregion]=(TH1F*)fileInYield[type]->Get("fHistSpectrumSistAll_"+Smolt[m]);
 	fHistSpectrumStat[m][type][iregion]=(TH1F*)fileInYield[type]->Get("fHistSpectrum_"+Smolt[m]);
 	
 	if (!fHistSpectrumStat[m][type][iregion]) { cout << " no hist spectrum stat" << endl;  return;}
 	if (!fHistSpectrumSist[m][type][iregion]) { cout << " no hist spectrum sist" << endl;  return;}
 
-	cout << "\n\n m " << m << " type " << type << " iregion " << iregion << endl;
+	//	cout << "Type " << type << " iregion " << iregion << endl;
 	for (Int_t b=1; b<= fHistSpectrumStat[m][type][iregion]->GetNbinsX(); b++){
-	  cout << b << " " << fHistSpectrumStat[m][type][iregion]->GetBinContent(b) << endl;
-	  if (type==1 && m==4 && b==fHistSpectrumStat[m][type][iregion]->GetNbinsX() && iregion!=2) {
+	  //cout << b << " " << fHistSpectrumStat[m][type][iregion]->GetBinContent(b) << endl;
+	  if (type==1 && b==fHistSpectrumStat[m][type][iregion]->GetNbinsX()){
+	    if ((isPreliminary &&  m==4 && iregion!=2) || (!isPreliminary && (m==4 || m==3))) {
 	    fHistSpectrumStat[m][type][iregion]->SetBinContent(b, 0);
 	    fHistSpectrumStat[m][type][iregion]->SetBinError(b, 0);
 	    fHistSpectrumSist[m][type][iregion]->SetBinContent(b, 0);
 	    fHistSpectrumSist[m][type][iregion]->SetBinError(b, 0);
+	    }
 	  }
 	}
 
@@ -1060,13 +1030,22 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 	  }
 	  AvgStat[m][iregion]=  AvgStat[m][iregion]/Counter;
 	  AvgSist[m][iregion] =  AvgSist[m][iregion]/Counter;
-	  cout << " m " << m << "iregion " << iregion << " avg stat rel error" << AvgStat[m][iregion]<< endl;
+	  //	  cout << " m " << m << "iregion " << iregion << " avg stat rel error" << AvgStat[m][iregion]<< endl;
 
 	  for (Int_t b=2; b<=  fHistSpectrumStatRatio[m][iregion]->GetNbinsX(); b++){
-	    if ((iregion!=2 && m==4 && b==fHistSpectrumStatRatio[m][iregion]->GetNbinsX()) || (b==2 && iregion==0)){
-	      fHistSpectrumStatRatio[m][iregion]-> SetBinContent(b,0);
-	      fHistSpectrumSistRatio[m][iregion]-> SetBinContent(b,0);
-	      continue;
+	    if (isPreliminary){
+	      if ((iregion!=2 && m==4 && b==fHistSpectrumStatRatio[m][iregion]->GetNbinsX()) || (b==2 && iregion==0)){
+		fHistSpectrumStatRatio[m][iregion]-> SetBinContent(b,0);
+		fHistSpectrumSistRatio[m][iregion]-> SetBinContent(b,0);
+		continue;
+	      }
+	    }
+	    else {
+	      if ((m==4 || m==3) && b==fHistSpectrumStatRatio[m][iregion]->GetNbinsX()){
+		fHistSpectrumStatRatio[m][iregion]-> SetBinContent(b,0);
+		fHistSpectrumSistRatio[m][iregion]-> SetBinContent(b,0);
+		continue;
+	      }
 	    }
 	  
 	    if ( fHistSpectrumStatRatio[m][iregion]->GetXaxis()->GetBinLowEdge(b) <2.){
@@ -1085,6 +1064,8 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 
 	    }
 	  } // end loop pt bin
+
+	  //	  cout <<"\nDrawing pt spectra" << endl;
 	  canvasPtSpectraK0s->cd(m+1);
 	  fHistSpectrumStat[m][0][iregion]->Draw("same ");
 	  fHistSpectrumSist[m][0][iregion]->SetFillStyle(0);
@@ -1092,6 +1073,7 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 	  splineK0s[m][iregion]->SetLineColor(Color[iregion]);
 	  splineK0s[m][iregion]->Draw("same");
 
+	  //	  cout <<"\nDrawing pt spectra ratio\e[39m" << endl;
 	  canvasPtSpectraRatio->cd(iregion+1);
 	  gPad->SetLeftMargin(0.15);
 	  if (iregion==0){
@@ -1116,23 +1098,23 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 	  if (m==0 || m==4 || m==nummolt){
 	    if (iregion==0)	    legendMult->AddEntry(	  fHistSpectrumStatRatio[m][iregion], SmoltLegend[m], "pl");
 	    fHistSpectrumStatRatio[m][iregion]->DrawClone("same e");
-	  fHistSpectrumSistRatio[m][iregion]->SetFillStyle(0);
-	  fHistSpectrumSistRatio[m][iregion]->DrawClone("same e2");
-	  if (m==nummolt && iregion==0) legendMult->Draw("");
+	    fHistSpectrumSistRatio[m][iregion]->SetFillStyle(0);
+	    fHistSpectrumSistRatio[m][iregion]->DrawClone("same e2");
+	    if (m==nummolt && iregion==0) legendMult->Draw("");
 	  }
 
 	  canvasPtSpectraRatioAllMult->cd(iregion+1);
 	  gPad->SetLeftMargin(0.15);
-	    if (iregion==0)	    legendAllMult->AddEntry(	  fHistSpectrumStatRatio[m][iregion], SmoltLegend[m], "pl");
-	    fHistSpectrumStatRatio[m][iregion]->DrawClone("same e");
+	  if (iregion==0)	    legendAllMult->AddEntry(	  fHistSpectrumStatRatio[m][iregion], SmoltLegend[m], "pl");
+	  fHistSpectrumStatRatio[m][iregion]->DrawClone("same e");
 	  fHistSpectrumSistRatio[m][iregion]->SetFillStyle(0);
 	  fHistSpectrumSistRatio[m][iregion]->DrawClone("same e2");
 	  if (m==nummolt && iregion==0) legendAllMult->Draw("");
 
-	  cout << "Peng Yao ratio " << endl;
+	  //	  cout << "Peng Yao ratio " << endl;
 	  if (iregion==0){
-	  canvasPtSpectraRatioJetPY->cd(1);
-	  gPad->SetLeftMargin(0.15);
+	    canvasPtSpectraRatioJetPY->cd(1);
+	    gPad->SetLeftMargin(0.15);
 	   
 	    if (m==nummolt){
 	      fHistPengYaoRatio->SetTitle(SRegionType[iregion]);
@@ -1156,8 +1138,8 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 	    if (m==nummolt && iregion==0) legendPY->Draw("");
 	  }
 	  if (iregion==1){
-	  canvasPtSpectraRatioJetPY->cd(2);
-	  gPad->SetLeftMargin(0.15);
+	    canvasPtSpectraRatioJetPY->cd(2);
+	    gPad->SetLeftMargin(0.15);
 	   
 	    if (m==nummolt){
 	      fHistPengYaoRatioOJ->Scale(2);
@@ -1180,11 +1162,11 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 
 	  for (Int_t b=1; b<=  fHistSpectrumStatRatio[m][iregion]->GetNbinsX(); b++){
 	    bcorr = fHistSpectrumStat[m][0][iregion]->FindBin(fHistSpectrumStat[m][1][iregion]->GetBinCenter(b));	
-	    cout << "\n iregion " << iregion << " m: " << m << " low edge bin: " <<	    fHistSpectrumStatRatio[m][iregion]->GetXaxis()->GetBinLowEdge(b)<< endl;
-	    cout << " num info " << fHistSpectrumStat[m][1][iregion]->GetBinContent(b) <<endl;
-	    cout << " denum info " << fHistSpectrumStat[m][0][iregion]->GetBinContent(bcorr) << " or spline " << splineK0s[m][iregion]->Eval(fHistSpectrumSist[m][1][iregion]->GetBinCenter(b))<<endl;
-	    cout << fHistSpectrumStatRatio[m][iregion]->GetBinContent(b) << "+-" << fHistSpectrumStatRatio[m][iregion]->GetBinError(b)<< endl;
-	    cout << fHistSpectrumSistRatio[m][iregion]->GetBinContent(b) << "+-" << fHistSpectrumSistRatio[m][iregion]->GetBinError(b)<< endl;
+	    //	    cout << "\n iregion " << iregion << " m: " << m << " low edge bin: " <<	    fHistSpectrumStatRatio[m][iregion]->GetXaxis()->GetBinLowEdge(b)<< endl;
+	    //	    cout << " num info " << fHistSpectrumStat[m][1][iregion]->GetBinContent(b) <<endl;
+	    //	    cout << " denum info " << fHistSpectrumStat[m][0][iregion]->GetBinContent(bcorr) << " or spline " << splineK0s[m][iregion]->Eval(fHistSpectrumSist[m][1][iregion]->GetBinCenter(b))<<endl;
+	    //	    cout << fHistSpectrumStatRatio[m][iregion]->GetBinContent(b) << "+-" << fHistSpectrumStatRatio[m][iregion]->GetBinError(b)<< endl;
+	    //	    cout << fHistSpectrumSistRatio[m][iregion]->GetBinContent(b) << "+-" << fHistSpectrumSistRatio[m][iregion]->GetBinError(b)<< endl;
 	  }
 
 	  fHistSpectrumStatDoubleRatio[m][iregion]=(TH1F*) fHistSpectrumStatRatio[m][iregion]->Clone("fHistSpectrumStatDoubleRatio_"+Smolt[m]+Form("_region%i", iregion));
@@ -1196,11 +1178,11 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 	  fHistSpectrumStatDoubleRatio[m][iregion]->Divide(	  fHistSpectrumStatRatio[5][iregion]);
 
 	  if (iregion==0){
-	  for (Int_t b=1; b<=  fHistSpectrumStatDoubleRatio[m][iregion]->GetNbinsX(); b++){
-	    cout << "\n iregion " << iregion << " m: " << m << " low edge bin: " <<	    fHistSpectrumStatDoubleRatio[m][iregion]->GetXaxis()->GetBinLowEdge(b)<< endl;
-	    cout << fHistSpectrumStatDoubleRatio[m][iregion]->GetBinContent(b) << "+-" << fHistSpectrumStatDoubleRatio[m][iregion]->GetBinError(b)<< endl;
-	    cout << fHistSpectrumSistDoubleRatio[m][iregion]->GetBinContent(b) << "+-" << fHistSpectrumSistDoubleRatio[m][iregion]->GetBinError(b)<< endl;
-	  }
+	    for (Int_t b=1; b<=  fHistSpectrumStatDoubleRatio[m][iregion]->GetNbinsX(); b++){
+	      //	      cout << "\n iregion " << iregion << " m: " << m << " low edge bin: " <<	    fHistSpectrumStatDoubleRatio[m][iregion]->GetXaxis()->GetBinLowEdge(b)<< endl;
+	      //	      cout << fHistSpectrumStatDoubleRatio[m][iregion]->GetBinContent(b) << "+-" << fHistSpectrumStatDoubleRatio[m][iregion]->GetBinError(b)<< endl;
+	      //	      cout << fHistSpectrumSistDoubleRatio[m][iregion]->GetBinContent(b) << "+-" << fHistSpectrumSistDoubleRatio[m][iregion]->GetBinError(b)<< endl;
+	    }
 	  }
 	  canvasPtSpectraRatio->cd(iregion+4);
 	  gPad->SetLeftMargin(0.15);
@@ -1212,15 +1194,14 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 	  fHistSpectrumSistDoubleRatio[m][iregion]->SetMarkerSize(1.2);
 	  //	  if (m!=nummolt){
 	  if (m==0 || m==4){
-	  fHistSpectrumStatDoubleRatio[m][iregion]->Draw("same p");
-	  fHistSpectrumSistDoubleRatio[m][iregion]->SetFillStyle(0);
-	  fHistSpectrumSistDoubleRatio[m][iregion]->Draw("same e2");
-	  //	  fHistSpectrumSistDoubleRatio[m][iregion]->Draw("same p hist");
-	  lineat1->Draw("same");
+	    fHistSpectrumStatDoubleRatio[m][iregion]->Draw("same p");
+	    fHistSpectrumSistDoubleRatio[m][iregion]->SetFillStyle(0);
+	    fHistSpectrumSistDoubleRatio[m][iregion]->Draw("same e2");
+	    //	  fHistSpectrumSistDoubleRatio[m][iregion]->Draw("same p hist");
+	    lineat1->Draw("same");
 	  }
 	}//end type 0 else
       }//end loop on mult
-
 
       //drawing spectra
       canvasPtSpectra[iregion][type]->cd();
@@ -1251,7 +1232,7 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 	Legend1NoPrel[type]->SetTextAlign(32);
 	Legend1NoPrel[type]->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
 	Legend1NoPrel[type]->AddEntry("", NameP[type]+ " correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
-	}
+      }
 
       TLegend *legendRegionBlack=new TLegend(0.65, 0.7, 0.92, 0.78);
       TLegendEntry* lReAll1b;
@@ -1263,7 +1244,6 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
       lReAll2b->SetTextSize(0.029);
       lReAll2b->SetTextAlign(32);
       
-
       fHistSpectrumSistScaledB[0][type][iregion]= (TH1F*) 	fHistSpectrumSistScaled[0][type][iregion]->Clone("sistblack");
       fHistSpectrumSistScaledB[0][type][iregion]->SetLineColor(1);
       fHistSpectrumSistScaledB[0][type][iregion]->SetMarkerColor(1);
@@ -1281,9 +1261,15 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
       LegendMolt->SetFillStyle(0);
       LegendMolt->SetHeader("V0M Multiplicity Percentile");
       TLegendEntry *lheader = (TLegendEntry*)LegendMolt->GetListOfPrimitives()->First();
-      //      TLegendEntry * lheader = (TLegendEntry*)LegendMolt->SetHeader("V0M Multiplicity Percentile");
       lheader-> SetTextSize(0.033);
       //LegendMolt->SetTextAlign(32);
+
+      TLegend *LegendMoltBis=new TLegend(0.5,0.7,0.905,0.78);
+      //      LegendMoltBis->SetFillStyle(0);
+      LegendMoltBis->SetHeader("V0M Multiplicity Percentile " + SmoltBis[ChosenMult]+"%");
+      TLegendEntry *lheaderBis = (TLegendEntry*)LegendMoltBis->GetListOfPrimitives()->First();
+      lheaderBis-> SetTextSize(0.028);
+      LegendMoltBis->SetTextAlign(32);
 
       for (Int_t m=0; m<nummolt+1; m++){
 
@@ -1293,9 +1279,12 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 	StyleHistoYield(fHistSpectrumSistScaled[m][type][iregion], LimInfSpectra[type][iregion], LimSupSpectra[type][iregion], ColorMult[m], MarkerMult[m], titleX, titleY,"", size[m], 1.15,  YoffsetSpectra[type]);
 
 	LegendMolt->AddEntry(fHistSpectrumStatScaled[m][type][iregion],SmoltBis[m]+"%"+sScaleFactor[m]+" ","pef");
-      fHistSpectrumStatScaled[m][type][iregion]->Draw("same e0x0");  
-      fHistSpectrumSistScaled[m][type][iregion]->SetFillStyle(0);
-      fHistSpectrumSistScaled[m][type][iregion]->Draw("same e2");
+	fHistSpectrumStatScaled[m][type][iregion]->DrawClone("same e0x0");  
+	fHistSpectrumSistScaled[m][type][iregion]->SetFillStyle(0);
+	fHistSpectrumSistScaled[m][type][iregion]->DrawClone("same e2");
+	fHistSpectrumStatScaled[m][type][iregion]->Scale(1./ScaleFactor[m]);
+	fHistSpectrumSistScaled[m][type][iregion]->Scale(1./ScaleFactor[m]);
+
       }
 
       //LegendMolt->AddEntry("","Uncertainties","");
@@ -1331,10 +1320,10 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
 	StyleHistoYield(fHistSpectrumStatMultRatio[m][type][iregion], 10e-5, LimSupMultRatio[type], ColorMult[m], MarkerMult[m], titleX, "Ratio to 0-100% class","", size[m],1.15, YoffsetSpectra[type] );
 	StyleHistoYield(fHistSpectrumSistMultRatio[m][type][iregion], 10e-5, LimSupMultRatio[type], ColorMult[m], MarkerMult[m], titleX,  "Ratio to 0-100% class","", size[m], 1.15,  YoffsetSpectra[type]);
 
-      fHistSpectrumStatMultRatio[m][type][iregion]->Draw("same e0x0");  
-      fHistSpectrumSistMultRatio[m][type][iregion]->SetFillStyle(0);
-      fHistSpectrumSistMultRatio[m][type][iregion]->Draw("same e2");
-      lineat1Mult->Draw("same");
+	fHistSpectrumStatMultRatio[m][type][iregion]->Draw("same e0x0");  
+	fHistSpectrumSistMultRatio[m][type][iregion]->SetFillStyle(0);
+	fHistSpectrumSistMultRatio[m][type][iregion]->Draw("same e2");
+	lineat1Mult->Draw("same");
       }
       //      legendMult->Draw("");
       Legend1NoPrel[type]->Draw("");
@@ -1342,7 +1331,44 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
       //if(type==0)legendStatBoxK0s->Draw("");
       //      else      if(type==1)legendStatBoxXi->Draw("");
 
+      //Drawing spectra altogether for a chosen multiplicity
+      canvasPtSpectraOneMult[type]->cd();
+      gPad->SetLogy();
+      canvasPtSpectraOneMult[type]->SetFillColor(0);
+      canvasPtSpectraOneMult[type]->SetTickx(1);
+      canvasPtSpectraOneMult[type]->SetTicky(1);
+      gPad->SetTopMargin(0.05);
+      gPad->SetLeftMargin(0.2);
+      gPad->SetBottomMargin(0.13);
+      gPad->SetRightMargin(0.05);
+      gStyle->SetLegendBorderSize(0);
+      gStyle->SetLegendFillColor(0);
+      gStyle->SetLegendFont(42);
+
+      fHistSpectrumStatScaled[ChosenMult][type][iregion]->Scale(ScaleFactorRegion[iregion]);
+      fHistSpectrumSistScaled[ChosenMult][type][iregion]->Scale(ScaleFactorRegion[iregion]);
+
+      StyleHistoYield(fHistSpectrumStatScaled[ChosenMult][type][iregion], LimInfSpectra[type][iregion]*0.02, 0.2*LimSupSpectra[type][iregion], Color[iregion], MarkerRegion[iregion], titleX, titleY,"", sizeRegion[iregion],1.15, YoffsetSpectra[type]);
+      StyleHistoYield(fHistSpectrumSistScaled[ChosenMult][type][iregion], LimInfSpectra[type][iregion]*0.02, 0.2*LimSupSpectra[type][iregion], Color[iregion], MarkerRegion[iregion], titleX, titleY,"", sizeRegion[iregion], 1.15,  YoffsetSpectra[type]);
+
+      if(type==0){
+	lReAll1Spectra[iregion] = legendRegionAllFSpectra->AddEntry(fHistSpectrumStatScaled[ChosenMult][type][iregion], sRegion[iregion] + Form(" (x%i)", ScaleFactorRegion[iregion]), "p");
+	lReAll1Spectra[iregion]->SetTextColor(Color[iregion]);
+	lReAll1Spectra[iregion]->SetTextSize(0.035);
+	//      lReAll1[iregion]->SetTextAlign(32);
+	lReAll2Spectra[iregion]=      legendRegionAllFSpectra->AddEntry("", sRegion1[iregion], "");
+	lReAll2Spectra[iregion]->SetTextSize(0.028);
+	//      lReAll2[iregion]->SetTextAlign(32);
+      }
       
+      fHistSpectrumStatScaled[ChosenMult][type][iregion]->DrawClone("same e0x0");  
+      fHistSpectrumSistScaled[ChosenMult][type][iregion]->SetFillStyle(0);
+      fHistSpectrumSistScaled[ChosenMult][type][iregion]->DrawClone("same e2");
+      Legend1Bis->Draw("");
+      LegendMoltBis->Draw("");
+      legendRegionAllFSpectra->Draw("");
+      legendStatBoxXi->Draw(""); //ok for both K0s and Xi
+
       //Drawing pt vs mult altogether
       canvasPtvsMult[type]->cd();
       //      gPad->SetLogy();
@@ -1363,8 +1389,8 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
       StyleHistoYield(fHistPtvsMultSistFS[type][iregion], LimInfPt[type]+10e-7, LimSupPt[type], Color[iregion], YmarkerRegionBis[iregion], titleYieldX, titlePtvsMultYType[type], "",  MarkerSize[iregion], 1.2, 1.25);
 
       if (type==0){
-      legendPtvsMult->AddEntry(fHistPtvsMultStat[type][iregion], " <p_{T}> from Fit ("+ SRegionType[iregion]+")", "pl");
-      legendPtvsMult->AddEntry(fHistPtvsMultStatFS[type][iregion]," <p_{T}> from Spectrum ("+ SRegionType[iregion]+")", "pl");
+	legendPtvsMult->AddEntry(fHistPtvsMultStat[type][iregion], " <p_{T}> from Fit ("+ SRegionType[iregion]+")", "pl");
+	legendPtvsMult->AddEntry(fHistPtvsMultStatFS[type][iregion]," <p_{T}> from Spectrum ("+ SRegionType[iregion]+")", "pl");
       }
 
       fHistPtvsMultStat[type][iregion]->DrawClone("same e0x0");  
@@ -1409,9 +1435,9 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
     legendYield->Draw("");
 
     if(type==0){
-    canvasYieldRatio->cd();
-    //    legendRegion->Draw("");
-    //    legendYield->Draw("");
+      canvasYieldRatio->cd();
+      //    legendRegion->Draw("");
+      //    legendYield->Draw("");
     }
     //    fileout->WriteTObject(canvasYield[type]);
     //    fileout->WriteTObject(canvasYieldFinal[type]);
@@ -1425,40 +1451,32 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
   fileout->WriteTObject(canvasPtSpectraK0s);
 
   TString DirPicture = "PictureForNote/";
+  if (!isPreliminary) DirPicture += "Reanalysis/";
   if (!isNormCorr) DirPicture = "PictureForNote/IsNotNormCorr_";
 
-  canvasPtSpectraRatioJetPY->SaveAs(DirPicture+"PtSpectraRatioK0sXi_PengYaoComp.pdf");  	
-  canvasPtSpectraRatio->SaveAs(DirPicture+"PtSpectraRatioK0sXi.pdf");  	
-  canvasPtSpectraRatioAllMult->SaveAs(DirPicture+"PtSpectraRatioK0sXiAllMult.pdf");  	
-  canvasYieldJet->SaveAs(DirPicture+"InJetYieldvsMultK0sXi.pdf");  	
-  if (ZeroYieldLowPt){
-  canvasYieldRatio->SaveAs(DirPicture+"YieldRatiovsMult_ZeroYieldLowPtJet.pdf");  	
-  }
-  else {
-  canvasYieldRatio->SaveAs(DirPicture+"YieldRatiovsMult.eps");  	
-  canvasYieldRatio->SaveAs(DirPicture+"YieldRatiovsMult.pdf");  	
-  }
-  //  canvasYield[0]->SaveAs(DirPicture+"AllYieldvsMultK0s.pdf");  	
-  // canvasYield[1]->SaveAs(DirPicture+"AllYieldvsMultXi.pdf");  	
-  canvasYieldFinal[0]->SaveAs(DirPicture+"AllYieldvsMultK0s.eps");  	
-  canvasYieldFinal[0]->SaveAs(DirPicture+"AllYieldvsMultK0s.pdf");  	
-  canvasYieldFinal[1]->SaveAs(DirPicture+"AllYieldvsMultXi.eps");  	
-  canvasYieldFinal[1]->SaveAs(DirPicture+"AllYieldvsMultXi.pdf");  	
-
-  fileout->WriteTObject(  canvasYieldFinal[0]);
-  fileout->WriteTObject(  canvasYieldFinal[1]);
-
   for (Int_t type=0; type<2; type++){
+    cout << "\e[32m\n\n************* " << Stipo[type] << " *********************" << endl;
     for (Int_t iregion=0; iregion<3; iregion++){
-      canvasYieldSeparate[iregion][type]->SaveAs(DirPicture+"FinalYieldvsMult"+tipo[type]+RegionType[iregion]+".eps");
+      cout <<"\n\e[32mRegion: " << SRegionType[iregion]<< "\e[39m" <<  endl;
+      cout << "\e[36m\n" << Stipo[type] << " pt spectra\e[39m" << endl;	
       canvasPtSpectra[iregion][type]->SaveAs(DirPicture+"FinalPtSpectra"+tipo[type]+RegionType[iregion]+".eps");
-      canvasYieldErrSeparate[iregion][type]->SaveAs(DirPicture+"FinalYieldvsMultErr"+tipo[type]+RegionType[iregion]+".eps");
-
-      canvasYieldSeparate[iregion][type]->SaveAs(DirPicture+"FinalYieldvsMult"+tipo[type]+RegionType[iregion]+".pdf");
       canvasPtSpectra[iregion][type]->SaveAs(DirPicture+"FinalPtSpectra"+tipo[type]+RegionType[iregion]+".pdf");
+      if (type==0 && iregion==0)      canvasPtSpectra[iregion][type]->SaveAs(stringoutpdf+"_Plots.pdf(");
+      else canvasPtSpectra[iregion][type]->SaveAs(stringoutpdf+"_Plots.pdf");
+      cout << "\e[36m\n" << Stipo[type] << " pt spectra to 0-100% multiplicity class\e[39m" << endl;	
       canvasPtSpectraMultRatio[iregion][type]->SaveAs(DirPicture+"FinalPtSpectraMultRatio"+tipo[type]+RegionType[iregion]+".pdf");
-      canvasYieldErrSeparate[iregion][type]->SaveAs(DirPicture+"FinalYieldvsMultErr"+tipo[type]+RegionType[iregion]+".pdf");
+      canvasPtSpectraMultRatio[iregion][type]->SaveAs(stringoutpdf+"_Plots.pdf");
+      cout << "\e[36m\n" << Stipo[type] << " pt spectra relative errors\e[39m" << endl;	
       canvasPtvsMultErrSeparate[iregion][type]->SaveAs(DirPicture+"FinalPtvsMultvsMultErr"+tipo[type]+RegionType[iregion]+".pdf");
+      canvasPtvsMultErrSeparate[iregion][type]->SaveAs(stringoutpdf+"_Plots.pdf");
+      cout << "\e[36m\n" << Stipo[type] << " yield vs multiplicity\e[39m" << endl;	
+      canvasYieldSeparate[iregion][type]->SaveAs(DirPicture+"FinalYieldvsMult"+tipo[type]+RegionType[iregion]+".eps");
+      canvasYieldSeparate[iregion][type]->SaveAs(DirPicture+"FinalYieldvsMult"+tipo[type]+RegionType[iregion]+".pdf");
+      canvasYieldSeparate[iregion][type]->SaveAs(stringoutpdf+"_Plots.pdf");
+      cout << "\e[36m\n" << Stipo[type] << " yield errors vs multiplicity \e[39m" << endl;	
+      canvasYieldErrSeparate[iregion][type]->SaveAs(DirPicture+"FinalYieldvsMultErr"+tipo[type]+RegionType[iregion]+".eps");
+      canvasYieldErrSeparate[iregion][type]->SaveAs(DirPicture+"FinalYieldvsMultErr"+tipo[type]+RegionType[iregion]+".pdf");
+      canvasYieldErrSeparate[iregion][type]->SaveAs(stringoutpdf+"_Plots.pdf");
 
       fileout->WriteTObject(canvasYieldSeparate[iregion][type]);
       fileout->WriteTObject(canvasPtSpectra[iregion][type]);
@@ -1466,14 +1484,60 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
       fileout->WriteTObject(canvasYieldErrSeparate[iregion][type]);
       fileout->WriteTObject(canvasPtvsMultErrSeparate[iregion][type]);
     }
+    cout << "\n\e[32mAll regions together: " << endl;
+    cout << "\e[36m\nPt spectra\e[39m " << endl;
+    canvasPtSpectraOneMult[type]->SaveAs(DirPicture+"PtSpectra"+tipo[type]+Smolt[ChosenMult]+".eps");
+    canvasPtSpectraOneMult[type]->SaveAs(DirPicture+"PtSpectra"+tipo[type]+Smolt[ChosenMult]+".pdf");
+    canvasPtSpectraOneMult[type]->SaveAs(stringoutpdf+"_Plots.pdf");
+    cout << "\e[36m\n<Pt> vs Mult (near-side-jet, out-of-jet, full)\e[39m" << endl;
     canvasPtvsMult[type]->SaveAs(DirPicture+"FinalPtvsMult"+tipo[type]+".pdf");
+    canvasPtvsMult[type]->SaveAs(stringoutpdf+"_Plots.pdf");
+    cout << "\e[36m\n<Pt> vs Mult -- ratio btw two methods (near-side-jet, out-of-jet, full)\e[39m" << endl;
     canvasPtvsMultMethodComp[type]->SaveAs(DirPicture+"FinalPtvsMultMethodComp"+tipo[type]+".pdf");
+    canvasPtvsMultMethodComp[type]->SaveAs(stringoutpdf+"_Plots.pdf");
+
+    fileout->WriteTObject(  canvasYieldFinal[0]);
+    fileout->WriteTObject(  canvasYieldFinal[1]);
+    fileout->WriteTObject(canvasPtSpectraOneMult[type]);
     fileout->WriteTObject(canvasPtvsMult[type]);
   }
 
+  cout << "\n\e[32mXi/K0s pt spectra ratio + comparison with PengYao's \e[39m" << endl;
+  canvasPtSpectraRatioJetPY->SaveAs(DirPicture+"PtSpectraRatioK0sXi_PengYaoComp.pdf");  
+  canvasPtSpectraRatioJetPY->SaveAs(stringoutpdf+"_Plots.pdf");
+  cout << "\n\e[32mXi/K0s pt spectra ratio\e[39m" << endl;	
+  canvasPtSpectraRatio->SaveAs(DirPicture+"PtSpectraRatioK0sXi.pdf");  	
+  canvasPtSpectraRatio->SaveAs(stringoutpdf+"_Plots.pdf");
+  cout << "\n\e[32mXi/K0s pt spectra ratio in all multiplicity classes\e[39m" << endl;	
+  canvasPtSpectraRatioAllMult->SaveAs(DirPicture+"PtSpectraRatioK0sXiAllMult.pdf");  	
+  canvasPtSpectraRatioAllMult->SaveAs(stringoutpdf+"_Plots.pdf");
+  cout << "\n\e[32mXi and K0s near-side jet yield vs multiplicity\e[39m" << endl;	
+  canvasYieldJet->SaveAs(DirPicture+"InJetYieldvsMultK0sXi.pdf");  	
+  canvasYieldJet->SaveAs(stringoutpdf+"_Plots.pdf");
+  if (ZeroYieldLowPt){
+    canvasYieldRatio->SaveAs(DirPicture+"YieldRatiovsMult_ZeroYieldLowPtJet.pdf");  	
+    canvasYieldRatio->SaveAs(stringoutpdf+"_Plots.pdf");
+  }
+  else {
+    cout << "\n\e[32mXi/K0s yield ratio vs multiplicity\e[39m" << endl;	
+    canvasYieldRatio->SaveAs(DirPicture+"YieldRatiovsMult.eps");  	
+    canvasYieldRatio->SaveAs(DirPicture+"YieldRatiovsMult.pdf");  	
+    canvasYieldRatio->SaveAs(stringoutpdf+"_Plots.pdf");
+  }
+  //  canvasYield[0]->SaveAs(DirPicture+"AllYieldvsMultK0s.pdf");  	
+  // canvasYield[1]->SaveAs(DirPicture+"AllYieldvsMultXi.pdf");  	
+  cout << "\n\e[32mK0s yield vs multiplicity (near-side jet + out-of-jet + full)\e[39m" << endl;	
+  canvasYieldFinal[0]->SaveAs(DirPicture+"AllYieldvsMultK0s.eps");  	
+  canvasYieldFinal[0]->SaveAs(DirPicture+"AllYieldvsMultK0s.pdf");  	
+  canvasYieldFinal[0]->SaveAs(stringoutpdf+"_Plots.pdf");
+  cout << "\n\e[32mXi yield vs multiplicity (near-side jet + out-of-jet + full)\e[39m" << endl;	
+  canvasYieldFinal[1]->SaveAs(DirPicture+"AllYieldvsMultXi.eps");  	
+  canvasYieldFinal[1]->SaveAs(DirPicture+"AllYieldvsMultXi.pdf");  	
+  canvasYieldFinal[1]->SaveAs(stringoutpdf+"_Plots.pdf)");
+
   fileout->Close();
 
-  cout << "\n\n**fit to Xi/K0s with pol0 and pol1" << endl;
+  cout << "\n\n\e[35m**fit to Xi/K0s with pol0 and pol1\e[39m" << endl;
   cout << "\nChi/NDF pol0 fit :" << endl;
   for (Int_t iregion=0; iregion<numregions; iregion++){
     cout << RegionType[iregion] << " " <<  pol0Ratio[iregion]->GetChisquare() << "/"<< pol0Ratio[iregion]->GetNDF() << endl;
@@ -1484,8 +1548,8 @@ TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectr
   } 
 
   for (Int_t type=0; type<2; type++){
-    cout << "\n\nstarting from the file(s) "  <<  PathInYield[type] << endl; //" and " <<  PathInDPhiProj[type] << endl;
+    cout << "\nStarting from the file(s) "  <<  PathInYield[type] << endl; //" and " <<  PathInDPhiProj[type] << endl;
   }
-  cout << " I have created the file " << stringout << endl;
+  cout << "\nI have created the file:\n " << stringout << "\nand the file:\n" << stringoutpdf << "_Plots.pdf\n\n" << endl;
 }
 
