@@ -104,7 +104,10 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
   vector<int> posrefrun;
   int nLayers=1;
   int nTimes=0;
-  int nRunsB[7]={0};
+  int nRunsB[7]={-1};
+  for (int ilay=0; ilay < 7; ilay++){
+    nRunsB[ilay] =-1;
+  }
 
   //Read the file and the list of plots with entries (hitmaps!)
   TFile *infile=new TFile(filepath_hit.c_str());
@@ -171,6 +174,7 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
 
     laynumsBis.push_back(laynum);
     nTimes++;
+    if (nRunsB[stoi(laynum)]==-1) nRunsB[stoi(laynum)]=0;
     if(nTimes>1){
       if (laynum==laynumsBis[laynumsBis.size()-2]) {
 	nRunsB[stoi(laynum)]++;
@@ -186,7 +190,7 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
     else if (IBorOB==1) ilayEff = ilay + stoi(laynums[0]) ;
     else if (IBorOB==2) ilayEff = ilay + stoi(laynums[0]) ;
     else ilayEff = ilay;
-    if (nRunsB[ilayEff] ==0) continue;
+    if (nRunsB[ilayEff] ==-1) continue;
     cout << "L" << ilayEff << " nRuns: " << nRunsB[ilayEff] << endl;
   }
 
@@ -210,7 +214,7 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
     else if (IBorOB==1) ilayEff = ilay + stoi(laynums[0]) ;
     else if (IBorOB==2) ilayEff = ilay + stoi(laynums[0]) ;
     else ilayEff = ilay;
-    if (nRunsB[ilayEff] ==0) continue;
+    if (nRunsB[ilayEff] ==-1) continue;
     cout << "ilay " << ilayEff << endl;
     if (ilay > 0) nEntrieshmaps += (nRunsB[ilayEff-1]+1) * nStavesInLayAll[ilayEff-1];
     nRunsTotAllLayers += (nRunsB[ilayEff]+1);
@@ -301,7 +305,7 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
     else if (IBorOB==1) ilayEff = ilay + stoi(laynums[0]) ;
     else if (IBorOB==2) ilayEff = ilay + stoi(laynums[0]) ;
     else ilayEff = ilay;
-    if (nRunsB[ilayEff] ==0) continue;
+    if (nRunsB[ilayEff] == -1) continue;
     //    cout <<     hmaps[index] ->GetAxis(0)->GetXmax() << " " << hmaps[index] ->GetAxis(1)->GetXmax() << endl;
     for(int istave=0; istave<48; istave++){
       if (isHotPixelMapDrawn) hHotMap[ilay][istave] = new TH2F(Form("hHotMap_L%i_Stv%d",ilayEff, istave), "; ; ", (int)hmaps[index] ->GetAxis(0)->GetXmax(),0,hmaps[index] ->GetAxis(0)->GetXmax(), (int)hmaps[index] ->GetAxis(1)->GetXmax(),0,hmaps[index] ->GetAxis(1)->GetXmax());
@@ -403,7 +407,7 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
     else if (IBorOB==1) ilayEff = ilay + stoi(laynums[0]) ;
     else if (IBorOB==2) ilayEff = ilay + stoi(laynums[0]) ;
     else ilayEff = ilay;
-    if (nRunsB[ilayEff] ==0) continue;
+    if (nRunsB[ilayEff] == -1) continue;
     //    cout << "ilay " << ilay << " ilayEff " << ilayEff << endl;
     for(int is=0; is<nStavesInLayAll[ilayEff]; is++){
       for (int i=0; i<2; i++){
@@ -452,7 +456,7 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
     else if (IBorOB==1) ilayEff = ilay + stoi(laynums[0]) ;
     else if (IBorOB==2) ilayEff = ilay + stoi(laynums[0]) ;
     else ilayEff = ilay;
-    if (nRunsB[ilayEff] ==0) continue;
+    if (nRunsB[ilayEff] == -1) continue;
     cout << "ilay " << ilay << " ilayEff " << ilayEff << endl;
 
     //legend
@@ -541,7 +545,7 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
       else if (IBorOB==1) ilayEff = ilay + stoi(laynums[0]) ;
       else if (IBorOB==2) ilayEff = ilay + stoi(laynums[0]) ;
       else ilayEff = ilay;
-      if (nRunsB[ilayEff] ==0) continue;
+      if (nRunsB[ilayEff] == -1) continue;
       cout << "ilay " << ilay << " ilayEff " << ilayEff << endl;
 
       TCanvas cnvT(Form("cnvT_%d",ilayEff), Form("cnv_%d",ilayEff),800,1200);
