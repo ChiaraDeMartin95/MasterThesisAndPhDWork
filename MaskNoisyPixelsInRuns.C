@@ -21,11 +21,11 @@
 #include <THnSparse.h>
 #include <TStopwatch.h>
 #include <TClass.h> //new
-//#include "inc/constants.h"
+#include "inc/constants.h"
 
 using namespace std;
-const int nMasked = 10; //5000
-const int nStavesInLayAll[7] = {12, 16, 20, 24, 30, 42, 48};
+//const int nMasked = 10; //5000
+//const int nStavesInLayAll[7] = {12, 16, 20, 24, 30, 42, 48};
 
 //Functions
 std::array<float,nMasked+1> GetFHRwithMasking(THnSparse *hmap, const int nchips, double ntrig, TH2 *hhotmap, bool HalfStave, bool IB,  bool isHotPixelMapDrawn);
@@ -187,15 +187,19 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
   if (nTimes ==0) {cout << "The input file contains no plots\n"; return; }
 
   int nLayers;
-  nLayers=nLayersInput;
+  if (nLayersInput==1) nLayers =1;
+  else {
+    if (IBorOB==0) nLayers = 3;
+    else if (IBorOB==1) nLayers = 4;
+    else nLayers = 7;
+  }
 
   int ilayEff=0;
   for (int ilay=0; ilay < nLayers; ilay++){
     if (nLayers==1) ilayEff = stoi(laynums[0]);
-    else if (IBorOB==1) ilayEff = ilay + stoi(laynums[0]) ;
-    else if (IBorOB==2) ilayEff = ilay + stoi(laynums[0]) ;
+    else if (IBorOB==1) ilayEff = ilay + 3 ;
     else ilayEff = ilay;
-    if (nRunsB[ilayEff] ==-1) continue;
+    if (nRunsB[ilayEff] == -1) continue;
     cout << "L" << ilayEff << " nRuns: " << nRunsB[ilayEff] << endl;
   }
 
@@ -212,16 +216,15 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
   int nEntrieshmaps =0; 
   int nRunsTotAllLayers =0; 
 
-  cout << "nLayers " << nLayers << endl;
+  //  cout << "nLayers " << nLayers << endl;
   for (int ilay=0; ilay<nLayers; ilay++){
-    cout << "ilay " << ilay << endl;
+    //cout << "ilay " << ilay << endl;
     if (nLayers==1) ilayEff = stoi(laynums[0]);
-    else if (IBorOB==1) ilayEff = ilay + stoi(laynums[0]) ;
-    else if (IBorOB==2) ilayEff = ilay + stoi(laynums[0]) ;
+    else if (IBorOB==1) ilayEff = ilay + 3 ;
     else ilayEff = ilay;
+    if (ilay > 0 && nRunsB[ilayEff-1] !=-1) nEntrieshmaps += (nRunsB[ilayEff-1]+1) * nStavesInLayAll[ilayEff-1];
     if (nRunsB[ilayEff] ==-1) continue;
-    cout << "ilay " << ilayEff << endl;
-    if (ilay > 0) nEntrieshmaps += (nRunsB[ilayEff-1]+1) * nStavesInLayAll[ilayEff-1];
+    //    cout << "ilayEff " << ilayEff << endl;
     nRunsTotAllLayers += (nRunsB[ilayEff]+1);
 
     for(int ir=0; ir<=nRunsB[ilayEff]; ir++){
@@ -307,8 +310,7 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
   int index =0;
   for(int ilay=0; ilay<nLayers; ilay++){
     if (nLayers==1) ilayEff = stoi(laynums[0]);
-    else if (IBorOB==1) ilayEff = ilay + stoi(laynums[0]) ;
-    else if (IBorOB==2) ilayEff = ilay + stoi(laynums[0]) ;
+    else if (IBorOB==1) ilayEff = ilay + 3 ;
     else ilayEff = ilay;
     if (nRunsB[ilayEff] == -1) continue;
     //    cout <<     hmaps[index] ->GetAxis(0)->GetXmax() << " " << hmaps[index] ->GetAxis(1)->GetXmax() << endl;
@@ -318,11 +320,13 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
     index += (nRunsB[ilayEff]+1)*nStavesInLayAll[ilayEff];
   }
 
+  /*  
   cout << "\n\n" << endl;
   for (int i=0; i<nRunsTotAllLayers; i++){
     cout << "i " << i << "ntrig " << ntrig[i] << endl;
   }
   cout << "\n\n" << endl;
+  */
 
   int numStavePart = 2;
   int irun = nRunsTotAllLayers-1; 
@@ -331,7 +335,7 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
   int  ilayIndex =0;
   for(int ihist=(int)hmaps.size()-1; ihist>=0; ihist--){ //start from the bottom in order to start with the oldest run
     //    if (ihist < (int)hmaps.size()-20) continue;
-    cout << "\nihist " << ihist << " laynum " << laynums[ihist] << " stave num " << stavenums[ihist] << " runnumber " << runnumbers[ihist] << " irun " << irun << " ntrigger " << ntrig[irun] << endl;
+    //    cout << "\nihist " << ihist << " laynum " << laynums[ihist] << " stave num " << stavenums[ihist] << " runnumber " << runnumbers[ihist] << " irun " << irun << " ntrigger " << ntrig[irun] << endl;
     if (stoi(laynums[ihist]) < 3)  { //IB layers                                                   
       nChips=9; 
       MaxRange = 9216; // 1024 x nChips=9
@@ -350,7 +354,7 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
       IB = 0;
       numStavePart =2; //HS Lower and HS Upper
     }
-    cout << "numStavePart " << numStavePart << endl;
+    //    cout << "numStavePart " << numStavePart << endl;
     //cout<<"\n*************Layer "<<laynums[ihist]<<" Stave "<<stavenums[ihist]<<" Run: "<<runnumbers[ihist]<< endl;
     for (int StavePart=0; StavePart< numStavePart; StavePart++){ //loop over the two Half Staves for OB      
       int nchipsactive = GetNchipsActive(hmaps[ihist],nChips, MaxRange, StavePart, IB);
@@ -362,7 +366,6 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
       }
       ilayIndex = stoi(laynums[ihist]);
       if (IBorOB == 1)       ilayIndex = stoi(laynums[ihist]) -3;
-      cout << "\nilayIndex " << ilayIndex << endl;
       if (StavePart==0)   {
 	fhrall.push_back(GetFHRwithMasking(hmaps[ihist],nchipsactive,ntrig[irun],hHotMap[nLayers==1 ? 0 : ilayIndex][stoi(stavenums[ihist])], StavePart, IB, isHotPixelMapDrawn));
 	if (numStavePart==1) fhrall1.push_back(GetFHRwithMasking(hmaps[ihist],nchipsactive,ntrig[irun],hHotMap[nLayers==1 ? 0 : ilayIndex][stoi(stavenums[ihist])], StavePart, IB,  isHotPixelMapDrawn));
@@ -378,11 +381,11 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
         irun=nRunsTotAllLayers-1;
       }
       if(laynums[ihist-1]!=laynums[ihist]){
-        nRunsTotAllLayers -= (nRunsB[stoi(laynums[ihist])]+1);
+	nRunsTotAllLayers -= (nRunsB[stoi(laynums[ihist])]+1);
       }
     }
-    cout << "\nfhr all (HS Upper) " << fhrall[fhrall.size()-1][0] << endl;
-    cout << "fhr all (HS Lower) " << fhrall1[fhrall1.size()-1][0] << endl;
+    //    cout << "\nfhr all (HS Upper) " << fhrall[fhrall.size()-1][0] << endl;
+    //    cout << "fhr all (HS Lower) " << fhrall1[fhrall1.size()-1][0] << endl;
   }
 
   //special binning
@@ -398,8 +401,7 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
 
   for(int ilay=0; ilay<nLayers; ilay++){
     if (nLayers==1) ilayEff = stoi(laynums[0]);
-    else if (IBorOB==1) ilayEff = ilay + stoi(laynums[0]) ;
-    else if (IBorOB==2) ilayEff = ilay + stoi(laynums[0]) ;
+    else if (IBorOB==1) ilayEff = ilay + 3 ;
     else ilayEff = ilay;
     if (nRunsB[ilayEff] == -1) continue;
     //    cout << "ilay " << ilay << " ilayEff " << ilayEff << endl;
@@ -411,18 +413,20 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
   }
 
   //Fill histogram
-  int ilayer = nLayers-1;
+  int ilayer = 0;
   int istave = 0;
   irun=0;
   //  cout << "\n\nfhr size " << (int)fhrall.size() << " = should correspond to nEntrieshmaps " << endl;
   //  cout << "fhr size (nMasked) " << (int)fhrall[0].size() <<" = should correspond to nMasked+1 " << endl;
   //  cout << "hmpas size\n " << hmaps.size() << endl;
   for(int i=0; i<(int)fhrall.size(); i++){
+    if (IBorOB==1)  ilayer = stoi(laynums[(int)hmaps.size()-1-i])-3;
+    else ilayer = stoi(laynums[(int)hmaps.size()-1-i]);
+    if (nLayersInput==1) ilayer = 0;
     istave = stoi(stavenums[(int)hmaps.size()-1-i]);
     //    cout << "i " << i << " ilayer " << ilayer << " istave " << istave << " irun " << irun << endl;
     //    cout << " ilayer " << laynums[(int)hmaps.size()-1-i] << " istave " << stavenums[(int)hmaps.size()-1-i] << " irun " << runnumbers[(int)hmaps.size()-1-i] << endl;
     for(int ifhr=0; ifhr<(int)fhrall[i].size(); ifhr++){ //loop over number of pixels masked
-      if (ifhr ==0) cout << "fhr " << fhrall[i][ifhr] << endl; //they match fhr from loop above
       for (int StavePart=0; StavePart< 2; StavePart++){ //loop over the two Half Staves for OB  
 	if (StavePart==0) hFhrStv[ilayer][istave][StavePart]->SetBinContent(ifhr+1, irun+1, fhrall[i][ifhr]);
 	else hFhrStv[ilayer][istave][StavePart]->SetBinContent(ifhr+1, irun+1, fhrall1[i][ifhr]);
@@ -436,7 +440,6 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
         irun=0;
       }
       if(laynums[fhrall.size()-i-2]!=laynums[fhrall.size()-i-1]){
-        ilayer--;
         istave = nStavesInLayAll[ilayer]-1;
       }
     }
@@ -447,11 +450,9 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
   //Make FHR (averaged on all runs) vs #masked pix for all staves in a layer
   for(int ilay=0; ilay<nLayers; ilay++){
     if (nLayers==1) ilayEff = stoi(laynums[0]);
-    else if (IBorOB==1) ilayEff = ilay + stoi(laynums[0]) ;
-    else if (IBorOB==2) ilayEff = ilay + stoi(laynums[0]) ;
+    else if (IBorOB==1) ilayEff = ilay + 3 ;
     else ilayEff = ilay;
     if (nRunsB[ilayEff] == -1) continue;
-    cout << "ilay " << ilay << " ilayEff " << ilayEff << endl;
 
     //legend
     TLegend *leg = new TLegend(0.904, 0.127,0.997,0.898);
@@ -536,11 +537,9 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
     cout << "\nDrawing hot pixel map for each layer " << endl;
     for(int ilay=0; ilay<nLayers; ilay++){
       if (nLayers==1) ilayEff = stoi(laynums[0]);
-      else if (IBorOB==1) ilayEff = ilay + stoi(laynums[0]) ;
-      else if (IBorOB==2) ilayEff = ilay + stoi(laynums[0]) ;
+      else if (IBorOB==1) ilayEff = ilay + 3 ;
       else ilayEff = ilay;
       if (nRunsB[ilayEff] == -1) continue;
-      cout << "ilay " << ilay << " ilayEff " << ilayEff << endl;
 
       TCanvas cnvT(Form("cnvT_%d",ilayEff), Form("cnv_%d",ilayEff),800,1200);
       TCanvas cnvB(Form("cnvB_%d",ilayEff), Form("cnvBOT_%d",ilayEff),800,1200);
