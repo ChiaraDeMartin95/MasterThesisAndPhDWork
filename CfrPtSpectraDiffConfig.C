@@ -20,14 +20,14 @@
 #include <TLine.h>
 #include <Macros/ErrRatioCorr.C>
 
-TSpline3 *sp3;//= (TSpline3*) sp ->Clone("splineFioClone");
+TSpline3 *sp3;
 Double_t spline(Double_t *x, Double_t* p) {
   Double_t xx = x[0];
   return sp3->Eval(xx);
 }
 
 
-void CfrPtSpectraDiffConfig(Bool_t CfrDiffPeriods=0, TString year0="2016", Int_t ishhCorr=0, Int_t NumberOfRegions=3,  Int_t type=0, Bool_t AllRun2=0, Bool_t CfrSkipAssoc=0, TString Path1=""/*"_FioPtBins"*/, Bool_t ispp5TeV=1, Bool_t isNormFactor=0){// Int_t HistoType=0){
+void CfrPtSpectraDiffConfig(Bool_t CfrDiffPeriods=0, TString year0="2016", Int_t ishhCorr=0, Int_t NumberOfRegions=3,  Int_t type=0, Bool_t AllRun2=0, Bool_t CfrSkipAssoc=0, TString Path1=""/*"_FioPtBins"*/, Bool_t ispp5TeV=1, Bool_t isNormFactor=1){// Int_t HistoType=0){
 
   Bool_t Comp13or5TeV;
   if (ispp5TeV){
@@ -86,7 +86,7 @@ void CfrPtSpectraDiffConfig(Bool_t CfrDiffPeriods=0, TString year0="2016", Int_t
   if (ispp5TeV)  nomefileoutput += "_pp5TeV";
   if (isNormFactor) nomefileoutput += "_IsNormFactor";
   TString  nomefileoutputPDF=nomefileoutput;
-  nomefileoutput += "_Try";
+  //  nomefileoutput += "_Try";
   nomefileoutput += ".root";
   fileout = new TFile (nomefileoutput, "RECREATE");
 
@@ -192,7 +192,7 @@ void CfrPtSpectraDiffConfig(Bool_t CfrDiffPeriods=0, TString year0="2016", Int_t
       hspectrumCfr[i] = (TH1F*)hspectrum[i]->Clone(Form("Spectrum_multStat%i",i+1));
       hspectrumCfrSys[i] = (TH1F*)hspectrum[i]->Clone(Form("Spectrum_multSys%i",i+1));
     }
-    //    cout << " I clone a histo " << endl;                                                                                                     
+
     for (Int_t b=1; b<= hspectrumCfr[0]->GetNbinsX();b++){
       //      hspectrumetot[i]->SetBinContent(b,   sqrt(pow(hspectrum1[i]->GetBinContent(b),2) + pow(hspectrum2[i]->GetBinContent(b),2) + pow(hspectrum3[i]->GetBinContent(b),2)) );
       hspectrumetot[i]->SetBinContent(b,   sqrt(pow(hspectrum1[i]->GetBinContent(b),2) + pow(hspectrum2[i]->GetBinContent(b),2)) );
@@ -200,12 +200,15 @@ void CfrPtSpectraDiffConfig(Bool_t CfrDiffPeriods=0, TString year0="2016", Int_t
   }
 
   hspectrumCfrSum= (TH1F*)hspectrum[0]->Clone("Spectrum_multSum");
-  for (Int_t b=1; b<= hspectrumCfr[0]->GetNbinsX();b++){
-
+  for (Int_t b=1; b<= hspectrumCfr[1]->GetNbinsX();b++){
     if (ispp5TeV){
       //Silvia's mult classes: [0-0.01],[0.01-0.1],[0.1-1],[1-5],[5-10],[10-20],[20-30],[30-40],[40-50],[50-70],[70-100]
+      //spectra measured in pt interval [0-6.5]GeV/c ([0-5.5]GeV/c for 0-0.01% class) 
+
+      if (b<= hspectrumCfr[0]->GetNbinsX()) {
       hspectrumCfr[0]->SetBinContent(b,1./5 * (0.01*hspectrum[0]->GetBinContent(b)+ 0.09*hspectrum[1]->GetBinContent(b) + 0.9*hspectrum[2]->GetBinContent(b) + 4* hspectrum[3]->GetBinContent(b)));
       hspectrumCfrSys[0]->SetBinContent(b,1./5 * (0.01*hspectrum[0]->GetBinContent(b)+ 0.09*hspectrum[1]->GetBinContent(b) + 0.9*hspectrum[2]->GetBinContent(b) + 4* hspectrum[3]->GetBinContent(b)));
+      }
 
       hspectrumCfr[0]->SetBinError(b, sqrt(pow(0.01/5*hspectrum1[0]->GetBinContent(b), 2)+ pow(0.09/5*hspectrum1[1]->GetBinContent(b),2) + pow(0.9/5*hspectrum1[2]->GetBinContent(b),2) + pow(4/5* hspectrum1[3]->GetBinContent(b),2)));
       hspectrumCfrSys[0]->SetBinError(b, sqrt(pow(0.01/5*hspectrum2[0]->GetBinContent(b), 2)+ pow(0.09/5*hspectrum2[1]->GetBinContent(b),2) + pow(0.9/5*hspectrum2[2]->GetBinContent(b),2) + pow(4/5* hspectrum2[3]->GetBinContent(b),2)));
@@ -236,9 +239,10 @@ void CfrPtSpectraDiffConfig(Bool_t CfrDiffPeriods=0, TString year0="2016", Int_t
       hspectrumCfrSys[5]->SetBinError(b, hspectrum2[11]->GetBinContent(b));
 
       //OPTION A: 0-100% spectrum as average of published mult classes
-      hspectrumCfrSum->SetBinContent(b, 0.0001*hspectrum[0]->GetBinContent(b)+ 0.0009*hspectrum[1]->GetBinContent(b)+0.009*hspectrum[2]->GetBinContent(b)+ 0.04*hspectrum[3]->GetBinContent(b)+ 0.05*hspectrum[4]->GetBinContent(b) +0.1 *hspectrum[5]->GetBinContent(b) +0.1*hspectrum[6]->GetBinContent(b) +0.1*hspectrum[7]->GetBinContent(b) +0.1*hspectrum[8]->GetBinContent(b) +0.2*hspectrum[9]->GetBinContent(b)+0.3*hspectrum[10]->GetBinContent(b));
-      hspectrumCfrSum->SetBinError(b, sqrt(pow(0.0001*hspectrum[0]->GetBinError(b),2)+ pow(0.0009*hspectrum[1]->GetBinError(b),2)+pow(0.009*hspectrum[2]->GetBinError(b),2)+ pow(0.04*hspectrum[3]->GetBinError(b),2)+ pow(0.05*hspectrum[4]->GetBinError(b),2) +pow(0.1 *hspectrum[5]->GetBinError(b),2) +pow(0.1*hspectrum[6]->GetBinError(b),2) +pow(0.1*hspectrum[7]->GetBinError(b),2) +pow(0.1*hspectrum[8]->GetBinError(b),2) +pow(0.2*hspectrum[9]->GetBinError(b),2) + pow(0.3*hspectrum[10]->GetBinError(b),2)));
-
+      if (b<= hspectrum[0]->GetNbinsX()) {
+	hspectrumCfrSum->SetBinContent(b, 0.0001*hspectrum[0]->GetBinContent(b)+ 0.0009*hspectrum[1]->GetBinContent(b)+0.009*hspectrum[2]->GetBinContent(b)+ 0.04*hspectrum[3]->GetBinContent(b)+ 0.05*hspectrum[4]->GetBinContent(b) +0.1 *hspectrum[5]->GetBinContent(b) +0.1*hspectrum[6]->GetBinContent(b) +0.1*hspectrum[7]->GetBinContent(b) +0.1*hspectrum[8]->GetBinContent(b) +0.2*hspectrum[9]->GetBinContent(b)+0.3*hspectrum[10]->GetBinContent(b));
+	hspectrumCfrSum->SetBinError(b, sqrt(pow(0.0001*hspectrum[0]->GetBinError(b),2)+ pow(0.0009*hspectrum[1]->GetBinError(b),2)+pow(0.009*hspectrum[2]->GetBinError(b),2)+ pow(0.04*hspectrum[3]->GetBinError(b),2)+ pow(0.05*hspectrum[4]->GetBinError(b),2) +pow(0.1 *hspectrum[5]->GetBinError(b),2) +pow(0.1*hspectrum[6]->GetBinError(b),2) +pow(0.1*hspectrum[7]->GetBinError(b),2) +pow(0.1*hspectrum[8]->GetBinError(b),2) +pow(0.2*hspectrum[9]->GetBinError(b),2) + pow(0.3*hspectrum[10]->GetBinError(b),2)));
+      }
       /* OPTION B: 0-100% spectrum as average of average of published mult classes
       //can be taken from 13 TeV and modified
       */
@@ -287,7 +291,7 @@ void CfrPtSpectraDiffConfig(Bool_t CfrDiffPeriods=0, TString year0="2016", Int_t
     }
   }
 
-  if (ispp5TeV){ //I need to compare differetn multiplicity class to have similar dNdeta
+  if (ispp5TeV){ //I need to compare different multiplicity class to have similar dNdeta
     if (Comp13or5TeV ==0){
       //5-10% 13 TeV ~ 0-5% 5 TeV
       hspectrumCfr[0] = hspectrumCfr[1];
@@ -350,8 +354,10 @@ void CfrPtSpectraDiffConfig(Bool_t CfrDiffPeriods=0, TString year0="2016", Int_t
       //      gPad->SetLeftMargin(0.0015);
     }
   }
+  TCanvas * canvasMBComparison = new TCanvas ("canvasMBComparison", "canvasMBComparison", 1500, 500);
+  canvasMBComparison->Divide(3,1);
 
-  //******Getting the Normalisation factor if present******
+  //******Getting the normalisation factor if present******
   TH1F*      fHistNormFactor[nummolt+1];
   Float_t Denom[nummolt+1] = {0};
   Float_t ErrDenom[nummolt+1] = {0};
@@ -390,6 +396,7 @@ void CfrPtSpectraDiffConfig(Bool_t CfrDiffPeriods=0, TString year0="2016", Int_t
   //  else  if (type==0) lineOne = new TLine (0,1,8,1);
   lineOne = new TLine (0,1,8,1);
   if (Path1=="_FioPtBins")   lineOne = new TLine (0,1,6.5,1);
+  if (ispp5TeV)   lineOne = new TLine (0.1,1,4,1);
   TF1 * rettaOne = new TF1 ("pl0", "pol0", 0,8);
   rettaOne->FixParameter(0,1);
   Float_t Max[numhistoType] = {0.003, 0.30, 0.03};
@@ -457,13 +464,14 @@ void CfrPtSpectraDiffConfig(Bool_t CfrDiffPeriods=0, TString year0="2016", Int_t
 	    if (isNormFactor){
 	      fHistSpectrum_SumMult[l]->Scale(EffTrigger[nummolt] );
 	      for (Int_t m=0; m<nummolt; m++){
-		//cout << "Sigma/SigmaTOT m:" << m << " " << (float)NTrigger[m]/NTrigger[nummolt] * EffTrigger[nummolt]/EffTrigger[m] << endl;
+		cout << "Sigma/SigmaTOT m:" << m << " " << (float)NTrigger[m]/NTrigger[nummolt] * EffTrigger[nummolt]/EffTrigger[m] << endl;
 	      }
 	    }
 	    fHistSpectrum_SumMult[l]->SetLineColor(867);
 	    fHistSpectrum_SumMult[l]->SetMarkerColor(867);
 	    fHistSpectrum_SumMult[l]->SetMarkerStyle(33);
 	  }
+	  /* Check */
 	  //	  cout << "Total trigg "<< NTrigger[nummolt] << endl;
 	  Int_t Tmp=0;
 	  for (Int_t m=0; m<nummolt; m++){
@@ -471,6 +479,7 @@ void CfrPtSpectraDiffConfig(Bool_t CfrDiffPeriods=0, TString year0="2016", Int_t
 	    Tmp+=NTrigger[m];
 	  }
 	  //	  cout << "Tmp " << Tmp << endl;
+	  /* Check */
 	}
 	fHistSpectrum_master[l][m]->SetLineColor(Color[l]);
 	fHistSpectrum_master[l][m]->SetMarkerColor(Color[l]);
@@ -621,17 +630,6 @@ void CfrPtSpectraDiffConfig(Bool_t CfrDiffPeriods=0, TString year0="2016", Int_t
 	      //	      fHistSpectrum_ratio[l][m]->SetBinError(b, sqrt(pow(fHistSpectrum_master[l][m]->GetBinError(b),2) +pow(fHistSpectrum_ratio[l][m]->GetBinContent(b)*MeanRelErr[m]*splineFio[m]->Eval(fHistSpectrum_master[l][m]->GetBinCenter(b))  ,2)) /splineFio[m]->Eval(fHistSpectrum_master[l][m]->GetBinCenter(b))); //error calculated assuming zero correlation between my spectra and Fiorella's ; 
 	      fHistSpectrum_ratio[l][m]->SetBinError(b, sqrt(pow(fHistSpectrum_master[l][m]->GetBinError(b),2) +pow(fHistSpectrum_ratio[l][m]->GetBinContent(b)*MeanRelErr[m]*splineFio[m]->Eval(fHistSpectrum_master[l][m]->GetBinCenter(b))  ,2)) / (fsplineFio[m]->Integral(fHistSpectrum_ratio[l][m]->GetXaxis()->GetBinLowEdge(b), fHistSpectrum_ratio[l][m]->GetXaxis()->GetBinUpEdge(b))/fHistSpectrum_ratio[l][m]->GetBinWidth(b)  )); //error calculated assuming zero correlation between my spectra and Fiorella's ; 
 	      //	fHistSpectrum_ratio[l][m]->SetBinError(b, TMath::Abs(fHistSpectrum_master[l][m]->GetBinError(b) -fHistSpectrum_ratio[l][m]->GetBinContent(b)*MeanRelErr[m]* fHistSpectrum_master[l][m]->GetBinContent(b)) /splineFio[m]->Eval(fHistSpectrum_master[l][m]->GetBinCenter(b))); //error calculated assuming full correlation between my spectra and Fiorella's ;  
-
-	      if (m==nummolt){
-		//TRY		fHistSpectrum_ratio[l][m]->SetBinContent(b, fHistSpectrum_SumMult[l]->GetBinContent(b)/fsplineFio[m]->Integral(fHistSpectrum_ratio[l][m]->GetXaxis()->GetBinLowEdge(b), fHistSpectrum_ratio[l][m]->GetXaxis()->GetBinUpEdge(b))*fHistSpectrum_ratio[l][m]->GetBinWidth(b));
-		//TRY2		fHistSpectrum_ratio[l][m]->SetBinContent(b, fHistSpectrum_SumMult[l]->GetBinContent(b)/fsplineFioSum->Integral(fHistSpectrum_ratio[l][m]->GetXaxis()->GetBinLowEdge(b), fHistSpectrum_ratio[l][m]->GetXaxis()->GetBinUpEdge(b))*fHistSpectrum_ratio[l][m]->GetBinWidth(b));
-	      }
-	      //comparison between my spectrum in 0-100% and the weighted average of my spectra in the different mult classes
-	      if (m==nummolt){
-		//		fHistSpectrum_ratio[l][m]->SetBinContent(b,  fHistSpectrum_master[l][m]->GetBinContent(b)/fHistSpectrum_SumMult[l]->GetBinContent(b));                                                                      
-		//		fHistSpectrum_ratio[l][m]->SetBinError(b,  sqrt(pow(fHistSpectrum_master[l][m]->GetBinError(b),2)+pow(fHistSpectrum_ratio[l][m]->GetBinContent(b)*fHistSpectrum_SumMult[l]->GetBinError(b),2))/fHistSpectrum_SumMult[l]->GetBinContent(b));     
-	      }
-	     
 	    }
 	  }
 	}
@@ -653,12 +651,13 @@ void CfrPtSpectraDiffConfig(Bool_t CfrDiffPeriods=0, TString year0="2016", Int_t
 	    fHistSpectrum_ratio[l][m]->Divide( fHistSpectrum_master[l-2][m]);
 	  }
 	}
+	if (ispp5TeV)	fHistSpectrum_ratio[l][m] ->GetXaxis()->SetRangeUser(0.1, 4);
 	//	if (m!=nummolt || (m==nummolt && type==0)){
 	//if (m!=nummolt){
 	if (kTRUE){
 	  if (!CfrSkipAssoc)     {
 	    fHistSpectrum_ratio[l][m] ->GetYaxis()->SetRangeUser(0,10);
-	    if (NameHisto[HistoType]=="SEffCorr") 	fHistSpectrum_ratio[l][m] ->GetYaxis()->SetRangeUser(0.8, 1.2);
+	    if (NameHisto[HistoType]=="SEffCorr") 	fHistSpectrum_ratio[l][m] ->GetYaxis()->SetRangeUser(0.5, 1.5);
 	  }
 	  else{
 	    fHistSpectrum_ratio[l][m] ->GetYaxis()->SetRangeUser(0,2);
@@ -698,10 +697,49 @@ void CfrPtSpectraDiffConfig(Bool_t CfrDiffPeriods=0, TString year0="2016", Int_t
 
       } //end loop mult
     }//endl loop histo type
+  } //end loop histo type
+
+  /* Further comparison between spectra*/
+  for (Int_t m=0; m<=nummolt; m++){
+    if (m!=nummolt) continue;
+    //comparison between published spectrum in 0-100% and the weighted average of published spectra spectra in the different mult classes 
+    TH1F *hComp1 = (TH1F*)  hspectrum[0]->Clone("hComp1");
+    hComp1->SetTitle("Published 0-100% / average of published to give 0-100%");
+    hComp1->GetYaxis()->SetTitle("");
+    hComp1->GetYaxis()->SetRangeUser(0.7, 1.3);
+    hComp1->SetMarkerColor(808);
+    hComp1->SetLineColor(808);
+    hComp1->SetMarkerStyle(33);
+
+    TH1F *hComp2 = (TH1F*)  fHistSpectrum_ratio[0][m]->Clone("hComp2"); 	//comparison between my spectrum in 0-100% and the weighted average of my spectra in the different mult classes
+    hComp2->SetTitle("My spectrum 0-100% / average of my spectra to give 0-100%");
+    hComp2->GetYaxis()->SetTitle("");
+    hComp2->GetYaxis()->SetRangeUser(0.7, 1.3);
+
+    Int_t index =10;
+    if (ispp5TeV) index = 11;
+      
+    for (Int_t b=1; b<=hspectrum[m]->GetNbinsX(); b++){
+      if (ispp5TeV && b> hspectrum[0]->GetNbinsX()) continue;
+      hComp1->SetBinContent(b,  hspectrum[index]->GetBinContent(b)/hspectrumCfrSum->GetBinContent(b));
+      hComp1->SetBinError(b,  sqrt(pow(hspectrum[index]->GetBinError(b),2)+pow( hComp1->GetBinContent(b)*hspectrumCfrSum->GetBinError(b),2))/hspectrumCfrSum->GetBinContent(b));
+      cout << hspectrum[index]->GetBinContent(b) << " " << hspectrumCfrSum->GetBinContent(b) << " ratio " <<  hComp1->GetBinContent(b)<< endl;
+    }
+    for (Int_t b=1; b<=fHistSpectrum_master[0][m]->GetNbinsX(); b++){
+      hComp2->SetBinContent(b,  fHistSpectrum_master[0][m]->GetBinContent(b)/fHistSpectrum_SumMult[0]->GetBinContent(b));
+      hComp2->SetBinError(b,  sqrt(pow(fHistSpectrum_master[0][m]->GetBinError(b),2)+pow(hComp2->GetBinContent(b)*fHistSpectrum_SumMult[0]->GetBinError(b),2))/fHistSpectrum_SumMult[0]->GetBinContent(b));
+    }
+    
+    canvasMBComparison->cd(1);
+    hComp1->Draw("");                                                            
+    lineOne ->Draw("same");    
+
+    canvasMBComparison->cd(2);
+    hComp2->Draw("");                                                                
+    lineOne ->Draw("same");    
   }
 
   //drawin the pt spectra
-
   for (Int_t i=0; i<2; i++){
     for (Int_t HistoType=0; HistoType<numhistoType; HistoType++){
       if (i==0 && HistoType==2) canvasSpectrum[i][HistoType]->SaveAs("PictureForNote/CfrPtSpectraDiffConfig_"+ yeardati+"_SEffCorr.pdf");
@@ -713,6 +751,7 @@ void CfrPtSpectraDiffConfig(Bool_t CfrDiffPeriods=0, TString year0="2016", Int_t
       //      else  canvasSpectrum[i][HistoType]->SaveAs(nomefileoutputPDF+".pdf)");
     }
   }
+  fileout->WriteTObject(canvasMBComparison);
   fileout->Close();
   if (isNormFactor) cout << "\n\e[35mNormalisation factor taken from file:\n" << PathNormFactor << endl;
   cout << "\n\e[35mI've produced the file:\n" << nomefileoutput << "\e[39m"<<endl;
