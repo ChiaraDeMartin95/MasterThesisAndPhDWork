@@ -20,8 +20,10 @@
 //#include </data/dataalice/cdemart/AliPhysicsChiara/AliPhysics/PWG/Tools/AliPWGFunc.h> //mass is free parameter -- does not work
 #include </data/dataalice/AliceSoftware/aliphysics/master_chiara/src/PWG/Tools/AliPWGFunc.h>
 
-void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Int_t TypeAnalysis=0, Int_t sys=0, Int_t sysPhi=0, Bool_t isMC=0, Int_t israp=0, TString yearOOJ ="17pq_pp5TeV_hXi_pttrig0.15"/*"161718_HM_hXi"/*"1617_AOD234_hK0s"/"161718_HM_hXi"/*"161718Full_AOD234_hXi"/*"2016k_hK0s"/*"17pq_pp5TeV_hXi_pttrig0.15"*/, TString year= /*"161718_HM_hXi"/*"161718Full_AOD234_hXi"/*"17pq_hXi"/"17pq_pp5TeV"*/"17pq_hK0s"/*"1617_AOD234_hK0s"/*"1617GP_hK0s_Hybrid_New"/"161718_hXi_Hybrid"/*"161718_MD_New_hXi"/"17pq_hK0s"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/"1617GP_hK0s"/*"161718_MD_EtaEff_hXi"/*"2018f1_extra_hK0s"/"/*"161718_MD_hXi_Hybrid"/*"LHC16_17_GP_Hybrid_hXi"/*"2018f1_extra_hXi_Hybrid"//"2018f1_extra_Reco_hK0s"/"1617_hK0s"/*"AllMC_hXi"/"/"Run2DataRed_MECorr_hXi"/"Run2DataRed_hXi"*/,  Int_t type=0,  Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Int_t sysTrigger=0, Float_t numSigmaCorr=2,Bool_t isBkgParab=1, Bool_t isMeanFixedPDG=1,   Bool_t SkipAssoc=1, Int_t MultBinning=3, Int_t PtBinning=1 , Float_t PtTrigMin2=3, Bool_t IsPtTrigMultDep=0, Bool_t isEPOS=0, Bool_t IsEventLossCorr=0, TString yearEL/*should be a Hybrid file*/ = /*"17pq_pp5TeV_Hybrid"/*"LHC16kl_pass2_GP_Fio_Hybrid"*/"161718_hXi_Hybrid"/*"161718_MD_New_hXi_Hybrid"/"1617GP_hK0s_Hybrid_New"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617GP_hK0s_Hybrid"/*"2018f1_extra_Hybrid_hK0s_MCTruth"*/, Bool_t IsParticleTrue=0, Bool_t isEffMassSel=0, Bool_t isSidebands=0, Bool_t IsMEFromHybrid=0, Bool_t IsMEFromCorrectCentrality=0,  Bool_t isEtaEff=1, Bool_t isMEFromK0s=0, Bool_t isNewInputPath=1, Bool_t isHM=0, Bool_t ispp5TeV=0, Bool_t isNormFactorCorr=1, Bool_t isMEFromHM=0){
+void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Int_t TypeAnalysis=0, Int_t sys=0, Int_t sysPhi=0, Bool_t isMC=0, Int_t israp=0, TString yearOOJ ="17pq_pp5TeV_hXi_pttrig0.15"/*"161718_HM_hXi"/*"1617_AOD234_hK0s"/"161718_HM_hXi"/*"161718Full_AOD234_hXi"/*"2016k_hK0s"/*"17pq_pp5TeV_hXi_pttrig0.15"*/, TString year= /*"161718_HM_hXi"/*"161718Full_AOD234_hXi"/"17pq_hXi"/*"17pq_pp5TeV"*/"17pq_hXi"/*"1617_AOD234_hK0s"/*"1617GP_hK0s_Hybrid_New"/"161718_hXi_Hybrid"/*"161718_MD_New_hXi"/"17pq_hK0s"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/"1617GP_hK0s"/*"161718_MD_EtaEff_hXi"/*"2018f1_extra_hK0s"/"/*"161718_MD_hXi_Hybrid"/*"LHC16_17_GP_Hybrid_hXi"/*"2018f1_extra_hXi_Hybrid"//"2018f1_extra_Reco_hK0s"/"1617_hK0s"/*"AllMC_hXi"/"/"Run2DataRed_MECorr_hXi"/"Run2DataRed_hXi"*/,  Int_t type=8,  Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Int_t sysTrigger=0,Bool_t isBkgParab=1, Bool_t isMeanFixedPDG=1,   Bool_t SkipAssoc=1, Int_t MultBinning=3, Int_t PtBinning=0 , Float_t PtTrigMin2=0.15, Bool_t IsPtTrigMultDep=0, Bool_t isEPOS=0, Bool_t IsEventLossCorr=0, TString yearEL/*should be a Hybrid file*/ = /*"17pq_pp5TeV_Hybrid"/*"LHC16kl_pass2_GP_Fio_Hybrid"*/"161718_hXi_Hybrid"/*"161718_MD_New_hXi_Hybrid"/"1617GP_hK0s_Hybrid_New"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617GP_hK0s_Hybrid"/*"2018f1_extra_Hybrid_hK0s_MCTruth"*/, Bool_t IsParticleTrue=0, Bool_t isEffMassSel=0, Bool_t isSidebands=0, Bool_t IsMEFromHybrid=0, Bool_t IsMEFromCorrectCentrality=0,  Bool_t isEtaEff=1, Bool_t isMEFromK0s=0, Bool_t isNewInputPath=1, Bool_t isHM=0, Bool_t ispp5TeV=1, Bool_t isNormFactorCorr=1, Bool_t isMEFromHM=0){
 
+  Bool_t isNFFrom13TeV=0;
+  Float_t numSigmaCorr=2;
   Bool_t  isOOJAllMultAllPt=0;
   if (TypeOOJSub==7){
     cout << "Do you want to use the OOJ distribution of the integrated mult class in all pt intervals?" << endl; 
@@ -71,6 +73,20 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
   if (year == "17pq_hK0s"){
     yearHybrid = "17pq_pp5TeV";
     yearMCTruth = "17pq_pp5TeV";
+    if (TypeAnalysis!=2) isNFFrom13TeV=1;
+    if (isNFFrom13TeV){
+      yearHybrid = "1617GP_hK0s_Hybrid_New";
+      yearMCTruth = "1617GP_hK0s";
+    }
+  }
+  if (year == "17pq_hXi"){
+    yearHybrid = "161718_hXi";
+    yearMCTruth = "161718_hXi";
+    isNFFrom13TeV=1;
+    if (isNFFrom13TeV){
+      yearHybrid = "161718_hXi";
+      yearMCTruth = "161718_hXi";
+    }
   }
   if (year == "161718Full_AOD234_hXi"){
     yearHybrid = "161718_hXi";
@@ -104,7 +120,7 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
       ContainerName = "_hK0s_Task_RecoAndEfficiency";
     }
     else { //data 
-      if (type ==1 && year.Index("17pq")!=-1) ContainerName="_hXi_Task_"; //pp5TeV
+      if (type ==8 && year.Index("17pq")!=-1) ContainerName="_hXi_Task_"; //pp5TeV
       else if (type==0) ContainerName="_hK0s_Task_";
       else ContainerName="_hXi_Task_Default";
     }
@@ -269,6 +285,10 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
   else if (year=="17pq_hK0s" && isMC){
     SpectrumSup[0][0] = 0.02;
   }
+  else if (year=="17pq_hXi"){
+    SpectrumSup[8][1] = 0.006;
+    SpectrumSup[8][2] = 0.006;
+  }
   else if (year.Index("17pq_pp5TeV")!=-1 && isMC){
     SpectrumSup[0][0] = 0.02;
   }
@@ -284,6 +304,7 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
     SpectrumSup[8][1] = 0.012;
     SpectrumSup[8][2] = 0.012;
   }
+
 
   TString Smolt[nummolt+1]={"0-1", "1-5", "5-15", "15-30", "30-100", "_all"};
   TString SmoltLegend[nummolt+1]={"0-1 %", "1-5 %", "5-15 %", "15-30 %", "30-100 %", "0-100 %"};
@@ -549,6 +570,7 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
   }
 
   TString nomefileOOJ= "OOJComparison"+year;
+  if (ispp5TeV) nomefileOOJ= "OOJComparison"+yearOOJ;
   if (isHM) nomefileOOJ += "_" +yearOOJ; 
   if (isOOJFromK0s)  nomefileOOJ += "_" + yearOOJ; //maybe before year and then yearOOJ; for old results this line is not needed
   if (PtBinning==1)  nomefileOOJ += Form("_PtBinning%i",PtBinning);
@@ -625,81 +647,16 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
 
   TString stringNormFactor ="FinalOutput/DATA2016/MCClosureCheck_HybridtoTrue";
   if (isHM && type==0)  stringNormFactor += yearHybrid + "_vs_" + yearMCTruth;
+  else if (type==0 && isNFFrom13TeV) stringNormFactor += yearHybrid + "_vs_" + yearMCTruth;
   else stringNormFactor += yearHybrid + "_Hybrid_vs_" + yearMCTruth;
   if (PtBinning==1) stringNormFactor+= "_PtBinning1";
   stringNormFactor+= "_"+tipo[type];
   stringNormFactor+= Srap[israp];
   stringNormFactor+= Form("_PtMin%.1f", PtTrigMin);
-  if (MultBinning!=0 && !isHM)  stringNormFactor+= Form("_MultBinning%i",MultBinning);
+  if (MultBinning!=0 && !isHM && !(isNFFrom13TeV))  stringNormFactor+= Form("_MultBinning%i",MultBinning);
   if (TypeAnalysis==11) stringNormFactor +="_isBulkBlue";
   stringNormFactor+=".root";
 
-  TString stringout;
-
-  stringout = Dir+"/DATA"+year0+"/SystematicAnalysis" +year;
-  if (PtBinning==1)  stringout +=Form("_PtBinning%i", PtBinning);
-  stringout +=Path1; //it was without year
-  if (TypeOOJSub==1) stringout+="_OOJNoTriggerSmoothed";
-  else   if (TypeOOJSub==2) stringout+="_OOJSmoothed";
-  else   if (TypeOOJSub==3) stringout+="_OOJSmoothedBis"; 
-  else   if (TypeOOJSub==4) stringout+="_FromInclusive"; 
-  else   if (TypeOOJSub==5) stringout+="_OOJSmoothedBisCorrMult"; 
-  else   if (TypeOOJSub==6) stringout+="_OOJNoTriggerSmoothedCorrMult"; 
-  else   if (TypeOOJSub==7) stringout+="_OOJAllMult"; 
-  else   if (TypeOOJSub==9) stringout+="_OOJNoTriggerSmoothed_AllPtIntervals";
-  if(isOOJAllMultAllPt) stringout+="AllPt";
-  if (isOOJFromK0s) stringout +="_OOJFromK0s";
-  if(type>=0){
-    stringout +="_"+tipo[type];
-    stringout +=Srap[israp];
-    stringout +=SSkipAssoc[SkipAssoc];
-  }
-  if (IsHighPtExtr) stringout+="_HighPtExtr";
-  stringout+= hhCorr[ishhCorr]+"_" + JetOrBulk[TypeAnalysis];
- 
-  if (isMC && !isEfficiency)  stringout+="_MCTruth";
-  else  stringout+=DataOrMC[isMC];
-  stringout+= Form("_PtMin%.1f", PtTrigMin);
-  if (IsPtTrigMultDep) stringout += "_IsPtTrigMultDep";
-  if (IsParticleTrue)  stringout += "_IsParticleTrue";
-  if (isEPOS) stringout += "_EPOS";
-  if (isEffMassSel) stringout+= "_IsEfficiencyMassSel";
-  //  stringout += "_EL";
-  if (isSidebands) stringout+="_Sidebands";
-  if (IsNotSigmaTrigger) stringout+="_IsNotSigmaTrigger";
-  if (IsMEFromHybrid) stringout+="_IsMEFromHybrid";
-  if (isMEFromK0s) stringout+= "_IsMEFromK0s";
-  if (isMEFrom13TeV) stringout+= "_IsMEFrom13TeV";
-  if (IsMEFromCorrectCentrality) stringout+="_IsMEFromCorrectCentrality";
-  if (isMEFromHM) stringout+="_IsMEFromHM";
-  if (isEtaEff==1) stringout+= "_IsEtaEff";
-  //  stringout+= "_thinptbins";
-  //  stringout +="_DCAz0.5";
-  //  stringout +="_isPrimaryTrigger";
-  //  stringout+= "_isAllDeltaEta";
-  if (MultBinning!=0) stringout += Form("_MultBinning%i", MultBinning);
-  //  stringout += "_Eff18g4extra";
-  //  stringout += "_AllEff2019";
-  //  stringout += "_LargerLowPtExtr";
-  //  stringout += "_sys4LargerBulk";
-  if (isNormFactorCorr) stringout += "_isNormCorr";
-  //  stringout += "_JetAtLowerPt";
-  //  stringout += "_FitIOption";
-  //  stringout += "_Bis";
-  if (sys!=0) stringout += Form("_sys%i", sys); 
-  if (sysPhi!=0) stringout += Form("_sysPhi%i", sysPhi); 
-  stringout += ".root";
-
-  if (isEnlargedDeltaEtaPhi)  stringout = Dir+"/DATA"+year0+"/SystematicAnalysis" +Path1+ hhCorr[ishhCorr]+"_" + JetOrBulk[TypeAnalysis]+DataOrMC[isMC] + Form("_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin);
-
-  if(MasterThesisAnalysis){
-    stringout = Dir+"/DATA"+year0+"/SystematicAnalysis" +hhCorr[ishhCorr]+Form("_Jet.root", PtTrigMin);
-    if (isMC && isEfficiency) stringout = Dir+"/DATA"+year0+"/SystematicAnalysis" +hhCorr[ishhCorr]+Form("_JetMC.root", PtTrigMin);
-    if (isBulk) stringout = Dir+"/DATA"+year0+"/SystematicAnalysis" +hhCorr[ishhCorr]+Form("_Bulk.root", PtTrigMin);
-    if (isBulk && isMC &&isEfficiency) stringout = Dir+"/DATA"+year0+"/SystematicAnalysis" +hhCorr[ishhCorr]+Form("_BulkMC.root", PtTrigMin);
-    if (isTotal) stringout = Dir+"/DATA"+year0+"/SystematicAnalysis" +hhCorr[ishhCorr]+Form("_All.root", PtTrigMin);
-    if (isTotal && isMC &&isEfficiency) stringout = Dir+"/DATA"+year0+"/SystematicAnalysis" +hhCorr[ishhCorr]+Form("_AllMC.root", PtTrigMin);
-  }  
 
   //cout << " definition integral regions " << endl;
   //********************************************************************* 
@@ -751,8 +708,8 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
 
     }
     if (year.Index("17pq_hXi")!=-1){
-      //ALowBinFit[0]=	ALowBin[0]={-1.05};      
-      //AUpBinFit[0]=	AUpBin[0]={1.05};
+      //      ALowBinFit[0]=	ALowBin[0]={-1.05};      
+      //      AUpBinFit[0]=	AUpBin[0]={1.05};
     }
     if (year == "1617GP_hK0s_Hybrid_New"|| year == "1617GP_hK0s"){
       if (sysPhi==0){
@@ -866,6 +823,10 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
   if (year == "1617GP_hK0s" || year == "1617GP_hK0s_Hybrid_New"){
     ALowBinFitDef= -1.05;
     AUpBinFitDef= 1.05;
+  }
+  else if (year=="17pq_hXi"){
+    ALowBinFitDef= -0.7;
+    AUpBinFitDef= 0.7;
   }
 
   //low and upper ranges for the fit****************************
@@ -1075,12 +1036,20 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
     else if (year == "17pq_hK0s" && !isMC){
       for (Int_t m =0; m<nummolt+1; m++){
 	LowRangeJet[m] = 0.5;  
+	UpRangeJet[m] = 4;  
 	if (m==0 || m==1) LowRangeJet[m] = 0.8;
+	LowRangeBulkWithFull[m]= 0.1; 
+	LowRangeBulk[m]= 0.1; 
+	LowRangeAll[m]= 0.1;  
+	UpRangeAll[m]= 2.0; 
+	UpRangeBulkWithFull[m]= 2; 
+	UpRangeBulk[m]= 2; 
 	if (MultBinning==3) {
 	  if (m==0){
 	    LowRangeJet[m] = 0.8;
-	    UpRangeAll[m] = 2.5;
-	    UpRangeBulk[m] = 2.5;
+	  }
+	  else if (m==1){
+	    LowRangeJet[m] = 0.5;
 	  }
 	}
       }
@@ -1219,7 +1188,7 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
   if (year=="17pq_hXi"){
     for (Int_t m=0; m<nummolt+1; m++){
       LowRangeJet[m] = 1.5;
-      //      if (m!=0 && TypeOOJSub==1)  LowRangeJet[m] = 1;
+      if (m!=0 && TypeOOJSub==1)  LowRangeJet[m] = 1;
       LowRangeBulk[m] = 1.;
       LowRangeAll[m] = 1.;
       UpRangeJet[m] = 4;
@@ -1309,9 +1278,9 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
     if (year=="17pq_hXi"){
       LowRangeSpectrumPart[m] = 1.;
       UpRangeSpectrumPart[m] = 4;
-      //      if (TypeAnalysis==0 && m==0)  LowRangeSpectrumPart[m] = 1.5;
+      if (TypeAnalysis==0 && m==0)  LowRangeSpectrumPart[m] = 1.5;
+      //      if (TypeAnalysis==0)   LowRangeSpectrumPart[m] = 1.5;
       //      if (TypeOOJSub ==3)  LowRangeSpectrumPart[m] = 1.5;
-      if (TypeAnalysis==0)  LowRangeSpectrumPart[m] = 1.5;
     }
     if (year== "161718Full_AOD234_hXi"){
       if (m==4 || m ==3) {
@@ -1346,11 +1315,13 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
     }
     else if (year== "17pq_hK0s" && !isMC){
       //      if ((m>=0 && m<=2) || m ==5) UpRangeSpectrumPart[m] = 4; //not enough stat above
-      if (m==3) UpRangeSpectrumPart[m] = 4;
-      else if (m==4) UpRangeSpectrumPart[m] = 4;
-      if (isNormFactorCorr){
-	if (m==4) UpRangeSpectrumPart[m] = 3;
-	else if (m==3) UpRangeSpectrumPart[m] = 4;
+      if (MultBinning==0){
+	if (m==3) UpRangeSpectrumPart[m] = 4;
+	else if (m==4) UpRangeSpectrumPart[m] = 4;
+	if (isNormFactorCorr){
+	  if (m==4) UpRangeSpectrumPart[m] = 3;
+	  else if (m==3) UpRangeSpectrumPart[m] = 4;
+	}
       }
     }
     else if (year== "17pq_hK0s" && isMC){
@@ -1383,6 +1354,83 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
   for (Int_t m=0; m<nummolt+1; m++){
     if (!IsPtTrigMultDep) PtTrigMultDep[m] = PtTrigMin;
   }
+
+
+  TString stringout;
+
+  stringout = Dir+"/DATA"+year0+"/SystematicAnalysis" +year;
+  if (PtBinning==1)  stringout +=Form("_PtBinning%i", PtBinning);
+  stringout +=Path1; //it was without year
+  if (TypeOOJSub==1) stringout+="_OOJNoTriggerSmoothed";
+  else   if (TypeOOJSub==2) stringout+="_OOJSmoothed";
+  else   if (TypeOOJSub==3) stringout+="_OOJSmoothedBis"; 
+  else   if (TypeOOJSub==4) stringout+="_FromInclusive"; 
+  else   if (TypeOOJSub==5) stringout+="_OOJSmoothedBisCorrMult"; 
+  else   if (TypeOOJSub==6) stringout+="_OOJNoTriggerSmoothedCorrMult"; 
+  else   if (TypeOOJSub==7) stringout+="_OOJAllMult"; 
+  else   if (TypeOOJSub==9) stringout+="_OOJNoTriggerSmoothed_AllPtIntervals";
+  if(isOOJAllMultAllPt) stringout+="AllPt";
+  if (isOOJFromK0s) stringout +="_OOJFromK0s";
+  if(type>=0){
+    stringout +="_"+tipo[type];
+    stringout +=Srap[israp];
+    stringout +=SSkipAssoc[SkipAssoc];
+  }
+  if (IsHighPtExtr) stringout+="_HighPtExtr";
+  stringout+= hhCorr[ishhCorr]+"_" + JetOrBulk[TypeAnalysis];
+ 
+  if (isMC && !isEfficiency)  stringout+="_MCTruth";
+  else  stringout+=DataOrMC[isMC];
+  stringout+= Form("_PtMin%.1f", PtTrigMin);
+  if (IsPtTrigMultDep) stringout += "_IsPtTrigMultDep";
+  if (IsParticleTrue)  stringout += "_IsParticleTrue";
+  if (isEPOS) stringout += "_EPOS";
+  if (isEffMassSel) stringout+= "_IsEfficiencyMassSel";
+  //  stringout += "_EL";
+  if (isSidebands) stringout+="_Sidebands";
+  if (IsNotSigmaTrigger) stringout+="_IsNotSigmaTrigger";
+  if (IsMEFromHybrid) stringout+="_IsMEFromHybrid";
+  if (isMEFromK0s) stringout+= "_IsMEFromK0s";
+  if (isMEFrom13TeV) stringout+= "_IsMEFrom13TeV";
+  if (IsMEFromCorrectCentrality) stringout+="_IsMEFromCorrectCentrality";
+  if (isMEFromHM) stringout+="_IsMEFromHM";
+  if (isEtaEff==1) stringout+= "_IsEtaEff";
+  //  stringout+= "_thinptbins";
+  //  stringout +="_DCAz0.5";
+  //  stringout +="_isPrimaryTrigger";
+  //  stringout+= "_isAllDeltaEta";
+  if (MultBinning!=0) stringout += Form("_MultBinning%i", MultBinning);
+  //  stringout += "_Eff18g4extra";
+  //  stringout += "_AllEff2019";
+  //  stringout += "_LargerLowPtExtr";
+  //  stringout += "_sys4LargerBulk";
+  if (isNormFactorCorr) {
+    stringout += "_isNormCorr";
+    if (isNFFrom13TeV) stringout += "_isNFFrom13TeV";
+  }
+  //  stringout += "_JetAtLowerPt";
+  //  stringout += "_FitIOption";
+  //  stringout += "_Bis";
+  if (sys!=0) stringout += Form("_sys%i", sys); 
+  if (sysPhi!=0) stringout += Form("_sysPhi%i", sysPhi); 
+  //  stringout += "_Fit0.1_2.5";
+  //  stringout += Form("_Fit%.1f_%.1f", LowRange[5], UpRange[5]);
+  //  stringout += Form("_Fit%.1f_%.1f", 1.0, 4.0);
+  //  stringout += "_1.05DPhi";
+  stringout += ".root";
+
+
+  if (isEnlargedDeltaEtaPhi)  stringout = Dir+"/DATA"+year0+"/SystematicAnalysis" +Path1+ hhCorr[ishhCorr]+"_" + JetOrBulk[TypeAnalysis]+DataOrMC[isMC] + Form("_PtMin%.1f_DeltaEtaPhiEnlarged.root", PtTrigMin);
+
+  if(MasterThesisAnalysis){
+    stringout = Dir+"/DATA"+year0+"/SystematicAnalysis" +hhCorr[ishhCorr]+Form("_Jet.root", PtTrigMin);
+    if (isMC && isEfficiency) stringout = Dir+"/DATA"+year0+"/SystematicAnalysis" +hhCorr[ishhCorr]+Form("_JetMC.root", PtTrigMin);
+    if (isBulk) stringout = Dir+"/DATA"+year0+"/SystematicAnalysis" +hhCorr[ishhCorr]+Form("_Bulk.root", PtTrigMin);
+    if (isBulk && isMC &&isEfficiency) stringout = Dir+"/DATA"+year0+"/SystematicAnalysis" +hhCorr[ishhCorr]+Form("_BulkMC.root", PtTrigMin);
+    if (isTotal) stringout = Dir+"/DATA"+year0+"/SystematicAnalysis" +hhCorr[ishhCorr]+Form("_All.root", PtTrigMin);
+    if (isTotal && isMC &&isEfficiency) stringout = Dir+"/DATA"+year0+"/SystematicAnalysis" +hhCorr[ishhCorr]+Form("_AllMC.root", PtTrigMin);
+  }  
+
 
   //event loss correction: I get histos
   TH2D *fHistTriggervsMultAllReco;
@@ -1558,7 +1606,6 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
 	if (m==0 || m==1 || m==4)  OOJNoTrigger=  (NPtV0[v] ==0.5 || NPtV0[v] ==1.);
 	else  OOJNoTrigger=  (NPtV0[v] ==0.5);
 	cout << "getting histograms....m: " << m << "  v: " << v << " syst: " << syst << endl;
-	cout << " ciao " << endl;
 	if(syst==0){
 	  if (TypeAnalysis==6 || TypeAnalysis==8) fHistPhiDistr_master[m][v]=(TH1D*)filein->Get("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_EffCorr_BulkSubBulkFit");
 	  else 	  if (TypeAnalysis==7 || TypeAnalysis==9) fHistPhiDistr_master[m][v]=(TH1D*)filein->Get("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_EffCorr_BulkSubZYAM");
@@ -2238,6 +2285,7 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
   //******** correction by norm factor **************************************
   TFile * fileNormFactor;
   TH1F*   fHistNormCorrFC[nummolt+1];
+  TF1* pol0NormFactor[nummolt+1];
   if (isNormFactorCorr){
     cout << "\nFile from where I take norm factor " << stringNormFactor << endl;
     fileNormFactor = new TFile(stringNormFactor, "");
@@ -2246,18 +2294,24 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
       if (isHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       cout << "\n";
-      if (isHM) fHistNormCorrFC[m] = (TH1F*)fileNormFactor->Get("SpectrumRatio"+JetOrBulk[TypeAnalysis]+Form("_m%i",0));
+      if (isHM) fHistNormCorrFC[m] = (TH1F*)fileNormFactor->Get("SpectrumRatio"+JetOrBulk[TypeAnalysis]+Form("_m%i",0)); //from MB sample, 0-5% mult class
+      if (isNFFrom13TeV) fHistNormCorrFC[m] = (TH1F*)fileNormFactor->Get("SpectrumRatio"+JetOrBulk[TypeAnalysis]+Form("_m%i",5)); //from 13 TeV, 0-100% mult class
       else       fHistNormCorrFC[m] = (TH1F*)fileNormFactor->Get("SpectrumRatio"+JetOrBulk[TypeAnalysis]+Form("_m%i",m));
       if (!fHistNormCorrFC[m]) {cout << "histogram not found " << endl; return;}
-      cout << "ciao " << endl;
       for (Int_t b = 1; b<= fHistNormCorrFC[m]->GetNbinsX(); b++){
 	//	cout << "norm factor " << fHistNormCorrFC[m]->GetXaxis()->GetBinCenter(b) << " " << fHistNormCorrFC[m]->GetBinContent(b) << endl;
 	//	cout << "spectrum " << fHistSpectrum_master[m]->GetBinCenter(b) << " " << fHistSpectrum_master[m]->GetBinContent(b) << endl;
       }
-
-      fHistSpectrum[m][0]->Divide(fHistNormCorrFC[m]);
+      if (type==8 && TypeAnalysis==0) {
+	pol0NormFactor[m] = new TF1(Form("pol0NormFactor_m%i", m), "pol0", 0, 8);
+	pol0NormFactor[m]->SetLineColor(634);
+	pol0NormFactor[m]->SetLineWidth(0.4);
+	fHistNormCorrFC[m]-> Fit(pol0NormFactor[m], "R+");
+	fHistSpectrum[m][0]->Divide(pol0NormFactor[m]);
+      }
+      else  fHistSpectrum[m][0]->Divide(fHistNormCorrFC[m]);
       for (Int_t b = 1; b<= fHistNormCorrFC[m]->GetNbinsX(); b++){
-	//	cout << "spectrum after " << fHistSpectrum_master[m]->GetBinCenter(b) << " " << fHistSpectrum_master[m]->GetBinContent(b) << endl;
+	//       	cout << "spectrum after " << fHistSpectrum_master[m]->GetBinCenter(b) << " " << fHistSpectrum_master[m]->GetBinContent(b) << endl;
       }
     }
   }
@@ -2289,6 +2343,7 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
   for (Int_t i=0; i < 4; i++){
     canvasSys[i]=new TCanvas(Form("canvas%i",i),Form("canvas%i",i), 1100, 800);
     if (isHM && MultBinning==1)     canvasSys[i]->Divide(2,2); 
+    else if (ispp5TeV && MultBinning==3) canvasSys[i]->Divide(2,2); 
     else canvasSys[i]->Divide(3,2);
   }
 
@@ -2439,6 +2494,7 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
     legendCorrBis[m]= new TLegend(0.5, 0.7, 0.9, 0.9);
     legendCorrBis[m]->SetHeader("Selezioni applicate");
     if (isHM && MultBinning==1)     canvasSys[0]->cd(m+1-2);
+    else if (ispp5TeV && MultBinning==3 && m==nummolt) canvasSys[0]->cd(3); 
     else  canvasSys[0]->cd(m+1);
     gPad->SetLeftMargin(0.15);
     //       cout << "m " << m << endl;
@@ -2462,6 +2518,7 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
 	  if (type==8) fit_MTscaling[m][syst][typefit]->SetParLimits(0, 0,fHistSpectrum[m][syst]->GetBinContent(fHistSpectrum[m][syst]->GetMaximumBin())*0.5*10);
 	  else if (type==0)  fit_MTscaling[m][syst][typefit]->SetParLimits(0, 0,fHistSpectrum[m][syst]->GetBinContent(fHistSpectrum[m][syst]->GetMaximumBin())*0.5*10); 
 	  fit_MTscaling[m][syst][typefit]->SetParLimits(2, 0.1, 10);
+	  if (ispp5TeV)	  fit_MTscaling[m][syst][typefit]->SetParLimits(2, 0.25, 10);
 	  fit_MTscaling[m][syst][typefit]->SetParLimits(1, 2, 30); 
 	  if (type==8 || TypeAnalysis==9)	  fit_MTscaling[m][syst][typefit]->SetParLimits(1, 15, 30);
 	  fit_MTscaling[m][syst][typefit]->SetParameter(2, 0.7);
@@ -2472,6 +2529,7 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
 	fit_MTscaling[m][syst][typefit]->SetRange(LowRange[m], UpRange[m]);
 	fFitResultPtr0[m][syst][typefit]=	fHistSpectrum[m][syst]->Fit(	fit_MTscaling[m][syst][typefit],"SR0I");
 
+	//	if (m==1 && typefit==4) return;
 	YieldFitIntegralTypeFit[m][typefit]=   fit_MTscaling[m][syst][typefit]->Integral(0,8);
 	YieldFitIntegralErrorTypeFit[m][typefit]=   fit_MTscaling[m][syst][typefit]->IntegralError(0,8, fFitResultPtr0[m][syst][typefit] ->GetParams(),(fFitResultPtr0[m][syst][typefit]->GetCovarianceMatrix()).GetMatrixArray());
 
@@ -2487,14 +2545,14 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
 	if (IsHighPtExtr)	YieldExtrErrStat[m][typefit]=     fit_MTscaling[m][0][typefit]->IntegralError(UpRangeSpectrumPart[m],8, fFitResultPtr0[m][0][typefit] ->GetParams(),(fFitResultPtr0[m][0][typefit]->GetCovarianceMatrix()).GetMatrixArray());
     
 
-	cout << "\n\n\n******* hey I am there !! " << endl;
+	//	cout << "\n\n\n******* hey I am there !! " << endl;
 	cout << "multiplicity " << m << endl;
 	if (nameFit[typefit]==FitFixed)  {
-	  cout << "\n\n\n******* hey I am there !! " << endl;
+	  //	  cout << "\n\n\n******* hey I am there !! " << endl;
 	  YieldFitIntegral[m]=   	YieldFitIntegralTypeFit[m][typefit];
 	  YieldFitIntegralError[m]=	YieldFitIntegralErrorTypeFit[m][typefit];
 	}
-	if (typefit==4) cout << "maximum of normalization " << fHistSpectrum[m][syst]->GetBinContent(fHistSpectrum[m][syst]->GetMaximumBin())*0.5*8 << endl;
+	//	if (typefit==4) cout << "maximum of normalization " << fHistSpectrum[m][syst]->GetBinContent(fHistSpectrum[m][syst]->GetMaximumBin())*0.5*8 << endl;
 	//fHistSpectrum[m][syst]->Fit(	fit_MTscaling[m][syst][typefit],"", "",1,4);
 	fit_MTscaling[m][syst][typefit]->SetRange(0,8);
 
@@ -2533,9 +2591,11 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
       for(Int_t b=1;  b<fHistSpectrumPart[m][syst]->FindBin(LowRangeSpectrumPart[m]+0.001); b++){
 	fHistSpectrumPart[m][syst]->SetBinContent(b,0);
 	fHistSpectrumPart[m][syst]->SetBinError(b,0);
+	//	cout << "b " << b << " " << fHistSpectrumPart[m][syst]->GetBinCenter(b) << " " << fHistSpectrumPart[m][syst]->GetBinContent(b) << endl;
       }
 
       for(Int_t b=fHistSpectrumPart[m][syst]->FindBin(UpRangeSpectrumPart[m]+0.001); b<= numPtV0Max; b++){
+	//	cout << "b " << b << " " << fHistSpectrumPart[m][syst]->GetBinCenter(b) << " " << fHistSpectrumPart[m][syst]->GetBinContent(b) << endl;
 	fHistSpectrumPart[m][syst]->SetBinContent(b,0);
 	fHistSpectrumPart[m][syst]->SetBinError(b,0);
       }
@@ -3039,6 +3099,7 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
     //if (m==0) continue;
     // if (m>=3) continue;     //added  
     if (isHM && MultBinning==1)     canvasSys[1]->cd(m+1-2);
+    else if (ispp5TeV && MultBinning==3 && m==nummolt) canvasSys[1]->cd(3); 
     else  canvasSys[1]->cd(m+1);
     gPad->SetLeftMargin(0.15);
 
@@ -3681,13 +3742,11 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
     legendfit->Draw("");
   }
 
-  cout << "hi!" << endl;
   fileout->WriteTObject( canvasFit[0]);
   TH1F * fHistPtTrigMeanvsMult = new TH1F ("fHistPtTrigMeanvsMult", "fHistPtTrigMeanvsMult", nummolt, Nmolt);
   for (Int_t m=0; m<nummolt+1; m++) {
     if (isHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
-    cout << " hi 2 " << endl;
     fileout->WriteTObject(fHistTriggervsMult_PtTrigProj[m]);
     fHistPtTrigMeanvsMult->SetBinContent(m+1, fHistTriggervsMult_PtTrigProj[m]->GetMean());
     fHistPtTrigMeanvsMult->SetBinError(m+1, fHistTriggervsMult_PtTrigProj[m]->GetMeanError());
@@ -3770,45 +3829,51 @@ void BarlowSys(Int_t TypeOOJSub=0, Bool_t IsHighPtExtr=0,Int_t ishhCorr=0, Float
     cout << "*********" << endl;
   }
 
-  cout << "factor used in norm of fit functions " << factor << endl;
+  //cout << "factor used in norm of fit functions " << factor << endl;
   //  cout << numPtV0Max << endl;
   //  cout << NPtV0[numPtV0Max-1] << endl;
 
-  cout << "\nNTrigger:" << endl;
-  for (Int_t m=0; m<nummolt+1; m++){
-    if (isHM && MultBinning==1 && m<=1) continue;
-    if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
-    cout << " Multeplicity class " << SmoltLegend[m] << ": " << NTrigger[m] << endl;
-  }
+  /******* COUT to get more infos ********/
+  if (TypeAnalysis==0){
+    cout << "\nNTrigger:" << endl;
+    for (Int_t m=0; m<nummolt+1; m++){
+      if (isHM && MultBinning==1 && m<=1) continue;
+      if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
+      cout << " Multeplicity class " << SmoltLegend[m] << ": " << NTrigger[m] << endl;
+    }
 
-  cout << "\nBin content of spectra:"<< endl;
-  for (Int_t m=0; m<nummolt+1; m++){
-    if (isHM && MultBinning==1 && m<=1) continue;
-    if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
-    cout << "Multiplicity class " << SmoltLegend[m] << endl;
-    cout << "->first row: Spectrum used for fit \n->second row: Spectrum 'master'"<< endl;
-    for (Int_t b=1; b<=fHistSpectrumPart[m][0]->GetNbinsX(); b++){
-      cout << "\n bin content between " <<   fHistSpectrumPart[m][0]->GetXaxis()->GetBinLowEdge(b) << " " <<  fHistSpectrumPart[m][0]->GetXaxis()->GetBinUpEdge(b) << " " <<     fHistSpectrumPart[m][0]->GetBinContent(b)<< " stat error " << fHistSpectrumPart[m][0]->GetBinError(b) / fHistSpectrumPart[m][0]->GetBinContent(b) << endl;
-      cout << " bin content between " <<   fHistSpectrum_master[m]->GetXaxis()->GetBinLowEdge(b) << " " <<  fHistSpectrum_master[m]->GetXaxis()->GetBinUpEdge(b) << " " <<     fHistSpectrum_master[m]->GetBinContent(b)<< endl;
-    if (TypeAnalysis==0 || TypeAnalysis==7) cout << " significance: " << fHistSpectrum_master[m]->GetBinContent(b)/fHistSpectrum_master[m]->GetBinError(b)<< endl;
+    cout << "\nBin content of spectra:"<< endl;
+    for (Int_t m=0; m<nummolt+1; m++){
+      if (isHM && MultBinning==1 && m<=1) continue;
+      if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
+      cout << "Multiplicity class " << SmoltLegend[m] << endl;
+      cout << "->first row: Spectrum used for fit \n->second row: Spectrum 'master'"<< endl;
+      for (Int_t b=1; b<=fHistSpectrumPart[m][0]->GetNbinsX(); b++){
+	//	cout << "Bin center " <<       fHistSpectrumPart[m][0]->GetBinCenter(b) << endl;
+	cout << "\n bin content between "  <<   fHistSpectrumPart[m][0]->GetXaxis()->GetBinLowEdge(b) << " " <<  fHistSpectrumPart[m][0]->GetXaxis()->GetBinUpEdge(b) << " " <<     fHistSpectrumPart[m][0]->GetBinContent(b)<< " stat error " << fHistSpectrumPart[m][0]->GetBinError(b) / fHistSpectrumPart[m][0]->GetBinContent(b) << endl;
+	cout << " bin content between " <<   fHistSpectrum_master[m]->GetXaxis()->GetBinLowEdge(b) << " " <<  fHistSpectrum_master[m]->GetXaxis()->GetBinUpEdge(b) << " " <<     fHistSpectrum_master[m]->GetBinContent(b)<< endl;
+	if (TypeAnalysis==0 || TypeAnalysis==7) cout << " significance: " << fHistSpectrum_master[m]->GetBinContent(b)/fHistSpectrum_master[m]->GetBinError(b)<< endl;
+      }
     }
   }
-
+  /******* COUT to get more infos *********/
 
   cout << "\n\ndelta phi width " << DeltaPhiWidth[0]<< endl;
-  cout << "delta phi width (approx) " << DeltaPhiWidthApprox[0]<< endl;
+  //  cout << "delta phi width (approx) " << DeltaPhiWidthApprox[0]<< endl;
   cout << "minimo dell'intervallo di BC " <<ALowBinFit[0] << " " <<  fHistPhiDistr_Corr[5][1][0]->GetXaxis()->GetBinLowEdge(fHistPhiDistr_Corr[5][1][0]->FindBin(ALowBinFit[0]))<< endl;
   cout << "massimo dell'intervallo di BC " <<AUpBinFit[0] << " " <<  fHistPhiDistr_Corr[5][1][0]->GetXaxis()->GetBinUpEdge(fHistPhiDistr_Corr[5][1][0]->FindBin(AUpBinFit[0]))<< endl;
-  cout << " bin width " <<  fHistPhiDistr_Corr[5][1][0]->GetXaxis()->GetBinWidth(1) << endl;
-  cout << " minimo bin dell'intervallo di BC " << fHistPhiDistr_Corr[5][1][0]->FindBin(ALowBinFit[0])<< " massimo " <<  fHistPhiDistr_Corr[5][1][0]->FindBin(AUpBinFit[0])<< endl;
+  //  cout << "bin width " <<  fHistPhiDistr_Corr[5][1][0]->GetXaxis()->GetBinWidth(1) << endl;
+  //  cout << "minimo bin dell'intervallo di BC " << fHistPhiDistr_Corr[5][1][0]->FindBin(ALowBinFit[0])<< " massimo " <<  fHistPhiDistr_Corr[5][1][0]->FindBin(AUpBinFit[0])<< endl;
 
-  cout << "\nStarting from the file:\n" << PathIn1 << " and " << PathInBis << "\n\nI've produced the file:\n" << stringout << "\n" << endl; 
+  cout << "\n\e[35mStarting from the file:\e[39m\n" << PathIn1 << " and " << PathInBis << "\n\n\e[35mI've produced the file:\e[39m\n" << stringout << "\n" << endl; 
   if (isNormFactorCorr){
-    cout << "\nFile from where I take norm factor " << stringNormFactor << endl;
-    if (isHM) cout << "I take the 0-5% normalisation factor from MB analysis " << endl;
+    cout << "\e[35mFile from where I take norm factor:\e[39m\n" << stringNormFactor << endl;
+    if (isHM) cout << "-----> I take the 0-5% normalisation factor from MB analysis " << endl;
+    if (isNFFrom13TeV) cout << "-----> Normalisation factor taken from 13 TeV analysis, 0-100% class" << endl;
   }
-  if (TypeOOJSub>0) cout << "Path from which jet yields obtained with non-default ooj subtraction are taken " <<  nomefileOOJ << endl;
-  cout << "Pt spectra + fit also saved in the file: " << canvasSpectrumName << endl;
+  if (TypeOOJSub>0) cout << "\n\e[35mPath from which jet yields obtained with non-default ooj subtraction are taken\e[39m" <<  nomefileOOJ << endl;
+
+  cout << "\n\e[35mPt spectra + fit also saved in the file:\e[39m " << canvasSpectrumName << "\n"<< endl;
 }
 
 
