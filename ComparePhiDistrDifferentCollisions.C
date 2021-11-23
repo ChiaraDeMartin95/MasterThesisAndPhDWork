@@ -36,7 +36,7 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSystems =2,  Int_t type=0, Int_t mRatio=0, Int_t isComp=0, Int_t MultBinning=1){
+void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSystems =2,  Int_t type=1, Int_t mRatio=0, Int_t isComp=2, Int_t MultBinning=0, Bool_t isNormFactorCorr=1){
 
   //isComp =0 : MB compared to HM
   //isComp =1 : MB compared to pp5TeV (same mult classes)
@@ -60,13 +60,19 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSys
   Float_t Up[3] = {0.008, 1.5, 4};
   Float_t UpRatio[3] = {1.5, 5, 5};
   Float_t LowRatio[3] = {0.5, 0.5, 0.5};
+  Float_t LowSpectrum[3] = {10e-8, 10e-8, 10e-8};
   Float_t UpSpectrum[3] = {0.02, 0.25, 0.25};
   Float_t UpSpectrumRatio[3] = {1.5, 5, 5};
   if (mRatio==0 && (isComp==1 || isComp==2)) UpSpectrumRatio[1] = UpSpectrumRatio[2] = 1;
   if (type==1){
     UpSpectrum[1] = UpSpectrum[2] = 0.012;
+    if (isComp!=0)     UpSpectrum[0] = 0.001;
   }
   Float_t LowSpectrumRatio[3] = {0.5, 0, 0};
+  if (type==1 && isComp!=0) {
+    LowSpectrumRatio[0]=0;
+    UpSpectrumRatio[0]=2;
+  }
   Float_t UpEff[3] = {0.4, 0.4, 0.4};
   Float_t Low[3] = {-0.0004, 0, 0.4};
   //----------------------------------
@@ -105,6 +111,7 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSys
     }
     else {
       pathin[1] = "FinalOutput/DATA2016/histo/AngularCorrelation17pq_hXi_Xi_Eta0.8_SysT0_SysV00_Sys0_PtMin3.0_Output_IsEtaEff_MultBinning3.root"; //pp5TeV
+      if (TypeAnalysis==0)  pathin[1] = "OOJComparison17pq_pp5TeV_hXi_pttrig0.15_Xi_Eta0.8_sys0_PtTrigMin3.0_PtTrigMin0.2_Output_IsEtaEff_MultBinning3.root"; //pp5TeV
     }
   }
 
@@ -129,6 +136,10 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSys
     pathinSpectra[1] += Region[TypeAnalysis];
     pathinSpectra[1] += "Data_PtMin3.0_IsEtaEff";
     if (isComp==2)     pathinSpectra[1]+="_MultBinning3";
+    if (isNormFactorCorr){
+      pathinSpectra[1]+="_isNormCorr";
+      if (TypeAnalysis==0 || TypeAnalysis==1)       pathinSpectra[1]+="_isNFFrom13TeV";
+    }
     pathinSpectra[1]+= ".root";
   }
   if (type==1){
@@ -145,7 +156,9 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSys
     if (TypeAnalysis==0)     pathinSpectra[0]+= "OOJNoTriggerSmoothed_";
     pathinSpectra[0] += "Xi_Eta0.8_";
     pathinSpectra[0] += Region[TypeAnalysis];
-    pathinSpectra[0] += "Data_PtMin3.0_IsEtaEff.root"; //pp MB                                                                       
+    pathinSpectra[0] += "Data_PtMin3.0_IsEtaEff";
+    if (isNormFactorCorr)  pathinSpectra[0] += "_isNormCorr"; //pp MB                                                                       
+    pathinSpectra[0] += ".root"; //pp MB                                                                       
     if (isComp==0){
       pathinSpectra[1] = "FinalOutput/DATA2016/SystematicAnalysis161718_HM_hXi";
       if (TypeAnalysis==0)  pathinSpectra[1] += "_OOJAllMult";
@@ -158,7 +171,9 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSys
     if (TypeAnalysis==0)   pathinSpectra[1] += "OOJNoTriggerSmoothed_";
     pathinSpectra[1] += "Xi_Eta0.8_";
     pathinSpectra[1] += Region[TypeAnalysis];
-    pathinSpectra[1] += "Data_PtMin3.0_IsEtaEff_MultBinning3.root"; //pp 5 TeV
+    pathinSpectra[1] += "Data_PtMin3.0_IsEtaEff_MultBinning3";
+    if (isNormFactorCorr)  pathinSpectra[1]+="_isNormCorr_isNFFrom13TeV";
+    pathinSpectra[1]+=".root";
     }
   }
 
@@ -203,9 +218,11 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSys
   TString NameHistoEff2D[NSystems][nummolt+1];
   TString NameHistoEff2DFinal[NSystems][nummolt+1];
 
+  gStyle->SetOptStat(0);
+  //  gStyle->SetOptFit(1111);
+
   TCanvas * canvas= new TCanvas("canvas", "canvas", 1300, 800);
   canvas->Divide(5,2);
-  gStyle->SetOptStat(0);
 
   Int_t EasyCompCounter[numPtV0][3]= {0};
   Int_t EasyCompCounterSpectrum[3]= {0};
@@ -215,33 +232,26 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSys
   for (Int_t t=0; t<3; t++){
     canvasEasyComp[t]= new TCanvas(Form("canvasEasyComp%i", t), Form("canvasEasyComp%i", t), 1300, 800);
     canvasEasyComp[t]->Divide(5,2);
-    gStyle->SetOptStat(0);
     canvasEasyCompRatio[t]= new TCanvas(Form("canvasEasyCompRatio%i", t), Form("canvasEasyCompRatio%i", t), 1300, 800);
     canvasEasyCompRatio[t]->Divide(5,2);
-    gStyle->SetOptStat(0);
     canvasEasyCompSpectrum[t]= new TCanvas(Form("canvasEasyCompSpectrum%i", t), Form("canvasEasyCompSpectrum%i", t), 1300, 800);
     canvasEasyCompSpectrum[t]->Divide(2,1);
-    gStyle->SetOptStat(0);
   }
 
   TCanvas * canvasRatio[3];
   for (Int_t t=0; t<3; t++){
     canvasRatio[t] = new TCanvas(Form("canvasRatio%i",t), Form("canvasRatio%i",t), 1300, 800);
     canvasRatio[t]->Divide(5,2);
-    gStyle->SetOptStat(0);
   }
 
   TCanvas * canvasSpectrum = new TCanvas("canvasSpectrum", "canvasSpectrum", 1300, 800);
-  gStyle->SetOptStat(0);
   canvasSpectrum->Divide(2,1);
 
   TCanvas * canvasEff= new TCanvas("canvasEff", "canvasEff", 1300, 800);
   canvasEff->Divide(2,1);
-  gStyle->SetOptStat(0);
 
   TCanvas * canvasEffEta= new TCanvas("canvasEffEta", "canvasEffEta", 1300, 800);
   canvasEffEta->Divide(2,1);
-  gStyle->SetOptStat(0);
 
   TCanvas * canvasEff2D= new TCanvas("canvasEff2D", "canvasEff2D", 1300, 800);
   canvasEff2D -> Divide(5,2);
@@ -334,6 +344,7 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSys
 
   for (Int_t i=0; i< NSystems; i++){
     file[i] = new TFile(pathin[i], "");
+    if (!file[i]) {cout << pathin[i] << " does not exist " << endl; return;}
     for (Int_t m =0; m<nummolt+1; m++){
       if (isComp==0 && m<=1 && i==1) continue;
       if (i==0) {
@@ -373,7 +384,7 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSys
       for(Int_t v=PtV0Min; v<numPtV0Max; v++){
 	NameHisto[i][m][v] = "ME_m"+ Smolt[m]+ "_v"+ SPtV0[v] + "_AC_phi_V0Sub_"+RegionName[TypeAnalysis] +"EffCorr_TrCorr";
 	if (i==0) NameHisto[i][mRatio][v] = "ME_m"+ Smolt[mRatio]+ "_v"+ SPtV0[v] + "_AC_phi_V0Sub_"+RegionName[TypeAnalysis] +"EffCorr_TrCorr";
-	if (TypeAnalysis==0 && type==1 && i==0){
+	if (TypeAnalysis==0 && type==1 && isComp!=0){
 	  if ( (NPtV0[v] >=0.1 && NPtV0[v] <=2.0)) {
 	    NameHisto[i][m][v] = "ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_BulkSub_EffCorr_RebSmooth";
 	    if (i==0) 	    NameHisto[i][mRatio][v] = "ME_m"+Smolt[mRatio]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_BulkSub_EffCorr_RebSmooth";
@@ -586,10 +597,11 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSys
       histoSpectrumRatio[i][m] = (TH1F*)       histoSpectrumFinal[i][m]->Clone(NameHistoSpectrumFinal[i][m]+ "_Ratio");
       histoSpectrumRatio[i][m] ->Divide(histoSpectrumMBFinal);
 
-      StyleHisto(histoSpectrumFinal[i][m],3*10e-5, UpSpectrum[TypeAnalysis], Color[m], 33, "p_{T}", "dN/dp_{T} 1/N_{Trigg} 1/#Delta#eta #Delta#varphi", "", 0,0,0);
+      StyleHisto(histoSpectrumFinal[i][m],LowSpectrum[TypeAnalysis], UpSpectrum[TypeAnalysis], Color[m], 33, "p_{T}", "dN/dp_{T} 1/N_{Trigg} 1/#Delta#eta #Delta#varphi", "", 0,0,0);
 
       canvasSpectrum->cd(1);
       gPad->SetLeftMargin(0.15);
+      histoSpectrumFinal[i][m]->SetStats(0);
       histoSpectrumFinal[i][m]->Draw("same");
       legendMult->Draw();
 
@@ -598,7 +610,8 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSys
       canvasSpectrum->cd(2);
       gPad->SetLeftMargin(0.15);
       if (!(m==mRatio && i==0)) {
-	histoSpectrumRatio[i][m]->Draw("same");
+	if (m!=nummolt || TypeAnalysis!=0) histoSpectrumRatio[i][m]->Draw("same");
+	histoSpectrumRatio[i][m]->SetStats(0);
 	lineAt1Spectrum->Draw("same");
       }
 
@@ -640,6 +653,7 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSys
   cout << "\nEfficiency comparison" << endl;
   for (Int_t i=0; i< NSystems; i++){
     fileEff[i] = new TFile(pathinEff[i], "");
+    if (!fileEff[i]) {cout << pathinEff[i]<< " does not exist " << endl;}
     for (Int_t m=0; m<=nummolt; m++){
       if (isComp==0 && m<=1 && i==1) continue;
       if (i==1 && (m==2 || m==3 || m==4) && isComp==2) continue; 
@@ -799,11 +813,12 @@ void ComparePhiDistrDifferentCollisions(Int_t TypeAnalysis=0,   const Int_t NSys
   canvasEff2DRatio->Write();
   fileout->Close();
   canvas->SaveAs(NameFileout +".pdf");
+  canvasSpectrum->SaveAs(NameFileout +"_Spactra.pdf");
 
-  cout <<"Input files: " << endl;
-  cout << "Efficiencies:\n" << pathinEff[0] <<"\n" << pathinEff[1] << endl;
-  cout << "Phi distributions:\n" << pathin[0] <<"\n" << pathin[1] << endl;
-  cout << "Spectra:\n" << pathinSpectra[0] <<"\n" << pathinSpectra[1] << endl;
+  cout <<"\n\e[35mInput files: " << endl;
+  cout << "Efficiencies:\e[39m\n" << pathinEff[0] <<"\n" << pathinEff[1] << endl;
+  cout << "\e[35mPhi distributions:\e[39m\n" << pathin[0] <<"\n" << pathin[1] << endl;
+  cout << "\e[35mSpectra:\e[39m\n" << pathinSpectra[0] <<"\n" << pathinSpectra[1] << endl;
   cout << "\nRatios performed with respect to the mult class " << mRatio << " in the "<< SSystem[0] << endl;
   cout << "\nI have produced the file " << NameFileout << ".root and .pdf " << endl;
 }
