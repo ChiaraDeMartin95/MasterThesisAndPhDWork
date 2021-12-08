@@ -43,6 +43,8 @@
 class AliAnalysisTaskCorrelationhhK0s;   
 using namespace std;          
 ClassImp(AliAnalysisTaskCorrelationhhK0s) 
+const Float_t kctauval[2]={40, 30}; 
+const Float_t Mass[2]={0.497611, 1.115683};
 
 AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s() :AliAnalysisTaskSE(), 
   fAnalysisType("AOD"), 
@@ -73,9 +75,12 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s() :AliAnalysisT
   fEtaV0Assoc(0.8),
   fFilterBitValue(128),
   fYear(2016),
+  fisInclusiveINELgt0(0),
   lPercentilesMin(0),
   lPercentilesMax(0),
   fisHM(0),
+  fHistInelCorr(0),
+  fHistEvtNoTrigger(0),
   fHistPt(0), 
   fHistDCAxym1(0),
   fHistDCAzm1(0),
@@ -146,6 +151,7 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s() :AliAnalysisT
   fHistMultvsTriggerMCTruth(0),
   fHistMassPhoton(0),
   fHistMass2Photon(0),
+  fHistctau(0),
   fHistPtArmvsAlpha(0),
   fHistPtArmvsAlphaAfterSelection(0),
   fHistPtArmvsAlphaAfterPhotonSelection(0),
@@ -283,9 +289,12 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s(const char* nam
   fEtahAssoc(0.8),								      fEtaV0Assoc(0.8),
   fFilterBitValue(128),
   fYear(2016),
+  fisInclusiveINELgt0(0),
   lPercentilesMin(0),
   lPercentilesMax(0),
   fisHM(0),
+  fHistInelCorr(0),
+  fHistEvtNoTrigger(0),
   fHistPt(0), 
   fHistDCAxym1(0),
   fHistDCAzm1(0),
@@ -356,6 +365,7 @@ AliAnalysisTaskCorrelationhhK0s::AliAnalysisTaskCorrelationhhK0s(const char* nam
   fHistMultvsTriggerMCTruth(0),
   fHistMassPhoton(0),
   fHistMass2Photon(0),
+  fHistctau(0),
   fHistPtArmvsAlpha(0),
   fHistPtArmvsAlphaAfterSelection(0),
   fHistPtArmvsAlphaAfterPhotonSelection(0),
@@ -954,8 +964,8 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   fHistEventMult->GetXaxis()->SetBinLabel(4,"Events w/ PID"); 
   fHistEventMult->GetXaxis()->SetBinLabel(5,"centrality <= 199"); 
   fHistEventMult->GetXaxis()->SetBinLabel(6,"NO PILE UP"); 
-  fHistEventMult->GetXaxis()->SetBinLabel(7,"INT7"); 
-  fHistEventMult->GetXaxis()->SetBinLabel(8,"HM"); 
+  fHistEventMult->GetXaxis()->SetBinLabel(7,"INT7 or HM"); 
+  fHistEventMult->GetXaxis()->SetBinLabel(8,"INEL>0"); 
   fHistEventMult->GetXaxis()->SetBinLabel(9,"isSelected"); 
   fHistEventMult->GetXaxis()->SetBinLabel(10,"Ntrigger>0"); 
   fHistEventMult->GetXaxis()->SetBinLabel(11,"Ntrigger>0 (MC)"); 
@@ -1200,6 +1210,17 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
 
   fHistMassPhoton=new TH1F("fHistMassPhoton", "Inv Mass of two V0 daughters as electrons, after V0 mass selection",  300, 0, 1.5);
   fHistMass2Photon=new TH1F("fHistMass2Photons", "Inv MassSquared of two daughters as electrons",  100, -3, 3);
+
+  fHistctau=new TH1F("fHistctau", "ctau istribution of V0 candidates",  200, 0, 100);
+  fHistctau->GetXaxis()->SetTitle("ctau");
+
+  fHistInelCorr=new TH2F("fHistInelCorr", "Correlation between #tracklets and #tracks", 200, 0, 1000, 200, 0, 1000);
+  fHistInelCorr->GetXaxis()->SetTitle("Tracks");
+  fHistInelCorr->GetYaxis()->SetTitle("Tracklets");
+
+  fHistEvtNoTrigger=new TH2F("fHistEvtNoTrigger", "#Tracks and multiplicity of events w/o trigger", 200, 0, 1000, NumBinsMult, 0, UpperLimitMult);
+  fHistEvtNoTrigger->GetXaxis()->SetTitle("#Tracks");
+  fHistEvtNoTrigger->GetYaxis()->SetTitle("Percentile");
   
   fHistPtArmvsAlpha=new TH2F("fHistPtArmvsAlpha", "Distribution of V0 candidates before cuts on Arm/Lrej/mass",  80, -1, 1,80, 0, 0.3);
   fHistPtArmvsAlpha->GetXaxis()->SetTitle("Alpha");
@@ -1548,6 +1569,8 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   fOutputList->Add(fHistSecondParticleTruthAll);
   fOutputList->Add(fHistSecondParticle);  
   fOutputList->Add(fHistSecondParticleTruth);
+  fOutputList->Add(fHistInelCorr);   
+  fOutputList->Add(fHistEvtNoTrigger);   
   fOutputList->Add(fHistPt);   
   fOutputList->Add(fHistDCAxym1);     
   fOutputList->Add(fHistDCAxym2);    
@@ -1603,6 +1626,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserCreateOutputObjects()
   
   fOutputList->Add(fHistMass2Photon);
   fOutputList->Add(fHistMassPhoton);
+  fOutputList->Add(fHistctau);
   fOutputList->Add(fHistPtArmvsAlpha);
   fOutputList->Add(fHistPtArmvsAlphaAfterSelection);  
   fOutputList->Add(fHistPtArmvsAlphaAfterPhotonSelection);  
@@ -1778,7 +1802,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   
   //This will work for both ESDs and AODs
   AliMultSelection *MultSelection = (AliMultSelection*) fAOD -> FindListObject("MultSelection");
-  
+
   if ( MultSelection ){
     //c cout << "mult sel ok" << endl;
     lPercentiles= MultSelection->GetMultiplicityPercentile("V0M");
@@ -1860,10 +1884,33 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
       isSelected = kTRUE;
   }
   
-  if(isSelectedInt7)
+  if(isSelectedInt7 && !fisHM)
     fHistEventMult->Fill(7);
-  if(isSelectedHM)
-    fHistEventMult->Fill(8);  
+  if(isSelectedHM && fisHM)
+    fHistEventMult->Fill(7);  
+
+  //to select INEL>0 events for inclusive analysis
+  const AliMultiplicity* mult = (AliMultiplicity*)fAOD->GetMultiplicity();  
+  Bool_t inelgt0 = kFALSE;
+  Int_t       counterTracklets =0;
+  for (Int_t i = 0; i < mult->GetNumberOfTracklets(); ++i) {
+    if (TMath::Abs(mult->GetEta(i)) < 1.) {
+      inelgt0 = kTRUE;
+      counterTracklets++;
+    }    
+  }
+
+  if (inelgt0)  fHistEventMult->Fill(8) ; 
+  if (fisInclusiveINELgt0 && !inelgt0){
+    PostData(1, fOutputList);
+    PostData(2, fSignalTree );
+    PostData(3,fBkgTree);
+    PostData(4, fOutputList2);  
+    PostData(5, fOutputList3);     
+    PostData(6, fOutputList4);
+    return;
+  }
+
   if (isSelected)
     fHistEventMult->Fill(9) ; 
       
@@ -1877,6 +1924,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
     // cout << "event does not fulfil centrality selection criteria " << endl;          
     return;
   }
+
   fHist_multiplicityAllSelEvents->Fill(lPercentiles);
   //  cout << "event has passed selection criteria.... first and second particles to be analyzed ...."<< endl;
 
@@ -1933,6 +1981,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   if (((centralityBin+1) >fnMultBins) || ((zBin+1) > fzVertexBins)){ 
     //c cout<<" ##################  WARNING: I'm going to break bacause of dimensional issues ########################"<<endl;
   }
+
 
   fEventColl[zBin][centralityBin]->FifoClear();
   fEvt = fEventColl[zBin][centralityBin]->fEvt;
@@ -2033,10 +2082,22 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
   Int_t   PdgCodeTrackPtMax=0;
   Int_t TriggerPdgCode=0;
 
-  //begin loop for trigger particles   
+  fHistInelCorr->Fill(iTracks, counterTracklets);
+  cout << "iTracks " << iTracks << " counterTracklets " <<  counterTracklets << endl;
+  //begin loop for trigger particles
   if (!(fReadMCTruth && !isEfficiency && !isHybridMCTruth)){
     for(Int_t i=0; i < iTracks; i++) {
-
+      if (fisInclusiveINELgt0){
+	//	if (kFALSE){
+	track = static_cast<AliAODTrack*>(fAOD->GetTrack(i));        
+	trackPtTMax = static_cast<AliAODTrack*>(fAOD->GetTrack(i));        
+	NumberFirstParticleAllPt++;
+	NumberFirstParticle++;
+	if (track && trackPtTMax) break;
+	if (!track) continue;
+	if (!trackPtTMax) continue;
+      }
+      else {
       track = static_cast<AliAODTrack*>(fAOD->GetTrack(i));        
       fHistTrack->Fill(1);
       if(!track) continue;
@@ -2232,6 +2293,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	selectedtrackID= track->GetID();
 	NumberFirstParticle_finale= NumberFirstParticle;     
       }
+      }
 
       if(track->Pt()> fminPtj && track->Pt()<fmaxPtj){ //Here I select trigger particle with pT>fminPtj and save their characteristics
 	NumberFirstParticle++;   
@@ -2254,6 +2316,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 
     }//end loop for trigger particles
 
+    if (NumberFirstParticleAllPt == 0)     fHistEvtNoTrigger->Fill(iTracks, lPercentiles);
     //selection for hybrid --- Condition2 in the HybridMCTruth section should be overridden by this******************************************
     if(fReadMCTruth && isHybridMCTruth){
       if (fMCEvent){
@@ -2280,6 +2343,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
     }
     //*************************************
   }//done only if not MC truth
+  
 
   TClonesArray* AODMCTrackArray =0x0;  
   Float_t ptTriggerMinimoMC=10000;
@@ -2735,9 +2799,7 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
     Float_t kMinDCAPrimary[2]={0.05, 0.06}; //was 0.06 for K0s
     Float_t kMinDL[2]={0.5, 0.5};
     Float_t kMinRadius[2]={0.5, 0.5};
-    Float_t kctauval[2]={40, 30}; //was 20 for K0s
     Float_t kctau[2]={0, 0};
-    Float_t Mass[2]={0.497611, 1.115683};
     Int_t ParticleType=0;
 
     Int_t labelPos=0;
@@ -3053,13 +3115,16 @@ void AliAnalysisTaskCorrelationhhK0s::UserExec(Option_t *)
 	//if( lV0Radius < kMinDL[ParticleType]) continue;
 
 	double v0Dca = v0->DcaV0ToPrimVertex();
+	
+
+	fHistctau->Fill(kctau[ParticleType]);       
 	if(v0->DcaNegToPrimVertex() < kMinDCAPrimary[ParticleType])      continue;
 	if(v0->DcaPosToPrimVertex() < kMinDCAPrimary[ParticleType])      continue;
 	if(v0->DcaV0Daughters() > kMaxDCADaughters[ParticleType])        continue;
-	if(v0Dca > kMaxDCA[ParticleType]) 	        	       continue;
+	if(v0Dca > kMaxDCA[ParticleType]) 	        	         continue;
 	if(kctau[ParticleType]>kctauval[ParticleType])                   continue;
-   
 	//if(v0->PtArmV0()< 0.2*TMath::Abs(v0->AlphaV0()))                    continue;
+
 	//fHistPtArmvsAlphaAfterSelection->Fill(v0->AlphaV0(), v0->PtArmV0());    
 	fHistPtArmvsAlpha->Fill(v0->AlphaV0(),v0->PtArmV0());       
 

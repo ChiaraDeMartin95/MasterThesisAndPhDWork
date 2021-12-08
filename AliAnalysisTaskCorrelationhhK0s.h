@@ -35,6 +35,7 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
   void SetEtaV0Assoc(Float_t EtaV0Assoc){fEtaV0Assoc = EtaV0Assoc;}
   void SetFilterBit(Int_t FilterBitValue){fFilterBitValue = FilterBitValue;}
   void SetYear (Int_t year = 2010) { fYear = year;}
+  void SetInclusive (Bool_t isInclusive = 1) {fisInclusiveINELgt0 = isInclusive;}
   void SetHM (Bool_t isHM) { fisHM = isHM;}
   void SetMinimumMultPercentile (Float_t PercentilesMin) { lPercentilesMin = PercentilesMin;}
   void SetMaximumMultPercentile (Float_t PercentilesMax) { lPercentilesMax = PercentilesMax;}
@@ -87,10 +88,13 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
   Float_t                  fEtaV0Assoc;
   Int_t                    fFilterBitValue;
   Int_t                    fYear;
+  Bool_t                   fisInclusiveINELgt0;
   Bool_t                   fisHM;
   Float_t                  lPercentilesMin;
   Float_t                  lPercentilesMax;
 
+  TH2F*                   fHistEvtNoTrigger;         //! 
+  TH2F*                   fHistInelCorr;             //!
   TH1F*                   fHistPt;                   //! 
   TH1F*                   fHistDCAxym1;              //! 
   TH1F*                   fHistDCAxym2;              //! 
@@ -141,6 +145,9 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
   TH2F*                   fHistSecondParticle; 		  //!
   TH2F*                   fHistSecondParticleTruth; 	  //!
   TH1F*                   fMassV0;          		  //!
+  TH1F*                   fMassV0BefSel;          		  //!
+  TH1F*                   hctau;          		  //!
+  TH1F*                   hctauBefSel;          		  //!
   TH2F *                  fDCAxyDaughters;                //!
   TH2F *                  fDCAzDaughters;                 //!
   TH2F *                  fDCAxyDaughtersBis;                //!
@@ -161,6 +168,7 @@ class AliAnalysisTaskCorrelationhhK0s : public AliAnalysisTaskSE
   TH2F*                   fHistMultvsTriggerMCTruth; 	    //!
   TH1F*                   fHistMassPhoton;  		    //!
   TH1F*                   fHistMass2Photon;  		    //!
+  TH1F*                   fHistctau;                        //!
   TH2F*                   fHistPtArmvsAlpha;  		    //!
   TH2F*                   fHistPtArmvsAlphaAfterSelection;  //!
   TH2F*                   fHistPtArmvsAlphaAfterPhotonSelection;          //! 
