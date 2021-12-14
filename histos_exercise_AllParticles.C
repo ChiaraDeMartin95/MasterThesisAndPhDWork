@@ -47,8 +47,18 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
 }
 
 
-void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0index=0, Int_t sysTrigger=0, Int_t indexsysTrigger=0, Float_t PtTrigMin=3,Float_t PtTrigMax=15, Bool_t SkipAssoc=1, Int_t rap=0,Int_t type=0, Int_t syst=0, Double_t nsigmamax=9, TString year0="2016", TString year=/*"2018f1_extra_hK0s"/*"17pq_hK0s"*/"1617_AOD234_hK0s"/*"2018f1_extra_AOD235_hK0s"/*"LHC17_GP_AOD235_18c12"/*"17pq_hK0s"/*"LHC17_AOD234_Red"/*"AllhK0sHM_RedNo16k"/*"2019h11c_extra_HM_hK0s"/"2016k_HM_hK0s"/*"2016k_pass2_TOFOOBPileUp"/"2016k_TOFOOBPileUp_XiV0Rad34_AOD234_Try2"/*"161718_MD_EtaEff_hXi"/*"2016k_pass2_TOFOOBPileUp"/*"2018f1g4_extra_EtaEff_hXi"/"2018g4_extra_EtaEff_hK0s"/*"LHC17_hK0s"/"2016k_hK0s"/"1617_hK0s"/*"AllMC_hXi"/"Run2DataRed_MECorr_hXi"/*"2018f1_extra_hK0s"/*"2016k_hK0s"/"2016kehjl_hK0s"*/, TString yearMC="1617_GP_AOD235_With18c12b"/*"17pq_hK0s"/*"2018f1_extra_AOD235_hK0s"/*"LHC17_GP_AOD235_18c12"/*"2017e5_extra_AOD235_hK0s"/*"17pq_hK0s"/*"2019h11c_extra_HM_hK0s"/*"2018f1g4_extra_EtaEff_hXi"/"2018g4_extra_EtaEff_hK0s"/*"2018f1_extra_hK0s"/"1617MC_hK0s"/*"AllMC_hXi"/"2018f1_extra_hK0s"/*"2015g3b1"/*"2018f1_extra_hK0s_30runs_150MeV"*/,Bool_t isMC=0, Bool_t isEfficiency=0, TString path1=""/*"_PtTrigMax2.5"/*"_NewMultClassBis"*/, Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1,   Double_t sigmacentral=4, Double_t nsigmamin=5, Int_t MultBinning=0, Int_t PtBinning=1, Int_t isSysStudy=0, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsPtTrigMultDep=0, Int_t Region=0, Bool_t isAlsoEff=0, Bool_t isHM=0, Bool_t isNewInputPath=1){//, Int_t VarRange=0){
+void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0index=1, Int_t sysTrigger=0, Int_t indexsysTrigger=0, Float_t PtTrigMin=3,Float_t PtTrigMax=15, Bool_t SkipAssoc=1, Int_t rap=0,Int_t type=8 /*8 for Xi*/, Int_t syst=0, Double_t nsigmamax=9, TString year0= "2016", TString year=/*"LHC17o_HM_INELgt0281961"/*"161718_HM_hXi"*/"161718Full_AOD234_hXi"/*"17pq_hK0s"/"17pq_hK0s_pttrig0.15"/*"2018f1_extra_hK0s"/*"17pq_hK0s"/"1617_AOD234_hK0s"/*"2018f1_extra_AOD235_hK0s"/*"LHC17_GP_AOD235_18c12"/*"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"2019h11c_extra_HM_hK0s"/"2016k_HM_hK0s"/*"2016k_pass2_TOFOOBPileUp"/"2016k_TOFOOBPileUp_XiV0Rad34_AOD234_Try2"/*"161718_MD_EtaEff_hXi"/*"2016k_pass2_TOFOOBPileUp"/*"2018f1g4_extra_EtaEff_hXi"/"2018g4_extra_EtaEff_hK0s"/*"LHC17_hK0s"/"2016k_hK0s"/"1617_hK0s"/*"AllMC_hXi"/"Run2DataRed_MECorr_hXi"/*"2018f1_extra_hK0s"/*"2016k_hK0s"/"2016kehjl_hK0s"*/, TString yearMC=""/*"17pq_pp5TeV_hXi_pttrig0.15"/*"1617_GP_AOD235_With18c12b"/"17pq_hK0s"/*"2018f1_extra_AOD235_hK0s"/*"LHC17_GP_AOD235_18c12"/*"2017e5_extra_AOD235_hK0s"/*"17pq_hK0s"/*"2019h11c_extra_HM_hK0s"/*"2018f1g4_extra_EtaEff_hXi"/"2018g4_extra_EtaEff_hK0s"/*"2018f1_extra_hK0s"/"1617MC_hK0s"/*"AllMC_hXi"/"2018f1_extra_hK0s"/*"2015g3b1"/*"2018f1_extra_hK0s_30runs_150MeV"*/,Bool_t isMC=0, Bool_t isEfficiency=0, TString path1=""/*"_PtTrigMax2.5"/*"_NewMultClassBis"*/, Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1,   Double_t sigmacentral=4, Double_t nsigmamin=5, Int_t MultBinning=0, Int_t PtBinning=0, Int_t isSysStudy=0, Bool_t isSysDef=1, Bool_t isDefaultSel=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsPtTrigMultDep=0, Int_t Region=0, Bool_t isAlsoEff=0, Bool_t isHM=0, Bool_t isNewInputPath=1, Bool_t isINEL=0){//, Int_t VarRange=0){
 
+  if (year == "LHC17o_HM_INELgt0281961") isINEL =1;
+  if (isINEL){
+    SkipAssoc =0;
+    PtTrigMin=0.;
+    PtTrigMax = 30;
+    rap =1;
+  }
+  if (year=="17pq_hXi") MultBinning=3;
+  if (year=="17pq_pp5TeV_hXi_pttrig0.15") MultBinning=3;
+  cout << MultBinning << endl;
   //RangeVar =0 : default range is chosen
 
   //  if (isAlsoEff) efficiency is shown and spectr are corrected by the efficiency
@@ -137,11 +147,13 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
   TString multiplicity0[mult+1]={"0-5","5-10", "10-30", "30-50", "50-100", "all"};
   TString multiplicity1[mult+1]={"0-1","1-5", "5-15", "15-30", "30-100", "all"};
   TString multiplicity2[mult+1]={"0-2","2-7", "7-15", "15-30", "30-100", "all"};
+  TString multiplicitypp5TeV[mult+1]={"0-10","10-100", "100-100", "100-100", "100-100", "all"};
 
   Double_t multip_intervals[mult+1]={0, 5, 10, 30, 50,100};
   Double_t multip_intervals0[mult+1]={0, 5, 10, 30, 50,100};
   Double_t multip_intervals1[mult+1]={0, 1, 5, 15, 30,100};
   Double_t multip_intervals2[mult+1]={0, 2, 7, 15, 30,100};
+  Double_t multip_intervalspp5TeV[mult+1]={0, 10, 100, 100, 100,100};
 
   for(Int_t j=0; j< mult+1; j++){
     if (MultBinning==0){
@@ -155,6 +167,10 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
     if (MultBinning==2){
       multiplicity[j] = multiplicity2[j];
       multip_intervals[j] = multip_intervals2[j];
+    }
+    if (MultBinning==3){
+      multiplicity[j] = multiplicitypp5TeV[j];
+      multip_intervals[j] = multip_intervalspp5TeV[j];
     }
   }
 
@@ -305,7 +321,8 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
     if (!fileEff) return; 
   }
   for(Int_t molt=0; molt<mult+1; molt++){
-    if (MultBinning==1 && type==0 && molt <= 1) continue; 
+    if (MultBinning==3 && (molt==2 || molt==3 || molt==4)) continue; 
+    if (MultBinning==1 && isHM && molt <= 1) continue; 
     cout << "<n<nI'm analyzing mult " << molt << endl;
     if (isSysStudy){
       //if (molt != mult) continue;
@@ -348,6 +365,7 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
       if (MultBinning!=0) nome_file_1+= Form("_MultBinning%i",MultBinning);
       if (Region==1) nome_file_1+="_dEtadPhiJetRegion";
       else if (Region==2) nome_file_1+="_dEtadPhiOOJRegion";
+      if (isINEL)      nome_file_1+= "_INEL";
       nome_file_1+= ".root";
       nome_file_output[sysTrigger][sysV0] +="_"+year+"_"+tipo[type]+Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab];
       if (IsPtTrigMultDep)      nome_file_output[sysTrigger][sysV0]+= "_IsPtTrigMultDep" ;
@@ -356,6 +374,7 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
       nome_file_output[sysTrigger][sysV0]+=Form("_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f", molt, sysTrigger, sysV0, syst,PtTrigMin);
       if (MultBinning!=0) nome_file_output[sysTrigger][sysV0]+= Form("_MultBinning%i",MultBinning);
       if (VarRange>0)       nome_file_output[sysTrigger][sysV0]+= Form("_VarRange%i",VarRange);
+      if (isINEL)      nome_file_output[sysTrigger][sysV0]+= "_INEL";
       nome_file_output[sysTrigger][sysV0]+= ".root";
     }
     else if (isSysStudy){
@@ -400,30 +419,45 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
       if (year == "2016k_HM_hK0s") dirinput = (TDirectoryFile*)myfileAnalysis->Get(nome_TDir + "_PtTrigMin3.0_PtTrigMax30.0");
       else if (year=="17pq_hK0s" && isMC) dirinput = (TDirectoryFile*)myfileAnalysis->Get("MyTask_MCTruth_PtTrigMin3.0_PtTrigMax15.0");
       else if (year=="17pq_hK0s_pttrig0.15" && !isMC) dirinput = (TDirectoryFile*)myfileAnalysis->Get("MyTask_PtTrigMin0.2_PtTrigMax15.0");
+      else if (year=="161718_HM_hXi_LowPtTrig") dirinput = (TDirectoryFile*)myfileAnalysis->Get("MyTaskXi_MCTruth_PtTrigMin3.0_PtTrigMax15.0");
+      else if (year=="LHC17o_HM_INELgt0281961" && !isMC) dirinput = (TDirectoryFile*)myfileAnalysis->Get("MyTask_PtTrigMin0.2_PtTrigMax30.0");
       else if (isMC)  dirinput = (TDirectoryFile*)myfileAnalysis->Get("MyTask_MCTruth_PtTrigMin3.0_PtTrigMax15.0");
       else  dirinput = (TDirectoryFile*)myfileAnalysis->Get(nome_TDir + "_PtTrigMin3.0_PtTrigMax15.0");
+      if (year == "17pq_pp5TeV_hXi_pttrig0.15") {
+	cout << " ciao " << endl;
+	dirinput = (TDirectoryFile*)myfileAnalysis->Get(nome_TDir + "_PtTrigMin0.2_PtTrigMax2.5");
+      }
     }
     else {
       dirinput = (TDirectoryFile*)myfileAnalysis->Get(nome_TDir);
     }
+    cout << nome_TDir<< endl;
     if (!dirinput)  {cout << "dir input not available " ; return;}
 
     TString ContainerName ="";
     //    if (isNewInputPath) ContainerName= "_hK0s_Task_suffix";
     if (isNewInputPath) {
       if (type==0){
-	if (year=="2016k_HM_hK0s") 	ContainerName= "_hK0s_Task_suffix";
+	if (year=="2016k_HM_hK0s" || year == "LHC17o_HM_INELgt0281961") 	ContainerName= "_hK0s_Task_suffix";
 	else if (year=="17pq_hK0s" && isMC) 	ContainerName= "_hK0s_Task_RecoAndEfficiency";
 	else if (isMC && isEfficiency) 	ContainerName= "_hK0s_Task_RecoAndEfficiency";
 	else ContainerName= "_hK0s_Task_";
       }
-      else ContainerName= "_hXi_Task_";
+      else {
+	ContainerName= "_hXi_Task_Default";
+	if (TMath::Abs(PtTrigMin - 0.15) < 0.001) {
+	  ContainerName= "_hXi_Task_LowPtTrig";
+	  if (isMC) 	  ContainerName= "_hXi_Task_RecoAndEfficiencyLowPt";
+	}
+      }
     }
 
+    cout << "Container Name " << ContainerName << endl;
     TList *listinputForNEvents = (TList*)dirinput->Get("MyOutputContainer" + ContainerName);
     if (!listinputForNEvents) {cout << "input list is missing " << endl; return;}
     TH2D *fHistTriggervsMult         = (TH2D*)listinputForNEvents->FindObject("fHistPtMaxvsMultBefAll");
     TH1D *fHistMul= (TH1D*)fHistTriggervsMult->ProjectionY("fHistTriggervsMult_MultProj", fHistTriggervsMult->GetXaxis()->FindBin(PtTrigMin+0.0001),fHistTriggervsMult->GetXaxis()->FindBin(PtTrigMax-0.00001) );
+    if (year == "LHC17o_HM_INELgt0281961")  fHistMul=(TH1D*)listinputForNEvents->FindObject("fHist_multiplicity_EvwTrigger");
 
     //      TH1F* fHistMul = (TH1F*)listinputForNEvents->FindObject("fHist_multiplicity_EvwTrigger");
      
@@ -580,6 +614,7 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
     for(Int_t j=PtBinMin;j<num_histoMax; j++){
       cout << binl[j] << " " << int_pt[j] << endl;
       cout << "j= " << j << " "<<binl[j] << " " << endl;;
+      if (TMath::Abs(PtTrigMax-2.5) < 0.001 && type==8 && j>4 ) continue; 
       //if (j>6) continue;
       //if (j>5) continue;
       //      if (molt==mult-1 && j==num_histoMax-1) continue;
@@ -1391,6 +1426,7 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
     }
     for(Int_t j=PtBinMin;j<num_histoMax; j++){
       //if (j>5) continue;
+      if (TMath::Abs(PtTrigMax-2.5) < 0.001 && type==8 && j>4 ) continue; 
       cout << "segnale central "  << st[j]<<" segnale all range " <<IntegralSignalAllRange[j]<< endl;
       cout << "Frazione dell'integrale della funzione di segnale compresa tra (mu - sigma*nsigmacentral, mu + sigma*nsigmacentral) " << st[j]/IntegralSignalAllRange[j]<< endl; 
       if(bin_contentSB1[j]<0 || bin_contentSB2[j]<0){
@@ -1445,7 +1481,8 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
   cout << "endl loop on mult " << endl;
   Int_t     NEventsTotal =0;
   for (Int_t molt=0; molt < mult+1; molt++){
-    if (MultBinning==1 && type==0 && molt <= 1) continue; 
+    if (MultBinning==1 && isHM && molt <= 1) continue; 
+    if (MultBinning==3 && (molt==2 || molt==3 || molt==4)) continue; 
     if (molt !=mult)      NEventsTotal += NEvents[molt] ;
     cout <<"n trigger particles for m " << molt << " " <<  NEvents[molt] <<  " ratio NEvOld/NEvNew " <<(Float_t)NEventsBis[molt]/NEvents[molt] << endl;
     cout << "fraction of trigger particles (i.e. ev NT>0) in mult class: " <<  (Float_t) NEvents[molt]/ NEvents[mult] << endl;
