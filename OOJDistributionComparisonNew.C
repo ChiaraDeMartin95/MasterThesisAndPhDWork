@@ -18,7 +18,7 @@
 #include <TFile.h>
 #include <TLegend.h>
 
-void OOJDistributionComparisonNew(Int_t indexSysV0=0,  Int_t sysTrigger=0,  Int_t indexsysTrigger=0,  Int_t sys=0,Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float_t PtTrigMax1 =15, Float_t PtTrigMin2=3, Float_t PtTrigMax2 =15, Bool_t SkipAssoc=1,Int_t israp=0, Int_t sysV0=0,Int_t type=8, Int_t PtIntervalShown=1,   TString year0 = "2016",TString yearPtTrig3=/*"161718_HM_hXi"*/"161718Full_AOD234_hXi"/*"17pq_hXi"/"1617_hK0s"/*"Run2DataRed_MECorr_hXi"*/,TString year=/*"161718_HM_hXi"//"161718Full_AOD234_hXi"*/"1617_AOD234_hK0s"/*"17pq_pp5TeV_hXi_pttrig0.15"/*"AllMC_hXi"/*"2016kehjl_hK0s"*"2016k_hK0s"/*"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"*/, TString yearMCPtTrig3=""/*"1617MC_hK0s"*/,TString yearMC=""/*/"AllMC_hXi"/*"2018f1_extra_hK0s"/*"2016kl_hXi"/*2018f1_extra_hK0s_30runs_150MeV"*/,  TString Path1 =""/*"_Jet0.75"/*"_PtTrigMax2.5_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/, TString Path2 =""/*"_PtTrigMax2.5"/*"_NewMultClassBis_Jet0.75"*/, TString Dir ="FinalOutput/", Bool_t isEnlargedDeltaEta=0, Int_t isMC=0, Int_t MultBinning=0, Int_t PtBinning=0,  Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t isEPOS=0, Bool_t isEtaEff=1, Bool_t isNewInputPath=1, Bool_t isppHM=0, Bool_t isOOJFromK0s=1, Bool_t isBkgParab=1){
+void OOJDistributionComparisonNew(Int_t indexSysV0=0,  Int_t sysTrigger=0,  Int_t indexsysTrigger=0,  Int_t sys=0,Bool_t ishhCorr=0, Float_t PtTrigMin1=3, Float_t PtTrigMax1 =15, Float_t PtTrigMin2=0.15, Float_t PtTrigMax2 =2.5, Bool_t SkipAssoc=1,Int_t israp=0, Int_t sysV0=0,Int_t type=8, Int_t PtIntervalShown=1,   TString year0 = "2016",TString yearPtTrig3=/*"161718_HM_hXi"/*/"161718Full_AOD234_hXi"/*"17pq_hXi"/*"1617_hK0s"/*"Run2DataRed_MECorr_hXi"*/,TString year=/*"161718_HM_hXi"*/"161718Full_AOD234_hXi"/*"1617_AOD234_hK0s"*"17pq_pp5TeV_hXi_pttrig0.15"/*"AllMC_hXi"/*"2016kehjl_hK0s"*"2016k_hK0s"/*"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"*/, TString yearMCPtTrig3=""/*"1617MC_hK0s"*/,TString yearMC=""/*/"AllMC_hXi"/*"2018f1_extra_hK0s"/*"2016kl_hXi"/*2018f1_extra_hK0s_30runs_150MeV"*/,  TString Path1 =""/*"_Jet0.75"/*"_PtTrigMax2.5_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/, TString Path2 =""/*"_PtTrigMax2.5"/*"_NewMultClassBis_Jet0.75"*/, TString Dir ="FinalOutput/", Bool_t isEnlargedDeltaEta=0, Int_t isMC=0, Int_t MultBinning=0, Int_t PtBinning=0,  Bool_t isSysDef=1, Bool_t isDefaultSel=0, Bool_t isEPOS=0, Bool_t isEtaEff=1, Bool_t isNewInputPath=1, Bool_t isppHM=0, Bool_t isOOJFromK0s=0, Bool_t isBkgParab=0, Bool_t isOOJFromAllMult=0, Bool_t isMEFrom13TeV=0){
 
   //------ INFO ABOUT MAIN HISTOGRAMS (main ways to subtract OOJ)--------
   //---> Jet distr is projection of |dEta| < 0.75
@@ -114,6 +114,7 @@ void OOJDistributionComparisonNew(Int_t indexSysV0=0,  Int_t sysTrigger=0,  Int_
   Int_t   numPtV0MaxOOJ=5;
   if (type==0) numPtV0MaxOOJ=6;
   if (isOOJFromK0s) numPtV0MaxOOJ=numPtV0Max;
+  if (isOOJFromAllMult) numPtV0MaxOOJ=numPtV0Max;
   Int_t   numPtV0MaxUniversal=0;
   const Int_t numPtTrig=10;
   const Int_t numtipo=10;
@@ -348,6 +349,7 @@ void OOJDistributionComparisonNew(Int_t indexSysV0=0,  Int_t sysTrigger=0,  Int_
   TCanvas *canvasPlotMEEtaProj[2];
   TCanvas *canvasPlotMEPhiProj[2];
   TCanvas *canvasPlotProj[nummolt+1][2];
+  TCanvas *canvasPlotProjBis[nummolt+1][2];
   TCanvas *canvasPlotProjAllPt[nummolt+1][2];
   TCanvas *canvasPlotProjSmoothed[nummolt+1][2];
   TCanvas *canvasPlotProjRatioJet[nummolt+1][2];
@@ -381,12 +383,14 @@ void OOJDistributionComparisonNew(Int_t indexSysV0=0,  Int_t sysTrigger=0,  Int_
   else  nomefileoutput += hhCorr[ishhCorr]+ Form("_sys%i", sys);
 
   nomefileoutput += Form("_PtTrigMin%.1f_PtTrigMin%.1f_Output", PtTrigMin1, PtTrigMin2);
-  nomepdffile = nomefileoutput;
   if (isEPOS)   nomepdffile+= "_EPOS";
   if (isEPOS)   nomefileoutput+= "_EPOS";
   if (isEtaEff) nomefileoutput+= "_IsEtaEff";
+  if (isMEFrom13TeV) nomefileoutput += "_isMEFrom13TeV";
   if (MultBinning!=0) nomefileoutput+= Form("_MultBinning%i", MultBinning);
   if (isOOJFromK0s) nomefileoutput+= "_isOOJFromK0s";
+  if (isOOJFromAllMult) nomefileoutput+= "_isOOJFromAllMult";
+  nomepdffile = nomefileoutput;
   nomefileoutput+= ".root";
    
   TFile *fileout = new TFile(nomefileoutput, "RECREATE");
@@ -396,7 +400,7 @@ void OOJDistributionComparisonNew(Int_t indexSysV0=0,  Int_t sysTrigger=0,  Int_
 
   Int_t numC =4;
   if (PtBinning>0) numC=6;
-
+  if (isOOJFromAllMult) numC = numPtV0MaxOOJ-1;
   cout << " creating canvases " << endl;
 
   for (Int_t IntisMC=LimInfMC; IntisMC<=LimSupMC; IntisMC++){
@@ -419,6 +423,8 @@ void OOJDistributionComparisonNew(Int_t indexSysV0=0,  Int_t sysTrigger=0,  Int_
       canvasPlotME[m][IntisMC]->Divide(numC,2);
       canvasPlotProj[m][IntisMC]=new TCanvas(Form("canvasPlotProj_m%i_MC%i",m,  IntisMC), "canvasPlotProj"+Smolt[m], 1300, 800);
       canvasPlotProj[m][IntisMC]->Divide(numC,4);
+      canvasPlotProjBis[m][IntisMC]=new TCanvas(Form("canvasPlotProjBis_m%i_MC%i",m,  IntisMC), "canvasPlotProjBis"+Smolt[m], 1300, 800);
+      canvasPlotProjBis[m][IntisMC]->Divide(numC,2);
       canvasPlotProjAllPt[m][IntisMC]=new TCanvas(Form("canvasPlotProjAllPt_m%i_MC%i",m,  IntisMC), "canvasPlotProj"+Smolt[m], 1300, 800);
       canvasPlotProjAllPt[m][IntisMC]->Divide(numC,2);
       
@@ -695,16 +701,17 @@ void OOJDistributionComparisonNew(Int_t indexSysV0=0,  Int_t sysTrigger=0,  Int_
 	      if (MultBinning!=0) PathInDefaultEta[PtTrig]+=Form("_MultBinning%i", MultBinning);
 	      PathInDefaultEta[PtTrig] += ".root";
 
-	      if(isSysDef && isDefaultSel)   PathIn[PtTrig]+= hhCorr[ishhCorr]+ Form("_SysT%i_SysV0Default_Sys%i_PtMin%.1f", sysTrigger, sysang, PtTrigChosen)+"_Output.root";   
-	      else  if(isSysDef && !isDefaultSel && sysTrigger==0)   PathIn[PtTrig]+= hhCorr[ishhCorr]+ Form("_SysT%i_SysV0index%i_Sys%i_PtMin%.1f", sysTrigger, indexSysV0, sysang, PtTrigChosen)+"_Output.root";   
-	      else  if(isSysDef && !isDefaultSel && sysTrigger==1)   PathIn[PtTrig]+= hhCorr[ishhCorr]+ Form("_SysTindex%i_SysV0%i_Sys%i_PtMin%.1f", indexsysTrigger, 0, sysang, PtTrigChosen)+"_Output.root";   
+	      if(isSysDef && isDefaultSel)   PathIn[PtTrig]+= hhCorr[ishhCorr]+ Form("_SysT%i_SysV0Default_Sys%i_PtMin%.1f", sysTrigger, sysang, PtTrigChosen)+"_Output";   
+	      else  if(isSysDef && !isDefaultSel && sysTrigger==0)   PathIn[PtTrig]+= hhCorr[ishhCorr]+ Form("_SysT%i_SysV0index%i_Sys%i_PtMin%.1f", sysTrigger, indexSysV0, sysang, PtTrigChosen)+"_Output";   
+	      else  if(isSysDef && !isDefaultSel && sysTrigger==1)   PathIn[PtTrig]+= hhCorr[ishhCorr]+ Form("_SysTindex%i_SysV0%i_Sys%i_PtMin%.1f", indexsysTrigger, 0, sysang, PtTrigChosen)+"_Output";   
 	      else  {
 		PathIn[PtTrig]+= hhCorr[ishhCorr]+ Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f", sysTrigger, sysV0, sysang, PtTrigChosen)+"_Output";
 		if (isEPOS) PathIn[PtTrig]+="_EPOS";
-		if (isEtaEff) PathIn[PtTrig]+="_IsEtaEff";
-		if (MultBinning!=0) PathIn[PtTrig]+=Form("_MultBinning%i", MultBinning);
-		PathIn[PtTrig] += ".root";
 	      }
+	      if (isMEFrom13TeV) PathIn[PtTrig]+= "_IsMEFrom13TeV";
+	      if (isEtaEff) PathIn[PtTrig]+="_IsEtaEff";
+	      if (MultBinning!=0) PathIn[PtTrig]+=Form("_MultBinning%i", MultBinning);
+	      PathIn[PtTrig] += ".root";
 	    }
 	    else{
 	      PathIn[PtTrig]+= hhCorr[ishhCorr]+ Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f", 0, sysV0, sysOOJ, PtTrigChosen)+"_Output";
@@ -915,9 +922,6 @@ void OOJDistributionComparisonNew(Int_t indexSysV0=0,  Int_t sysTrigger=0,  Int_
 	      hDeltaEtaDeltaPhi_PhiProjJetBulk_PtV0Summed[m][IntisMC][PtTrig]    ->Add(	  hDeltaEtaDeltaPhi_PhiProjJetBulk[m][v][PtTrig]);
 	    }
 
-
-	    //	    canvasPlotProj[m][IntisMC]->cd(v+1);
-	    cout << "cd chosen " << endl;
 	    gPad->SetLeftMargin(0.2);
 
 	    Gaussian[m][v][PtTrig]= new TF1 ( Form("GaussianFit_m%i_v%i_PtTrig%i", m,v,PtTrig),"gaus",  -0.8, 0.8);
@@ -1026,17 +1030,34 @@ void OOJDistributionComparisonNew(Int_t indexSysV0=0,  Int_t sysTrigger=0,  Int_
 		hDeltaEtaDeltaPhi_PhiProjBulkReb[m][v][PtTrig]->Draw("same");
 		tlinePhiBase->Draw("same");
 	      }
+	      if (PtBinning==0)	      canvasPlotProjBis[m][IntisMC]->cd(v);
+	      else       canvasPlotProjBis[m][IntisMC]->cd(v+1);
+	      if (v<numPtV0MaxOOJ){
+		hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethodRebin[m][v][PtTrig]->GetYaxis()->SetRangeUser(0.8*hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethodRebin[m][v][PtTrig]->GetBinContent( hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethodRebin[m][v][PtTrig]->GetMinimumBin()), 1.2*hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethodRebin[m][v][PtTrig]->GetBinContent( hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethodRebin[m][v][PtTrig]->GetMaximumBin()));
+		hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethodRebin[m][v][PtTrig]->Draw("hist p e");
+		hDeltaEtaDeltaPhi_PhiProjBulkReb[m][v][PtTrig]->Draw("same");
+	      }
+	      if (PtBinning==0)	      canvasPlotProjBis[m][IntisMC]->cd(v+numC);
+	      else       canvasPlotProjBis[m][IntisMC]->cd(v+1+numC);
+	      if (v<numPtV0MaxOOJ){
+		//		hDeltaEtaDeltaPhi_PhiProjJetDefaultMethod[m][v][PtTrig]->GetYaxis()->SetRangeUser(3*hDeltaEtaDeltaPhi_PhiProjJetDefaultMethod[m][v][PtTrig]->GetBinContent( hDeltaEtaDeltaPhi_PhiProjJetDefaultMethod[m][v][PtTrig]->GetMinimumBin()), 3*hDeltaEtaDeltaPhi_PhiProjJetDefaultMethod[m][v][PtTrig]->GetBinContent( hDeltaEtaDeltaPhi_PhiProjJetDefaultMethod[m][v][PtTrig]->GetMaximumBin()));
+		hDeltaEtaDeltaPhi_PhiProjJetDefaultMethod[m][v][PtTrig]->GetYaxis()->SetRangeUser(-0.01*10e-3, 0.02*10e-3);
+		cout <<  hDeltaEtaDeltaPhi_PhiProjJetDefaultMethod[m][v][PtTrig]->GetBinContent( hDeltaEtaDeltaPhi_PhiProjJetDefaultMethod[m][v][PtTrig]->GetMaximumBin())<< endl;
+		hDeltaEtaDeltaPhi_PhiProjJetDefaultMethod[m][v][PtTrig]    ->DrawClone("same");
+		tlinePhiBase->Draw("same");
+	      }
 
-	      if (numC==4)	      canvasPlotProj[m][IntisMC]->cd(v+4);
-	      else  if (numC==6)	      canvasPlotProj[m][IntisMC]->cd(v+7);
+	      if (PtBinning==0)	      canvasPlotProj[m][IntisMC]->cd(v+numC);
+	      else	      canvasPlotProj[m][IntisMC]->cd(v+numC+1);
 	      gPad->SetLeftMargin(0.15);
 	      if (v<numPtV0MaxOOJ){
 		hDeltaEtaDeltaPhi_PhiProjJetNotBulkSubDefaultMethod[m][v][PtTrig]->Draw("");
 		tlinePhiBase->Draw("same");
 	      }
 
-	      if (numC==4)    canvasPlotProj[m][IntisMC]->cd(v+8);
-	      else 	      if (numC==6) canvasPlotProj[m][IntisMC]->cd(v+13);	      gPad->SetLeftMargin(0.15);
+	      if (PtBinning==0)	      canvasPlotProj[m][IntisMC]->cd(v+numC);
+	      else	      canvasPlotProj[m][IntisMC]->cd(v+2*numC+1);
+	      gPad->SetLeftMargin(0.15);
 	      if (v<numPtV0MaxOOJ){
 		hDeltaEtaDeltaPhi_PhiProjJetBulk[m][v][PtTrig]->Rebin(2);
 		hDeltaEtaDeltaPhi_PhiProjJetBulk[m][v][PtTrig]->Draw("");
@@ -1085,8 +1106,8 @@ void OOJDistributionComparisonNew(Int_t indexSysV0=0,  Int_t sysTrigger=0,  Int_
 	    //I rescale the histogram of the OOJ distribution
 
 	    if (LoopFile==1)	 {
-	      if (numC==4) 	      canvasPlotProj[m][IntisMC]->cd(v+4);
-	      else if (numC==6) 	      canvasPlotProj[m][IntisMC]->cd(v+7);
+	      if (PtBinning==0)	      canvasPlotProj[m][IntisMC]->cd(v+numC);
+	      else	      canvasPlotProj[m][IntisMC]->cd(v+numC+1);
 	      ScalingFactorBulk[m][v]=	      hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig]->Integral( hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig]->FindBin(1),  hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig]->FindBin(2));
 	      hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig]->Sumw2();
 	      hDeltaEtaDeltaPhi_PhiProjBulkScaled[m][v][PtTrig]= (TH1F*) 	      hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig]->Clone(namePhiProjBulk[m][v]+ "Scaled");
@@ -1143,8 +1164,8 @@ void OOJDistributionComparisonNew(Int_t indexSysV0=0,  Int_t sysTrigger=0,  Int_
 		hDeltaEtaDeltaPhi_PhiProjJetNRebinDRatio[m][v][PtTrig]->SetBinError(b,TMath::Abs(hDeltaEtaDeltaPhi_PhiProjJetDefaultMethod[m][v][PtTrig]->GetBinError(b)-hDeltaEtaDeltaPhi_PhiProjJetNewMethodRebinSub[m][v][PtTrig]->GetBinError(b)));
 	      }
 
-	      if (numC==4)	      canvasPlotProj[m][IntisMC]->cd(v+8);
-	      else if (numC==6) 	      canvasPlotProj[m][IntisMC]->cd(v+13);
+	      if (PtBinning==0)	      canvasPlotProj[m][IntisMC]->cd(v+2*numC);
+	      else	      canvasPlotProj[m][IntisMC]->cd(v+2*numC+1);
 	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMultRebin[m][v][PtTrig]= (TH1F*) 	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMult[m][v][PtTrig]->Clone(namePhiProjBulk[m][v]+ "ScaledAllMultRebin");
 	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMultRebin[m][v][PtTrig]->Rebin(2);
 	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMultRebin[m][v][PtTrig]->GetYaxis()->SetRangeUser(LimInfY[ishhCorr], LimSupY[ishhCorr]);
@@ -1206,8 +1227,8 @@ void OOJDistributionComparisonNew(Int_t indexSysV0=0,  Int_t sysTrigger=0,  Int_
 	      pol0JetRebSmoothBis[m][v]= new TF1(Form("pol0JetRebSmoothBis_m%i_v%i", m, v), "pol0", 1.5, 3.5);
 	      pol0JetRebSmooth[m][v]->SetLineColor(628);
 	      pol0JetRebSmoothBis[m][v]->SetLineColor(kAzure+7);
-	      hDeltaEtaDeltaPhi_PhiProjJetRebSmooth[m][v][PtTrig]->Fit(pol0JetRebSmooth[m][v], "R+");
-	      hDeltaEtaDeltaPhi_PhiProjJetRebSmoothBis[m][v][PtTrig]->Fit(pol0JetRebSmoothBis[m][v], "R+");
+	      //	      hDeltaEtaDeltaPhi_PhiProjJetRebSmooth[m][v][PtTrig]->Fit(pol0JetRebSmooth[m][v], "R+");
+	      //	      hDeltaEtaDeltaPhi_PhiProjJetRebSmoothBis[m][v][PtTrig]->Fit(pol0JetRebSmoothBis[m][v], "R+");
 
 	      //	      pol0BulkSmooth[m][v][PtTrig]->SetRange(-3/2*TMath::Pi(), TMath::Pi());
 	      hDeltaEtaDeltaPhi_PhiProjJetRebSmoothFit[m][v][PtTrig]->Add(pol0BulkSmooth[m][v][PtTrig],-1, "i");
@@ -1230,8 +1251,22 @@ void OOJDistributionComparisonNew(Int_t indexSysV0=0,  Int_t sysTrigger=0,  Int_
 	      fileout->WriteTObject(hDeltaEtaDeltaPhi_PhiProjJetRebSmoothFit[m][v][PtTrig]);
 	      fileout->WriteTObject(hDeltaEtaDeltaPhi_PhiProjJetRebCorrMultBis[m][v][PtTrig]);
 
-	      if (numC==4)	      canvasPlotProj[m][IntisMC]->cd(v+12);
-	      else if (numC==6) 	      canvasPlotProj[m][IntisMC]->cd(v+19);
+	      if (PtBinning==0)	      canvasPlotProjBis[m][IntisMC]->cd(v);
+	      else       canvasPlotProjBis[m][IntisMC]->cd(v+1);
+	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMultSmoothed[m][v][PtTrig]->SetMarkerColor(kViolet);
+	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMultSmoothed[m][v][PtTrig]->SetLineColor(kViolet);
+	      hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMultSmoothed[m][v][PtTrig]->Draw("same hist ep");
+	      //hDeltaEtaDeltaPhi_PhiProjBulkScaledAllMultRebin[m][v][PtTrig]->Draw("same hist ep");
+
+	      if (PtBinning==0)	      canvasPlotProjBis[m][IntisMC]->cd(v+numC);
+	      else	      canvasPlotProjBis[m][IntisMC]->cd(v+numC+1);
+	      hDeltaEtaDeltaPhi_PhiProjJetRebSmooth[m][v][PtTrig]->SetLineColor(kAzure+5);
+	      hDeltaEtaDeltaPhi_PhiProjJetRebSmooth[m][v][PtTrig]->SetMarkerColor(kAzure+5);
+	      hDeltaEtaDeltaPhi_PhiProjJetRebSmooth[m][v][PtTrig]->DrawClone("same ep");
+
+
+	      if (PtBinning==0)	      canvasPlotProj[m][IntisMC]->cd(v+3*numC);
+	      else	      canvasPlotProj[m][IntisMC]->cd(v+3*numC+1);
 	      hDeltaEtaDeltaPhi_PhiProjBulkScaledToInclusiveAllMult[m][v][PtTrig]->Rebin(2);
 	      hDeltaEtaDeltaPhi_PhiProjBulkScaledToInclusiveAllMult[m][v][PtTrig]->Smooth();
 	     
@@ -1550,25 +1585,30 @@ void OOJDistributionComparisonNew(Int_t indexSysV0=0,  Int_t sysTrigger=0,  Int_
       fileout->WriteTObject(canvasPlotOOJDistr[m][IntisMC][1]); 
       fileout->WriteTObject(canvasPlotME[m][IntisMC]); 
       fileout->WriteTObject(canvasPlotProj[m][IntisMC]); 
+      fileout->WriteTObject(canvasPlotProjBis[m][IntisMC]); 
       fileout->WriteTObject(canvasPlotProjAllPt[m][IntisMC]); 
       fileout->WriteTObject(canvasPlotProjRatioJet[m][IntisMC]); 
 
       if (m==nummolt && IntisMC == LimInfMC) {
 	canvasPlotProj[m][IntisMC]->SaveAs(nomepdffile+"_PlotProj.pdf(");
+	canvasPlotProjBis[m][IntisMC]->SaveAs(nomepdffile+"_PlotProjBis.pdf(");
 	canvasPlotProjAllPt[m][IntisMC]->SaveAs(nomepdffile+"_PlotProjAllPt.pdf(");
       }
       else if ((m==0 || (isppHM && m==2)) && IntisMC == LimSupMC) {
 	canvasPlotProj[m][IntisMC]->SaveAs(nomepdffile+"_PlotProj.pdf)");  
+	canvasPlotProjBis[m][IntisMC]->SaveAs(nomepdffile+"_PlotProjBis.pdf)");  
 	canvasPlotProjAllPt[m][IntisMC]->SaveAs(nomepdffile+"_PlotProjAllPt.pdf)");  
       }
       else {
 	canvasPlotProj[m][IntisMC]->SaveAs(nomepdffile+"_PlotProj.pdf"); 
+	canvasPlotProjBis[m][IntisMC]->SaveAs(nomepdffile+"_PlotProjBis.pdf"); 
 	canvasPlotProjAllPt[m][IntisMC]->SaveAs(nomepdffile+"_PlotProjAllPt.pdf"); 
       }
 
       canvasPlot[m][IntisMC]->Close(); 
       canvasPlotME[m][IntisMC]->Close(); 
       canvasPlotProj[m][IntisMC]->Close(); 
+      canvasPlotProjBis[m][IntisMC]->Close(); 
       canvasPlotProjRatioJet[m][IntisMC]->Close(); 
 
       for (Int_t t=0; t<3; t++){

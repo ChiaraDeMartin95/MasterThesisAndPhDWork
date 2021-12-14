@@ -15,7 +15,7 @@
 #include <TTree.h>
 #include <TLatex.h>
 #include <TFile.h>
-void readTreePLChiaraCasc_firstSmallestTree(Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus, =2 for OmegaMinus, =3 for OmegaPlus */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, Int_t sysV0=0, bool isMC = 0,Bool_t isEfficiency=1,Int_t sysTrigger=0,			    TString year=/*"AllMC_hXi"/*"2015f"/*"2015g3b1"*/"Run2DataRed_MECorr_hXi"/*"2016kl_hXi"/*"2016k_hXi_MECorr_25runs"/"1617GP_hXi"/*"2018f1_extra_hXi_CommonParton"*/, TString year0="2016", TString Path1 ="", Bool_t CommonParton=0, Int_t MultBinning=0)
+void readTreePLChiaraCasc_firstSmallestTree(Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus, =2 for OmegaMinus, =3 for OmegaPlus */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=0.15, Float_t ptjmax=2.5, Int_t sysV0=0, bool isMC = 1,Bool_t isEfficiency=1,Int_t sysTrigger=0,			    TString year="161718_MD_EtaEff_LowPtTrig_hXi"/*"161718Full_AOD234_hXi"/*"161718Full_AOD234_hXi"/*"AllMC_hXi"/*"2015f"/*"2015g3b1"*"Run2DataRed_MECorr_hXi"/*"2016kl_hXi"/*"2016k_hXi_MECorr_25runs"/"1617GP_hXi"/*"2018f1_extra_hXi_CommonParton"*/, TString year0="2016", TString Path1 ="", Bool_t CommonParton=0, Int_t MultBinning=0, Bool_t isNewInputPath=1)
 {
 
   //rap=0 : no rapidity window chsen for cascade, |Eta| < 0.8; rap=1 |y| < 0.5
@@ -28,7 +28,7 @@ void readTreePLChiaraCasc_firstSmallestTree(Int_t type=4 /*type = 0 for XiMinus,
   if (sysV0>6) return;
   if (sysV0>2 && ishhCorr) return;
 
-  //I set the loostest topological selections (an also the loosest DCAz for trigger)
+  //I set the loostest topological selections (and also the loosest DCAz for trigger)
   Float_t DCAXiDaughters=1.8;
   Float_t CosinePAngleXiToPV=0.95;
   Float_t CosinePAngleV0ToXi=0.95;
@@ -73,10 +73,37 @@ void readTreePLChiaraCasc_firstSmallestTree(Int_t type=4 /*type = 0 for XiMinus,
   TFile *fin = new TFile(PathIn);
   if (!fin) {cout << "file input not available " ; return;}
   TDirectoryFile *d = (TDirectoryFile*)fin->Get("MyTask"+dirinputtype[type]);
+  if (isNewInputPath)  {
+    d = (TDirectoryFile*)fin->Get("MyTaskXi_PtTrigMin3.0_PtTrigMax15.0");
+    if (isMC) {
+      d = (TDirectoryFile*)fin->Get("MyTaskXi_MCTruth_PtTrigMin3.0_PtTrigMax15.0");
+      if (TMath::Abs(PtTrigMin - 0.15) < 0.001) d = (TDirectoryFile*)fin->Get("MyTaskXi_PtTrigMin3.0_PtTrigMax15.0");
+    }
+  }
   if (!d)  {cout << "dir input not available " ; return;}
 
-  TTree *tSign = (TTree *)d->Get("fSignalTree");
-  TTree *tBkg  = (TTree *)d->Get("fBkgTree");
+  TString NameContainer= "";
+  NameContainer = "_hXi_Task_Default";
+  if (TMath::Abs(PtTrigMin - 0.15) < 0.001)        NameContainer = "_hXi_Task_LowPtTrig";
+  if (isMC) {
+    NameContainer = "_hXi_Task_RecoAndEfficiency";
+    if (TMath::Abs(PtTrigMin - 0.15) < 0.001)      NameContainer = "_hK0s_Task_RecoAndEfficiencyLowPt";
+  }
+
+  cout << "NameContainer " << NameContainer << endl;
+  TTree *tSign;
+  TTree *tBkg;
+  if (isNewInputPath && !isMC){
+    tSign = (TTree *)d->Get("MyOutputContainer1" + NameContainer);
+    tBkg  = (TTree *)d->Get("MyOutputContainer2" + NameContainer);
+  }
+  else {
+    tSign = (TTree *)d->Get("fSignalTree");
+    tBkg  = (TTree *)d->Get("fBkgTree");
+  }
+
+  if (!tSign || !tBkg) return;
+
   Double_t massK0s = 0.497611;
   Double_t massLambda = 1.115683;
   Bool_t MassInPeakCasc=0;
@@ -202,7 +229,7 @@ void readTreePLChiaraCasc_firstSmallestTree(Int_t type=4 /*type = 0 for XiMinus,
 
   
   //what is the fraction of AC events in each multiplicity class?
-  TList *d1 = (TList*)d->Get("MyOutputContainer");
+  TList *d1 = (TList*)d->Get("MyOutputContainer"+NameContainer);
   if (!d1) return;
   TH1F* fHistEventMult=(TH1F*)  d1->FindObject("fHistEventMult");
   if (!fHistEventMult) cout << "no info about total number of INT7 events analyzed" << endl;
