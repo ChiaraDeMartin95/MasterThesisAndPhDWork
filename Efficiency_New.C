@@ -22,11 +22,21 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
   return sqrt(((Double_t)k+1)*((Double_t)k+2)/(n+2)/(n+3) - pow((Double_t)(k+1),2)/pow(n+2,2));
 }
 
-void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int_t indexsysTrigger=0,  Int_t type=6, Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0, Int_t israp=0, TString ResoHisto="2D",Bool_t SkipAssoc=1 ,   Float_t ptjmin=3,  Float_t ptjmax=15, Int_t sysV0=0, TString data=/*"1617MC_hK0s"/*"1617GP_hXi_EtaEff"/"AllMC_hXi_EtaEff"/*"2018f1_extra_30runs_hK0s"/*/"2019h11c_extra_HM_hK0s"/*"161718_MD_EtaEff_hXi"/*"17d20bEPOS_hXi"/*"17d20bEPOS_hK0s"/"2018f1_extra_hK0s"/*"1617GP_hXi" /*"2018f1_extra_MECorr"/"2018f1_extra_hK0s_CP"/* "2018f1_extra_hK0s_CP"/*"2018f1_extra_hK0s_CP_10runs_Bis"/"AllMC_hXi"/"161718_MD_hXi"/* "17anch17_hK0s"/"1617MC_hK0s"/"2018f1g4_extra_hXi"/"2018f1_extra_DEtaEff_50runs"/"2018g4_extra_EtaEff_hK0s"/*"2018f1g4_extra_EtaEff_hXi"/"161718_MD_EtaEff_hXi"*/, TString year0="2016", TString path1=""/*"_New"*/ /*"_10runs_FB128_TrackLengthCut"/"_NewMultClassBis"/"_PtTrigMax2.5"*/, Int_t MultBinning=1, Int_t PtBinning=1, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsPtTrigMultDep=0, Int_t EffRegion=0, Bool_t isEfficiencyMassSel=0, Bool_t isMCTruth=0, Bool_t isEtaEff=1, Bool_t isNewInputPath=1, Bool_t isHM=1){
+void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int_t indexsysTrigger=0,  Int_t type=6, Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0, Int_t israp=0, TString ResoHisto="2D",Bool_t SkipAssoc=1,   Float_t ptjmin=3,  Float_t ptjmax=15, Int_t sysV0=0, TString data="LHC19h11_HM_INELgt0Bis286380"/*"161718_HM_hXi_LowPtTrig"/"161718Full_AOD235_hXi"/*"161718_HM_hXi"/*"LHC18_GP_AOD235"*"17pq_hXi"/*"17pq_pp5TeV_hXi_pttrig0.15"/*"17d20bEPOS_hK0s_EtaEff"/*"2019h11b+extra_hK0s"/"2019h11_HM_hK0s"/**"2018f1_extra_15runs_Trig0Pt"/*"15g3c3_hK0s"/"2018f1_extra_15runs_NSigma5"/*"1617_GP_AOD235_With18c12b"/*"1617_AOD234_hK0s"/*"17pq_hK0s_pttrig0.15"/*"1617_GP_AOD235_With18c12b"/*"2017e5_extra_AOD235_hK0s"/*"17pq_hK0s_CENTwoSDD"/*"2019h11a_extra_HM_hK0s"/*"1617MC_hK0s"/*"1617GP_hXi_EtaEff"/"AllMC_hXi_EtaEff"/*"2018f1_extra_30runs_hK0s"/*"2019h11c_extra_HM_hK0s"/*"161718_MD_EtaEff_hXi"/*"17d20bEPOS_hXi"/*"17d20bEPOS_hK0s"/"2018f1_extra_hK0s"/*"1617GP_hXi" /*"2018f1_extra_MECorr"/"2018f1_extra_hK0s_CP"/* "2018f1_extra_hK0s_CP"/*"2018f1_extra_hK0s_CP_10runs_Bis"/"AllMC_hXi"/"161718_MD_hXi"/* "17anch17_hK0s"/"1617MC_hK0s"/"2018f1g4_extra_hXi"/"2018f1_extra_DEtaEff_50runs"/"2018g4_extra_EtaEff_hK0s"/*"2018f1g4_extra_EtaEff_hXi"/"161718_MD_EtaEff_hXi"*/, TString year0="2016", TString path1=""/*"_New"*/ /*"_10runs_FB128_TrackLengthCut"/"_NewMultClassBis"/"_PtTrigMax2.5"*/, Int_t MultBinning=0, Int_t PtBinning=1, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsPtTrigMultDep=0, Int_t EffRegion=0, Bool_t isEfficiencyMassSel=0, Bool_t isMCTruth=0, Bool_t isEtaEff=1, Bool_t isNewInputPath=1, Bool_t isHM=0, Bool_t isINEL =1){
   //  if (type==6 && israp!=0) return; //so far I haven't appended any info on the rapidity to efficiency output files for K0s; if I decide to do as ofr the cascade, just remove this line
 
   //the Preliminary results have been obtained using isEtaEff==0 (no calculation of ptvseta eff performed)
   if (data == "AllMC_hXi" || data == "1617MC_hK0s") isEtaEff=0;
+  if (data =="17pq_hXi") MultBinning=3;
+
+  if (data == "LHC17o_HM_INELgt0281961" || data == "LHC19h11_HM_INELgt0Bis286380") isINEL=1;
+  if (isINEL){
+    SkipAssoc =0;
+    ptjmin=0.;
+    ptjmax = 30;
+    israp =1;
+    isHM =1;
+  }
 
   Bool_t isSpecial = 0;
   if (data == "AllMC_hXi_EtaEff") {
@@ -117,9 +127,7 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
 
     fileinbisPart1 = new TFile(PathInBisPart1, "");
     fileinbisPart2 = new TFile(PathInBisPart2, "");
-
   }
-
 
   TString PathOutCanvas="";
   TString PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + path1;
@@ -127,11 +135,11 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   if (PtBinning>0) PathOut2 += Form("_PtBinning%i",PtBinning);
   if (CommonParton && isCPEff)  PathOut2 += "_CPEff";
   if (CommonParton && !isCPEff)  PathOut2 += "_NOCPEff";
-  if (isSysDef && isDefaultSel)  PathOut2 += "_"+tipo[type]+Srap[israp]+Form("_SysT%i_SysV0Default_PtMin%.1f.root", sysTrigger,  PtTrigMin);
-  else if (isSysDef && isLoosest)  PathOut2 += "_"+tipo[type]+Srap[israp]+Form("_SysT%i_SysV0Loosest_PtMin%.1f.root", sysTrigger,  PtTrigMin);
-  else if (isSysDef && isTightest)  PathOut2 += "_"+tipo[type]+Srap[israp]+Form("_SysT%i_SysV0Tightest_PtMin%.1f.root", sysTrigger,  PtTrigMin);
-  else  if (isSysDef && !isDefaultSel && sysTrigger==0)  PathOut2 += "_"+tipo[type]+Srap[israp]+Form("_SysT%i_SysV0index%i_PtMin%.1f.root", sysTrigger, indexSysV0, PtTrigMin);
-  else  if (isSysDef && !isDefaultSel && sysTrigger==1)  PathOut2 += "_"+tipo[type]+Srap[israp]+Form("_SysTindex%i_SysV0%i_PtMin%.1f.root", indexsysTrigger, 0, PtTrigMin);
+  if (isSysDef && isDefaultSel)  PathOut2 += "_"+tipo[type]+Srap[israp]+Form("_SysT%i_SysV0Default_PtMin%.1f", sysTrigger,  PtTrigMin);
+  else if (isSysDef && isLoosest)  PathOut2 += "_"+tipo[type]+Srap[israp]+Form("_SysT%i_SysV0Loosest_PtMin%.1f", sysTrigger,  PtTrigMin);
+  else if (isSysDef && isTightest)  PathOut2 += "_"+tipo[type]+Srap[israp]+Form("_SysT%i_SysV0Tightest_PtMin%.1f", sysTrigger,  PtTrigMin);
+  else  if (isSysDef && !isDefaultSel && sysTrigger==0)  PathOut2 += "_"+tipo[type]+Srap[israp]+Form("_SysT%i_SysV0index%i_PtMin%.1f", sysTrigger, indexSysV0, PtTrigMin);
+  else  if (isSysDef && !isDefaultSel && sysTrigger==1)  PathOut2 += "_"+tipo[type]+Srap[israp]+Form("_SysTindex%i_SysV0%i_PtMin%.1f", indexsysTrigger, 0, PtTrigMin);
   else  {
     PathOut2 += "_"+tipo[type]+Srap[israp]+Form("_SysT%i_SysV0%i_PtMin%.1f", sysTrigger,0, PtTrigMin);
     if (IsPtTrigMultDep) PathOut2+="_IsPtTrigMultDep";
@@ -143,9 +151,12 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
     //    PathOut2+= "_thinptbins";
     //    PathOut2+= "_Try";
     //    PathOut2 += "_HM";
-    if (MultBinning!=0) PathOut2+=Form("_MultBinning%i", MultBinning);
-    PathOut2+= ".root";
   }
+
+  if (MultBinning!=0) PathOut2+=Form("_MultBinning%i", MultBinning);
+  if (isINEL) PathOut2+= "_INEL";
+  PathOutCanvas = PathOut2;
+  PathOut2+= ".root";
 
   if (!ishhCorr && !SkipAssoc)PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + path1+ Form("_PtBinning%i",PtBinning)+ "_"+tipo[type]+Srap[israp]+Form("_AllAssoc_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
   if (ishhCorr) PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file  + path1 + Form("_PtBinning%i",PtBinning)+"_"+Srap[israp]+ "_hhCorr"+Form("_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
@@ -185,12 +196,14 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   else  if (isSysDef && !isDefaultSel && sysTrigger==1) PathInSel +=Form("_MassDistr_SysTindex%i_SysV0%i_PtMin%.1f",indexsysTrigger, 0, PtTrigMin);
   else  PathInSel +=Form("_MassDistr_SysT%i_SysV0%i_PtMin%.1f",sysTrigger, 0, PtTrigMin);
   if (IsPtTrigMultDep) PathInSel+="_IsPtTrigMultDep";
-  if(    isEfficiencyMassSel) PathInSel+= "_isEfficiencyMassSel";
+  if (isEfficiencyMassSel) PathInSel+= "_isEfficiencyMassSel";
   if (DEtaEff==1)PathInSel+="_Incl";   
   else if (DEtaEff==2)PathInSel+="_Jet";   
   else if (DEtaEff==3)PathInSel+="_OOJ";   
   if (MultBinning!=0) PathInSel+=Form("_MultBinning%i", MultBinning);
-  //    PathInSel+= "_HM";
+  //  PathInSel+= "_HM";
+  //  PathInSel+="_LooseCosinePAngle";
+  if (isINEL) PathInSel+= "_INEL";
   PathInSel+= ".root";
   cout << "fileinputSel :" << PathInSel << endl;
 
@@ -203,29 +216,51 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
 
   TString NameContainer= "";
   if (isNewInputPath) {
-    if (PtTrigMin==3.)    NameContainer = "_h" + tipoPart[type]+"_Task_RecoAndEfficiency";
-    else if ((PtTrigMin-0.15) < 0.001) NameContainer = "_h" + tipoPart[type]+"_Task_RecoAndEfficiencyLowPt";
-    if (data == "2019h11c_extra_HM_hK0s") NameContainer = "_hK0s_Task_suffix";
+    if (type==6) NameContainer = "_hK0s_Task_RecoAndEfficiency";
+    else {
+      if (PtTrigMin==3.)    NameContainer = "_h" + tipoPart[type]+"_Task_RecoAndEfficiency";
+    }
+    if ((PtTrigMin-0.15) < 0.001) NameContainer = "_h" + tipoPart[type]+"_Task_RecoAndEfficiencyLowPt";
+    //    if (data.Index("2019h11")!=-1) NameContainer = "_hK0s_Task_suffix";
+    if (data.Index("2019h11")!=-1) NameContainer = "_hK0s_Task_RecoAndEfficiency";
+    if (data.Index("17pq_hK0s")!=-1) NameContainer = "_hK0s_Task_RecoAndEfficiency";
+    if (data.Index("17pq_pp5TeV_hXi")!=-1) NameContainer = "_hXi_Task_RecoAndEfficiency";
+    //    else NameContainer = "_hK0s_Task_suffix";
     //    if (PtTrigMin==3.)    NameContainer = "_h" + tipoPart[type]+"_Task_suffix";
+    if (data == "LHC19h11_HM_INELgt0Bis286380")       NameContainer = "_hK0s_Task_suffix";
   }
 
+  cout << "NameContainer " << NameContainer<< endl;
   TDirectoryFile *dir;
   TDirectoryFile *dirPart1;
   TDirectoryFile *dirPart2;
   if (isNewInputPath){
     if (type==4) {
-      dir = (TDirectoryFile*)fileinbis->Get("MyTask"+ tipoPart[type]+ "_PtTrigMin3.0_PtTrigMax15.0"); 
+      dir = (TDirectoryFile*)fileinbis->Get("MyTask"+ tipoPart[type]+ "_MCTruth_PtTrigMin3.0_PtTrigMax15.0"); 
     }
     else if (type==6) {
-      if (data =="2019h11c_extra_HM_hK0s")   {
-	dir = (TDirectoryFile*)fileinbis->Get("MyTask"+ tipoPart[type]+ "_PtTrigMin3.0_PtTrigMax30.0"); 
+      dir = (TDirectoryFile*)fileinbis->Get("MyTask_MCTruth_PtTrigMin3.0_PtTrigMax15.0");   
+      if (data.Index("2019h11")!=-1)   {
+	//	dir = (TDirectoryFile*)fileinbis->Get("MyTask"+ tipoPart[type]+ "_PtTrigMin3.0_PtTrigMax30.0"); 
       }
-      else dir = (TDirectoryFile*)fileinbis->Get("MyTask"+ tipoPart[type]+ "_PtTrigMin3.0_PtTrigMax15.0"); 
+      if (data.Index("NoTrackLength")!=-1) 	dir = (TDirectoryFile*)fileinbis->Get("MyTask"+ tipoPart[type]+ "_PtTrigMin0.2_PtTrigMax15.0"); 
+      if (data.Index("Trig0Pt")!=-1) 	dir = (TDirectoryFile*)fileinbis->Get("MyTask_PtTrigMin0.0_PtTrigMax15.0"); 
+      if (data.Index("OOBPileUp")!=-1) 	dir = (TDirectoryFile*)fileinbis->Get("MyTask"+ tipoPart[type]+ "_PtTrigMin0.2_PtTrigMax15.0"); 
+      if (data.Index("NSigma5")!=-1) 	dir = (TDirectoryFile*)fileinbis->Get("MyTask_PtTrigMin0.2_PtTrigMax15.0"); 
+      if (data.Index("V0Radius")!=-1) 	dir = (TDirectoryFile*)fileinbis->Get("MyTask_PtTrigMin0.2_PtTrigMax15.0"); 
+      if (data.Index("17pq_hK0s")!=-1) 	dir = (TDirectoryFile*)fileinbis->Get("MyTask_MCTruth_PtTrigMin3.0_PtTrigMax15.0");
+      if (data.Index("AOD235")!=-1) dir = (TDirectoryFile*)fileinbis->Get("MyTask_MCTruth_PtTrigMin3.0_PtTrigMax15.0");
+      if (data.Index("15g3c3")!=-1) dir = (TDirectoryFile*)fileinbis->Get("MyTask_MCTruth_PtTrigMin3.0_PtTrigMax15.0");
+      if (data == "LHC17o_HM_INELgt0281961" || data == "LHC19h11_HM_INELgt0Bis286380") {
+	dir = (TDirectoryFile*)fileinbis->Get("MyTask_PtTrigMin0.2_PtTrigMax30.0");
+      }
+      //      else dir = (TDirectoryFile*)fileinbis->Get("MyTask"+ tipoPart[type]+ "_PtTrigMin3.0_PtTrigMax15.0"); 
     }
     //    dir = (TDirectoryFile*)fileinbis->Get("MyTask" +tipo[type]+ Form("_PtTrigMin%.1f_PtTrigMax%.1f", PtTrigMin, ptjmax));
   } else {
     dir = (TDirectoryFile*)fileinbis->Get("MyTask"+tipoPart[type]);
   }
+
   if (!dir)  {cout << "dir input not available" ; return;}
 
   if (isSpecial && data=="AllMC_hXi_EtaEff"){
@@ -334,6 +369,10 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   TString Smolt2[nummolt+1]={"0-2", "2-7", "7-15", "15-30", "30-100", "_all"};
   TString SmoltLegend2[nummolt+1]={"0-2 %", "2-7 %", "7-15 %", "15-30 %", "30-100 %", "0-100 %"};
   Double_t Nmolt2[nummolt+1]={0,2,7,15,30,100}; 
+
+  TString Smolt5TeV[nummolt+1]={"0-10", "10-100", "100-100", "100-100", "100-100", "_all"};
+  TString SmoltLegend5TeV[nummolt+1]={"0-10 %", "10-100 %", "100-100 %", "100-100 %", "100-100 %", "0-100 %"};
+  Double_t Nmolt5TeV[nummolt+1]={0,10,100,100,100,100}; 
   
   for (Int_t m =0; m< nummolt+1; m++){  
     if (MultBinning==0){
@@ -350,6 +389,11 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
       Smolt[m] = Smolt2[m];
       SmoltLegend[m] = SmoltLegend2[m];
       Nmolt[m] = Nmolt2[m];
+    }
+    else    if (MultBinning==3){
+      Smolt[m] = Smolt5TeV[m];
+      SmoltLegend[m] = SmoltLegend5TeV[m];
+      Nmolt[m] = Nmolt5TeV[m];
     }
   }
 
@@ -471,18 +515,23 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   Int_t ColorSysTrigger[numSysTrigger]={2,3,4};
   Int_t ColorSysV0[numSysV0]={2,419,4, kAzure+8,8,881};
 
-  //  gStyle->SetOptStat(0);
+  gStyle->SetOptStat(0);
  
   TCanvas* canvasEtaEff = new TCanvas("canvasEtaEff", "canvasEtaEff", 1300, 800);
-  canvasEtaEff->Divide(3,2);
+  if ((isHM && MultBinning==1) || MultBinning==3)   canvasEtaEff->Divide(2,2); 
+  else  canvasEtaEff->Divide(3,2);
 
   TCanvas* canvasV0EffEtaRegion = new TCanvas("canvasV0EffEtaRegion", "canvasV0EffEtaRegion", 1300, 800);
-  canvasV0EffEtaRegion->Divide(3,2);
-  TCanvas* canvasV0EffEtaRegionRatio = new TCanvas("canvasV0EffEtaRegionRatio", "canvasV0EffEtaRegionRatio", 1300, 800);
-  canvasV0EffEtaRegionRatio->Divide(3,2);
-  TCanvas* canvasV0EffEtaRegionRelErr = new TCanvas("canvasV0EffEtaRegionRelErr", "canvasV0EffEtaRegionRelErr", 1300, 800);
-  canvasV0EffEtaRegionRelErr->Divide(3,2);
+  if ((isHM && MultBinning==1) || MultBinning==3)   canvasV0EffEtaRegion->Divide(2,2); 
+  else canvasV0EffEtaRegion->Divide(3,2);
 
+  TCanvas* canvasV0EffEtaRegionRatio = new TCanvas("canvasV0EffEtaRegionRatio", "canvasV0EffEtaRegionRatio", 1300, 800);
+  if ((isHM && MultBinning==1) || MultBinning==3)   canvasV0EffEtaRegionRatio->Divide(2,2); 
+  else canvasV0EffEtaRegionRatio->Divide(3,2);
+
+  TCanvas* canvasV0EffEtaRegionRelErr = new TCanvas("canvasV0EffEtaRegionRelErr", "canvasV0EffEtaRegionRelErr", 1300, 800);
+  if ((isHM && MultBinning==1) || MultBinning==3)   canvasV0EffEtaRegionRelErr->Divide(2,2); 
+  else canvasV0EffEtaRegionRelErr->Divide(3,2);
 
   TCanvas *canvasEff=new TCanvas ("canvasEff", "canvasEff", 1500, 800);
   TCanvas *canvasEffBis[6];
@@ -899,7 +948,7 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   cout << "Sto effettuando istogrammi efficienze in range di molteplicita'" << endl;
     
   for(Int_t molt=0; molt < nummolt+1; molt++){
-
+    if (isHM && MultBinning==1 && molt<2) continue;
     if (IsPtTrigMultDep) {
       ptjmin = PtTrigMultDep[molt];
       if (type==0 || type ==2) {
@@ -1343,7 +1392,12 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
 	}
       }
 
-      canvasEtaEff->cd(molt+1);
+      if (isHM && MultBinning==1)       canvasEtaEff->cd(molt+1-2);
+      else if (MultBinning==3)  {
+	if (molt<=1)	canvasEtaEff->cd(molt+1);
+	else 	canvasEtaEff->cd(3);
+      }
+      else   canvasEtaEff->cd(molt+1);
       fHistV0EfficiencyPtV0EtaV0PtBins[molt]->Draw("colz");
 
       for (Int_t eta = 0; eta<numEta; eta++){
@@ -1403,7 +1457,7 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
 	fHistV0EfficiencyPtEtaRRatio[molt][eta]= (TH1D*) fHistV0EfficiencyPtEtaR[molt][eta]->Clone("fHistV0EfficiencyPtEtaRRatio"+Smolt[molt]+"_Eta"+SEta[eta]);
 	fHistV0EfficiencyPtEtaRRatio[molt][eta]->Divide(fHistV0EfficiencyPtAllEta[molt]);
 
-	if (molt==0){
+	if (molt==5){
 	  legendEtaR->AddEntry(	fHistV0EfficiencyPtEtaR[molt][eta], SEta[eta], "pl");
 	}
 
@@ -1419,10 +1473,20 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
 	  //	cout << " eff: " << fHistV0EfficiencyPtEtaR[molt][eta]->GetBinContent(b) << endl;
 	}
       
-	canvasV0EffEtaRegion->cd(molt+1);
+	if (isHM && MultBinning==1)       canvasV0EffEtaRegion->cd(molt+1-2);
+	else if (MultBinning==3)  {
+	  if (molt<=1)	canvasV0EffEtaRegion->cd(molt+1);
+	  else 	canvasV0EffEtaRegion->cd(3);
+	}
+	else  canvasV0EffEtaRegion->cd(molt+1);
 	fHistV0EfficiencyPtEtaR[molt][eta]->SetBinContent(1,0);
 	fHistV0EfficiencyPtEtaR[molt][eta]->Draw("same");
-	canvasV0EffEtaRegionRatio->cd(molt+1);
+	if (isHM && MultBinning==1)       canvasV0EffEtaRegionRatio->cd(molt+1-2);
+	else if (MultBinning==3)  {
+	  if (molt<=1)	canvasV0EffEtaRegionRatio->cd(molt+1);
+	  else 	canvasV0EffEtaRegionRatio->cd(3);
+	}
+	else  canvasV0EffEtaRegionRatio->cd(molt+1);
 	fHistV0EfficiencyPtEtaRRatio[molt][eta]->SetBinContent(1,0);
 	fHistV0EfficiencyPtEtaRRatio[molt][eta]->GetYaxis()->SetTitle("#varepsilon_{#eta}/#varepsilon_{all #eta}");
 	fHistV0EfficiencyPtEtaRRatio[molt][eta]->GetXaxis()->SetTitleOffset(0.8);
@@ -1430,7 +1494,12 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
 	fHistV0EfficiencyPtEtaRRatio[molt][eta]->SetTitle("Ratio of efficiencies");
 	fHistV0EfficiencyPtEtaRRatio[molt][eta]->GetYaxis()->SetRangeUser(0+10e-7,3);
 	fHistV0EfficiencyPtEtaRRatio[molt][eta]->Draw("same");
-	canvasV0EffEtaRegionRelErr->cd(molt+1);
+	if (isHM && MultBinning==1)       canvasV0EffEtaRegionRelErr->cd(molt+1-2);
+	else if (MultBinning==3)  {
+	  if (molt<=1)	canvasV0EffEtaRegionRelErr->cd(molt+1);
+	  else 	canvasV0EffEtaRegionRelErr->cd(3);
+	}
+	else  canvasV0EffEtaRegionRelErr->cd(molt+1);
 	fHistV0EfficiencyPtEtaRRelErr[molt][eta]->GetXaxis()->SetTitleOffset(0.8);
 	fHistV0EfficiencyPtEtaRRelErr[molt][eta]->GetXaxis()->SetTitleSize(0.05);
 	fHistV0EfficiencyPtEtaRRelErr[molt][eta]->SetTitle("Relative uncertainty of efficiency");
@@ -1438,15 +1507,29 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
 	fHistV0EfficiencyPtEtaRRelErr[molt][eta]->GetYaxis()->SetTitle("Relative uncertainty");
 	fHistV0EfficiencyPtEtaRRelErr[molt][eta]->Draw("same");
       }
-      canvasV0EffEtaRegion->cd(molt+1);
+      if (isHM && MultBinning==1)       canvasV0EffEtaRegion->cd(molt+1-2);
+      else if (MultBinning==3)  {
+	if (molt<=1)	canvasV0EffEtaRegion->cd(molt+1);
+	else 	canvasV0EffEtaRegion->cd(3);
+      }
+      else  canvasV0EffEtaRegion->cd(molt+1);
       fHistV0EfficiencyPtAllEta[molt]->Draw("same");
       legendEtaR->Draw("");
-      canvasV0EffEtaRegionRatio->cd(molt+1);
+      if (isHM && MultBinning==1)       canvasV0EffEtaRegionRatio->cd(molt+1-2);
+      else if (MultBinning==3)  {
+	if (molt<=1)	canvasV0EffEtaRegionRatio->cd(molt+1);
+	else 	canvasV0EffEtaRegionRatio->cd(3);
+      }
+      else  canvasV0EffEtaRegionRatio->cd(molt+1);
       lineat1->Draw("same");
       legendEtaR->Draw("");
-      canvasV0EffEtaRegionRelErr->cd(molt+1);
+      if (isHM && MultBinning==1)       canvasV0EffEtaRegionRelErr->cd(molt+1-2);
+      else if (MultBinning==3)  {
+	if (molt<=1)	canvasV0EffEtaRegionRelErr->cd(molt+1);
+	else 	canvasV0EffEtaRegionRelErr->cd(3);
+      }
+      else  canvasV0EffEtaRegionRelErr->cd(molt+1);
       legendEtaR->Draw("");
-
     }    
     cout << "V0 2D projection in Phi and PtTMax (Pt stands for PtTMax) " << endl;
     if(molt < nummolt){
@@ -2174,6 +2257,7 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
     fileoutbis->WriteTObject(  canvasV0EffEtaRegionRatio);
     fileoutbis->WriteTObject(  canvasV0EffEtaRegionRelErr);
 
+    canvasEtaEff->SaveAs(PathOutCanvas+"_Eff2D.pdf");
     canvasV0EffEtaRegion->SaveAs(PathOutCanvas+"_EffEtaRegions.pdf");
     canvasV0EffEtaRegionRatio->SaveAs(PathOutCanvas+"_EffEtaRegionsRatio.pdf");
     canvasV0EffEtaRegionRelErr->SaveAs(PathOutCanvas+"_EffEtaRegionsRelErr.pdf");
@@ -2288,6 +2372,7 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
       if (m==1) cout << "Eta resolution" << endl;
       if (m==2) cout << "Phi resolution" << endl;
       for (Int_t molt=0; molt < nummolt+1; molt++){
+	if (isHM && MultBinning==1 && molt<2) continue;
 	//if (molt==0) continue;
 	if (ResoHisto=="3D")	cout << " Molt class: " << SmoltLegend[molt] << ", Mean: "<<      fHistResolution_1D[molt][m][t]->GetMean() << " +- " << fHistResolution_1D[molt][m][t]->GetMeanError()/sqrt(fHistResolution_1D[molt][m][t]->GetEntries()) << " RMS: "<< fHistResolution_1D[molt][m][t]->GetRMS()<< endl ;
 	else cout << " p_{T}^{Trig, min}: " << ptjminBisFixed[molt] << ", Mean: "<<      fHistResolution_1D[molt][m][t]->GetMean()<< "+- " << fHistResolution_1D[molt][m][t]->GetMeanError()/sqrt(fHistResolution_1D[molt][m][t]->GetEntries()) << " RMS: "<< fHistResolution_1D[molt][m][t]->GetRMS()<< endl ;
@@ -2312,6 +2397,7 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
 
   cout << endl;  
   for (Int_t molt=0; molt < nummolt+1; molt++){
+    if (isHM && MultBinning==1 && molt<2) continue;
     //if (molt==0) continue;
     cout << "molt " << molt << " numero di particelle di trigger selezionate: " << SelEntries[molt]  <<  endl;
     cout << "molt " << molt << " numero di particelle di trigger selezionate con pT > 3 GeV/c: " << SelEntriespT3[molt]  <<  endl;
@@ -2322,6 +2408,7 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   cout << "\n if the pt vs eta eff of Associated particles has some holes, the pt or eta binning should be changed ! Bins with eta > 0.8 are not considered!" << endl;
   if (isEtaEff){  
     for (Int_t molt=0; molt < nummolt+1; molt++){
+      if (isHM && MultBinning==1 && molt<2) continue;
       cout << "\n********* m " << molt << endl;
       Int_t counter=0;
       for (Int_t pt =1; pt<= fHistSelected_2D_V0PtEtaPtBins[molt]->GetNbinsX(); pt++){
@@ -2344,5 +2431,5 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
 
   cout << "\n\n Run it for sysV0=0,..,6 if !ishhCorr, else for sysV0=0,1,2" << endl;
   cout << "Run it for sysTrigger=0,1,2 (although results won't be used)" << endl;
-
+  cout << "Canvas saved in: " << PathOutCanvas << endl;
 }
