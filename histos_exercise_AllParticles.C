@@ -47,7 +47,7 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
 }
 
 
-void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0index=1, Int_t sysTrigger=0, Int_t indexsysTrigger=0, Float_t PtTrigMin=3,Float_t PtTrigMax=15, Bool_t SkipAssoc=1, Int_t rap=0,Int_t type=8 /*8 for Xi*/, Int_t syst=0, Double_t nsigmamax=9, TString year0= "2016", TString year=/*"LHC17o_HM_INELgt0281961"/*"161718_HM_hXi"*/"161718Full_AOD234_hXi"/*"17pq_hK0s"/"17pq_hK0s_pttrig0.15"/*"2018f1_extra_hK0s"/*"17pq_hK0s"/"1617_AOD234_hK0s"/*"2018f1_extra_AOD235_hK0s"/*"LHC17_GP_AOD235_18c12"/*"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"2019h11c_extra_HM_hK0s"/"2016k_HM_hK0s"/*"2016k_pass2_TOFOOBPileUp"/"2016k_TOFOOBPileUp_XiV0Rad34_AOD234_Try2"/*"161718_MD_EtaEff_hXi"/*"2016k_pass2_TOFOOBPileUp"/*"2018f1g4_extra_EtaEff_hXi"/"2018g4_extra_EtaEff_hK0s"/*"LHC17_hK0s"/"2016k_hK0s"/"1617_hK0s"/*"AllMC_hXi"/"Run2DataRed_MECorr_hXi"/*"2018f1_extra_hK0s"/*"2016k_hK0s"/"2016kehjl_hK0s"*/, TString yearMC=""/*"17pq_pp5TeV_hXi_pttrig0.15"/*"1617_GP_AOD235_With18c12b"/"17pq_hK0s"/*"2018f1_extra_AOD235_hK0s"/*"LHC17_GP_AOD235_18c12"/*"2017e5_extra_AOD235_hK0s"/*"17pq_hK0s"/*"2019h11c_extra_HM_hK0s"/*"2018f1g4_extra_EtaEff_hXi"/"2018g4_extra_EtaEff_hK0s"/*"2018f1_extra_hK0s"/"1617MC_hK0s"/*"AllMC_hXi"/"2018f1_extra_hK0s"/*"2015g3b1"/*"2018f1_extra_hK0s_30runs_150MeV"*/,Bool_t isMC=0, Bool_t isEfficiency=0, TString path1=""/*"_PtTrigMax2.5"/*"_NewMultClassBis"*/, Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1,   Double_t sigmacentral=4, Double_t nsigmamin=5, Int_t MultBinning=0, Int_t PtBinning=0, Int_t isSysStudy=0, Bool_t isSysDef=1, Bool_t isDefaultSel=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsPtTrigMultDep=0, Int_t Region=0, Bool_t isAlsoEff=0, Bool_t isHM=0, Bool_t isNewInputPath=1, Bool_t isINEL=0){//, Int_t VarRange=0){
+void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0index=0, Int_t sysTrigger=0, Int_t indexsysTrigger=0, Float_t PtTrigMin=3,Float_t PtTrigMax=15, Bool_t SkipAssoc=1, Int_t rap=0,Int_t type=0 /*8 for Xi*/, Int_t syst=0, Double_t nsigmamax=9, TString year0= "2016", TString year=/*"LHC17o_HM_INELgt0281961"/*"161718_HM_hXi"*/"161718Full_AOD234_hXi"/*"17pq_hK0s"/"17pq_hK0s_pttrig0.15"/*"2018f1_extra_hK0s"/*"17pq_hK0s"/"1617_AOD234_hK0s"/*"2018f1_extra_AOD235_hK0s"/*"LHC17_GP_AOD235_18c12"/*"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"2019h11c_extra_HM_hK0s"/"2016k_HM_hK0s"/*"2016k_pass2_TOFOOBPileUp"/"2016k_TOFOOBPileUp_XiV0Rad34_AOD234_Try2"/*"161718_MD_EtaEff_hXi"/*"2016k_pass2_TOFOOBPileUp"/*"2018f1g4_extra_EtaEff_hXi"/"2018g4_extra_EtaEff_hK0s"/*"LHC17_hK0s"/"2016k_hK0s"/"1617_hK0s"/*"AllMC_hXi"/"Run2DataRed_MECorr_hXi"/*"2018f1_extra_hK0s"/*"2016k_hK0s"/"2016kehjl_hK0s"*/, TString yearMC=""/*"17pq_pp5TeV_hXi_pttrig0.15"/*"1617_GP_AOD235_With18c12b"/"17pq_hK0s"/*"2018f1_extra_AOD235_hK0s"/*"LHC17_GP_AOD235_18c12"/*"2017e5_extra_AOD235_hK0s"/*"17pq_hK0s"/*"2019h11c_extra_HM_hK0s"/*"2018f1g4_extra_EtaEff_hXi"/"2018g4_extra_EtaEff_hK0s"/*"2018f1_extra_hK0s"/"1617MC_hK0s"/*"AllMC_hXi"/"2018f1_extra_hK0s"/*"2015g3b1"/*"2018f1_extra_hK0s_30runs_150MeV"*/,Bool_t isMC=0, Bool_t isEfficiency=0, TString path1=""/*"_PtTrigMax2.5"/*"_NewMultClassBis"*/, Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1,   Double_t sigmacentral=4, Double_t nsigmamin=5, Int_t MultBinning=0, Int_t PtBinning=0, Int_t isSysStudy=0, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsPtTrigMultDep=0, Int_t Region=0, Bool_t isAlsoEff=0, Bool_t isHM=1, Bool_t isNewInputPath=1, Bool_t isINEL=1){//, Int_t VarRange=0){
 
   if (year == "LHC17o_HM_INELgt0281961") isINEL =1;
   if (isINEL){
@@ -55,6 +55,9 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
     PtTrigMin=0.;
     PtTrigMax = 30;
     rap =1;
+    isHM =1;
+    if (type==0) year = "161718_HM_hK0s_INELgt0";
+    PtBinning = 0;
   }
   if (year=="17pq_hXi") MultBinning=3;
   if (year=="17pq_pp5TeV_hXi_pttrig0.15") MultBinning=3;
@@ -109,7 +112,8 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
   if (isMC && !isEfficiency) cout <<"**********************ERRORE****************"<< endl;
   const Int_t mult=5; //numero intervalli molteplicita'
   const Int_t num_tipo=10; //numero tipologie di particelle
-  const Int_t num_histo=9;//14; //8; //numero intervalli di Pt
+  const Int_t num_histo=20; //numero intervalli di Pt
+  const Int_t num_histoMyAnalysis = 9;
   const Int_t num_tagli=6; //numero di diversi tagli applicati alle K0s
   const Int_t NsysTrigger=3; 
   const Int_t NsysV0=9; 
@@ -122,20 +126,30 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
   //  Double_t binl[num_histo+1]={0,0.6, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.5, 2.9, 3.4, 4, 5, 6.5};
 
   TString int_pt[num_histo]={"0-0.5", "0.5-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8", ""};
-  //TString int_pt[num_histo]={"0-0","0-0.5", "0.5-1", "1-1.5","1.5-2","2-3", "3-4", "4-8"};
   Double_t binl[num_histo+1]={0,0.5, 1,1.5, 2,2.5,3,4,8, 10};
-  //Double_t binl[num_histo+1]={0,0,0.5, 1,1.5, 2,3,4,8};
+
+  TString int_ptINEL[num_histo]={"0.1-0.3", "0.3-0.5", "0.5-0.7", "0.7-0.9", "0.9-1.1", "1.1-1.3", "1.3-1.5", "1.5-1.7", "1.7-1.9", "1.9-2.1", "2.1-2.3", "2.3-2.5", "2.5-2.7", "2.7-3.0", "3.0-3.4", "3.2-3.8", "3.8-4.2", "4.2-4.8", "4.8-6.0", "6.0-8.0"};
+  Double_t binlINEL[num_histo+1]={0.1,0.3, 0.5, 0.7, 0.9, 1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.3, 2.5, 2.7, 3.0, 3.4, 3.8, 4.2, 4.8, 6.0, 8};
 
   TString int_pt1[num_histo]={"0.1-0.5", "0.5-0.8", "0.8-1.2", "1.2-1.6","1.5-2", "2-2.5","2.5-3", "3-4", "4-8"};
   Double_t binl1[num_histo+1]={0.1,0.5, 0.8, 1.2, 1.6, 2,2.5,3,4,8};
-  Int_t num_histoMax = num_histo;
-  if (PtBinning==0) num_histoMax = num_histo-1;
 
-  if (PtBinning==1){
-    for(Int_t j=0;j<num_histoMax+1; j++){
-      if (j<num_histoMax)      int_pt[j] = int_pt1[j];
-      binl[j] = binl1[j];
-      cout << " j " << j << " " << binl[j] << " " << int_pt[j] << endl;
+  Int_t num_histoMax = num_histo;
+  if (!isINEL){
+    if (PtBinning==0) num_histoMax = num_histoMyAnalysis-1;
+    else num_histoMax = num_histoMyAnalysis;
+    if (PtBinning==1){
+      for(Int_t j=0;j<num_histoMax+1; j++){
+	if (j<num_histoMax)      int_pt[j] = int_pt1[j];
+	binl[j] = binl1[j];
+	cout << " j " << j << " " << binl[j] << " " << int_pt[j] << endl;
+      }
+    }
+  }
+  if (isINEL){
+    for(Int_t v=PtBinMin; v<num_histoMax+1; v++){
+      if (v<num_histoMax)   int_pt[v] = int_ptINEL[v];
+      binl[v] = binlINEL[v];
     }
   }
 
@@ -422,6 +436,7 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
       else if (year=="161718_HM_hXi_LowPtTrig") dirinput = (TDirectoryFile*)myfileAnalysis->Get("MyTaskXi_MCTruth_PtTrigMin3.0_PtTrigMax15.0");
       else if (year=="LHC17o_HM_INELgt0281961" && !isMC) dirinput = (TDirectoryFile*)myfileAnalysis->Get("MyTask_PtTrigMin0.2_PtTrigMax30.0");
       else if (isMC)  dirinput = (TDirectoryFile*)myfileAnalysis->Get("MyTask_MCTruth_PtTrigMin3.0_PtTrigMax15.0");
+      else if (isINEL) dirinput = (TDirectoryFile*)myfileAnalysis->Get("MyTask_PtTrigMin0.0_PtTrigMax15.0");
       else  dirinput = (TDirectoryFile*)myfileAnalysis->Get(nome_TDir + "_PtTrigMin3.0_PtTrigMax15.0");
       if (year == "17pq_pp5TeV_hXi_pttrig0.15") {
 	cout << " ciao " << endl;
@@ -486,8 +501,15 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
       canv[molt] = new TCanvas(Form("canv_molt%i", molt),"Distribuzione di massa invariante di " +invmass[type] + " dopo applicazione tagli",1600,1000);
       canv[molt]->Divide(5,2);
     */
-    canv[molt] = new TCanvas(Form("canv_molt%i", molt),"Distribuzione di massa invariante di " +invmass[type] + " dopo applicazione tagli",600,1000);
-    canv[molt]->Divide(3,3);
+
+    if (isINEL) {
+      canv[molt] = new TCanvas(Form("canv_molt%i", molt),"Distribuzione di massa invariante di " +invmass[type] + " dopo applicazione tagli "+ multiplicity[molt] +"%",2400,1000);      
+      canv[molt]->Divide(7,3);
+    }
+    else   {
+      canv[molt] = new TCanvas(Form("canv_molt%i", molt),"Distribuzione di massa invariante di " +invmass[type] + " dopo applicazione tagli",600,1000);
+      canv[molt]->Divide(3,3);
+    }
 
     Double_t events=1;
   
@@ -618,35 +640,69 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
       //if (j>6) continue;
       //if (j>5) continue;
       //      if (molt==mult-1 && j==num_histoMax-1) continue;
-      if (type==4 || type==5 || type==8){
-	liminf[type]=1.30;
+      if (type==4 || type==5 || type==8){ 
+	liminf[type]=1.30; //where the bkg and total fit is performed (the 2 gaussian fit is performed in the min_range_histo range
 	limsup[type]=1.342;
 	min_histo[type]=1.30;
 	max_histo[type]=1.342;
-      }
-      if (j >4)  {
-	if (type==4 || type==5 || type==8){
+	if (j >4)  {
 	  liminf[type]=1.29;
 	  limsup[type]=1.352;
 	  min_histo[type]=1.29;
 	  max_histo[type]=1.349;
 	}
+	if (isBkgParab){
+	  liminf[type]=1.29;
+	  limsup[type]=1.352;
+	  if (VarRange==1){ //tighter
+	    liminf[type]=1.295;
+	    limsup[type]=1.349;
+	  }
+	  else if (VarRange==2){ //looser
+	    liminf[type]=1.285;
+	    limsup[type]=1.359;
+	  }
+	}
+	else {
+	  if (VarRange==1){
+	    liminf[type]=1.305;
+	    limsup[type]=1.339;
+	    if (j >4)  {
+	      liminf[type]=1.295;
+	      limsup[type]=1.349;
+	    }
+	  }
+	  else if (VarRange==2){
+	    liminf[type]=1.285;
+	    limsup[type]=1.359;
+	    /*
+	    if (j >4)  {
+	      liminf[type]=1.295;
+	      limsup[type]=1.349;
+	    }
+	    */
+	  }
+	}
       }
       if (type==0){
+	if (isINEL && isBkgParab) {
+	  liminf[type]=0.45;
+	  limsup[type]=0.55;
+	}
 	liminf[type]=0.46;//where the bkg and total fit is performed (the 2 gaussian fit is performed in the min_range_histo range
 	limsup[type]=0.54;
 	if (isBkgParab){
-	  if (VarRange==1){
+	  if (VarRange==1){ //tighter
 	    liminf[type]=0.465;
 	    limsup[type]=0.53;
 	  }
-	  else if (VarRange==2){
+	  else if (VarRange==2){ //looser
 	    liminf[type]=0.45;
 	    limsup[type]=0.55;
 	  }
 	}
 	else {
-	  if (VarRange==1){
+	  if (VarRange==1){ //tighter
 	    liminf[type]=0.465;
 	    limsup[type]=0.53;
 	  }
@@ -945,6 +1001,7 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
 	  isto_tagli_false[j]->SetBinContent(i, 	isto_tagli[j]->GetBinContent(i)-isto_tagli_true[j]->GetBinContent(i));
 	}
 
+	gStyle->SetOptStat(0);
 	canvas[j]->cd();
 	gPad->SetLogy();
 	//	isto_tagli[j]->GetYaxis()->SetRangeUser(0.1*isto_tagli[j]->GetMinimum(1), 10*isto_tagli[j]->GetMaximum());
@@ -969,6 +1026,7 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
 	isto_tagli_true[j]-> Write();
 	isto_tagli_false[j]-> Write();
 
+	gStyle->SetOptStat(0);
 	if (type==0)	canv[molt]->cd(j+1);
 	else {
 	  if (j<num_histoMax-1) canv[molt]->cd(j);

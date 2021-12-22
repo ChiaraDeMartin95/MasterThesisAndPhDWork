@@ -16,7 +16,7 @@
 #include <TLatex.h>
 #include <TFile.h>
 #include <TLegend.h>
-void readTreePLChiarahK0s_first( Int_t sysV0=0,Int_t sysV0Index=0, Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAssoc=0 ,Int_t israp=1, Bool_t ishhCorr=0, Float_t PtTrigMin=0.15, Float_t ptjmax=30, bool isMC = 1,Bool_t isEfficiency=1, Int_t sysTrigger=0, TString year= "LHC19h11_HM_INELgt0Bis286380"/*"LHC17o_HM_INELgt0281961"/*"hK0s_pp_18p_AOD264"/*"17pq_hK0s"/*"17d20bEPOS_hK0s_EtaEff"/*"2019h11b+extra_hK0s"/"2019h11_HM_hK0s"/"15g3c3_hK0s"/"2018f1_extra_15runs_Trig0Pt"/*"17pq_hK0s_pttrig0.15"/"1617_AOD234_hK0s"/*"1617_GP_AOD235_With18c12b"/*"LHC16_GP_AOD235_17d16"/*"2017e5_extra_AOD235_hK0s"/*"2019h11a_extra_HM_hK0s"/"17pq_hK0s_FAST"/"AllhK0sHM_RedNo16k"/*"2018f1_extra_30runs_Mylabel_hK0s"/*"2018f1_extra_Nature_15runs"/"2019h11c_extra_HM_hK0s"/*"2016k_HM_hK0s"/*"2018g4_extra_EtaEff_hK0s"/*"2016k_HM_hK0s"/*"2018g4_extra_EtaEff_hK0s"/*"LHC17_hK0s"/*"17d20bEPOS_hK0s"/"1617MC_hK0s"/*"2018f1_extra_Reco_hK0s"/*"2016k_hK0s"/*"2016kehjl_hK0s"/*"2016k_hK0s"/"17anch17_hK0s"/"1617_hK0s"/*"2018f1_extra_hK0s_CP"*/, TString year0="2016", TString Path1 ="", Bool_t CommonParton=0, Int_t PtBinning=1, Bool_t isSysStudy=0, Int_t numsysV0index=20, Bool_t IsPtTrigMultDep = 0, Int_t Region=0, Bool_t isEfficiencyMassSel=0, Bool_t isHM=1, Bool_t isNewInputPath=1, Int_t MultBinning=0, Bool_t ispp5TeV=0, Bool_t isINEL=0)
+void readTreePLChiarahK0s_first( Int_t sysV0=0,Int_t sysV0Index=0, Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAssoc=0 ,Int_t israp=1, Bool_t ishhCorr=0, Float_t PtTrigMin=0.15, Float_t ptjmax=30, bool isMC = 0,Bool_t isEfficiency=0, Int_t sysTrigger=0, TString year= "161718_HM_hK0s_INELgt0"/*"LHC19h11_HM_INELgt0Bis286380"/*"LHC17o_HM_INELgt0281961"/*"hK0s_pp_18p_AOD264"/*"17pq_hK0s"/*"17d20bEPOS_hK0s_EtaEff"/*"2019h11b+extra_hK0s"/"2019h11_HM_hK0s"/"15g3c3_hK0s"/"2018f1_extra_15runs_Trig0Pt"/*"17pq_hK0s_pttrig0.15"/"1617_AOD234_hK0s"/*"1617_GP_AOD235_With18c12b"/*"LHC16_GP_AOD235_17d16"/*"2017e5_extra_AOD235_hK0s"/*"2019h11a_extra_HM_hK0s"/"17pq_hK0s_FAST"/"AllhK0sHM_RedNo16k"/*"2018f1_extra_30runs_Mylabel_hK0s"/*"2018f1_extra_Nature_15runs"/"2019h11c_extra_HM_hK0s"/*"2016k_HM_hK0s"/*"2018g4_extra_EtaEff_hK0s"/*"2016k_HM_hK0s"/*"2018g4_extra_EtaEff_hK0s"/*"LHC17_hK0s"/*"17d20bEPOS_hK0s"/"1617MC_hK0s"/*"2018f1_extra_Reco_hK0s"/*"2016k_hK0s"/*"2016kehjl_hK0s"/*"2016k_hK0s"/"17anch17_hK0s"/"1617_hK0s"/*"2018f1_extra_hK0s_CP"*/, TString year0="2016", TString Path1 ="", Bool_t CommonParton=0, Int_t PtBinning=1, Bool_t isSysStudy=0, Int_t numsysV0index=20, Bool_t IsPtTrigMultDep = 0, Int_t Region=0, Bool_t isEfficiencyMassSel=0, Bool_t isHM=1, Bool_t isNewInputPath=1, Int_t MultBinning=0, Bool_t ispp5TeV=0, Bool_t isINEL=1)
 {
   
   //Region=0; default, no selections on  dEta and dPhi
@@ -29,6 +29,8 @@ void readTreePLChiarahK0s_first( Int_t sysV0=0,Int_t sysV0Index=0, Int_t type=0 
     PtTrigMin=0.;
     ptjmax = 30;
     israp =1;
+    if (type==0 && !isMC) year = "161718_HM_hK0s_INELgt0";
+    PtBinning = 0;
   }
   if (sysV0Index>20) return; 
   //SysStudy: if 1, values different from default ones will be used; the topological variable changed will sysV0Index > 20 ) return;be indicated in the output file, together with its value  
@@ -117,7 +119,8 @@ void readTreePLChiarahK0s_first( Int_t sysV0=0,Int_t sysV0Index=0, Int_t type=0 
 
   const Int_t nummolt=5;
   const Int_t numzeta=1;
-  const Int_t numPtV0=9;
+  const Int_t numPtV0=20;
+  const Int_t numPtV0MyAnalysis = 9;
   const Int_t numPtTrigger=1;
   const Int_t numtipo=4;
   TString tipo[numtipo]={"K0s", "Lambda", "AntiLambda", "LambdaAntiLambda"};
@@ -172,35 +175,6 @@ ribution";
   PathOut+= ".root";
 
 
-  TH1F* histoSigma;
-  TH1F* histoMean;
-  Double_t sigma[numtipo][nummolt+1][numPtV0]={0};
-  Double_t mass[numtipo][nummolt+1][numPtV0]={0};
-  TFile *fileMassSigma;
-   Int_t PtBinMin=0; 
-  if (!ishhCorr && type!=0) PtBinMin=1; //for associated particles different from hadrons I do not start from 0
-  cout << "PtBinMin " << PtBinMin << endl;
-
-  if (isEfficiencyMassSel){
-    //  PathInMassDef=PathInMass+ "_"+year+"_"+tipo[type]+Srap[israp]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG] + BkgType[isBkgParab];
-    PathInMassDef=PathInMass+ "_"+year+"_"+tipo[type]+Srap[israp];
-    if (!SkipAssoc)  PathInMassDef +="_AllAssoc";
-    PathInMassDef+="_isMeanFixedPDG_BkgRetta";
-    if(IsPtTrigMultDep) PathInMassDef  +="_IsPtTrigMultDep" ;
-    PathInMassDef+= Form("_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f.root", 5, sysTrigger, sysV0, 0,PtTrigMin);
-    fileMassSigma= new TFile(PathInMassDef);
-    cout << PathInMassDef << endl;
-    histoSigma=(TH1F*)fileMassSigma->Get("histo_sigma");
-    histoMean=(TH1F*)fileMassSigma->Get("histo_mean");
-    for (Int_t m=0; m< nummolt+1; m++){
-      for(Int_t v=PtBinMin; v<numPtV0; v++){
-	mass[type][m][v]=histoMean->GetBinContent(v+1);
-	sigma[type][m][v]=histoSigma->GetBinContent(v+1);
-	//	cout << 	sigma[type][m][v]<< endl;
-      }
-    }
-    fileMassSigma->Close();
-  }
  
 
   Bool_t MassInPeakK0s =0; //variable for a rough cut on K0s candidates' invariant mass (only done to fill histograms needed for deltaphi projections of K0s with or without an ancestor parton in common with trigger particle)
@@ -242,6 +216,9 @@ ribution";
   }
   if (year == "LHC17o_HM_INELgt0281961" || year == "LHC19h11_HM_INELgt0Bis286380") {
     d = (TDirectoryFile*)fin->Get("MyTask_PtTrigMin0.2_PtTrigMax30.0");
+  }
+  else if (isINEL>0){
+    d = (TDirectoryFile*)fin->Get("MyTask_PtTrigMin0.0_PtTrigMax15.0");
   }
   if (!d)  {cout << "dir input not available " ; return;}
 
@@ -381,8 +358,17 @@ ribution";
     }
   }
 
-  TString SPtV0[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8", ""};
+  TString SPtV0[numPtV0] ={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8", ""};
   TString SPtV00[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8", ""};
+  TString SPtV01[numPtV0]={"0.1-0.5", "0.5-0.8", "0.8-1.2", "1.2-1.6","1.6-2", "2-2.5","2.5-3", "3-4", "4-8"};
+  TString SPtV02[numPtV0]={"0.1-0.4", "0.4-0.6", "0.6-0.8", "0.8-1.6","1.6-2", "2-2.5","2.5-3", "3-4", "4-8"};
+  TString SPtV0INEL[numPtV0]={"0.1-0.3", "0.3-0.5", "0.5-0.7", "0.7-0.9", "0.9-1.1", "1.1-1.3", "1.3-1.5", "1.5-1.7", "1.7-1.9", "1.9-2.1", "2.1-2.3", "2.3-2.5", "2.5-2.7", "2.7-3.0", "3.0-3.4", "3.2-3.8", "3.8-4.2", "4.2-4.8", "4.8-6.0", "6.0-8.0"};
+
+  Double_t NPtV0[numPtV0+1] ={0,0,1,1.5,2,2.5,3,4,8,100};
+  Double_t NPtV01[numPtV0+1]={0.1,0.5,0.8, 1.2,1.6,2,2.5,3,4,8};
+  Double_t NPtV02[numPtV0+1]={0.1,0.4,0.6, 0.8,1.6,2,2.5,3,4,8};
+  Double_t NPtV0INEL[numPtV0+1]={0.1,0.3, 0.5, 0.7, 0.9, 1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.3, 2.5, 2.7, 3.0, 3.4, 3.8, 4.2, 4.8, 6.0, 8};
+
 
   if (type>0)SPtV0[1]={"0.5-1"};
   else {
@@ -393,33 +379,66 @@ ribution";
     SPtV0[0]={"0.1-0.5"};
     SPtV0[1]={"0.5-1"};
   }
-  Double_t NPtV0[numPtV0+1]={0,0,1,1.5,2,2.5,3,4,8,100};
+
   NPtV0[1]=0.5;
   if (ishhCorr) {
     NPtV0[0]=0.1;
     NPtV0[1]=0.5;
   }
 
-
-  TString SPtV01[numPtV0]={"0.1-0.5", "0.5-0.8", "0.8-1.2", "1.2-1.6","1.6-2", "2-2.5","2.5-3", "3-4", "4-8"};
-  Double_t NPtV01[numPtV0+1]={0.1,0.5,0.8, 1.2,1.6,2,2.5,3,4,8};
-  TString SPtV02[numPtV0]={"0.1-0.4", "0.4-0.6", "0.6-0.8", "0.8-1.6","1.6-2", "2-2.5","2.5-3", "3-4", "4-8"};
-  Double_t NPtV02[numPtV0+1]={0.1,0.4,0.6, 0.8,1.6,2,2.5,3,4,8};
-
+  Int_t PtBinMin=0; 
+  if (!ishhCorr && type!=0) PtBinMin=1; //for associated particles different from hadrons I do not start from 0
+  cout << "PtBinMin " << PtBinMin << endl;
   Int_t numPtV0Max=numPtV0;
-  if (PtBinning==1) numPtV0Max = numPtV0;
-  else numPtV0Max = numPtV0-1;
-  if (PtBinning==1){
-    for(Int_t v=PtBinMin; v<numPtV0Max+1; v++){
-      if (v<numPtV0Max)      SPtV0[v] = SPtV01[v];
-      NPtV0[v] = NPtV01[v];
+  if (!isINEL){
+    if (PtBinning==1) numPtV0Max = numPtV0MyAnalysis;
+    else numPtV0Max = numPtV0MyAnalysis-1;
+
+    if (PtBinning==1){
+      for(Int_t v=PtBinMin; v<numPtV0Max+1; v++){
+	if (v<numPtV0Max)      SPtV0[v] = SPtV01[v];
+	NPtV0[v] = NPtV01[v];
+      }
+    }
+    if (PtBinning==2){
+      for(Int_t v=PtBinMin; v<numPtV0Max+1; v++){
+	if (v<numPtV0Max)      SPtV0[v] = SPtV02[v];
+	NPtV0[v] = NPtV02[v];
+      }
     }
   }
-  if (PtBinning==2){
+  if (isINEL){
     for(Int_t v=PtBinMin; v<numPtV0Max+1; v++){
-      if (v<numPtV0Max)      SPtV0[v] = SPtV02[v];
-      NPtV0[v] = NPtV02[v];
+      if (v<numPtV0Max)   SPtV0[v] = SPtV0INEL[v];
+      NPtV0[v] = NPtV0INEL[v];
     }
+  }
+
+  TH1F* histoSigma;
+  TH1F* histoMean;
+  Double_t sigma[numtipo][nummolt+1][numPtV0]={0};
+  Double_t mass[numtipo][nummolt+1][numPtV0]={0};
+  TFile *fileMassSigma;
+
+  if (isEfficiencyMassSel){
+    //  PathInMassDef=PathInMass+ "_"+year+"_"+tipo[type]+Srap[israp]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG] + BkgType[isBkgParab];
+    PathInMassDef=PathInMass+ "_"+year+"_"+tipo[type]+Srap[israp];
+    if (!SkipAssoc)  PathInMassDef +="_AllAssoc";
+    PathInMassDef+="_isMeanFixedPDG_BkgRetta";
+    if(IsPtTrigMultDep) PathInMassDef  +="_IsPtTrigMultDep" ;
+    PathInMassDef+= Form("_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f.root", 5, sysTrigger, sysV0, 0,PtTrigMin);
+    fileMassSigma= new TFile(PathInMassDef);
+    cout << PathInMassDef << endl;
+    histoSigma=(TH1F*)fileMassSigma->Get("histo_sigma");
+    histoMean=(TH1F*)fileMassSigma->Get("histo_mean");
+    for (Int_t m=0; m< nummolt+1; m++){
+      for(Int_t v=PtBinMin; v<numPtV0Max; v++){
+	mass[type][m][v]=histoMean->GetBinContent(v+1);
+	sigma[type][m][v]=histoSigma->GetBinContent(v+1);
+	//	cout << 	sigma[type][m][v]<< endl;
+      }
+    }
+    fileMassSigma->Close();
   }
 
   Float_t PtTrigMultDep[nummolt+1] = {3.0, 3.05, 3.05, 3.1, 3.1, 3};
@@ -436,15 +455,15 @@ ribution";
     else if (year.Index("17pq_hK0s")!=-1 && isMC) ContainerName= "_hK0s_Task_RecoAndEfficiency";
     //    else if (year.Index("AOD235")!=-1 && isMC) ContainerName= "_hK0s_Task_RecoAndEfficiency";
     //else if (isMC && isEfficiency) ContainerName= "_hK0s_Task_RecoAndEfficiency";
-    else  ContainerName= "_hK0s_Task_suffix";
-    ContainerName= "_hK0s_Task_suffix";
-    //else  ContainerName= "_hK0s_Task_";
+    //else  ContainerName= "_hK0s_Task_suffix";
+    //    ContainerName= "_hK0s_Task_suffix";
+    else  ContainerName= "_hK0s_Task_";
   }
 
   cout << ContainerName<< endl;
   TTree *tSign;
   TTree *tBkg;
-  if (year == "17pq_hK0s_pttrig0.15" || year.Index("NoTrackLength")!=-1 || year.Index("NoOOBPileUp")!=-1 || year.Index("15g3c3")!=-1 || year.Index("NSigma5")!= -1 ||  year.Index("V0RadiusSelection")!= -1 || year.Index("Trig0Pt")!=-1 || year =="17d20bEPOS_hK0s_EtaEff" || year.Index("AOD234")!=-1 || year.Index("AOD264")!=-1 || year == "LHC17o_HM_INELgt0281961" || year == "LHC19h11_HM_INELgt0Bis286380"){
+  if (year == "17pq_hK0s_pttrig0.15" || year.Index("NoTrackLength")!=-1 || year.Index("NoOOBPileUp")!=-1 || year.Index("15g3c3")!=-1 || year.Index("NSigma5")!= -1 ||  year.Index("V0RadiusSelection")!= -1 || year.Index("Trig0Pt")!=-1 || year =="17d20bEPOS_hK0s_EtaEff" || year.Index("AOD234")!=-1 || year.Index("AOD264")!=-1 || year == "LHC17o_HM_INELgt0281961" || year == "LHC19h11_HM_INELgt0Bis286380" || isINEL){
     tSign = (TTree *)d->Get("MyOutputContainer1"+ContainerName);
     tBkg  = (TTree *)d->Get("MyOutputContainer2"+ContainerName);
   }
