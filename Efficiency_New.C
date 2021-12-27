@@ -22,7 +22,7 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
   return sqrt(((Double_t)k+1)*((Double_t)k+2)/(n+2)/(n+3) - pow((Double_t)(k+1),2)/pow(n+2,2));
 }
 
-void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int_t indexsysTrigger=0,  Int_t type=6, Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0, Int_t israp=0, TString ResoHisto="2D",Bool_t SkipAssoc=1,   Float_t ptjmin=3,  Float_t ptjmax=15, Int_t sysV0=0, TString data="LHC19h11_HM_INELgt0Bis286380"/*"161718_HM_hXi_LowPtTrig"/"161718Full_AOD235_hXi"/*"161718_HM_hXi"/*"LHC18_GP_AOD235"*"17pq_hXi"/*"17pq_pp5TeV_hXi_pttrig0.15"/*"17d20bEPOS_hK0s_EtaEff"/*"2019h11b+extra_hK0s"/"2019h11_HM_hK0s"/**"2018f1_extra_15runs_Trig0Pt"/*"15g3c3_hK0s"/"2018f1_extra_15runs_NSigma5"/*"1617_GP_AOD235_With18c12b"/*"1617_AOD234_hK0s"/*"17pq_hK0s_pttrig0.15"/*"1617_GP_AOD235_With18c12b"/*"2017e5_extra_AOD235_hK0s"/*"17pq_hK0s_CENTwoSDD"/*"2019h11a_extra_HM_hK0s"/*"1617MC_hK0s"/*"1617GP_hXi_EtaEff"/"AllMC_hXi_EtaEff"/*"2018f1_extra_30runs_hK0s"/*"2019h11c_extra_HM_hK0s"/*"161718_MD_EtaEff_hXi"/*"17d20bEPOS_hXi"/*"17d20bEPOS_hK0s"/"2018f1_extra_hK0s"/*"1617GP_hXi" /*"2018f1_extra_MECorr"/"2018f1_extra_hK0s_CP"/* "2018f1_extra_hK0s_CP"/*"2018f1_extra_hK0s_CP_10runs_Bis"/"AllMC_hXi"/"161718_MD_hXi"/* "17anch17_hK0s"/"1617MC_hK0s"/"2018f1g4_extra_hXi"/"2018f1_extra_DEtaEff_50runs"/"2018g4_extra_EtaEff_hK0s"/*"2018f1g4_extra_EtaEff_hXi"/"161718_MD_EtaEff_hXi"*/, TString year0="2016", TString path1=""/*"_New"*/ /*"_10runs_FB128_TrackLengthCut"/"_NewMultClassBis"/"_PtTrigMax2.5"*/, Int_t MultBinning=0, Int_t PtBinning=1, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsPtTrigMultDep=0, Int_t EffRegion=0, Bool_t isEfficiencyMassSel=0, Bool_t isMCTruth=0, Bool_t isEtaEff=1, Bool_t isNewInputPath=1, Bool_t isHM=0, Bool_t isINEL =1){
+void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int_t indexsysTrigger=0,  Int_t type=4 /*4 for Xi, 6 for K0s"*/, Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0, Int_t israp=0, TString ResoHisto="2D",Bool_t SkipAssoc=1,   Float_t ptjmin=3,  Float_t ptjmax=15, Int_t sysV0=0, TString data=/*"LHC19h11aPlus_hK0s_INELgt0"/*"LHC19h11_HM_INELgt0Bis286380"/*"161718_HM_hXi_LowPtTrig"/"161718Full_AOD235_hXi"*/"161718_HM_hXi"/*"LHC18_GP_AOD235"*"17pq_hXi"/*"17pq_pp5TeV_hXi_pttrig0.15"/"17d20bEPOS_hK0s_EtaEff"/*"2019h11b+extra_hK0s"/"2019h11_HM_hK0s"/**"2018f1_extra_15runs_Trig0Pt"/*"15g3c3_hK0s"/"2018f1_extra_15runs_NSigma5"/*"1617_GP_AOD235_With18c12b"/*"1617_AOD234_hK0s"/*"17pq_hK0s_pttrig0.15"/*"1617_GP_AOD235_With18c12b"/*"2017e5_extra_AOD235_hK0s"/*"17pq_hK0s_CENTwoSDD"/*"2019h11a_extra_HM_hK0s"/*"1617MC_hK0s"/*"1617GP_hXi_EtaEff"/"AllMC_hXi_EtaEff"/*"2018f1_extra_30runs_hK0s"/*"2019h11c_extra_HM_hK0s"/*"161718_MD_EtaEff_hXi"/*"17d20bEPOS_hXi"/*"17d20bEPOS_hK0s"/"2018f1_extra_hK0s"/*"1617GP_hXi" /*"2018f1_extra_MECorr"/"2018f1_extra_hK0s_CP"/* "2018f1_extra_hK0s_CP"/*"2018f1_extra_hK0s_CP_10runs_Bis"/"AllMC_hXi"/"161718_MD_hXi"/* "17anch17_hK0s"/"1617MC_hK0s"/"2018f1g4_extra_hXi"/"2018f1_extra_DEtaEff_50runs"/"2018g4_extra_EtaEff_hK0s"/*"2018f1g4_extra_EtaEff_hXi"/"161718_MD_EtaEff_hXi"*/, TString year0="2016", TString path1=""/*"_New"*/ /*"_10runs_FB128_TrackLengthCut"/"_NewMultClassBis"/"_PtTrigMax2.5"*/, Int_t MultBinning=1, Int_t PtBinning=0, Bool_t isSysDef=1, Bool_t isDefaultSel=1, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsPtTrigMultDep=0, Int_t EffRegion=0, Bool_t isEfficiencyMassSel=0, Bool_t isMCTruth=0, Bool_t isEtaEff=1, Bool_t isNewInputPath=1, Bool_t isHM=1, Bool_t isINEL =0){
   //  if (type==6 && israp!=0) return; //so far I haven't appended any info on the rapidity to efficiency output files for K0s; if I decide to do as ofr the cascade, just remove this line
 
   //the Preliminary results have been obtained using isEtaEff==0 (no calculation of ptvseta eff performed)
@@ -141,7 +141,9 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   else  if (isSysDef && !isDefaultSel && sysTrigger==0)  PathOut2 += "_"+tipo[type]+Srap[israp]+Form("_SysT%i_SysV0index%i_PtMin%.1f", sysTrigger, indexSysV0, PtTrigMin);
   else  if (isSysDef && !isDefaultSel && sysTrigger==1)  PathOut2 += "_"+tipo[type]+Srap[israp]+Form("_SysTindex%i_SysV0%i_PtMin%.1f", indexsysTrigger, 0, PtTrigMin);
   else  {
-    PathOut2 += "_"+tipo[type]+Srap[israp]+Form("_SysT%i_SysV0%i_PtMin%.1f", sysTrigger,0, PtTrigMin);
+    PathOut2 += "_"+tipo[type]+Srap[israp];
+    if (!SkipAssoc)  PathOut2 +="_AllAssoc";
+    PathOut2+= Form("_SysT%i_SysV0%i_PtMin%.1f", sysTrigger,0, PtTrigMin);
     if (IsPtTrigMultDep) PathOut2+="_IsPtTrigMultDep";
     if(    isEfficiencyMassSel) PathOut2+= "_isEfficiencyMassSel";
     if (DEtaEff==1)PathOut2+="_Incl";   
@@ -158,7 +160,6 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   PathOutCanvas = PathOut2;
   PathOut2+= ".root";
 
-  if (!ishhCorr && !SkipAssoc)PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + path1+ Form("_PtBinning%i",PtBinning)+ "_"+tipo[type]+Srap[israp]+Form("_AllAssoc_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
   if (ishhCorr) PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file  + path1 + Form("_PtBinning%i",PtBinning)+"_"+Srap[israp]+ "_hhCorr"+Form("_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
   if (ishhCorr &&!SkipAssoc) PathOut2="FinalOutput/DATA" + year0 + "/Efficiency/" + file + "_hhCorr" + path1 + Form("_PtBinning%i",PtBinning)+Srap[israp]+ "_hhCorr"+Form("_AllAssoc_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, sysV0, PtTrigMin);
   cout << "new input file " << endl;
@@ -228,6 +229,10 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
     //    else NameContainer = "_hK0s_Task_suffix";
     //    if (PtTrigMin==3.)    NameContainer = "_h" + tipoPart[type]+"_Task_suffix";
     if (data == "LHC19h11_HM_INELgt0Bis286380")       NameContainer = "_hK0s_Task_suffix";
+    if (isINEL) {
+      if (type==6)  NameContainer = "_hK0s_Task_RecoAndEfficiency";
+      else  NameContainer = "_hK0s_Task_RecoAndEfficiency";
+    }
   }
 
   cout << "NameContainer " << NameContainer<< endl;
@@ -253,6 +258,9 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
       if (data.Index("15g3c3")!=-1) dir = (TDirectoryFile*)fileinbis->Get("MyTask_MCTruth_PtTrigMin3.0_PtTrigMax15.0");
       if (data == "LHC17o_HM_INELgt0281961" || data == "LHC19h11_HM_INELgt0Bis286380") {
 	dir = (TDirectoryFile*)fileinbis->Get("MyTask_PtTrigMin0.2_PtTrigMax30.0");
+      }
+      else if (isINEL){
+	dir = (TDirectoryFile*)fileinbis->Get("MyTask_MCTruth_PtTrigMin0.0_PtTrigMax15.0");
       }
       //      else dir = (TDirectoryFile*)fileinbis->Get("MyTask"+ tipoPart[type]+ "_PtTrigMin3.0_PtTrigMax15.0"); 
     }
@@ -308,11 +316,17 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
 
   const Int_t nummolt=5;
   const Int_t numzeta=1;
-  const Int_t numPtV0=9; //14;//was 8
+  const Int_t numPtV0=20; //14;//was 8
+  const Int_t numPtV0MyAnalysis=9;
+
+  //finer binning for 2D histo
   //  const Int_t numPtV0BisCasc=8; //14
   const Int_t numPtV0BisCasc=8;
-  const Int_t numPtV0BisV0=20; //19
+  const Int_t numPtV0BisV0=20; 
+  const Int_t numPtV0INELV0=20; 
+  const Int_t numPtV0INELCasc=20; 
   Int_t numPtV0Bis=0;
+
   const Int_t numPtTrigger=19;
   const Int_t numSelTrigger=3;
   const Int_t numSelV0=6;
@@ -373,6 +387,10 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   TString Smolt5TeV[nummolt+1]={"0-10", "10-100", "100-100", "100-100", "100-100", "_all"};
   TString SmoltLegend5TeV[nummolt+1]={"0-10 %", "10-100 %", "100-100 %", "100-100 %", "100-100 %", "0-100 %"};
   Double_t Nmolt5TeV[nummolt+1]={0,10,100,100,100,100}; 
+
+  TString SmoltMultBinning4[nummolt+1]={"0-5", "5-100", "100-100", "100-100", "100-100", "_all"};
+  TString SmoltLegendMultBinning4[nummolt+1]={"0-5 %", "5-100 %", "100-100 %", "100-100 %", "100-100 %", "0-100 %"};
+  Double_t NmoltMultBinning4[nummolt+1]={0,5,100,100,100,100}; 
   
   for (Int_t m =0; m< nummolt+1; m++){  
     if (MultBinning==0){
@@ -394,6 +412,11 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
       Smolt[m] = Smolt5TeV[m];
       SmoltLegend[m] = SmoltLegend5TeV[m];
       Nmolt[m] = Nmolt5TeV[m];
+    }
+    else    if (MultBinning==4){
+      Smolt[m] = SmoltMultBinning4[m];
+      SmoltLegend[m] = SmoltLegendMultBinning4[m];
+      Nmolt[m] = NmoltMultBinning4[m];
     }
   }
 
@@ -429,22 +452,31 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
 
   TString Szeta[numzeta]={""};
 
-
-  //  Double_t NPtV0BisCasc[numPtV0BisCasc+1]={0,0.5, 0.8,  1, 1.2, 1.5, 1.7, 2, 2.2, 2.5, 2.7, 3, 3.5, 4, 8};
-  Double_t NPtV0BisCasc[numPtV0BisCasc+1]={0,0.5,  1, 1.5, 2, 2.5,  3, 4, 8};
-  //  Double_t NPtV0BisCasc[numPtV0BisCasc+1]={0,0.5, 0.7,0.8 , 1,1.1, 1.2, 1.3, 1.4, 1.5, 2, 2.5,  3, 4, 8};
-  //  Double_t NPtV0BisV0[numPtV0BisV0+1]={0,0.1, 0.2,0.4, 0.6, 0.8, 1.2, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3, 3.5, 4, 8};
   Double_t NPtV0BisV0[numPtV0BisV0+1]={0,0.1, 0.3, 0.5, 0.6, 0.7, 0.8,1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.5, 2.7, 3, 3.5, 4, 5, 8};
+  Double_t NPtV0BisCasc[numPtV0BisCasc+1]={0,0.5,  1, 1.5, 2, 2.5,  3, 4, 8};
+  Double_t NPtV0INELV0[numPtV0INELV0+1]={0.1,0.3, 0.5, 0.7, 0.9, 1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.3, 2.5, 2.7, 3.0, 3.4, 3.8, 4.2, 4.8 , 6.0, 8};
+  Double_t NPtV0INELCasc[numPtV0INELCasc+1]={0.1,0.3, 0.5, 0.7, 0.9, 1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.3, 2.5, 2.7, 3.0, 3.4, 3.8, 4.2, 4.8 , 6.0, 8};
+
   if (type==6){
     numPtV0Bis = numPtV0BisV0;
   }
   else if (type==0 || type==1 || type==4){
     numPtV0Bis = numPtV0BisCasc;
   }
+  if (isINEL){
+    if (type==6)    numPtV0Bis = numPtV0INELV0;
+    else if (type==4)     numPtV0Bis = numPtV0INELCasc;
+  }
   Double_t NPtV0Bis[numPtV0Bis+1]={0};
   for (Int_t i =0; i<=numPtV0Bis; i++){
+    if (isINEL){
+      if (type==6)    NPtV0Bis[i] = NPtV0INELV0[i];
+      else if (type==0 || type==1 || type==4)  NPtV0Bis[i] = NPtV0INELCasc[i];
+    }
+    else {
     if (type==6)    NPtV0Bis[i] = NPtV0BisV0[i];
     else if (type==0 || type==1 || type==4)  NPtV0Bis[i] = NPtV0BisCasc[i];
+    }
   }
 
   Double_t NEtaCasc[numEtaCasc+1]={-0.8, -0.64, -0.56, -0.48, -0.4, -0.32, -0.24, -0.16, -0.08, 0, 0.08,0.16, 0.24, 0.32, 0.40, 0.48, 0.56, 0.64, 0.8};
@@ -469,14 +501,17 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   */
   
   TString SPtV0[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8", ""};
+  TString SPtV0INEL[numPtV0]={"0.1-0.3", "0.3-0.5", "0.5-0.7", "0.7-0.9", "0.9-1.1", "1.1-1.3", "1.3-1.5", "1.5-1.7", "1.7-1.9", "1.9-2.1", "2.1-2.3", "2.3-2.5", "2.5-2.7", "2.7-3.0", "3.0-3.4", "3.2-3.8", "3.8-4.2", "4.2-4.8", "4.8-6.0", "6.0-8.0"};
   //TString SPtV0[numPtV0]={"", "", "0.5-1", "1-1.5","1.5-2","2-3", "3-4", "4-8"};
-  if (type>=0)SPtV0[1]={"0.5-1"};
+  if (type>=0) SPtV0[1]={"0.5-1"};
   if (type==6) {SPtV0[0]={"0-0.5"}; SPtV0[1]={"0.5-1"};}
   if (ishhCorr){
     SPtV0[0]={"0.1-0.5"};
     SPtV0[1]={"0.5-1"};
   }
+
   Double_t NPtV0[numPtV0+1]={0,0,1,1.5,2,2.5,3,4,8,100};
+  Double_t NPtV0INEL[numPtV0+1]={0.1,0.3, 0.5, 0.7, 0.9, 1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.3, 2.5, 2.7, 3.0, 3.4, 3.8, 4.2, 4.8, 6.0, 8};
   //Double_t NPtV0[numPtV0+1]={0,0,0.5,1,1.5,2,3,4,8};
   //el 
   if (type>=0) NPtV0[1]=0.5;
@@ -485,7 +520,9 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
     NPtV0[0]=0.1;
     NPtV0[1]=0.5;
   }
+ 
   TString SNPtV0[numPtV0+1]={"0.0","0.0","1.0","1.5","2.0","2.5","3.0","4.0","8.0", ""};
+  TString SNPtV0INEL[numPtV0+1]={"0.1","0.3", "0.5", "0.7", "0.9", "1.1", "1.3", "1.5", "1.7", "1.9", "2.1", "2.3", "2.5", "2.7", "3.0", "3.4", "3.8", "4.2", "4.8", "6.0", "8"};
   if (type>=0) SNPtV0[1]={"0.5"};
   if (type==6)  SNPtV0[1]="0.5";
   if (ishhCorr){
@@ -496,16 +533,29 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   TString SPtV01[numPtV0]={ "0.1-0.5", "0.5-0.8", "0.8-1.2","1.2-1.6","1.6-2", "2-2.5","2.5-3", "3-4", "4-8"};
   Double_t NPtV01[numPtV0+1]={0.1,0.5,0.8,1.2,1.6,2,2.5,3,4,8};
   TString SNPtV01[numPtV0+1]={"0.1","0.5","0.8","1.2","1.6","2.0","2.5","3.0","4.0","8.0"};
+
+  Int_t numPtV0Max =numPtV0;
+  if (!isINEL){
+    if (PtBinning==0) numPtV0Max =numPtV0MyAnalysis-1;
+    else if (PtBinning==1) numPtV0Max = numPtV0MyAnalysis;
+  }
+
   if (PtBinning==1){
-    for(Int_t j=0; j<numPtV0+1; j++){
+    for(Int_t j=0; j<numPtV0Max+1; j++){
       cout << " j " << j << endl;
       if (j<numPtV0)      SPtV0[j] = SPtV01[j];
       NPtV0[j] = NPtV01[j];
       SNPtV0[j] = SNPtV01[j];
     }
   }
-  Int_t numPtV0Max =numPtV0;
-  if (PtBinning==0) numPtV0Max =numPtV0-1;
+
+  if (isINEL){
+    for(Int_t v=0; v<numPtV0Max+1; v++){
+      if (v<numPtV0Max)   SPtV0[v] = SPtV0INEL[v];
+      NPtV0[v] = NPtV0INEL[v];
+      SNPtV0[v] = SNPtV0INEL[v];
+    }
+  }
 
   Double_t NPtTrigger[numPtTrigger+1]={0,0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 8.0, 10.0, 13.0, 20.0, 30.0};
   //  Int_t Marker[nummolt+1]={7,4,20,22,29, 35};
@@ -2265,8 +2315,7 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
 
   for(Int_t m=0; m<nummolt+1; m++){
     //    if (m==0) continue;
-
-
+    if (isHM && MultBinning==1 && m<2) continue;
     fHistTriggerEfficiencyPtPhi[m]->Write();
     fHistTriggerEfficiencyPtEta[m]->Write();
     fHistSelected_1D_TriggerPt[m]->Write();
@@ -2379,21 +2428,23 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
       }
     }
   }
-  cout << "\n\n" << endl;
-  cout << "bin width of EffTriggerPt: " <<     fHistTriggerEfficiencyPt[1]->GetXaxis()->GetBinWidth(1)<< " GeV/c" << endl;
-  cout << "bin width  of EffTriggerEta: " <<     fHistTriggerEfficiencyEta[1]->GetXaxis()->GetBinWidth(1) << endl;
-  cout << "bin width  of EffTriggerPhi: " <<     fHistTriggerEfficiencyPhi[1]->GetXaxis()->GetBinWidth(1)<< endl;
-  cout << "bin width  of EffV0Pt: " <<     fHistV0EfficiencyPt[1]->GetXaxis()->GetBinWidth(1)<< " GeV/c " <<endl;
-  cout << "bin width  of EffV0Eta: " <<     fHistV0EfficiencyEta[1]->GetXaxis()->GetBinWidth(1)<< endl;
-  cout << "bin width  of EffV0Phi: " <<     fHistV0EfficiencyPhi[1]->GetXaxis()->GetBinWidth(1)<< endl;
+
 
   cout << "\n\n" << endl;
-  cout << "bin width in #sigmas resolution of EffTriggerPt: " <<     fHistTriggerEfficiencyPt[1]->GetXaxis()->GetBinWidth(1)/fHistResolution_1D[1][0][0]->GetRMS()<< endl;
-  cout << "bin width in #sigmas resolution of EffTriggerEta: " <<     fHistTriggerEfficiencyEta[1]->GetXaxis()->GetBinWidth(1)/fHistResolution_1D[1][1][0]->GetRMS()<< endl;
-  cout << "bin width in #sigmas resolution of EffTriggerPhi: " <<     fHistTriggerEfficiencyPhi[1]->GetXaxis()->GetBinWidth(1)/fHistResolution_1D[1][2][0]->GetRMS()<< endl;
-  cout << "bin width in #sigmas resolution of EffV0Pt: " <<     fHistV0EfficiencyPt[1]->GetXaxis()->GetBinWidth(1)/fHistResolution_1D[1][0][1]->GetRMS()<< endl;
-  cout << "bin width in #sigmas resolution of EffV0Eta: " <<     fHistV0EfficiencyEta[1]->GetXaxis()->GetBinWidth(1)/fHistResolution_1D[1][1][1]->GetRMS()<< endl;
-  cout << "bin width in #sigmas resolution of EffV0Phi: " <<     fHistV0EfficiencyPhi[1]->GetXaxis()->GetBinWidth(1)/fHistResolution_1D[1][2][1]->GetRMS()<< endl;
+  cout << "bin width of EffTriggerPt: " <<     fHistTriggerEfficiencyPt[5]->GetXaxis()->GetBinWidth(1)<< " GeV/c" << endl;
+  cout << "bin width  of EffTriggerEta: " <<     fHistTriggerEfficiencyEta[5]->GetXaxis()->GetBinWidth(1) << endl;
+  cout << "bin width  of EffTriggerPhi: " <<     fHistTriggerEfficiencyPhi[5]->GetXaxis()->GetBinWidth(1)<< endl;
+  cout << "bin width  of EffV0Pt: " <<     fHistV0EfficiencyPt[5]->GetXaxis()->GetBinWidth(1)<< " GeV/c " <<endl;
+  cout << "bin width  of EffV0Eta: " <<     fHistV0EfficiencyEta[5]->GetXaxis()->GetBinWidth(1)<< endl;
+  cout << "bin width  of EffV0Phi: " <<     fHistV0EfficiencyPhi[5]->GetXaxis()->GetBinWidth(1)<< endl;
+
+  cout << "\n\n" << endl;
+  cout << "bin width in #sigmas resolution of EffTriggerPt: " <<     fHistTriggerEfficiencyPt[5]->GetXaxis()->GetBinWidth(1)/fHistResolution_1D[5][0][0]->GetRMS()<< endl;
+  cout << "bin width in #sigmas resolution of EffTriggerEta: " <<     fHistTriggerEfficiencyEta[5]->GetXaxis()->GetBinWidth(1)/fHistResolution_1D[5][1][0]->GetRMS()<< endl;
+  cout << "bin width in #sigmas resolution of EffTriggerPhi: " <<     fHistTriggerEfficiencyPhi[5]->GetXaxis()->GetBinWidth(1)/fHistResolution_1D[5][2][0]->GetRMS()<< endl;
+  cout << "bin width in #sigmas resolution of EffV0Pt: " <<     fHistV0EfficiencyPt[5]->GetXaxis()->GetBinWidth(1)/fHistResolution_1D[5][0][1]->GetRMS()<< endl;
+  cout << "bin width in #sigmas resolution of EffV0Eta: " <<     fHistV0EfficiencyEta[5]->GetXaxis()->GetBinWidth(1)/fHistResolution_1D[5][1][1]->GetRMS()<< endl;
+  cout << "bin width in #sigmas resolution of EffV0Phi: " <<     fHistV0EfficiencyPhi[5]->GetXaxis()->GetBinWidth(1)/fHistResolution_1D[5][2][1]->GetRMS()<< endl;
 
   cout << endl;  
   for (Int_t molt=0; molt < nummolt+1; molt++){
