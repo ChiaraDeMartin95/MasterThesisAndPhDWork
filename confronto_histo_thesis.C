@@ -14,7 +14,7 @@
 #include <THStack.h>
 #include <TSpline.h>
 
-void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=3, Int_t type=0, Int_t sysTrigger=0, Int_t sysV0=0, Int_t sys=0, TString yearMC="17pq_hXi"/*"17pq_hK0s"/*"2019h11c_extra_HM_hK0s"/"1617MC_hK0s"/*"2015g3b1"/"AllMC_hXi"/*"2018f1_extra_hK0s"*/, TString yeardati="17pq_hXi"/*"17pq_hK0s"/*"2016k_HM_hK0s"/"1617_hK0s"/*"2015f"/"2016kehjl_hK0s"/"Run2DataRed_MECorr_hXi"*/, TString year="17pq_hXi"/*"17pq_hK0s"/*"2016k_HM_hK0s"/"1617_hK0s"/*"2016kehjl_18f1_extra_hK0s"/*"2015f"*"Run2DataRed_MECorr_AllMC_hXi"*/, TString year0="2016", Bool_t isParticleStudy=1, Bool_t isSystV0Analysis=0, Int_t rap=0, TString Path1="", TString Path1MC = "",Bool_t SkipAssoc=1, Int_t PtBinning = 0, Bool_t isHM=0, Bool_t isINEL=1){ 
+void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=3, Int_t type=0, Int_t sysTrigger=0, Int_t sysV0=0, Int_t sys=0, TString yearMC="17pq_hXi"/*"17pq_hK0s"/*"2019h11c_extra_HM_hK0s"/"1617MC_hK0s"/*"2015g3b1"/"AllMC_hXi"/*"2018f1_extra_hK0s"*/, TString yeardati="17pq_hXi"/*"17pq_hK0s"/*"2016k_HM_hK0s"/"1617_hK0s"/*"2015f"/"2016kehjl_hK0s"/"Run2DataRed_MECorr_hXi"*/, TString year="17pq_hXi"/*"17pq_hK0s"/*"2016k_HM_hK0s"/"1617_hK0s"/*"2016kehjl_18f1_extra_hK0s"/*"2015f"*"Run2DataRed_MECorr_AllMC_hXi"*/, TString year0="2016", Bool_t isParticleStudy=1, Bool_t isSystV0Analysis=0, Int_t rap=0, TString Path1="", TString Path1MC = "",Bool_t SkipAssoc=1, Int_t PtBinning = 0, Bool_t isHM=0, Bool_t isINEL=1, Int_t MultBinning=1){ 
 
   if (isINEL){
     SkipAssoc =0;
@@ -24,7 +24,7 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
     if (type==0){
       year = "161718_HM_hK0s_INELgt0";
       yeardati = "161718_HM_hK0s_INELgt0";
-      yearMC ="";
+      yearMC ="LHC19h11a_hK0s_INELgt0";
     }
     PtBinning = 0;
   }
@@ -98,6 +98,13 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
     molteplicit[2] = "0.005-0.01 %";
     molteplicit[3] = "0.01-0.05 %";
     molteplicit[4] = "0.05-0.1 %";
+    if (MultBinning==1) {
+      molteplicit[0] = "";
+      molteplicit[1] = "";
+      molteplicit[2] = "0-0.01 %";
+      molteplicit[3] = "0.01-0.05 %";
+      molteplicit[4] = "0.05-0.1 %";
+    }
   }
 
   TString systematic[numsysV0]={"Default", "CosPointingAngleV0", "CosPointingAngleCasc", "DCAV0ToPV", "DCAMesonToPV", "DCABaryonToPV", "DCABachToPV", "DCAV0Daught", "CascDaught", "MassLambda", "Mixed1", "+CascPAngle>0.995", "+V0PAngle>0.99", "+V0PAngle>0.995", "+Both PAngle > 0.995", "+CascPAngle>0.992", "+CascV0<0.6", "+InvMassLambda< 0.005", "+BothTwoBefore", "Before+CascPAngle>0.995)", "Before+CosV0Angle>0.995"};
@@ -129,6 +136,7 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
   cout << "input file name (dati)" << innamedati << endl;
   cout << "input file name (MC)  " << innameMC << endl;
   TString outname="FinalOutput/DATA"+year0 + "/invmass_distribution_thesis/confronto_histogrammi_"+year +"_" +tipobis[type]+Path1 + Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+StringSystV0Analysis[isSystV0Analysis]+Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f" + SisINEL[isINEL],sysTrigger, sysV0, sys, PtTrigMin);
+  if (MultBinning!=0) outname+=Form("_MultBinning%i", MultBinning);
   TString outnamepdf = outname;
   outname += ".root";
 
@@ -305,6 +313,7 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
 	if (type==0){
 	  if (tipo_histo[j]=="S")	  max_range[ParticleType][j] = 0.3;
 	  if (tipo_histo[j]=="SSB")	 { min_range[ParticleType][j] = 0.85;  max_range[ParticleType][j] = 1.15; }
+	  if (tipo_histo[j]=="SEffCorr")	 {min_range[ParticleType][j] = 10e-5; max_range[ParticleType][j] = 2.; }
 	}
       }
     
@@ -315,8 +324,8 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
 	if (dataorMC==0 && j>=num_isto_finale-6 && tipo_histo[j]!="Efficiency") {cout << " I continue " << endl; continue;}
 	if (dataorMC==1 && tipo_histo[j] == "EfficiencyRelError") continue;
 	if (isINEL){
-	if (dataorMC==0 && tipo_histo[j]=="SEffCorr") continue;
-	if (dataorMC==0 && tipo_histo[j]=="Efficiency") continue;
+	  //if (dataorMC==0 && tipo_histo[j]=="SEffCorr") continue;
+	  //	if (dataorMC==0 && tipo_histo[j]=="Efficiency") continue;
 	}
 	hs[j] = new THStack(Form("hs%i",j),"");
 	hs_ratio[j] = new THStack(Form("hs_ratio%i",j),"");
@@ -328,6 +337,7 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
 	if (!isSystV0Analysis) {ForLoopLimit=0;ForLoopLimInf=mult;}
 	Int_t 	Icounter=-1;
 	for (Int_t i =ForLoopLimInf ; i>= ForLoopLimit; i--){//ok for mult loop
+	  if (MultBinning==1 && i<2) continue;
 	  cout << "mult loop " << i << endl;
         //for (Int_t i =ForLoopLimInf ; i< ForLoopLimit; i++){//ok for systloop
 	  //cout << "\n\nsystematic: " << systematic[i] << endl;
@@ -341,8 +351,10 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
 	  Icounter++;
 	  //if multiplicity dependence is analyzed*****************
 	  if (!isSystV0Analysis){
-	    innamecompleto[i]= Form(innamedataorMC[dataorMC]+"_" +tipobis[ParticleType] +Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f" +SisINEL[isINEL] +".root", i, sysTrigger, sysV0, sys, PtTrigMin);
-
+	    innamecompleto[i]= Form(innamedataorMC[dataorMC]+"_" +tipobis[ParticleType] +Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f", i, sysTrigger, sysV0, sys, PtTrigMin);
+	    if (MultBinning!=0) innamecompleto[i]+=Form("_MultBinning%i", MultBinning);
+	    innamecompleto[i]+=SisINEL[isINEL];
+	    innamecompleto[i]+=".root";
 	  }
 	  cout <<"fileinput completo " <<  innamecompleto[i]<< endl;
 	  //*******************************************************
@@ -362,7 +374,7 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
 	  histo[j][i]->SetMarkerSize(1.2);
 	  histo[j][i]->SetLineColor(Color[i]);
 	  histo[j][i]->SetMarkerColor(Color[i]);
-	  if (tipo_histo[j]=="SEffCorr" && !isSystV0Analysis){
+	  if (tipo_histo[j]=="SEffCorr" && !isSystV0Analysis && !isINEL){
 	    hspectrumCfr[i]->SetMarkerStyle(27);
 	    hspectrumCfr[i]->SetLineColor(Color[i]);	   
 	    hspectrumCfr[i]->SetMarkerColor(Color[i]);	   
@@ -407,7 +419,7 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
 	    if (!isSystV0Analysis){
 	      //	      cout << "\n\n\n ****************************" << endl;
 	      //	      cout << " multiplicity: " << i << endl;
-	      if (tipo_histo[j]=="SEffCorr"){
+	      if (tipo_histo[j]=="SEffCorr" && !isINEL){
 		for(Int_t b=1; b <=  histo[j][i]->GetNbinsX(); b++){
 		  histo_ratio[j][i]->SetBinContent(b, histo[j][i]->GetBinContent(b)/splineFio[i]->Eval(histo[j][i]->GetBinCenter(b)));
 		  histo_ratio[j][i]->SetBinError(b, sqrt(pow(histo[j][i]->GetBinError(b),2) +pow(MeanRelErr[i]* histo[j][i]->GetBinContent(b)*histo_ratio[j][i]->GetBinContent(b),2)) /splineFio[i]->Eval(histo[j][i]->GetBinCenter(b)));
@@ -425,7 +437,7 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
 	  histo[j][i]->SetBinContent(1,0);
 	    }
 	  //I set the correct errors to the ratios according to Barlow prescription; I don't do this for SEffCorr since in that case the ratios are mycorrectedspectra/Fiorella'spectra spline. The error for that ratio is correctly computed just above.
-	  if (!(tipo_histo[j]=="SEffCorr")){
+	    if (!((tipo_histo[j]=="SEffCorr") && !isINEL)){
 	  for (Int_t l=1; l<histo_ratio[j][i]->GetNbinsX(); l++){
 	    histo_ratio[j][i]->SetBinError(l+1, sqrt(TMath::Abs(pow(histo_master[j]->GetBinError(l+1),2) -pow(histo[j][i]->GetBinError(l+1),2)))/histo_master[j]->GetBinContent(l+1));
 	  }
@@ -461,7 +473,7 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
       
 	if (ParticleType==type)      c[j]->cd(dataorMC+1);
 	if (ParticleType==type+1)      c[j]->cd(dataorMC+3);
-	//     if(j == 6) {gPad->SetLogy();}
+	if (tipo_histo[j]=="SEffCorr") {gPad->SetLogy();}
 	gPad->SetLeftMargin(0.2);
 	hs[j]->Draw("nostack"); //cosi' me li disegna in maniera corretta
 	hs[j]->SetTitle(Title[ParticleType-type]);
@@ -508,9 +520,17 @@ void confronto_histo_thesis(Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, 
 	  hs_ratio[j]->SetMinimum(0.95);
 	  hs_ratio[j]->SetMaximum(1.05); //1.8
 	}
-	if (isSystV0Analysis && tipo_histo[j]=="Efficiency"){
-	  hs_ratio[j]->SetMinimum(0.6);
-	  hs_ratio[j]->SetMaximum(1);
+	if (tipo_histo[j]=="S"){
+	  hs_ratio[j]->SetMinimum(0.5);
+	  hs_ratio[j]->SetMaximum(1.5); //1.8
+	}
+	if (tipo_histo[j]=="SEffCorr"){
+	  hs_ratio[j]->SetMinimum(0);
+	  hs_ratio[j]->SetMaximum(2);
+	}
+	if (tipo_histo[j]=="Efficiency"){
+	  hs_ratio[j]->SetMinimum(0.9);
+	  hs_ratio[j]->SetMaximum(1.1);
 	}
 	//	cout << "ok 5"<< endl;
 	if (j==1){
