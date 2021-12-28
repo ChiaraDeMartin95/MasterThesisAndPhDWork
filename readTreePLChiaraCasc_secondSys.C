@@ -16,7 +16,7 @@
 #include <TLatex.h>
 #include <TFile.h>
 #include <TLegend.h>
-void readTreePLChiaraCasc_secondSys(Int_t indexSysV0=1, Int_t sysTrigger=0, Int_t indexsysTrigger=0, Int_t type=4, Bool_t SkipAssoc=1, Int_t israp=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=3,Float_t PtTrigMinFit=3, Int_t sysV0=0,Int_t syst=0,bool isMC = 0, Bool_t isEfficiency=1,TString year0="2016", TString year=/*"AllMC_hXi"/"Run2DataRed_MECorr_hXi"*/"161718Full_AOD234_hXi",TString yearData="161718Full_AOD234_hXi"/*"Run2DataRed_MECorr_hXi"*/,  TString Path1 =""/*"_PtTrigMax2.5"/*"NewMultClassBis"*/,  Double_t ptjmax =15, Double_t nsigmamax=10, Bool_t isSigma=kFALSE, Int_t MultBinning=0, Bool_t isDefaultSel=0, TString yearMC = "161718Full_AOD235_hXi", Bool_t isNewInputPath=1, Bool_t isEtaEff=1, Bool_t isHM=0){
+void readTreePLChiaraCasc_secondSys(Int_t indexSysV0=0, Int_t sysTrigger=0, Int_t indexsysTrigger=0, Int_t type=4, Bool_t SkipAssoc=1, Int_t israp=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=3,Float_t PtTrigMinFit=3, Int_t sysV0=0,Int_t syst=0,bool isMC = 0, Bool_t isEfficiency=1,TString year0="2016", TString year="161718_HM_hXi_WithFlat16k_No18p"/*"AllMC_hXi"/"Run2DataRed_MECorr_hXi"/"161718Full_AOD234_hXi"*/,TString yearData="161718_HM_hXi_WithFlat16k_No18p"/*"161718Full_AOD234_hXi"/*"Run2DataRed_MECorr_hXi"*/,  TString Path1 =""/*"_PtTrigMax2.5"/*"NewMultClassBis"*/,  Double_t ptjmax =15, Double_t nsigmamax=10, Bool_t isSigma=kFALSE, Int_t MultBinning=1, Bool_t isDefaultSel=0, TString yearMC = "161718_HM_hXi"/*"161718Full_AOD235_hXi"*/, Bool_t isNewInputPath=1, Bool_t isEtaEff=1, Bool_t isHM=1){
   
   //isMeanFixedPDG and isBkgParab are characteristics of the fit to the inv mass distributions 
   cout << isMC << endl;
@@ -80,6 +80,7 @@ void readTreePLChiaraCasc_secondSys(Int_t indexSysV0=1, Int_t sysTrigger=0, Int_
   if (isDefaultSel)  PathInData +=Form("_MassDistr_SysT%i_SysV0Default_PtMin%.1f",sysTrigger,   PtTrigMin);
   else   if (!isDefaultSel && sysTrigger==0)  PathInData +=Form("_MassDistr_SysT%i_SysV0index%i_PtMin%.1f",sysTrigger, indexSysV0,  PtTrigMin);
   else   if (!isDefaultSel && sysTrigger==1)  PathInData +=Form("_MassDistr_SysTindex%i_SysV0%i_PtMin%.1f",indexsysTrigger, 0,  PtTrigMin);
+  if (MultBinning!=0) PathInData+=Form("_MultBinning%i",MultBinning);
   PathInData+= ".root";
 
   TFile * fileinData = new TFile(PathInData, "");
@@ -142,7 +143,9 @@ void readTreePLChiaraCasc_secondSys(Int_t indexSysV0=1, Int_t sysTrigger=0, Int_
   PathInTree += Srap[israp];
   if (!SkipAssoc)  PathInTree +="_AllAssoc";
   PathInTree += "_MassDistr_SysT0_SysV00_index0_";
-  PathInTree+= Form("PtMin%.1f.root",PtTrigMin);
+  PathInTree+= Form("PtMin%.1f",PtTrigMin);
+  if (MultBinning!=0)  PathInTree+= Form("_MultBinning%i",MultBinning);
+  PathInTree+= ".root";
   TFile *finTree = new TFile(PathInTree);
   if (!finTree) {cout << "tree input not available " ; return;}
 
@@ -175,6 +178,8 @@ void readTreePLChiaraCasc_secondSys(Int_t indexSysV0=1, Int_t sysTrigger=0, Int_
   Double_t NmoltBin1[nummolt+1]={0, 1, 5, 15, 30, 100};
   TString SmoltBin2[nummolt+1]={"0-2", "2-7", "7-15", "15-30", "30-100", "_all"};
   Double_t NmoltBin2[nummolt+1]={0, 2, 7, 15, 30, 100};
+  TString Smoltpp5TeV[nummolt+1]={"0-10", "10-100", "100-100", "100-100", "100-100", "_all"};
+  Double_t Nmoltpp5TeV[nummolt+1]={0, 10, 100, 100, 100, 100};
 
   TString Smolt[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "_all"};
   Double_t Nmolt[nummolt+1]={0, 5, 10, 30, 50, 100};
@@ -191,6 +196,10 @@ void readTreePLChiaraCasc_secondSys(Int_t indexSysV0=1, Int_t sysTrigger=0, Int_
     else if (MultBinning==2){
       Smolt[m] = SmoltBin2[m];
       Nmolt[m] = NmoltBin2[m]; 
+    }
+    else if (MultBinning==3){
+      Smolt[m] = Smoltpp5TeV[m];
+      Nmolt[m] = Nmoltpp5TeV[m];
     }
   }
   if (isHM){
@@ -314,9 +323,12 @@ void readTreePLChiaraCasc_secondSys(Int_t indexSysV0=1, Int_t sysTrigger=0, Int_
       //      if (m==0) continue;
       //      PathInMassDef=PathInMass+ "_"+year+"_"+tipo[type]+Form("_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f.root", m, sysTrigger, sysV0, syst, PtTrigMin);
       PathInMassDef=PathInMass+ "_"+year+"_"+tipo[type]+Srap[israp]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG] + BkgType[isBkgParab];
-      if (isDefaultSel) PathInMassDef += Form("_molt%i_sysT%i_sysV0Default_Sys%i_PtMin%.1f.root", m, sysTrigger, sysV0, syst,PtTrigMinFit);
-      else if (!isDefaultSel && sysTrigger==0) PathInMassDef += Form("_molt%i_sysT%i_sysV0index%i_Sys%i_PtMin%.1f.root", m, sysTrigger, indexSysV0, syst,PtTrigMinFit);
-      else if (!isDefaultSel && sysTrigger==1) PathInMassDef += Form("_molt%i_sysTindex%i_sysV0%i_Sys%i_PtMin%.1f.root", m, indexsysTrigger, 0, syst,PtTrigMinFit);
+      if (isDefaultSel) PathInMassDef += Form("_molt%i_sysT%i_sysV0Default_Sys%i_PtMin%.1f", m, sysTrigger, sysV0, syst,PtTrigMinFit);
+      else if (!isDefaultSel && sysTrigger==0) PathInMassDef += Form("_molt%i_sysT%i_sysV0index%i_Sys%i_PtMin%.1f", m, sysTrigger, indexSysV0, syst,PtTrigMinFit);
+      else if (!isDefaultSel && sysTrigger==1) PathInMassDef += Form("_molt%i_sysTindex%i_sysV0%i_Sys%i_PtMin%.1f", m, indexsysTrigger, 0, syst,PtTrigMinFit);
+      if (MultBinning!=0) PathInMassDef+=Form("_MultBinning%i",MultBinning);
+      PathInMassDef+=".root";
+
       fileMassSigma= new TFile(PathInMassDef);
       histoSigma=(TH1F*)fileMassSigma->Get("histo_sigma");
       histoMean=(TH1F*)fileMassSigma->Get("histo_mean");
@@ -851,7 +863,7 @@ void readTreePLChiaraCasc_secondSys(Int_t indexSysV0=1, Int_t sysTrigger=0, Int_
   dirBkg->cd();
   cout << "\n\n I will process " << EntriesBkg << " entries for theSE correlation " << endl;
 
-  //  if (kFALSE){
+  if (kFALSE){
   for(Int_t k = 0; k<EntriesBkg; k++){
     if (k>100000000) continue;
 
@@ -1043,6 +1055,7 @@ void readTreePLChiaraCasc_secondSys(Int_t indexSysV0=1, Int_t sysTrigger=0, Int_
 	}
       }
     }
+  }
   }
 
   //new

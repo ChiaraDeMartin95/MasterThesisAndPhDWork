@@ -16,9 +16,11 @@
 #include <TLatex.h>
 #include <TFile.h>
 #include <TRandom.h>
-void readTreePLChiaraCasc_firstSys( Int_t indexSysV0=1,Int_t sysTrigger=0,Int_t indexsysTrigger=0,bool isMC = 1,TString year="161718Full_AOD235_hXi"/*"161718Full_AOD234_hXi"/*"AllMC_hXi"/*"2015f"/*"2015g3b1"/"Run2DataRed_MECorr_hXi"/*"2016kl_hXi"/*"2016k_hXi_MECorr_25runs"/"1617GP_hXi"/*"2018f1_extra_hXi_CommonParton"*/, Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus, =2 for OmegaMinus, =3 for OmegaPlus */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, Bool_t isEfficiency=1,			     TString yearData = "161718Full_AOD234_hXi"/*"Run2DataRed_MECorr_hXi"*/, TString year0="2016", TString Path1 ="", Bool_t CommonParton=0, Int_t MultBinning=0, Bool_t IsDefaultSel=0, Bool_t isNewInputPath=1, Bool_t isHM=0)
+void readTreePLChiaraCasc_firstSys( Int_t indexSysV0=0,Int_t sysTrigger=0,Int_t indexsysTrigger=0,bool isMC = 1,TString year="161718_HM_hXi"/*"161718_HM_hXi_WithFlat16k_No18p"/*"161718Full_AOD234_hXi"/*"161718Full_AOD234_hXi"/*"AllMC_hXi"/*"2015f"/*"2015g3b1"/"Run2DataRed_MECorr_hXi"/*"2016kl_hXi"/*"2016k_hXi_MECorr_25runs"/"1617GP_hXi"/*"2018f1_extra_hXi_CommonParton"*/, Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus, =2 for OmegaMinus, =3 for OmegaPlus */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, Bool_t isEfficiency=1,			     TString yearData = "161718_HM_hXi_WithFlat16k_No18p"/*"161718Full_AOD234_hXi"/*"Run2DataRed_MECorr_hXi"*/, TString year0="2016", TString Path1 ="", Bool_t CommonParton=0, Int_t MultBinning=1, Bool_t IsDefaultSel=0, Bool_t isTightest=0, Bool_t isLoosest=0, Bool_t isNewInputPath=1, Bool_t isHM=1)
 {
 
+  if (IsDefaultSel && (isLoosest || isTightest) ) return;
+  if (isLoosest && isTightest) return;
   if (IsDefaultSel && sysTrigger==1){cout << " To run the default selections you should put sysTrigger==0) " << endl;  return; }
 
   Int_t sysV0=0; //need to define it ... but useless for the purposes of this macro 
@@ -54,22 +56,32 @@ void readTreePLChiaraCasc_firstSys( Int_t indexSysV0=1,Int_t sysTrigger=0,Int_t 
   Float_t DCAXiDaughters = 0;
   DCAXiDaughters = gRandom->Uniform(DCAXiDaughtersExtr[0] , DCAXiDaughtersExtr[1]);
   if (IsDefaultSel)  DCAXiDaughters=0.8; //default value     
+  else  if (isLoosest)   DCAXiDaughters=DCAXiDaughtersExtr[1];
+  else  if (isTightest)   DCAXiDaughters=DCAXiDaughtersExtr[0];
 
   Float_t CosinePAngleXiToPV = 0;
   CosinePAngleXiToPV = gRandom->Uniform(CosinePAngleXiToPVExtr[0] , CosinePAngleXiToPVExtr[1]);
   if (IsDefaultSel)  CosinePAngleXiToPV=0.995; //default value     
+  else  if (isLoosest)   CosinePAngleXiToPV=CosinePAngleXiToPVExtr[0];
+  else  if (isTightest)   CosinePAngleXiToPV=CosinePAngleXiToPVExtr[1];
 
   Float_t CosinePAngleV0ToXi = 0;
   CosinePAngleV0ToXi = gRandom->Uniform(CosinePAngleV0ToXiExtr[0] , CosinePAngleV0ToXiExtr[1]);
   if (IsDefaultSel)  CosinePAngleV0ToXi=0.97; //default value     
+  else  if (isLoosest)   CosinePAngleV0ToXi=CosinePAngleV0ToXiExtr[0];
+  else  if (isTightest)   CosinePAngleV0ToXi=CosinePAngleV0ToXiExtr[1];
 
   Float_t InvMassLambdaWindow = 0;
   InvMassLambdaWindow = gRandom->Uniform(InvMassLambdaWindowExtr[0] , InvMassLambdaWindowExtr[1]);
   if (IsDefaultSel)  InvMassLambdaWindow=0.006; //default value     
+  else  if (isLoosest)   InvMassLambdaWindow=InvMassLambdaWindowExtr[1];
+  else  if (isTightest)   InvMassLambdaWindow=InvMassLambdaWindowExtr[0];
 
   Float_t ctau = 0;
   ctau = gRandom->Uniform(ctauExtr[0] , ctauExtr[1]);
   if (IsDefaultSel)  ctau=3*4.91; //default value     
+  else  if (isLoosest)   ctau=ctauExtr[1];
+  else  if (isTightest)   ctau=ctauExtr[0];
 
   Float_t DCAzTrigger = 1;
 
@@ -95,8 +107,11 @@ void readTreePLChiaraCasc_firstSys( Int_t indexSysV0=1,Int_t sysTrigger=0,Int_t 
     PathInData +=Srap[israp];
     if (!SkipAssoc)  PathInData +="_AllAssoc";
     if (IsDefaultSel)  PathInData +=Form("_MassDistr_SysT%i_SysV0Default_PtMin%.1f",sysTrigger,   PtTrigMin);
+    else if (isLoosest)  PathInData +=Form("_MassDistr_SysT%i_SysV0Loosest_PtMin%.1f",sysTrigger,   PtTrigMin);
+    else if (isTightest)  PathInData +=Form("_MassDistr_SysT%i_SysV0Tightest_PtMin%.1f",sysTrigger,   PtTrigMin);
     else if (!IsDefaultSel && sysTrigger==0)  PathInData +=Form("_MassDistr_SysT%i_SysV0index%i_PtMin%.1f" ,sysTrigger, indexSysV0,  PtTrigMin);
     else if (!IsDefaultSel && sysTrigger==1)  PathInData +=Form("_MassDistr_SysTindex%i_SysV0%i_PtMin%.1f" ,indexsysTrigger, 0,  PtTrigMin);
+    if (MultBinning!=0) PathInData+=Form("_MultBinning%i",MultBinning);
     PathInData+= ".root";
     TFile * fileinData = new TFile(PathInData, "");
     if (!PathInData) {cout << " I cannot retrieve info about topo selections..." << endl; return;}
@@ -132,10 +147,12 @@ void readTreePLChiaraCasc_firstSys( Int_t indexSysV0=1,Int_t sysTrigger=0,Int_t 
   PathOut +=Srap[israp];
   if (!SkipAssoc)  PathOut +="_AllAssoc";
   if (IsDefaultSel)  PathOut +=Form("_MassDistr_SysT%i_SysV0Default_PtMin%.1f",sysTrigger, PtTrigMin);
+  else if (isLoosest)  PathOut +=Form("_MassDistr_SysT%i_SysV0Loosest_PtMin%.1f",sysTrigger, PtTrigMin);
+  else if (isTightest)  PathOut +=Form("_MassDistr_SysT%i_SysV0Tightest_PtMin%.1f",sysTrigger, PtTrigMin);
   else   if (!IsDefaultSel && sysTrigger==0)  PathOut +=Form("_MassDistr_SysT%i_SysV0index%i_PtMin%.1f",sysTrigger, indexSysV0,  PtTrigMin);
   else   if (!IsDefaultSel && sysTrigger==1)  PathOut +=Form("_MassDistr_SysTindex%i_SysV0%i_PtMin%.1f",indexsysTrigger, 0,  PtTrigMin);
 
-
+  if (MultBinning!=0) PathOut+=Form("_MultBinning%i",MultBinning);
   PathOut+= ".root";
 
   //take the smaller tree as input                                                                     
@@ -152,7 +169,9 @@ void readTreePLChiaraCasc_firstSys( Int_t indexSysV0=1,Int_t sysTrigger=0,Int_t 
   PathInTree += Srap[israp];
   if (!SkipAssoc)  PathInTree +="_AllAssoc";
   PathInTree += "_MassDistr_SysT0_SysV00_index0_";
-  PathInTree+= Form("PtMin%.1f.root",PtTrigMin);
+  PathInTree+= Form("PtMin%.1f",PtTrigMin);
+  if (MultBinning!=0) PathInTree+=Form("_MultBinning%i",MultBinning);
+  PathInTree+= ".root";
 
   TString dirinputtype[6] = {"Xi", "Xi", "Omega", "Omega", "Xi", "Omega"};
   TFile *fin = new TFile(PathIn);
@@ -263,7 +282,8 @@ void readTreePLChiaraCasc_firstSys( Int_t indexSysV0=1,Int_t sysTrigger=0,Int_t 
   Double_t Nmolt1[nummolt+1]={0, 1, 5, 15, 30, 100};
   TString Smolt2[nummolt+1]={"0-2", "2-7", "7-15", "15-30", "30-100", "all"};
   Double_t Nmolt2[nummolt+1]={0, 2, 7, 15, 30, 100};
-
+  TString Smolt5TeV[nummolt+1]={"0-10", "10-100", "100-100", "100-100", "100-100", "all"};
+  Double_t Nmolt5TeV[nummolt+1]={0, 10, 100, 100, 100, 100};
   TString Smolt[nummolt+1]={"0-1", "1-5", "5-15", "15-30", "30-100", "all"};
   Double_t Nmolt[nummolt+1]={0, 1, 5, 15, 30, 100};
   
@@ -280,7 +300,35 @@ void readTreePLChiaraCasc_firstSys( Int_t indexSysV0=1,Int_t sysTrigger=0,Int_t 
       Smolt[m] = Smolt2[m];
       Nmolt[m] = Nmolt2[m];
     }
-
+    else if (MultBinning==3){
+      Smolt[m] = Smolt5TeV[m];
+      Nmolt[m] = Nmolt5TeV[m];
+    }
+  }
+  if (isHM){
+    Nmolt[1] = 0.001;
+    Nmolt[2] = 0.005;
+    Nmolt[3] = 0.01;
+    Nmolt[4] = 0.05;
+    Nmolt[5] = 0.1;
+    Smolt[0] = "0-0.001";
+    Smolt[1] = "0.001-0.005";
+    Smolt[2] = "0.005-0.01";
+    Smolt[3] = "0.01-0.05";
+    Smolt[4] = "0.05-0.1";
+    if (MultBinning==1){
+      Nmolt[1] = 0;
+      Nmolt[2] = 0;
+      Nmolt[3] = 0.01;
+      Nmolt[4] = 0.05;
+      Nmolt[5] = 0.1;
+      Smolt[0] = "0-0a";
+      Smolt[1] = "0-0b";
+      Smolt[2] = "0-0.01";
+      Smolt[3] = "0.01-0.05";
+      Smolt[4] = "0.05-0.1";
+      Smolt[5] = "0-0.1";
+    }
   }
 
   //  TString Smolt[nummolt+1]={"0-0", "0-10", "10-30", "30-50", "50-100", "all"};
@@ -304,6 +352,7 @@ void readTreePLChiaraCasc_firstSys( Int_t indexSysV0=1,Int_t sysTrigger=0,Int_t 
   if (!fHistEventMult) cout << "no info about total number of INT7 events analyzed" << endl;
   cout <<" bin label: " << fHistEventMult->GetXaxis()->GetBinLabel(7) << endl;
   Double_t TotEvtINT7 = fHistEventMult->GetBinContent(7);
+  if (isHM) TotEvtINT7 = fHistEventMult->GetBinContent(9);
 
   TH2F* hMultiplicity2D=(TH2F*)  d1->FindObject("fHistPtMaxvsMult");
   TH2F* hMultiplicity2DBefAll=(TH2F*)  d1->FindObject("fHistPtMaxvsMultBefAll");
@@ -695,7 +744,7 @@ void readTreePLChiaraCasc_firstSys( Int_t indexSysV0=1,Int_t sysTrigger=0,Int_t 
   for(Int_t k = 0; k<EntriesSign; k++){
     //    if (k>100000) continue;
     tSign->GetEntry(k);  
-    if (k==10000*l){
+    if (k==100000*l){
       l++;     
       cout << "SE ----" << (Float_t)k/EntriesSign<< endl;
     }
@@ -887,7 +936,7 @@ void readTreePLChiaraCasc_firstSys( Int_t indexSysV0=1,Int_t sysTrigger=0,Int_t 
     // for(Int_t k = 0; k<1; k++){
     //    if (k>100000) continue;
     tBkg->GetEntry(k);
-    if (k==10000*l){
+    if (k==100000*l){
       l++;     
       cout << "ME ----" << (Float_t)k/EntriesBkg<< endl;
     }
