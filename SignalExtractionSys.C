@@ -17,23 +17,49 @@
 #include <TFile.h>
 #include <TLegend.h>
 
-void SignalExtractionSys(Int_t numsysV0index =100, Int_t sysTrigger=0, Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t PtTrigMin=3,  Float_t PtTrigMinFit=3, Int_t sysV0=0, Int_t sys=0,Int_t type=0,  Int_t israp=0,Bool_t isMC=0, Bool_t isEfficiency=1,   TString year0 = "2016",TString year="1617_AOD234_hK0s"/*"1617_hK0s"/*"2016kehjl_hK0s"/"AllMC_hXi"/*"2018f1_extra_hK0s"/*"2016k_hK0s"/*"2016k_MECorr"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"*/, TString yearMC="1617_GP_AOD235_With18c12b"/*"1617MC_hK0s"/*"AllMC_hXi"/*"1617GP_hXi"/*"2016kl_hXi"/*"2018f1_extra_MECorr"/"2018f1_extra_hK0s"/*"2018f1_extra_hK0s_30runs_150MeV"*/,  TString Path1 =""/*"_PtTrigMax2.5"/*"_NewMultClassBis"*/, TString Dir ="FinalOutput/",  Float_t ptjmax=15, Int_t rebin=2,  Int_t rebinx=2,  Int_t rebiny=2, Bool_t MasterThesisAnalysis=0, Bool_t isEnlargedDeltaEtaPhi=0,Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Int_t MultBinning=0, Int_t PtBinning=1, Float_t PtTrigMin2=0.15, Bool_t isForPreliminary=0){ 
+void SignalExtractionSys(Int_t numsysV0index =360, Int_t sysTrigger=0, Bool_t ishhCorr=0, Bool_t SkipAssoc=1,Float_t PtTrigMin=3,  Float_t PtTrigMinFit=3, Int_t sysV0=0, Int_t sys=0,Int_t type=8,  Int_t israp=0,Bool_t isMC=0, Bool_t isEfficiency=0,   TString year0 = "2016",TString year="161718Full_AOD234_hXi"/*"1617_AOD234_hK0s"/*"1617_hK0s"/*"2016kehjl_hK0s"/"AllMC_hXi"/*"2018f1_extra_hK0s"/*"2016k_hK0s"/*"2016k_MECorr"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"*/, TString yearMC="161718Full_AOD235_hXi"/*"1617_GP_AOD235_With18c12b"/*"1617MC_hK0s"/*"AllMC_hXi"/*"1617GP_hXi"/*"2016kl_hXi"/*"2018f1_extra_MECorr"/"2018f1_extra_hK0s"/*"2018f1_extra_hK0s_30runs_150MeV"*/,  TString Path1 =""/*"_PtTrigMax2.5"/*"_NewMultClassBis"*/, TString Dir ="FinalOutput/",  Float_t ptjmax=15, Int_t rebin=2,  Int_t rebinx=2,  Int_t rebiny=2, Bool_t MasterThesisAnalysis=0, Bool_t isEnlargedDeltaEtaPhi=0,Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Int_t MultBinning=1, Int_t PtBinning=0, Float_t PtTrigMin2=0.15, Bool_t isForPreliminary=0, TString yearLowPtTrig = "161718Full_AOD234_hXi",  Bool_t isHM=1, Bool_t ispp5TeV=0, Bool_t isGausFit=0){ 
 
   //  gStyle->SetOptStat(0);
-
+  Int_t isEtaEff = 0;
   if (type==8){
-    year = "Run2DataRed_MECorr_hXi";
-    yearMC = "AllMC_hXi";
+    if (isForPreliminary){
+      year = "Run2DataRed_MECorr_hXi";
+      yearMC = "AllMC_hXi";
+      yearLowPtTrig = "";
+    }
+    else {
+      year = "161718Full_AOD234_hXi";
+      yearMC = "161718Full_AOD235_hXi";
+      isEtaEff=1;
+      yearLowPtTrig = "_161718Full_AOD234_hXi";
+      if (isHM){
+	year = "161718_HM_hXi_WithFlat16k_No18p";
+	yearMC = "161718_HM_hXi";
+	isEtaEff=1;
+	yearLowPtTrig = "_161718_HM_hXi_WithFlat16k_No18p";
+	PtTrigMin2=3.;
+      }
+    }
     PtBinning=0;
   }
   else if (type==0){
     if (isForPreliminary){  //for Preliminary results
       year = "1617_hK0s";
       yearMC = "1617MC_hK0s";
+      yearLowPtTrig = "";
     }
-    year = "1617_AOD234_hK0s";
-    yearMC = "1617_GP_AOD235";
-    PtBinning=1;
+    else{
+      year = "1617_AOD234_hK0s";
+      yearMC = "1617_GP_AOD235";
+      PtBinning=1;
+      yearLowPtTrig = "";
+      isEtaEff=1;
+      if (isHM){
+	year = "";
+	yearMC = "";
+	yearLowPtTrig = "";
+      }
+    }
   }
   const Int_t numtipo=10;
   TString tipo[numtipo]={"K0s", "Lambda", "AntiLambda","LambdaAntiLambda", "XiNeg", "XiPos", "OmegaNeg", "OmegaPlus", "Xi", "Omega"};
@@ -72,6 +98,9 @@ void SignalExtractionSys(Int_t numsysV0index =100, Int_t sysTrigger=0, Bool_t is
   Double_t Nmolt1[nummolt+1]={0,1,5,15,30,100}; 
   TString Smolt2[nummolt+1]={"0-2", "2-7", "7-15", "15-30", "30-100", "_all"};
   Double_t Nmolt2[nummolt+1]={0,2,7,15,30,100}; 
+  TString Smolt5TeV[nummolt+1]={"0-10", "10-100", "100-100", "100-100", "100-100", "all"};
+  Double_t Nmolt5TeV[nummolt+1]={0, 10, 100, 100, 100, 100};
+
 
   for(Int_t m=0; m<nummolt+1; m++){
     if (MultBinning==0){
@@ -86,7 +115,31 @@ void SignalExtractionSys(Int_t numsysV0index =100, Int_t sysTrigger=0, Bool_t is
       Smolt[m] = Smolt2[m];
       Nmolt[m] = Nmolt2[m];
     }
+    if (MultBinning==3){
+      Smolt[m] = Smolt5TeV[m];
+      Nmolt[m] = Nmolt5TeV[m];
+    }
+  }
 
+  if (isHM){
+    Nmolt[1] = 0.001;
+    Nmolt[2] = 0.005;
+    Nmolt[3] = 0.01;
+    Nmolt[4] = 0.05;
+    Nmolt[5] = 0.1;
+    Smolt[0] = "0-0.001";
+    Smolt[1] = "0.001-0.005";
+    Smolt[2] = "0.005-0.01";
+    Smolt[3] = "0.01-0.05";
+    Smolt[4] = "0.05-0.1";
+    Smolt[5] = "0-0.1";
+    if (MultBinning==1){
+      Nmolt[1] = 0;
+      Nmolt[2] = 0;
+      Smolt[0] = "0-0a";
+      Smolt[1] = "0-0b";
+      Smolt[2] = "0-0.01";
+    }
   }
 
   TString SPtV0[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8", ""};
@@ -159,13 +212,16 @@ void SignalExtractionSys(Int_t numsysV0index =100, Int_t sysTrigger=0, Bool_t is
   TFile *fileinDef;
 
   TString   PathInNTrig = Dir+"/SystematicAnalysis" +year;
-  if (!isForPreliminary) PathInNTrig +=Form("_PtBinning%i", PtBinning);
+  if (!isForPreliminary && PtBinning!=0) PathInNTrig +=Form("_PtBinning%i", PtBinning);
   PathInNTrig +=Path1; //it was without year                                                       
   if (isForPreliminary)  PathInNTrig +="_Jet0.75";
   PathInNTrig +="_"+tipo[type];
   PathInNTrig +=Srap[israp];
   PathInNTrig +=SSkipAssoc[SkipAssoc];
-  PathInNTrig +=  Form("_JetData_PtMin%.1f.root", PtTrigMin);
+  PathInNTrig +=  Form("_JetData_PtMin%.1f", PtTrigMin);
+  if (isEtaEff)  PathInNTrig += "_IsEtaEff";
+  if (MultBinning!=0) PathInNTrig += Form("_MultBinning%i", MultBinning);
+  PathInNTrig += ".root";
   TFile *fileNTrig = new TFile(PathInNTrig, "");
   if (!fileNTrig) return;
   TH1F* NTriggerHisto = (TH1F*)  fileNTrig->Get("NTriggerHisto");
@@ -178,8 +234,11 @@ void SignalExtractionSys(Int_t numsysV0index =100, Int_t sysTrigger=0, Bool_t is
     PathOut +=Srap[israp];
     PathOut +=SSkipAssoc[SkipAssoc];
   }
-  if (sysTrigger==0)  PathOut+=   Form("_SysT%i_SysV0Num%i_Sys%i_PtMin%.1f.root", 0, numsysV0index, sys, PtTrigMin);
-  else   PathOut+=   Form("_SysTNum%i_SysV0%i_Sys%i_PtMin%.1f.root", numsysV0index, 0, sys, PtTrigMin);
+  if (sysTrigger==0)  PathOut+=   Form("_SysT%i_SysV0Num%i_Sys%i_PtMin%.1f", 0, numsysV0index, sys, PtTrigMin);
+  else   PathOut+=   Form("_SysTNum%i_SysV0%i_Sys%i_PtMin%.1f", numsysV0index, 0, sys, PtTrigMin);
+  if (MultBinning!=0) PathOut += Form("_MultBinning%i", MultBinning);
+  if (isGausFit) PathOut += "_GausFit";
+  PathOut += ".root";
 
   TFile *fileout = new TFile (PathOut , "RECREATE");
 
@@ -226,6 +285,7 @@ void SignalExtractionSys(Int_t numsysV0index =100, Int_t sysTrigger=0, Bool_t is
   if (type==8){
     YSup=0.0006;
     YInf = -0.0001;
+    if (isHM)     YSup=0.0015;
   }
   //I define same variables (common to all files) and get some default info
   TString nameME[nummolt+1][numPtV0];
@@ -243,10 +303,14 @@ void SignalExtractionSys(Int_t numsysV0index =100, Int_t sysTrigger=0, Bool_t is
     PathIn0Def +=Srap[israp];
     PathIn0Def +=SSkipAssoc[SkipAssoc];
   }
-  PathInDef= PathIn0Def + Form("_SysT%i_SysV0Default_Sys%i_PtMin%.1f_Output.root", 0,  sys, PtTrigMin);
+  PathInDef= PathIn0Def + Form("_SysT%i_SysV0Default_Sys%i_PtMin%.1f_Output", 0,  sys, PtTrigMin);
+  if (isEtaEff) PathInDef += "_IsEtaEff";
+  if (MultBinning!=0) PathInDef += Form("_MultBinning%i", MultBinning);
+  PathInDef += ".root";
 
   TString PathInOOJNew;
   TString PathInOOJ= "OOJComparison"+year;
+  PathInOOJ +=  yearLowPtTrig;
   if (PtBinning>0) PathInOOJ+=Form("_PtBinning%i",PtBinning);
   PathInOOJ+= Path1;
   //  PathInOOJ+="_Jet0.75";
@@ -257,7 +321,11 @@ void SignalExtractionSys(Int_t numsysV0index =100, Int_t sysTrigger=0, Bool_t is
   }
 
   TString PathInDefOOJNew=PathInOOJ;
-  PathInDefOOJNew+=Form("_SysV0Default_PtTrigMin%.1f_PtTrigMin%.1f_Output.root", PtTrigMin, PtTrigMin2); 
+  PathInDefOOJNew+=Form("_SysV0Default_PtTrigMin%.1f_PtTrigMin%.1f_Output", PtTrigMin, PtTrigMin2); 
+  if (isEtaEff) PathInDefOOJNew += "_IsEtaEff";
+  if (MultBinning!=0) PathInDefOOJNew += Form("_MultBinning%i", MultBinning);
+  if (isHM) PathInDefOOJNew += "_isOOJFromAllMult";
+  PathInDefOOJNew += ".root";
 
   TFile* finDef = new TFile(PathInDef, "");
   if (!finDef) {cout << " default file not present " << endl; return;}
@@ -268,6 +336,8 @@ void SignalExtractionSys(Int_t numsysV0index =100, Int_t sysTrigger=0, Bool_t is
   }
 
   for(Int_t m=0; m<nummolt+1; m++){
+    if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
+    if (isHM && MultBinning==1 && m<=1) continue;
     cout << "m " << m << endl;
     if (m!=nummolt) {
       NTrigger[m] =    NTriggerHisto->GetBinContent(NTriggerHisto->FindBin(Nmolt[m]+0.0001));
@@ -298,7 +368,8 @@ void SignalExtractionSys(Int_t numsysV0index =100, Int_t sysTrigger=0, Bool_t is
       for (Int_t iregion=0; iregion<numRegions; iregion++){
 	//	cout << "iregion " << iregion << endl;
 	if (type==8 && (NPtV0[v] <2.5-0.001) && iregion==0){
-	  hDeltaPhiDef[m][v][iregion]=(TH1F*)finDefOOJNew->Get(nameME[m][v]+"_AC_phi_V0Sub_BulkSub_EffCorr_RebSmoothBis");
+	  if (isForPreliminary)	  hDeltaPhiDef[m][v][iregion]=(TH1F*)finDefOOJNew->Get(nameME[m][v]+"_AC_phi_V0Sub_BulkSub_EffCorr_RebSmoothBis");
+	  else  hDeltaPhiDef[m][v][iregion]=(TH1F*)finDefOOJNew->Get(nameME[m][v]+"_AC_phi_V0Sub_BulkSub_EffCorr_RebSmooth"); 
 	  cout << " hey there! I'm getting jet distr obtained with new OOJ subtraction method" << endl;
 	}
 	else	hDeltaPhiDef[m][v][iregion]=(TH1F*)finDef->Get(nameME[m][v]+"_AC_phi_V0Sub_"+SRegionInput[iregion]+"EffCorr");
@@ -327,9 +398,12 @@ void SignalExtractionSys(Int_t numsysV0index =100, Int_t sysTrigger=0, Bool_t is
   TH1F *     histoTopoSel;
   TH2F *  histoCosCtau = new TH2F("histoCosCtau", "histoCosCtau", 100, 0.9, 1,100, 0, 30);
   for (Int_t sysV0index =0; sysV0index < numsysV0index; sysV0index++){
+    if (isHM && type==8 && sysV0index==0) continue;
     if (sysV0index==57 && type==0 && sysTrigger==1) continue;
-    if (sysTrigger==0)     PathInFirstBis =PathInFirst + Form("_MassDistr_SysT%i_SysV0index%i_PtMin%.1f.root",sysTrigger, sysV0index,  PtTrigMin);
-    else   PathInFirstBis =PathInFirst + Form("_MassDistr_SysTindex%i_SysV0%i_PtMin%.1f.root",sysV0index, 0, PtTrigMin);
+    if (sysTrigger==0)     PathInFirstBis =PathInFirst + Form("_MassDistr_SysT%i_SysV0index%i_PtMin%.1f",sysTrigger, sysV0index,  PtTrigMin);
+    else   PathInFirstBis =PathInFirst + Form("_MassDistr_SysTindex%i_SysV0%i_PtMin%.1f",sysV0index, 0, PtTrigMin);
+    if (MultBinning!=0) PathInFirstBis += Form("_MultBinning%i", MultBinning);
+    PathInFirstBis += ".root";
     fileinFirst = new TFile(PathInFirstBis, "");
     //    cout << sysV0index << endl;
     if (!fileinFirst) continue;
@@ -342,21 +416,32 @@ void SignalExtractionSys(Int_t numsysV0index =100, Int_t sysTrigger=0, Bool_t is
   cout << "\n\n second part of the macro " << endl;
   Int_t	NumberFilesUsed=0;
   for(Int_t m=nummolt; m>=0; m--){
+    if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
+    if (isHM && MultBinning==1 && m<=1) continue;
     cout << "\n\n\n" << m << endl;
   //  for(Int_t m=0; m>=0; m--){
     for(Int_t v=PtV0Min; v<numPtV0Max; v++){
       NumberFilesUsed=0;
       for (Int_t sysV0index =0; sysV0index < numsysV0index; sysV0index++){
+	if (isHM && type==8 && sysV0index==0) continue;
 	if (sysV0index==57 && type==0 && sysTrigger==1) continue;
 	//	cout << "sysV0index" << sysV0index << endl;
 	PathInOOJNew=PathInOOJ;
 	if (sysTrigger==0) PathInOOJNew+=Form("_SysV0index%i", sysV0index);
 	else  PathInOOJNew+=Form("_SysTindex%i", sysV0index);
-	PathInOOJNew+=Form("_PtTrigMin%.1f_PtTrigMin%.1f_Output.root", PtTrigMin, PtTrigMin2); 	
+	PathInOOJNew+=Form("_PtTrigMin%.1f_PtTrigMin%.1f_Output", PtTrigMin, PtTrigMin2); 	
+	if (isEtaEff) PathInOOJNew += "_IsEtaEff";
+	if (MultBinning!=0) PathInOOJNew += Form("_MultBinning%i", MultBinning);
+	if (isHM) PathInOOJNew += "_isOOJFromAllMult";
+	PathInOOJNew += ".root";
 
 	PathIn = PathIn0;
-	if (sysTrigger==0)	PathIn+=   Form("_SysT%i_SysV0index%i_Sys%i_PtMin%.1f_Output.root", sysTrigger, sysV0index, sys, PtTrigMin);
-	else 	PathIn+=   Form("_SysTindex%i_SysV0%i_Sys%i_PtMin%.1f_Output.root", sysV0index, 0, sys, PtTrigMin);
+	if (sysTrigger==0)	PathIn+=   Form("_SysT%i_SysV0index%i_Sys%i_PtMin%.1f_Output", sysTrigger, sysV0index, sys, PtTrigMin);
+	else 	PathIn+=   Form("_SysTindex%i_SysV0%i_Sys%i_PtMin%.1f_Output", sysV0index, 0, sys, PtTrigMin);
+	if (isEtaEff) PathIn += "_IsEtaEff";
+	if (MultBinning!=0) PathIn += Form("_MultBinning%i", MultBinning);
+	PathIn += ".root";
+
 	filein = new TFile(PathIn, "");
 	if (!filein) continue;
 	//	cout << "I've found the file" << endl;
@@ -368,21 +453,27 @@ void SignalExtractionSys(Int_t numsysV0index =100, Int_t sysTrigger=0, Bool_t is
 
 	for (Int_t iregion=0; iregion<numRegions; iregion++){
 	  if (type==8 && (NPtV0[v] <2.5-0.001) && iregion==0){
-	    hDeltaPhi[m][v][iregion]=(TH1F*)fileinOOJNew->Get(nameME[m][v]+"_AC_phi_V0Sub_BulkSub_EffCorr_RebSmoothBis");
+	    if (isForPreliminary)	    hDeltaPhi[m][v][iregion]=(TH1F*)fileinOOJNew->Get(nameME[m][v]+"_AC_phi_V0Sub_BulkSub_EffCorr_RebSmoothBis");
+	    else  hDeltaPhi[m][v][iregion]=(TH1F*)fileinOOJNew->Get(nameME[m][v]+"_AC_phi_V0Sub_BulkSub_EffCorr_RebSmooth"); 
 	    //	    cout << " hey there! I'm using new OOJ distr!" << endl;
 	  }
 	  else{
-	  hDeltaPhi[m][v][iregion]=(TH1F*)filein->Get(nameME[m][v]+"_AC_phi_V0Sub_"+SRegionInput[iregion]+"EffCorr");
+	    hDeltaPhi[m][v][iregion]=(TH1F*)filein->Get(nameME[m][v]+"_AC_phi_V0Sub_"+SRegionInput[iregion]+"EffCorr");
 	  }
 
 	  if (!hDeltaPhi[m][v][iregion]) {
 	    cout << PathIn << endl;
 	    cout << "m " << m << " v " << v << " index " << sysV0index << endl;
 	    cout << "histogram not present for m " << m << " v " << v << " and " << SRegion[iregion] <<  endl; 
-	    cout << "the name of the histo you were looking for is " << nameME[m][v]+"_AC_phi_V0Sub_"+SRegionInput[iregion]+"EffCorr" << endl;
+	    cout << "the name of the histo you were looking for is " << endl;
+	    if (type==8 && (NPtV0[v] <2.5-0.001) && iregion==0){
+	      if (isForPreliminary)	    cout << nameME[m][v]+"_AC_phi_V0Sub_BulkSub_EffCorr_RebSmoothBis" << endl;
+	      else cout << nameME[m][v]+"_AC_phi_V0Sub_BulkSub_EffCorr_RebSmooth" << endl;
+	    }
+	    else cout << nameME[m][v]<< "_AC_phi_V0Sub_"<<SRegionInput[iregion]<<"EffCorr" << endl;
 	    continue;
 	  }
-	  NumberFilesUsed++;
+	  if (iregion == 0) NumberFilesUsed++;
 	  if (iregion>0) hDeltaPhi[m][v][iregion]->Rebin(2);
 	  if (!(type==8 && (NPtV0[v] <2.5-0.001) && iregion==0)) hDeltaPhi[m][v][iregion]->Scale(1./NTrigger[m]);
 
@@ -438,11 +529,16 @@ void SignalExtractionSys(Int_t numsysV0index =100, Int_t sysTrigger=0, Bool_t is
 	  //	  cout << " m " << m << " v " << v << " iregion " << iregion << endl;
 	  for (Int_t dphi =0; dphi<hDeltaPhiDef[m][v][iregion]->GetNbinsX(); dphi++){
 	    hYieldMean[m][v][dphi][iregion] = hSpread[m][v][dphi][iregion]->GetMean()*hYieldEStatDef[m][v][dphi][iregion] + hYieldDef[m][v][dphi][iregion];
+
+	    TF1 *gaus = (TF1 *)gROOT->GetFunction("gaus");
+	    hSpread[m][v][dphi][iregion]->Fit(gaus, "q");
+
 	    hYieldSpread[m][v][dphi][iregion] = hSpread[m][v][dphi][iregion]->GetRMS()*hYieldEStatDef[m][v][dphi][iregion];
 	    //hYieldMean[m][v][dphi][iregion] = hSpread[m][v][dphi][iregion]->GetMean();
 	    hSpread[m][v][dphi][iregion]->SetLineColor(ColorRegion[iregion]);
 	    if (iregion==0)   hSpread[m][v][dphi][iregion]->Rebin(2);
 	    else    hSpread[m][v][dphi][iregion]->Rebin(8);
+	    if (isGausFit)   hYieldSpread[m][v][dphi][iregion] = gaus -> GetParameter(2)*hYieldEStatDef[m][v][dphi][iregion];
 	    hSpread[m][v][dphi][iregion]->GetXaxis()->SetRangeUser(-10 ,10);//was -3, 3
 	    hSpread[m][v][dphi][iregion]->GetXaxis()->SetTitle("(Yield_{i} - Yield_{Def})/#sigma^{stat}_{YieldDef}");
 	    hSpread[m][v][dphi][iregion]   ->SetTitle(Form("%.1f < p_{T} < %.1f", NPtV0[v], NPtV0[v+1]));
@@ -576,7 +672,7 @@ void SignalExtractionSys(Int_t numsysV0index =100, Int_t sysTrigger=0, Bool_t is
 
 	canvasPlotRatio[m]->cd(v+1);
 	gPad->SetLeftMargin(0.15);
-	hDeltaPhiRatio[m][v][iregion]->GetYaxis()->SetTitle("(Yield_{Def}-Yield_{Mean})/RMS");
+	hDeltaPhiRatio[m][v][iregion]->GetYaxis()->SetTitle("(Yield_{Mean}-Yield_{Def})/RMS");
 	hDeltaPhiRatio[m][v][iregion]->GetYaxis()->SetTitleSize(0.05);
 	hDeltaPhiRatio[m][v][iregion]->DrawClone("same");
 	lineat0->Draw("same");
@@ -595,7 +691,7 @@ void SignalExtractionSys(Int_t numsysV0index =100, Int_t sysTrigger=0, Bool_t is
 
     TString OutputFile = "PictureForNote";
     if (!isForPreliminary) OutputFile = "NewResultsForNote";
-    canvasPlotProj[m]->SaveAs(OutputFile + "DeltaPhiProjSE"+tipo[type]+"_m"+Smolt[m]);
+    canvasPlotProj[m]->SaveAs(OutputFile + "DeltaPhiProjSE"+tipo[type]+"_m"+Smolt[m]+".pdf");
     fileout->WriteTObject(canvasPlotProj[m]);
     fileout->WriteTObject(canvasPlotProjAllSist[m]);
     fileout->WriteTObject(canvasPlotRatio[m]);
@@ -604,6 +700,8 @@ void SignalExtractionSys(Int_t numsysV0index =100, Int_t sysTrigger=0, Bool_t is
   }//m 
 
   for(Int_t m=nummolt; m>=0; m--){
+    if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
+    if (isHM && MultBinning==1 && m<=1) continue;
     for(Int_t v=PtV0Min; v<numPtV0Max; v++){
       for (Int_t iregion=0; iregion<numRegions; iregion++){
 	    fileout->WriteTObject(hDeltaPhiDef[m][v][iregion]);
@@ -623,6 +721,8 @@ void SignalExtractionSys(Int_t numsysV0index =100, Int_t sysTrigger=0, Bool_t is
 
   cout << "where is the bin content =0?" << endl;
   for(Int_t m=nummolt; m>=0; m--){
+    if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
+    if (isHM && MultBinning==1 && m<=1) continue;
     for(Int_t v=PtV0Min; v<numPtV0Max; v++){
       for (Int_t iregion=0; iregion<numRegions; iregion++){
 	for (Int_t dphi =0; dphi<hDeltaPhiDef[m][v][iregion]->GetNbinsX(); dphi++){
@@ -635,9 +735,13 @@ void SignalExtractionSys(Int_t numsysV0index =100, Int_t sysTrigger=0, Bool_t is
     }
   }
 
-  cout << " number of files used " << NumberFilesUsed<< endl;
-  cout << "\npartendo dai file (esempio) " << PathIn <<  " ho creato: "<< endl;
-  if (type==8)   cout << "\npartendo dai file (esempio) per la distribuzione in jet " << PathInOOJNew <<  " ho creato: "<< endl;
-  cout << "\nil file " << PathOut << endl;
+  cout <<"\n\e[35mI get NTrig from file:\e[39m " << PathInNTrig << endl;
+
+  cout << "\n\e[35mNumber of files used:\e[39m " << NumberFilesUsed<< endl;
+  cout << "\e[35mDefault files:\e[39m " <<endl;
+  cout << PathInDef << endl;
+  if (type==8)   cout << PathInDefOOJNew << endl;
+  cout << "\nPartendo dai file (esempio) " << PathIn <<  " ho creato: "<< endl;
+  if (type==8)   cout << "\npartendo dai file (esempio) per la distribuzione in jet " << PathInOOJNew <<  " ho creato il file:\n" << PathOut << endl;
 
 }
