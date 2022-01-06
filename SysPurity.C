@@ -35,7 +35,7 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
 }
 
 
-void SysPurity( Int_t VariableOfInt=0, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15,  Bool_t isMC=0,   Int_t israp=0,TString year="161718Full_AOD234_hXi"/* "1617_AOD234_hK0s"/*"1617_hK0s"/*"AllMC_hXi"/*"Run2DataRed_hXi"/,  TString Path1 ="_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/, Int_t type=8,  Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=1, Int_t PtBinning=0, Bool_t isHM =1, Bool_t ispp5TeV =0){
+void SysPurity( Int_t VariableOfInt=0, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15,  Bool_t isMC=0,   Int_t israp=0,TString year="161718Full_AOD234_hXi"/* "1617_AOD234_hK0s"/*"1617_hK0s"/*"AllMC_hXi"/*"Run2DataRed_hXi"/,  TString Path1 ="_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/, Int_t type=0,  Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=1, Int_t PtBinning=0, Bool_t isHM =1, Bool_t ispp5TeV =0, Int_t fileDef = 3){
 
   const Int_t numInputFiles =6;
   const Int_t nummolt=5;
@@ -44,8 +44,12 @@ void SysPurity( Int_t VariableOfInt=0, Int_t ishhCorr=0, Float_t PtTrigMin =3, F
   const Int_t numtipo=10;
 
   if (type==0){
+    PtBinning=1;
     year="1617_AOD234_hK0s";
-    if (isHM) year = "AllhK0sHM_RedNo16k";
+    if (isHM) {
+      year = "AllhK0sHM_RedNo16k";
+      fileDef =3;
+    }
     else if (ispp5TeV) year = "17pq_hK0s";
   }
   else {
@@ -93,7 +97,12 @@ void SysPurity( Int_t VariableOfInt=0, Int_t ishhCorr=0, Float_t PtTrigMin =3, F
   }
 
   TString TypeBkg[numInputFiles];
-  TString TypeRange[numInputFiles];
+  for (Int_t i =0; i< numInputFiles; i++){
+    if (i<numInputFiles/2) TypeBkg[i] = "_BkgRetta";
+    else  TypeBkg[i] = "_BkgParab";
+  }
+
+  TString TypeRange[numInputFiles] = {"", "_VarRange1", "_VarRange2", "", "_VarRange1", "_VarRange2"};
   Int_t FileColor[numInputFiles] = {401,801,628, 909, 881,860};
   TString SLegend[numInputFiles] = {"pol1", "pol1_Smaller", "pol1_Wider", "pol2", "pol2_Smaller", "pol2_Wider" };
   Int_t ColorMult[21]={1, 401, 801, 628, 909, 881, 860, 868, 841, 418, 628, 909, 881, 867, 921, 401, 841, 862, 866 , 865, 864};
@@ -168,15 +177,28 @@ void SysPurity( Int_t VariableOfInt=0, Int_t ishhCorr=0, Float_t PtTrigMin =3, F
     if (isHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     cout << "m" << m << endl;
+    cout <<"default file n.: " << fileDef << endl;
+    //GET DEFAULT FILE
+    TString InputPathDef = CommonInputPath + TypeBkg[fileDef] + Form("_molt%i_sysT0_sysV00_Sys0_PtMin%.1f", m, PtTrigMin);
+    if (MultBinning!=0) InputPathDef += Form("_MultBinning%i", MultBinning);
+    InputPathDef += TypeRange[fileDef];
+    InputPathDef+=".root";
+    cout <<"Input file (default): " << InputPathDef<< endl;
+
+    TFile * inputFileDef = new TFile(InputPathDef, "");
+    if (!inputFileDef) return;
+
+    hPurityDenom[m] = (TH1F*)inputFileDef->Get(NameHisto);
+    if (!hPurityDenom[m]) return;
+    hPurityDenom[m]->SetName(Form("histoSSB_Default_m%i",m));
+    hPurityMax[m] = (TH1F*) hPurityDenom[m]->Clone(Form("histoSSB_Max_m%i",m));
+    hPurityMin[m] = (TH1F*) hPurityDenom[m]->Clone(Form("histoSSB_Min_m%i",m));
+
     for (Int_t file = 0; file < numInputFiles; file++){
       if (!isHM && !ispp5TeV && type==0 && (file == 1 || file ==2 || file ==4)) continue; 
       if (!isHM && !ispp5TeV && type==8 && (file == 3 || file == 4)) continue; 
+      if (isHM && type==0 && file==5) continue;
       cout << "file " << file << endl;
-      if (file<numInputFiles/2) TypeBkg[file] = "_BkgRetta";
-      else  TypeBkg[file] = "_BkgParab";
-      if (file==0 || file == numInputFiles/2) TypeRange[file] ="";
-      else if (file<numInputFiles/2) TypeRange[file] = Form("_VarRange%i", file);
-      else TypeRange[file] = Form("_VarRange%i", file-numInputFiles/2);
 
       TString InputPath = CommonInputPath + TypeBkg[file] + Form("_molt%i_sysT0_sysV00_Sys0_PtMin%.1f", m, PtTrigMin);
       if (MultBinning!=0) InputPath += Form("_MultBinning%i", MultBinning);
@@ -191,13 +213,7 @@ void SysPurity( Int_t VariableOfInt=0, Int_t ishhCorr=0, Float_t PtTrigMin =3, F
       hPurity[m][file]->SetName(Form("histoSSB_%i", file));
       if (m==nummolt)      legend->AddEntry(hPurity[m][file], SLegend[file], "pl");
       StyleHisto(hPurity[m][file], 0.8, 1, FileColor[file], 33, "p_{T} (GeV/c)", Variable, Variable + " " + Smolt[m]+"%", 0, 0,0);
-
-      if (file==0) {
-	hPurityDenom[m] = (TH1F*) hPurity[m][file]->Clone(Form("histoSSB_Default_m%i",m));
-	hPurityMax[m] = (TH1F*) hPurity[m][file]->Clone(Form("histoSSB_Max_m%i",m));
-	hPurityMin[m] = (TH1F*) hPurity[m][file]->Clone(Form("histoSSB_Min_m%i",m));
-      }
-      else {
+      if (file!=fileDef){
 	hRatioPurity[m][file] = (TH1F*) hPurity[m][file]->Clone(Form("histoSSBRatio_%i", file));
 	hRatioPurity[m][file]->Divide(hPurityDenom[m]);
 	StyleHisto(hRatioPurity[m][file], LowRange[VariableOfInt], UpRange[VariableOfInt], FileColor[file], 33, "p_{T} (GeV/c)", "", "Ratio to default purity", 0, 0,0);
@@ -212,10 +228,11 @@ void SysPurity( Int_t VariableOfInt=0, Int_t ishhCorr=0, Float_t PtTrigMin =3, F
       gStyle->SetOptStat(0);
       hPurity[m][file]->Draw("same");
       if (file==numInputFiles-1)      legend->Draw("same");
+      if (isHM && type==0 && file == numInputFiles-2)  legend->Draw("same");
 
       canvasPurity[m]->cd(2);
       gStyle->SetOptStat(0);
-      if (file!=0) {
+      if (file!=fileDef) {
 	hRatioPurity[m][file]->Draw("same");
 	if (file==numInputFiles-1)      legend->Draw("same");
 	pol0->Draw("same");
@@ -225,10 +242,11 @@ void SysPurity( Int_t VariableOfInt=0, Int_t ishhCorr=0, Float_t PtTrigMin =3, F
     hRelError[m] = (TH1F*) hPurityMax[m]->Clone(Form("hRelError_m%i",m));
     hRelError[m]->Add(hPurityMin[m],-1);
     hRelError[m]->Scale(0.5);
-    StyleHisto(hRelError[m], 0, 0.01, ColorMult[m], 33, "p_{T} (GeV/c)", "", "Relative syst. uncertainty", 0, 0,0);
+    StyleHisto(hRelError[m], 0, 0.03, ColorMult[m], 33, "p_{T} (GeV/c)", "", "Relative syst. uncertainty", 0, 0,0);
     canvasRelError->cd();
     gStyle->SetOptStat(0);
-    if (m==nummolt)    hRelError[m]->Draw("same");
+    //    if (m==nummolt)    hRelError[m]->Draw("same");
+    hRelError[m]->Draw("same");
 
     fileout->WriteTObject(hRelError[m]);
     fileout->WriteTObject(canvasPurity[m]);
