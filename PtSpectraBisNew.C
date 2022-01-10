@@ -38,7 +38,7 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0, TString year=""/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Int_t PtBinning=1, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,  Bool_t ZeroYieldLowPt=0, Bool_t TwoFitFunctions=0, Bool_t isNormCorrFullyComputed=1, Bool_t isMeanMacro=1, Bool_t ispp5TeV=0,  Bool_t isErrorAssumedPtCorr=1){
+void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0, TString year=""/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Int_t PtBinning=1, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,  Bool_t TwoFitFunctions=0, Bool_t isNormCorrFullyComputed=1, Bool_t isMeanMacro=1, Bool_t ispp5TeV=0,  Bool_t isErrorAssumedPtCorr=1){
 
   if (TypeAnalysis>3) {cout << "sys errors not yet implemented for these regions " << endl; return;}
   if (type!=0 && type!=8) {cout << "Macro not working for particles different from K0s (type=0) and Xi (type=8)" << endl; return;}
@@ -269,7 +269,6 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   stringout+=   Form("_PtMin%.1f_", PtTrigMin);
   if (TypeAnalysis==3)  stringout+= "BulkBlue";
   else   stringout+= RegionType[TypeAnalysis];
-  if (ZeroYieldLowPt && TypeAnalysis==0) stringout +="_ZeroYLowPtJet";
   //  stringout += "_Try";
   //stringout += "_LowPtExtr0.5";
   if (TwoFitFunctions) stringout += "_TwoFitFunctions";
@@ -283,7 +282,6 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   //  stringout += "_NewDPhiRangeBis";
   //  stringout += "_OldDPhiRange";
   if (MultBinning!=0) stringout += Form("_MultBinning%i", MultBinning);
-  stringout += "_Test";
   stringout += ".root";
   TFile * fileout = new TFile(stringout, "RECREATE");
 
@@ -546,6 +544,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   TCanvas* canvasYieldNormCorrRatio = new TCanvas ("canvasYieldNormCorrRatio", "canvasYieldNormCorrRatio", 1300, 800);
   TCanvas* canvasPtvsMult = new TCanvas ("canvasPtvsMult", "canvasPtvsMult", 1300, 800);
   TCanvas* canvasYieldErr = new TCanvas ("canvasYieldErr", "canvasYieldErr", 1300, 800);
+  TCanvas* canvasPtErr = new TCanvas ("canvasPtErr", "canvasPtErr", 1300, 800);
   TCanvas* canvasNormFactor = new TCanvas ("canvasNormFactor", "canvasNormFactor", 1300, 800);
   if (isppHM || MultBinning==3)   canvasNormFactor->Divide(2,2);
   else   canvasNormFactor->Divide(3,2);
@@ -703,10 +702,15 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 
   Float_t LimInfPtvsMult=10e-5;
   Float_t LimSupPtvsMult=3;
+  Float_t LimInfPtvsMultTight=10e-5;
+  Float_t LimSupPtvsMultTight=3;
   if (type==0){
     if (TypeAnalysis==0) LimSupPtvsMult=4; //2.3
     if (TypeAnalysis==1) LimSupPtvsMult=2; //1.2
     if (TypeAnalysis==2) LimSupPtvsMult=2; //1.2
+    if (TypeAnalysis==0) LimSupPtvsMultTight=2.2;
+    if (TypeAnalysis==1) LimSupPtvsMultTight=1.5;
+    if (TypeAnalysis==2) LimSupPtvsMultTight=1.5;
   }
   if (type==8){
     if (TypeAnalysis==0) LimSupPtvsMult=8; //5
@@ -714,17 +718,21 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     if (TypeAnalysis==2) LimSupPtvsMult=4;
   }
   if (type==0){
-    if (TypeAnalysis==0) LimInfPtvsMult=1.7;
+    if (TypeAnalysis==0) LimInfPtvsMult=0.8;
     if (TypeAnalysis==1) LimInfPtvsMult=0.8;
     if (TypeAnalysis==2) LimInfPtvsMult=0.8;
+    if (TypeAnalysis==0) LimInfPtvsMultTight=1.6;
+    if (TypeAnalysis==1) LimInfPtvsMultTight=0.5;
+    if (TypeAnalysis==2) LimInfPtvsMultTight=0.5;
   }
   if (type==8){
-    if (TypeAnalysis==0) LimInfPtvsMult=2;
+    if (TypeAnalysis==0) LimInfPtvsMult=1.2;
     if (TypeAnalysis==1) LimInfPtvsMult=1.2;
     if (TypeAnalysis==2) LimInfPtvsMult=1.2;
   }
 
   Float_t LimSupYieldErr=0.04;
+  Float_t LimSupPtErr=0.04;
   if (type==0){
     if (TypeAnalysis==1) LimSupYieldErr=0.02;
     if (TypeAnalysis==2) LimSupYieldErr=0.02;
@@ -1836,8 +1844,20 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 
   Float_t   AvgPt[nummolt+1]={0};
   Float_t   AvgPtFS[nummolt+1]={0};
+  Float_t   AvgPtMeanMacro[nummolt+1]={0};
+
+  Float_t   AvgPtDiscrErr[nummolt+1] = {0};
   Float_t   AvgPtFSNum[nummolt+1]={0};
   Float_t   AvgPtFSDenom[nummolt+1]={0};
+  Float_t   AvgPtFSTemp[nummolt+1]={0};
+  Float_t   AvgPtFSNumTemp[nummolt+1]={0};
+  Float_t   AvgPtFSDenomTemp[nummolt+1]={0};
+  Float_t   AvgPtFSHard[nummolt+1]={0};
+  Float_t   AvgPtFSNumHard[nummolt+1]={0};
+  Float_t   AvgPtFSDenomHard[nummolt+1]={0};
+  Float_t   AvgPtFSSoft[nummolt+1]={0};
+  Float_t   AvgPtFSNumSoft[nummolt+1]={0};
+  Float_t   AvgPtFSDenomSoft[nummolt+1]={0};
   Float_t   AvgPtHard[nummolt+1]={0};
   Float_t   AvgPtSoft[nummolt+1]={0};
   Float_t   AvgPtMax[nummolt+1]={0};
@@ -1846,17 +1866,24 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   Float_t   AvgPtFit[nummolt+1][numfittipo]={0};
   Float_t   AvgPtFitMinFit[nummolt+1]={0};
   Float_t   AvgPtFitMaxFit[nummolt+1]={0};
+  Float_t   AvgPtMeanMacroMinFit[nummolt+1]={0};
+  Float_t   AvgPtMeanMacroMaxFit[nummolt+1]={0};
   Float_t   AvgPtFitUp[nummolt+1][numfittipo]={0};
   Float_t   AvgPtFitDown[nummolt+1][numfittipo]={0};
   Float_t   AvgPtFitHard[nummolt+1][numfittipo]={0};
   Float_t   AvgPtFitSoft[nummolt+1][numfittipo]={0};
   Float_t   AvgPtFitTemp[nummolt+1][numfittipo]={0};
+
   Float_t   AvgPtSistErr[nummolt+1]={0};
   Float_t   AvgPtStatErr[nummolt+1]={0};
   Float_t   AvgPtSistErrFS[nummolt+1]={0};
   Float_t   AvgPtStatErrFS[nummolt+1]={0};
+  Float_t   AvgPtSistErrMeanMacro[nummolt+1]={0};
+  Float_t   AvgPtStatErrMeanMacro[nummolt+1]={0};
   Float_t   AvgPtSistErrFit[nummolt+1]={0};
+  Float_t   AvgPtSistErrFitMeanMacro[nummolt+1]={0};
   Float_t   AvgPtStatErrFit[nummolt+1][numfittipo]={0};
+
   Float_t   YieldExtrHighPt[nummolt+1][numfittipo]={0};
   Float_t   YieldExtrLowPt[nummolt+1][numfittipo]={0};
 
@@ -1894,6 +1921,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   TCanvas* canvasFitResult = new TCanvas ("canvasFitResult", "canvasFitResult", 1300, 800);
   TH1F * hFitResult[numfittipo];
   TH1F*  fHistAvgPtDistr[nummolt+1][numfittipo];
+  TH1F*  fHistAvgPtFSDistr[nummolt+1];
 
   cout << "\n\e[35m*******************************************************\n" << endl;
   cout << "Fitting the pt spectra... " <<endl; 
@@ -1922,6 +1950,10 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     hhoutAvgPtRelSystLow[m] = new TH1F(Form("hhoutAvgPtRelSystLow_m%i", m),Form("hhoutAvgPtRelSystLow_m%i", m) , numfittipo+1, 0, numfittipo+1);
     hhoutAvgPtRelSystLowMy[m] = new TH1F(Form("hhoutAvgPtRelSystLowMy_m%i", m),Form("hhoutAvgPtRelSystLowMy_m%i", m) , numfittipo+1, 0, numfittipo+1);
 
+    fHistAvgPtFSDistr[m] = new TH1F (Form("fHistAvgPtFSDistr_m%i", m), Form("fHistAvgPtFSDistr_m%i", m), 10000, LimInfPtvsMult, LimSupPtvsMult);
+
+    AvgPtMeanMacroMaxFit[m] = 0;
+    AvgPtMeanMacroMinFit[m] = 1000;
     for (Int_t typefit =0; typefit<numfittipo; typefit++){
       if (type==8 && TypeAnalysis==10) factor=2; //otherwise fit is not properly done                 
       pwgfunc.SetVarType(AliPWGFunc::kdNdpt);
@@ -1986,7 +2018,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 	hhoutRelSystLow[m] ->SetBinContent(typefit+1, hhout[typefit][m]->GetBinContent(4)); // syst error
 	hhoutRelSystLowAvg[m] +=       hhoutRelSystLow[m] ->GetBinContent(typefit+1); 
 
-	hhoutAvgPt[m] ->SetBinContent(typefit+1, hhout[typefit][m]->GetBinContent(5)); //extrapolatedfraction
+	hhoutAvgPt[m] ->SetBinContent(typefit+1, hhout[typefit][m]->GetBinContent(5));  //avg pt
 	hhoutAvgPtAvg[m] +=       hhoutAvgPt[m] ->GetBinContent(typefit+1); 
 
 	hhoutAvgPtRelStat[m] ->SetBinContent(typefit+1, hhout[typefit][m]->GetBinContent(6)); // stat error of avg pt
@@ -1997,6 +2029,15 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 
 	hhoutAvgPtRelSystLow[m] ->SetBinContent(typefit+1, hhout[typefit][m]->GetBinContent(8)); // syst error of avg pt
 	hhoutAvgPtRelSystLowAvg[m] +=       hhoutAvgPtRelSystLow[m] ->GetBinContent(typefit+1); 
+
+	//2.C SYSTEMATIC RELATED TO CHOICE OF FIT FUNCTION
+	if(AvgPtMeanMacroMaxFit[m] < hhout[typefit][m]->GetBinContent(5)){
+	  AvgPtMeanMacroMaxFit[m] = hhout[typefit][m]->GetBinContent(5);
+	}
+	if(AvgPtMeanMacroMinFit[m] > hhout[typefit][m]->GetBinContent(5)){
+	  AvgPtMeanMacroMinFit[m] = hhout[typefit][m]->GetBinContent(5);
+	}
+	cout <<  AvgPtMeanMacroMaxFit[m] << " " <<   AvgPtMeanMacroMinFit[m]<< endl;
 
       }
 
@@ -2035,6 +2076,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 
       hFitResult[typefit] ->SetBinContent(m+1,fit_MTscaling[m][typefit]->GetChisquare()/fit_MTscaling[m][typefit]->GetNDF());
 
+      //DEFINE + FIT SPECTRA TO COMPUTE SYST UNCERTAINTY
       for(Int_t v=PtV0Min; v < numPtV0Max; v++){
 	fHistSpectrumStatUp[m]->SetBinContent(v+1,fHistSpectrumSistAll[m]->GetBinError(v+1)+fHistSpectrumStat[m]->GetBinContent(v+1));
 	fHistSpectrumStatDown[m]->SetBinContent(v+1,-fHistSpectrumSistAll[m]->GetBinError(v+1)+fHistSpectrumStat[m]->GetBinContent(v+1));
@@ -2046,7 +2088,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       fHistSpectrumStatSoft[m]->SetName("fHistSpectrumSoft_"+Smolt[m]);
 
       //fit +1sigma sistematica
-      fit_MTscalingUp[m][typefit]= (TF1*)       fit_MTscaling[m][typefit]->Clone(      nameMTscaling[m][typefit]+ "_Up");      
+      fit_MTscalingUp[m][typefit]= (TF1*)       fit_MTscaling[m][typefit]->Clone(      nameMTscaling[m][typefit]+ "_Up");    
       fit_MTscalingUp[m][typefit]->SetRange(LowRange[m], UpRange[m]);
       fFitResultPtrUp[m][typefit]=       fHistSpectrumStatUp[m]->Fit(    fit_MTscalingUp[m][typefit],"SR0IQ");
       fit_MTscalingUp[m][typefit]->SetRange(0,20);
@@ -2059,7 +2101,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       legendfit->Draw("");
 
       //fit -1sigma sistematica
-      fit_MTscalingDown[m][typefit]= (TF1*)       fit_MTscaling[m][typefit]->Clone(      nameMTscaling[m][typefit]+ "_Down");      
+      fit_MTscalingDown[m][typefit]= (TF1*)       fit_MTscaling[m][typefit]->Clone(      nameMTscaling[m][typefit]+ "_Down");
       fit_MTscalingDown[m][typefit]->SetRange(LowRange[m], UpRange[m]);
       fFitResultPtrDown[m][typefit]=       fHistSpectrumStatDown[m]->Fit(    fit_MTscalingDown[m][typefit],"SR0IQ");
       fit_MTscalingDown[m][typefit]->SetRange(0,20);
@@ -2072,7 +2114,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       legendfit->Draw("");
 
       //fit of softened spectrum
-      fit_MTscalingSoft[m][typefit]= (TF1*)       fit_MTscaling[m][typefit]->Clone(      nameMTscaling[m][typefit]+ "_Soft"); 
+      fit_MTscalingSoft[m][typefit]= (TF1*)       fit_MTscaling[m][typefit]->Clone(      nameMTscaling[m][typefit]+ "_Soft");
       fit_MTscalingSoft[m][typefit]->SetRange(LowRange[m], UpRange[m]);
       fFitResultPtrSoft[m][typefit]=       fHistSpectrumStatSoft[m]->Fit(    fit_MTscalingSoft[m][typefit],"SR0IQ");
       fit_MTscalingSoft[m][typefit]->SetRange(0,20);
@@ -2085,7 +2127,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       legendfit->Draw("");
 
       //fit of hardened spectrum
-      fit_MTscalingHard[m][typefit]= (TF1*)       fit_MTscaling[m][typefit]->Clone(      nameMTscaling[m][typefit]+ "_Hard"); 
+      fit_MTscalingHard[m][typefit]= (TF1*)       fit_MTscaling[m][typefit]->Clone(      nameMTscaling[m][typefit]+ "_Hard");
       fit_MTscalingHard[m][typefit]->SetRange(LowRange[m], UpRange[m]);
       fFitResultPtrHard[m][typefit]=       fHistSpectrumStatHard[m]->Fit(    fit_MTscalingHard[m][typefit],"SR0IQ");
       fit_MTscalingHard[m][typefit]->SetRange(0,20);
@@ -2099,9 +2141,11 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 
       canvasDummy->cd();
 
-      //calculatin yields
+      //1A. CALCULATE YIELDS
       YieldExtrLowPt[m][typefit]= fit_MTscaling[m][typefit]->Integral(0,LowRangeSpectrumPart[m]);
       YieldExtrHighPt[m][typefit] = fit_MTscalingBis[m][typefit]->Integral(UpRangeSpectrumPart[m],20);
+      YieldExtrLowPtAvg[m]+= fit_MTscaling[m][typefit]->Integral(0,LowRangeSpectrumPart[m]);
+      YieldExtrHighPtAvg[m]+= fit_MTscalingBis[m][typefit]->Integral(UpRangeSpectrumPart[m],20);     
 
       hhoutYieldMy[m]       ->GetXaxis()->SetBinLabel(typefit+1, nameFit[typefit]);
       hhoutRelStatMy[m]     ->GetXaxis()->SetBinLabel(typefit+1, nameFit[typefit]);
@@ -2123,12 +2167,23 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       hhoutAvgPtRelSystHighMy[m] ->SetBinContent(typefit+1, 0);
       hhoutAvgPtRelSystLowMy[m] ->SetBinContent(typefit+1, 0);
 
+      //1.B CALCULATE STATISTICAL ERROR OF EXTRAPOLATED YIELD
+      /* WRONG: I am doing 4 measurements of the same quantity, but 4 fits with 4 different functions. The statistical error on the extraplated part should not be sigma / sqrt(4) but ~sigma (I can take an average sigma of the 4 functions) */
+      YieldErrStatLowPtAvg[m]+= fit_MTscaling[m][typefit]->IntegralError(0,LowRangeSpectrumPart[m],fFitResultPtr0[m][typefit] ->GetParams(),(fFitResultPtr0[m][typefit]->GetCovarianceMatrix()).GetMatrixArray() );
+      YieldErrStatHighPtAvg[m]+= fit_MTscalingBis[m][typefit]->IntegralError(UpRangeSpectrumPart[m],20,fFitResultPtr1[m][typefit] ->GetParams(),(fFitResultPtr1[m][typefit]->GetCovarianceMatrix()).GetMatrixArray() );
+
+      //1.C CALCULATE SYST UNCERTAIANTY OF EXTRAPOLATED YIELD
+      YieldExtrLowPtAvgUp[m]+= fit_MTscalingUp[m][typefit]->Integral(0,LowRangeSpectrumPart[m]);
+      YieldExtrHighPtAvgUp[m]+= fit_MTscalingUp[m][typefit]->Integral(UpRangeSpectrumPart[m],20);     
+      YieldExtrLowPtAvgDown[m]+= fit_MTscalingDown[m][typefit]->Integral(0,LowRangeSpectrumPart[m]);
+      YieldExtrHighPtAvgDown[m]+= fit_MTscalingDown[m][typefit]->Integral(UpRangeSpectrumPart[m],20);
+
+      //1.D SYSTEMATIC RELATED TO CHOICE OF FIT FUNCTION
       if (typefit==0){
 	YieldExtrMaxLowPt[m] =  YieldExtrLowPt[m][typefit];
 	YieldExtrMaxHighPt[m] =  YieldExtrHighPt[m][typefit];
 	YieldExtrMinLowPt[m] =  YieldExtrLowPt[m][typefit];
 	YieldExtrMinHighPt[m] =  YieldExtrHighPt[m][typefit];
-
       }
       if ((YieldExtrLowPt[m][typefit]) > YieldExtrMaxLowPt[m]) {
 	YieldExtrMaxLowPt[m] = YieldExtrLowPt[m][typefit];
@@ -2144,37 +2199,18 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 	YieldExtrMinHighPt[m] = YieldExtrHighPt[m][typefit];
       }
 
-      YieldExtrLowPtAvg[m]+= fit_MTscaling[m][typefit]->Integral(0,LowRangeSpectrumPart[m]);
-      YieldExtrHighPtAvg[m]+= fit_MTscalingBis[m][typefit]->Integral(UpRangeSpectrumPart[m],20);     
-      YieldExtrLowPtAvgUp[m]+= fit_MTscalingUp[m][typefit]->Integral(0,LowRangeSpectrumPart[m]);
-      YieldExtrHighPtAvgUp[m]+= fit_MTscalingUp[m][typefit]->Integral(UpRangeSpectrumPart[m],20);     
-      YieldExtrLowPtAvgDown[m]+= fit_MTscalingDown[m][typefit]->Integral(0,LowRangeSpectrumPart[m]);
-      YieldExtrHighPtAvgDown[m]+= fit_MTscalingDown[m][typefit]->Integral(UpRangeSpectrumPart[m],20);
-
-      /* WRONG: I am doing 4 measurements of the same quantity, but 4 fits with 4 different functions. The statistical error on the extraplated part should not be sigma / sqrt(4) but ~sigma (I can take an average sigma of the 4 functions)
-      YieldErrStatLowPtAvg[m]+= pow(    fit_MTscaling[m][typefit]->IntegralError(0,LowRangeSpectrumPart[m],fFitResultPtr0[m][typefit] ->GetParams(),(fFitResultPtr0[m][typefit]->GetCovarianceMatrix()).GetMatrixArray() ), 2);
-      YieldErrStatHighPtAvg[m]+= pow(    fit_MTscalingBis[m][typefit]->IntegralError(UpRangeSpectrumPart[m],20,fFitResultPtr1[m][typefit] ->GetParams(),(fFitResultPtr1[m][typefit]->GetCovarianceMatrix()).GetMatrixArray() ), 2);
-      */
-      YieldErrStatLowPtAvg[m]+= fit_MTscaling[m][typefit]->IntegralError(0,LowRangeSpectrumPart[m],fFitResultPtr0[m][typefit] ->GetParams(),(fFitResultPtr0[m][typefit]->GetCovarianceMatrix()).GetMatrixArray() );
-      YieldErrStatHighPtAvg[m]+= fit_MTscalingBis[m][typefit]->IntegralError(UpRangeSpectrumPart[m],20,fFitResultPtr1[m][typefit] ->GetParams(),(fFitResultPtr1[m][typefit]->GetCovarianceMatrix()).GetMatrixArray() );
-
-      //CALCULATE AVERAGE PT VS MULT FROM FIT
+      //2.A CALCULATE AVERAGE PT VS MULT FROM FIT
       Int_t numInt = 600; //number of intervals in [0, UpRangePtInterval]
       Float_t Pti=0;
       Float_t UpRangePtInterval = 20;
       Float_t DeltaPt=	UpRangePtInterval/numInt; //interval width
 
-      //...and systematic uncertainty of pt
       for (Int_t i=0; i<= numInt; i++){
 	Pti = UpRangePtInterval/numInt*i;
 	AvgPtFit[m][typefit] += fit_MTscalingBis[m][typefit]->Eval(Pti)*Pti*DeltaPt/fit_MTscalingBis[m][typefit]->Integral(0,UpRangePtInterval);
-	//	cout << " AVERAGE PT at iteration " << i << " of "<< numInt << " (pt = "  << Pti << "): " << 	AvgPtFit[m][typefit] << endl;
-	//	AvgPtFitUp[m][typefit] += fit_MTscalingUp[m][typefit]->Eval(Pti)*Pti*DeltaPt/fit_MTscalingUp[m][typefit]->Integral(0,UpRangePtInterval);
+	//2.C CALCULATE SYST UNCERTAIANTY OF AVG PT FROM FIT
 	AvgPtFitHard[m][typefit] += fit_MTscalingHard[m][typefit]->Eval(Pti)*Pti*DeltaPt/fit_MTscalingHard[m][typefit]->Integral(0,UpRangePtInterval);
-	//	cout << " AVERAGE PT at iteration  (spectrum+1SigmaSist)" << i << " of "<< numInt << " (pt = "  << Pti << "): " << 	AvgPtFitUp[m][typefit] << endl;
-	//        AvgPtFitDown[m][typefit] += fit_MTscalingDown[m][typefit]->Eval(Pti)*Pti*DeltaPt/fit_MTscalingDown[m][typefit]->Integral(0,UpRangePtInterval);
         AvgPtFitSoft[m][typefit] += fit_MTscalingSoft[m][typefit]->Eval(Pti)*Pti*DeltaPt/fit_MTscalingSoft[m][typefit]->Integral(0,UpRangePtInterval);
-	//	cout << " AVERAGE PT (spectrum-1SigmaSist) at iteration " << i << " of "<< numInt << " (pt = "  << Pti << "): " << 	AvgPtFitDown[m][typefit] << endl;
       } 
 
       AvgPt[m] += AvgPtFit[m][typefit];
@@ -2182,10 +2218,10 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       AvgPtSoft[m] += AvgPtFitSoft[m][typefit];
       hhoutAvgPtMy[m] ->SetBinContent(typefit+1,  AvgPtFit[m][typefit]);
 
-      //...and statistical uncertainty of pt
+      //2.B CALCULATE STATISTICAL ERROR OF AVG PT FROM FIT
       fit_MTscalingTemp[m][typefit]= (TF1*)       fit_MTscaling[m][typefit]->Clone(      nameMTscaling[m][typefit]+ "_Temp");
-      Int_t IterNum =20; //500
-      fHistAvgPtDistr[m][typefit] = new TH1F (Form("fHistAvgPtDistr_m%i_typefit%i", m, typefit), Form("fHistAvgPtDistr_m%i_typefit%i", m, typefit), 5000, LimInfPtvsMult, LimSupPtvsMult);
+      Int_t IterNum =200; //500
+      fHistAvgPtDistr[m][typefit] = new TH1F (Form("fHistAvgPtDistr_m%i_typefit%i", m, typefit), Form("fHistAvgPtDistr_m%i_typefit%i", m, typefit), 10000, LimInfPtvsMult, LimSupPtvsMult);
 
       for (Int_t i= 0; i<IterNum;i++ ){
 	Float_t Temp=0;
@@ -2198,26 +2234,42 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 	  //	  cout <<" stat " <<  fHistSpectrumStat[m]->GetBinContent(b) << " temp " <<  fHistSpectrumTemp[m]->GetBinContent(b) << endl;
 	}
 	fit_MTscalingTemp[m][typefit]->SetRange(LowRange[m], UpRange[m]);
-	fFitResultPtrTemp[m][typefit]=       fHistSpectrumTemp[m]->Fit(fit_MTscalingTemp[m][typefit],"SR0QI");
+	fFitResultPtrTemp[m][typefit]=fHistSpectrumTemp[m]->Fit(fit_MTscalingTemp[m][typefit],"SR0QI");
 	fit_MTscalingTemp[m][typefit]->SetRange(0,20);
+
+	if (typefit==0){ //--------------------------------
+	  //to compute avg pt from spectrum and stat error of avg pt obtained from spectrum!
+	  for (Int_t b=1; b<=  fHistSpectrumStat[m]->GetNbinsX(); b++){
+	    if (fHistSpectrumStat[m]->GetXaxis()->GetBinLowEdge(b) < LowPtLimitForAvgPtFS[m]) continue;
+	    AvgPtFSNum[m] +=  fHistSpectrumStat[m]->GetBinContent(b) *  fHistSpectrumStat[m]->GetBinCenter(b)* fHistSpectrumStat[m]->GetBinWidth(b);
+	    AvgPtFSDenom[m] +=  fHistSpectrumStat[m]->GetBinContent(b) *  fHistSpectrumStat[m]->GetBinWidth(b);
+	    AvgPtFSNumTemp[m] +=  fHistSpectrumTemp[m]->GetBinContent(b) *  fHistSpectrumTemp[m]->GetBinCenter(b)* fHistSpectrumTemp[m]->GetBinWidth(b);
+	    AvgPtFSDenomTemp[m] +=  fHistSpectrumTemp[m]->GetBinContent(b) *  fHistSpectrumTemp[m]->GetBinWidth(b);
+	  }
+	  AvgPtFS[m] = AvgPtFSNum[m]/AvgPtFSDenom[m];
+	  AvgPtFSTemp[m] = AvgPtFSNumTemp[m]/AvgPtFSDenomTemp[m];
+	}//------------------------------------------------
+
 	AvgPtFitTemp[m][typefit]=0;
 	for (Int_t l=0; l<= numInt; l++){
 	  Pti = UpRangePtInterval/numInt*l;
 	  AvgPtFitTemp[m][typefit] += fit_MTscalingTemp[m][typefit]->Eval(Pti)*Pti*DeltaPt/fit_MTscalingTemp[m][typefit]->Integral(0,UpRangePtInterval);
 	  //	cout << " AVERAGE PT at iteration " << i << " of "<< numInt << " (pt = "  << Pti << "): " << 	AvgPtFit[m][typefit] << endl;
 	}
+
 	fHistAvgPtDistr[m][typefit] ->Fill(AvgPtFitTemp[m][typefit]);
+	if (typefit ==0) fHistAvgPtFSDistr[m] ->Fill(AvgPtFSTemp[m]);
       } //end number of iterations
 
       TF1 *gaus = (TF1 *)gROOT->GetFunction("gaus");
-      fHistAvgPtDistr[m][typefit]->Rebin(2);
+      //      fHistAvgPtDistr[m][typefit]->Rebin(2);
       fHistAvgPtDistr[m][typefit]->Fit(gaus, "q");
       //      AvgPtStatErrFit[m][typefit] = 	fHistAvgPtDistr[m][typefit]->GetRMS()/	fHistAvgPtDistr[m][typefit]->GetMean()* AvgPtFit[m][typefit];
       AvgPtStatErrFit[m][typefit] = 	gaus->GetParameter(2)/gaus->GetParameter(1)* AvgPtFit[m][typefit];
       AvgPtStatErr[m]+= AvgPtStatErrFit[m][typefit];
     } //end loop typefit
-
-    //syst uncertainty associated to the choice of the fit function
+    
+    //2.C SYSTEMATIC RELATED TO CHOICE OF FIT FUNCTION
     AvgPtFitMaxFit[m] = 0;
     AvgPtFitMinFit[m] = 1000;
     for (Int_t typefit =0; typefit<numfittipo; typefit++){
@@ -2229,82 +2281,26 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       }
     }
 
-    //*********SETTING FINAL VALUES TO AVERAGE PT VS MULT OBTAINED FROM FIT**************
-    AvgPt[m] = AvgPt[m]/numfittipo; //AVERAGE PT
-    AvgPtStatErr[m] = AvgPtStatErr[m]/numfittipo; //STATISTICAL ERROR OF AVG PT
-    AvgPtSistErrFit[m] =  (AvgPtFitMaxFit[m] - AvgPtFitMinFit[m])/2; //SYST ERROR OF AVG PT RELATED TO CHOICE OF FIT FUNCTION
-
-    //SYST ERROR OF AVG PT:
-    AvgPtSoft[m] = AvgPtSoft[m]/numfittipo; 
-    AvgPtHard[m] = AvgPtHard[m]/numfittipo;
-    AvgPtSistErr[m] = TMath::Abs((AvgPtHard[m]- AvgPtSoft[m]))/2;
-
-    //******************************************************************
-
-    //CALCULATE AVERAGE PT VS MULT FROM SPECTRUM
-    for (Int_t b=1; b<=  fHistSpectrumStat[m]->GetNbinsX(); b++){
-      if (fHistSpectrumStat[m]->GetXaxis()->GetBinLowEdge(b) < LowPtLimitForAvgPtFS[m]) continue;
-      AvgPtFSNum[m] +=  fHistSpectrumStat[m]->GetBinContent(b) *  fHistSpectrumStat[m]->GetBinCenter(b)* fHistSpectrumStat[m]->GetBinWidth(b);
-      AvgPtFSDenom[m] +=  fHistSpectrumStat[m]->GetBinContent(b) *  fHistSpectrumStat[m]->GetBinWidth(b);
-    }
-
-    Float_t DeltaP =0;
-    Float_t AvP =0;
-    for (Int_t b=1; b<=  fHistSpectrumStat[m]->GetNbinsX(); b++){
-      if (fHistSpectrumStat[m]->GetXaxis()->GetBinLowEdge(b) < LowPtLimitForAvgPtFS[m]) continue;
-      DeltaP = fHistSpectrumStat[m]->GetBinWidth(b);
-      AvP = fHistSpectrumStat[m]->GetBinCenter(b);
-      AvgPtStatErrFS[m] += pow((DeltaP*AvP*AvgPtFSDenom[m]-pow(DeltaP,2)*AvP*fHistSpectrumStat[m]->GetBinContent(b))/pow(AvgPtFSDenom[m],2) *fHistSpectrumStat[m]->GetBinError(b) ,2);
-      AvgPtSistErrFS[m] += pow((DeltaP*AvP*AvgPtFSDenom[m]-pow(DeltaP,2)*AvP*fHistSpectrumSist[m]->GetBinContent(b))/pow(AvgPtFSDenom[m],2) *fHistSpectrumSist[m]->GetBinError(b) ,2);
-    }
-
-    AvgPtFS[m] = AvgPtFSNum[m]/AvgPtFSDenom[m];
-    AvgPtSistErrFS[m] = sqrt(AvgPtSistErrFS[m]);
-    AvgPtStatErrFS[m] = sqrt(AvgPtStatErrFS[m]);
-    //***************************************************
-
-    cout << "\e[35m**** Avg pt obtained with different fit functions **** " << SmoltLegend[m] << "\e[39m" << endl;
-    for (Int_t typefit =0; typefit<numfittipo; typefit++){
-      cout << "\n ***" << endl;
-      cout << "Avg pt (from fit) " << nameFit[typefit]<< ": " << AvgPtFit[m][typefit]<< " GeV/c" <<endl;
-      cout << "Avg pt (from distribution of <pt> obtained with random variation of spectrum within statistical uncertainty): " << endl;
-      //      cout << "Avg pt (from last random variation of spectrum) " << AvgPtFitTemp[m][typefit]<< " GeV/c " << endl;
-      cout << " MEAN: " << fHistAvgPtDistr[m][typefit]->GetMean()<< ", RMS: " << fHistAvgPtDistr[m][typefit]->GetRMS() << endl;
-      cout << " bin width of <pt> distribution (check it is much smaller than RMS): " << fHistAvgPtDistr[m][typefit]->GetXaxis()->GetBinWidth(1)<< endl;
-    }
-    cout << "\n\n\e[35m**** Avg pt from avg of different fit functions **** " << SmoltLegend[m] <<"\e[39m" << endl;
-    cout << "Average pt: " << AvgPt[m]<< " +- " << AvgPtStatErr[m] << " (stat.) +- " << AvgPtSistErr[m] << " (syst. no function choice) +- "<<AvgPtSistErrFit[m] <<" (syst. function choice)"<<  endl;
-    cout << "Rel errors:  " <<  AvgPtStatErr[m]/AvgPt[m] << " (stat.) +- " << AvgPtSistErr[m]/AvgPt[m] << " (syst. no function choice) +- "<< AvgPtSistErrFit[m]/AvgPt[m]<< " (syst. function choice)"<<  endl;
-
-    //    cout << "Avg pt: " <<  AvgPt[m] << ", avg pt up (spectrum + 1SigmaSyst): " <<  AvgPtSoft[m] << " avg pt down (spectrum - 1SigmaSyst): " << AvgPtSoft[m]<< endl;
-    cout << "\nAvg pt from spectrum (no fit): " << AvgPtFS[m]<< " +- " << AvgPtStatErrFS[m] << " (stat.) +- " << AvgPtSistErrFS[m] << " (syst. no function choice) "<< endl; 
-    // end of calculation of pt vs mult
-
     YieldExtrHighPtAvg[m]=YieldExtrHighPtAvg[m]/numfittipo;
     YieldExtrLowPtAvg[m]=YieldExtrLowPtAvg[m]/numfittipo;
     YieldExtrHighPtAvgUp[m]=YieldExtrHighPtAvgUp[m]/numfittipo;
     YieldExtrHighPtAvgDown[m]=YieldExtrHighPtAvgDown[m]/numfittipo;
     YieldExtrLowPtAvgUp[m]=YieldExtrLowPtAvgUp[m]/numfittipo;
     YieldExtrLowPtAvgDown[m]=YieldExtrLowPtAvgDown[m]/numfittipo;
+    YieldErrStatHighPtAvg[m]=YieldErrStatHighPtAvg[m]/numfittipo;
+    YieldErrStatLowPtAvg[m]=YieldErrStatLowPtAvg[m]/numfittipo;
     /*WRONG
     YieldErrStatHighPtAvg[m]=sqrt(YieldErrStatHighPtAvg[m])/numfittipo;
     YieldErrStatLowPtAvg[m]=sqrt(YieldErrStatLowPtAvg[m])/numfittipo;
     */
-    YieldErrStatHighPtAvg[m]=YieldErrStatHighPtAvg[m]/numfittipo;
-    YieldErrStatLowPtAvg[m]=YieldErrStatLowPtAvg[m]/numfittipo;
 
-    //EXTRAPOLATED YIELD
+    //1.A EXTRAPOLATED YIELD
     YieldExtr[m] =     YieldExtrHighPtAvg[m]+    YieldExtrLowPtAvg[m]; 
 
-    //STATISTICAL ERROR OF EXTRAPOLATED YIELD
+    //1.B STATISTICAL ERROR OF EXTRAPOLATED YIELD
     YieldExtrErrStat[m] = sqrt(    pow(YieldErrStatHighPtAvg[m],2)+    pow(YieldErrStatLowPtAvg[m],2)); 
 
-    //SYSTEMATIC ERROR OF YIELD RELATED TO CHOICE OF FIT FUNCTION
-    Yield4FitErrSistHighPt[m] = (YieldExtrMaxHighPt[m]-YieldExtrMinHighPt[m])/2; 
-    Yield4FitErrSistLowPt[m] = (YieldExtrMaxLowPt[m]-YieldExtrMinLowPt[m])/2; 
-    YieldExtrErrSistFourFit[m]=sqrt(pow(    Yield4FitErrSistHighPt[m],2) + pow(    Yield4FitErrSistLowPt[m],2));
-
-    //SYSTEMATIC ERROR OF EXTRAPOLATED YIELD
+    //1.C SYSTEMATIC ERROR OF EXTRAPOLATED YIELD
     YieldErrSystExtrLowPt[m] = (YieldExtrLowPtAvgUp[m]- YieldExtrLowPtAvgDown[m])/2;
     YieldErrSystExtrHighPt[m] = (YieldExtrHighPtAvgUp[m]- YieldExtrHighPtAvgDown[m])/2;
     if (!isErrorAssumedPtCorr){
@@ -2313,6 +2309,11 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     else {
       YieldExtrErrSist[m]= YieldErrSystExtrLowPt[m]  + YieldErrSystExtrHighPt[m] ;
     }
+
+    //1.D SYSTEMATIC ERROR OF YIELD RELATED TO CHOICE OF FIT FUNCTION
+    Yield4FitErrSistHighPt[m] = (YieldExtrMaxHighPt[m]-YieldExtrMinHighPt[m])/2; 
+    Yield4FitErrSistLowPt[m] = (YieldExtrMaxLowPt[m]-YieldExtrMinLowPt[m])/2; 
+    YieldExtrErrSistFourFit[m]=sqrt(pow(    Yield4FitErrSistHighPt[m],2) + pow(    Yield4FitErrSistLowPt[m],2));
 
     //STATISTICAL AND SYSTEMATIC ERROR OF MEASURED YIELD
     for(Int_t v = PtBinMin[m]; v < numPtV0Max; v++){
@@ -2345,12 +2346,58 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     YieldErrSistMy[m] = YieldErrSist[m];
     YieldErrSist[m]= sqrt(pow(YieldErrSist[m],2) + pow(Yield4FitErrSistLowPt[m],2) + pow(Yield4FitErrSistHighPt[m],2) );
 
-    if (ZeroYieldLowPt){
-      Yield[m] =  YieldSpectrum[m]+ YieldExtrHighPtAvg[m];
-      YieldErrStat[m] = sqrt(    pow(YieldSpectrumErrStat[m],2) + pow(YieldErrStatHighPtAvg[m],2));
-      YieldErrSist[m] = sqrt(    pow(YieldSpectrumErrSist[m],2) + pow(Yield4FitErrSistHighPt[m],2) + pow(YieldSpectrumErrOOJSub[m],2) + pow( YieldErrSystExtrHighPt[m],2));
+    //******************************************************************
+    //FINAL VALUES TO AVERAGE PT VS MULT OBTAINED FROM FIT
+    AvgPt[m] = AvgPt[m]/numfittipo; //AVERAGE PT
+    AvgPtStatErr[m] = AvgPtStatErr[m]/numfittipo; //STATISTICAL ERROR OF AVG PT
+    AvgPtSistErrFit[m] =  (AvgPtFitMaxFit[m] - AvgPtFitMinFit[m])/2; //SYST ERROR OF AVG PT RELATED TO CHOICE OF FIT FUNCTION
+    if (isMeanMacro)     AvgPtSistErrFitMeanMacro[m] =  (AvgPtMeanMacroMaxFit[m] - AvgPtMeanMacroMinFit[m])/2; //SYST ERROR OF AVG PT CALCULATED BY YIELDMEAN MACRO RELATED TO CHOICE OF FIT FUNCTION
+
+    //SYST ERROR OF AVG PT:
+    AvgPtSoft[m] = AvgPtSoft[m]/numfittipo; 
+    AvgPtHard[m] = AvgPtHard[m]/numfittipo;
+    AvgPtSistErr[m] = TMath::Abs((AvgPtHard[m]- AvgPtSoft[m]))/2;
+    //******************************************************************
+
+    //******************************************************************
+    //CALCULATE AVERAGE PT VS MULT FROM SPECTRUM
+    for (Int_t b=1; b<=  fHistSpectrumStat[m]->GetNbinsX(); b++){
+      if (fHistSpectrumStat[m]->GetXaxis()->GetBinLowEdge(b) < LowPtLimitForAvgPtFS[m]) continue;
+      AvgPtFSNumHard[m] +=  fHistSpectrumStatHard[m]->GetBinContent(b) *  fHistSpectrumStatHard[m]->GetBinCenter(b)* fHistSpectrumStatHard[m]->GetBinWidth(b);
+      AvgPtFSDenomHard[m] +=  fHistSpectrumStatHard[m]->GetBinContent(b) *  fHistSpectrumStatHard[m]->GetBinWidth(b);
+      AvgPtFSNumSoft[m] +=  fHistSpectrumStatSoft[m]->GetBinContent(b) *  fHistSpectrumStatSoft[m]->GetBinCenter(b)* fHistSpectrumStatSoft[m]->GetBinWidth(b);
+      AvgPtFSDenomSoft[m] +=  fHistSpectrumStatSoft[m]->GetBinContent(b) *  fHistSpectrumStatSoft[m]->GetBinWidth(b);
     }
 
+    Float_t DeltaP =0;
+    Float_t AvP =0;
+    for (Int_t b=1; b<=  fHistSpectrumStat[m]->GetNbinsX(); b++){
+      if (fHistSpectrumStat[m]->GetXaxis()->GetBinLowEdge(b) < LowPtLimitForAvgPtFS[m]) continue;
+      DeltaP = fHistSpectrumStat[m]->GetBinWidth(b);
+      AvP = fHistSpectrumStat[m]->GetBinCenter(b);
+      //...not sure how I computed the errors below....:)
+      /*
+      AvgPtStatErrFS[m] += pow((DeltaP*AvP*AvgPtFSDenom[m]-pow(DeltaP,2)*AvP*fHistSpectrumStat[m]->GetBinContent(b))/pow(AvgPtFSDenom[m],2) *fHistSpectrumStat[m]->GetBinError(b) ,2);
+      AvgPtSistErrFS[m] += pow((DeltaP*AvP*AvgPtFSDenom[m]-pow(DeltaP,2)*AvP*fHistSpectrumSist[m]->GetBinContent(b))/pow(AvgPtFSDenom[m],2) *fHistSpectrumSist[m]->GetBinError(b) ,2);
+      */
+    }
+
+    AvgPtFSHard[m] = AvgPtFSNumHard[m]/AvgPtFSDenomHard[m];
+    AvgPtFSSoft[m] = AvgPtFSNumSoft[m]/AvgPtFSDenomSoft[m];
+    AvgPtSistErrFS[m] = TMath::Abs(AvgPtFSHard[m]-AvgPtFSSoft[m])/2;
+    AvgPtStatErrFS[m] = fHistAvgPtFSDistr[m]->GetRMS()/	fHistAvgPtFSDistr[m]->GetMean()* AvgPtFS[m];
+    //***************************************************
+
+    //CALCULATE DISCRETIZATION ERROR
+    for (Int_t b=1; b<=  fHistSpectrumStat[m]->GetNbinsX(); b++){
+      if (fHistSpectrumStat[m]->GetXaxis()->GetBinLowEdge(b) < LowRange[m]) continue;
+      //      AvgPtDiscrErr[m] += pow(fHistSpectrumStat[m]->GetBinContent(b),2) * pow(fHistSpectrumStat[m]->GetBinWidth(b),4)/12; 
+      AvgPtDiscrErr[m] += fHistSpectrumStat[m]->GetBinContent(b) * pow(fHistSpectrumStat[m]->GetBinWidth(b),2); 
+    }
+    //    AvgPtDiscrErr[m] = sqrt(AvgPtDiscrErr[m])/YieldSpectrum[m];
+    AvgPtDiscrErr[m] = AvgPtDiscrErr[m]/YieldSpectrum[m]/sqrt(12);
+
+    //FILLING HISTOGRAMS
     hhoutYield[m] ->SetBinContent(numfittipo+1, hhoutYieldAvg[m]/numfittipo);
     hhoutYieldMy[m] ->SetBinContent(numfittipo+1, YieldExtr[m]);
     hhoutAvgPt[m] ->SetBinContent(numfittipo+1, hhoutAvgPtAvg[m]/numfittipo);
@@ -2448,6 +2495,33 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     cout << "\nFit range: " << LowRange[m] << " - " << UpRange[m] << endl;
     cout << "Bin content range: " << LowRangeSpectrumPart[m] << " - " << UpRangeSpectrumPart[m] << endl;
 
+    cout << "\e[35m**** Avg pt obtained with different fit functions **** " << SmoltLegend[m] << "\e[39m" << endl;
+    for (Int_t typefit =0; typefit<numfittipo; typefit++){
+      cout << "\n ***" << endl;
+      cout << "Avg pt (from fit) " << nameFit[typefit]<< ": " << AvgPtFit[m][typefit]<< " GeV/c" <<endl;
+      cout << "Avg pt (from distribution of <pt> obtained with random variation of spectrum within statistical uncertainty): " << endl;
+      //      cout << "Avg pt (from last random variation of spectrum) " << AvgPtFitTemp[m][typefit]<< " GeV/c " << endl;
+      cout << " MEAN: " << fHistAvgPtDistr[m][typefit]->GetMean()<< ", RMS: " << fHistAvgPtDistr[m][typefit]->GetRMS() << endl;
+      cout << " bin width of <pt> distribution (check it is much smaller than RMS): " << fHistAvgPtDistr[m][typefit]->GetXaxis()->GetBinWidth(1)<< endl;
+    }
+    cout << "\n\n\e[35m**** Avg pt from avg of different fit functions **** " << SmoltLegend[m] <<"\e[39m" << endl;
+    cout << "Average pt: " << AvgPt[m]<< " +- " << AvgPtStatErr[m] << " (stat.) +- " << AvgPtSistErr[m] << " (syst. no function choice) +- "<<AvgPtSistErrFit[m] <<" (syst. function choice)"<<  endl;
+    cout << "Rel errors:  " <<  AvgPtStatErr[m]/AvgPt[m] << " (stat.) +- " << AvgPtSistErr[m]/AvgPt[m] << " (syst. no function choice) +- "<< AvgPtSistErrFit[m]/AvgPt[m]<< " (syst. function choice)"<<  endl;
+    
+    cout << "\nAvg pt from spectrum (no fit, calculated for pt > " << 	LowPtLimitForAvgPtFS[m]  << "): " << AvgPtFS[m]<< " +- " << AvgPtStatErrFS[m] << " (stat.) +- " << AvgPtSistErrFS[m] << " (syst. no function choice) "<< endl; 
+    cout << " MEAN: " << fHistAvgPtFSDistr[m]->GetMean()<< ", RMS: " << fHistAvgPtFSDistr[m]->GetRMS() << endl;  
+    cout << "Rel errors:  " <<  AvgPtStatErrFS[m]/AvgPtFS[m] << " (stat.) +- " << AvgPtSistErrFS[m]/AvgPtFS[m] << " (syst. no function choice) +- "<< endl;
+    cout << "Mean of fHistSpectrumStat: " << fHistSpectrumStat[m]->GetMean() << endl;
+
+    if (isMeanMacro){
+      AvgPtMeanMacro[m] =  hhoutAvgPt[m]->GetBinContent(numfittipo+1);
+      AvgPtStatErrMeanMacro[m] = hhoutAvgPtRelStat[m]->GetBinContent(numfittipo+1);
+      AvgPtSistErrMeanMacro[m] = (hhoutAvgPtRelSystHigh[m]->GetBinContent(numfittipo+1) + hhoutAvgPtRelSystLow[m]->GetBinContent(numfittipo+1))/2;
+    cout << "\nAverage pt from Mean Macro: " << AvgPtMeanMacro[m] << " +- " <<  AvgPtStatErrMeanMacro[m] << " (stat.) +- " << AvgPtSistErrMeanMacro[m]<< " (syst. no function choice) +- "<< "-" <<" (syst. function choice)"<<  endl;
+    cout << "Rel errors:  " <<  AvgPtStatErrMeanMacro[m]/AvgPtMeanMacro[m] << " (stat.) +- " << AvgPtSistErrMeanMacro[m]/AvgPtMeanMacro[m] << " (syst. no function choice) " <<  AvgPtSistErrFitMeanMacro[m]/AvgPtMeanMacro[m]<< " (syst. function choice)"<<  endl;
+    }
+
+    cout << "Discretization error: " << AvgPtDiscrErr[m] << " (Rel to AvgPt from mean macro: " << AvgPtDiscrErr[m]/AvgPtMeanMacro[m] << ") " << endl;
   }//end loop m
 
   cout << "\n\nYields : " << endl;
@@ -2477,6 +2551,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   TLegend *legendYield=new TLegend(0.7, 0.7, 0.9, 0.9);
   TLegend *legendPtvsMult=new TLegend(0.7, 0.7, 0.9, 0.9);
   TLegend *legendYieldErr=new TLegend(0.6, 0.6, 0.9, 0.9);
+  TLegend *legendPtErr=new TLegend(0.6, 0.6, 0.9, 0.9);
 
   TF1 * pol0 = new TF1 ("pol0", "pol0", 0, 30);
   TString titleYieldX="dN_{ch}/d#eta";
@@ -2491,10 +2566,22 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   TString titleYield[3]={"In-jet", "Out-of-jet", "Inclusive"};
   TH1F* fHistYieldStat=new TH1F ("fHistYieldStatD","fHistYieldStatD",200,0,40);
   TH1F* fHistYieldSist=new TH1F ("fHistYieldSist","fHistYieldSist",200,0,40);
+
   TH1F* fHistPtvsMultStat = new TH1F ("fHistPtvsMultStat","fHistPtvsMultStat",200,0,40);
   TH1F* fHistPtvsMultSist = new TH1F ("fHistPtvsMultSist","fHistPtvsMultSist",200,0,40);
   TH1F* fHistPtvsMultStatFromSpectrum = new TH1F ("fHistPtvsMultStatFromSpectrum","fHistPtvsMultStatFromSpectrum",200,0,40);
   TH1F* fHistPtvsMultSistFromSpectrum = new TH1F ("fHistPtvsMultSistFromSpectrum","fHistPtvsMultSistFromSpectrum",200,0,40);
+  TH1F* fHistPtvsMultStatMeanMacro = new TH1F ("fHistPtvsMultStatMeanMacro","fHistPtvsMultStatMeanMacro",200,0,40);
+  TH1F* fHistPtvsMultSistMeanMacro = new TH1F ("fHistPtvsMultSistMeanMacro","fHistPtvsMultSistMeanMacro",200,0,40);
+
+  TH1F* fHistPtStatRelErr = new TH1F ("fHistPtStatRelErr","fHistPtStatRelErr",200,0,40);
+  TH1F* fHistPtSistRelErr = new TH1F ("fHistPtSistRelErr","fHistPtSistRelErr",200,0,40);
+  TH1F* fHistPtStatRelErrFromSpectrum = new TH1F ("fHistPtStatRelErrFromSpectrum","fHistPtStatRelErrFromSpectrum",200,0,40);
+  TH1F* fHistPtSistRelErrFromSpectrum = new TH1F ("fHistPtSistRelErrFromSpectrum","fHistPtSistRelErrFromSpectrum",200,0,40);
+  TH1F* fHistPtStatRelErrMeanMacro = new TH1F ("fHistPtStatRelErrMeanMacro","fHistPtStatRelErrMeanMacro",200,0,40);
+  TH1F* fHistPtSistRelErrMeanMacro = new TH1F ("fHistPtSistRelErrMeanMacro","fHistPtSistRelErrMeanMacro",200,0,40);
+  TH1F* fHistPtSistRelErrFit = new TH1F ("fHistPtSistRelErrFit","fHistPtSistRelErrFit",200,0,40);
+
   TH1F* fHistYieldSistNoExtr=new TH1F ("fHistYieldSistNoExtr","fHistYieldSistNoExtr",200,0,40);
   TH1F* fHistYieldStatRelErr=new TH1F ("fHistYieldStatRelErr","fHistYieldStatRelErr",200,0,40);
   TH1F* fHistYieldSistRelErr=new TH1F ("fHistYieldSistRelErr","fHistYieldSistRelErr",200,0,40);
@@ -2566,7 +2653,32 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     fHistPtvsMultSistFromSpectrum->SetBinContent(fHistPtvsMultStat->FindBin(dNdEta[m]),AvgPtFS[m]);
     fHistPtvsMultStatFromSpectrum->SetBinError(fHistPtvsMultStat->FindBin(dNdEta[m]),AvgPtStatErrFS[m]);
     fHistPtvsMultSistFromSpectrum->SetBinError(fHistPtvsMultStat->FindBin(dNdEta[m]),AvgPtSistErrFS[m]);
+    if (isMeanMacro){
+    fHistPtvsMultStatMeanMacro->SetBinContent(fHistPtvsMultStat->FindBin(dNdEta[m]),AvgPtMeanMacro[m]);
+    fHistPtvsMultSistMeanMacro->SetBinContent(fHistPtvsMultStat->FindBin(dNdEta[m]),AvgPtMeanMacro[m]);
+    fHistPtvsMultStatMeanMacro->SetBinError(fHistPtvsMultStat->FindBin(dNdEta[m]), AvgPtStatErrMeanMacro[m]);
+    fHistPtvsMultSistMeanMacro->SetBinError(fHistPtvsMultStat->FindBin(dNdEta[m]), sqrt(pow(AvgPtSistErrMeanMacro[m],2) + pow(AvgPtSistErrFitMeanMacro[m]/AvgPt[m]*AvgPtMeanMacro[m],2)));
+    }
 
+    fHistPtStatRelErr->SetBinContent(fHistPtvsMultStat->FindBin(dNdEta[m]),AvgPtStatErr[m]/AvgPt[m]);
+    fHistPtStatRelErr->SetBinError(fHistPtvsMultStat->FindBin(dNdEta[m]),0);
+    fHistPtSistRelErr->SetBinContent(fHistPtvsMultSist->FindBin(dNdEta[m]),AvgPtSistErr[m]/AvgPt[m]);
+    fHistPtSistRelErr->SetBinError(fHistPtvsMultSist->FindBin(dNdEta[m]),0);
+
+    fHistPtStatRelErrFromSpectrum->SetBinContent(fHistPtvsMultStat->FindBin(dNdEta[m]),AvgPtStatErrFS[m]/AvgPtFS[m]);
+    fHistPtStatRelErrFromSpectrum->SetBinError(fHistPtvsMultStat->FindBin(dNdEta[m]),0);
+    fHistPtSistRelErrFromSpectrum->SetBinContent(fHistPtvsMultSist->FindBin(dNdEta[m]),AvgPtSistErrFS[m]/AvgPtFS[m]);
+    fHistPtSistRelErrFromSpectrum->SetBinError(fHistPtvsMultSist->FindBin(dNdEta[m]),0);
+
+    if (isMeanMacro){
+      fHistPtStatRelErrMeanMacro->SetBinContent(fHistPtvsMultStat->FindBin(dNdEta[m]),AvgPtStatErrMeanMacro[m]/AvgPtMeanMacro[m]);
+      fHistPtStatRelErrMeanMacro->SetBinError(fHistPtvsMultStat->FindBin(dNdEta[m]),0);
+      fHistPtSistRelErrMeanMacro->SetBinContent(fHistPtvsMultSist->FindBin(dNdEta[m]),AvgPtSistErrMeanMacro[m]/AvgPtMeanMacro[m]);
+      fHistPtSistRelErrMeanMacro->SetBinError(fHistPtvsMultSist->FindBin(dNdEta[m]),0);
+    }
+
+    fHistPtSistRelErrFit->SetBinContent(fHistPtvsMultSist->FindBin(dNdEta[m]),AvgPtSistErrFitMeanMacro[m]/AvgPtMeanMacro[m]);
+    fHistPtSistRelErrFit->SetBinError(fHistPtvsMultSist->FindBin(dNdEta[m]),0);
   }
 
   for(Int_t m=0; m<nummolt; m++){
@@ -2639,15 +2751,19 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   fHistYieldStat->SetTitle("fHistYieldStat");
 
   canvasPtvsMult->cd();
-  StyleHisto(fHistPtvsMultStat, LimInfPtvsMult, LimSupPtvsMult, Color[TypeAnalysis], 1, titleYieldX, titlePtvsMultY, "<p_{T}> vs multiplicity "+ RegionTypeNew[TypeAnalysis],1, 0, LimSupdNdEtaAxis);
-  StyleHisto(fHistPtvsMultSist, LimInfPtvsMult, LimSupPtvsMult, Color[TypeAnalysis], 1, titleYieldX, titlePtvsMultY, "<p_{T} vs multiplicity" + RegionTypeNew[TypeAnalysis], 1, 0, LimSupdNdEtaAxis);
+  StyleHisto(fHistPtvsMultStat, LimInfPtvsMult, LimSupPtvsMult, Color[TypeAnalysis], 33, titleYieldX, titlePtvsMultY, "<p_{T}> vs multiplicity "+ RegionTypeNew[TypeAnalysis],1, 0, LimSupdNdEtaAxis);
+  StyleHisto(fHistPtvsMultSist, LimInfPtvsMult, LimSupPtvsMult, Color[TypeAnalysis], 33, titleYieldX, titlePtvsMultY, "<p_{T} vs multiplicity" + RegionTypeNew[TypeAnalysis], 1, 0, LimSupdNdEtaAxis);
   StyleHisto(fHistPtvsMultStatFromSpectrum, LimInfPtvsMult, LimSupPtvsMult, Color[TypeAnalysis], 4, titleYieldX, titlePtvsMultY, "<p_{T}> vs multiplicity "+ RegionTypeNew[TypeAnalysis],1, 0, LimSupdNdEtaAxis);
   StyleHisto(fHistPtvsMultSistFromSpectrum, LimInfPtvsMult, LimSupPtvsMult, Color[TypeAnalysis], 4, titleYieldX, titlePtvsMultY, "<p_{T} vs multiplicity" + RegionTypeNew[TypeAnalysis], 1, 0, LimSupdNdEtaAxis);
+  StyleHisto(fHistPtvsMultStatMeanMacro, LimInfPtvsMult, LimSupPtvsMult, Color[TypeAnalysis]+2, 22, titleYieldX, titlePtvsMultY, "<p_{T}> vs multiplicity "+ RegionTypeNew[TypeAnalysis],1, 0, LimSupdNdEtaAxis);
+  StyleHisto(fHistPtvsMultSistMeanMacro, LimInfPtvsMult, LimSupPtvsMult, Color[TypeAnalysis]+2, 22, titleYieldX, titlePtvsMultY, "<p_{T} vs multiplicity" + RegionTypeNew[TypeAnalysis], 1, 0, LimSupdNdEtaAxis);
      
   fHistPtvsMultStat->GetYaxis()->SetTitleOffset(1.2);
   fHistPtvsMultSist->GetYaxis()->SetTitleOffset(1.2);
   fHistPtvsMultStatFromSpectrum->GetYaxis()->SetTitleOffset(1.2);
   fHistPtvsMultSistFromSpectrum->GetYaxis()->SetTitleOffset(1.2);
+  fHistPtvsMultStatMeanMacro->GetYaxis()->SetTitleOffset(1.2);
+  fHistPtvsMultSistMeanMacro->GetYaxis()->SetTitleOffset(1.2);
 
   if (TypeAnalysis==0){
     fHistPtvsMultStat->Fit(pol0, "R0");
@@ -2659,8 +2775,15 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   fHistPtvsMultStatFromSpectrum->Draw("same e");
   fHistPtvsMultSistFromSpectrum->SetFillStyle(0);
   fHistPtvsMultSistFromSpectrum->Draw("same e2");
-  legendPtvsMult->AddEntry(fHistPtvsMultSist, "syst.", "ef");
-  legendPtvsMult->AddEntry(fHistPtvsMultStat, "stat.", "pel");
+  fHistPtvsMultStatMeanMacro->Draw("same e");
+  fHistPtvsMultSistMeanMacro->SetFillStyle(0);
+  fHistPtvsMultSistMeanMacro->Draw("same e2");
+  legendPtvsMult->AddEntry(fHistPtvsMultSist, "syst. from fit", "ef");
+  legendPtvsMult->AddEntry(fHistPtvsMultStat, "stat. from fit", "pel");
+  legendPtvsMult->AddEntry(fHistPtvsMultSistFromSpectrum, Form("syst. from spectrum for pt>%.1f", LowPtLimitForAvgPtFS), "ef");
+  legendPtvsMult->AddEntry(fHistPtvsMultStatFromSpectrum, Form("stat. from spectrum for pt>%.1f", LowPtLimitForAvgPtFS), "pel");
+  legendPtvsMult->AddEntry(fHistPtvsMultSistMeanMacro, "syst. from MeanMacro", "ef");
+  legendPtvsMult->AddEntry(fHistPtvsMultStatMeanMacro, "stat. from MeanMacro", "pel");
   legendPtvsMult->Draw("");
 
   canvasYieldErr->cd();
@@ -2678,7 +2801,33 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   fHistYieldSistRelErr->Draw("same p");
   legendYieldErr->Draw("");
 
-  //fifth part: syst associated to bkg used for OOJ subtraction  (only for Xi and jet)
+  canvasPtErr->cd();
+  StyleHisto(fHistPtStatRelErr, 10e-5, LimSupPtErr, 628, 33, titleYieldX, titleYRel,titleYRel+" of "+ titleYield[TypeAnalysis] + " <pt> vs multiplicity", 1, 0, LimSupdNdEtaAxis);
+  StyleHisto(fHistPtStatRelErrFromSpectrum, 10e-5, LimSupPtErr, 630, 27, titleYieldX, titleYRel, titleYRel+" of "+titleYield[TypeAnalysis] + " <pt> vs multiplicity",  1, 0, LimSupdNdEtaAxis);
+  StyleHisto(fHistPtStatRelErrMeanMacro, 10e-5, LimSupPtErr, 881, 21,  titleYieldX, titleYRel, titleYRel+" of "+titleYield[TypeAnalysis] + " yield vs multiplicity",  1, 0, LimSupdNdEtaAxis);
+
+  StyleHisto(fHistPtSistRelErr, 10e-5, LimSupPtErr, 418, 33, titleYieldX, titleYRel,titleYRel+" of "+ titleYield[TypeAnalysis] + " <pt> vs multiplicity", 1, 0, LimSupdNdEtaAxis);
+  StyleHisto(fHistPtSistRelErrFromSpectrum, 10e-5, LimSupPtErr, 420, 27, titleYieldX, titleYRel, titleYRel+" of "+titleYield[TypeAnalysis] + " <pt> vs multiplicity",  1, 0, LimSupdNdEtaAxis);
+  StyleHisto(fHistPtSistRelErrMeanMacro, 10e-5, LimSupPtErr, 424, 21,  titleYieldX, titleYRel, titleYRel+" of "+titleYield[TypeAnalysis] + " yield vs multiplicity",  1, 0, LimSupdNdEtaAxis);
+
+  StyleHisto(fHistPtSistRelErrFit, 10e-5, LimSupPtErr, 1, 22, titleYieldX, titleYRel,titleYRel+" of "+ titleYield[TypeAnalysis] + " <pt> vs multiplicity", 1, 0, LimSupdNdEtaAxis);
+
+  legendPtErr->AddEntry(fHistPtStatRelErr, "stat. from fit", "pl");
+  legendPtErr->AddEntry(fHistPtSistRelErr, "syst. from fit", "pl");
+  legendPtErr->AddEntry(fHistPtStatRelErrFromSpectrum, "stat. from spectrum", "pl");
+  legendPtErr->AddEntry(fHistPtSistRelErrFromSpectrum, "syst. from spectrum", "pl");
+  legendPtErr->AddEntry(fHistPtStatRelErrMeanMacro, "stat. from mean macro", "pl");
+  legendPtErr->AddEntry(fHistPtSistRelErrMeanMacro, "syst. from mean macro", "pl");
+  legendPtErr->AddEntry(fHistPtSistRelErrFit, "syst. from fit function choice (Mean Macro)", "pl");
+
+  fHistPtStatRelErr->Draw("e p");
+  fHistPtSistRelErr->Draw("same p");
+  fHistPtStatRelErrFromSpectrum->Draw("same e p");
+  fHistPtSistRelErrFromSpectrum->Draw("same p");
+  fHistPtStatRelErrMeanMacro->Draw("same e p");
+  fHistPtSistRelErrMeanMacro->Draw("same p");
+  fHistPtSistRelErrFit->Draw("same p");
+  legendPtErr->Draw("");
 
   cout << "\n\n going to write on file " << endl;   
   if (isMeanMacro){
@@ -2714,6 +2863,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   fileout->WriteTObject(canvasYield);
   fileout->WriteTObject(canvasYieldErr);
   fileout->WriteTObject(canvasPtvsMult);
+  fileout->WriteTObject(canvasPtErr);
   fileout->WriteTObject(fHistYieldStat);
   fileout->WriteTObject(fHistYieldSist);
   fileout->WriteTObject(fHistYieldSistNoExtr);
@@ -2721,13 +2871,20 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   fileout->WriteTObject(fHistPtvsMultSist);
   fileout->WriteTObject(fHistPtvsMultStatFromSpectrum);
   fileout->WriteTObject(fHistPtvsMultSistFromSpectrum);
+  if (isMeanMacro){
+    fileout->WriteTObject(fHistPtvsMultStatMeanMacro);
+    fileout->WriteTObject(fHistPtvsMultSistMeanMacro);
+  }
   fileout->WriteTObject(fHistYieldStatRelErr);
   fileout->WriteTObject(fHistYieldSistRelErr);
   fileout->WriteTObject(fHistYieldSistNoExtrRelErr);
   for(Int_t m=0; m<nummolt+1; m++){
       if (isppHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
-    fileout->WriteTObject( fHistAvgPtDistr[m][0]);
+      fHistAvgPtFSDistr[m] ->GetXaxis()->SetRangeUser(LimInfPtvsMultTight, LimSupPtvsMultTight);
+      fHistAvgPtDistr[m][0] ->GetXaxis()->SetRangeUser(LimInfPtvsMultTight, LimSupPtvsMultTight);
+      fileout->WriteTObject( fHistAvgPtDistr[m][0]);
+      fileout->WriteTObject( fHistAvgPtFSDistr[m]);
   }
   if (TypeAnalysis==0 && type==8) {
     fileout->WriteTObject(canvasOOJSubDef);
@@ -2777,14 +2934,8 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   //  TString DirPicture = "PictureForNote/";
   if (TypeAnalysis==3) RegionType[TypeAnalysis] = "BulkBlue";
   TString DirPicture = PathOutPictures;
-  if (ZeroYieldLowPt && TypeAnalysis==0){
-    canvasYield->SaveAs(DirPicture+"YieldvsMult"+tipo[type]+RegionType[TypeAnalysis]+"_ZeroYieldLowPt.pdf");
-    canvasYieldErr->SaveAs(DirPicture+"YieldvsMultErr"+tipo[type]+RegionType[TypeAnalysis]+"_ZeroYieldLowPt.pdf");
-  }
-  else {
-    canvasYield->SaveAs(DirPicture+"YieldvsMult"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
-    canvasYieldErr->SaveAs(DirPicture+"YieldvsMultErr"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
-  }
+  canvasYield->SaveAs(DirPicture+"YieldvsMult"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
+  canvasYieldErr->SaveAs(DirPicture+"YieldvsMultErr"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
   canvasPtvsMult->SaveAs(DirPicture+"AvgPtvsMult"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
   canvasPtSpectra->SaveAs(DirPicture+"PtSpectra"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
   canvasPtSpectraFit->SaveAs(DirPicture+"PtSpectraFit"+tipo[type]+RegionType[TypeAnalysis]+".pdf");

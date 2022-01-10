@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include <array>
 #include <TH2.h>
 #include <TH3.h>
@@ -28,11 +29,11 @@ using namespace std;
 //const int nStavesInLayAll[7] = {12, 16, 20, 24, 30, 42, 48};
 
 //Functions
-std::array<float,nMasked+1> GetFHRwithMasking(THnSparse *hmap, const int nchips, double ntrig, TH2 *hhotmap, bool HalfStave, bool IB,  bool isHotPixelMapDrawn);
+std::array<float,nMasked+1> GetFHRwithMasking(THnSparse *hmap, const int nchips, double ntrig, TH2 *hhotmap, bool HalfStave, bool IB,  bool isHotPixelMapDrawn, bool isOnlyHotPixelMap);
 int GetNchipsActive(THnSparse *hmap, int maxchip, int MaxRange, bool HalfStave, bool IB);
 int GetNrunsWOhits(TH2 *hFhrStv);
 void SetStyle(TH1 *h, int col, Style_t mkr);
-void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixelMapDrawn);
+void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixelMapDrawn, bool isOnlyHotPixelMap);
 
 void MaskNoisyPixelsInRuns(){
   string fpath;
@@ -84,18 +85,28 @@ void MaskNoisyPixelsInRuns(){
     isHotPixelMapDrawn =1;
   }
 
-  DoAnalysis(fpath, skipruns, IBorOB, isHotPixelMapDrawn);
+  string drawonlypixelmap;
+  bool isOnlyHotPixelMap =0;
+  cout << "Would you like to skip the FHR vs #hot pixel plot? [y/n] ";
+  cin >> drawonlypixelmap;
+  if (drawonlypixelmap=="y" || drawonlypixelmap=="Y"){
+    cout << endl;
+    isOnlyHotPixelMap =1;
+  }
+
+  if (!isHotPixelMapDrawn && isOnlyHotPixelMap) {cout << "Choose the FHR vs #hot pixels masked and/or the hot pixel map. You have chosen none of them. " << endl; return;}
+  DoAnalysis(fpath, skipruns, IBorOB, isHotPixelMapDrawn, isOnlyHotPixelMap);
 }
 
 //
 // Analysis
 //
-void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixelMapDrawn){
+void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixelMapDrawn, bool isOnlyHotPixelMap){
 
-  //TStopwatch t;
-  //TStopwatch t1;
-  //t.Start();
-  //t1.Start();
+  TStopwatch t;
+  TStopwatch t1;
+  t.Start();
+  t1.Start();
   gStyle->SetOptStat(0000);
   int col[] = {810, 807, 797, 827, 417, 841, 868, 867, 860, 602, 921, 874};
 
@@ -153,7 +164,7 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
   //Read file with fhr maps for each layer --> ONLY TO EXTRACT NUMBER OF TRIGGERS!!
   TList *list2 = (TList*)infile->GetListOfKeys();
   TIter next2(list2);
-  TH2 *h2_2[100][7];
+  TH2 *h2_2[200][7];
   TKey *key2;
   TObject *obj2;
   int cntrun=0;
@@ -183,7 +194,7 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
     h2_2[nRunsB[stoi(laynum)]][stoi(laynum)] = (TH2*)obj2;
     cout<<"... Reading "<<obj2->GetName()<< " Run: " << nRunsB[stoi(laynum)] << " layer: " << laynum << endl;
   }
-  
+
   if (nTimes ==0) {cout << "The input file contains no plots\n"; return; }
 
   int nLayers;
@@ -206,15 +217,15 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
   //Calculate number of triggers for each run
   cout<<endl;
   cout<<"... Extract the number of triggers for each run (for each layer)"<<endl;
-  int MaxRange  = 0; 
+  int MaxRange  = 0;
   int MaxRangeY = 0;
-  int NChipsPerHIC   = 1;  
+  int NChipsPerHIC   = 1;
   int ChipRowsPerHIC = 1;
   int HICsPerHS = 0; //Number of HICs in each half stave
   int HalfStaveFound = 0;
   vector<double> ntrig;
-  int nEntrieshmaps =0; 
-  int nRunsTotAllLayers =0; 
+  int nEntrieshmaps =0;
+  int nRunsTotAllLayers =0;
 
   //  cout << "nLayers " << nLayers << endl;
   for (int ilay=0; ilay<nLayers; ilay++){
@@ -251,19 +262,18 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
 	continue;
 	//cout<<"INVALID FHR... setting it to -1"<<endl;
       }
-
       MaxRange =  hmaps[nEntrieshmaps+stavefound*(nRunsB[ilayEff]+1)+ir] -> GetAxis(0)->GetXmax();
       MaxRangeY =  hmaps[nEntrieshmaps+stavefound*(nRunsB[ilayEff]+1)+ir] -> GetAxis(1)->GetXmax();
 
       chipfoundeff = chipfound;
       if (ilayEff > 2) {
-	NChipsPerHIC=7;  
+	NChipsPerHIC=7;
 	ChipRowsPerHIC=2;
 	if (ilayEff < 5) HICsPerHS=4;
 	else  HICsPerHS=7;
 	if (chipfound < HICsPerHS) HalfStaveFound=0;
 	else {
-	  HalfStaveFound =1; 
+	  HalfStaveFound =1;
 	  chipfoundeff = chipfound-HICsPerHS;
 	}
       }
@@ -288,6 +298,7 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
       cout << "X range " << hmaps[nEntrieshmaps+stavefound*(nRunsB[ilayEff]+1)+ir] -> GetAxis(0) ->GetXmax() << endl;
       cout << "Y range " << hmaps[nEntrieshmaps+stavefound*(nRunsB[ilayEff]+1)+ir] -> GetAxis(1) ->GetXmax() << endl;
       */
+
       if(hits_chip/(ChipRowsPerHIC*512.*NChipsPerHIC*1024.*fhr_run) < 1e-15){//to avoid bugs due to bad runs
 	ntrig.push_back(-1);
 	cout<<"Run "<<runnumbers[nEntrieshmaps+stavefound*(nRunsB[ilayEff]+1)+ir]<<" Layer " << ilayEff << " has "<<ntrig[ntrig.size()-1]<<" triggers (ignored in the calculation of the average fhr)"<<endl;
@@ -315,12 +326,15 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
     if (nRunsB[ilayEff] == -1) continue;
     //    cout <<     hmaps[index] ->GetAxis(0)->GetXmax() << " " << hmaps[index] ->GetAxis(1)->GetXmax() << endl;
     for(int istave=0; istave<48; istave++){
-      if (isHotPixelMapDrawn) hHotMap[ilay][istave] = new TH2F(Form("hHotMap_L%i_Stv%d",ilayEff, istave), "; ; ", (int)hmaps[index] ->GetAxis(0)->GetXmax(),0,hmaps[index] ->GetAxis(0)->GetXmax(), (int)hmaps[index] ->GetAxis(1)->GetXmax(),0,hmaps[index] ->GetAxis(1)->GetXmax());
+      if (isHotPixelMapDrawn) {
+        hHotMap[ilay][istave] = new TH2F(Form("hHotMap_L%i_Stv%d",ilayEff, istave), "; ; ", (int)(hmaps[index] ->GetAxis(0)->GetXmax()/4),0,hmaps[index] ->GetAxis(0)->GetXmax(), (int)(hmaps[index] ->GetAxis(1)->GetXmax()/4),0,hmaps[index] ->GetAxis(1)->GetXmax());
+      }
     }
+
     index += (nRunsB[ilayEff]+1)*nStavesInLayAll[ilayEff];
   }
 
-  /*  
+  /*
   cout << "\n\n" << endl;
   for (int i=0; i<nRunsTotAllLayers; i++){
     cout << "i " << i << "ntrig " << ntrig[i] << endl;
@@ -329,15 +343,15 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
   */
 
   int numStavePart = 2;
-  int irun = nRunsTotAllLayers-1; 
+  int irun = nRunsTotAllLayers-1;
   int nChips =0;
   bool IB = 1;
   int  ilayIndex =0;
   for(int ihist=(int)hmaps.size()-1; ihist>=0; ihist--){ //start from the bottom in order to start with the oldest run
     //    if (ihist < (int)hmaps.size()-20) continue;
     //    cout << "\nihist " << ihist << " laynum " << laynums[ihist] << " stave num " << stavenums[ihist] << " runnumber " << runnumbers[ihist] << " irun " << irun << " ntrigger " << ntrig[irun] << endl;
-    if (stoi(laynums[ihist]) < 3)  { //IB layers                                                   
-      nChips=9; 
+    if (stoi(laynums[ihist]) < 3)  { //IB layers
+      nChips=9;
       MaxRange = 9216; // 1024 x nChips=9
       IB = 1;
       numStavePart = 1;
@@ -354,9 +368,11 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
       IB = 0;
       numStavePart =2; //HS Lower and HS Upper
     }
+
     //    cout << "numStavePart " << numStavePart << endl;
     //cout<<"\n*************Layer "<<laynums[ihist]<<" Stave "<<stavenums[ihist]<<" Run: "<<runnumbers[ihist]<< endl;
-    for (int StavePart=0; StavePart< numStavePart; StavePart++){ //loop over the two Half Staves for OB      
+
+    for (int StavePart=0; StavePart< numStavePart; StavePart++){ //loop over the two Half Staves for OB
       int nchipsactive = GetNchipsActive(hmaps[ihist],nChips, MaxRange, StavePart, IB);
       if (numStavePart==1){
       if(nchipsactive<nChips) cout<<"\nLayer "<<laynums[ihist]<<" Stave "<<stavenums[ihist]<<" Run: "<<runnumbers[ihist]<<" --> Chips active:"<<nchipsactive<<endl;
@@ -367,13 +383,14 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
       ilayIndex = stoi(laynums[ihist]);
       if (IBorOB == 1)       ilayIndex = stoi(laynums[ihist]) -3;
       if (StavePart==0)   {
-	fhrall.push_back(GetFHRwithMasking(hmaps[ihist],nchipsactive,ntrig[irun],hHotMap[nLayers==1 ? 0 : ilayIndex][stoi(stavenums[ihist])], StavePart, IB, isHotPixelMapDrawn));
-	if (numStavePart==1) fhrall1.push_back(GetFHRwithMasking(hmaps[ihist],nchipsactive,ntrig[irun],hHotMap[nLayers==1 ? 0 : ilayIndex][stoi(stavenums[ihist])], StavePart, IB,  isHotPixelMapDrawn));
+	fhrall.push_back(GetFHRwithMasking(hmaps[ihist],nchipsactive,ntrig[irun],hHotMap[nLayers==1 ? 0 : ilayIndex][stoi(stavenums[ihist])], StavePart, IB, isHotPixelMapDrawn, isOnlyHotPixelMap));
+	if (numStavePart==1) fhrall1.push_back(GetFHRwithMasking(hmaps[ihist],nchipsactive,ntrig[irun],hHotMap[nLayers==1 ? 0 : ilayIndex][stoi(stavenums[ihist])], StavePart, IB,  isHotPixelMapDrawn, isOnlyHotPixelMap));
       }
       else  {
-	fhrall1.push_back(GetFHRwithMasking(hmaps[ihist],nchipsactive,ntrig[irun],hHotMap[nLayers==1 ? 0 : ilayIndex][stoi(stavenums[ihist])], StavePart, IB,  isHotPixelMapDrawn));
+	fhrall1.push_back(GetFHRwithMasking(hmaps[ihist],nchipsactive,ntrig[irun],hHotMap[nLayers==1 ? 0 : ilayIndex][stoi(stavenums[ihist])], StavePart, IB,  isHotPixelMapDrawn, isOnlyHotPixelMap));
       }
     }
+
     irun-- ;
 
     if(ihist>0){
@@ -388,6 +405,9 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
     //    cout << "fhr all (HS Lower) " << fhrall1[fhrall1.size()-1][0] << endl;
   }
 
+  TString   pathfileFHRvsMasked = "";
+  TFile *  fileFHRvsMasked;
+  if (!isOnlyHotPixelMap){
   //special binning
   double binstart = 0.4;
   double binsmasked[nMasked+2];
@@ -427,7 +447,7 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
     //    cout << "i " << i << " ilayer " << ilayer << " istave " << istave << " irun " << irun << endl;
     //    cout << " ilayer " << laynums[(int)hmaps.size()-1-i] << " istave " << stavenums[(int)hmaps.size()-1-i] << " irun " << runnumbers[(int)hmaps.size()-1-i] << endl;
     for(int ifhr=0; ifhr<(int)fhrall[i].size(); ifhr++){ //loop over number of pixels masked
-      for (int StavePart=0; StavePart< 2; StavePart++){ //loop over the two Half Staves for OB  
+      for (int StavePart=0; StavePart< 2; StavePart++){ //loop over the two Half Staves for OB
 	if (StavePart==0) hFhrStv[ilayer][istave][StavePart]->SetBinContent(ifhr+1, irun+1, fhrall[i][ifhr]);
 	else hFhrStv[ilayer][istave][StavePart]->SetBinContent(ifhr+1, irun+1, fhrall1[i][ifhr]);
       }
@@ -445,8 +465,9 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
     }
   }
 
-  
   cout << "\nFHR vs #masked pixels " << endl;
+  pathfileFHRvsMasked = Form("../Plots/FHRvsMasked_%s.root", filepath_hit.substr(filepath_hit.find("from"), filepath_hit.find(".root")-filepath_hit.find("from")).c_str());
+  fileFHRvsMasked = new TFile(pathfileFHRvsMasked, "RECREATE");
   //Make FHR (averaged on all runs) vs #masked pix for all staves in a layer
   for(int ilay=0; ilay<nLayers; ilay++){
     if (nLayers==1) ilayEff = stoi(laynums[0]);
@@ -458,12 +479,8 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
     TLegend *leg = new TLegend(0.904, 0.127,0.997,0.898);
     if (ilayEff>=3) leg->SetNColumns(2);
 
-    if (IBorOB==0) numStavePart=1;
-    else if (IBorOB==1) numStavePart=2;
-    else {
-      if (ilayEff < 3) numStavePart=1;
-      else numStavePart=2;
-    }
+    if (ilayEff < 3) numStavePart=1;
+    else numStavePart=2;
 
     TString SStavePart[2] = {"HS Lower", "HS Upper"};
     if (numStavePart==1) {
@@ -471,7 +488,7 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
       SStavePart[1] = "";
     }
 
-    for (int StavePart=0; StavePart< numStavePart; StavePart++){ //loop over the two Half Staves for OB      
+    for (int StavePart=0; StavePart< numStavePart; StavePart++){ //loop over the two Half Staves for OB
       TCanvas cnv(Form("cnv_%d_HS%i",ilayEff, StavePart), Form("cnv_%d_HS%i",ilayEff, StavePart));
       cnv.cd();
       cnv.SetLogy();
@@ -488,6 +505,17 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
 	int runswohits = GetNrunsWOhits(hFhrStv[ilay][is][StavePart]);
 	proj->Scale(1./(nRunsB[ilayEff]+1-runswohits)); //Divide by the number of runs minus the ones without hits
 
+	for (int i=1; i<= proj->GetNbinsX(); i++){
+	  proj->SetBinError(i, 0);
+	}
+	/*
+	cout <<"ilay " << ilayEff <<  " stave " << is << " runs no hits  "<< runswohits << endl;
+	for (int i=1; i<= proj->GetNbinsX(); i++){
+	  int l = i*10;
+	  if (l>proj->GetNbinsX()) break;
+	  cout << "bin " << l << " " << proj->GetBinContent(l) << " +- " << proj->GetBinError(l) << endl;
+	}
+	*/
 	if (ilayEff<3){
 	  SetStyle(proj, col[is<nStavesInLayAll[ilayEff]/2 ? is : is-nStavesInLayAll[ilayEff]/2],is<nStavesInLayAll[ilayEff]/2 ? 24:26);
 	}
@@ -513,7 +541,7 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
 	    SetStyle(proj, col[is-int(nStavesInLayAll[ilayEff]*3/4)], 30);
 	}
 	proj->Draw("PL same");
-
+	fileFHRvsMasked->WriteTObject(proj);
 	if (StavePart==0) leg->AddEntry(proj, Form("Stv%d",is),"p");
       }
       leg->Draw("same");
@@ -528,10 +556,11 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
       cnv.SaveAs(NameCnv + ".root");
     }
   }
-
-  //  cout << "Running time up to here: " << endl;
-  //  t1.Stop();
-  //  t1.Print();
+  fileFHRvsMasked->Close();
+  }
+    cout << "Running time up to here: " << endl;
+    t1.Stop();
+    t1.Print();
 
   if (isHotPixelMapDrawn){
     cout << "\nDrawing hot pixel map for each layer " << endl;
@@ -540,6 +569,9 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
       else if (IBorOB==1) ilayEff = ilay + 3 ;
       else ilayEff = ilay;
       if (nRunsB[ilayEff] == -1) continue;
+
+      if (ilayEff < 3) numStavePart=1;
+      else  numStavePart=2;
 
       TCanvas cnvT(Form("cnvT_%d",ilayEff), Form("cnv_%d",ilayEff),800,1200);
       TCanvas cnvB(Form("cnvB_%d",ilayEff), Form("cnvBOT_%d",ilayEff),800,1200);
@@ -573,7 +605,7 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
 	  cnvB.GetPad(istaveeff+1)->SetRightMargin(0.01);
 	  if(!istaveeff) cnvB.GetPad(istaveeff+1)->SetTopMargin(0.3);
 	}
-	hHotMap[ilay][istave]->Rebin2D(4);
+	//hHotMap[ilay][istave]->Rebin2D(4);
 	hHotMapCloned[ilay][istave]= (TH2F*) hHotMap[ilay][istave]->Clone(Form("%s_", hHotMap[ilay][istave]->GetName()));
 	hHotMap[ilay][istave]->Draw("P X+");
 	hHotMap[ilay][istave]->GetXaxis()->SetTickLength(0.005);
@@ -656,17 +688,18 @@ void DoAnalysis(string filepath_hit, string skipruns, int IBorOB, bool isHotPixe
       if (ilayEff>=3) cout << NameCnvB << ".root"<< endl;
     }
   }
- 
-  //t.Stop();
-  //cout << "\nRunning time: " << endl;
-  //t.Print();
- 
+
+  if (!isOnlyHotPixelMap)  cout << "The following file has been created: " <<  pathfileFHRvsMasked << "\n" << endl;
+  t.Stop();
+  cout << "\nRunning time: " << endl;
+  t.Print();
+
 }
 
 //
 // Function to compare two hitmaps --> returns an arrays with timestamp of run2, noisyPixInRefRun, noisyPixInRun2, noisyPixInCommon
 //
-std::array<float,nMasked+1> GetFHRwithMasking(THnSparse *hmap, const int nchips, double ntrig, TH2 *hhotmap, bool HS , bool IB, bool isHotPixelMapDrawn){
+std::array<float,nMasked+1> GetFHRwithMasking(THnSparse *hmap, const int nchips, double ntrig, TH2 *hhotmap, bool HS , bool IB, bool isHotPixelMapDrawn, bool isOnlyHotPixelMap){
 
   array<float,nMasked+1> fhrstave;
 
@@ -679,40 +712,62 @@ std::array<float,nMasked+1> GetFHRwithMasking(THnSparse *hmap, const int nchips,
     else iyMin = hmap->GetAxis(1)->GetNbins()/2 +1;
   }
   hmapclone->GetAxis(1)->SetRange(iyMin, iyMax);
-  for(int iter=0; iter<nMasked+1; iter++){
-    TH1F *hproj = (TH1F*)hmapclone->Projection(1);
-    long int totalhits = hproj->Integral();
-    float fhr = nchips==0 ? 0. : (float)totalhits / (512.*1024.*nchips*ntrig);
 
-    if(ntrig<0) fhr=0.;
-    fhrstave[iter] = fhr;
+  vector<array<double,3>> hmapclonecontent; 
+  array<double,3> mapclonecontent;
+  int coord[2];
+  long int totalhits =0;
 
-    int coord[2];
-    double max = -1.;
-    int x=0,y=0;
-    long int binwithmax = 0;
-    for(int ibin=0; ibin<hmapclone->GetNbins(); ibin++){
-      double bincontent = hmapclone->GetBinContent(ibin, coord);
-      if (IB==0){
-	if (coord[1] < iyMin || coord[1] > iyMax) continue;
-      }
-      if(bincontent>max){
-        max=bincontent;
-        binwithmax = ibin;
-        x=coord[0];
-        y=coord[1];
-      }
-    }
-
-    if(nchips) hmapclone->SetBinContent(binwithmax,0.);
-    if (isHotPixelMapDrawn){
-      if(totalhits!=0 && iter < 100) {
-	hhotmap->SetBinContent(x, y, 1); // to avoid a marker in 0,0 for empty histos
-      }
-    }
-    delete hproj;
+  for(int ibin=0; ibin<hmapclone->GetNbins(); ibin++){
+    mapclonecontent[0] = hmapclone->GetBinContent(ibin, coord);
+    mapclonecontent[1] = coord[0];
+    mapclonecontent[2] = coord[1];
+    hmapclonecontent.push_back(mapclonecontent);
+    //    cout << "ibin " << hmapclonecontent[ibin][0] << " x " << hmapclonecontent[ibin][1] << " y " <<  hmapclonecontent[ibin][2] << endl;
   }
+  sort(hmapclonecontent.begin(), hmapclonecontent.end(), greater<>());
 
+  if (!isOnlyHotPixelMap){
+    for(int iter=0; iter<nMasked+1; iter++){
+      totalhits =0;
+      for (int i=iter; i< (int)hmapclonecontent.size(); i++){
+	totalhits += hmapclonecontent[i][0];
+      }
+      float fhr = nchips==0 ? 0. : (float)totalhits / (512.*1024.*nchips*ntrig);
+
+      if(ntrig<0) fhr=0.;
+      fhrstave[iter] = fhr;
+
+      double max = -1.;
+      int x=0,y=0;
+      long int binwithmax = 0;
+  
+      x = hmapclonecontent[iter][1];
+      y = hmapclonecontent[iter][2];
+      if (isHotPixelMapDrawn){
+	if(totalhits!=0 && iter < 100) {
+	  hhotmap->SetBinContent(((x-1)/4)+1, ((y-1)/4)+1, 1); // to avoid a marker in 0,0 for empty histos
+	}
+      }
+    }
+  }
+  else {
+    for(int iter=0; iter<100; iter++){
+      totalhits =0;
+      for (int i=iter; i< (int)hmapclonecontent.size(); i++){
+	totalhits += hmapclonecontent[i][0];
+      }
+      int x=0,y=0;
+      x = hmapclonecontent[iter][1];
+      y = hmapclonecontent[iter][2];
+      if (isHotPixelMapDrawn){
+	if(totalhits!=0 && iter < 100) {
+	  hhotmap->SetBinContent(((x-1)/4)+1, ((y-1)/4)+1, 1); // to avoid a marker in 0,0 for empty histos
+	}
+      }
+    }
+  }
+ 
   delete hmapclone;
 
   return fhrstave;
