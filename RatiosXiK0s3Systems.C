@@ -35,7 +35,7 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void RatiosXiK0s( Int_t isComp=0, Float_t ScalingFactorXiK0s = 1/*0.8458/1.08747*/, Int_t PlotType =0){
+void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t ScalingFactorXiK0s = 1/*0.8458/1.08747*/){
 
   //PlotType = 0: Xi/K0s ratio
   //PlotType = 1: K0s yield vs mult 
@@ -43,46 +43,51 @@ void RatiosXiK0s( Int_t isComp=0, Float_t ScalingFactorXiK0s = 1/*0.8458/1.08747
   //PlotType = 3: K0s pt vs mult 
   //PlotType = 4: Xi pt vs mult 
 
-  //isComp =0 : MB compared to HM
-  //isComp =1 : MB compared to pp5TeV (same mult classes)
-  //isComp =2 : MB compared to pp5TeV (only two mult classes for 5TeV)
-
-  TString CollisionsComp[3] = {"_HMMultBinning1_vsHM", "_vs5TeV5Mult", "_vs5TeV"};
-  TString SPlotType[5] = {"", "K0s", "Xi", "K0spt", "Xipt"};
+  //ChosenRegion == -1 //all regions (JET, OOJ, FULL) are plotted
+  if (ChosenRegion>2) {cout << "Choose a valid region! " << endl; return;}
+  const Int_t numColls =2; //pp13 TeV (MB + HM), pp5TeV
+  const Int_t numRegions =3;
+  const Int_t numTypes =2;
+  TString CollisionsComp[2] = {"_HMMultBinning1_vsHM", "_vs5TeV"};
+  TString SPlotType[5] = {"Ratio", "K0s", "Xi", "K0spt", "Xipt"};
 
   gStyle->SetOptStat(0);
-  TString Region[3] = {"Jet", "Bulk", "All"};
-  TString RegionBis[3] = {"Jet", "Bulk", "Inclusive"};
+  TString Region[numRegions] = {"Jet", "Bulk", "All"};
+  TString RegionBis[numRegions] = {"Jet", "Bulk", "Inclusive"};
   Float_t Up= 0.1;
   Float_t Low = 10e-4;
-  if (PlotType==1) {Low = 10e-8; Up = 0.3;}
-  if (PlotType==2) {Low = 10e-8; Up = 0.025;}
-  if (PlotType==3) {Low = 0.8+10e-4; Up = 2.4999;}
-  if (PlotType==4) {Low = 1+10e-4; Up = 4.999;}
-  Int_t Color[3] = {628,418,601};
-  Int_t ColorDiff[3][2] = {{628,628}, {418,418} , {601, 601}};
-  if (isComp!=0){
-    ColorDiff[0][1] = 628;
-    if (isComp==2)     ColorDiff[0][0] = 634;
-    ColorDiff[1][1] = 829;
-    ColorDiff[2][1] = 867;
+  if (PlotType==1) {
+    Low = 10e-8; Up = 0.3;
+    if (ChosenRegion==0) {Low = 0.015; Up = 0.035;}
   }
-  Int_t Marker[2] = {33, 21};
-  Float_t Size[2] = {2, 1.4};
-  TString ParticleType[2]={"K0s", "Xi"};
-  TH1F *histoYield[2][3][2];
-  TH1F *histoYieldRatio[3][2];
-  TH1F *histoYieldSist[2][3][2];
-  TH1F *histoYieldRatioSist[3][2];
-  TString NameHisto="histoYieldComparison";
-  TString NameHistoSist="histoYieldSistComparison";
-  TString NameHistoInput[2] = {"fHistYield_ppMB", "fHistYield_ppHM"};
-  TString NameHistoInputSist[2] = {"fHistYield_ppMB_Sist", "fHistYield_ppHM_Sist"};
-  if (isComp!=0) {
-    NameHistoInput[1] = "fHistYield_pp5TeV";
-    NameHistoInputSist[1] = "fHistYield_pp5TeV_Sist";
+  if (PlotType==2) {
+    Low = 10e-8; Up = 0.025;
+    if (ChosenRegion==0) {Up = 0.003;}
   }
-  TString NameHistoFinal[2][3][2];
+  if (PlotType==3) {
+    Low = 0.8+10e-4; Up = 2.4999;
+    if (ChosenRegion==0) {Low = 1.5; Up = 2.5;}
+    else if (ChosenRegion>0) {Low = 0.8; Up = 1.3;}
+  }
+  if (PlotType==4) {
+    Low = 1+10e-4; Up = 4.999;
+    if (ChosenRegion==0) {Low = 1.5; Up = 5;}
+    else if (ChosenRegion>0) {Low = 1.0; Up = 2.2;}
+  }
+  Int_t Color[numRegions] = {628,418,601};
+  Int_t ColorDiff[numRegions][numColls] = {{634,628}, {418,829} , {601, 867}};
+  Int_t Marker[numTypes] = {33, 21};
+  Float_t Size[numTypes] = {2, 1.4};
+  TString ParticleType[numTypes]={"K0s", "Xi"};
+  TH1F *histoYield[numTypes][numRegions][numColls];
+  TH1F *histoYieldRatio[numRegions][numColls];
+  TH1F *histoYieldSist[numTypes][numRegions][numColls];
+  TH1F *histoYieldRatioSist[numRegions][numColls];
+  TString NameHisto13TeV="histoYieldComparison";
+  TString NameHistoSist13TeV="histoYieldSistComparison";
+  TString NameHisto5TeV="fHistYield_pp5TeV";
+  TString NameHistoSist5TeV="fHistYield_pp5TeV_Sist";
+  TString NameHistoFinal[numTypes][numRegions][numColls];
   TString pathin ="";
   TString YieldOrAvgPt[5] = {"Yield", "Yield", "Yield", "AvgPt","AvgPt"};
   TCanvas * canvas = new TCanvas("canvas", "canvas", 1300, 800);
@@ -90,29 +95,32 @@ void RatiosXiK0s( Int_t isComp=0, Float_t ScalingFactorXiK0s = 1/*0.8458/1.08747
   for (Int_t type=1; type>=0; type--){
     if ((PlotType == 1 || PlotType ==3) && type==1) continue;
     else  if ((PlotType == 2 || PlotType ==4) && type==0) continue;
-    for (Int_t ireg=0; ireg<3; ireg++){
+    for (Int_t ireg=0; ireg<numRegions; ireg++){
+      if (ireg != ChosenRegion) continue;
       cout << "\n\n*****" << ParticleType[type] << " " << Region[ireg]<< endl;
-      pathin = "Compare" +YieldOrAvgPt[PlotType] + "DifferentCollisions";
-      pathin +=  CollisionsComp[isComp];
-      pathin +="_"+ ParticleType[type] + Region[ireg]+ ".root";
-      cout << "Pathin: " << pathin << endl;
-      TFile *filein = new TFile(pathin, "");
-      if (!filein) {cout << "Input file not available " << endl; return;}
-      for (Int_t Coll=0; Coll<2; Coll++){
-	if (isComp==0 && Coll==1) continue;
+      for (Int_t Coll=0; Coll<2; Coll++){ //loop on: ppMB + ppHM, pp5TeV
+	pathin = "Compare" +YieldOrAvgPt[PlotType] + "DifferentCollisions";
+	pathin +=  CollisionsComp[Coll];
+	pathin +="_"+ ParticleType[type] + Region[ireg]+ ".root";
+	cout << "\n\e[35mPathin: " << pathin << "\e[39m"<< endl;
+	TFile *filein = new TFile(pathin, "");
+	if (!filein) {cout << "Input file not available " << endl; return;}
+
 	NameHistoFinal[type][ireg][Coll]= Form("histoYield_Reg%i_Type%i_Coll%i", ireg, type, Coll);
-	if (isComp==0)	histoYield[type][ireg][Coll]= (TH1F*) filein->Get(NameHisto);
-	else 	histoYield[type][ireg][Coll]= (TH1F*) filein->Get(NameHistoInput[Coll]);
+	if (Coll==0)	histoYield[type][ireg][Coll]= (TH1F*) filein->Get(NameHisto13TeV);
+	else 	histoYield[type][ireg][Coll]= (TH1F*) filein->Get(NameHisto5TeV);
 	if (!histoYield[type][ireg][Coll]) {cout <<"no histo " << endl; return;}
 	cout <<  histoYield[type][ireg][Coll]->GetXaxis()->GetXmax() << endl;
 	histoYield[type][ireg][Coll]->SetName(NameHistoFinal[type][ireg][Coll]);
 
-	if (isComp==0)	histoYieldSist[type][ireg][Coll]= (TH1F*) filein->Get(NameHistoSist);
-	else histoYieldSist[type][ireg][Coll]= (TH1F*) filein->Get(NameHistoInputSist[Coll]);
+	if (Coll==0)	histoYieldSist[type][ireg][Coll]= (TH1F*) filein->Get(NameHistoSist13TeV);
+	else histoYieldSist[type][ireg][Coll]= (TH1F*) filein->Get(NameHistoSist5TeV);
 	if (!histoYieldSist[type][ireg][Coll]) {cout <<"no histo " << endl; return;}
 	histoYieldSist[type][ireg][Coll]->SetName(NameHistoFinal[type][ireg][Coll]+"Sist");
 
-	cout << "Type: " << ParticleType[type] <<  " region: " << Region[ireg] << " System: " << Coll << endl;
+	cout << "Type: " << ParticleType[type] <<  " region: " << Region[ireg]<< endl;
+	if (Coll ==0 ) cout << "Got histos for  13 TeV (MB + HM) " << endl;
+	else  cout << "Got histos for 5 TeV " << endl;
 	for (Int_t b=1; b<=  histoYield[type][ireg][Coll]->GetNbinsX(); b++){
 	  if (histoYield[type][ireg][Coll]->GetBinContent(b) != 0)	 {
 	    cout << histoYield[type][ireg][Coll]->GetBinContent(b) << " +- " << histoYield[type][ireg][Coll]->GetBinError(b) << " (stat.) +-  " << histoYieldSist[type][ireg][Coll]->GetBinError(b) << " (syst.) " << endl;
@@ -134,6 +142,14 @@ void RatiosXiK0s( Int_t isComp=0, Float_t ScalingFactorXiK0s = 1/*0.8458/1.08747
 	    }
 	  }
 	}
+	if (type==0){
+	  cout << "\nXi/K0s ratio: " << endl;
+	  for (Int_t b=1; b<=  histoYieldRatio[ireg][Coll]->GetNbinsX(); b++){
+	    if (histoYieldRatio[ireg][Coll]->GetBinContent(b) != 0)	 {
+	      cout << histoYieldRatio[ireg][Coll]->GetBinContent(b) << " +- " << histoYieldRatio[ireg][Coll]->GetBinError(b) << " (stat.) +-  " << histoYieldRatioSist[ireg][Coll]->GetBinError(b) << " (syst.) " << endl;
+	    }
+	  }
+	}
 	canvas->cd();
 	StyleHisto(histoYieldRatio[ireg][Coll], Low, Up, ColorDiff[ireg][Coll], 33, "", "N_{#Xi}/N_{K_0^S}", "" , 0,0, 45);
 	StyleHisto(histoYieldRatioSist[ireg][Coll], Low, Up, ColorDiff[ireg][Coll], 33, "", "N_{#Xi}/N_{K_0^S}", "" , 0,0, 45);
@@ -144,5 +160,8 @@ void RatiosXiK0s( Int_t isComp=0, Float_t ScalingFactorXiK0s = 1/*0.8458/1.08747
     }
   }
 
-  canvas->SaveAs("XiK0sRatio"+ CollisionsComp[isComp]+SPlotType[PlotType]+".pdf");
+  if (ChosenRegion<0){
+    canvas->SaveAs("XiK0s3Systems"+SPlotType[PlotType]+".pdf");
+  }
+  else     canvas->SaveAs("XiK0s3Systems"+SPlotType[PlotType]+Region[ChosenRegion]+".pdf");
 }
