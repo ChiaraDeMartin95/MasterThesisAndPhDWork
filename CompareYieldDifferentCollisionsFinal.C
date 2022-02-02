@@ -35,7 +35,7 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, Int_t isComp=0,  Bool_t isAvgPtvsMult=0,  Bool_t isPreliminary=1, Bool_t FitYields=0){
+void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, Int_t isComp=0,  Bool_t isAvgPtvsMult=0,  Bool_t isPreliminary=0, Bool_t FitYields=0){
 
   if (isPreliminary && isAvgPtvsMult) return;
   const   Int_t NSystems =2;
@@ -46,7 +46,8 @@ void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, I
   //isComp =2 : MB compared to pp5TeV (only two mult classes for 5TeV)
 
   Float_t ScalingFactor =1;
-  if (isPreliminary && TypeAnalysis==0) ScalingFactor = 0.8458/1.08747;
+  //  if (isPreliminary && TypeAnalysis==0) ScalingFactor = 0.8458/1.08747; //=1./1.286
+  if (TypeAnalysis==0 && isAvgPtvsMult==0)  ScalingFactor = 0.8458/1.08747; //=1./1.286
   //ScalingFactor =1./( 0.8458/1.08747); to adjust MB preliminary bins to the others
   TString SisPreliminary[2] = {"", "_isPreliminary"};
   TString YieldOrAvgPt[2] = {"Yield", "AvgPt"};
@@ -66,7 +67,7 @@ void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, I
     //NbinsMult = 125;
     NbinsMult = 250;
   }
-  Float_t Up[3] = {0.035, 0.4, 0.4}; //0.035
+  Float_t Up[3] = {0.05, 0.4, 0.4}; //0.035
   Float_t Low[3] = {0.015, 10e-4, 10e-4};
   Float_t LowPt[3] = {1.5,0.8,0.8};
   Float_t UpPt[3] = {2.5, 1.3, 1.3};
@@ -199,8 +200,14 @@ void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, I
     if (!histoYieldSist[i]) { cout << "Histo sist not available " << endl; return; }
     histoYieldSistFinal[i]= (TH1F*)    histoYieldSist[i] ->Clone(NameHistoFinalSist[i]);
 
-    if (isPreliminary){
-      if (TypeAnalysis==0 && i==1){ //5 TeV and 13 TeV HM were done with dPhi = 1.08, whereas preliminary results were done with dphi = 0.85. In this way I adjust the dphi interval of the HM and 5 TeV results TO the 13 TeV preliminarie s(which cannot be changed)
+    if (TypeAnalysis==0){
+      if (isPreliminary){
+	if (i==1){ //5 TeV and 13 TeV HM were done with dPhi = 1.08, whereas preliminary results were done with dphi = 0.85. In this way I adjust the dphi interval of the HM and 5 TeV results TO the 13 TeV preliminarie s(which cannot be changed)
+	  histoYieldFinal[i]->Scale(1./ScalingFactor);
+	  histoYieldSistFinal[i]->Scale(1./ScalingFactor);
+	}
+      }
+      else {
 	histoYieldFinal[i]->Scale(1./ScalingFactor);
 	histoYieldSistFinal[i]->Scale(1./ScalingFactor);
       }
