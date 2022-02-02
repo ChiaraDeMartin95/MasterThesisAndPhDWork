@@ -56,7 +56,7 @@ void StyleHistoYield(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t st
 }
 
 
-void YieldRatioNew(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString yearK0s="1617_hK0s", TString yearK0sMC = "1617MC_hK0s", TString yearXi = "161718Full_AOD234_hXi"/*"Run2DataRed_MECorr_hXi"*/, TString yearXiMC = ""/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,    TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Bool_t ZeroYieldLowPt=0, Int_t ChosenMult=5, Bool_t isBulkBlue=0, Bool_t isFit=0, Bool_t isppHM=0, Bool_t ispp5TeV=0, Bool_t isYieldMeanMacro=1){
+void YieldRatioNew(Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString yearK0s="1617_hK0s", TString yearK0sMC = "1617MC_hK0s", TString yearXi = "161718Full_AOD234_hXi"/*"Run2DataRed_MECorr_hXi"*/, TString yearXiMC = ""/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,    TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=1, Int_t MultBinning=0, Bool_t ZeroYieldLowPt=0, Int_t ChosenMult=5, Bool_t isBulkBlue=0, Bool_t isFit=0,  Bool_t isYieldMeanMacro=0){
 
   //isYieldMeanMacro = 1: no difference between 1 and 0, only the input file changes (but the plots should be the same)
   Float_t DPhiFactor =1;
@@ -299,7 +299,13 @@ void YieldRatioNew(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, 
     ScaleFactorRegion[1] = 4;
     ScaleFactorRegion[2] = 8;
   }
+  if (ispp5TeV) {
+    ScaleFactor[nummolt] = 16;
+  }
   TString sScaleFactor[nummolt+1]={" (x2^{7})"," (x2^{6})"," (x2^{5})"," (x2^{4})"," (x2^{3})",""};
+  if (ispp5TeV){
+    sScaleFactor[nummolt] = " (x2^{4})";
+  }
   TString sScaleFactorRegion[3]={""};
   //" (x2^{7})"," (x2^{6})"," (x2^{5})"," (x2^{4})"," (x2^{3})",""};
 
@@ -508,9 +514,9 @@ void YieldRatioNew(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, 
     //    }
     if (MultBinning==3){
       /*
-      dNdEta[0] = 13.595; //estimated by me = 13.89, tabulated = 13.595
-      dNdEta[1] = 4.91;//estimated by me = 6.95, tabulated= 4.91
-      dNdEta[5] = 5.49;
+	dNdEta[0] = 13.595; //estimated by me = 13.89, tabulated = 13.595
+	dNdEta[1] = 4.91;//estimated by me = 6.95, tabulated= 4.91
+	dNdEta[5] = 5.49;
       */
       //if (isdNdEtaTriggered){
       dNdEta[0] = 13.89;
@@ -615,9 +621,14 @@ void YieldRatioNew(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, 
       fHistPtvsMultSist[type][iregion]=(TH1F*) fileInYield[type]->Get("fHistPtvsMultSist");
       fHistPtvsMultStatFS[type][iregion]=(TH1F*) fileInYield[type]->Get("fHistPtvsMultStatFromSpectrum");
       fHistPtvsMultSistFS[type][iregion]=(TH1F*) fileInYield[type]->Get("fHistPtvsMultSistFromSpectrum");
-      fHistPtvsMultStatMeanMacro[type][iregion]=(TH1F*) fileInYield[type]->Get("fHistPtvsMultStatMeanMacro");
-      fHistPtvsMultSistMeanMacro[type][iregion]=(TH1F*) fileInYield[type]->Get("fHistPtvsMultSistMeanMacro");
-
+      if (isYieldMeanMacro){
+	fHistPtvsMultStatMeanMacro[type][iregion]=(TH1F*) fileInYield[type]->Get("fHistPtvsMultStatMeanMacro");
+	fHistPtvsMultSistMeanMacro[type][iregion]=(TH1F*) fileInYield[type]->Get("fHistPtvsMultSistMeanMacro");
+	if (!fHistPtvsMultStatMeanMacro[type][iregion])  {cout << " missing histo PtvsMultStatMeanMacro " << endl; return;}
+	if (!fHistPtvsMultSistMeanMacro[type][iregion])  {cout << " missing histo PtvsMultSistMeanMacro " << endl; return;}
+	fHistPtvsMultStatMethodCompMeanMacroToMine[type][iregion]=(TH1F*)      fHistPtvsMultSistMeanMacro[type][iregion]->Clone("fHistPtvsMultStatMeanMacroToMine");
+	fHistPtvsMultSistMethodCompMeanMacroToMine[type][iregion]=(TH1F*)      fHistPtvsMultSistMeanMacro[type][iregion]->Clone("fHistPtvsMultSistMeanMacroToMine");
+      }
       if (!fHistYieldStat[type][iregion])       {cout << " missing histo YieldStat " << endl; return;}
       if (!fHistYieldSist[type][iregion])       {cout << " missing histo YieldSist " << endl; return;}
       if (!fHistYieldSistNoExtr[type][iregion]) {cout << " missing histo YieldSistNoExtr " << endl; return;}
@@ -625,14 +636,9 @@ void YieldRatioNew(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, 
       if (!fHistPtvsMultSist[type][iregion])    {cout << " missing histo PtvsMultSist " << endl; return;}
       if (!fHistPtvsMultStatFS[type][iregion])  {cout << " missing histo PtvsMultStatFS " << endl; return;}
       if (!fHistPtvsMultSistFS[type][iregion])  {cout << " missing histo PtvsMultSistFS " << endl; return;}
-      if (!fHistPtvsMultStatMeanMacro[type][iregion])  {cout << " missing histo PtvsMultStatMeanMacro " << endl; return;}
-      if (!fHistPtvsMultSistMeanMacro[type][iregion])  {cout << " missing histo PtvsMultSistMeanMacro " << endl; return;}
 
       fHistPtvsMultStatMethodComp[type][iregion]=(TH1F*)      fHistPtvsMultSistFS[type][iregion]->Clone("fHistPtvsMultStatMethodComp");
       fHistPtvsMultSistMethodComp[type][iregion]=(TH1F*)      fHistPtvsMultSistFS[type][iregion]->Clone("fHistPtvsMultSistMethodComp");
-
-      fHistPtvsMultStatMethodCompMeanMacroToMine[type][iregion]=(TH1F*)      fHistPtvsMultSistMeanMacro[type][iregion]->Clone("fHistPtvsMultStatMeanMacroToMine");
-      fHistPtvsMultSistMethodCompMeanMacroToMine[type][iregion]=(TH1F*)      fHistPtvsMultSistMeanMacro[type][iregion]->Clone("fHistPtvsMultSistMeanMacroToMine");
 
       fHistYieldStat[type][iregion]->SetName(Form("fHistYieldStat_type%i_%region%i", type, iregion));
       fHistYieldSist[type][iregion]->SetName(Form("fHistYieldSist_type%i_%region%i", type, iregion));
@@ -645,9 +651,10 @@ void YieldRatioNew(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, 
       fHistPtvsMultSistErr[type][iregion]=(TH1F*) fHistPtvsMultSist[type][iregion]-> Clone("fHistPtvsMultSistErr");
       fHistPtvsMultStatErrFS[type][iregion]=(TH1F*) fHistPtvsMultStatFS[type][iregion]-> Clone("fHistPtvsMultStatErrFS");
       fHistPtvsMultSistErrFS[type][iregion]=(TH1F*) fHistPtvsMultSistFS[type][iregion]-> Clone("fHistPtvsMultSistErrFS");
-      fHistPtvsMultStatErrMeanMacro[type][iregion]=(TH1F*) fHistPtvsMultStatMeanMacro[type][iregion]-> Clone("fHistPtvsMultStatErrMeanMacro");
-      fHistPtvsMultSistErrMeanMacro[type][iregion]=(TH1F*) fHistPtvsMultSistMeanMacro[type][iregion]-> Clone("fHistPtvsMultSistErrMeanMacro");
-
+      if (isYieldMeanMacro){
+	fHistPtvsMultStatErrMeanMacro[type][iregion]=(TH1F*) fHistPtvsMultStatMeanMacro[type][iregion]-> Clone("fHistPtvsMultStatErrMeanMacro");
+	fHistPtvsMultSistErrMeanMacro[type][iregion]=(TH1F*) fHistPtvsMultSistMeanMacro[type][iregion]-> Clone("fHistPtvsMultSistErrMeanMacro");
+      }
       for (Int_t b=1; b<=fHistYieldStatErr[type][iregion]->GetNbinsX(); b++){
 	if (fHistYieldStatErr[type][iregion]->GetBinContent(b)!=0){
 	  fHistYieldStatErr[type][iregion]->SetBinContent(b, fHistYieldStatErr[type][iregion]->GetBinError(b)/fHistYieldStat[type][iregion]->GetBinContent(b));
@@ -667,11 +674,12 @@ void YieldRatioNew(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, 
 	  fHistPtvsMultStatErrFS[type][iregion]->SetBinError(b, 0);
 	  fHistPtvsMultSistErrFS[type][iregion]->SetBinError(b, 0);
 
-	  fHistPtvsMultStatErrMeanMacro[type][iregion]->SetBinContent(b, fHistPtvsMultStatErrMeanMacro[type][iregion]->GetBinError(b)/fHistPtvsMultStatMeanMacro[type][iregion]->GetBinContent(b));
-	  fHistPtvsMultSistErrMeanMacro[type][iregion]->SetBinContent(b, fHistPtvsMultSistErrMeanMacro[type][iregion]->GetBinError(b)/fHistPtvsMultSistMeanMacro[type][iregion]->GetBinContent(b));
-	  fHistPtvsMultStatErrMeanMacro[type][iregion]->SetBinError(b, 0);
-	  fHistPtvsMultSistErrMeanMacro[type][iregion]->SetBinError(b, 0);
-
+	  if (isYieldMeanMacro){
+	    fHistPtvsMultStatErrMeanMacro[type][iregion]->SetBinContent(b, fHistPtvsMultStatErrMeanMacro[type][iregion]->GetBinError(b)/fHistPtvsMultStatMeanMacro[type][iregion]->GetBinContent(b));
+	    fHistPtvsMultSistErrMeanMacro[type][iregion]->SetBinContent(b, fHistPtvsMultSistErrMeanMacro[type][iregion]->GetBinError(b)/fHistPtvsMultSistMeanMacro[type][iregion]->GetBinContent(b));
+	    fHistPtvsMultStatErrMeanMacro[type][iregion]->SetBinError(b, 0);
+	    fHistPtvsMultSistErrMeanMacro[type][iregion]->SetBinError(b, 0);
+	  }
 	}
       }
 
@@ -704,22 +712,22 @@ void YieldRatioNew(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, 
       TGraphAsymmErrors * gYieldRatio;
 
       /*
-      if (iregion==0 && type==0){
+	if (iregion==0 && type==0){
 	for (Int_t m=0; m<nummolt+1; m++){
-	  if (isppHM && MultBinning==1 && m<=1) continue;
-	  if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
-	  bin[m] =   fHistYieldStat[type][iregion]->FindBin(dNdEta[m]);
-	  multctrbin[m] =   fHistYieldStat[type][iregion]->GetXaxis()->GetBinCenter(bin[m]);
-	  YieldRatio[m] =      fHistYieldStatRatio[iregion]->GetBinContent( bin[m]);
-	  YieldRatioErrSistLow[m] = sqrt(pow(fHistYieldSistLowRelErr[1][iregion]->GetBinContent( bin[m]),2) + pow( fHistYieldSist[0][iregion]->GetBinError(bin[m])/ fHistYieldSist[0][iregion]->GetBinContent(bin[m]),2)) *  fHistYieldSistRatio[iregion]->GetBinContent(bin[m]);
-	  YieldRatioErrSistUp[m] = sqrt(pow(fHistYieldSistUpRelErr[1][iregion]->GetBinContent( bin[m]),2) + pow( fHistYieldSist[0][iregion]->GetBinError(bin[m])/ fHistYieldSist[0][iregion]->GetBinContent(bin[m]),2)) *  fHistYieldSistRatio[iregion]->GetBinContent(bin[m]);
+	if (isppHM && MultBinning==1 && m<=1) continue;
+	if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
+	bin[m] =   fHistYieldStat[type][iregion]->FindBin(dNdEta[m]);
+	multctrbin[m] =   fHistYieldStat[type][iregion]->GetXaxis()->GetBinCenter(bin[m]);
+	YieldRatio[m] =      fHistYieldStatRatio[iregion]->GetBinContent( bin[m]);
+	YieldRatioErrSistLow[m] = sqrt(pow(fHistYieldSistLowRelErr[1][iregion]->GetBinContent( bin[m]),2) + pow( fHistYieldSist[0][iregion]->GetBinError(bin[m])/ fHistYieldSist[0][iregion]->GetBinContent(bin[m]),2)) *  fHistYieldSistRatio[iregion]->GetBinContent(bin[m]);
+	YieldRatioErrSistUp[m] = sqrt(pow(fHistYieldSistUpRelErr[1][iregion]->GetBinContent( bin[m]),2) + pow( fHistYieldSist[0][iregion]->GetBinError(bin[m])/ fHistYieldSist[0][iregion]->GetBinContent(bin[m]),2)) *  fHistYieldSistRatio[iregion]->GetBinContent(bin[m]);
 	}
 
 	gYieldRatio= new TGraphAsymmErrors(nummolt,multctrbin,YieldRatio,Xl, Xh, YieldRatioErrSistLow, YieldRatioErrSistUp);
 	gYieldRatio->SetMarkerColor(kBlue);
 	gYieldRatio->SetLineColor(kBlue);
 	gYieldRatio->SetMarkerStyle(1);
-      }
+	}
       */
       canvasYield[type]->cd();
 
@@ -801,8 +809,10 @@ void YieldRatioNew(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, 
       //Legend1->SetTextAlign(13);
       Legend1->SetMargin(0);
       //      Legend1->SetFillStyle(0);
-      Legend1->AddEntry("", "#bf{ALICE Preliminary}", "");
-      Legend1->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
+      //      Legend1->AddEntry("", "#bf{ALICE Preliminary}", "");
+      Legend1->AddEntry("", "", "");
+      if (ispp5TeV)       Legend1->AddEntry("", "pp, #sqrt{#it{s}} = 5 TeV", "");
+      else       Legend1->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
       Legend1->AddEntry(""/*(TObject*)0*/, NameP[type]+ " correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
 
       //TLegend *Legend2=new TLegend(0.06,0.75,0.5,0.93); // ok if margin is set to default
@@ -810,8 +820,10 @@ void YieldRatioNew(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, 
       //Legend1->SetTextAlign(13);
       //      Legend2->SetFillStyle(0);
       Legend2->SetMargin(0);
-      Legend2->AddEntry("", "#bf{ALICE Preliminary}", "");
-      Legend2->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
+      //      Legend2->AddEntry("", "#bf{ALICE Preliminary}", "");
+      Legend2->AddEntry("", "", "");
+      if (ispp5TeV)      Legend2->AddEntry("", "pp, #sqrt{#it{s}} = 5 TeV", "");
+      else       Legend2->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
       Legend2->AddEntry(""/*(TObject*)0*/, NameP[type]+ " correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
 
       StyleHistoYield(fHistYieldStat[type][iregion], LimInfYield[type]+10e-7, LimSupYieldF[type][iregion], Color[iregion], YmarkerRegion[iregion], titleYieldX, titleYieldYType[type],"", MarkerSize[iregion],1.2,1.25 );
@@ -912,18 +924,18 @@ void YieldRatioNew(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, 
       legendYieldErr->AddEntry(fHistYieldStatErr[type][iregion], "stat.", "pl");
       legendYieldErr->AddEntry(fHistYieldSistErr[type][iregion], "syst.", "pl");
       legendYieldErr->AddEntry(fHistYieldSistErrNoExtr[type][iregion], "syst. no extr.", "pl");
-      legendYieldErr->AddEntry(fHistYieldPubNoExtrRelSyst[0], "syst. pub. no extr.", "pl");
-      legendYieldErr->AddEntry(fHistYieldErroriRelDatiPubblicatiDenom, "syst. pub.", "pl");
+      //      legendYieldErr->AddEntry(fHistYieldPubNoExtrRelSyst[0], "syst. pub. no extr.", "pl");
+      //      legendYieldErr->AddEntry(fHistYieldErroriRelDatiPubblicatiDenom, "syst. pub.", "pl");
       fHistYieldStatErr[type][iregion]->Draw("same p"); 
       fHistYieldSistErr[type][iregion]->Draw("same p"); 
       fHistYieldSistErrNoExtr[type][iregion]->Draw("same p");
       if (type==0) {
-	fHistYieldErroriRelDatiPubblicatiDenom->Draw("same p hist");
-	fHistYieldPubNoExtrRelSyst[0]->Draw("same p hist");
+	//	fHistYieldErroriRelDatiPubblicatiDenom->Draw("same p hist");
+	//	fHistYieldPubNoExtrRelSyst[0]->Draw("same p hist");
       }
       else {
-	fHistYieldErroriRelDatiPubblicati->Draw("same p hist");
-	fHistYieldPubNoExtrRelSyst[0]->Draw("same p hist");
+	//	fHistYieldErroriRelDatiPubblicati->Draw("same p hist");
+	//	fHistYieldPubNoExtrRelSyst[0]->Draw("same p hist");
       }
       legendYieldErr->Draw("");
       
@@ -932,23 +944,29 @@ void YieldRatioNew(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, 
       StyleHisto(fHistPtvsMultSistErr[type][iregion], LimInfYield[type], LimSupYieldErr[type], Color[iregion], 20, titleYieldX, titleYieldYRelErr, "");
       StyleHisto(fHistPtvsMultStatErrFS[type][iregion], LimInfYield[type], LimSupYieldErr[type], Color[iregion]+1, 27, titleYieldX, titleYieldYRelErr, "");
       StyleHisto(fHistPtvsMultSistErrFS[type][iregion], LimInfYield[type], LimSupYieldErr[type], Color[iregion], 24, titleYieldX, titleYieldYRelErr, "");
-      StyleHisto(fHistPtvsMultStatErrMeanMacro[type][iregion], LimInfYield[type], LimSupYieldErr[type], Color[iregion]+1, 29, titleYieldX, titleYieldYRelErr, "");
-      StyleHisto(fHistPtvsMultSistErrMeanMacro[type][iregion], LimInfYield[type], LimSupYieldErr[type], Color[iregion], 30, titleYieldX, titleYieldYRelErr, "");
+      if (isYieldMeanMacro){
+	StyleHisto(fHistPtvsMultStatErrMeanMacro[type][iregion], LimInfYield[type], LimSupYieldErr[type], Color[iregion]+1, 29, titleYieldX, titleYieldYRelErr, "");
+	StyleHisto(fHistPtvsMultSistErrMeanMacro[type][iregion], LimInfYield[type], LimSupYieldErr[type], Color[iregion], 30, titleYieldX, titleYieldYRelErr, "");
+      }
 
       TLegend* legendPtvsMultErr = new TLegend(0.6, 0.6, 0.9, 0.9);
       legendPtvsMultErr->AddEntry(fHistPtvsMultStatErr[type][iregion], "stat. (<p_{T}> from Fit)", "pl");
       legendPtvsMultErr->AddEntry(fHistPtvsMultSistErr[type][iregion], "syst. (<p_{T}> from Fit)", "pl");
       legendPtvsMultErr->AddEntry(fHistPtvsMultStatErrFS[type][iregion], "stat. (<p_{T}> from Spectrum)", "pl");
       legendPtvsMultErr->AddEntry(fHistPtvsMultSistErrFS[type][iregion], "syst. (<p_{T}> from Spectrum)", "pl");
-      legendPtvsMultErr->AddEntry(fHistPtvsMultStatErrMeanMacro[type][iregion], "stat. (<p_{T}> from MeanMacro)", "pl");
-      legendPtvsMultErr->AddEntry(fHistPtvsMultSistErrMeanMacro[type][iregion], "syst. (<p_{T}> from MeanMacro)", "pl");
+      if (isYieldMeanMacro){
+	legendPtvsMultErr->AddEntry(fHistPtvsMultStatErrMeanMacro[type][iregion], "stat. (<p_{T}> from MeanMacro)", "pl");
+	legendPtvsMultErr->AddEntry(fHistPtvsMultSistErrMeanMacro[type][iregion], "syst. (<p_{T}> from MeanMacro)", "pl");
+      }
       //      legendYieldErr->AddEntry(fHistYieldErroriRelDatiPubblicatiDenom, "syst. pub.", "pl");
       fHistPtvsMultStatErr[type][iregion]->Draw("same p"); 
       fHistPtvsMultSistErr[type][iregion]->Draw("same p"); 
       fHistPtvsMultStatErrFS[type][iregion]->Draw("same p"); 
       fHistPtvsMultSistErrFS[type][iregion]->Draw("same p"); 
-      fHistPtvsMultStatErrMeanMacro[type][iregion]->Draw("same p"); 
-      fHistPtvsMultSistErrMeanMacro[type][iregion]->Draw("same p"); 
+      if (isYieldMeanMacro){
+	fHistPtvsMultStatErrMeanMacro[type][iregion]->Draw("same p"); 
+	fHistPtvsMultSistErrMeanMacro[type][iregion]->Draw("same p"); 
+      }
       legendPtvsMultErr->Draw("");
 
       if (type==0){
@@ -967,9 +985,12 @@ void YieldRatioNew(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, 
 	//	TLegend *Legend1B=new TLegend(0.1,0.72,0.38,0.92);
 	TLegend *Legend1B=new TLegend(0.62,0.72,0.9,0.92);
 	Legend1B->SetFillStyle(0);
-	TLegendEntry* E1Bis =      Legend1B->AddEntry("", "#bf{ALICE Preliminary}", "");
+	//	TLegendEntry* E1Bis =      Legend1B->AddEntry("", "#bf{ALICE Preliminary}", "");
+	TLegendEntry* E1Bis =      Legend1B->AddEntry("", "", "");
 	E1Bis->SetTextAlign(32);
-	TLegendEntry* E2Bis =        Legend1B->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
+	TLegendEntry* E2Bis;
+	if (ispp5TeV)	E2Bis =        Legend1B->AddEntry("", "pp, #sqrt{#it{s}} = 5 TeV", "");
+	else	E2Bis =       Legend1B->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
 	E2Bis->SetTextAlign(32);
 	TLegendEntry* E3Bis =   	Legend1B->AddEntry(""/*(TObject*)0*/, "#it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
 	E3Bis->SetTextAlign(32);
@@ -1015,8 +1036,8 @@ void YieldRatioNew(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, 
 	fHistYieldSistRatio[iregion]->DrawClone("same e2");
 
 	if (isFit){
-	fHistYieldTotErrRatio[iregion]->Fit(pol0Ratio[iregion], "R0");
-	fHistYieldTotErrRatio[iregion]->Fit(pol1Ratio[iregion], "R0");
+	  fHistYieldTotErrRatio[iregion]->Fit(pol0Ratio[iregion], "R0");
+	  fHistYieldTotErrRatio[iregion]->Fit(pol1Ratio[iregion], "R0");
 	}
 	pol0Ratio[iregion]->Draw("same");
 	pol1Ratio[iregion]->Draw("same");
@@ -1109,10 +1130,10 @@ void YieldRatioNew(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, 
 	  //cout << b << " " << fHistSpectrumStat[m][type][iregion]->GetBinContent(b) << endl;
 	  if (type==1 && b==fHistSpectrumStat[m][type][iregion]->GetNbinsX() && !isppHM && !ispp5TeV){
 	    if (m==4 || m==3) {
-	    fHistSpectrumStat[m][type][iregion]->SetBinContent(b, 0);
-	    fHistSpectrumStat[m][type][iregion]->SetBinError(b, 0);
-	    fHistSpectrumSist[m][type][iregion]->SetBinContent(b, 0);
-	    fHistSpectrumSist[m][type][iregion]->SetBinError(b, 0);
+	      fHistSpectrumStat[m][type][iregion]->SetBinContent(b, 0);
+	      fHistSpectrumStat[m][type][iregion]->SetBinError(b, 0);
+	      fHistSpectrumSist[m][type][iregion]->SetBinContent(b, 0);
+	      fHistSpectrumSist[m][type][iregion]->SetBinError(b, 0);
 	    }
 	  }
 	}
@@ -1241,9 +1262,9 @@ void YieldRatioNew(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, 
 	    fHistSpectrumSistRatio[m][iregion]->	   GetYaxis()->SetRangeUser(10-5,0.15);
 	    if (isppHM){
 	      if (m==2 || m==4 || m==nummolt){
-	      legendPY->AddEntry(	  fHistSpectrumStatRatio[m][iregion], "This analysis "+ SmoltLegend[m], "pl");
-	      fHistSpectrumStatRatio[m][iregion]->DrawClone("same e");
-	      fHistSpectrumSistRatio[m][iregion]->Draw("same e2");
+		legendPY->AddEntry(	  fHistSpectrumStatRatio[m][iregion], "This analysis "+ SmoltLegend[m], "pl");
+		fHistSpectrumStatRatio[m][iregion]->DrawClone("same e");
+		fHistSpectrumSistRatio[m][iregion]->Draw("same e2");
 	      }
 	    }
 	    else if (m==0 || m==4 || m==nummolt){	   
@@ -1346,8 +1367,10 @@ void YieldRatioNew(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, 
       TLegend *Legend1Bis=new TLegend(0.3,0.8,0.92,0.92);
       Legend1Bis->SetFillStyle(0);
       Legend1Bis->SetTextAlign(32);
-      Legend1Bis->AddEntry("", "#bf{ALICE Preliminary}", "");
-      Legend1Bis->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
+      //      Legend1Bis->AddEntry("", "#bf{ALICE Preliminary}", "");
+      Legend1Bis->AddEntry("", "", "");
+      if (ispp5TeV)      Legend1Bis->AddEntry("", "pp, #sqrt{#it{s}} = 5 TeV", "");
+      else       Legend1Bis->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
       Legend1Bis->AddEntry("", NameP[type]+ " correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
       //      Legend1Bis->AddEntry("", sRegionBlack[iregion], "");
 
@@ -1356,7 +1379,8 @@ void YieldRatioNew(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, 
 	Legend1NoPrel[type]=new TLegend(0.3,0.83,0.92,0.92);
 	Legend1NoPrel[type]->SetFillStyle(0);
 	Legend1NoPrel[type]->SetTextAlign(32);
-	Legend1NoPrel[type]->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
+	if (ispp5TeV)	Legend1NoPrel[type]->AddEntry("", "pp, #sqrt{#it{s}} = 5 TeV", "");
+	else 	Legend1NoPrel[type]->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
 	Legend1NoPrel[type]->AddEntry("", NameP[type]+ " correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
       }
 
@@ -1518,13 +1542,16 @@ void YieldRatioNew(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, 
       StyleHistoYield(fHistPtvsMultSist[type][iregion], LimInfPt[type]+10e-7, LimSupPt[type], Color[iregion], YmarkerRegion[iregion], titleYieldX, titlePtvsMultYType[type], "",  MarkerSize[iregion], 1.2, 1.25);
       StyleHistoYield(fHistPtvsMultStatFS[type][iregion], LimInfPt[type]+10e-7, LimSupPt[type], Color[iregion], YmarkerRegionBis[iregion], titleYieldX, titlePtvsMultYType[type],"",  MarkerSize[iregion], 1.2 , 1.25);
       StyleHistoYield(fHistPtvsMultSistFS[type][iregion], LimInfPt[type]+10e-7, LimSupPt[type], Color[iregion], YmarkerRegionBis[iregion], titleYieldX, titlePtvsMultYType[type], "",  MarkerSize[iregion], 1.2, 1.25);
-      StyleHistoYield(fHistPtvsMultStatMeanMacro[type][iregion], LimInfPt[type]+10e-7, LimSupPt[type], Color[iregion]+1, YmarkerRegionTer[iregion], titleYieldX, titlePtvsMultYType[type],"",  MarkerSize[iregion], 1.2 , 1.25);
-      StyleHistoYield(fHistPtvsMultSistMeanMacro[type][iregion], LimInfPt[type]+10e-7, LimSupPt[type], Color[iregion]+1, YmarkerRegionTer[iregion], titleYieldX, titlePtvsMultYType[type], "",  MarkerSize[iregion], 1.2, 1.25);
-
+      if (isYieldMeanMacro){
+	StyleHistoYield(fHistPtvsMultStatMeanMacro[type][iregion], LimInfPt[type]+10e-7, LimSupPt[type], Color[iregion]+1, YmarkerRegionTer[iregion], titleYieldX, titlePtvsMultYType[type],"",  MarkerSize[iregion], 1.2 , 1.25);
+	StyleHistoYield(fHistPtvsMultSistMeanMacro[type][iregion], LimInfPt[type]+10e-7, LimSupPt[type], Color[iregion]+1, YmarkerRegionTer[iregion], titleYieldX, titlePtvsMultYType[type], "",  MarkerSize[iregion], 1.2, 1.25);
+      }
       if (type==0){
 	legendPtvsMult->AddEntry(fHistPtvsMultStat[type][iregion], " <p_{T}> from Fit ("+ SRegionType[iregion]+")", "pl");
 	legendPtvsMult->AddEntry(fHistPtvsMultStatFS[type][iregion]," <p_{T}> from Spectrum ("+ SRegionType[iregion]+")", "pl");
-	legendPtvsMult->AddEntry(fHistPtvsMultStatMeanMacro[type][iregion]," <p_{T}> from MeanMacro ("+ SRegionType[iregion]+")", "pl");
+	if (isYieldMeanMacro){
+	  legendPtvsMult->AddEntry(fHistPtvsMultStatMeanMacro[type][iregion]," <p_{T}> from MeanMacro ("+ SRegionType[iregion]+")", "pl");
+	}
       }
 
       fHistPtvsMultStat[type][iregion]->DrawClone("same e0x0");  
@@ -1533,10 +1560,12 @@ void YieldRatioNew(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, 
       fHistPtvsMultStatFS[type][iregion]->DrawClone("same e0x0");  
       fHistPtvsMultSistFS[type][iregion]->SetFillStyle(0);
       fHistPtvsMultSistFS[type][iregion]->DrawClone("same e2");
-      fHistPtvsMultStatMeanMacro[type][iregion]->DrawClone("same e0x0");  
-      fHistPtvsMultSistMeanMacro[type][iregion]->SetFillStyle(3001);  
-      fHistPtvsMultSistMeanMacro[type][iregion]->SetFillColorAlpha(ColorType[type], 1);
-      fHistPtvsMultSistMeanMacro[type][iregion]->DrawClone("same e2");
+      if (isYieldMeanMacro){
+	fHistPtvsMultStatMeanMacro[type][iregion]->DrawClone("same e0x0");  
+	fHistPtvsMultSistMeanMacro[type][iregion]->SetFillStyle(3001);  
+	fHistPtvsMultSistMeanMacro[type][iregion]->SetFillColorAlpha(ColorType[type], 1);
+	fHistPtvsMultSistMeanMacro[type][iregion]->DrawClone("same e2");
+      }
       legendPtvsMult->Draw("");
 
       canvasPtvsMultMethodComp[type]->cd();
@@ -1553,24 +1582,28 @@ void YieldRatioNew(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, 
 
       StyleHistoYield(fHistPtvsMultStatMethodComp[type][iregion], 0.4+10e-7, 1.7, Color[iregion], YmarkerRegion[iregion], titleYieldX, "<p_{T}> ratio (Fit/Spectrum)","",  MarkerSize[iregion], 1.2 , 1.25);
       StyleHistoYield(fHistPtvsMultSistMethodComp[type][iregion], 0.4+10e-7, 1.7, Color[iregion], YmarkerRegion[iregion], titleYieldX, "<p_{T}> ratio (Fit/Spectrum)", "",  MarkerSize[iregion], 1.2, 1.25);
-      StyleHistoYield(fHistPtvsMultStatMethodCompMeanMacroToMine[type][iregion], 0.6+10e-7 /*0.4*/, 1.4 /*1.7*/, Color[iregion]+1, YmarkerRegionBis[iregion], titleYieldX, "<p_{T}> ratio (Fit/Spectrum)","",  MarkerSize[iregion], 1.2 , 1.25);
-      StyleHistoYield(fHistPtvsMultSistMethodCompMeanMacroToMine[type][iregion], 0.6+10e-7, 1.4, Color[iregion]+1, YmarkerRegionBis[iregion], titleYieldX, "<p_{T}> ratio (Fit/Spectrum)", "",  MarkerSize[iregion], 1.2, 1.25);
-
       fHistPtvsMultStatMethodComp[type][iregion]->Divide(fHistPtvsMultStat[type][iregion]);
       fHistPtvsMultSistMethodComp[type][iregion]->Divide(fHistPtvsMultSist[type][iregion]);
-      fHistPtvsMultStatMethodCompMeanMacroToMine[type][iregion]->Divide(fHistPtvsMultStat[type][iregion]);
-      fHistPtvsMultSistMethodCompMeanMacroToMine[type][iregion]->Divide(fHistPtvsMultSist[type][iregion]);
+
+      if (isYieldMeanMacro){
+	StyleHistoYield(fHistPtvsMultStatMethodCompMeanMacroToMine[type][iregion], 0.6+10e-7 /*0.4*/, 1.4 /*1.7*/, Color[iregion]+1, YmarkerRegionBis[iregion], titleYieldX, "<p_{T}> ratio (Fit/Spectrum)","",  MarkerSize[iregion], 1.2 , 1.25);
+	StyleHistoYield(fHistPtvsMultSistMethodCompMeanMacroToMine[type][iregion], 0.6+10e-7, 1.4, Color[iregion]+1, YmarkerRegionBis[iregion], titleYieldX, "<p_{T}> ratio (Fit/Spectrum)", "",  MarkerSize[iregion], 1.2, 1.25);
+	fHistPtvsMultStatMethodCompMeanMacroToMine[type][iregion]->Divide(fHistPtvsMultStat[type][iregion]);
+	fHistPtvsMultSistMethodCompMeanMacroToMine[type][iregion]->Divide(fHistPtvsMultSist[type][iregion]);
+
+      }
       ErrRatioCorr(fHistPtvsMultStatFS[type][iregion],fHistPtvsMultStat[type][iregion],  fHistPtvsMultStatMethodComp[type][iregion], 1);
       ErrRatioCorr(fHistPtvsMultSistFS[type][iregion],fHistPtvsMultSist[type][iregion],  fHistPtvsMultSistMethodComp[type][iregion], 1);
-      ErrRatioCorr(fHistPtvsMultStatMeanMacro[type][iregion],fHistPtvsMultStat[type][iregion],  fHistPtvsMultStatMethodCompMeanMacroToMine[type][iregion], 1);
-      ErrRatioCorr(fHistPtvsMultSistMeanMacro[type][iregion],fHistPtvsMultSist[type][iregion],  fHistPtvsMultSistMethodCompMeanMacroToMine[type][iregion], 1);
-      //      fHistPtvsMultStatMethodComp[type][iregion]->DrawClone("same e0x0");  
-      //      fHistPtvsMultSistMethodComp[type][iregion]->SetFillStyle(0);
-      //      fHistPtvsMultSistMethodComp[type][iregion]->DrawClone("same e2");
-      fHistPtvsMultStatMethodCompMeanMacroToMine[type][iregion]->DrawClone("same e0x0");  
-      fHistPtvsMultSistMethodCompMeanMacroToMine[type][iregion]->SetFillStyle(0);
-      fHistPtvsMultSistMethodCompMeanMacroToMine[type][iregion]->DrawClone("same e2");
-
+      if (isYieldMeanMacro){
+	ErrRatioCorr(fHistPtvsMultStatMeanMacro[type][iregion],fHistPtvsMultStat[type][iregion],  fHistPtvsMultStatMethodCompMeanMacroToMine[type][iregion], 1);
+	ErrRatioCorr(fHistPtvsMultSistMeanMacro[type][iregion],fHistPtvsMultSist[type][iregion],  fHistPtvsMultSistMethodCompMeanMacroToMine[type][iregion], 1);
+	//      fHistPtvsMultStatMethodComp[type][iregion]->DrawClone("same e0x0");  
+	//      fHistPtvsMultSistMethodComp[type][iregion]->SetFillStyle(0);
+	//      fHistPtvsMultSistMethodComp[type][iregion]->DrawClone("same e2");
+	fHistPtvsMultStatMethodCompMeanMacroToMine[type][iregion]->DrawClone("same e0x0");  
+	fHistPtvsMultSistMethodCompMeanMacroToMine[type][iregion]->SetFillStyle(0);
+	fHistPtvsMultSistMethodCompMeanMacroToMine[type][iregion]->DrawClone("same e2");
+      }
       //      Legend2->Draw("");
       //      legendStatBox->Draw("");
       //      legendRegionAllF->Draw("");
@@ -1603,28 +1636,33 @@ void YieldRatioNew(Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, 
   else   DirPicture += "pp13TeVMB/";
   if (!isNormCorr) DirPicture = "PictureForNote/IsNotNormCorr_";
 
+  Int_t SystemType =0;
+  if (isppHM) SystemType =1;
+  else if (ispp5TeV) SystemType =2;
+  TString sSystem[3] = {"", "", "pp5TeV"};
+
   for (Int_t type=0; type<2; type++){
     cout << "\e[32m\n\n************* " << Stipo[type] << " *********************" << endl;
     for (Int_t iregion=0; iregion<3; iregion++){
       cout <<"\n\e[32mRegion: " << SRegionType[iregion]<< "\e[39m" <<  endl;
       cout << "\e[36m\n" << Stipo[type] << " pt spectra\e[39m" << endl;	
       canvasPtSpectra[iregion][type]->SaveAs(DirPicture+"FinalPtSpectra"+tipo[type]+RegionType[iregion]+".eps");
-      canvasPtSpectra[iregion][type]->SaveAs(DirPicture+"FinalPtSpectra"+tipo[type]+RegionType[iregion]+".pdf");
+      canvasPtSpectra[iregion][type]->SaveAs(DirPicture+"FinalPtSpectra"+tipo[type]+RegionType[iregion]+sSystem[SystemType]+".pdf");
       if (type==0 && iregion==0)      canvasPtSpectra[iregion][type]->SaveAs(stringoutpdf+"_Plots.pdf(");
       else canvasPtSpectra[iregion][type]->SaveAs(stringoutpdf+"_Plots.pdf");
       cout << "\e[36m\n" << Stipo[type] << " pt spectra to 0-100% multiplicity class\e[39m" << endl;	
-      canvasPtSpectraMultRatio[iregion][type]->SaveAs(DirPicture+"FinalPtSpectraMultRatio"+tipo[type]+RegionType[iregion]+".pdf");
+      canvasPtSpectraMultRatio[iregion][type]->SaveAs(DirPicture+"FinalPtSpectraMultRatio"+tipo[type]+RegionType[iregion]+sSystem[SystemType]+".pdf");
       canvasPtSpectraMultRatio[iregion][type]->SaveAs(stringoutpdf+"_Plots.pdf");
       cout << "\e[36m\n" << Stipo[type] << " pt spectra relative errors\e[39m" << endl;	
-      canvasPtvsMultErrSeparate[iregion][type]->SaveAs(DirPicture+"FinalPtvsMultvsMultErr"+tipo[type]+RegionType[iregion]+".pdf");
+      canvasPtvsMultErrSeparate[iregion][type]->SaveAs(DirPicture+"FinalPtvsMultvsMultErr"+tipo[type]+RegionType[iregion]+sSystem[SystemType]+".pdf");
       canvasPtvsMultErrSeparate[iregion][type]->SaveAs(stringoutpdf+"_Plots.pdf");
       cout << "\e[36m\n" << Stipo[type] << " yield vs multiplicity\e[39m" << endl;	
       canvasYieldSeparate[iregion][type]->SaveAs(DirPicture+"FinalYieldvsMult"+tipo[type]+RegionType[iregion]+".eps");
-      canvasYieldSeparate[iregion][type]->SaveAs(DirPicture+"FinalYieldvsMult"+tipo[type]+RegionType[iregion]+".pdf");
+      canvasYieldSeparate[iregion][type]->SaveAs(DirPicture+"FinalYieldvsMult"+tipo[type]+RegionType[iregion]+sSystem[SystemType]+".pdf");
       canvasYieldSeparate[iregion][type]->SaveAs(stringoutpdf+"_Plots.pdf");
       cout << "\e[36m\n" << Stipo[type] << " yield errors vs multiplicity \e[39m" << endl;	
       canvasYieldErrSeparate[iregion][type]->SaveAs(DirPicture+"FinalYieldvsMultErr"+tipo[type]+RegionType[iregion]+".eps");
-      canvasYieldErrSeparate[iregion][type]->SaveAs(DirPicture+"FinalYieldvsMultErr"+tipo[type]+RegionType[iregion]+".pdf");
+      canvasYieldErrSeparate[iregion][type]->SaveAs(DirPicture+"FinalYieldvsMultErr"+tipo[type]+RegionType[iregion]+sSystem[SystemType]+".pdf");
       canvasYieldErrSeparate[iregion][type]->SaveAs(stringoutpdf+"_Plots.pdf");
 
       fileout->WriteTObject(canvasYieldSeparate[iregion][type]);
