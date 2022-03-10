@@ -22,7 +22,7 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
   return sqrt(((Double_t)k+1)*((Double_t)k+2)/(n+2)/(n+3) - pow((Double_t)(k+1),2)/pow(n+2,2));
 }
 
-void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int_t indexsysTrigger=0,  Int_t type=4 /*4 for Xi, 6 for K0s"*/, Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0, Int_t israp=0, TString ResoHisto="2D",Bool_t SkipAssoc=1,   Float_t ptjmin=3,  Float_t ptjmax=15, Int_t sysV0=0, TString data=/*"LHC19h11aPlus_hK0s_INELgt0"/*"LHC19h11_HM_INELgt0Bis286380"/*"161718_HM_hXi_LowPtTrig"/"161718Full_AOD235_hXi"*/"161718_HM_hXi"/*"LHC18_GP_AOD235"*"17pq_hXi"/*"17pq_pp5TeV_hXi_pttrig0.15"/"17d20bEPOS_hK0s_EtaEff"/*"2019h11b+extra_hK0s"/"2019h11_HM_hK0s"/**"2018f1_extra_15runs_Trig0Pt"/*"15g3c3_hK0s"/"2018f1_extra_15runs_NSigma5"/*"1617_GP_AOD235_With18c12b"/*"1617_AOD234_hK0s"/*"17pq_hK0s_pttrig0.15"/*"1617_GP_AOD235_With18c12b"/*"2017e5_extra_AOD235_hK0s"/*"17pq_hK0s_CENTwoSDD"/*"2019h11a_extra_HM_hK0s"/*"1617MC_hK0s"/*"1617GP_hXi_EtaEff"/"AllMC_hXi_EtaEff"/*"2018f1_extra_30runs_hK0s"/*"2019h11c_extra_HM_hK0s"/*"161718_MD_EtaEff_hXi"/*"17d20bEPOS_hXi"/*"17d20bEPOS_hK0s"/"2018f1_extra_hK0s"/*"1617GP_hXi" /*"2018f1_extra_MECorr"/"2018f1_extra_hK0s_CP"/* "2018f1_extra_hK0s_CP"/*"2018f1_extra_hK0s_CP_10runs_Bis"/"AllMC_hXi"/"161718_MD_hXi"/* "17anch17_hK0s"/"1617MC_hK0s"/"2018f1g4_extra_hXi"/"2018f1_extra_DEtaEff_50runs"/"2018g4_extra_EtaEff_hK0s"/*"2018f1g4_extra_EtaEff_hXi"/"161718_MD_EtaEff_hXi"*/, TString year0="2016", TString path1=""/*"_New"*/ /*"_10runs_FB128_TrackLengthCut"/"_NewMultClassBis"/"_PtTrigMax2.5"*/, Int_t MultBinning=1, Int_t PtBinning=0, Bool_t isSysDef=1, Bool_t isDefaultSel=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsPtTrigMultDep=0, Int_t EffRegion=0, Bool_t isEfficiencyMassSel=0, Bool_t isMCTruth=0, Bool_t isEtaEff=1, Bool_t isNewInputPath=1, Bool_t isHM=1, Bool_t isINEL =0){
+void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int_t indexsysTrigger=0,  Int_t type=6 /*4 for Xi, 6 for K0s"*/, Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0, Int_t israp=0, TString ResoHisto="2D",Bool_t SkipAssoc=0,   Float_t ptjmin=3,  Float_t ptjmax=15, Int_t sysV0=0, TString data="18f1_extra_EffTrigger_5runs"/*"16kl_hK0s"/*"18f1_extra_CrossedRows70"/*"18f1_extra_FB1"/*"16kl_hK0s_INEL"/*"18d8_extra_Bis_hXi_PtTrig0.15"/*"17d20b_AOD235_EPOS_hXi"/"17d20b2_EPOS_hXi"/"LHC16_GP_18d8_hXi"/"17pq_hK0s"/*"17pq_hK0s_pttrig0.15"/*"17d20bEPOS_hXi"/*"LHC16_GP_18d8_hXi"/"18f1+18d8_hK0s_AOD235"/*"17pq_hK0s"/*"2019h11_HM_hK0s"/*"LHC19h11aPlus_hK0s_INELgt0"/*"LHC19h11_HM_INELgt0Bis286380"/*"161718_HM_hXi_LowPtTrig"/"161718Full_AOD235_hXi"/"161718_HM_hXi"/*"LHC18_GP_AOD235"*"17pq_hXi"/*"17pq_pp5TeV_hXi_pttrig0.15"/*"17d20bEPOS_hK0s_EtaEff"/*"2019h11b+extra_hK0s"/"2019h11_HM_hK0s"/**"2018f1_extra_15runs_Trig0Pt"/*"15g3c3_hK0s"/"2018f1_extra_15runs_NSigma5"/*"1617_GP_AOD235_With18c12b"/*"1617_AOD234_hK0s"/*"17pq_hK0s_pttrig0.15"/"1617_GP_AOD235_With18c12b"/*"2017e5_extra_AOD235_hK0s"/*"17pq_hK0s_CENTwoSDD"/*"2019h11a_extra_HM_hK0s"/*"1617MC_hK0s"/*"1617GP_hXi_EtaEff"/"AllMC_hXi_EtaEff"/*"2018f1_extra_30runs_hK0s"/*"2019h11c_extra_HM_hK0s"/*"161718_MD_EtaEff_hXi"/*"17d20bEPOS_hXi"/*"17d20bEPOS_hK0s"/"2018f1_extra_hK0s"/*"1617GP_hXi" /*"2018f1_extra_MECorr"/"2018f1_extra_hK0s_CP"/* "2018f1_extra_hK0s_CP"/*"2018f1_extra_hK0s_CP_10runs_Bis"/"AllMC_hXi"/"161718_MD_hXi"/* "17anch17_hK0s"/"1617MC_hK0s"/"2018f1g4_extra_hXi"/"2018f1_extra_DEtaEff_50runs"/"2018g4_extra_EtaEff_hK0s"/*"2018f1g4_extra_EtaEff_hXi"/"161718_MD_EtaEff_hXi"*/, TString year0="2016", TString path1=""/*"_New"*/ /*"_10runs_FB128_TrackLengthCut"/"_NewMultClassBis"/"_PtTrigMax2.5"*/, Int_t MultBinning=0, Int_t PtBinning=1, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsPtTrigMultDep=0, Int_t EffRegion=0, Bool_t isEfficiencyMassSel=0, Bool_t isMCTruth=0, Bool_t isEtaEff=1, Bool_t isNewInputPath=1, Bool_t isHM=0, Bool_t isINEL =0, Bool_t isTriggEtaEff=1){
   //  if (type==6 && israp!=0) return; //so far I haven't appended any info on the rapidity to efficiency output files for K0s; if I decide to do as ofr the cascade, just remove this line
 
   //the Preliminary results have been obtained using isEtaEff==0 (no calculation of ptvseta eff performed)
@@ -226,15 +226,15 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
     if (data.Index("2019h11")!=-1) NameContainer = "_hK0s_Task_RecoAndEfficiency";
     if (data.Index("17pq_hK0s")!=-1) NameContainer = "_hK0s_Task_RecoAndEfficiency";
     if (data.Index("17pq_pp5TeV_hXi")!=-1) NameContainer = "_hXi_Task_RecoAndEfficiency";
-    //    else NameContainer = "_hK0s_Task_suffix";
+    else NameContainer = "_hK0s_Task_suffix";
     //    if (PtTrigMin==3.)    NameContainer = "_h" + tipoPart[type]+"_Task_suffix";
-    if (data == "LHC19h11_HM_INELgt0Bis286380")       NameContainer = "_hK0s_Task_suffix";
+    if (data.Index("FB")!=-1 || data == "LHC19h11_HM_INELgt0Bis286380" || data.Index("CrossedRows70")!=-1)       NameContainer = "_hK0s_Task_suffix";
     if (isINEL) {
       if (type==6)  NameContainer = "_hK0s_Task_RecoAndEfficiency";
       else  NameContainer = "_hK0s_Task_RecoAndEfficiency";
     }
   }
-
+  if (data == "18d8_extra_Bis_hXi_PtTrig0.15") NameContainer = "_hXi_Task_name";
   cout << "NameContainer " << NameContainer<< endl;
   TDirectoryFile *dir;
   TDirectoryFile *dirPart1;
@@ -242,6 +242,7 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   if (isNewInputPath){
     if (type==4) {
       dir = (TDirectoryFile*)fileinbis->Get("MyTask"+ tipoPart[type]+ "_MCTruth_PtTrigMin3.0_PtTrigMax15.0"); 
+      if (data == "18d8_extra_Bis_hXi_PtTrig0.15") dir = (TDirectoryFile*)fileinbis->Get("MyTaskXi_PtTrigMin0.2_PtTrigMax15.0");
     }
     else if (type==6) {
       dir = (TDirectoryFile*)fileinbis->Get("MyTask_MCTruth_PtTrigMin3.0_PtTrigMax15.0");   
@@ -256,9 +257,11 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
       if (data.Index("17pq_hK0s")!=-1) 	dir = (TDirectoryFile*)fileinbis->Get("MyTask_MCTruth_PtTrigMin3.0_PtTrigMax15.0");
       if (data.Index("AOD235")!=-1) dir = (TDirectoryFile*)fileinbis->Get("MyTask_MCTruth_PtTrigMin3.0_PtTrigMax15.0");
       if (data.Index("15g3c3")!=-1) dir = (TDirectoryFile*)fileinbis->Get("MyTask_MCTruth_PtTrigMin3.0_PtTrigMax15.0");
-      if (data == "LHC17o_HM_INELgt0281961" || data == "LHC19h11_HM_INELgt0Bis286380") {
+      if (data=="18f1_extra_EffTrigger_5runs") dir = (TDirectoryFile*)fileinbis->Get("MyTask_PtTrigMin3.0_PtTrigMax15.0");
+      if (data == "LHC17o_HM_INELgt0281961" || data == "LHC19h11_HM_INELgt0Bis286380" || data.Index("FB")!=-1 || data.Index("CrossedRows70")!=-1) {
 	dir = (TDirectoryFile*)fileinbis->Get("MyTask_PtTrigMin0.2_PtTrigMax30.0");
       }
+      else if (data == "16kl_hK0s_INEL") 	dir = (TDirectoryFile*)fileinbis->Get("MyTask_MCTruth_PtTrigMin3.0_PtTrigMax15.0");
       else if (isINEL){
 	dir = (TDirectoryFile*)fileinbis->Get("MyTask_MCTruth_PtTrigMin0.0_PtTrigMax15.0");
       }
@@ -558,6 +561,19 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   }
 
   Double_t NPtTrigger[numPtTrigger+1]={0,0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 8.0, 10.0, 13.0, 20.0, 30.0};
+  const  Int_t numPtTrig = 30;
+  //  Double_t NPtTrig[numPtTrig+1] = {0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.2, 4.4, 4.6, 4.8, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5, 12.0, 12.5, 13.0, 15.0}; //42
+  //  Double_t NPtTrig[numPtTrig+1] = {0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.2, 4.4, 4.6, 4.8, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 15.0}; //36
+  Double_t NPtTrig[numPtTrig+1] = {0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.2, 4.4, 4.6, 4.8, 5.0, 5.5, 6.0, 8.0, 10.0, 15.0}; 
+  const  Int_t numEtaTrigg = 40;
+  Double_t NEtaTrigg[numEtaTrigg+1] = {0};
+  for (Int_t i=0; i<numEtaTrigg+1 ; i++){
+    NEtaTrigg[i] = -1.2+ 0.06*i;
+    if (NEtaTrigg[i] == 0.78) NEtaTrigg[i]=0.798;
+    if (NEtaTrigg[i] == -0.78) NEtaTrigg[i]=-0.798;
+    cout <<  NEtaTrigg[i]<< endl;
+  }
+
   //  Int_t Marker[nummolt+1]={7,4,20,22,29, 35};
   Int_t Marker[nummolt+1]={7,20,20,22,29,25};
   //  Int_t Color[nummolt+1]={1,2,418,4,909,868};
@@ -566,6 +582,17 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   Int_t ColorSysV0[numSysV0]={2,419,4, kAzure+8,8,881};
 
   gStyle->SetOptStat(0);
+
+  TCanvas* canvasTriggerPtEtaEff = new TCanvas("canvasTriggerPtEtaEff", "canvasTriggerPtEtaEff", 1300, 800);
+  if ((isHM && MultBinning==1) || MultBinning==3)   canvasTriggerPtEtaEff->Divide(2,2); 
+  else  canvasTriggerPtEtaEff->Divide(3,2);
+
+  TCanvas* canvasTriggerPtPhiEff = new TCanvas("canvasTriggerPtPhiEff", "canvasTriggerPtPhiEff", 1300, 800);
+  if ((isHM && MultBinning==1) || MultBinning==3)   canvasTriggerPtPhiEff->Divide(2,2); 
+  else  canvasTriggerPtPhiEff->Divide(3,2);
+
+  TCanvas* canvasTriggerPtEff = new TCanvas("canvasTriggerPtEff", "canvasTriggerPtEff", 1300, 800);
+  TCanvas* canvasTriggerPhiEff = new TCanvas("canvasTriggerPhiEff", "canvasTriggerPhiEff", 1300, 800);
  
   TCanvas* canvasEtaEff = new TCanvas("canvasEtaEff", "canvasEtaEff", 1300, 800);
   if ((isHM && MultBinning==1) || MultBinning==3)   canvasEtaEff->Divide(2,2); 
@@ -643,6 +670,21 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   if (!fHistSelectedTriggerPtPhi) {cout << "histo sel not found " << endl; return;}
   TH3D*   fHistSelectedTriggerPtEta=  (TH3D*)list3->FindObject(Form("fHistSelectedTriggerPtEta_%i",0));
   if (!fHistSelectedTriggerPtEta) {cout << "histo sel not found " << endl; return;}
+
+  TH3D*   fHistSelectedAllTriggerPtPhi;
+  TH3D*   fHistSelectedAllTriggerPtEta;
+  TH1F* fHistAllTriggerSelectedPtBins[nummolt+1];
+  TH1F* fHistAllTriggerGeneratedPtBins[nummolt+1];
+  TH1F* fHistAllTriggerEfficiencyPtBins[nummolt+1];
+  TH1F* fHistAllTriggerSelectedPhiBins[nummolt+1];
+  TH1F* fHistAllTriggerGeneratedPhiBins[nummolt+1];
+  TH1F* fHistAllTriggerEfficiencyPhiBins[nummolt+1];
+  if (isTriggEtaEff){
+    fHistSelectedAllTriggerPtPhi=  (TH3D*)list3->FindObject(Form("fHistSelectedAllTriggerPtPhi_%i",0));
+    if (!fHistSelectedAllTriggerPtPhi) {cout << "histo sel not found " << endl; return;}
+    fHistSelectedAllTriggerPtEta=  (TH3D*)list3->FindObject(Form("fHistSelectedAllTriggerPtEta_%i",0));
+    if (!fHistSelectedAllTriggerPtEta) {cout << "histo sel not found " << endl; return;}
+  }
 
   TH3D*   fHistSelectedGenTriggerPtPhi;
   if ((TH3D*)list3->FindObject(Form("fHistSelectedGenTriggerPtPhi_%i", 0))) {
@@ -875,10 +917,20 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   TH2D*  fHistGenerated_2D[nummolt+1];
   
   TH2D*  fHistSelected_2D_TriggerPtPhi[nummolt+1];
+  TH2D*  fHistSelected_2D_AllTriggerPtPhi[nummolt+1];
+  TH2D*  fHistSelected_2D_AllTriggerPtPhiNotReb[nummolt+1];
+  TH2D*  fHistSelected_2D_AllTriggerPtPhiBins[nummolt+1];
   TH2D*  fHistSelectedGen_2D_TriggerPtPhi[nummolt+1];
   TH2D*  fHistGenerated_2D_TriggerPtPhi[nummolt+1];
+  TH2D*  fHistGenerated_2D_TriggerPtPhiNotReb[nummolt+1];
+  TH2D*  fHistGenerated_2D_TriggerPtPhiBins[nummolt+1];
   TH2D*  fHistSelected_2D_TriggerPtEta[nummolt+1];
+  TH2D*  fHistSelected_2D_AllTriggerPtEta[nummolt+1];
+  TH2D*  fHistSelected_2D_AllTriggerPtEtaNotReb[nummolt+1];
+  TH2D*  fHistSelected_2D_AllTriggerPtEtaBins[nummolt+1];
   TH2D*  fHistGenerated_2D_TriggerPtEta[nummolt+1];
+  TH2D*  fHistGenerated_2D_TriggerPtEtaNotReb[nummolt+1];
+  TH2D*  fHistGenerated_2D_TriggerPtEtaBins[nummolt+1];
 
   TH2D*  fHistSelected_2D_V0PtTMaxPhi[nummolt+1];
   TH2D*  fHistGenerated_2D_V0PtTMaxPhi[nummolt+1];
@@ -897,6 +949,7 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
 
   //distribuzioni Pt, Phi, Eta in 1D delle selezionate e generate
   TH1D*  fHistSelected_1D_TriggerPt[nummolt+1];
+  TH1D*  fHistSelected_1D_AllTriggerPt[nummolt+1];
   TH1D*  fHistSelectedGen_1D_TriggerPt[nummolt+1];
   TH1D*  fHistGenerated_1D_TriggerPt[nummolt+1];
   TH1D*  fHistSelected_1D_V0Pt[nummolt+1];
@@ -905,12 +958,14 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   TH1D*  fHistGenerated_1D_V0Pt_Int1[nummolt+1];
   TH1D*  fHistGenerated_1D_V0Pt_Int2[nummolt+1];
   TH1D*  fHistSelected_1D_TriggerPhi[nummolt+1];
+  TH1D*  fHistSelected_1D_AllTriggerPhi[nummolt+1];
   TH1D*  fHistGenerated_1D_TriggerPhi[nummolt+1];
   TH1D*  fHistSelected_1D_V0Phi[nummolt+1];
   TH1D*  fHistGenerated_1D_V0Phi[nummolt+1];
   TH1D*  fHistGenerated_1D_V0Phi_Int1[nummolt+1];
   TH1D*  fHistGenerated_1D_V0Phi_Int2[nummolt+1];
   TH1D*  fHistSelected_1D_TriggerEta[nummolt+1];
+  TH1D*  fHistSelected_1D_AllTriggerEta[nummolt+1];
   TH1D*  fHistGenerated_1D_TriggerEta[nummolt+1];
   TH1D*  fHistSelected_1D_V0Eta[nummolt+1];
   TH1D*  fHistGenerated_1D_V0Eta[nummolt+1];
@@ -921,6 +976,10 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   
   TH2D*  fHistTriggerEfficiencyPtPhi[nummolt+1];                                 
   TH2D*  fHistTriggerEfficiencyPtEta[nummolt+1]; 
+  TH2D*  fHistAllTriggerEfficiencyPtPhi[nummolt+1];                                 
+  TH2D*  fHistAllTriggerEfficiencyPtEta[nummolt+1]; 
+  TH2D*  fHistAllTriggerEfficiencyPtPhiBins[nummolt+1];                                 
+  TH2D*  fHistAllTriggerEfficiencyPtEtaBins[nummolt+1]; 
   TH2D*  fHistV0EfficiencyPtPhi[nummolt+1];
   TH2D*  fHistV0EfficiencyPtPtTMax[nummolt+1];
   TH2D*  fHistEfficiencyV0Selection[nummolt+1];
@@ -942,6 +1001,7 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   TH1D*  fHistV0EfficiencyPtAllEta[nummolt+1];
 
   TH1D*  fHistTriggerEfficiencyPt[nummolt+1];
+  TH1D*  fHistAllTriggerEfficiencyPt[nummolt+1];
   TH1D*  fHistTriggerEfficiencyGenPt[nummolt+1];
   TH1D*  fHistTriggerEfficiencyPhi[nummolt+1];
   TH1D*  fHistTriggerEfficiencyEta[nummolt+1];
@@ -1017,18 +1077,26 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
       fHistSelectedTriggerPtPhi->GetZaxis()->SetRange(fHistSelectedTriggerPtPhi->GetZaxis()->FindBin(Nmolt[molt]+0.0001),fHistSelectedTriggerPtPhi->GetZaxis()->FindBin(Nmolt[molt+1]-0.0001) );
       fHistSelectedGenTriggerPtPhi->GetZaxis()->SetRange(fHistSelectedGenTriggerPtPhi->GetZaxis()->FindBin(Nmolt[molt]+0.0001),fHistSelectedGenTriggerPtPhi->GetZaxis()->FindBin(Nmolt[molt+1]-0.0001) );
       fHistGeneratedTriggerPtPhi->GetZaxis()->SetRange(fHistGeneratedTriggerPtPhi->GetZaxis()->FindBin(Nmolt[molt]+0.0001),fHistGeneratedTriggerPtPhi->GetZaxis()->FindBin(Nmolt[molt+1]-0.0001) );
+      if (isTriggEtaEff){
+	fHistSelectedAllTriggerPtPhi->GetZaxis()->SetRange(fHistSelectedAllTriggerPtPhi->GetZaxis()->FindBin(Nmolt[molt]+0.0001),fHistSelectedAllTriggerPtPhi->GetZaxis()->FindBin(Nmolt[molt+1]-0.0001) );
+      }
     }
     else{
       fHistSelectedTriggerPtPhi->GetZaxis()->SetRange(0,100);
       fHistSelectedGenTriggerPtPhi->GetZaxis()->SetRange(0,100); 
       fHistGeneratedTriggerPtPhi->GetZaxis()->SetRange(0,100);
+      if (isTriggEtaEff)  {
+	fHistSelectedAllTriggerPtPhi->GetZaxis()->SetRange(0,100);
+      }
     }
 
     fHistSelected_2D_TriggerPtPhi[molt] = (TH2D*)fHistSelectedTriggerPtPhi->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis
+    if (isTriggEtaEff)    fHistSelected_2D_AllTriggerPtPhi[molt] = (TH2D*)fHistSelectedAllTriggerPtPhi->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis
     fHistSelectedGen_2D_TriggerPtPhi[molt] = (TH2D*)fHistSelectedGenTriggerPtPhi->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis //!! 
 
     fHistGenerated_2D_TriggerPtPhi[molt] = (TH2D*)fHistGeneratedTriggerPtPhi->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis
     fHistSelected_2D_TriggerPtPhi[molt] ->SetName("fHistSelected_2D_TriggerPtPhi_"+ Smolt[molt] );
+    if (isTriggEtaEff)     fHistSelected_2D_AllTriggerPtPhi[molt] ->SetName("fHistSelected_2D_AllTriggerPtPhi_"+ Smolt[molt] );
     fHistSelectedGen_2D_TriggerPtPhi[molt] ->SetName("fHistSelectedGen_2D_TriggerPtPhi_"+ Smolt[molt] );
     fHistGenerated_2D_TriggerPtPhi[molt]->SetName("fHistGenerated_2D_TriggerPtPhi_"+ Smolt[molt]);
 
@@ -1046,6 +1114,15 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
     fHistTriggerEfficiencyPtPhi[molt]->GetXaxis()->SetTitle("p_{T}^{Trigg} (GeV/c)");      
     fHistTriggerEfficiencyPtPhi[molt]->GetYaxis()->SetTitle("#phi_{Trigg}");   
 
+    if (isTriggEtaEff){
+      fHistAllTriggerEfficiencyPtPhi[molt]= new TH2D("fHistAllTriggerEfficiencyPtPhi_"+ Smolt[molt],"fHistAllTriggerEfficiencyPtPhi_"+ Smolt[molt],fHistSelectedAllTriggerPtPhi->GetNbinsX(),fHistSelectedAllTriggerPtPhi->GetXaxis()->GetXmin(), fHistSelectedAllTriggerPtPhi->GetXaxis()->GetXmax(),fHistSelectedAllTriggerPtPhi->GetNbinsY(),fHistSelectedAllTriggerPtPhi->GetYaxis()->GetBinLowEdge(1), fHistSelectedAllTriggerPtPhi->GetYaxis()->GetBinUpEdge(fHistSelectedAllTriggerPtPhi->GetNbinsY()) );
+      fHistAllTriggerEfficiencyPtPhi[molt]->GetXaxis()->SetTitle("p_{T}^{Trigg} (GeV/c)");      
+      fHistAllTriggerEfficiencyPtPhi[molt]->GetYaxis()->SetTitle("#phi_{Trigg}");   
+
+      fHistSelected_2D_AllTriggerPtPhi[molt] ->RebinX(2);   
+      fHistSelected_2D_AllTriggerPtPhi[molt] ->RebinY(5);   
+    }
+
     fHistSelected_2D_TriggerPtPhi[molt] ->RebinX(2);   
     fHistSelected_2D_TriggerPtPhi[molt] ->RebinY(5);   
 
@@ -1060,6 +1137,10 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
     fHistTriggerEfficiencyPtPhi[molt]->RebinX(2);    
     fHistTriggerEfficiencyPtPhi[molt]->RebinY(5);    
    
+    if (isTriggEtaEff){
+    fHistAllTriggerEfficiencyPtPhi[molt]->RebinX(2);    
+    fHistAllTriggerEfficiencyPtPhi[molt]->RebinY(5);    
+    }
     
     cout << "after reebinning " << endl;
     cout << "\nsel2D " <<     fHistSelected_2D_TriggerPtPhi[molt]->GetNbinsX() <<   "  " <<   fHistSelected_2D_TriggerPtPhi[molt]->GetNbinsY() << endl;
@@ -1068,7 +1149,40 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
     cout << "eff2D " <<        fHistTriggerEfficiencyPtPhi[molt]->GetNbinsX() <<   "  " <<      fHistTriggerEfficiencyPtPhi[molt]->GetNbinsY() << endl;
     
     fHistTriggerEfficiencyPtPhi[molt]->Divide(fHistSelected_2D_TriggerPtPhi[molt], fHistGenerated_2D_TriggerPtPhi[molt]); 
-  
+    if (isTriggEtaEff){
+      fHistAllTriggerEfficiencyPtPhi[molt]->Divide(fHistSelected_2D_AllTriggerPtPhi[molt], fHistGenerated_2D_TriggerPtPhi[molt]); 
+    }
+
+    cout << "ok 1 " << endl;
+    if (isTriggEtaEff){  
+      if (isHM && MultBinning==1)      canvasTriggerPtPhiEff->cd(molt+1-2);
+      else if (MultBinning==3)  {
+	if (molt<=1)	canvasTriggerPtPhiEff->cd(molt+1);
+	else 	canvasTriggerPtPhiEff->cd(3);
+      }
+      else  canvasTriggerPtPhiEff->cd(molt+1);
+      fHistAllTriggerEfficiencyPtPhi[molt]->Draw("colz");
+    }
+
+    if (isTriggEtaEff){
+      fHistAllTriggerSelectedPhiBins[molt] = (TH1F*)fHistSelected_2D_AllTriggerPtPhi[molt]->ProjectionY("fHistAllTriggerSelectedPhiBins_"+ Smolt[molt], fHistSelected_2D_AllTriggerPtPhi[molt]->GetXaxis() ->FindBin(3.0001),   fHistSelected_2D_AllTriggerPtPhi[molt]->GetXaxis() ->FindBin(14.999));
+      fHistAllTriggerGeneratedPhiBins[molt] = (TH1F*)fHistGenerated_2D_TriggerPtPhi[molt]->ProjectionY("fHistTriggerGeneratedPhiBins_"+ Smolt[molt], fHistGenerated_2D_TriggerPtPhi[molt]->GetXaxis() ->FindBin(3.0001),   fHistGenerated_2D_TriggerPtPhi[molt]->GetXaxis() ->FindBin(14.999));
+      fHistAllTriggerEfficiencyPhiBins[molt] = (TH1F*) fHistAllTriggerSelectedPhiBins[molt]->Clone("fHistAllTriggerEfficiencyPhiBins_"+ Smolt[molt]);
+      fHistAllTriggerEfficiencyPhiBins[molt]->Divide(fHistAllTriggerGeneratedPhiBins[molt]);
+      fHistAllTriggerEfficiencyPhiBins[molt] ->SetTitle("Trigger particle efficiency");
+      fHistAllTriggerEfficiencyPhiBins[molt] ->GetXaxis() -> SetTitle("#varphi (GeV/c)");
+      fHistAllTriggerEfficiencyPhiBins[molt] ->GetYaxis() -> SetRangeUser(0,1);
+      fHistAllTriggerEfficiencyPhiBins[molt]->SetLineColor(Color[molt]);
+      fHistAllTriggerEfficiencyPhiBins[molt]->SetMarkerColor(Color[molt]);
+      fHistAllTriggerEfficiencyPhiBins[molt]->SetMarkerStyle(33);
+      for (Int_t pt = 1; pt <= fHistAllTriggerEfficiencyPhiBins[molt]->GetNbinsX(); pt++){
+	fHistAllTriggerEfficiencyPhiBins[molt]->SetBinError(pt, SetEfficiencyError(fHistAllTriggerSelectedPhiBins[molt]->GetBinContent(pt), fHistAllTriggerGeneratedPhiBins[molt]->GetBinContent(pt)));
+      }
+      canvasTriggerPhiEff->cd();
+      fHistAllTriggerEfficiencyPhiBins[molt]->Draw("same ep");
+      legenddown->Draw("");
+    }
+
     cout << "Trigger 1D projection in Phi and Pt " << endl;
     fHistSelected_1D_TriggerPt[molt]=(TH1D*)fHistSelected_2D_TriggerPtPhi[molt]->ProjectionX("fHistSelected_1D_TriggerPt_"+ Smolt[molt]) ;
     fHistSelectedGen_1D_TriggerPt[molt]=(TH1D*)fHistSelectedGen_2D_TriggerPtPhi[molt]->ProjectionX("fHistSelectedGen_1D_TriggerPt_"+ Smolt[molt]) ; 
@@ -1241,23 +1355,35 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
     //per la particella di trigger - PtEta
     if(molt < nummolt){
       fHistSelectedTriggerPtEta->GetZaxis()->SetRange(fHistSelectedTriggerPtEta->GetZaxis()->FindBin(Nmolt[molt]+0.0001),fHistSelectedTriggerPtEta->GetZaxis()->FindBin(Nmolt[molt+1]-0.0001) );
+      if (isTriggEtaEff)       fHistSelectedAllTriggerPtEta->GetZaxis()->SetRange(fHistSelectedAllTriggerPtEta->GetZaxis()->FindBin(Nmolt[molt]+0.0001),fHistSelectedAllTriggerPtEta->GetZaxis()->FindBin(Nmolt[molt+1]-0.0001) );
       fHistGeneratedTriggerPtEta->GetZaxis()->SetRange(fHistGeneratedTriggerPtEta->GetZaxis()->FindBin(Nmolt[molt]+0.0001),fHistGeneratedTriggerPtEta->GetZaxis()->FindBin(Nmolt[molt+1]-0.0001) );
     }
     else{
       fHistSelectedTriggerPtEta->GetZaxis()->SetRange(0,100);
+      if (isTriggEtaEff) fHistSelectedAllTriggerPtEta->GetZaxis()->SetRange(0,100);
       fHistGeneratedTriggerPtEta->GetZaxis()->SetRange(0,100);
     }
     fHistSelected_2D_TriggerPtEta[molt] = (TH2D*)fHistSelectedTriggerPtEta->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis
+    if (isTriggEtaEff) fHistSelected_2D_AllTriggerPtEta[molt] = (TH2D*)fHistSelectedAllTriggerPtEta->Project3D("yxo"); //y is on the vertical axis, x along horizontal axis
     fHistGenerated_2D_TriggerPtEta[molt] = (TH2D*)fHistGeneratedTriggerPtEta->Project3D("yxo"); //y is on the vertical axis, x along horizontal axi
     fHistSelected_2D_TriggerPtEta[molt] ->SetName("fHistSelected_2D_TriggerPtEta_"+ Smolt[molt] );
+    if (isTriggEtaEff) fHistSelected_2D_AllTriggerPtEta[molt] ->SetName("fHistSelected_2D_AllTriggerPtEta_"+ Smolt[molt] );
     fHistGenerated_2D_TriggerPtEta[molt]->SetName("fHistGenerated_2D_TriggerPtEta_"+ Smolt[molt]);
+
     fHistTriggerEfficiencyPtEta[molt]= new TH2D("fHistTriggerEfficiencyPtEta_"+ Smolt[molt],"fHistTriggerEfficiencyPtEta_"+ Smolt[molt],fHistSelectedTriggerPtEta->GetNbinsX(),fHistSelectedTriggerPtEta->GetXaxis()->GetXmin(), fHistSelectedTriggerPtEta->GetXaxis()->GetXmax(),fHistSelectedTriggerPtEta->GetNbinsY(),fHistSelectedTriggerPtEta->GetYaxis()->GetBinLowEdge(1), fHistSelectedTriggerPtEta->GetYaxis()->GetBinUpEdge(fHistSelectedTriggerPtEta->GetNbinsY()) );
     fHistTriggerEfficiencyPtEta[molt]->GetXaxis()->SetTitle("p_{T}^{Trigg} (GeV/c)");      
     fHistTriggerEfficiencyPtEta[molt]->GetYaxis()->SetTitle("#phi_{Trigg}");      
+
+    if (isTriggEtaEff){
+      fHistAllTriggerEfficiencyPtEta[molt]= new TH2D("fHistAllTriggerEfficiencyPtEta_"+ Smolt[molt],"fHistAllTriggerEfficiencyPtEta_"+ Smolt[molt],fHistSelectedAllTriggerPtEta->GetNbinsX(),fHistSelectedAllTriggerPtEta->GetXaxis()->GetXmin(), fHistSelectedAllTriggerPtEta->GetXaxis()->GetXmax(),fHistSelectedAllTriggerPtEta->GetNbinsY(),fHistSelectedAllTriggerPtEta->GetYaxis()->GetBinLowEdge(1), fHistSelectedAllTriggerPtEta->GetYaxis()->GetBinUpEdge(fHistSelectedAllTriggerPtEta->GetNbinsY()) );
+      fHistAllTriggerEfficiencyPtEta[molt]->GetXaxis()->SetTitle("p_{T}^{Trigg} (GeV/c)");      
+      fHistAllTriggerEfficiencyPtEta[molt]->GetYaxis()->SetTitle("#phi_{Trigg}");      
+    }
     
     fHistSelected_2D_TriggerPtEta[molt] ->RebinX(2);   
     fHistSelected_2D_TriggerPtEta[molt] ->RebinY(10);   
-    
+
+    fHistGenerated_2D_TriggerPtEtaNotReb[molt] = (TH2D*)       fHistGenerated_2D_TriggerPtEta[molt] ->Clone("fHistGenerated_2D_TriggerPtEtaNotReb_"+ Smolt[molt]);
     if (type==6 && PtBinning==1)    fHistGenerated_2D_TriggerPtEta[molt]->RebinX(2);    
     else    if (type==6)    fHistGenerated_2D_TriggerPtEta[molt]->RebinX(2);    
     else fHistGenerated_2D_TriggerPtEta[molt]->RebinX(2);    //4?
@@ -1265,10 +1391,86 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
     
     fHistTriggerEfficiencyPtEta[molt]->RebinX(2);    
     fHistTriggerEfficiencyPtEta[molt]->RebinY(10);    
-    
+
     //    cout << fHistSelected_2D_TriggerPtEta[molt]->GetNbinsX() << " " << fHistGenerated_2D_TriggerPtEta[molt]->GetNbinsX() << endl;
     //    cout << fHistSelected_2D_TriggerPtEta[molt]->GetNbinsY() << " " << fHistGenerated_2D_TriggerPtEta[molt]->GetNbinsY() << endl;
     fHistTriggerEfficiencyPtEta[molt]->Divide(fHistSelected_2D_TriggerPtEta[molt], fHistGenerated_2D_TriggerPtEta[molt]); 
+
+    if (isTriggEtaEff){
+
+      fHistSelected_2D_AllTriggerPtEtaNotReb[molt] = (TH2D*)       fHistSelected_2D_AllTriggerPtEta[molt] ->Clone("fHistSelected_2D_TriggerPtEtaNotReb_"+ Smolt[molt]);
+      fHistSelected_2D_AllTriggerPtEta[molt] ->RebinX(2);   
+      fHistSelected_2D_AllTriggerPtEta[molt] ->RebinY(10);   
+      fHistAllTriggerEfficiencyPtEta[molt]->RebinX(2);    
+      fHistAllTriggerEfficiencyPtEta[molt]->RebinY(10);    
+      fHistAllTriggerEfficiencyPtEta[molt]->Divide(fHistSelected_2D_AllTriggerPtEta[molt], fHistGenerated_2D_TriggerPtEta[molt]); 
+
+      fHistSelected_2D_AllTriggerPtEtaBins[molt] = new TH2D("fHistSelected_2D_AllTriggerPtEtaBins_"+ Smolt[molt], "fHistSelected_2D_AllTriggerPtEtaBins_"+ Smolt[molt], numPtTrig, NPtTrig, numEtaTrigg, NEtaTrigg);
+      fHistGenerated_2D_TriggerPtEtaBins[molt] = new TH2D("fHistGenerated_2D_TriggerPtEtaBins_"+ Smolt[molt], "fHistGenerated_2D_TriggerPtEtaBins_"+ Smolt[molt], numPtTrig, NPtTrig, numEtaTrigg, NEtaTrigg);
+     
+      for  (Int_t eta =1; eta<= fHistSelected_2D_AllTriggerPtEtaBins[molt]->GetNbinsY(); eta++){
+	if (TMath::Abs(fHistSelected_2D_AllTriggerPtEtaNotReb[molt]->GetYaxis()->GetBinLowEdge(fHistSelected_2D_AllTriggerPtEtaNotReb[molt]->GetYaxis()->FindBin(NEtaTrigg[eta-1]+0.0001)) - fHistSelected_2D_AllTriggerPtEtaBins[molt]->GetYaxis()->GetBinLowEdge(eta))> 0.0001) {cout << "the eta bins chosen are not multiples of the original bins" << endl; return;}
+	for (Int_t pt=1; pt<=  fHistSelected_2D_AllTriggerPtEtaBins[molt]->GetNbinsX(); pt++){
+	  Float_t bincSel=0;
+	  Float_t bincGen=0;
+	  if (TMath::Abs(fHistSelected_2D_AllTriggerPtEtaNotReb[molt]->GetXaxis()->GetBinLowEdge(fHistSelected_2D_AllTriggerPtEtaNotReb[molt]->GetXaxis()->FindBin(NPtTrig[pt-1]+0.0001)) - fHistSelected_2D_AllTriggerPtEtaBins[molt]->GetXaxis()->GetBinLowEdge(pt)) > 0.0001) {cout << "the pt bins chosen are not multiples of the original bins" << endl; return;}
+
+	  for (Int_t subeta =fHistSelected_2D_AllTriggerPtEtaNotReb[molt]->GetYaxis()->FindBin(fHistSelected_2D_AllTriggerPtEtaBins[molt]->GetYaxis()->GetBinLowEdge(eta)+0.0001); subeta <=fHistSelected_2D_AllTriggerPtEtaNotReb[molt]->GetYaxis()->FindBin(fHistSelected_2D_AllTriggerPtEtaBins[molt]->GetYaxis()->GetBinUpEdge(eta)-0.0001); subeta++){
+	    //cout << "eta low edge " << fHistSelected_2D_AllTriggerPtEtaBins[molt]->GetYaxis()->GetBinLowEdge(eta) << endl;
+	    for (Int_t subpt =fHistSelected_2D_AllTriggerPtEtaNotReb[molt]->GetXaxis()->FindBin(fHistSelected_2D_AllTriggerPtEtaBins[molt]->GetXaxis()->GetBinLowEdge(pt)+0.0001); subpt <=fHistSelected_2D_AllTriggerPtEtaNotReb[molt]->GetXaxis()->FindBin(fHistSelected_2D_AllTriggerPtEtaBins[molt]->GetXaxis()->GetBinUpEdge(pt)-0.0001); subpt++){
+	      bincSel += fHistSelected_2D_AllTriggerPtEtaNotReb[molt]->GetBinContent(fHistSelected_2D_AllTriggerPtEtaNotReb[molt]->GetBin(subpt, subeta));
+	      bincGen += fHistGenerated_2D_TriggerPtEtaNotReb[molt]->GetBinContent(fHistGenerated_2D_TriggerPtEtaNotReb[molt]->GetBin(subpt, subeta));
+	    }
+	  }
+	  fHistSelected_2D_AllTriggerPtEtaBins[molt]->SetBinContent(fHistSelected_2D_AllTriggerPtEtaBins[molt]->GetBin(pt,eta), bincSel);
+	  fHistGenerated_2D_TriggerPtEtaBins[molt]->SetBinContent(fHistGenerated_2D_TriggerPtEtaBins[molt]->GetBin(pt,eta), bincGen);
+	  //cout << " bin : " <<  fHistSelected_2D_AllTriggerPtEtaBins[molt]->GetXaxis()->GetBinCenter(pt)<< " (pt) " <<  fHistSelected_2D_AllTriggerPtEtaBins[molt]->GetYaxis()->GetBinCenter(eta) << " (eta) " <<fHistSelected_2D_AllTriggerPtEtaBins[molt]->GetBinContent(fHistSelected_2D_AllTriggerPtEtaBins[molt]->GetBin(pt,eta))<< endl;
+	}
+      }
+
+      fHistAllTriggerSelectedPtBins[molt] = (TH1F*)fHistSelected_2D_AllTriggerPtEtaBins[molt]->ProjectionX("fHistAllTriggerSelectedPtBins_"+ Smolt[molt], fHistSelected_2D_AllTriggerPtEtaBins[molt]->GetYaxis()->FindBin(-0.799), fHistSelected_2D_AllTriggerPtEtaBins[molt]->GetYaxis()->FindBin(0.799));
+      fHistAllTriggerGeneratedPtBins[molt] = (TH1F*)fHistGenerated_2D_TriggerPtEtaBins[molt]->ProjectionX("fHistTriggerGeneratedPtBins_"+ Smolt[molt], fHistGenerated_2D_TriggerPtEtaBins[molt]->GetYaxis()->FindBin(-0.799), fHistGenerated_2D_TriggerPtEtaBins[molt]->GetYaxis()->FindBin(0.799));
+      fHistAllTriggerEfficiencyPtBins[molt] = (TH1F*) fHistAllTriggerSelectedPtBins[molt]->Clone("fHistAllTriggerEfficiencyPtBins_"+ Smolt[molt]);
+      fHistAllTriggerEfficiencyPtBins[molt]->Divide(fHistAllTriggerGeneratedPtBins[molt]);
+      fHistAllTriggerEfficiencyPtBins[molt] ->SetTitle("Trigger particle efficiency");
+      fHistAllTriggerEfficiencyPtBins[molt] ->GetXaxis() -> SetTitle("p_{T} (GeV/c)");
+      fHistAllTriggerEfficiencyPtBins[molt] ->GetYaxis() -> SetRangeUser(0,1);
+      fHistAllTriggerEfficiencyPtBins[molt]->SetLineColor(Color[molt]);
+      fHistAllTriggerEfficiencyPtBins[molt]->SetMarkerColor(Color[molt]);
+      fHistAllTriggerEfficiencyPtBins[molt]->SetMarkerStyle(33);
+
+      fHistAllTriggerEfficiencyPtEtaBins[molt] = (TH2D*)fHistSelected_2D_AllTriggerPtEtaBins[molt]->Clone("fHistAllTriggerEfficiencyPtEtaBins_"+ Smolt[molt]);
+      cout << " efficiency pt vs eta in pt bins " << endl;
+      fHistAllTriggerEfficiencyPtEtaBins[molt] ->Divide(fHistGenerated_2D_TriggerPtEtaBins[molt]);
+      fHistAllTriggerEfficiencyPtEtaBins[molt] ->SetTitle("trigger particle efficiency in mult. class "+ SmoltLegend[molt]);
+      fHistAllTriggerEfficiencyPtEtaBins[molt] ->GetXaxis() -> SetTitle("p_{T} (GeV/c)");
+      fHistAllTriggerEfficiencyPtEtaBins[molt] ->GetYaxis() -> SetTitle("#eta");
+      fHistAllTriggerEfficiencyPtEtaBins[molt] ->GetXaxis()->SetTitleOffset(0.8);
+      fHistAllTriggerEfficiencyPtEtaBins[molt] ->GetXaxis()->SetTitleSize(0.05);
+      fHistAllTriggerEfficiencyPtEtaBins[molt] ->GetYaxis()->SetTitleOffset(1);
+      fHistAllTriggerEfficiencyPtEtaBins[molt] ->GetYaxis()->SetTitleSize(0.05);
+      //      fHistAllTriggerEfficiencyPtEtaBins[molt] ->GetYaxis()->SetRangeUser(-0.798, 0.798);
+      //      fHistAllTriggerEfficiencyPtEtaBins[molt] ->GetZaxis()->SetRangeUser(0, 1);
+      for (Int_t pt =1; pt<= fHistSelected_2D_AllTriggerPtEtaBins[molt]->GetNbinsX(); pt++){
+	fHistAllTriggerEfficiencyPtBins[molt]->SetBinError(pt, SetEfficiencyError(fHistAllTriggerSelectedPtBins[molt]->GetBinContent(pt), fHistAllTriggerGeneratedPtBins[molt]->GetBinContent(pt)));
+	for  (Int_t eta =1; eta<= fHistSelected_2D_AllTriggerPtEtaBins[molt]->GetNbinsY(); eta++){
+	  Int_t bin = fHistAllTriggerEfficiencyPtEtaBins[molt]->GetBin(pt, eta);
+	  fHistAllTriggerEfficiencyPtEtaBins[molt]->SetBinError(bin, SetEfficiencyError(fHistSelected_2D_AllTriggerPtEtaBins[molt]->GetBinContent(bin), fHistGenerated_2D_TriggerPtEtaBins[molt]->GetBinContent(bin))); 
+	}
+      }
+   
+      canvasTriggerPtEff->cd();
+      fHistAllTriggerEfficiencyPtBins[molt]->Draw("same ep");
+      legenddown->Draw("");
+
+      if (isHM && MultBinning==1)      canvasTriggerPtEtaEff->cd(molt+1-2);
+      else if (MultBinning==3)  {
+	if (molt<=1)	canvasTriggerPtEtaEff->cd(molt+1);
+	else 	canvasTriggerPtEtaEff->cd(3);
+      }
+      else  canvasTriggerPtEtaEff->cd(molt+1);
+      fHistAllTriggerEfficiencyPtEtaBins[molt]->Draw("colz");
+    }
 
     cout << "here I am "<< endl;
     
@@ -1724,7 +1926,9 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
     cout << "eff2D " <<     fHistV0EfficiencyPt[molt]->GetNbinsX() <<   endl;
 
     fHistV0EfficiencyPt[molt]->Divide(fHistSelected_1D_V0Pt[molt],  fHistGenerated_1D_V0Pt[molt]);
-
+    for (Int_t b=1; b<= fHistV0EfficiencyPt[molt]->GetNbinsX(); b++){
+      fHistV0EfficiencyPt[molt]->SetBinError(b, SetEfficiencyError(fHistSelected_1D_V0Pt[molt]->GetBinContent(b), fHistGenerated_1D_V0Pt[molt]->GetBinContent(b)));
+    }
     /*
       cout << "\n\n\n*************************" << endl;
       cout <<   fHistSelected_2D_V0PtPtTMax[molt]->GetYaxis()->FindBin(1+0.0001)<< endl;
@@ -2315,12 +2519,29 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
     canvasV0EffEtaRegionRatio->SaveAs(PathOutCanvas+"_EffEtaRegionsRatio.pdf");
     canvasV0EffEtaRegionRelErr->SaveAs(PathOutCanvas+"_EffEtaRegionsRelErr.pdf");
   }
-
+  if (isTriggEtaEff){
+    fileoutbis->WriteTObject(canvasTriggerPtEtaEff);
+    fileoutbis->WriteTObject(canvasTriggerPtPhiEff);
+    fileoutbis->WriteTObject(canvasTriggerPhiEff);
+    fileoutbis->WriteTObject(canvasTriggerPtEff);
+    canvasTriggerPtPhiEff->SaveAs(PathOutCanvas+"_EffTriggPhi2D.pdf");
+    canvasTriggerPtEtaEff->SaveAs(PathOutCanvas+"_EffTriggEta2D.pdf");
+    canvasTriggerPhiEff->SaveAs(PathOutCanvas+"_EffTriggPhi.pdf");
+    canvasTriggerPtEff->SaveAs(PathOutCanvas+"_EffTriggPt.pdf");
+  }
   for(Int_t m=0; m<nummolt+1; m++){
     //    if (m==0) continue;
     if (isHM && MultBinning==1 && m<2) continue;
     fHistTriggerEfficiencyPtPhi[m]->Write();
     fHistTriggerEfficiencyPtEta[m]->Write();
+    if (isTriggEtaEff) {
+      fHistAllTriggerEfficiencyPtPhi[m]->Write();
+      fHistAllTriggerEfficiencyPtEta[m]->Write();
+      fHistAllTriggerEfficiencyPtEtaBins[m]->Write();
+      fHistAllTriggerEfficiencyPtBins[m]->Write();
+      fHistSelected_2D_AllTriggerPtEtaBins[m]->Write();
+      fHistGenerated_2D_TriggerPtEtaBins[m]->Write();
+    }
     fHistSelected_1D_TriggerPt[m]->Write();
     fHistSelectedGen_1D_TriggerPt[m]->Write();
     fHistGenerated_1D_TriggerPt[m]->Write();
@@ -2384,7 +2605,7 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
 
   }
   fileoutbis->Close();
-    
+
   TCanvas *TriggerEfficiencyC = new TCanvas("triggeredff", "triggereff", 800, 600);
   TriggerEfficiencyC->cd();
   HistoTriggerEfficiency->GetXaxis()->SetTitle("Multiplicity class");

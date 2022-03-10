@@ -17,8 +17,21 @@
 #include <TFile.h>
 #include <TLegend.h>
 
-void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_t indexsysTrigger=0,Bool_t ishhCorr=0, Int_t sys=0, Bool_t SkipAssoc=1, Float_t ptjmin=3,  Float_t PtTrigMinFit=3, Int_t sysV0=0,Int_t type=8 /*0 = K0s, 8 = Xi*/,  Int_t israp=0, Bool_t isMC=0, Bool_t isEfficiency=0, TString yearME=/*"161718_HM_hXi"*/"161718Full_AOD234_hXi"/*"17pq_pp5TeV_hXi_pttrig0.15"/"17pq_hK0s"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"/*"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/*"2018f1_extra_Mylabel_15runs_hK0s_Hybrid"/*"2016k_HM_hK0s"/"1617_hK0s"/*"161718_MD_hXi_Hybrid_MCTruth"/*"2018f1g4_extra_hXi_Hybrid_MCTruth"/"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018g4_extra_EtaEff_hK0s_MCEff"*/, TString year= /*"161718_HM_hXi"*/"161718Full_AOD234_hXi"/*"17pq_pp5TeV_hXi_pttrig0.15"/"17pq_hXi"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"/*"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"//"2016k_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617_hK0s"/*"2018g4_extra_EtaEff_hK0s"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/"161718_MD_EtaEff_hXi"/*"LHC16_17_GP_Hybrid_hXi"/*"2018f1g4_extra_hXi"/"2018g4_extra_hXi_SelTrigger"/*_15runsBis"/"1617_hK0s"/*AllMC_hXi"/"2018f1_extra_hK0s"/*"2016k_hK0s"/*"2016k_MECorr"/"Run2DataRed_MECorr_hXi"/*/, TString yearMC="161718Full_AOD235_hXi"/*"1617GP_hK0s_Hybrid_New" /"17pq_pp5TeV_Hybrid"/*"1617_GP_AOD235_With18c12b"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/*"1617GP_hK0s"/*"1617_GP_AOD235"/*"1617_GP_AOD235_With18c12b"/*"161718_hXi"/*"17pq_hK0s"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/*""//*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/"2019h11c_extra_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617MC_hK0s"/"2018g4_extra_EtaEff_hK0s"/*"161718_MD_EtaEff_hXi"/"2018f1g4_extra_hXi"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/*"161718_MD_hXi_Hybrid"/*"LHC16_17_GP_Hybrid_hXi"/*"17d20bEPOS_hK0s"/"2018g4_extra_hXi_SelTrigger"/*"1617MC_hK0s"/"AllMC_hXi"/*"1617GP_hXi"/*"2016kl_hXi"/*"2018f1_extra_MECorr"/"2018f1_extra_Hybrid_hK0s"/*"17d20bEPOS_hXi"*/,  TString Path1 =""/*"_PtTrigMax2.5"/*"_NewMultClassBis"*/, TString Dir ="FinalOutput/",  Float_t ptjmax=15, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Int_t MultBinning=0, Int_t PtBinning=0, Bool_t isSysDef=1, Bool_t isDefaultSel=0, Bool_t IsPtTrigMultDep=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsParticleTrue=0, Bool_t IsEfficiencyMassSel=0, Bool_t isSidebands=0,  Bool_t isMEFromHybrid=0, Bool_t isMEFromCorrectCentrality = 0, Bool_t isEtaEff=1, Bool_t isMEFromK0s=0, Bool_t isNewInputPath=1, Bool_t isHM=0, Bool_t isAllDeltaEta=0, Bool_t isMEFromPeak=0,  Bool_t isMEFromHM=0){ 
+void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAssoc=0, Float_t ptjmin=3,  Float_t PtTrigMinFit=3, Int_t sysV0=0,Int_t type=0 /*0 = K0s, 8 = Xi*/,  Int_t israp=0, Bool_t isMC=1, Bool_t isEfficiency=1, TString yearME="16kl_hK0s"/*_Hybrid"/*"2019h11_HM_hK0s"/*"161718_hXi"/"1617_GP_hK0s"/"AllhK0sHM_RedNo16k"/"161718_HM_hXi_WithFlat16k_No18p"/*"161718Full_AOD234_hXi"/*"17pq_pp5TeV_hXi_pttrig0.15"/"17pq_hK0s"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"*//*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"/"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/*"2018f1_extra_Mylabel_15runs_hK0s_Hybrid"/*"2016k_HM_hK0s"/"1617_hK0s"/*"161718_MD_hXi_Hybrid_MCTruth"/*"2018f1g4_extra_hXi_Hybrid_MCTruth"/"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018g4_extra_EtaEff_hK0s_MCEff"*/, TString year="16kl_hK0s"/*"2019h11_HM_hK0s"/*"161718_hXi"/"1617_GP_hK0s"/ "17pq_hK0s"/"AllhK0sHM_RedNo16k"/"161718_HM_hXi_WithFlat16k_No18p"/*"161718Full_AOD234_hXi"/*"17pq_pp5TeV_hXi_pttrig0.15"/"17pq_hXi"/*"17pq_pp5TeV_Hybrid"/*"1617_AOD234_hK0s"/"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"/"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"//"2016k_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617_hK0s"/*"2018g4_extra_EtaEff_hK0s"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/"161718_MD_EtaEff_hXi"/*"LHC16_17_GP_Hybrid_hXi"/*"2018f1g4_extra_hXi"/"2018g4_extra_hXi_SelTrigger"/*_15runsBis"/"1617_hK0s"/*AllMC_hXi"/"2018f1_extra_hK0s"/*"2016k_hK0s"/*"2016k_MECorr"/"Run2DataRed_MECorr_hXi"/*/, TString yearMC="16kl_hK0s"/*"2019h11_HM_hK0s"/*"161718_hXi"/*"161718Full_AOD235_hXi"/*"1617GP_hK0s_Hybrid_New" /"17pq_pp5TeV_Hybrid"/*"1617_GP_AOD235_With18c12b"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/*"1617GP_hK0s"/*"1617_GP_AOD235"/*"1617_GP_AOD235_With18c12b"/*"161718_hXi"/*"17pq_hK0s"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/*""//*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/"2019h11c_extra_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617MC_hK0s"/"2018g4_extra_EtaEff_hK0s"/*"161718_MD_EtaEff_hXi"/"2018f1g4_extra_hXi"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/*"161718_MD_hXi_Hybrid"/*"LHC16_17_GP_Hybrid_hXi"/*"17d20bEPOS_hK0s"/"2018g4_extra_hXi_SelTrigger"/*"1617MC_hK0s"/"AllMC_hXi"/*"1617GP_hXi"/*"2016kl_hXi"/*"2018f1_extra_MECorr"/"2018f1_extra_Hybrid_hK0s"/*"17d20bEPOS_hXi"*/,  TString Path1 =""/*"_PtTrigMax2.5"/*"_NewMultClassBis"*/, TString yearMCTrigEff="18f1_extra_EffTrigger_5runs",  TString Dir ="FinalOutput/",  Float_t ptjmax=15, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Int_t MultBinning=0, Int_t PtBinning=1, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t IsPtTrigMultDep=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsParticleTrue=0, Bool_t IsEfficiencyMassSel=0, Bool_t isSidebands=0, Bool_t isMESBFromPeak =0,  Bool_t isMEFromHybrid=1, Bool_t isMEFromCorrectCentrality = 0, Bool_t isEtaEff=1, Bool_t isMEFromK0s=0, Bool_t isNewInputPath=1, Bool_t isHM=0,  Bool_t isNewdEtaJet =1, Bool_t isSysPurity =0, Int_t VarRange = 0, Bool_t isMCForNorm=0, Bool_t isTrigEff =1){ 
 
+  Int_t sysTrigger=0;
+  Int_t indexsysTrigger=0;
+  Bool_t ishhCorr=0;
+  Int_t SidebandsSide =0;
+  /*  
+  if (isSidebands) {
+    cout << "Do you want to use the left + right sidebands (0), the left one only (1), or the right one only (2)?" << endl;
+    cin >> SidebandsSide;
+  }
+  */
+  Bool_t isAllDeltaEta=0;
+  Bool_t isMEFromPeak=0;
+  Bool_t isMEFromHM=0;
   Bool_t isMEFrom13TeV=0;
 
 
@@ -59,8 +72,10 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
   //  gStyle->SetOptStat(0);
 
   //lista degli effetti  sistematici studiati in questa macro
-  if (type>0 && sys==5 && ptjmin==3) {cout << "enlargening of DeltaEta region for bulk is posible only for K0s " << endl; return;}
-  if (sys==3 || sys>6) return;
+  if (type>0 && sys==5 && ptjmin==3) {cout << "enlargening of DeltaEta region for bulk is posible only for K0s; anyway, run it! It is useful to store information on dEta choice of *Jet* region for sys=5. For Xi, sys = 5 is only used for jet production and it consists in: Jet dEta as default, OOJ dEta larger but *taken from Low pt triggered* events " << endl; 
+    //  return;
+  }
+  if (sys==3 || sys>8) return;
   if (sysV0>6)return;
   if (ishhCorr && sys<4 && sys!=0) return; //se faccio correlazione hh non posso studiare sistematico associato a scelta regione Sidebands e peak nella distribuzione di massa invariante
   if (sysV0>2 && ishhCorr) return;
@@ -80,6 +95,10 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
  
   Float_t JetValue=0.84;
   Float_t JetValueDefault=0.84; //questo valore è indipendente dalla scelta del valore di sys ed è il valore per cui viene diviso lo yield nel jet, in modo da essere confrontatato con lo yield OJ e JOJ
+  if (isNewdEtaJet){
+    JetValue = 0.9;
+    JetValueDefault = 0.84;
+  }
 
   if (ishhCorr || (!ishhCorr && isEnlargedDeltaEtaPhi)) {//rendo ampiezza Jet uguale per hh e hK0s (l'output di hK0s è nel file DeltaEtaPhiEnlarged)
     JetValueDefault =1.;
@@ -87,8 +106,20 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
     else  if (sys==4) JetValue=0.9;
   }
   else {
-    if (sys==4) JetValue=0.9;
+    if (sys==4) {
+      JetValue=0.9;
+      if (isMC && !isEfficiency && !isMCForNorm) {
+	if (type==8) 	JetValue=1;  //pt dependent!
+      }
+    }
     if (sys==6) JetValue=0.74;
+    if (sys==7) JetValue=0.9;
+    if (isNewdEtaJet){
+      if (sys==4) JetValue=0.9;
+      if (sys==6) JetValue=0.84;
+      if (sys==7) JetValue=1;
+      if (sys==8) JetValue=1.1;
+    }
   }
 
 
@@ -102,28 +133,56 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
 
   //InclusiveLowValue=0; // for asymmetric DeltaEta interval
   //  InclusiveUpValue=0-0.001; // for asymmetric DeltaEta interval
+  if (isNewdEtaJet){
+    BulkLowValue = 0.9;
+    BulkUpValue = 1.1;
+    if (sys==4) {
+      BulkLowValue = 0.9;
+      BulkUpValue = 1.25;
+    }
+    else if (sys==6){
+      BulkLowValue = 0.84;
+      BulkUpValue = 1.25;
+    }
+    else if (sys==7){
+      BulkLowValue = 1;
+      BulkUpValue = 1.25;
+    }
+    else if (sys==8){
+      BulkLowValue = 1.1;
+      BulkUpValue = 1.35;
+    }
+  }
+  else {
+    if (sys==4 && !ishhCorr){
+      BulkLowValue=0.9;
+      BulkUpValue=1.1;
+      if (isMC && !isEfficiency && !isMCForNorm){
+	if (type==8){
+	  BulkLowValue = 1;
+	  BulkUpValue = 1.25;
+	}
+      }
+      //BulkUpValue=1.25;
+    }
+    else if (sys==5 && !ishhCorr){
+      BulkUpValue=1.25;
+    }
+    else if (sys==6 && !ishhCorr){
+      BulkLowValue=0.74;
+    }
+    else if (sys==7 && !ishhCorr){
+    }
 
-  if (sys==4 && !ishhCorr){
-    BulkLowValue=0.9;
-    BulkUpValue=1.1;
-    //BulkUpValue=1.25;
+    if ((sys==0 || sys==4) && ishhCorr){
+      BulkLowValue=1.05;
+      BulkUpValue=1.3;
+    }
+    if (sys==5 && ishhCorr){
+      BulkLowValue=1.15;
+      BulkUpValue=1.4;
+    }
   }
-  if (sys==5 && !ishhCorr){
-    BulkUpValue=1.25;
-  }
-  if (sys==6 && !ishhCorr){
-    BulkLowValue=0.74;
-  }
-
-  if ((sys==0 || sys==4) && ishhCorr){
-    BulkLowValue=1.05;
-    BulkUpValue=1.3;
-  }
-  if (sys==5 && ishhCorr){
-    BulkLowValue=1.15;
-    BulkUpValue=1.4;
-  }
-
   Dir+="DATA"+year0;
   TString file = year;
   TString file2 = year;
@@ -142,11 +201,13 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
   Int_t MC=0;
   if (isMC) MC=1;
 
+  TString BkgType[2]={"_BkgRetta", "_BkgParab"};
   TString PathIn;
   TString PathME;
   TString PathInME;
   PathIn= Dir+"/histo/AngularCorrelation" + file;
   PathME= Dir+"/histo/AngularCorrelation" + yearME;
+  if (isMEFromHybrid)    PathME +="_MCTruth";
   if (PtBinning>0)  PathME+=Form("_PtBinning%i",PtBinning);
   //  if (isMC && !isEfficiency)PathIn+="_MCTruth";
   if (PtBinning>0)    PathIn+=Form("_PtBinning%i",PtBinning);
@@ -170,10 +231,17 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
   }
 
   if (isSysDef){
-    if(isSysDef && isDefaultSel)    PathInME =PathME + Form("_SysT%i_SysV0Default_Sys%i_PtMin%.1f", sysTrigger,sysang, PtTrigMin);   
+    if (isMEFrom13TeV)    PathInME =PathME + Form("_SysT%i_SysV00_Sys%i_PtMin%.1f", sysTrigger,sysang, PtTrigMin);   
+    else if(isSysDef && isDefaultSel)    PathInME =PathME + Form("_SysT%i_SysV0Default_Sys%i_PtMin%.1f", sysTrigger,sysang, PtTrigMin);   
+    //    if (isSysDef && isDefaultSel)    PathInME =PathME + Form("_SysT%i_SysV00_Sys%i_PtMin%.1f", sysTrigger,sysang, PtTrigMin);   
     else  if(isSysDef && isLoosest)    PathInME = PathME + Form("_SysT%i_SysV0Loosest_Sys%i_PtMin%.1f", sysTrigger,sysang, PtTrigMin);
     else  if(isSysDef && isTightest)    PathInME = PathME  + Form("_SysT%i_SysV0Tightest_Sys%i_PtMin%.1f", sysTrigger,sysang, PtTrigMin);
-    else if(isSysDef && !isDefaultSel &&sysTrigger==0)    PathInME = PathME + Form("_SysT%i_SysV0index%i_Sys%i_PtMin%.1f", sysTrigger, indexSysV0, sysang, PtTrigMin);
+    else if(isSysDef && !isDefaultSel &&sysTrigger==0)  {
+      if (isHM) PathInME = PathME + Form("_SysT%i_SysV0Default_Sys%i_PtMin%.1f", sysTrigger, sysang, PtTrigMin);
+      else if (MultBinning==0 && type == 8) PathInME = PathME + Form("_SysT%i_SysV0indexBis%i_Sys%i_PtMin%.1f", sysTrigger, indexSysV0, sysang, PtTrigMin);
+      else if (MultBinning==0 && type==0)  PathInME = PathME + Form("_SysT%i_SysV00_Sys%i_PtMin%.1f", sysTrigger, sysang, PtTrigMin);
+      else PathInME = PathME + Form("_SysT%i_SysV0index%i_Sys%i_PtMin%.1f", sysTrigger, indexSysV0, sysang, PtTrigMin);
+    }
     else if(isSysDef && !isDefaultSel &&sysTrigger==1)    PathInME = PathME + Form("_SysTindex%i_SysV0%i_Sys%i_PtMin%.1f", indexsysTrigger, 0, sysang, PtTrigMin);
   }
   else if (!isMEFromHybrid && !isMEFromK0s && !isMEFromHM) {
@@ -198,18 +266,26 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
   //  PathInME+= "_DCAz0.5";
   //  PathInME+= "_isPrimaryTrigger";
 
-  if (isEtaEff) PathInME += "_isEtaEff";
+  //  PathInME += "_Try1";
+  if (SidebandsSide ==1) PathInME+= "_LeftSB";
+  else if (SidebandsSide ==2) PathInME+= "_RightSB";
+  if (isEtaEff && !isMEFromHybrid) PathInME += "_isEtaEff";
+  if (isTrigEff)  PathInME += "_isTrigEff";
+  if (isBkgParab) PathInME += BkgType[isBkgParab];
   if (isMEFromHM) PathInME += "_MultBinning1";
   //PathInME += "_isEtaEff";
-  if (MultBinning!=0) PathInME += Form("_MultBinning%i", MultBinning);
+  if (MultBinning!=0 && !isMEFrom13TeV) PathInME += Form("_MultBinning%i", MultBinning);
+  //  if (isSysPurity && isBkgParab) PathInME += BkgType[isBkgParab];
+  if (VarRange!=0) PathInME += Form("_VarRange%i", VarRange);
   //  PathInME += "_AllEff2019";
   //  PathInME+="_EPOS";
+  if (isMC && !isEfficiency &&!isMCForNorm) PathInME += "_MCPrediction";
   PathInME += ".root";
 
   if(isSysDef && isDefaultSel)    PathIn+= Form("_SysT%i_SysV0Default_Sys%i_PtMin%.1f", sysTrigger,sysang, PtTrigMin);
   else  if(isSysDef && isLoosest)    PathIn+= Form("_SysT%i_SysV0Loosest_Sys%i_PtMin%.1f", sysTrigger,sysang, PtTrigMin);
   else  if(isSysDef && isTightest)    PathIn+= Form("_SysT%i_SysV0Tightest_Sys%i_PtMin%.1f", sysTrigger,sysang, PtTrigMin);
-  else if(isSysDef && !isDefaultSel &&sysTrigger==0)    PathIn+= Form("_SysT%i_SysV0index%i_Sys%i_PtMin%.1f", sysTrigger, indexSysV0, sysang, PtTrigMin);
+  else if(isSysDef && !isDefaultSel &&sysTrigger==0)    PathIn+= Form("_SysT%i_SysV0indexBis%i_Sys%i_PtMin%.1f", sysTrigger, indexSysV0, sysang, PtTrigMin);
   else if(isSysDef && !isDefaultSel &&sysTrigger==1)    PathIn+= Form("_SysTindex%i_SysV0%i_Sys%i_PtMin%.1f", indexsysTrigger, 0, sysang, PtTrigMin);
   else  {
     PathIn+= Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f", sysTrigger, sysV0, sysang, PtTrigMin);
@@ -221,11 +297,18 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
     //    PathIn+= "_DCAz0.5";
     //    PathIn+= "_isPrimaryTrigger";
   }
+  //  PathIn += "_Try1";
+  if (SidebandsSide ==1) PathIn+= "_LeftSB";
+  else if (SidebandsSide ==2) PathIn+= "_RightSB";
   if (isEtaEff) PathIn += "_isEtaEff";
-  //PathIn += "_isEtaEff";
+  if (isTrigEff)  PathIn += "_isTrigEff";
+  if (isBkgParab) PathIn += BkgType[isBkgParab];
   if (MultBinning!=0) PathIn += Form("_MultBinning%i", MultBinning);
+  //  if (isSysPurity && isBkgParab) PathIn += BkgType[isBkgParab];
+  if (VarRange!=0) PathIn += Form("_VarRange%i", VarRange);
   //    PathIn+= "_AllEff2019";
   //  PathIn+="_EPOS";
+  if (isMC && !isEfficiency &&!isMCForNorm) PathIn += "_MCPrediction";
   PathIn+=".root";
 
   if (MasterThesisAnalysis){
@@ -260,18 +343,19 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
     if (ishhCorr)     PathInEfficiency +="_hhCorr";
   }
 
-  if (isSysDef && isDefaultSel)   PathInEfficiency+= Form("_SysT%i_SysV0Default_PtMin%.1f.root", sysTrigger, PtTrigMin);
-  else   if (isSysDef && isLoosest)   PathInEfficiency+= Form("_SysT%i_SysV0Loosest_PtMin%.1f.root", sysTrigger, PtTrigMin);
-  else   if (isSysDef && isTightest)   PathInEfficiency+= Form("_SysT%i_SysV0Tightest_PtMin%.1f.root", sysTrigger, PtTrigMin);
-  else if(isSysDef && !isDefaultSel && sysTrigger==0)   PathInEfficiency+= Form("_SysT%i_SysV0index%i_PtMin%.1f.root", sysTrigger, indexSysV0, PtTrigMin);
-  else if(isSysDef && !isDefaultSel && sysTrigger==1)   PathInEfficiency+= Form("_SysTindex%i_SysV0%i_PtMin%.1f.root", indexsysTrigger, 0, PtTrigMin);
+  if (isSysDef && isDefaultSel)   PathInEfficiency+= Form("_SysT%i_SysV0Default_PtMin%.1f", sysTrigger, PtTrigMin);
+  else   if (isSysDef && isLoosest)   PathInEfficiency+= Form("_SysT%i_SysV0Loosest_PtMin%.1f", sysTrigger, PtTrigMin);
+  else   if (isSysDef && isTightest)   PathInEfficiency+= Form("_SysT%i_SysV0Tightest_PtMin%.1f", sysTrigger, PtTrigMin);
+  else if(isSysDef && !isDefaultSel && sysTrigger==0)   PathInEfficiency+= Form("_SysT%i_SysV0index%i_PtMin%.1f", sysTrigger, indexSysV0, PtTrigMin);
+  else if(isSysDef && !isDefaultSel && sysTrigger==1)   PathInEfficiency+= Form("_SysTindex%i_SysV0%i_PtMin%.1f", indexsysTrigger, 0, PtTrigMin);
   else {
     PathInEfficiency+= Form("_SysT%i_SysV0%i_PtMin%.1f", sysTrigger, sysV0, PtTrigMin);
-    if (IsPtTrigMultDep)    PathInEfficiency+= "_IsPtTrigMultDep";
-    if (IsEfficiencyMassSel)    PathInEfficiency+= "_isEfficiencyMassSel";
-    if (MultBinning!=0) PathInEfficiency += Form("_MultBinning%i", MultBinning);
-    PathInEfficiency+= ".root";
   }
+  if (IsPtTrigMultDep)    PathInEfficiency+= "_IsPtTrigMultDep";
+  if (IsEfficiencyMassSel)    PathInEfficiency+= "_isEfficiencyMassSel";
+  if (MultBinning!=0) PathInEfficiency += Form("_MultBinning%i", MultBinning);
+  PathInEfficiency+= ".root";
+
   //  if (ishhCorr) PathInEfficiency = Dir+ "/Efficiency/Efficiency" +fileMC  +"_hhCorr" + Path1+ Form("_SysT%i_SysV0%i_PtMin%.1f", sysTrigger, sysV0, PtTrigMin)+".root";
   if (MasterThesisAnalysis) PathInEfficiency = Dir+ "/Efficiency/Efficiency" +fileMC  +Form("_MCEff_Efficiency_SysT%i_SysV0%i", sysTrigger, sysV0)+".root";
  
@@ -329,15 +413,15 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
       else if (isMC && isEfficiency){
 	ContainerName = "_hK0s_Task_RecoAndEfficiency"; 
       }
-      //      else ContainerName = "_hK0s_Task_Default"; 
+      //else ContainerName = "_hK0s_Task_Default"; 
       else ContainerName = "_hK0s_Task_"; 
     }
     else {
       //      if (year.Index("New")!=-1)  	ContainerName="_h" + tipo[type] +"_Task_MCTruth"; 
       if (year.Index("New")!=-1)  	ContainerName="_h" + tipo[type] +"_Task_Hybrid"; 
       else if (year.Index("Hybrid")!=-1)  ContainerName = "_hXi_Task_Hybrid"; 
-      //      else if (isMC && !isEfficiency) ContainerName = "_hXi_Task_MCTruth"; 
-      else if (isMC && !isEfficiency) ContainerName = "_hXi_Task_Truth"; 
+      //      else if (isMC && !isEfficiency) ContainerName = "_hXi_Task_Truth"; 
+      else if (isMC && !isEfficiency && type==8) ContainerName = "_hXi_Task_MCTruth"; 
       //else ContainerName = "_hXi_Task"; 
       else  {
 	ContainerName="_hXi_Task_";
@@ -408,11 +492,11 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
   const Int_t numSB=2;
   Int_t PtV0Min=1; //el 1
   if (!ishhCorr && type==0) PtV0Min=0;
+  if (isMC && !isEfficiency && !isMCForNorm) PtV0Min =0;
 
   Int_t Marker[nummolt+1]={7,4,20,22,29,28};
   Int_t Color[nummolt+1]={2,3,4,6,7, 9};
-  TString BkgType[2]={"BkgRetta", "BkgParab"};
-  TString MassFixedPDG[2]={"", "isMeanFixedPDG_"};
+  TString MassFixedPDG[2]={"", "isMeanFixedPDG"};
 
   Float_t ScaleFactor[nummolt+1][numzeta][numPtV0][numPtTrigger]={0};
   Float_t ScaleFactorBulk[nummolt+1][numzeta][numPtV0][numPtTrigger]={0}; 
@@ -486,7 +570,10 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
 
   TString SPtV0[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8", ""};
   //  TString SPtV0[numPtV0]={"", "","0.5-1", "1-1.5","1.5-2", "2-3", "3-4", "4-8"};
-  if (type>0)SPtV0[1]={"0.5-1"};
+  if (type>0){
+    SPtV0[0]={"0-0.5"}; //kust used for MC truth
+    SPtV0[1]={"0.5-1"};
+  }
   else {SPtV0[0]={"0-0.5"}; SPtV0[1]={"0.5-1"};}
   if (ishhCorr){
     SPtV0[0]={"0.1-0.5"};
@@ -512,6 +599,11 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
   Double_t NPtV01[numPtV0+1]={0.1,0.5,0.8, 1.2,1.6,2,2.5,3,4,8};
   TString SPtV02[numPtV0]={"0.1-0.4", "0.4-0.6", "0.6-0.8", "0.8-1.6","1.6-2", "2-2.5","2.5-3", "3-4", "4-8"};
   Double_t NPtV02[numPtV0+1]={0.1,0.4,0.6, 0.8,1.6,2,2.5,3,4,8};
+  if (isMC && !isEfficiency && type==0 && !isMCForNorm){
+    SPtV01[0]="0-0.5";
+    SNPtV01[0]="0.0";
+    NPtV01[0]=0;
+  }
   Int_t numPtV0Max=numPtV0;
   if (PtBinning==1) numPtV0Max = numPtV0;
   else numPtV0Max = numPtV0-1;
@@ -570,8 +662,50 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
   */
 
   TH1D *fHistTriggervsMult_MultProj;
+  TH1D *fHistTriggervsMult_PtProj[nummolt+1];
 
   fHistTriggervsMult_MultProj= (TH1D*)fHistTriggervsMult->ProjectionY("fHistTriggervsMult_MultProj", fHistTriggervsMult->GetXaxis()->FindBin(PtTrigMin+0.0001),fHistTriggervsMult->GetXaxis()->FindBin(ptjmax-0.00001) );
+
+  for(Int_t m=0; m<nummolt+1; m++){
+    if (isHM && MultBinning==1 && m<=1) continue;
+    if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
+    if(m<nummolt){
+      fHistTriggervsMult_PtProj[m]= (TH1D*)fHistTriggervsMult->ProjectionX(Form("fHistTriggervsMult_PtProj_m%i", m), fHistTriggervsMult->GetYaxis()->FindBin(Nmolt[m]+0.0001),fHistTriggervsMult->GetYaxis()->FindBin(Nmolt[m+1]-0.0001) );
+    }
+    else {
+      fHistTriggervsMult_PtProj[m]= (TH1D*)fHistTriggervsMult->ProjectionX(Form("fHistTriggervsMult_PtProj_m%i", m), fHistTriggervsMult->GetYaxis()->FindBin(0+0.0001),fHistTriggervsMult->GetYaxis()->FindBin(100-0.0001) );
+    }
+  }
+
+  TString PathInTrigEfficiency = "FinalOutput/DATA2016/Efficiency/Efficiency" +yearMCTrigEff;
+  PathInTrigEfficiency+=Form("_PtBinning%i",1);
+  PathInTrigEfficiency+=Path1;// change
+  if(type>=0){
+    PathInTrigEfficiency +="_";
+    if (!ishhCorr)             PathInTrigEfficiency +=tipo[type];
+    PathInTrigEfficiency +=Srap[israp];
+    PathInTrigEfficiency +=SSkipAssoc[SkipAssoc];
+    if (ishhCorr)     PathInTrigEfficiency +="_hhCorr";
+  }
+  PathInTrigEfficiency+= Form("_SysT%i_SysV0%i_PtMin%.1f", sysTrigger, sysV0, PtTrigMin);
+  if (MultBinning!=0) PathInTrigEfficiency += Form("_MultBinning%i", MultBinning);
+  PathInTrigEfficiency+= ".root";
+
+  TFile *fileinTrigEfficiency = new TFile (PathInTrigEfficiency, "");
+  TH1F * fHistEfficiencyTrigPtPtBins[nummolt+1];
+
+  if (isTrigEff){
+    if (!fileinTrigEfficiency) {cout << " input file with efficiency not found " << endl; return;}
+    for(Int_t molt=0; molt<nummolt+1; molt++){
+      if (MultBinning==3 && (molt==2 || molt==3 || molt==4)) continue;
+      if (MultBinning==1 && isHM){
+        if (molt==0 || molt==1) continue;
+      }
+      if (!fileinTrigEfficiency) {cout << " input file with trigger efficiency not found " << endl; return;}
+      fHistEfficiencyTrigPtPtBins[molt] = (TH1F*) fileinTrigEfficiency->Get("fHistAllTriggerEfficiencyPtBins_"+ Smolt[molt]);
+      if (!fHistEfficiencyTrigPtPtBins[molt]) {cout << "histogram 1D trigger efficiency pt " << endl; return;}
+    }
+  }
 
   TH1D *HistoTriggerEfficiency;
   TH1D *HistContTriggerMolt;
@@ -637,7 +771,13 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
 
   Float_t norm_MEbins[nummolt+1][numPtV0][numSB]={0}; //valore ME isto in (0,0)
   Float_t norm_MEbins_norm[nummolt+1][numPtV0][numSB]={0}; //valore ME isto normalizzato in (0,0)
-  Int_t   NTrigger[nummolt+1]={0}; //total number of trigger particles 
+
+  TH1F * fHistNTrigger = new TH1F("fHistNTrigger", "fHistNTrigger", nummolt, Nmolt);
+  TH1F * fHistNTriggerMult  = new TH1F("fHistNTriggerMult", "fHistNTriggerMult", 1, 0, 100);
+  Float_t   NTrigger[nummolt+1]={0}; //total number of trigger particles 
+  Int_t   NTriggerNotEffCorr[nummolt+1]={0}; //total number of trigger particles 
+  Int_t   NTriggerNotEffCorrBis[nummolt+1]={0}; //total number of trigger particles 
+  Float_t NTriggerEffCorr[nummolt+1]={0}; //total number of trigger particles corrected by trigger particle efficiency 
   Int_t   NTriggerV0[nummolt+1]={0}; //total number of trigger particles only in events with V > 0
   Float_t NSpectrum[nummolt+1][numPtV0][numetabis]={0}; //total number of trigger particles
   Float_t NSpectrumError[nummolt+1][numPtV0][numetabis]={0}; //total number of trigger particles
@@ -687,8 +827,34 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
       }
     }
     cout << "\nn trigger in mult range (all triggers) [the one which should be used]    " << m << "  " <<  NTrigger[m] <<   endl;
+    NTriggerNotEffCorr[m]=NTrigger[m];    
   }
-    
+
+  //new definition of NTrigger for when trigger particle efficiency is used
+  if (isTrigEff){
+    for(Int_t m=0; m<nummolt+1; m++){
+      if (isHM && MultBinning==1 && m<=1) continue;
+      if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
+      //    if (m==0) continue;
+      Float_t EffTrigger =0;
+      for(Int_t j=fHistTriggervsMult_PtProj[m]->GetXaxis()->FindBin(PtTrigMin+ 0.0001); j<=fHistTriggervsMult_PtProj[m]->GetXaxis()->FindBin(ptjmax-0.0001); j++ ){
+	EffTrigger = fHistEfficiencyTrigPtPtBins[m]->GetBinContent(fHistEfficiencyTrigPtPtBins[m]->GetXaxis()->FindBin(fHistTriggervsMult_PtProj[m]->GetXaxis()->GetBinCenter(j)));
+	NTriggerNotEffCorrBis[m]+= (float)fHistTriggervsMult_PtProj[m]->GetBinContent(j);
+	NTriggerEffCorr[m]+= (float)fHistTriggervsMult_PtProj[m]->GetBinContent(j)/EffTrigger;
+      }
+      cout << "\nN trigger corrected by trigger particle efficiency in mult range " << m << "  " <<  NTriggerEffCorr[m] <<   endl;
+      cout << "NTriggerEffCorr / NTrigger " << NTriggerEffCorr[m]/NTrigger[m] << endl;
+      NTrigger[m]=NTriggerEffCorr[m];
+    }
+  }
+  //*******************
+  for(Int_t m=0; m<nummolt; m++){
+    if (isHM && MultBinning==1 && m<=1) continue;
+    if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
+    fHistNTrigger->SetBinContent(m+1, NTrigger[m]);
+  }
+  fHistNTriggerMult->SetBinContent(1, NTrigger[nummolt]);
+      
   for(Int_t sb=0; sb< numSB; sb++){
     if(sb==1 && isMC && !isEfficiency) continue;
     if(sb==1 && ishhCorr) continue;
@@ -701,16 +867,17 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
 	if(!isMC || (isMC && isEfficiency)){
 
 	  PathInMassDef=PathInMass+ "_"+tipo[type]+Srap[israp]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG] + BkgType[isBkgParab];
-	  if (isSysDef && isDefaultSel)	  PathInMassDef  += Form("_molt%i_sysT%i_sysV0Default_Sys%i_PtMin%.1f.root", m, sysTrigger,sysang,PtTrigMinFit);
-	  else 	  if (isSysDef && isLoosest)	  PathInMassDef  += Form("_molt%i_sysT%i_sysV0Loosest_Sys%i_PtMin%.1f.root", m, sysTrigger,sysang,PtTrigMinFit);
-	  else 	  if (isSysDef && isTightest)	  PathInMassDef  += Form("_molt%i_sysT%i_sysV0Tightest_Sys%i_PtMin%.1f.root", m, sysTrigger,sysang,PtTrigMinFit);
-	  else if(isSysDef && !isDefaultSel && sysTrigger==0)	  PathInMassDef  += Form("_molt%i_sysT%i_sysV0index%i_Sys%i_PtMin%.1f.root", m, sysTrigger, indexSysV0,sysang,PtTrigMinFit);
-	  else if(isSysDef && !isDefaultSel && sysTrigger==1)	  PathInMassDef  += Form("_molt%i_sysTindex%i_sysV0%i_Sys%i_PtMin%.1f.root", m, indexsysTrigger, 0,sysang,PtTrigMinFit);
+	  if (isSysDef && isDefaultSel)	  PathInMassDef  += Form("_molt%i_sysT%i_sysV0Default_Sys%i_PtMin%.1f", m, sysTrigger,sysang,PtTrigMinFit);
+	  else 	  if (isSysDef && isLoosest)	  PathInMassDef  += Form("_molt%i_sysT%i_sysV0Loosest_Sys%i_PtMin%.1f", m, sysTrigger,sysang,PtTrigMinFit);
+	  else 	  if (isSysDef && isTightest)	  PathInMassDef  += Form("_molt%i_sysT%i_sysV0Tightest_Sys%i_PtMin%.1f", m, sysTrigger,sysang,PtTrigMinFit);
+	  else if(isSysDef && !isDefaultSel && sysTrigger==0)	  PathInMassDef  += Form("_molt%i_sysT%i_sysV0index%i_Sys%i_PtMin%.1f", m, sysTrigger, indexSysV0,sysang,PtTrigMinFit);
+	  else if(isSysDef && !isDefaultSel && sysTrigger==1)	  PathInMassDef  += Form("_molt%i_sysTindex%i_sysV0%i_Sys%i_PtMin%.1f", m, indexsysTrigger, 0,sysang,PtTrigMinFit);
 	  else	{
 	    PathInMassDef  += Form("_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f", m, sysTrigger, sysV0,sysang,PtTrigMinFit);
-	    if (MultBinning!=0) PathInMassDef += Form("_MultBinning%i", MultBinning);
-	    PathInMassDef += ".root";
 	  }
+	  if (MultBinning!=0) PathInMassDef += Form("_MultBinning%i", MultBinning);
+	  if (VarRange!=0) PathInMassDef += Form("_VarRange%i", VarRange);
+	  PathInMassDef += ".root";
 
 	  //	  if(type==0)	  PathInMassDef=PathInMass+"_"+tipo[type]+Form("_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f.root", m, sysTrigger, sysV0, sysang, PtTrigMinFit);
 	  if (MasterThesisAnalysis) 	  PathInMassDef=PathInMass+"_"+tipo[type]+Form("_molt%i_sysT%i_sysV0%i_Sys%i.root", m, sysTrigger, sysV0, sysang);
@@ -723,6 +890,8 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
 	    histoSSB[m]=(TH1F*)filepurezza->Get("histo_SSB");
 	    histo_Bcentral[m]=(TH1F*)filepurezza->Get("histo_Bcentral");
 	    histo_Bside[m]=(TH1F*)filepurezza->Get("histo_Bside");
+	    if (SidebandsSide==1) 	    histo_Bside[m]=(TH1F*)filepurezza->Get("histo_BsideL");
+	    else if (SidebandsSide==2) 	    histo_Bside[m]=(TH1F*)filepurezza->Get("histo_BsideR");
 	  }
 	}
       }
@@ -756,15 +925,19 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
 	    if (isMEFromHM){
 	      hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]= (TH2D*)fileinME-> Get("ME_m0-0.1_v" + SPtV0[v] + Ssideband[0] +"_Effw");
 	    }
+	    else if (isMEFrom13TeV){
+	      hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]= (TH2D*)fileinME-> Get(nameME[nummolt][z][v][tr][0]+"_Effw");
+	    }
 	    else if (isEtaEff && (sb==0 || isSidebands) && !isMEFromHybrid){
 	      hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]= (TH2D*)fileinME-> Get(nameME[m][z][v][tr][sb]+ "_Effw");
+	      if (isMESBFromPeak) 	      hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]= (TH2D*)fileinME-> Get(nameME[m][z][v][tr][0]+ "_Effw");
 	    }
 	    else{
 	      hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]= (TH2D*)fileinME-> Get(nameME[m][z][v][tr][sb]+"");
 	    }
 	    if (!hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]) {cout << "missing histo: " << nameME[m][z][v][tr][sb] << endl;  return;}
 	    if (isMEFromHM)   hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]->SetName(nameME[m][z][v][tr][sb]+ "_Effw_HM0-0.1");
-
+	    //	    cout << "\nCiaoo: pt : " << v << " " <<  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb] ->GetEntries() << endl;
 	    hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb]->Sumw2();
 	    hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]->Sumw2();
 	    hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb]->Rebin2D(rebinx,rebiny);
@@ -875,6 +1048,12 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
 	    //*****************************************************************************************************************
 	    //proietto in Delta Phi
 	    //****************************************************************************************************************
+	    if (isMC && !isEfficiency && !isMCForNorm){
+	      if (type==8 && sys==4){
+		if (NPtV0[v] <2.0){	JetValue=1; BulkLowValue =1; BulkUpValue=1.25;}
+		else {	JetValue=1; BulkLowValue =0.9; BulkUpValue=1.1;}
+	      }
+	    }
 
 	    hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][sb][0]= (TH1D*)(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->ProjectionY(nameME[m][z][v][tr][sb]+"_AC_phi_etaJet", hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->FindBin(-JetValue)+1, hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->FindBin(JetValue)-1, "E"));
 	    hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][sb][2]= (TH1D*)(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->ProjectionY(nameME[m][z][v][tr][sb]+"_AC_phi_etaAll",  hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->FindBin(InclusiveLowValue), hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->FindBin(InclusiveUpValue), "E"));
@@ -1019,6 +1198,13 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
 	  //***************************************************************
 	  //sottraggo distribuzione del bulk 
 	  //***************************************************************
+	  if (isMC && !isEfficiency && !isMCForNorm){
+	    if (type==8 && sys==4){
+	      if (NPtV0[v] <2.0){	JetValue=1; BulkLowValue =1; BulkUpValue=1.25;}
+	      else {	JetValue=1; BulkLowValue =0.9; BulkUpValue=1.1;}
+	    }
+	  }
+
 	  ScaleFactor[m][z][v][tr]=(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(JetValue)) - hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(-JetValue)))/2./ (hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(BulkUpValue)) - hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(BulkLowValue)));
 	  //	  cout << (hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(JetValue)) - hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(-JetValue))) << "   " <<(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(BulkUpValue)) - hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(BulkLowValue)))<<"  " << (hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(BulkUpValue))) << "  " << hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(BulkLowValue));
 	  cout << "\n" <<ScaleFactor[m][z][v][tr] << endl;
@@ -1399,7 +1585,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
   if (isSysDef && isDefaultSel)    PathOut1+=   Form("_SysT%i_SysV0Default_Sys%i_PtMin%.1f_Output", sysTrigger,  sys, PtTrigMin);
   else     if (isSysDef && isLoosest)    PathOut1+=   Form("_SysT%i_SysV0Loosest_Sys%i_PtMin%.1f_Output", sysTrigger,  sys, PtTrigMin);
   else     if (isSysDef && isTightest)    PathOut1+=   Form("_SysT%i_SysV0Tightest_Sys%i_PtMin%.1f_Output", sysTrigger,  sys, PtTrigMin);
-  else if(isSysDef && !isDefaultSel &&sysTrigger==0)     PathOut1+=   Form("_SysT%i_SysV0index%i_Sys%i_PtMin%.1f_Output", sysTrigger, indexSysV0, sys, PtTrigMin);
+  else if(isSysDef && !isDefaultSel &&sysTrigger==0)     PathOut1+=   Form("_SysT%i_SysV0indexBis%i_Sys%i_PtMin%.1f_Output", sysTrigger, indexSysV0, sys, PtTrigMin);
   else if(isSysDef && !isDefaultSel &&sysTrigger==1)     PathOut1+=   Form("_SysTindex%i_SysV0%i_Sys%i_PtMin%.1f_Output", indexsysTrigger, 0, sys, PtTrigMin);
   else {
     PathOut1+=   Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f_Output", sysTrigger, sysV0, sys, PtTrigMin);
@@ -1411,6 +1597,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
   if (IsParticleTrue) PathOut1+= "_IsParticleTrue";
   if (IsEfficiencyMassSel)    PathOut1+= "_IsEfficiencyMassSel";
   if (isSidebands)    PathOut1+= "_Sidebands";
+  if (isMESBFromPeak) PathOut1+= "_SBMEFromPeak";
   if (isNotSigmaTrigger) PathOut1+= "_IsNotSigmaTrigger";
   if (isMEFromHybrid) PathOut1+= "_IsMEFromHybrid";
   if (isMEFromK0s) PathOut1+= "_IsMEFromK0s";
@@ -1418,10 +1605,15 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
   if (isMEFromPeak) PathOut1+= "_IsMEFromPeak";
   if (isMEFromCorrectCentrality) PathOut1+= "_IsMEFromCorrectCentrality";
   if (isMEFromHM) PathOut1+= "_IsMEFromHM";
+  if (SidebandsSide ==1) PathOut1+= "_LeftSB";
+  else if (SidebandsSide ==2) PathOut1+= "_RightSB";
   if (isEtaEff) PathOut1+= "_IsEtaEff";
+  if (isTrigEff) PathOut1+= "_IsTrigEff";
   if (isAllDeltaEta) PathOut1+= "_isAllDeltaEta";
   PathOut1+= sTriggerPDGChoice[TriggerPDGChoice];
   if (MultBinning!=0) PathOut1 += Form("_MultBinning%i", MultBinning);
+  if (isNewdEtaJet)  PathOut1 += "_NewdEtaChoice";
+  //  PathOut1 += "_Try1";
   //    PathOut1+="_TryisEta05";
   //    PathOut1+="_thinptbinsbis";
   //    PathOut1+= "_DCAz0.5";
@@ -1429,6 +1621,9 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
   //    PathOut1 += "_Eff18g4extra";
   //    PathOut1 += "_AllEff2019";
   //    PathOut1+="_EPOS";
+  //  PathOut1 += "Try";
+  if (VarRange!=0) PathOut1 += Form("_VarRange%i", VarRange);
+  if (isMC && !isEfficiency &&!isMCForNorm) PathOut1 += "_MCPrediction";
   PathOut1+=".root";
 
   if (isEnlargedDeltaEtaPhi)    PathOut1 = Dir+"/histo/AngularCorrelation" + file  + Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f", sysTrigger, sysV0, sys, PtTrigMin)+"_DeltaEtaPhiEnlarged_Output.root";
@@ -1437,9 +1632,14 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
   //  }
   
   TFile *fileout = new TFile(PathOut1, "RECREATE");
+  fHistNTrigger->Write();
+  fHistNTriggerMult->Write();
+
   for(Int_t m=0; m<nummolt+1; m++){
     if (isHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
+    fHistEfficiencyTrigPtPtBins[m]->Write();
+    fHistTriggervsMult_PtProj[m]->Write();
     //if (m==0) continue;
     //    cout << "\n" <<m << endl;
     for(Int_t z=0; z<numzeta; z++){
@@ -1616,6 +1816,8 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
   cout << "DeltaEta intervals used:" << endl;
   cout << "--> DeltaEta Jet interval " << hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->FindBin(-JetValue)) << " - " << hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->FindBin(JetValue)) << endl;
 
+  cout << "Jet values used for normalisation: " << hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->FindBin(-JetValueDefault)) << " - " << hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->FindBin(JetValueDefault)) << endl;
+
   cout << "--> DeltaEta Bulk interval " << hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->FindBin(BulkLowValue)) << " - " << hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->FindBin(BulkUpValue)) << endl;
 
   cout << "--> DeltaEta Full interval " << hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->FindBin(InclusiveLowValue)) << " - " << hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->FindBin(InclusiveUpValue)) << endl;
@@ -1649,6 +1851,18 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
 
   if (InclusiveLowValue!= -InclusiveUpValue) cout << "\n\n!!!!!!!! asymmetric inclusive interval is being used!!!!!\n\n"<<endl;
 
+  cout << " hi " << endl;
+  if (isSidebands){
+    for(Int_t m=0; m<nummolt+1; m++){
+      if (isHM && MultBinning==1 && m<=1) continue;
+      if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
+
+      for(Int_t v=PtV0Min; v<numPtV0Max; v++){
+	//	cout << "\nCiaoo: pt : " << v << " " <<  hDeltaEtaDeltaPhi_SEbins[m][0][v][0][1] ->GetEntries() << endl;
+	//	if (!IsParticleTrue){      cout << "B/Bs: " <<    (Float_t)histo_Bcentral[m]->GetBinContent(histo_Bcentral[m]->FindBin(NPtV0[v]+0.0001))/histo_Bside[m]->GetBinContent(histo_Bside[m]->FindBin(NPtV0[v]+0.0001)) << endl;	}
+      }
+    }
+  }
   cout << "\nRatio between ME and SE entries: " << endl;
   for(Int_t v=PtV0Min; v<numPtV0Max; v++){
     cout <<  "Pt: " << NPtV0[v] << " ME entries: " <<  hDeltaEtaDeltaPhi_MEbins[nummolt][0][v][0][0]->GetEntries()<< " SE entries: " <<  hDeltaEtaDeltaPhi_SEbins[nummolt][0][v][0][0]->GetEntries()<< " ratio ME/SE entries " << (float)hDeltaEtaDeltaPhi_MEbins[nummolt][0][v][0][0]->GetEntries()/ hDeltaEtaDeltaPhi_SEbins[nummolt][0][v][0][0]->GetEntries()  << endl;
@@ -1657,7 +1871,15 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=1,  Int_t sysTrigger=0,  Int_
   for(Int_t m=0; m<nummolt+1; m++){
     if (isHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
-    //cout << "m " << m << " NTrigger " << NTrigger[m] << endl;
+    cout << "\nm " << m << " NTrigger(not effcorr) " << NTriggerNotEffCorr[m] << endl;
+    if (isTrigEff){
+      cout << "NTrigger(not effcorr bis) --SHOULD be the same as the one above " << NTriggerNotEffCorrBis[m] << endl;
+      cout << "NTriggerEffCorr " << NTrigger[m] << endl;
+      cout << "NTriggerEffCorr/NTrigger " << NTrigger[m]/NTriggerNotEffCorr[m]<<endl;
+    }
+    else {
+      cout << "NTrigger " << NTrigger[m] << endl;
+    }
   } 
 
   cout << "\nPartendo dai file \n" << PathIn << "\n"<< PathInME << " (for ME) \n" << PathInBis << endl;
