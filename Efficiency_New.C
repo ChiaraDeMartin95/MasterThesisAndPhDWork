@@ -22,7 +22,7 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
   return sqrt(((Double_t)k+1)*((Double_t)k+2)/(n+2)/(n+3) - pow((Double_t)(k+1),2)/pow(n+2,2));
 }
 
-void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int_t indexsysTrigger=0,  Int_t type=6 /*4 for Xi, 6 for K0s"*/, Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0, Int_t israp=0, TString ResoHisto="2D",Bool_t SkipAssoc=0,   Float_t ptjmin=3,  Float_t ptjmax=15, Int_t sysV0=0, TString data="18f1_extra_EffTrigger_5runs"/*"16kl_hK0s"/*"18f1_extra_CrossedRows70"/*"18f1_extra_FB1"/*"16kl_hK0s_INEL"/*"18d8_extra_Bis_hXi_PtTrig0.15"/*"17d20b_AOD235_EPOS_hXi"/"17d20b2_EPOS_hXi"/"LHC16_GP_18d8_hXi"/"17pq_hK0s"/*"17pq_hK0s_pttrig0.15"/*"17d20bEPOS_hXi"/*"LHC16_GP_18d8_hXi"/"18f1+18d8_hK0s_AOD235"/*"17pq_hK0s"/*"2019h11_HM_hK0s"/*"LHC19h11aPlus_hK0s_INELgt0"/*"LHC19h11_HM_INELgt0Bis286380"/*"161718_HM_hXi_LowPtTrig"/"161718Full_AOD235_hXi"/"161718_HM_hXi"/*"LHC18_GP_AOD235"*"17pq_hXi"/*"17pq_pp5TeV_hXi_pttrig0.15"/*"17d20bEPOS_hK0s_EtaEff"/*"2019h11b+extra_hK0s"/"2019h11_HM_hK0s"/**"2018f1_extra_15runs_Trig0Pt"/*"15g3c3_hK0s"/"2018f1_extra_15runs_NSigma5"/*"1617_GP_AOD235_With18c12b"/*"1617_AOD234_hK0s"/*"17pq_hK0s_pttrig0.15"/"1617_GP_AOD235_With18c12b"/*"2017e5_extra_AOD235_hK0s"/*"17pq_hK0s_CENTwoSDD"/*"2019h11a_extra_HM_hK0s"/*"1617MC_hK0s"/*"1617GP_hXi_EtaEff"/"AllMC_hXi_EtaEff"/*"2018f1_extra_30runs_hK0s"/*"2019h11c_extra_HM_hK0s"/*"161718_MD_EtaEff_hXi"/*"17d20bEPOS_hXi"/*"17d20bEPOS_hK0s"/"2018f1_extra_hK0s"/*"1617GP_hXi" /*"2018f1_extra_MECorr"/"2018f1_extra_hK0s_CP"/* "2018f1_extra_hK0s_CP"/*"2018f1_extra_hK0s_CP_10runs_Bis"/"AllMC_hXi"/"161718_MD_hXi"/* "17anch17_hK0s"/"1617MC_hK0s"/"2018f1g4_extra_hXi"/"2018f1_extra_DEtaEff_50runs"/"2018g4_extra_EtaEff_hK0s"/*"2018f1g4_extra_EtaEff_hXi"/"161718_MD_EtaEff_hXi"*/, TString year0="2016", TString path1=""/*"_New"*/ /*"_10runs_FB128_TrackLengthCut"/"_NewMultClassBis"/"_PtTrigMax2.5"*/, Int_t MultBinning=0, Int_t PtBinning=1, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsPtTrigMultDep=0, Int_t EffRegion=0, Bool_t isEfficiencyMassSel=0, Bool_t isMCTruth=0, Bool_t isEtaEff=1, Bool_t isNewInputPath=1, Bool_t isHM=0, Bool_t isINEL =0, Bool_t isTriggEtaEff=1){
+void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int_t indexsysTrigger=0,  Int_t type=6 /*4 for Xi, 6 for K0s"*/, Bool_t CommonParton=0, Bool_t isCPEff=0, Bool_t ishhCorr =0, Int_t israp=0, TString ResoHisto="2D",Bool_t SkipAssoc=0,   Float_t ptjmin=3,  Float_t ptjmax=15, Int_t sysV0=0, TString data="17l3b_hK0s"/*"1617_GP_AOD235_With18c12b"/*"17pq_hK0s"/*"2019h11_HM_hK0s"/*"161718HM_hK0s_TriggEff"/*"17pq_hXi"/*"161718_HM_hXi"/*"161718Full_AOD235_hXi"/*"18f1_extra_EffTrigger_5runs"/*"16kl_hK0s"/*"18f1_extra_CrossedRows70"/*"18f1_extra_FB1"/*"16kl_hK0s_INEL"/*"18d8_extra_Bis_hXi_PtTrig0.15"/*"17d20b_AOD235_EPOS_hXi"/"17d20b2_EPOS_hXi"/"LHC16_GP_18d8_hXi"/"17pq_hK0s"/*"17pq_hK0s_pttrig0.15"/*"17d20bEPOS_hXi"/*"LHC16_GP_18d8_hXi"/"18f1+18d8_hK0s_AOD235"/*"17pq_hK0s"/*"2019h11_HM_hK0s"/*"LHC19h11aPlus_hK0s_INELgt0"/*"LHC19h11_HM_INELgt0Bis286380"/*"161718_HM_hXi_LowPtTrig"/"161718Full_AOD235_hXi"/"161718_HM_hXi"/"LHC18_GP_AOD235"/*"17pq_hXi"/*"17pq_pp5TeV_hXi_pttrig0.15"/"17d20bEPOS_hK0s_EtaEff"/*"2019h11b+extra_hK0s"/"2019h11_HM_hK0s"/**"2018f1_extra_15runs_Trig0Pt"/*"15g3c3_hK0s"/"2018f1_extra_15runs_NSigma5"/*"1617_GP_AOD235_With18c12b"/*"1617_AOD234_hK0s"/*"17pq_hK0s_pttrig0.15"/"1617_GP_AOD235_With18c12b"/*"2017e5_extra_AOD235_hK0s"/*"17pq_hK0s_CENTwoSDD"/*"2019h11a_extra_HM_hK0s"/*"1617MC_hK0s"/*"1617GP_hXi_EtaEff"/"AllMC_hXi_EtaEff"/*"2018f1_extra_30runs_hK0s"/*"2019h11c_extra_HM_hK0s"/*"161718_MD_EtaEff_hXi"/*"17d20bEPOS_hXi"/*"17d20bEPOS_hK0s"/"2018f1_extra_hK0s"/*"1617GP_hXi" /*"2018f1_extra_MECorr"/"2018f1_extra_hK0s_CP"/* "2018f1_extra_hK0s_CP"/*"2018f1_extra_hK0s_CP_10runs_Bis"/"AllMC_hXi"/"161718_MD_hXi"/* "17anch17_hK0s"/"1617MC_hK0s"/"2018f1g4_extra_hXi"/"2018f1_extra_DEtaEff_50runs"/"2018g4_extra_EtaEff_hK0s"/*"2018f1g4_extra_EtaEff_hXi"/"161718_MD_EtaEff_hXi"*/, TString year0="2016", TString path1=""/*"_New"*/ /*"_10runs_FB128_TrackLengthCut"/"_NewMultClassBis"/"_PtTrigMax2.5"*/, Int_t MultBinning=3, Int_t PtBinning=1, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsPtTrigMultDep=0, Int_t EffRegion=0, Bool_t isEfficiencyMassSel=0, Bool_t isMCTruth=0, Bool_t isEtaEff=1, Bool_t isNewInputPath=1, Bool_t isHM=0, Bool_t isINEL =0, Bool_t isTriggEtaEff=1){
   //  if (type==6 && israp!=0) return; //so far I haven't appended any info on the rapidity to efficiency output files for K0s; if I decide to do as ofr the cascade, just remove this line
 
   //the Preliminary results have been obtained using isEtaEff==0 (no calculation of ptvseta eff performed)
@@ -226,7 +226,8 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
     if (data.Index("2019h11")!=-1) NameContainer = "_hK0s_Task_RecoAndEfficiency";
     if (data.Index("17pq_hK0s")!=-1) NameContainer = "_hK0s_Task_RecoAndEfficiency";
     if (data.Index("17pq_pp5TeV_hXi")!=-1) NameContainer = "_hXi_Task_RecoAndEfficiency";
-    else NameContainer = "_hK0s_Task_suffix";
+    //    else NameContainer = "_hK0s_Task_suffix";
+    //    else NameContainer = "_hK0s_Task_";
     //    if (PtTrigMin==3.)    NameContainer = "_h" + tipoPart[type]+"_Task_suffix";
     if (data.Index("FB")!=-1 || data == "LHC19h11_HM_INELgt0Bis286380" || data.Index("CrossedRows70")!=-1)       NameContainer = "_hK0s_Task_suffix";
     if (isINEL) {
@@ -561,10 +562,12 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   }
 
   Double_t NPtTrigger[numPtTrigger+1]={0,0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 8.0, 10.0, 13.0, 20.0, 30.0};
-  const  Int_t numPtTrig = 30;
+  const  Int_t numPtTrig = 18;
   //  Double_t NPtTrig[numPtTrig+1] = {0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.2, 4.4, 4.6, 4.8, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5, 12.0, 12.5, 13.0, 15.0}; //42
   //  Double_t NPtTrig[numPtTrig+1] = {0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.2, 4.4, 4.6, 4.8, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 15.0}; //36
-  Double_t NPtTrig[numPtTrig+1] = {0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.2, 4.4, 4.6, 4.8, 5.0, 5.5, 6.0, 8.0, 10.0, 15.0}; 
+  //  Double_t NPtTrig[numPtTrig+1] = {0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.2, 4.4, 4.6, 4.8, 5.0, 5.5, 6.0, 8.0, 10.0, 15.0}; //30
+  //  Double_t NPtTrig[numPtTrig+1] = {0, 0.2,0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.4, 2.8, 3.2, 4.0, 4.5, 5.0, 6.0,8.0, 10.0, 15.0}; //20
+  Double_t NPtTrig[numPtTrig+1] = {0, 0.2,0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.4, 2.8, 3.2, 4.0, 4.5, 5.0, 6.0,15.0}; //18
   const  Int_t numEtaTrigg = 40;
   Double_t NEtaTrigg[numEtaTrigg+1] = {0};
   for (Int_t i=0; i<numEtaTrigg+1 ; i++){
@@ -586,6 +589,10 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   TCanvas* canvasTriggerPtEtaEff = new TCanvas("canvasTriggerPtEtaEff", "canvasTriggerPtEtaEff", 1300, 800);
   if ((isHM && MultBinning==1) || MultBinning==3)   canvasTriggerPtEtaEff->Divide(2,2); 
   else  canvasTriggerPtEtaEff->Divide(3,2);
+
+  TCanvas* canvasTriggerPtEtaEffRelErr = new TCanvas("canvasTriggerPtEtaEffRelErr", "canvasTriggerPtEtaEffRelErr", 1300, 800);
+  if ((isHM && MultBinning==1) || MultBinning==3)   canvasTriggerPtEtaEffRelErr->Divide(2,2); 
+  else  canvasTriggerPtEtaEffRelErr->Divide(3,2);
 
   TCanvas* canvasTriggerPtPhiEff = new TCanvas("canvasTriggerPtPhiEff", "canvasTriggerPtPhiEff", 1300, 800);
   if ((isHM && MultBinning==1) || MultBinning==3)   canvasTriggerPtPhiEff->Divide(2,2); 
@@ -980,6 +987,7 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   TH2D*  fHistAllTriggerEfficiencyPtEta[nummolt+1]; 
   TH2D*  fHistAllTriggerEfficiencyPtPhiBins[nummolt+1];                                 
   TH2D*  fHistAllTriggerEfficiencyPtEtaBins[nummolt+1]; 
+  TH2D*  fHistAllTriggerEfficiencyPtEtaBinsRelErrors[nummolt+1]; 
   TH2D*  fHistV0EfficiencyPtPhi[nummolt+1];
   TH2D*  fHistV0EfficiencyPtPtTMax[nummolt+1];
   TH2D*  fHistEfficiencyV0Selection[nummolt+1];
@@ -1449,13 +1457,17 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
       fHistAllTriggerEfficiencyPtEtaBins[molt] ->GetXaxis()->SetTitleSize(0.05);
       fHistAllTriggerEfficiencyPtEtaBins[molt] ->GetYaxis()->SetTitleOffset(1);
       fHistAllTriggerEfficiencyPtEtaBins[molt] ->GetYaxis()->SetTitleSize(0.05);
-      //      fHistAllTriggerEfficiencyPtEtaBins[molt] ->GetYaxis()->SetRangeUser(-0.798, 0.798);
-      //      fHistAllTriggerEfficiencyPtEtaBins[molt] ->GetZaxis()->SetRangeUser(0, 1);
+      fHistAllTriggerEfficiencyPtEtaBins[molt] ->GetYaxis()->SetRangeUser(-0.798, 0.798);
+      fHistAllTriggerEfficiencyPtEtaBinsRelErrors[molt] = (TH2D*) fHistAllTriggerEfficiencyPtEtaBins[molt]->Clone("fHistAllTriggerEfficiencyPtEtaBinsRelErrors_"+ Smolt[molt]);
+      fHistAllTriggerEfficiencyPtEtaBinsRelErrors[molt]->SetTitle("Rel errrs of trigger particle efficiency in mult. class "+ SmoltLegend[molt]);
+      fHistAllTriggerEfficiencyPtEtaBins[molt] ->GetZaxis()->SetRangeUser(0, 1);
+      fHistAllTriggerEfficiencyPtEtaBinsRelErrors[molt] ->GetZaxis()->SetRangeUser(0, 0.05);
       for (Int_t pt =1; pt<= fHistSelected_2D_AllTriggerPtEtaBins[molt]->GetNbinsX(); pt++){
 	fHistAllTriggerEfficiencyPtBins[molt]->SetBinError(pt, SetEfficiencyError(fHistAllTriggerSelectedPtBins[molt]->GetBinContent(pt), fHistAllTriggerGeneratedPtBins[molt]->GetBinContent(pt)));
 	for  (Int_t eta =1; eta<= fHistSelected_2D_AllTriggerPtEtaBins[molt]->GetNbinsY(); eta++){
 	  Int_t bin = fHistAllTriggerEfficiencyPtEtaBins[molt]->GetBin(pt, eta);
 	  fHistAllTriggerEfficiencyPtEtaBins[molt]->SetBinError(bin, SetEfficiencyError(fHistSelected_2D_AllTriggerPtEtaBins[molt]->GetBinContent(bin), fHistGenerated_2D_TriggerPtEtaBins[molt]->GetBinContent(bin))); 
+	  fHistAllTriggerEfficiencyPtEtaBinsRelErrors[molt] -> SetBinContent(bin, fHistAllTriggerEfficiencyPtEtaBins[molt]->GetBinError(bin)/fHistAllTriggerEfficiencyPtEtaBins[molt]->GetBinContent(bin));
 	}
       }
    
@@ -1470,6 +1482,18 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
       }
       else  canvasTriggerPtEtaEff->cd(molt+1);
       fHistAllTriggerEfficiencyPtEtaBins[molt]->Draw("colz");
+
+
+      if (isHM && MultBinning==1)      canvasTriggerPtEtaEffRelErr->cd(molt+1-2);
+      else if (MultBinning==3)  {
+	if (molt<=1)	canvasTriggerPtEtaEffRelErr->cd(molt+1);
+	else 	canvasTriggerPtEtaEffRelErr->cd(3);
+      }
+      else  canvasTriggerPtEtaEffRelErr->cd(molt+1);
+      gPad->SetLeftMargin(0.15);
+      gPad->SetRightMargin(0.15);
+      fHistAllTriggerEfficiencyPtEtaBinsRelErrors[molt]->Draw("colz");
+
     }
 
     cout << "here I am "<< endl;
@@ -1650,6 +1674,8 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
 	else 	canvasEtaEff->cd(3);
       }
       else   canvasEtaEff->cd(molt+1);
+      if (type==4)      fHistV0EfficiencyPtV0EtaV0PtBins[molt]->GetXaxis()->SetRangeUser(0.5, 8);
+      else if (type==6)      fHistV0EfficiencyPtV0EtaV0PtBins[molt]->GetXaxis()->SetRangeUser(0.1, 8);
       fHistV0EfficiencyPtV0EtaV0PtBins[molt]->Draw("colz");
 
       for (Int_t eta = 0; eta<numEta; eta++){
@@ -2521,11 +2547,13 @@ void Efficiency_New(Int_t DEtaEff=0, Int_t indexSysV0=0, Int_t sysTrigger=0, Int
   }
   if (isTriggEtaEff){
     fileoutbis->WriteTObject(canvasTriggerPtEtaEff);
+    fileoutbis->WriteTObject(canvasTriggerPtEtaEffRelErr);
     fileoutbis->WriteTObject(canvasTriggerPtPhiEff);
     fileoutbis->WriteTObject(canvasTriggerPhiEff);
     fileoutbis->WriteTObject(canvasTriggerPtEff);
     canvasTriggerPtPhiEff->SaveAs(PathOutCanvas+"_EffTriggPhi2D.pdf");
     canvasTriggerPtEtaEff->SaveAs(PathOutCanvas+"_EffTriggEta2D.pdf");
+    canvasTriggerPtEtaEffRelErr->SaveAs(PathOutCanvas+"_EffTriggEta2DRelErr.pdf");
     canvasTriggerPhiEff->SaveAs(PathOutCanvas+"_EffTriggPhi.pdf");
     canvasTriggerPtEff->SaveAs(PathOutCanvas+"_EffTriggPt.pdf");
   }
