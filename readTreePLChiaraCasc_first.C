@@ -15,10 +15,12 @@
 #include <TTree.h>
 #include <TLatex.h>
 #include <TFile.h>
-void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=2, Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus, =2 for OmegaMinus, =3 for OmegaPlus */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, bool isMC =1,Bool_t isEfficiency=1,Int_t sysTrigger=0,TString year=/*"1617GP_hXi_EtaEff"/"AllMC_hXi_EtaEff"*/"161718_MD_EtaEff_hXi"/*"2016k_pass2_TOFOOBPileUp" /*"2016k_TOFOOBPileUp_XiV0Rad34_AOD234_Try2" /"161718_MD_EtaEff_PtTrig3_hXi"/*"2018f1g4_extra_EtaEff_hXi"/*"AllMC_hXi"/*"2015f"/*"2015g3b1"/"17d20bEPOS_hXi"/*"Run2DataRed_MECorr_hXi"/*"2016kl_hXi"/*"2016k_hXi_MECorr_25runs"/"1617GP_hXi"/*"2018f1_extra_hXi_CommonParton"/"2018f1g4_extra_hXi"/"161718_MD_hXi"/"2018f1_extra_DEtaEff_50runs"*/, TString year0="2016", TString Path1 ="", Bool_t CommonParton=0, Int_t MultBinning=0, Bool_t isSysStudy=0, Int_t numsysV0index=40, Bool_t isHybrid=0, Bool_t isEfficiencyMassSel=0, Int_t DEtaEff=0, Bool_t isNewInputPath=0, Bool_t isHM=0)
+void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=1, Int_t type=4 /*type = 0 for XiMinus, =1, for XiPlus, =2 for OmegaMinus, =3 for OmegaPlus */,Bool_t SkipAssoc=0 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, bool isMC =0, Bool_t isEfficiency=0, Int_t sysTrigger=0,TString year="17pq_hXi"/*"18d8_extra_Bis_hXi_PtTrig0.15"/*"17d20b_AOD235_EPOS_hXi"*"17d20b2_EPOS_hXi"/"LHC16_GP_18d8_hXi"/"161718_HM_hXi_WithFlat16k_No18p"/*"161718_HM_hXi"/*"161718_HM_hXi_LowPtTrig"/"161718Full_AOD235_hXi"/*"161718_AOD235_hXi"/*"161718_HM_hXi"/"LHC18_GP_AOD235"/*"17pq_pp5TeV_hXi_pttrig0.15"*"LHC17_AOD234_Red"/*"1617GP_hXi_EtaEff"/"AllMC_hXi_EtaEff" /*"2016k_TOFOOBPileUp_XiV0Rad34_AOD234_Try2" /"161718_MD_EtaEff_PtTrig3_hXi"/*"2018f1g4_extra_EtaEff_hXi"/*"AllMC_hXi"/*"2015f"/*"2015g3b1"/"17d20bEPOS_hXi"/*"Run2DataRed_MECorr_hXi"/"1617GP_hXi"/*"2018f1_extra_hXi_CommonParton"/"2018f1g4_extra_hXi"/"161718_MD_hXi"/*/, TString year0="2016", TString Path1 ="", Bool_t CommonParton=0, Int_t MultBinning=1, Bool_t isSysStudy=0, Int_t numsysV0index=0, Bool_t isHybrid=0, Bool_t isEfficiencyMassSel=0, Int_t DEtaEff=0, Bool_t isNewInputPath=1, Bool_t isHM=0)
 {
 
   if (sysV0index>40) return;
+  if (year == "17pq_hXi") MultBinning=3;
+  if (year == "17pq_pp5TeV_hXi_pttrig0.15") MultBinning=3;
 
   //rap=0 : no rapidity window chsen for cascade, |Eta| < 0.8; rap=1 |y| < 0.5
   if (ishhCorr) {
@@ -133,6 +135,7 @@ void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=2, Int_t type=4
   else if (DEtaEff==2) PathOut+= "_Jet";
   else if (DEtaEff==3) PathOut+= "_OOJ";
   //  PathOut+= "_Try2";
+  if (MultBinning!=0) PathOut+=Form("_MultBinning%i",MultBinning);
   PathOut+= ".root";
 
   TString PathInBisPart1;
@@ -211,11 +214,17 @@ void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=2, Int_t type=4
 
   TDirectoryFile *d;
   if (isNewInputPath){
-    d = (TDirectoryFile*)fin->Get("MyTaskXi_PtTrigMin3.0_PtTrigMax15.0");
+    if (isMC)   d = (TDirectoryFile*)fin->Get("MyTaskXi_MCTruth_PtTrigMin3.0_PtTrigMax15.0");
+    else if (year.Index("pttrig0.15")!=-1) {
+      cout << "hi " << endl;
+      d = (TDirectoryFile*)fin->Get("MyTaskXi_PtTrigMin0.2_PtTrigMax2.5");
+    }
+    else    d = (TDirectoryFile*)fin->Get("MyTaskXi_PtTrigMin3.0_PtTrigMax15.0");
     //    d = (TDirectoryFile*)fin->Get(Form("MyTaskXi_PtTrigMin%.1f_PtTrigMax%.1f", PtTrigMin, ptjmax));
   } else {
     d = (TDirectoryFile*)fin->Get("MyTask"+dirinputtype[type]);
   }
+  if (year == "18d8_extra_Bis_hXi_PtTrig0.15") d = (TDirectoryFile*)fin->Get("MyTaskXi_PtTrigMin0.2_PtTrigMax15.0");
   if (!d)  {cout << "dir input not available " ; return;}
 
   TDirectoryFile *dPart1;
@@ -231,19 +240,37 @@ void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=2, Int_t type=4
   if (isNewInputPath) {
     if (isEfficiency && PtTrigMin == 3.)  NameContainer = "_hXi_Task_RecoAndEfficiency";
     else  if (isEfficiency && TMath::Abs(PtTrigMin-0.15)< 0.0001)  NameContainer = "_hXi_Task_RecoAndEfficiencyLowPt";
+    else  if (isMC && !isEfficiency) NameContainer = "_hXi_Task_MCTruth";
+    else  {
+      NameContainer = "_hXi_Task_Default";
+      if (year=="17pq_hXi")       NameContainer = "_hXi_Task_";
+      if (TMath::Abs(PtTrigMin - 0.15) < 0.001)        NameContainer = "_hXi_Task_LowPtTrig";
+      if (year.Index("pp5TeV_hXi_pttrig0.15")!=-1 && isMC) NameContainer = "_hXi_Task_RecoAndEfficiency";
+    }
   }
+  if (year == "18d8_extra_Bis_hXi_PtTrig0.15") NameContainer = "_hXi_Task_name";
 
+  cout << "NameContainer " << NameContainer << endl;
   TTree *tSign;
   TTree *tBkg;
 
   if (!isSysStudy){
-    tSign = (TTree *)d->Get("fSignalTree");
-    tBkg  = (TTree *)d->Get("fBkgTree");
+    if (year == "17pq_pp5TeV_hXi_pttrig0.15" || year == "161718Full_AOD234_hXi" || (year == "161718_HM_hXi" && !isMC) || year == "161718_HM_hXi_LowPtTrig" ||  (year == "161718_HM_hXi_WithFlat16k_No18p" && !isMC) || year == "17d20b2_EPOS_hXi" || year == "17d20b_AOD235_EPOS_hXi" || year == "18d8_extra_Bis_hXi_PtTrig0.15"){ 
+      tSign = (TTree *)d->Get("MyOutputContainer1" + NameContainer);
+      tBkg  = (TTree *)d->Get("MyOutputContainer2" + NameContainer);
+    }
+    else {
+      tSign = (TTree *)d->Get("fSignalTree");
+      tBkg  = (TTree *)d->Get("fBkgTree");
+    }
   }
   else {
     tSign = (TTree *)finTree->Get("tSignO");
     tBkg  = (TTree *)finTree->Get("tBkgO");
   }
+
+  if (!tSign) {cout << "no signal tree " << endl; return;}
+  if (!tBkg) {cout << "no bkg tree " << endl; return;}
 
   Double_t massK0s = 0.497611;
   Double_t massLambda = 1.115683;
@@ -335,7 +362,8 @@ void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=2, Int_t type=4
   Double_t Nmolt1[nummolt+1]={0, 1, 5, 15, 30, 100};
   TString Smolt2[nummolt+1]={"0-2", "2-7", "7-15", "15-30", "30-100", "all"};
   Double_t Nmolt2[nummolt+1]={0, 2, 7, 15, 30, 100};
-
+  TString Smolt5TeV[nummolt+1]={"0-10", "10-100", "100-100", "100-100", "100-100", "all"};
+  Double_t Nmolt5TeV[nummolt+1]={0, 10, 100, 100, 100, 100};
   TString Smolt[nummolt+1]={"0-1", "1-5", "5-15", "15-30", "30-100", "all"};
   Double_t Nmolt[nummolt+1]={0, 1, 5, 15, 30, 100};
   
@@ -352,7 +380,10 @@ void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=2, Int_t type=4
       Smolt[m] = Smolt2[m];
       Nmolt[m] = Nmolt2[m];
     }
-
+    else if (MultBinning==3){
+      Smolt[m] = Smolt5TeV[m];
+      Nmolt[m] = Nmolt5TeV[m];
+    }
   }
 
   if (isHM){
@@ -366,6 +397,19 @@ void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=2, Int_t type=4
     Smolt[2] = "0.005-0.01";
     Smolt[3] = "0.01-0.05";
     Smolt[4] = "0.05-0.1";
+    if (MultBinning==1){
+      Nmolt[1] = 0;
+      Nmolt[2] = 0;
+      Nmolt[3] = 0.01;
+      Nmolt[4] = 0.05;
+      Nmolt[5] = 0.1;
+      Smolt[0] = "0-0a";
+      Smolt[1] = "0-0b";
+      Smolt[2] = "0-0.01";
+      Smolt[3] = "0.01-0.05";
+      Smolt[4] = "0.05-0.1";
+      Smolt[5] = "0-0.1";
+    }
   }
 
   //  TString Smolt[nummolt+1]={"0-0", "0-10", "10-30", "30-50", "50-100", "all"};
@@ -415,6 +459,7 @@ void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=2, Int_t type=4
 
   TH2F* hMultiplicity2D=(TH2F*)  d1->FindObject("fHistPtMaxvsMult");
   TH2F* hMultiplicity2DBefAll=(TH2F*)  d1->FindObject("fHistPtMaxvsMultBefAll");
+  TH1F* hMultiplicityAllSelEvents=(TH1F*)  d1->FindObject("fHist_multiplicityAllSelEvents");
   TH1F* hMultiplicity;
   TH1F* hMultiplicityBefAll;
   TH2F* hMultvsNumberAssoc=(TH2F*)  d1->FindObject("fHistMultvsV0");
@@ -466,11 +511,11 @@ void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=2, Int_t type=4
     cout <<"\ntotal number of events used in the AC (no selections on topo var and on skipAssoc!) " << hMultiplicity->GetEntries() << endl;
 
     for (Int_t m=0; m< nummolt; m++){ 
-      hMultvsNumberAssoc_Proj[m] = (TH1F*)       hMultvsNumberAssoc->ProjectionX(Form("hMultvsNumberAssoc_%i", m), hMultvsNumberAssoc->GetYaxis()->FindBin(Nmolt[m]+0.001), hMultvsNumberAssoc->GetYaxis()->FindBin(Nmolt[m+1]-0.001));
+      hMultvsNumberAssoc_Proj[m] = (TH1F*)       hMultvsNumberAssoc->ProjectionX(Form("hMultvsNumberAssoc_%i", m), hMultvsNumberAssoc->GetYaxis()->FindBin(Nmolt[m]+0.0001), hMultvsNumberAssoc->GetYaxis()->FindBin(Nmolt[m+1]-0.0001));
 
       cout << " m " << m << endl;
       ACcounter[m] =0;
-      for (Int_t b= hMultiplicity->GetXaxis()->FindBin(Nmolt[m]+0.001); b <=  hMultiplicity->GetXaxis()->FindBin(Nmolt[m+1]-0.001); b++){
+      for (Int_t b= hMultiplicity->GetXaxis()->FindBin(Nmolt[m]+0.0001); b <=  hMultiplicity->GetXaxis()->FindBin(Nmolt[m+1]-0.0001); b++){
 	ACcounter[m] +=  hMultiplicity->GetBinContent(b);
       }
       cout << "fraction of events in mult bin (for ptTrig> PtTrigMin) " << Smolt[m] << ": " << ACcounter[m]/ACcounter[5] <<  " ~average V0 number (for pTTrig> 0.150 GeV usually) " <<     hMultvsNumberAssoc_Proj[m]->GetMean() <<endl;
@@ -548,7 +593,7 @@ void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=2, Int_t type=4
   Int_t EntriesBkg  = 0; 
   
   TFile *fout = new TFile(PathOut,"RECREATE");
-
+  hMultiplicityAllSelEvents->Write();
   Int_t numMultBins =100;
   Float_t UpperLimitMult=100;
   if (isHM) UpperLimitMult = 0.1;
@@ -789,12 +834,12 @@ void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=2, Int_t type=4
   Float_t     fSignTreeVariableInvMassCasc= 0;
   Bool_t isCascTrue=kFALSE;
 
-  // cout << "  entries Sign: " << EntriesSign<<endl;
+   cout << "  entries Sign: " << EntriesSign<<endl;
   Int_t l=0;
   for(Int_t k = 0; k<EntriesSign; k++){
     //    if (k>100000) continue;
     tSign->GetEntry(k);  
-    if (k==10000*l){
+    if (k==100000*l){
       l++;     
       cout << "SE ----" << (Float_t)k/EntriesSign<< endl;
     }
@@ -910,13 +955,13 @@ void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=2, Int_t type=4
 	}
 
 	//mass selections                                                                                        
-        if (isEfficiencyMassSel){
-          for(Int_t v=PtBinMin; v<numPtV0; v++){
-            if(fSignTreeVariablePtV0>=NPtV0[v]&& fSignTreeVariablePtV0<NPtV0[v+1]){
-              OutMass= (TMath::Abs(fSignTreeVariableInvMassCasc - mass[type][5][v])>=4*sigma[type][5][v]);
+	if (isEfficiencyMassSel){
+	  for(Int_t v=PtBinMin; v<numPtV0; v++){
+	    if(fSignTreeVariablePtV0>=NPtV0[v]&& fSignTreeVariablePtV0<NPtV0[v+1]){
+	      OutMass= (TMath::Abs(fSignTreeVariableInvMassCasc - mass[type][5][v])>=4*sigma[type][5][v]);
 	    }
-          }
-        }
+	  }
+	}
 
 	Bool_t DEtaRegion;
 	if (DEtaEff==0)DEtaRegion=kTRUE;
@@ -925,10 +970,10 @@ void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=2, Int_t type=4
 	else if (DEtaEff==3)DEtaRegion=((TMath::Abs(fSignTreeVariableEtaTrigger-fSignTreeVariableEtaV0)<1.2)&&(TMath::Abs(fSignTreeVariableEtaTrigger-fSignTreeVariableEtaV0)>0.75));
 
 	if (!OutMass && DEtaRegion){
-	fHistSelectedV0PtTMaxPhi->Fill(fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc, fSignTreeVariablePhiV0, fSignTreeVariableMultiplicity);
-	fHistSelectedV0PtTMaxEta->Fill(fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc, fSignTreeVariableEtaV0, fSignTreeVariableMultiplicity);
-	fHistSelectedV0PtPtTMax->Fill(fSignTreeVariablePtV0,fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc , fSignTreeVariableMultiplicity);
-	fHistSelectedV0PtEta->Fill(fSignTreeVariablePtV0,fSignTreeVariableEtaV0, fSignTreeVariableMultiplicity);
+	  fHistSelectedV0PtTMaxPhi->Fill(fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc, fSignTreeVariablePhiV0, fSignTreeVariableMultiplicity);
+	  fHistSelectedV0PtTMaxEta->Fill(fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc, fSignTreeVariableEtaV0, fSignTreeVariableMultiplicity);
+	  fHistSelectedV0PtPtTMax->Fill(fSignTreeVariablePtV0,fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc , fSignTreeVariableMultiplicity);
+	  fHistSelectedV0PtEta->Fill(fSignTreeVariablePtV0,fSignTreeVariableEtaV0, fSignTreeVariableMultiplicity);
 	}
       }
     
@@ -956,7 +1001,7 @@ void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=2, Int_t type=4
     else  if ((isMC && SkipAssoc)  || (isMC && !isHybrid)){
       fHistSelectedV0PtTMaxPhi->Fill(fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc/TMath::Abs(fSignTreeVariableChargeAssoc), fSignTreeVariablePhiV0, fSignTreeVariableMultiplicity);
       fHistSelectedV0PtTMaxEta->Fill(fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc/TMath::Abs(fSignTreeVariableChargeAssoc), fSignTreeVariableEtaV0, fSignTreeVariableMultiplicity);
-	fHistSelectedV0PtPtTMax->Fill(fSignTreeVariablePtV0,fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc/TMath::Abs(fSignTreeVariableChargeAssoc) , fSignTreeVariableMultiplicity);
+      fHistSelectedV0PtPtTMax->Fill(fSignTreeVariablePtV0,fSignTreeVariablePtTrigger*fSignTreeVariableChargeAssoc/TMath::Abs(fSignTreeVariableChargeAssoc) , fSignTreeVariableMultiplicity);
 
     }
 
@@ -1034,7 +1079,7 @@ void readTreePLChiaraCasc_first( Int_t sysV0=0, Int_t sysV0index=2, Int_t type=4
       // for(Int_t k = 0; k<1; k++){
       //    if (k>100000) continue;
       tBkg->GetEntry(k);
-      if (k==10000*l){
+      if (k==100000*l){
 	l++;     
 	cout << "ME ----" << (Float_t)k/EntriesBkg<< endl;
       }
