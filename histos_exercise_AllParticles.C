@@ -47,7 +47,7 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
 }
 
 
-void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0index=0, Int_t sysTrigger=0, Int_t indexsysTrigger=0, Float_t PtTrigMin=3,Float_t PtTrigMax=15, Bool_t SkipAssoc=1, Int_t rap=0,Int_t type=0 /*8 for Xi*/, Int_t syst=0, Double_t nsigmamax=9, TString year0= "2016", TString year=/*"LHC17o_HM_INELgt0281961"/*"161718_HM_hXi"*/"161718Full_AOD234_hXi"/*"17pq_hK0s"/"17pq_hK0s_pttrig0.15"/*"2018f1_extra_hK0s"/*"17pq_hK0s"/"1617_AOD234_hK0s"/*"2018f1_extra_AOD235_hK0s"/*"LHC17_GP_AOD235_18c12"/*"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"2019h11c_extra_HM_hK0s"/"2016k_HM_hK0s"/*"2016k_pass2_TOFOOBPileUp"/"2016k_TOFOOBPileUp_XiV0Rad34_AOD234_Try2"/*"161718_MD_EtaEff_hXi"/*"2016k_pass2_TOFOOBPileUp"/*"2018f1g4_extra_EtaEff_hXi"/"2018g4_extra_EtaEff_hK0s"/*"LHC17_hK0s"/"2016k_hK0s"/"1617_hK0s"/*"AllMC_hXi"/"Run2DataRed_MECorr_hXi"/*"2018f1_extra_hK0s"/*"2016k_hK0s"/"2016kehjl_hK0s"*/, TString yearMC=""/*"17pq_pp5TeV_hXi_pttrig0.15"/*"1617_GP_AOD235_With18c12b"/"17pq_hK0s"/*"2018f1_extra_AOD235_hK0s"/*"LHC17_GP_AOD235_18c12"/*"2017e5_extra_AOD235_hK0s"/*"17pq_hK0s"/*"2019h11c_extra_HM_hK0s"/*"2018f1g4_extra_EtaEff_hXi"/"2018g4_extra_EtaEff_hK0s"/*"2018f1_extra_hK0s"/"1617MC_hK0s"/*"AllMC_hXi"/"2018f1_extra_hK0s"/*"2015g3b1"/*"2018f1_extra_hK0s_30runs_150MeV"*/,Bool_t isMC=0, Bool_t isEfficiency=0, TString path1=""/*"_PtTrigMax2.5"/*"_NewMultClassBis"*/, Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1,   Double_t sigmacentral=4, Double_t nsigmamin=5, Int_t MultBinning=0, Int_t PtBinning=0, Int_t isSysStudy=0, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsPtTrigMultDep=0, Int_t Region=0, Bool_t isAlsoEff=0, Bool_t isHM=1, Bool_t isNewInputPath=1, Bool_t isINEL=1){//, Int_t VarRange=0){
+void histos_exercise_AllParticles(Int_t sysV0=0, Int_t sysV0index=0, Int_t sysTrigger=0, Int_t indexsysTrigger=0, Float_t PtTrigMin=3,Float_t PtTrigMax=15, Bool_t SkipAssoc=0, Int_t rap=1,Int_t type=0 /*0 for K0s, 8 for Xi*/, Int_t syst=0, Double_t nsigmamax=9, TString year0= "2016", TString year="2018f1_extra_150MeV"/*"1617_GP_AOD235_With18c12b"/*"17l3b_hK0s"/*"17pq_hXi"/"161718HM_hK0s"/*"16kl_hK0s"/*"2019h11_HM_hK0s"/"17pq_hK0s"/*"AllhK0sHM_RedNo16k"/"161718_HM_hXi_WithFlat16k_No18p"/*"LHC17o_HM_INELgt0281961"/*"161718_HM_hXi"/"161718Full_AOD234_hXi"/*"17pq_hK0s"/"17pq_hK0s_pttrig0.15"/*"2018f1_extra_hK0s"/*"17pq_hK0s"/"1617_AOD234_hK0s"/*"2018f1_extra_AOD235_hK0s"/*"LHC17_GP_AOD235_18c12"/*"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"2019h11c_extra_HM_hK0s"/"2016k_HM_hK0s"/*"2016k_pass2_TOFOOBPileUp"/"2016k_TOFOOBPileUp_XiV0Rad34_AOD234_Try2"/*"161718_MD_EtaEff_hXi"/*"2016k_pass2_TOFOOBPileUp"/*"2018f1g4_extra_EtaEff_hXi"/"2018g4_extra_EtaEff_hK0s"/*"LHC17_hK0s"/"2016k_hK0s"/"1617_hK0s"/*"AllMC_hXi"/"Run2DataRed_MECorr_hXi"/*"2018f1_extra_hK0s"/*"2016k_hK0s"/"2016kehjl_hK0s"*/, TString yearMC="2018f1_extra_150MeV"/*"1617_GP_AOD235_With18c12b"/*"17l3b_hK0s"/*"17pq_hXi"/"161718HM_hK0s"/*"17pq_pp5TeV_hXi_pttrig0.15"/*"1617_GP_AOD235_With18c12b"/"17pq_hK0s"/*"2018f1_extra_AOD235_hK0s"/*"LHC17_GP_AOD235_18c12"/*"2017e5_extra_AOD235_hK0s"/*"17pq_hK0s"/*"2019h11c_extra_HM_hK0s"/*"2018f1g4_extra_EtaEff_hXi"/"2018g4_extra_EtaEff_hK0s"/*"2018f1_extra_hK0s"/"1617MC_hK0s"/*"AllMC_hXi"/"2018f1_extra_hK0s"/*"2015g3b1"/*"2018f1_extra_hK0s_30runs_150MeV"*/,Bool_t isMC=1, Bool_t isEfficiency=1, TString path1=""/*"_PtTrigMax2.5"/*"_NewMultClassBis"*/, Bool_t isSignalFromIntegral=0, Bool_t isBkgParab=1, Bool_t isMeanFixedPDG=1,   Double_t sigmacentral=4, Double_t nsigmamin=5, Int_t MultBinning=0, Int_t PtBinning=1, Int_t isSysStudy=0, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsPtTrigMultDep=0, Int_t Region=0, Bool_t isAlsoEff=0, Bool_t isHM=0, Bool_t isNewInputPath=1, Bool_t isINEL=0, Bool_t ispp5TeV=0, Int_t VarRange=0, Int_t PtArmCut =0){
 
   if (year == "LHC17o_HM_INELgt0281961") isINEL =1;
   if (isINEL){
@@ -56,7 +56,10 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
     PtTrigMax = 30;
     rap =1;
     isHM =1;
-    if (type==0) year = "161718_HM_hK0s_INELgt0";
+    if (type==0) {
+      year = "161718_HM_hK0s_INELgt0";
+      yearMC = "LHC19h11aPlus_hK0s_INELgt0";
+    }
     PtBinning = 0;
   }
   if (year=="17pq_hXi") MultBinning=3;
@@ -271,8 +274,14 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
   Float_t tot[num_histo]={0};
   Float_t b[num_histo]={0};
   Float_t bside[num_histo]={0};
+  Float_t bsideR[num_histo]={0};
+  Float_t bsideL[num_histo]={0};
+  Float_t bsideR_BC[num_histo]={0};
+  Float_t bsideL_BC[num_histo]={0};
   Float_t errb[num_histo]={0};
   Float_t errbside[num_histo]={0};
+  Float_t errbsideR[num_histo]={0};
+  Float_t errbsideL[num_histo]={0};
   Float_t err_range_false[num_histo]={0};
   Float_t err_sideband_false[num_histo]={0};
   
@@ -315,23 +324,25 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
 
   }
 
-  if (isSysDef && isDefaultSel) PathInEfficiency+= Form("_SysT%i_SysV0Default_PtMin%.1f.root", sysTrigger, PtTrigMin);
-  else   if (isSysDef && isLoosest) PathInEfficiency+= Form("_SysT%i_SysV0Loosest_PtMin%.1f.root", sysTrigger, PtTrigMin);
-  else   if (isSysDef && isTightest) PathInEfficiency+= Form("_SysT%i_SysV0Tightest_PtMin%.1f.root", sysTrigger, PtTrigMin);
-  else if (isSysDef && !isDefaultSel &&sysTrigger==0)  PathInEfficiency+= Form("_SysT%i_SysV0index%i_PtMin%.1f.root", sysTrigger, sysV0index, PtTrigMin);
-  else  if (isSysDef && !isDefaultSel && sysTrigger==1)  PathInEfficiency+= Form("_SysTindex%i_SysV0%i_PtMin%.1f.root", indexsysTrigger, 0, PtTrigMin);
-  else  if (isSysStudy) PathInEfficiency+= Form("_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, 0, PtTrigMin);
+  if (isSysDef && isDefaultSel) PathInEfficiency+= Form("_SysT%i_SysV0Default_PtMin%.1f", sysTrigger, PtTrigMin);
+  else   if (isSysDef && isLoosest) PathInEfficiency+= Form("_SysT%i_SysV0Loosest_PtMin%.1f", sysTrigger, PtTrigMin);
+  else   if (isSysDef && isTightest) PathInEfficiency+= Form("_SysT%i_SysV0Tightest_PtMin%.1f", sysTrigger, PtTrigMin);
+  else if (isSysDef && !isDefaultSel &&sysTrigger==0)  PathInEfficiency+= Form("_SysT%i_SysV0index%i_PtMin%.1f", sysTrigger, sysV0index, PtTrigMin);
+  else  if (isSysDef && !isDefaultSel && sysTrigger==1)  PathInEfficiency+= Form("_SysTindex%i_SysV0%i_PtMin%.1f", indexsysTrigger, 0, PtTrigMin);
+  else  if (isSysStudy) PathInEfficiency+= Form("_SysT%i_SysV0%i_PtMin%.1f", sysTrigger, 0, PtTrigMin);
   else {
     PathInEfficiency+= Form("_SysT%i_SysV0%i_PtMin%.1f", sysTrigger, sysV0, PtTrigMin);
     if (IsPtTrigMultDep) PathInEfficiency+= "_IsPtTrigMultDep";
-    if (MultBinning!=0)  PathInEfficiency+= Form("_MultBinning%i",MultBinning);
-    PathInEfficiency += ".root";
   }
+  if (MultBinning!=0)  PathInEfficiency+= Form("_MultBinning%i",MultBinning);
+  if (isINEL)     PathInEfficiency += "_INEL";
+  PathInEfficiency += ".root";
 
   //  PathInEfficiency+= Form("_SysT%i_SysV0%i_PtMin%.1f.root", sysTrigger, 0, PtTrigMin);
   TFile * fileEff;
   if (isAlsoEff){
     fileEff = new TFile(PathInEfficiency, "");
+    cout << "PathInEfficiency: " << PathInEfficiency << endl;
     if (!fileEff) return; 
   }
   for(Int_t molt=0; molt<mult+1; molt++){
@@ -375,49 +386,57 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
       
     if (!isSysStudy && !isSysDef) {
       nome_file_1 +=Form("_MassDistr_SysT%i_SysV0%i_PtMin%.1f",sysTrigger, sysV0, PtTrigMin);
-      if (IsPtTrigMultDep)      nome_file_1+= "_IsPtTrigMultDep";
-      if (MultBinning!=0) nome_file_1+= Form("_MultBinning%i",MultBinning);
-      if (Region==1) nome_file_1+="_dEtadPhiJetRegion";
-      else if (Region==2) nome_file_1+="_dEtadPhiOOJRegion";
-      if (isINEL)      nome_file_1+= "_INEL";
-      nome_file_1+= ".root";
       nome_file_output[sysTrigger][sysV0] +="_"+year+"_"+tipo[type]+Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab];
       if (IsPtTrigMultDep)      nome_file_output[sysTrigger][sysV0]+= "_IsPtTrigMultDep" ;
       if (Region==1) nome_file_output[sysTrigger][sysV0]+="_dEtadPhiJetRegion";
       else if (Region==2) nome_file_output[sysTrigger][sysV0]+="_dEtadPhiOOJRegion";
       nome_file_output[sysTrigger][sysV0]+=Form("_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f", molt, sysTrigger, sysV0, syst,PtTrigMin);
-      if (MultBinning!=0) nome_file_output[sysTrigger][sysV0]+= Form("_MultBinning%i",MultBinning);
-      if (VarRange>0)       nome_file_output[sysTrigger][sysV0]+= Form("_VarRange%i",VarRange);
-      if (isINEL)      nome_file_output[sysTrigger][sysV0]+= "_INEL";
-      nome_file_output[sysTrigger][sysV0]+= ".root";
     }
     else if (isSysStudy){
-      nome_file_1 +=Form("_MassDistr_SysT%i_SysV0%i_index%i_PtMin%.1f.root",sysTrigger, sysV0, sysV0index, PtTrigMin);
-      nome_file_output[sysTrigger][sysV0] +=Form("_"+year+"_"+tipo[type]+Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0%i_index%i_Sys%i_PtMin%.1f.root", molt, sysTrigger, sysV0, sysV0index, syst,PtTrigMin);
+      nome_file_1 +=Form("_MassDistr_SysT%i_SysV0%i_index%i_PtMin%.1f",sysTrigger, sysV0, sysV0index, PtTrigMin);
+      nome_file_output[sysTrigger][sysV0] +=Form("_"+year+"_"+tipo[type]+Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0%i_index%i_Sys%i_PtMin%.1f", molt, sysTrigger, sysV0, sysV0index, syst,PtTrigMin);
     }
     else  if (isSysDef && isDefaultSel){
-      nome_file_1 +=Form("_MassDistr_SysT%i_SysV0Default_PtMin%.1f.root",sysTrigger, PtTrigMin);
-      nome_file_output[sysTrigger][sysV0] +=Form("_"+year+"_"+tipo[type]+Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0Default_Sys%i_PtMin%.1f.root", molt, sysTrigger, syst,PtTrigMin);
+      nome_file_1 +=Form("_MassDistr_SysT%i_SysV0Default_PtMin%.1f",sysTrigger, PtTrigMin);
+      nome_file_output[sysTrigger][sysV0] +=Form("_"+year+"_"+tipo[type]+Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0Default_Sys%i_PtMin%.1f", molt, sysTrigger, syst,PtTrigMin);
    
     }
     else  if (isSysDef && isLoosest){
-      nome_file_1 +=Form("_MassDistr_SysT%i_SysV0Loosest_PtMin%.1f.root",sysTrigger, PtTrigMin);
-      nome_file_output[sysTrigger][sysV0] +=Form("_"+year+"_"+tipo[type]+Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0Loosest_Sys%i_PtMin%.1f.root", molt, sysTrigger, syst,PtTrigMin);
+      nome_file_1 +=Form("_MassDistr_SysT%i_SysV0Loosest_PtMin%.1f",sysTrigger, PtTrigMin);
+      nome_file_output[sysTrigger][sysV0] +=Form("_"+year+"_"+tipo[type]+Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0Loosest_Sys%i_PtMin%.1f", molt, sysTrigger, syst,PtTrigMin);
    
     }
     else  if (isSysDef && isTightest){
-      nome_file_1 +=Form("_MassDistr_SysT%i_SysV0Tightest_PtMin%.1f.root",sysTrigger, PtTrigMin);
-      nome_file_output[sysTrigger][sysV0] +=Form("_"+year+"_"+tipo[type]+Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0Tightest_Sys%i_PtMin%.1f.root", molt, sysTrigger, syst,PtTrigMin);
+      nome_file_1 +=Form("_MassDistr_SysT%i_SysV0Tightest_PtMin%.1f",sysTrigger, PtTrigMin);
+      nome_file_output[sysTrigger][sysV0] +=Form("_"+year+"_"+tipo[type]+Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0Tightest_Sys%i_PtMin%.1f", molt, sysTrigger, syst,PtTrigMin);
    
     }
     else if (isSysDef && !isDefaultSel && sysTrigger==0){
-      nome_file_1 +=Form("_MassDistr_SysT%i_SysV0index%i_PtMin%.1f.root",sysTrigger, sysV0index,  PtTrigMin);
-      nome_file_output[sysTrigger][sysV0] +=Form("_"+year+"_"+tipo[type]+Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0index%i_Sys%i_PtMin%.1f.root", molt, sysTrigger, sysV0index, syst,PtTrigMin);
+      nome_file_1 +=Form("_MassDistr_SysT%i_SysV0index%i_PtMin%.1f",sysTrigger, sysV0index,  PtTrigMin);
+      nome_file_output[sysTrigger][sysV0] +=Form("_"+year+"_"+tipo[type]+Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysT%i_sysV0indexBis%i_Sys%i_PtMin%.1f", molt, sysTrigger, sysV0index, syst,PtTrigMin);
     }
     else if (isSysDef && !isDefaultSel && sysTrigger==1){
-      nome_file_1 +=Form("_MassDistr_SysTindex%i_SysV0%i_PtMin%.1f.root",indexsysTrigger, 0,  PtTrigMin);
-      nome_file_output[sysTrigger][sysV0] +=Form("_"+year+"_"+tipo[type]+Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysTindex%i_sysV0%i_Sys%i_PtMin%.1f.root", molt, indexsysTrigger,0, syst,PtTrigMin);
+      nome_file_1 +=Form("_MassDistr_SysTindex%i_SysV0%i_PtMin%.1f",indexsysTrigger, 0,  PtTrigMin);
+      nome_file_output[sysTrigger][sysV0] +=Form("_"+year+"_"+tipo[type]+Srap[rap]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG]+ BkgType[isBkgParab]+"_molt%i_sysTindex%i_sysV0%i_Sys%i_PtMin%.1f", molt, indexsysTrigger,0, syst,PtTrigMin);
     }
+
+    if (IsPtTrigMultDep)      nome_file_1+= "_IsPtTrigMultDep";
+    if (MultBinning!=0) nome_file_1+= Form("_MultBinning%i",MultBinning);
+    if (Region==1) nome_file_1+="_dEtadPhiJetRegion";
+    else if (Region==2) nome_file_1+="_dEtadPhiOOJRegion";
+    if (isINEL)      nome_file_1+= "_INEL";
+    if (PtArmCut==1)  nome_file_1 += "_PtArmCutOnLambda";
+    else  if (PtArmCut==2)  nome_file_1 += "_PtArmCutOnPhotons";
+    //    nome_file_1+= "_Prova";
+    nome_file_1+= ".root";
+
+    if (MultBinning!=0) nome_file_output[sysTrigger][sysV0]+= Form("_MultBinning%i",MultBinning);
+    if (VarRange>0)       nome_file_output[sysTrigger][sysV0]+= Form("_VarRange%i",VarRange);
+    if (isINEL)      nome_file_output[sysTrigger][sysV0]+= "_INEL";
+    if (PtArmCut==1)  nome_file_output[sysTrigger][sysV0] += "_PtArmCutOnLambda";
+    else  if (PtArmCut==2)  nome_file_output[sysTrigger][sysV0] += "_PtArmCutOnPhotons";
+    nome_file_output[sysTrigger][sysV0]+= "_Prova";
+    nome_file_output[sysTrigger][sysV0]+= ".root";
       
     cout << "questo è il nome del file prodotto dal task (nome_file_analysis) " << nome_file_analysis << endl;
     cout << "questo è il nome del file " << nome_file_1 << endl;
@@ -460,6 +479,7 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
       }
       else {
 	ContainerName= "_hXi_Task_Default";
+	if (year == "17pq_hXi") 	ContainerName= "_hXi_Task_";
 	if (TMath::Abs(PtTrigMin - 0.15) < 0.001) {
 	  ContainerName= "_hXi_Task_LowPtTrig";
 	  if (isMC) 	  ContainerName= "_hXi_Task_RecoAndEfficiencyLowPt";
@@ -517,7 +537,7 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
     TH1F *histo_Efficiency;    //  cout << "ciao " << endl;
     if (isAlsoEff){
       histo_Efficiency = (TH1F*) fileEff->Get("fHistV0EfficiencyPtBins_"+multiplicity[molt]);
-      if (molt==mult)   histo_Efficiency = (TH1F*) fileEff->Get("fHistV0EfficiencyPtBins__"+multiplicity[molt]);
+      if (!isINEL && molt==mult)   histo_Efficiency = (TH1F*) fileEff->Get("fHistV0EfficiencyPtBins__"+multiplicity[molt]);
       if (!histo_Efficiency) {cout << "histo_efficiency not found " << endl; return;}
       histo_Efficiency->SetName("histo_Efficiency");
       cout << "fHistV0EfficiencyPtBins_"+multiplicity[molt]<< endl;
@@ -574,10 +594,13 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
     TH1F *histo_BsideFalse = new TH1F ("histo_BsideFalse","B in sideband from MC vs Pt", num_histoMax, binl);
     TH1F *histo_BcentralFalse = new TH1F ("histo_BcentralFalse","B entro nsigma from MC vs Pt", num_histoMax, binl);
     TH1F *histo_Bside = new TH1F ("histo_Bside","B in sideband vs Pt", num_histoMax, binl);
+    TH1F *histo_BsideR = new TH1F ("histo_BsideR","B in right sideband vs Pt", num_histoMax, binl);
+    TH1F *histo_BsideL = new TH1F ("histo_BsideL","B in left sideband vs Pt", num_histoMax, binl);
     TH1F *histo_FracStrangePeak = new TH1F ("histo_FracStrangePeak","Frazione picco bkg su totale vs Pt", num_histoMax, binl);  
     TH1F *histo_BRatioCentral = new TH1F ("histo_BRatioCentral","Rapporto B(integral)/B(verità MC) nsigma vs Pt", num_histoMax, binl);
     TH1F *histo_SRatioCentral = new TH1F ("histo_SRatioCentral","Rapporto S(integral)/S(verità MC) nsigma vs Pt", num_histoMax, binl);
     TH1F *histo_BRatioSide = new TH1F ("histo_BRatioSide","Rapporto B(integral)/B(verità MC) in sideband vs Pt", num_histoMax, binl);
+    TH1F *histo_BRatio = new TH1F ("histo_BRatio","Rapporto B(central)/B(sidebands) vs Pt", num_histoMax, binl);
     TH1F *histo_BDoubleRatio = new TH1F ("histo_BDoubleRatio","Rapporto Bside/Bcentral(integral/MCTruth) vs Pt", num_histoMax, binl);
     //  TH1F *histo_stat = new TH1F ("histo_stat","Numero totale entries histo non tagliati", num_histoMax, binl);
     TH1F *histo_signal_int = new TH1F ("histo_signal_int","Integrale segnale dopo applicazione tagli / numero eventi per classe di molteplicita'", num_histoMax, binl);
@@ -609,6 +632,10 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
     histo_Bcentral->GetYaxis()->SetTitle("");
     histo_Bside->GetXaxis()->SetTitle("p_{T} (GeV/c)");
     histo_Bside->GetYaxis()->SetTitle("");
+    histo_BsideL->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+    histo_BsideL->GetYaxis()->SetTitle("");
+    histo_BsideR->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+    histo_BsideR->GetYaxis()->SetTitle("");
     histo_BcentralFalse->GetXaxis()->SetTitle("p_{T} (GeV/c)");
     histo_BcentralFalse->GetYaxis()->SetTitle("");
     histo_BsideFalse->GetXaxis()->SetTitle("p_{T} (GeV/c)");
@@ -643,13 +670,14 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
       if (type==4 || type==5 || type==8){ 
 	liminf[type]=1.30; //where the bkg and total fit is performed (the 2 gaussian fit is performed in the min_range_histo range
 	limsup[type]=1.342;
-	min_histo[type]=1.30;
-	max_histo[type]=1.342;
+	//	min_histo[type]=1.30;
+	//	max_histo[type]=1.342;
+	//	min_histo[type]=1.295;
+	min_histo[type]=1.29;
+	max_histo[type]=1.35;//1.349
 	if (j >4)  {
 	  liminf[type]=1.29;
 	  limsup[type]=1.352;
-	  min_histo[type]=1.29;
-	  max_histo[type]=1.349;
 	}
 	if (isBkgParab){
 	  liminf[type]=1.29;
@@ -661,6 +689,18 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
 	  else if (VarRange==2){ //looser
 	    liminf[type]=1.285;
 	    limsup[type]=1.359;
+	  }
+	  if (isHM || ispp5TeV){
+	    liminf[type]=1.295;
+	    limsup[type]=1.349;
+	    if (VarRange==1){ //tighter
+	      liminf[type]=1.298;
+	      limsup[type]=1.345;
+	    }
+	    else if (VarRange==2){ //looser
+	      liminf[type]=1.292;
+	      limsup[type]=1.35;
+	    }
 	  }
 	}
 	else {
@@ -682,13 +722,23 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
 	    }
 	    */
 	  }
+	  if (isHM || ispp5TeV){
+	    if (VarRange==1){
+	      liminf[type]=1.305;
+	      limsup[type]=1.339;
+	      if (j >4)  {
+		liminf[type]=1.295;
+		limsup[type]=1.349;
+	      }
+	    }
+	    else if (VarRange==2){
+	      liminf[type]=1.292;
+	      limsup[type]=1.35;
+	    }
+	  }
 	}
       }
       if (type==0){
-	if (isINEL && isBkgParab) {
-	  liminf[type]=0.45;
-	  limsup[type]=0.55;
-	}
 	liminf[type]=0.46;//where the bkg and total fit is performed (the 2 gaussian fit is performed in the min_range_histo range
 	limsup[type]=0.54;
 	if (isBkgParab){
@@ -707,6 +757,42 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
 	    limsup[type]=0.53;
 	  }
 	}
+
+	if (isINEL && isBkgParab) {
+	  liminf[type]=0.45;
+	  limsup[type]=0.55;
+	}
+	else if (isHM || ispp5TeV){
+	  if (isBkgParab) {
+	    liminf[type]=0.45;
+	    limsup[type]=0.55;
+	    if (ispp5TeV && binl[j]==1.2)   { liminf[type]=0.45;  limsup[type]=0.547;}
+	    if (VarRange==1){ //tighter
+	      liminf[type]=0.455;
+	      limsup[type]=0.545;
+	    }
+	    else if (VarRange==2){ //looser
+	      liminf[type]=0.45;
+	      limsup[type]=0.55;
+	    }
+	  }
+	  else {
+	    liminf[type]=0.46;
+	    limsup[type]=0.54;
+	    if (ispp5TeV && binl[j] ==4) {   liminf[type]=0.465; limsup[type]=0.535;}
+	    if (VarRange==1){ //tighter
+	      liminf[type]=0.465;
+	      limsup[type]=0.53; 
+	      if (ispp5TeV)  limsup[type]=0.535;
+	    }
+	    else if (VarRange==2){ //looser
+	      liminf[type]=0.45;
+	      limsup[type]=0.55;
+	      if (ispp5TeV && binl[j]==4)  {   liminf[type]=0.465; limsup[type]=0.535;}
+	    }
+	  }
+	}
+
 	min_histo[type]=0.455; //where final bkg function is displayed and sideband integral is calculated
 	max_histo[type]=0.54;
       }
@@ -804,7 +890,8 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
       
       cout << "qui ok" << endl;
 
-      gStyle->SetOptFit(0111);
+      //      gStyle->SetOptFit(0111);
+      gStyle->SetOptFit(0);
       cout << " ****ho creato funzioni di fit " << endl;
       cout << "**\n\n******* fit nel range  " << binl[j]<<"-"<<binl[j+1]<<"****************\n"<<endl;
 
@@ -1068,8 +1155,8 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
 
 	lineSidebandsSX[j]= new TLine(mean[j]-nsigmamin*sigma[j], 0, mean[j]-nsigmamin*sigma[j],0.2*isto_tagli[j]->GetBinContent(isto_tagli[j]->GetMaximumBin()));  
 	lineSidebandsDX[j]= new TLine(mean[j]+nsigmamin*sigma[j], 0, mean[j]+nsigmamin*sigma[j],0.2*isto_tagli[j]->GetBinContent(isto_tagli[j]->GetMaximumBin()));  
-	//	lineSidebandsSX[j]->Draw("same");
-	//	lineSidebandsDX[j]->Draw("same");
+	lineSidebandsSX[j]->Draw("same");
+	lineSidebandsDX[j]->Draw("same");
   
       }
 
@@ -1217,6 +1304,8 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
       entries_sideband_false[j]=0;      
       entries_sideband_true[j]=0;
       bside[j] = 0;
+      bsideL[j] = 0;
+      bsideR[j] = 0;
 
       for(Int_t l=isto_tagli[j]->GetXaxis()->FindBin(mean[j]-sigmacentral*sigma[j]); l<=isto_tagli[j]->GetXaxis()->FindBin(mean[j]+sigmacentral*sigma[j]); l++){
 	entries_range[j]+=isto_tagli[j]->GetBinContent(l);
@@ -1239,10 +1328,19 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
 
       for (Int_t b= isto_tagli[j]->GetXaxis()->FindBin(min_histo[type]); b<= isto_tagli[j]->GetXaxis()->FindBin(mean[j]-nsigmamin*sigma[j]) ; b++){
 	bside[j]+=  (isto_tagli[j]->GetBinContent(b)* isto_tagli[j]->GetBinWidth(1));
+	bsideL[j]+=  (isto_tagli[j]->GetBinContent(b)* isto_tagli[j]->GetBinWidth(1));
+	bsideL_BC[j]+=  (isto_tagli[j]->GetBinContent(b));
       }
-      for (Int_t b= isto_tagli[j]->GetXaxis()->FindBin(mean[j]+nsigmamin*sigma[j]) ; b<= isto_tagli[j]->GetXaxis()->FindBin(max_histo[type]) ; b++){
+      for (Int_t b= isto_tagli[j]->GetXaxis()->FindBin(mean[j]+nsigmamin*sigma[j]) ; b< isto_tagli[j]->GetXaxis()->FindBin(max_histo[type]) ; b++){
 	bside[j]+=  (isto_tagli[j]->GetBinContent(b)* isto_tagli[j]->GetBinWidth(1));
+	bsideR[j]+=  (isto_tagli[j]->GetBinContent(b)* isto_tagli[j]->GetBinWidth(1));
+	bsideR_BC[j]+=  (isto_tagli[j]->GetBinContent(b));
       }
+
+      cout << "\n********Pt interval: "<< int_pt[j]  << " L " <<  bsideL[j] << " R " <<  bsideR[j] << " ratio: " << bsideL[j]/ bsideR[j]<< endl;
+      cout << "\n********Pt interval: "<< int_pt[j]  << " L " <<  bsideL_BC[j] << " R " <<  bsideR_BC[j] << " ratio: " << bsideL_BC[j]/bsideR_BC[j] << endl;
+      cout << "Right range " << mean[j]+nsigmamin*sigma[j] << " " << max_histo[type] << endl;
+      cout << "Entries in central region " << entries_range[j] << endl;
 
       st[j]=total[j]->Integral(mean[j]-sigmacentral*sigma[j],mean[j]+sigmacentral*sigma[j]); //la funzione total ha parametri del bkg settati a zero!
       IntegralSignalAllRange[j]=total[j]->Integral(min_histo[type], max_histo[type]); //la funzione total ha parametri del bkg settati a zero!
@@ -1279,6 +1377,8 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
       sigmab1[j]=totalbis[j]->IntegralError(mean[j]-sigmacentral*sigma[j],mean[j]+sigmacentral*sigma[j],fFitResultPtr1[j] ->GetParams(),(fFitResultPtr1[j]->GetCovarianceMatrix()).GetMatrixArray()); //ok
       errb[j]=sigmab1[j]; //ok
       errbside[j]=totalbis[j]->IntegralError(min_histo[type], mean[j]-nsigmamin*sigma[j],fFitResultPtr1[j] ->GetParams(),(fFitResultPtr1[j]->GetCovarianceMatrix()).GetMatrixArray())+ totalbis[j]->IntegralError(mean[j]+nsigmamin*sigma[j], limsup[type],fFitResultPtr1[j] ->GetParams(),(fFitResultPtr1[j]->GetCovarianceMatrix()).GetMatrixArray()); //ok
+      errbsideR[j]= totalbis[j]->IntegralError(mean[j]+nsigmamin*sigma[j], limsup[type],fFitResultPtr1[j] ->GetParams(),(fFitResultPtr1[j]->GetCovarianceMatrix()).GetMatrixArray()); //ok
+      errbsideL[j]=totalbis[j]->IntegralError(min_histo[type], mean[j]-nsigmamin*sigma[j],fFitResultPtr1[j] ->GetParams(),(fFitResultPtr1[j]->GetCovarianceMatrix()).GetMatrixArray());
       errS1[j]=sigmas1[j]; //ok
       errS2[j]=sqrt( pow(isto_tagli[j]->GetBinWidth(1),2)*entries_range[j] + pow(sigmab1[j],2));    //ok
       errSB1[j]=   sqrt(pow(sigmas1[j],2)/pow(b[j],2) + pow(sigmab1[j],2)*pow(st[j],2)/pow(b[j],4));//ok
@@ -1331,6 +1431,11 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
 	  histo_Bcentral->SetBinError(j+1, errb[j]);
 	  histo_Bside->SetBinContent(j+1,bside[j]);
 	  histo_Bside->SetBinError(j+1, errbside[j]);
+	  histo_BsideR->SetBinContent(j+1,bsideR[j]);
+	  histo_BsideR->SetBinError(j+1, errbsideR[j]);
+	  histo_BsideL->SetBinContent(j+1,bsideL[j]);
+	  histo_BsideL->SetBinError(j+1, errbsideL[j]);
+	  histo_BRatio->SetBinContent(j+1,(b[j]/bside[j]));
 	  if (isMC && isEfficiency) {
 	    histo_BcentralFalse->SetBinContent(j+1,entries_range_false[j]*isto_tagli[j]->GetBinWidth(1));
 	    histo_BcentralFalse->SetBinError(j+1, err_range_false[j]*isto_tagli[j]->GetBinWidth(1));
@@ -1339,10 +1444,10 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
 	    histo_FracStrangePeak->SetBinContent(j+1,(entries_range_false[j]*isto_tagli[j]->GetBinWidth(1)-b[j])/entries_range[j]/isto_tagli[j]->GetBinWidth(1));
 	    histo_FracStrangePeak->SetBinError(j+1,0);
 	    histo_BRatioCentral->SetBinContent(j+1,b[j]/entries_range_false[j]/isto_tagli[j]->GetBinWidth(1));
-	    histo_SRatioCentral->SetBinContent(j+1,st[j]/entries_range_true[j]/isto_tagli[j]->GetBinWidth(1));
+	    //	    histo_SRatioCentral->SetBinContent(j+1,st[j]/entries_range_true[j]/isto_tagli[j]->GetBinWidth(1));
+	    histo_SRatioCentral->SetBinContent(j+1,(tot[j]-b[j])/entries_range_true[j]/isto_tagli[j]->GetBinWidth(1));
 	    histo_BRatioSide->SetBinContent(j+1,bside[j]/entries_sideband_false[j]/isto_tagli[j]->GetBinWidth(1));
 	    histo_BDoubleRatio->SetBinContent(j+1,(b[j]/bside[j])/((Float_t)entries_range_false[j]/entries_sideband_false[j]));
-
 	    histo_BRatioCentral->SetBinError(j+1,0);
 	    histo_BRatioSide->SetBinError(j+1,0);
 	    histo_BDoubleRatio->SetBinError(j+1,0);
@@ -1376,6 +1481,11 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
 	  histo_Bcentral->SetBinError(j+1, errb[j]);
 	  histo_Bside->SetBinContent(j+1,bside[j]);
 	  histo_Bside->SetBinError(j+1, errbside[j]);
+	  histo_BsideR->SetBinContent(j+1,bsideR[j]);
+	  histo_BsideR->SetBinError(j+1, errbsideR[j]);
+	  histo_BsideL->SetBinContent(j+1,bsideL[j]);
+	  histo_BsideL->SetBinError(j+1, errbsideL[j]);
+	  histo_BRatio->SetBinContent(j+1,(b[j]/bside[j]));
 	  if (isMC && isEfficiency) {
 	    histo_BcentralFalse->SetBinContent(j+1,entries_range_false[j]*isto_tagli[j]->GetBinWidth(1));
 	    histo_BcentralFalse->SetBinError(j+1, err_range_false[j]*isto_tagli[j]->GetBinWidth(1));
@@ -1383,10 +1493,10 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
 	    histo_BsideFalse->SetBinError(j+1, err_sideband_false[j]*isto_tagli[j]->GetBinWidth(1));
 	    histo_FracStrangePeak->SetBinContent(j+1,(entries_range_false[j]*isto_tagli[j]->GetBinWidth(1)-b[j])/entries_range[j]/isto_tagli[j]->GetBinWidth(1));
 	    histo_BRatioCentral->SetBinContent(j+1,b[j]/entries_range_false[j]/isto_tagli[j]->GetBinWidth(1));
-	    histo_SRatioCentral->SetBinContent(j+1,st[j]/entries_range_true[j]/isto_tagli[j]->GetBinWidth(1));
+	    //	    histo_SRatioCentral->SetBinContent(j+1,st[j]/entries_range_true[j]/isto_tagli[j]->GetBinWidth(1));
+	    histo_SRatioCentral->SetBinContent(j+1,(tot[j]-b[j])/entries_range_true[j]/isto_tagli[j]->GetBinWidth(1));
 	    histo_BRatioSide->SetBinContent(j+1,bside[j]/entries_sideband_false[j]/isto_tagli[j]->GetBinWidth(1));
 	    histo_BDoubleRatio->SetBinContent(j+1,(b[j]/bside[j])/((Float_t)entries_range_false[j]/entries_sideband_false[j]));
-
 	    histo_BRatioCentral->SetBinError(j+1,0);
 	    histo_BRatioSide->SetBinError(j+1,0);
 	    histo_BDoubleRatio->SetBinError(j+1,0);
@@ -1430,6 +1540,11 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
 	  histo_Bcentral->SetBinError(j+1, 0);
 	  histo_Bside->SetBinContent(j+1,0);
 	  histo_Bside->SetBinError(j+1, 0);
+	  histo_BsideR->SetBinContent(j+1,0);
+	  histo_BsideR->SetBinError(j+1, 0);
+	  histo_BsideL->SetBinContent(j+1,0);
+	  histo_BsideL->SetBinError(j+1,0);
+	  histo_BRatio->SetBinError(j+1,0);
 	  if (isMC && isEfficiency) {
 	    histo_BcentralFalse->SetBinContent(j+1,0);
 	    histo_BcentralFalse->SetBinError(j+1, 0);
@@ -1494,6 +1609,7 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
       //cout << "  integrale nel range del segnale/ampiezza bin   "<< (functions1[j]->Integral(functions1[j]->GetParameter(1)-sigmacentral*functions1[j]->GetParameter(2),functions1[j]->GetParameter(1)+sigmacentral*functions1[j]->GetParameter(2)))/isto_tagli[j]->GetBinWidth(1) << endl;
     }
 
+    canv[molt]->SaveAs("PictureForNote/InvMass"+ tipo[type]+".pdf");
     //  event_multiplicity->Write();
     f->WriteTObject(canv[molt]);
     histo_LLsideB->Write();
@@ -1512,6 +1628,9 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
     }
     histo_Bcentral->Write();
     histo_Bside->Write();
+    histo_BRatio->Write();
+    histo_BsideR->Write();
+    histo_BsideL->Write();
     histo_BcentralFalse->Write();
     histo_BsideFalse->Write();
     histo_FracStrangePeak->Write();
@@ -1547,4 +1666,5 @@ void histos_exercise_AllParticles(Int_t VarRange=0, Int_t sysV0=0, Int_t sysV0in
   }
   cout << "\nsum of trigger particles in each mult bin " << NEventsTotal << endl;
   cout << "n events entries "  << NEventsEntries << endl;
+  cout << "Limits of bkf fit: " <<  liminf[type] << "-" <<  limsup[type] << endl;
 }
