@@ -16,7 +16,7 @@
 #include <TLatex.h>
 #include <TFile.h>
 #include <TLegend.h>
-void readTreePLChiarahK0s_first( Int_t sysV0=0,Int_t sysV0Index=0, Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAssoc=0 ,Int_t israp=1, Bool_t ishhCorr=0, Float_t PtTrigMin=0.15, Float_t ptjmax=30, bool isMC = 0,Bool_t isEfficiency=0, Int_t sysTrigger=0, TString year= "161718_HM_hK0s_INELgt0"/*"LHC19h11_HM_INELgt0Bis286380"/*"LHC17o_HM_INELgt0281961"/*"hK0s_pp_18p_AOD264"/*"17pq_hK0s"/*"17d20bEPOS_hK0s_EtaEff"/*"2019h11b+extra_hK0s"/"2019h11_HM_hK0s"/"15g3c3_hK0s"/"2018f1_extra_15runs_Trig0Pt"/*"17pq_hK0s_pttrig0.15"/"1617_AOD234_hK0s"/*"1617_GP_AOD235_With18c12b"/*"LHC16_GP_AOD235_17d16"/*"2017e5_extra_AOD235_hK0s"/*"2019h11a_extra_HM_hK0s"/"17pq_hK0s_FAST"/"AllhK0sHM_RedNo16k"/*"2018f1_extra_30runs_Mylabel_hK0s"/*"2018f1_extra_Nature_15runs"/"2019h11c_extra_HM_hK0s"/*"2016k_HM_hK0s"/*"2018g4_extra_EtaEff_hK0s"/*"2016k_HM_hK0s"/*"2018g4_extra_EtaEff_hK0s"/*"LHC17_hK0s"/*"17d20bEPOS_hK0s"/"1617MC_hK0s"/*"2018f1_extra_Reco_hK0s"/*"2016k_hK0s"/*"2016kehjl_hK0s"/*"2016k_hK0s"/"17anch17_hK0s"/"1617_hK0s"/*"2018f1_extra_hK0s_CP"*/, TString year0="2016", TString Path1 ="", Bool_t CommonParton=0, Int_t PtBinning=1, Bool_t isSysStudy=0, Int_t numsysV0index=20, Bool_t IsPtTrigMultDep = 0, Int_t Region=0, Bool_t isEfficiencyMassSel=0, Bool_t isHM=1, Bool_t isNewInputPath=1, Int_t MultBinning=0, Bool_t ispp5TeV=0, Bool_t isINEL=1)
+void readTreePLChiarahK0s_first( Int_t sysV0=0,Int_t sysV0Index=0, Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAssoc=0 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15, bool isMC = 1,Bool_t isEfficiency=1, Int_t sysTrigger=0, TString year=/*"17l3b_hK0s"*/"161718HM_hK0s"/*_TriggEff"/*"18f1_extra_EffTrigger_5runs"/*"16kl_hK0s"/*"18f1_extra_CrossedRows70"/*"16kl_hK0s_INEL"/*"17pq_hK0s_pttrig0.15"/"18f1+18d8_hK0s_AOD235"/* "LHC19h11aPlus_hK0s_INELgt0"//"161718_HM_hK0s_INELgt0"/*"LHC19h11_HM_INELgt0Bis286380"/*"LHC17o_HM_INELgt0281961"/*"hK0s_pp_18p_AOD264"/"17pq_hK0s"/"17d20bEPOS_hK0s_EtaEff"/*"2019h11b+extra_hK0s"/"2019h11_HM_hK0s"/*"15g3c3_hK0s"/"2018f1_extra_15runs_Trig0Pt"/*"17pq_hK0s_pttrig0.15"/"1617_AOD234_hK0s"/"1617_GP_AOD235_With18c12b"/*"LHC16_GP_AOD235_17d16"/*"2017e5_extra_AOD235_hK0s"/*"2019h11a_extra_HM_hK0s"/"17pq_hK0s_FAST"/"AllhK0sHM_RedNo16k"/*"2018f1_extra_30runs_Mylabel_hK0s"/*"2018f1_extra_Nature_15runs"/"2019h11c_extra_HM_hK0s"/*"2016k_HM_hK0s"/*"2018g4_extra_EtaEff_hK0s"/*"2016k_HM_hK0s"/*"2018g4_extra_EtaEff_hK0s"/*"LHC17_hK0s"/*"17d20bEPOS_hK0s"/"1617MC_hK0s"/*"2018f1_extra_Reco_hK0s"/*"2016k_hK0s"/*"2016kehjl_hK0s"/*"2016k_hK0s"/"17anch17_hK0s"/"1617_hK0s"/*"2018f1_extra_hK0s_CP"*/, TString year0="2016", TString Path1 ="", Bool_t CommonParton=0, Int_t PtBinning=1, Bool_t isSysStudy=0, Int_t numsysV0index=20, Bool_t IsPtTrigMultDep = 0, Int_t Region=0, Bool_t isEfficiencyMassSel=0, Bool_t isHM=1, Bool_t isNewInputPath=1, Int_t MultBinning=1, Bool_t ispp5TeV=0, Bool_t isINEL=0, Int_t PtArmCut =0)
 {
   
   //Region=0; default, no selections on  dEta and dPhi
@@ -29,8 +29,11 @@ void readTreePLChiarahK0s_first( Int_t sysV0=0,Int_t sysV0Index=0, Int_t type=0 
     PtTrigMin=0.;
     ptjmax = 30;
     israp =1;
-    if (type==0 && !isMC) year = "161718_HM_hK0s_INELgt0";
+    //israp =0;
+    //   if (type==0 && !isMC) year = "161718_HM_hK0s_INELgt0";
+    //else    if (type==0 && isMC) year = "LHC19h11a_hK0s_INELgt0";
     PtBinning = 0;
+    isHM =1;
   }
   if (sysV0Index>20) return; 
   //SysStudy: if 1, values different from default ones will be used; the topological variable changed will sysV0Index > 20 ) return;be indicated in the output file, together with its value  
@@ -126,8 +129,7 @@ void readTreePLChiarahK0s_first( Int_t sysV0=0,Int_t sysV0Index=0, Int_t type=0 
   TString tipo[numtipo]={"K0s", "Lambda", "AntiLambda", "LambdaAntiLambda"};
   TString Srap[2] = {"_Eta0.8", "_y0.5"};
 
- TString PathInMass= "FinalOutput/DATA" + year0 + "/invmass_distribution_thesis/invmass_dist\
-ribution";
+ TString PathInMass= "FinalOutput/DATA" + year0 + "/invmass_distribution_thesis/invmass_distribution";
  TString PathInMassDef;
 
   TString PathIn="./FinalOutput/AnalysisResults";
@@ -172,9 +174,10 @@ ribution";
   //  PathOut +="_HM";
   //  PathOut+="_LooseCosinePAngle";
   //  PathOut += "_NoZeroMult";
+  if (PtArmCut==1)  PathOut += "_PtArmCutOnLambda";
+  else  if (PtArmCut==2)  PathOut += "_PtArmCutOnPhotons";
+  PathOut+= "_Prova";
   PathOut+= ".root";
-
-
  
 
   Bool_t MassInPeakK0s =0; //variable for a rough cut on K0s candidates' invariant mass (only done to fill histograms needed for deltaphi projections of K0s with or without an ancestor parton in common with trigger particle)
@@ -214,11 +217,17 @@ ribution";
   else {
     d = (TDirectoryFile*)fin->Get("MyTask"+dirinputtype[type]);
   }
-  if (year == "LHC17o_HM_INELgt0281961" || year == "LHC19h11_HM_INELgt0Bis286380") {
+  if (year == "LHC17o_HM_INELgt0281961" || year == "LHC19h11_HM_INELgt0Bis286380" || year.Index("FB")!=-1 || year.Index("CrossedRows70")!=-1) {
     d = (TDirectoryFile*)fin->Get("MyTask_PtTrigMin0.2_PtTrigMax30.0");
   }
   else if (isINEL>0){
     d = (TDirectoryFile*)fin->Get("MyTask_PtTrigMin0.0_PtTrigMax15.0");
+    if (isMC)    d = (TDirectoryFile*)fin->Get("MyTask_MCTruth_PtTrigMin0.0_PtTrigMax15.0");
+    if (year.Index("16kl")!=-1) d = (TDirectoryFile*)fin->Get("MyTask_MCTruth_PtTrigMin3.0_PtTrigMax15.0");
+  }
+
+  if (year == "18f1_extra_EffTrigger_5runs"){
+    d = (TDirectoryFile*)fin->Get("MyTask_PtTrigMin3.0_PtTrigMax15.0");
   }
   if (!d)  {cout << "dir input not available " ; return;}
 
@@ -324,6 +333,8 @@ ribution";
   Double_t Nmolt[nummolt+1]={0, 5, 10, 30, 50, 100};
   TString Smolt5TeV[nummolt+1]={"0-10", "10-100", "100-100", "100-100", "100-100", "all"};
   Double_t Nmolt5TeV[nummolt+1]={0, 10, 100, 100, 100, 100};
+  TString SmoltMultBinning4[nummolt+1]={"0-5", "5-100", "100-100", "100-100", "100-100", "all"};
+  Double_t NmoltMultBinning4[nummolt+1]={0, 5, 100, 100, 100, 100};
 
   if (isHM){
     Nmolt[1] = 0.001;
@@ -355,6 +366,12 @@ ribution";
     for (Int_t m=0; m<nummolt+1; m++){
     Nmolt[m] = Nmolt5TeV[m];
     Smolt[m] = Smolt5TeV[m];
+    }
+  }
+  else if (MultBinning==4) {
+    for (Int_t m=0; m<nummolt+1; m++){
+    Nmolt[m] = NmoltMultBinning4[m];
+    Smolt[m] = SmoltMultBinning4[m];
     }
   }
 
@@ -463,7 +480,7 @@ ribution";
   cout << ContainerName<< endl;
   TTree *tSign;
   TTree *tBkg;
-  if (year == "17pq_hK0s_pttrig0.15" || year.Index("NoTrackLength")!=-1 || year.Index("NoOOBPileUp")!=-1 || year.Index("15g3c3")!=-1 || year.Index("NSigma5")!= -1 ||  year.Index("V0RadiusSelection")!= -1 || year.Index("Trig0Pt")!=-1 || year =="17d20bEPOS_hK0s_EtaEff" || year.Index("AOD234")!=-1 || year.Index("AOD264")!=-1 || year == "LHC17o_HM_INELgt0281961" || year == "LHC19h11_HM_INELgt0Bis286380" || isINEL){
+  if (year == "17pq_hK0s_pttrig0.15" || year.Index("NoTrackLength")!=-1 || year.Index("NoOOBPileUp")!=-1 || year.Index("15g3c3")!=-1 || year.Index("NSigma5")!= -1 ||  year.Index("V0RadiusSelection")!= -1 || year.Index("Trig0Pt")!=-1 || year =="17d20bEPOS_hK0s_EtaEff" || /*year.Index("AOD234")!=-1 || */year.Index("AOD264")!=-1 || year == "LHC17o_HM_INELgt0281961" || year == "LHC19h11_HM_INELgt0Bis286380" || isINEL || year.Index("FB")!=-1 || year.Index("CrossedRows70")!=-1 || year=="16kl_hK0s" || year == "18f1_extra_EffTrigger_5runs" || year.Index("161718HM_hK0s")!=-1 || year.Index("17l3b_hK0s")!=-1){
     tSign = (TTree *)d->Get("MyOutputContainer1"+ContainerName);
     tBkg  = (TTree *)d->Get("MyOutputContainer2"+ContainerName);
   }
@@ -616,6 +633,7 @@ ribution";
   if (isHM) UpperLimitMult = 0.1;
 
   TH1F* hMultiplicityhK0sPairs = new TH1F("hMultiplicityhK0sPairs", "hMultiplicityhK0sPairs", 100, 0, UpperLimitMult);
+
   TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPPtInt[nummolt+1][numzeta][numPtTrigger];
   TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt[nummolt+1][numzeta][numPtTrigger];
   TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt_BulkReg[nummolt+1][numzeta][numPtTrigger];
@@ -765,8 +783,14 @@ ribution";
   TString nameSE[nummolt+1][numzeta][numPtV0][numPtTrigger];
   TString namemassSE[nummolt+1][numzeta][numPtV0][numPtTrigger];
   TH1D *hInvMassK0Short_SEbins[nummolt+1][numzeta][numPtV0][numPtTrigger];
+  TH2D*  fHistPtArmvsAlpha[nummolt][numzeta][numPtV0][numPtTrigger];
   TH2D *hMassvsPt_SEbins[nummolt+1][numzeta][numPtTrigger];
   TH2D *hMassvsPt_SEbins_true[nummolt+1][numzeta][numPtTrigger];
+  TH2D *hMassvsPt_SEbins_false[nummolt+1][numzeta][numPtTrigger];
+  TH2D *hMassvsPt_SEbins_chargedK[nummolt+1][numzeta][numPtTrigger];
+  TH2D *hMassvsPt_SEbins_K0L[nummolt+1][numzeta][numPtTrigger];
+  TH1D *hKFalse[nummolt+1][numzeta][numPtTrigger];
+
   TH2D *hDeltaEtaDeltaPhi_SEbins[nummolt+1][numzeta][numPtV0][numPtTrigger];
   TH2D *hDeltaEtaDeltaPhi_SEbins_CP[nummolt+1][numzeta][numPtV0][numPtTrigger];
   TH2D *hDeltaEtaDeltaPhi_SEbins_CPTrue[nummolt+1][numzeta][numPtV0][numPtTrigger];
@@ -783,6 +807,11 @@ ribution";
       for(Int_t tr=0; tr<numPtTrigger; tr++){
 	hMassvsPt_SEbins[m][z][tr]= new TH2D(Form("SE_hMassvsPt_"+tipo[type]+"_%i", m),Form("SE_hMassvsPt_"+tipo[type]+"_%i", m), 100, LimInfMass[type], LimSupMass[type], 100, 0, 10);
 	hMassvsPt_SEbins_true[m][z][tr]= new TH2D(Form("SE_hMassvsPt_"+tipo[type]+"_%i_true", m),Form("SE_hMassvsPt_"+tipo[type]+"_%i_true", m), 100, LimInfMass[type], LimSupMass[type], 100, 0, 10);
+	hMassvsPt_SEbins_false[m][z][tr]= (TH2D*)  hMassvsPt_SEbins_true[m][z][tr]->Clone(Form("SE_hMassvsPt_"+tipo[type]+"_%i_false", m));
+	hMassvsPt_SEbins_K0L[m][z][tr]= (TH2D*)  hMassvsPt_SEbins_true[m][z][tr]->Clone(Form("SE_hMassvsPt_"+tipo[type]+"_%i_K0L", m));
+	hMassvsPt_SEbins_chargedK[m][z][tr]= (TH2D*)  hMassvsPt_SEbins_true[m][z][tr]->Clone(Form("SE_hMassvsPt_"+tipo[type]+"_%i_chargedK", m));
+	hKFalse[m][z][tr]= new TH1D(Form("hKFalse_"+tipo[type]+"_%i", m),Form("hKFalse_"+tipo[type]+"_%i", m), 3000,0, 3000);
+
 	hDeltaEtaDeltaPhi_SEbins_CPTruePtInt[m][z][tr]= new TH2D("SE_m"+Smolt[m]+"_CPTrue_PtInt", "SE_m"+Smolt[m]+"_CPTrue_PtInt", 56, -1.5, 1.5, 104,  -0.5*TMath::Pi(), 1.5*TMath::Pi());
         hDeltaEtaDeltaPhi_SEbins_NOCPTruePtInt[m][z][tr]= new TH2D("SE_m"+Smolt[m]+"_NOCPTrue_PtInt", "SE_m"+Smolt[m]+"_NOCPTrue_PtInt", 56, -1.5, 1.5, 104,  -0.5*TMath::Pi(), 1.5*TMath::Pi());
         hDeltaEtaDeltaPhi_SEbins_CPPtInt[m][z][tr]= new TH2D("SE_m"+Smolt[m]+"_CP_PtInt", "SE_m"+Smolt[m]+"_CP_PtInt", 56, -1.5, 1.5,104,  -0.5*TMath::Pi(), 1.5*TMath::Pi());
@@ -794,6 +823,9 @@ ribution";
 	  nameSE[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
 	  namemassSE[m][z][v][tr]+="m"+ Smolt[m]+"_v"+SPtV0[v];
 	  hInvMassK0Short_SEbins[m][z][v][tr]= new TH1D(namemassSE[m][z][v][tr], namemassSE[m][z][v][tr],100, LimInfMass[type], LimSupMass[type]);
+	  fHistPtArmvsAlpha[m][z][v][tr]  =new TH2D(namemassSE[m][z][v][tr]+"_PtArmvsAlpha", "Distribution of V0 candidates after selections",  80, -1, 1,80,  0, 0.3);
+	  fHistPtArmvsAlpha[m][z][v][tr]->GetXaxis()->SetTitle("Alpha");
+	  fHistPtArmvsAlpha[m][z][v][tr]->GetYaxis()->SetTitle("Pt Armenteros");
 	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]= new TH2D(nameSE[m][z][v][tr], nameSE[m][z][v][tr],   56, -1.5, 1.5, 104,  -0.5*TMath::Pi(), 1.5*TMath::Pi()); 
 	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetXaxis()->SetTitle("#Delta #eta");
 	  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->GetYaxis()->SetTitle("#Delta #phi (rad)");
@@ -950,6 +982,12 @@ ribution";
 	  if(fSignTreeVariableDcaPosToPrimVertex < DCAPosToPV)      continue;
 	  if(fSignTreeVariableDcaV0ToPrimVertex > DCAV0ToPV)      continue;
 	  if(fSignTreeVariablectau> ctau)                   continue;
+	  if (PtArmCut==1){
+	    if(fSignTreeVariablePtArmenteros< 0.2*TMath::Abs(fSignTreeVariableAlpha))  continue;
+	  }
+	  else if (PtArmCut==2){
+	    if (fSignTreeVariablePtArmenteros < 0.03) continue; 
+	  }
       }
       else if (ishhCorr){
 	if(sysV0==0){
@@ -1106,7 +1144,19 @@ ribution";
 	    if (isParticleTrue)      TrueCounterSignPairsAfterPtMinCutMult[m]++;  
 	    if (!ishhCorr){
 	      hMassvsPt_SEbins[m][z][tr]->Fill(fSignTreeVariableInvMass, fSignTreeVariablePtV0); 
-	      if(isParticleTrue) hMassvsPt_SEbins_true[m][z][tr]->Fill(fSignTreeVariableInvMass, fSignTreeVariablePtV0); 
+	      if(isParticleTrue) {
+		hMassvsPt_SEbins_true[m][z][tr]->Fill(fSignTreeVariableInvMass, fSignTreeVariablePtV0); 
+		//cout << fSignTreeVariablePDGCodeAssoc << endl;
+	      }
+	      else {
+		hMassvsPt_SEbins_false[m][z][tr]->Fill(fSignTreeVariableInvMass, fSignTreeVariablePtV0);
+		if (fSignTreeVariableInvMass>0.46 && fSignTreeVariableInvMass<0.54){
+		  hKFalse[m][z][tr]->Fill(fSignTreeVariablePDGCodeAssoc);
+		  if (fSignTreeVariablePDGCodeAssoc!=0)		  cout << fSignTreeVariablePDGCodeAssoc << endl;
+		}
+		if (TMath::Abs(fSignTreeVariablePDGCodeAssoc) == 321)		hMassvsPt_SEbins_chargedK[m][z][tr]->Fill(fSignTreeVariableInvMass, fSignTreeVariablePtV0);
+		else 		if (TMath::Abs(fSignTreeVariablePDGCodeAssoc) == 130)		hMassvsPt_SEbins_K0L[m][z][tr]->Fill(fSignTreeVariableInvMass, fSignTreeVariablePtV0);
+	      }
 	    }
 	    if (CommonParton){
               if ((isMC && isParticleTrue)){
@@ -1130,6 +1180,7 @@ ribution";
 	  for(Int_t v=PtBinMin; v<numPtV0Max; v++){
 	    if(MoltSel && fSignTreeVariablePtTrigger>=NPtTrigger[tr] && fSignTreeVariablePtTrigger<NPtTrigger[tr+1] && fSignTreeVariablePtV0>=NPtV0[v]&& fSignTreeVariablePtV0<NPtV0[v+1]){
 	      hDeltaEtaDeltaPhi_SEbins[m][z][v][tr]->Fill(fSignTreeVariableDeltaEta, fSignTreeVariableDeltaPhi);
+	      fHistPtArmvsAlpha[m][z][v][tr]->Fill(fSignTreeVariableAlpha, fSignTreeVariablePtArmenteros); 
 	      if (!ishhCorr)	      hInvMassK0Short_SEbins[m][z][v][tr]->Fill(fSignTreeVariableInvMass);
 
 	      if (CommonParton){
@@ -1155,7 +1206,8 @@ ribution";
 
   Float_t     fBkgTreeVariableInvMass= 0;
   l=0;
-  if (!isSysStudy & !isINEL){
+  //  if (!isSysStudy & !isINEL){
+  if (kFALSE){
   for(Int_t k = 0; k<EntriesBkg; k++){
     // for(Int_t k = 0; k<1; k++){
     //if (k>100000) continue;
