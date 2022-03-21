@@ -35,7 +35,10 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, Int_t isComp=0,  Bool_t isAvgPtvsMult=0,  Bool_t isPreliminary=0, Bool_t FitYields=0){
+void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, Int_t isComp=0,  Bool_t isAvgPtvsMult=0,  Int_t isPreliminary=0, Bool_t FitYields=0, Bool_t isYieldMeanMacro=0, Bool_t isChangesIncluded=1){
+
+  //isPreliminary = 1: preliminary plots for RATIO (not corrected by norm factor)
+  //isPreliminary = 2: preliminary plots for YIELDS (corrected by norm factor)
 
   if (isPreliminary && isAvgPtvsMult) return;
   const   Int_t NSystems =2;
@@ -49,7 +52,7 @@ void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, I
   //  if (isPreliminary && TypeAnalysis==0) ScalingFactor = 0.8458/1.08747; //=1./1.286
   if (TypeAnalysis==0 && isAvgPtvsMult==0)  ScalingFactor = 0.8458/1.08747; //=1./1.286
   //ScalingFactor =1./( 0.8458/1.08747); to adjust MB preliminary bins to the others
-  TString SisPreliminary[2] = {"", "_isPreliminary"};
+  TString SisPreliminary[3] = {"", "_isPreliminaryForRatio", "_isPreliminaryForYields"};
   TString YieldOrAvgPt[2] = {"Yield", "AvgPt"};
   TString SFitYields[2] = {"", "_FitToYields"};
   TString CollisionsComp[3] = {"_vsHM", "_vs5TeV5Mult", "_vs5TeV"};
@@ -115,46 +118,62 @@ void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, I
   TString pathin[NSystems] = {"", ""}; // pp MB - pp HM 
   TString ParticleType[2]={"K0s", "Xi"};
   if (type==0){
-    pathin[0] = "FinalOutput/DATA2016/PtSpectraBisNew_PtBinning1_1617_AOD234_hK0s_K0s_Eta0.8_PtMin3.0_";
+    pathin[0] = "FinalOutput/DATA2016/PtSpectraBisNew_PtBinning1_1617_AOD234_hK0s_K0s_Eta0.8_AllAssoc_PtMin3.0_";
     pathin[0] += RegionBis[TypeAnalysis];
-    pathin[0] +="_isNormCorrFullyComputed_YieldMeanMacro_isErrorAssumedPtCorr.root";
-    if (isPreliminary){
+    pathin[0] +="_isNormCorrFullyComputed";
+    if (isYieldMeanMacro)  pathin[0] += "_YieldMeanMacro";
+    pathin[0] +="_isErrorAssumedPtCorr";
+    if (isChangesIncluded)  pathin[0] +="_ChangesIncluded";
+    pathin[0] += ".root";
+    if (isPreliminary>0){
       pathin[0] = "FinalOutput/DATA2016/PtSpectraBis_PtBinning1_K0s_Eta0.8_PtMin3.0_";
       pathin[0] += RegionBis[TypeAnalysis];
-      pathin[0] += "_isNormCorr_Preliminaries.root";
+      if (isPreliminary==1)      pathin[0] += "_Preliminaries.root";
+      else       pathin[0] += "_isNormCorr_Preliminaries.root";
     }
     if (isComp==0){
-      pathin[1] = "FinalOutput/DATA2016/PtSpectraBisNew_pp13TeVHM_PtBinning1_AllhK0sHM_RedNo16k_K0s_Eta0.8_PtMin3.0_";
-      pathin[1] += RegionBis[TypeAnalysis];
-      pathin[1] +="_isNormCorrFullyComputed_YieldMeanMacro_isErrorAssumedPtCorr_MultBinning1.root";
+      pathin[1] = "FinalOutput/DATA2016/PtSpectraBisNew_pp13TeVHM_PtBinning1_AllhK0sHM_RedNo16k_K0s_Eta0.8_AllAssoc_PtMin3.0_";
     }
     else {
-      pathin[1] = "FinalOutput/DATA2016/PtSpectraBisNew_pp5TeV_PtBinning1_17pq_hK0s_K0s_Eta0.8_PtMin3.0_";
-      pathin[1] += RegionBis[TypeAnalysis];
-      pathin[1] +="_isNormCorrFullyComputed_YieldMeanMacro_isErrorAssumedPtCorr";
-      if (isComp==2)     pathin[1]+="_MultBinning3";
-      pathin[1]+= ".root";
+      pathin[1] = "FinalOutput/DATA2016/PtSpectraBisNew_pp5TeV_PtBinning1_17pq_hK0s_K0s_Eta0.8_AllAssoc_PtMin3.0_";
     }
+    pathin[1] += RegionBis[TypeAnalysis];
+    pathin[1] +="_isNormCorrFullyComputed";
+    if (isYieldMeanMacro)  pathin[1] += "_YieldMeanMacro";
+    pathin[1] +="_isErrorAssumedPtCorr";
+    if (isChangesIncluded)  pathin[1] +="_ChangesIncluded";
+    if (isComp==0)    pathin[1] += "_MultBinning1.root";
+    else     pathin[1] += "_MultBinning3.root";
+
   }
   else if (type==1){
-    pathin[0] = "FinalOutput/DATA2016/PtSpectraBisNew_161718Full_AOD234_hXi_Xi_Eta0.8_PtMin3.0_";
+    pathin[0] = "FinalOutput/DATA2016/PtSpectraBisNew_161718Full_AOD234_hXi_Xi_Eta0.8_AllAssoc_PtMin3.0_";
     pathin[0] += RegionBis[TypeAnalysis];
-    pathin[0] += "_isNormCorrFullyComputed_YieldMeanMacro_isErrorAssumedPtCorr.root";
-    if (isPreliminary){
+    pathin[0] +="_isNormCorrFullyComputed";
+    if (isYieldMeanMacro)  pathin[0] += "_YieldMeanMacro";
+    pathin[0] +="_isErrorAssumedPtCorr";
+    if (isChangesIncluded)  pathin[0] +="_ChangesIncluded";
+    pathin[0] += ".root";
+    if (isPreliminary>0){
       pathin[0] = "FinalOutput/DATA2016/PtSpectraBis_Xi_Eta0.8_PtMin3.0_";
       pathin[0] += RegionBis[TypeAnalysis];
-      pathin[0] += "_isNormCorr_Preliminaries.root";
+      if (isPreliminary==1)      pathin[0] += "_Preliminaries.root";
+      else       pathin[0] += "_isNormCorr_Preliminaries.root";
     }
     if (isComp==0){
-      pathin[1] = "FinalOutput/DATA2016/PtSpectraBisNew_pp13TeVHM_161718_HM_hXi_WithFlat16k_No18p_Xi_Eta0.8_PtMin3.0_";
-      pathin[1] += RegionBis[TypeAnalysis];
-      pathin[1] += "_isNormCorrFullyComputed_YieldMeanMacro_isErrorAssumedPtCorr_MultBinning1.root";
+      pathin[1] = "FinalOutput/DATA2016/PtSpectraBisNew_pp13TeVHM_161718_HM_hXi_WithFlat16k_No18p_Xi_Eta0.8_AllAssoc_PtMin3.0_";
     }
     else {
-      pathin[1] = "FinalOutput/DATA2016/PtSpectraBisNew_pp5TeV_17pq_hXi_Xi_Eta0.8_PtMin3.0_";
-      pathin[1] += RegionBis[TypeAnalysis];
-      pathin[1] += "_isNormCorrFullyComputed_YieldMeanMacro_isErrorAssumedPtCorr_MultBinning3.root";
+      pathin[1] = "FinalOutput/DATA2016/PtSpectraBisNew_pp5TeV_17pq_hXi_Xi_Eta0.8_AllAssoc_PtMin3.0_";
     }
+    pathin[1] += RegionBis[TypeAnalysis];
+    pathin[1] +="_isNormCorrFullyComputed";
+    if (isYieldMeanMacro)  pathin[1] += "_YieldMeanMacro";
+    pathin[1] +="_isErrorAssumedPtCorr";
+    if (isChangesIncluded)  pathin[1] +="_ChangesIncluded";
+    if (isComp==0)    pathin[1] += "_MultBinning1.root";
+    else     pathin[1] += "_MultBinning3.root";
+
   }
 
   TF1 * pol1Common = new TF1("pol1Common", "pol1", 0, UpRangeMult);
@@ -201,7 +220,7 @@ void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, I
     histoYieldSistFinal[i]= (TH1F*)    histoYieldSist[i] ->Clone(NameHistoFinalSist[i]);
 
     if (TypeAnalysis==0){
-      if (isPreliminary){
+      if (isPreliminary>0){
 	if (i==1){ //5 TeV and 13 TeV HM were done with dPhi = 1.08, whereas preliminary results were done with dphi = 0.85. In this way I adjust the dphi interval of the HM and 5 TeV results TO the 13 TeV preliminarie s(which cannot be changed)
 	  histoYieldFinal[i]->Scale(1./ScalingFactor);
 	  histoYieldSistFinal[i]->Scale(1./ScalingFactor);
@@ -255,7 +274,9 @@ void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, I
   if (pathin[0].Index("18g4extra")!=-1) NameFileout += "_MBEff18g4extra_NoEtaEff";
   NameFileout +=  CollisionsComp[isComp];
   NameFileout +="_"+ ParticleType[type] + Region[TypeAnalysis];
-  if (isPreliminary)  NameFileout += "_isPreliminary";
+  if (isPreliminary==1)  NameFileout += "_isPreliminaryForRatio";
+  else if (isPreliminary==2)  NameFileout += "_isPreliminaryForYields";
+  NameFileout  += "_ChangesIncluded";
   NameFileout += ".root";
 
   TString HistoTitle = "Yield vs multiplicity";
