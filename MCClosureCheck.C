@@ -35,22 +35,40 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPhi=0, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Int_t israp=0,TString yearMC="2018g4_extra_EtaEff_hK0s"/*"1617_hK0s"/*"AllMC_hXi"/"2018f1_extra_Reco_hK0s"/*"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"  2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, TString yearMCTruth="2018f1_extra_hK0s", TString yearMCHyb="2018g4_extra_EtaEff_Hybrid_hK0s"/*"2018f1_extra_Hybrid_hK0s"*/, TString Path1 =""/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,  TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=0, Int_t PtBinning=1, Bool_t IsParticleTrue=0, Bool_t isEffMassSel=0, Bool_t IsNotSigmaTrigger=0, Bool_t isMEFromHybrid=0, Bool_t isMEFromCorrectCentrality=0, Bool_t isEtaEff=0, Bool_t isMEFromK0s=0, Bool_t isFioComp=0, Bool_t ispp5TeV=0){
+void MCClosureCheck( Int_t isEventLoss=2, Int_t type=0, Int_t sys=0, Int_t sysPhi=0, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Int_t israp=0,TString yearMC="2018g4_extra_EtaEff_hK0s"/*"1617_hK0s"/*"AllMC_hXi"/"2018f1_extra_Reco_hK0s"/*"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"  2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, TString yearMCTruth="2018f1_extra_hK0s", TString yearMCHyb="2018g4_extra_EtaEff_Hybrid_hK0s"/*"2018f1_extra_Hybrid_hK0s"*/, TString Path1 =""/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,  TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=0, Int_t PtBinning=1, Bool_t IsParticleTrue=0, Bool_t isEffMassSel=0, Bool_t IsNotSigmaTrigger=0, Bool_t isMEFromHybrid=1, Bool_t isMEFromCorrectCentrality=0, Bool_t isEtaEff=1, Bool_t isMEFromK0s=0, Bool_t isFioComp=0, Bool_t ispp5TeV=0, Bool_t isppHM =0, Bool_t isBulkBlue=0, Bool_t isTrigEff=1, Bool_t isSidebands =0, Bool_t isBkgParab=0){
 
+  if (isEventLoss==1) IsParticleTrue=0;
   if (isMEFromK0s && type==0) {cout << "the option isMEFromK0s is meant to be used when Xi is being analyzed" << endl; return;}
   if (sys!=0 && sys!=4 && sys!=5 && sys!=6) {cout << "Not implemented for that sys value"<< endl; return;}
   if (sysPhi>2) {cout << "Not implemented for that sysPhi value"<< endl; return;}
-  // if isEventLoss==0 I compare MCTruth to MCreco (MCreco/MCTruth)
+  // if isEventLoss==0 I compare (MCreco/MCTruth) ---> for closure test as Lucia wants
   // if isEventLoss==1 I compare (MCHybrid/MCTruth) ---> for norm factor
   // if isEventLoss==2 I compare (MCReco/MCHybrid) ---> for closure test
+
+  if (isEventLoss==1) {
+    isEtaEff = 0;
+    isMEFromHybrid=0;
+  }
+
+  Bool_t isRecoNormCorr=0;
+  if (isEventLoss==0){
+    cout << "Do you want to use the reco spectra corrected by the normalisation factor?" << endl;
+    cin >> isRecoNormCorr;
+  }
 
   //********** K0s *******************
   if (type==0){ //used for MC closure for preliminary
     //    yearMC = "2018f1_extra_Reco_hK0s";
     //    yearMCHyb = "2018f1_extra_Hybrid_hK0s";
-    yearMCHyb = "1617GP_hK0s_Hybrid_New"; //norm factor
-    yearMCTruth = "1617GP_hK0s"; //norm factor
-    
+    /*
+    Used for 2020 Preliminaries
+    yearMC = "2018g4_extra_EtaEff_hK0s";
+    yearMCHyb="2018g4_extra_EtaEff_Hybrid_hK0s";
+    */
+    if (isEventLoss!=2){
+      yearMCHyb = "1617GP_hK0s_Hybrid_New"; //norm factor
+      yearMCTruth = "1617GP_hK0s"; //norm factor
+    }
     //the following are used as tests:
     //    yearMCHyb = "2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"; 
     //    yearMCHyb = "2018f1_extra_RlabelBis_15runs_hK0s_Hybrid"; 
@@ -59,13 +77,30 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
     //    yearMCHyb = "2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid";
    
     if (isFioComp){
-    yearMCHyb = "LHC16kl_pass2_GP_Fio_Hybrid"; //norm factor
-    yearMCTruth = "LHC16kl_pass2_GP_Fio"; //norm factor
-    PtTrigMin =0.15;
+      yearMCHyb = "LHC16kl_pass2_GP_Fio_Hybrid"; //norm factor
+      yearMCTruth = "LHC16kl_pass2_GP_Fio"; //norm factor
+      PtTrigMin =0.15;
     }
     if (ispp5TeV){
+      /*
       yearMCHyb = "17pq_pp5TeV_Hybrid"; //norm factor
       yearMCTruth = "17pq_pp5TeV"; //norm factor
+      */
+      yearMC = "17l3b_hK0s";
+      yearMCHyb = "17l3b_hK0s_Hybrid";
+      yearMCTruth = "17l3b_hK0s";
+    }
+    else if (isppHM){
+      yearMC = "161718HM_hK0s"; 
+      yearMCHyb="161718HM_hK0s_Hybrid";
+      yearMCTruth="161718HM_hK0s";
+      isBkgParab =1;
+    }
+    else {
+    //Used for 2022 Preliminaries (for MC closure only)
+    yearMC = "16kl_hK0s"; //43 M events
+    yearMCHyb="16kl_hK0s_Hybrid";
+    yearMCTruth="16kl_hK0s";
     }
   }
   //**********************************
@@ -89,7 +124,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
     //OLD not enough stat yearMCTruth = "161718_MD_New_hXi";
     //OLD not enough stat yearMCTruth="2018g4_extra_hXi_SelTrigger";
     PtBinning=0;
-    if (isEventLoss==2)    IsParticleTrue=1;
+    if (isEventLoss==2 || isEventLoss==0)    IsParticleTrue=1;
     isEffMassSel=0;
   }
   //**********************************
@@ -105,6 +140,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
   const Int_t numPtV0=10;//9         
   const Int_t numtipo=10;
   TString RegionTypeOld[3] = {"Jet", "Bulk", "All"};
+  if (isBulkBlue) RegionTypeOld[1] = "BulkBlue";
   TString tipo[numtipo]={"K0s", "Lambda", "AntiLambda","LambdaAntiLambda", "XiNeg", "XiPos", "OmegaNeg", "OmegaPlus", "Xi", "Omega"};
   TString tipoTitle[numtipo]={"K0s", "#Lambda", "#AntiLambda","#Lambda + #AntiLambda", "Xi^{-}", "Xi^{+}", "Omega^{-}", "Omega^{+}", "Xi"  , "Omega"};
   cout << "ok " << endl;
@@ -120,8 +156,20 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
   //  TString titleYRatio = "N/N_{Trigg} (MC reco) / N/N_{Trigg} (MC gen)";
   //  if (isEventLoss) titleYRatio = "#epsilon_{part}/#epsilon_{Trigg event}"; 
   TString titleYRatio = "#epsilon_{part} / #epsilon_{Trigg event}";
+  if (isEventLoss==0) {
+    if (isRecoNormCorr)  titleYRatio = "MC reco NFcorr / MC truth";
+    else  titleYRatio = "MC reco / MC truth";
+  }
+  else if (isEventLoss==1) titleYRatio = "MC hybrid / MC truth";
+  if (isEventLoss==2) titleYRatio = "MC reco / MC hybrid";
   TString title = "Multiplicity class ";
 
+  Float_t LimInfProjRatio=0.8;
+  Float_t LimSupProjRatio=1.2;
+  if (type==0 && isEventLoss==1){
+    LimInfProjRatio=0.9;
+    LimSupProjRatio=1.1;
+  }
   Int_t Color[3] ={628, 418, 600};
   Int_t ColorC[2] ={1,907};
   Int_t Colormult[21]={1, 401, 801, 628, 909, 881, 860, 868, 841, 418, 628, 909, 881, 867, 921, 401, 841, 862, 866, 865, 864};
@@ -133,11 +181,23 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
   TString SmoltLegend[nummolt+1]={"0-5 %", "5-10 %", "10-30 %", "30-50 %", "50-100 %", "0-100 %"};
   TString Smoltpp5TeV[nummolt+1]={"0-10", "10-100", "100-100", "100-100", "100-100", "_all"};
   TString SmoltLegendpp5TeV[nummolt+1]={"0-10 %", "10-100 %", "100-100 %", "100-100 %", "100-100 %", "0-100 %"};
+  TString SmoltppHM[nummolt+1]={"0-0.001", "0.001-0.005", "0.005-0.01", "0.01-0.05", "0.05-0.1", "0-0.1"};
+  TString SmoltLegendppHM[nummolt+1]={"0-0.001 %", "0.001-0.005 %", "0.005-0.01 %", "0.01-0.05 %", "0.05-0.1 %", "0-0.1 %"};
 
   if (ispp5TeV && MultBinning==3){
     for (Int_t m=0; m<nummolt+1; m++){
       Smolt[m] = Smoltpp5TeV[m];
       SmoltLegend[m] = SmoltLegendpp5TeV[m];
+    }
+  }
+  if (isppHM){
+    for (Int_t m=0; m<nummolt+1; m++){
+      Smolt[m] = SmoltppHM[m];
+      SmoltLegend[m] = SmoltLegendppHM[m];
+    }
+    if (MultBinning==1){
+      Smolt[2] = "0-0.01";
+      SmoltLegend[2] = "0-0.01 %";
     }
   }
 
@@ -157,6 +217,12 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
     LimSupRatioSpectra[0] = 1.25;
     LimSupRatioSpectra[1] = 1.25;
     LimSupRatioSpectra[2] = 1.15;
+  }
+  else if (type==0){
+    LimInfRatioSpectra[0] = 0.75;
+    LimInfRatioSpectra[1] = 0.75;
+    LimSupRatioSpectra[0] = 1.25;
+    LimSupRatioSpectra[1] = 1.25;
   }
 
   TString  stringout = Dir+"/DATA"+year0+"/MCClosureCheck";
@@ -181,15 +247,22 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
   if (isMEFromK0s) stringout+= "_IsMEFromK0s";
   if (isMEFromCorrectCentrality) stringout+= "_IsMEFromCorrectCentrality";
   if (IsNotSigmaTrigger) stringout+= "_IsNotSigmaTrigger";
+  if (isSidebands && isEventLoss!=1) stringout += "_Sidebands";
   if (isEtaEff) stringout+= "_IsEtaEff";
+  if (isTrigEff && isEventLoss!=1) stringout+= "_IsTrigEff";
   if (MultBinning!=0) stringout += Form("_MultBinning%i", MultBinning);
   //  if (yearMCTruth.Index("Fio")!=-1)  stringout += "_isAllDeltaEta";
   //  stringout+="_isPrimaryTrigger";
   if (sys!=0) stringout+=Form("_sys%i", sys);
   if (sysPhi!=0) stringout+=Form("_sysPhi%i", sysPhi);
+  if (isBulkBlue) stringout+="_isBulkBlue";
+  if (isRecoNormCorr) stringout+="_isRecoNormCorr";
+  //  stringout += "_Test";
   TString stringoutpdf=stringout; 
   //  stringout+="_thinptbins";
   stringout+= ".root";
+  TString stringoutshortpdf = "ClosureTest_";
+  if (ispp5TeV) stringoutshortpdf += "_pp5TeV";
 
   TCanvas *  canvasTriggerEfficiency = new TCanvas ("canvasTriggerEfficiency", "canvasTriggerEfficiency", 1300, 800);
   TCanvas *  canvasSpectrum[3];
@@ -277,7 +350,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
   TFile *fileinAC[2];
   TString nameSE[nummolt+1][numPtV0];
   TString namePhiProj[3][nummolt+1][numPtV0];
-  //TString namePhiProjReg[3]= {"_phi_V0Sub_BulkSub_EffCorr", "_phi_V0Sub_Bulk_EffCorr", "_phi_V0Sub_JetBulk_EffCorr"};
+  //  TString namePhiProjReg[3]= {"_phi_V0Sub_BulkSub_EffCorr", "_phi_V0Sub_Bulk_EffCorr", "_phi_V0Sub_JetBulk_EffCorr"};
   TString namePhiProjReg[3]= {"_phi_V0Sub_EffCorr", "_phi_V0Sub_Bulk_EffCorr", "_phi_V0Sub_JetBulk_EffCorr"};
 
   TH1F*  fHistEventLoss;
@@ -288,7 +361,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
   Float_t YInf=-0.001;
 
   gStyle->SetOptStat(0);
-  gStyle->SetOptFit(0);
+  //  gStyle->SetOptFit(0);
 
   for (Int_t r =0; r<3; r++){
     cout << "\n\n\e[35m**************************************************"<< endl;
@@ -299,13 +372,25 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
     canvasPtEfficiency[r] = new TCanvas( Form("canvasPtEfficiency%i",r), 	"canvasPtEfficiency_"+ RegionTypeOld[r], 1300, 800);
     canvasSpectrumRelErrorClosure[r] = new TCanvas( Form("canvasSpectrumRelErrorClosure%i",r), 	"canvasSpectrumRelErrorClosure_"+ RegionTypeOld[r], 1300, 800);
     canvasSpectrum[r] = new TCanvas( Form("canvasSpectrum%i",r), 	"canvasSpectrum_"+ RegionTypeOld[r], 1300, 800);
-    canvasSpectrum[r]->Divide(3,2);
-    canvasSpectrumRatio[r]->Divide(3,2);
-    canvasSpectrumRelErrorClosure[r]->Divide(3,2);
+    if (ispp5TeV && MultBinning==3){
+      canvasSpectrum[r]->Divide(2,2);
+      canvasSpectrumRatio[r]->Divide(2,2);
+      canvasSpectrumRelErrorClosure[r]->Divide(2,2);
+    }
+    else if (isppHM && MultBinning==1){
+      canvasSpectrum[r]->Divide(2,2);
+      canvasSpectrumRatio[r]->Divide(2,2);
+      canvasSpectrumRelErrorClosure[r]->Divide(2,2);
+    } else { 
+      canvasSpectrum[r]->Divide(3,2);
+      canvasSpectrumRatio[r]->Divide(3,2);
+      canvasSpectrumRelErrorClosure[r]->Divide(3,2);
+    }
 
     canvasFitResult[r] = new TCanvas( Form("canvasFitResult%i",r), 	"canvasFitResult_"+ RegionTypeOld[r], 1300, 800);
     for(Int_t m=0; m<nummolt+1; m++){
       if (MultBinning==3 && (m==2 || m==3 || m==4) ) continue;
+      if (isppHM && MultBinning==1 && m<=1) continue;
       canvasProj[m][r]=new TCanvas(Form("canvasProj_m%i_MC%i",m,  r), "canvasProj"+Smolt[m], 1300, 800);
       canvasProj[m][r]->Divide(3,3);
       canvasProjRatio[m][r]=new TCanvas(Form("canvasProjRatio_m%i_MC%i",m,  r), "canvasProjRatio"+Smolt[m], 1300, 800);
@@ -340,6 +425,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
 	if (!ishhCorr)      PathIn0 +="_"+tipo[type];
 	PathIn0 +=Srap[israp];
 	if (!(i==0 && (isEventLoss==0 || isEventLoss==2)))	PathIn0 +="_AllAssoc";
+	else if (SkipAssoc==0) PathIn0 +="_AllAssoc";
       }
       PathIn0+="_";
       PathIn0+= RegionTypeOld[r];
@@ -351,12 +437,14 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
     
       PathIn0+=   Form("_PtMin%.1f", PtTrigMin);
       if (i==0 && (isEventLoss==0 || isEventLoss==2)){
-      if (IsParticleTrue) PathIn0+= "_IsParticleTrue";
-      if (isEffMassSel) PathIn0+= "_IsEfficiencyMassSel";
-      if (isMEFromHybrid) PathIn0+= "_IsMEFromHybrid";
-      if (isMEFromK0s) PathIn0+= "_IsMEFromK0s";
-      if (isMEFromCorrectCentrality) PathIn0+= "_IsMEFromCorrectCentrality";
-      if (isEtaEff) PathIn0+= "_IsEtaEff";
+	if (IsParticleTrue) PathIn0+= "_IsParticleTrue";
+	if (isEffMassSel) PathIn0+= "_IsEfficiencyMassSel";
+	if (isMEFromHybrid) PathIn0+= "_IsMEFromHybrid";
+	if (isMEFromK0s) PathIn0+= "_IsMEFromK0s";
+	if (isMEFromCorrectCentrality) PathIn0+= "_IsMEFromCorrectCentrality";
+	if (isSidebands) PathIn0+= "_Sidebands";
+	if (isEtaEff) PathIn0+= "_IsEtaEff";
+	if (isTrigEff) PathIn0+= "_IsTrigEff";
       }
       if (MultBinning!=0) PathIn0 += Form("_MultBinning%i", MultBinning);
       //      if (yearMCTruth.Index("Fio")!=-1)  PathIn0 += "_isAllDeltaEta";
@@ -373,6 +461,9 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
       //      if (i==0)      PathIn0+="_isPrimaryTrigger";
       if (sys!=0) PathIn0+=Form("_sys%i", sys);
       if (sysPhi!=0) PathIn0+=Form("_sysPhi%i", sysPhi);
+      if (isRecoNormCorr && i==0) PathIn0 += "_isNormCorr";
+      if (isBkgParab) PathIn0+="_isBkgParab";
+      PathIn0+= "_NewdEtaChoice";
       PathIn0+=".root";
 
       PathInAC = Dir+"/DATA"+year0+"/histo/AngularCorrelation";
@@ -396,8 +487,10 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
       if(type>=0){
 	if (!ishhCorr)      PathInAC +="_"+tipo[type];
 	PathInAC +=Srap[israp];
-	if (!(i==0 && (isEventLoss==0 || isEventLoss==2)))	PathInAC +="_AllAssoc";
+       	if (!(i==0 && (isEventLoss==0 || isEventLoss==2)))	PathInAC +="_AllAssoc";
+	else if (SkipAssoc==0) PathInAC +="_AllAssoc";
       }
+      if (isBkgParab) PathInAC+="_isBkgParab";
       PathInAC+=   "_SysT0_SysV00";
       PathInAC+=   Form("_Sys%i_PtMin%.1f_Output", sys, PtTrigMin);
       if (i==0 && (isEventLoss==0 || isEventLoss==2)){
@@ -406,7 +499,9 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
       if (isMEFromHybrid) PathInAC+= "_IsMEFromHybrid";
       if (isMEFromK0s) PathInAC+= "_IsMEFromK0s";
       if (isMEFromCorrectCentrality) PathInAC+= "_IsMEFromCorrectCentrality";
+      if (isSidebands) PathInAC+= "_Sidebands";
       if (isEtaEff) PathInAC+= "_IsEtaEff";
+      if (isTrigEff) PathInAC+= "_IsTrigEff";
       }
       if (MultBinning!=0) PathInAC += Form("_MultBinning%i", MultBinning);
       //      if (yearMCTruth.Index("Fio")!=-1)  PathInAC += "_isAllDeltaEta";
@@ -419,6 +514,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
       //      if (i==0)      PathInAC+="_thinptbins";
       //      if (i==0)      PathInAC+="_DCAz0.5";
       //      if (i==0)      PathInAC+="_isPrimaryTrigger";
+      PathInAC+= "_NewdEtaChoice";
       PathInAC+=".root";
 
       //      cout << "region " << r << " file " << i << " " << PathIn0 <<  " and " << PathInAC << endl;
@@ -426,9 +522,11 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
       AllPathInAC[i][r] = PathInAC;
 
       filein[i] = new TFile(PathIn0, "");
+      cout << "Pathin " << PathIn0 << endl;
       if (!filein[i]) return;
 
       fileinAC[i] = new TFile(PathInAC, "");
+      cout << "Pathin AC " << PathInAC << endl;
       if (!fileinAC[i]) return;
 
       //************* here I take the trigger efficiency calculated in BarlowSys.C when running Hybrid ***********
@@ -438,6 +536,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
 	if (!fHistEventLoss || !fHistEventLossMultAll) {cout << "event loss histogram not there!" << endl; return;}
 	for(Int_t m=0; m<nummolt+1; m++){
 	  if (MultBinning==3 && (m==2 || m==3 || m==4) ) continue;
+	  if (isppHM && MultBinning==1 && m<=1) continue;
 	  if (m!=nummolt) TriggerEff[m] = fHistEventLoss->GetBinContent(m+1);
 	  else TriggerEff[m] = fHistEventLossMultAll->GetBinContent(1);
 	}
@@ -449,6 +548,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
       for(Int_t m=0; m<nummolt+1; m++){
 	cout << "\n\e[32mMultiplicity "<< SmoltLegend[m] << "\e[39m" << endl;
 	if (MultBinning==3 && (m==2 || m==3 || m==4) ) continue;
+	if (isppHM && MultBinning==1 && m<=1) continue;
 	if (m!=nummolt && isEventLoss==2 && type==8) continue;
 	for(Int_t v=PtV0Min; v<numPtV0Max; v++){
 	  //	  cout << SPtV0[v] << " < pt < "<< SPtV0[v+1] << " GeV/c"<< endl;
@@ -457,14 +557,16 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
 	  namePhiProj[r][m][v]= nameSE[m][v] + namePhiProjReg[r];
 	  //	  cout << 	  namePhiProj[r][m][v] << endl;
 
-	  if(r==0)	  PhiFit[r][m][v] = new TF1 (Form("PhiFit_m%i_v%i_r%i",m,v,r), "pol0", -0.75,0.75);
-	  else 	  PhiFit[r][m][v] = new TF1 (Form("PhiFit_m%i_v%i_r%i",m,v,r), "pol0", -TMath::Pi()/2, 3./2*TMath::Pi());
+	  if(r==0)	  PhiFit[r][m][v] = new TF1 (Form("PhiFit_m%i_v%i_r%i",m,v,r), "pol0", -1.08,1.08);
+	  //	  else if (r==1) 	  PhiFit[r][m][v] = new TF1 (Form("PhiFit_m%i_v%i_r%i",m,v,r), "pol0", -1.08, 1.08);
+	  else  	  PhiFit[r][m][v] = new TF1 (Form("PhiFit_m%i_v%i_r%i",m,v,r), "pol0", -TMath::Pi()/2, 3./2*TMath::Pi());
 	  PhiFit[r][m][v]->SetLineWidth(1);
 	  PhiFit[r][m][v]->SetLineColor(kBlue);
 	  hDeltaEtaDeltaPhi_PhiProj[r][i][m][v]= (TH1F*)fileinAC[i]->Get(namePhiProj[r][m][v]+ "_TrCorr");
 	  if (!hDeltaEtaDeltaPhi_PhiProj[r][i][m][v]){cout << "histo not there " << endl; return;}
+	  hDeltaEtaDeltaPhi_PhiProj[r][i][m][v]->SetName(namePhiProj[r][m][v]+ Form("_TrCorr_%i", i));
 	  //	  hDeltaEtaDeltaPhi_PhiProj[r][i][m][v]->Sumw2();
-	  hDeltaEtaDeltaPhi_PhiProj[r][i][m][v]->Rebin(2);
+	  if (r!=0)	  hDeltaEtaDeltaPhi_PhiProj[r][i][m][v]->Rebin(2);
 	  if (i==0)	  hDeltaEtaDeltaPhi_PhiProjRatio[r][m][v] = (TH1F*) 	  hDeltaEtaDeltaPhi_PhiProj[r][i][m][v]->Clone(namePhiProj[r][m][v] + "_Ratio");
 	  else   hDeltaEtaDeltaPhi_PhiProjRatio[r][m][v]->Divide(  hDeltaEtaDeltaPhi_PhiProj[r][i][m][v]);
 	}
@@ -510,10 +612,11 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
 	  //	  if (m==0 && type==0) YSup = 0.014;
 	  //	  else YSup=0.006;
 	  YInf = -0.001;
-	  YSup=0.012;
+	  YSup=0.006;
 	  if (r==1 || r==2) {
 	    YInf=0;
 	    YSup =0.01;
+	    if (NPtV0[v]>=2.5) YSup = 0.003;
 	  }
 	  if (type==8){
 	    //	    YSup=0.0006;
@@ -528,7 +631,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
 
 	  canvasProjRatio[m][r]->cd(v+1);
 	  gPad->SetLeftMargin(0.15);
-	  StyleHisto(hDeltaEtaDeltaPhi_PhiProjRatio[r][m][v], 0.6, 1.4, Color[r], 1, titleXPhi, titleYRatio, Form("%.1f < p_{T} < %.1f GeV/c",NPtV0[v], NPtV0[v+1]) ,  0, 0, 0);
+	  StyleHisto(hDeltaEtaDeltaPhi_PhiProjRatio[r][m][v], LimInfProjRatio, LimSupProjRatio, Color[r], 1, titleXPhi, titleYRatio, SmoltLegend[m] + Form(",  %.1f < p_{T} < %.1f GeV/c",NPtV0[v], NPtV0[v+1]) ,  0, 0, 0);
 
 	  hDeltaEtaDeltaPhi_PhiProjRatio[r][m][v]->GetYaxis()->SetTitleSize(0.04);
 	  hDeltaEtaDeltaPhi_PhiProjRatio[r][m][v]->Fit(PhiFit[r][m][v], "RQ+");
@@ -553,6 +656,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
 	if (i==1){
 	canvasFitResult[r]->cd();
 	gStyle->SetOptStat(0);
+	//	gStyle->SetOptFit(0);
 	hPhiFit[r][m]->SetMarkerColor(Colormult[m]);
 	if(isEventLoss==2)	hPhiFit[r][m]->GetYaxis()->SetTitle(" pol0 parameter MC reco/MC gen");
 	hPhiFit[r][m]->SetTitle("");
@@ -560,10 +664,14 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
 	hPhiFit[r][m]->SetLineColor(Colormult[m]);
 	hPhiFit[r][m]->GetYaxis()->SetRangeUser(0.85, 1.15);
 	if (r==0) legendMult->AddEntry(hPhiFit[r][m], SmoltLegend[m], "pl");
+	//	if (m==nummolt)	hPhiFit[r][m]->Draw("same");
 	hPhiFit[r][m]->Draw("same");
 	if (m==nummolt)	legendMult->Draw("");
+	if (m==nummolt) lineat1->Draw("same");
 	}
-	canvasSpectrum[r]->cd(m+1);
+	if (isppHM && MultBinning==1) 	canvasSpectrum[r]->cd(m-1);
+	else if (ispp5TeV && MultBinning==3 && m==nummolt) 	canvasSpectrum[r]->cd(3);
+	else 	canvasSpectrum[r]->cd(m+1);
 	gPad->SetLeftMargin(0.15);
 	StyleHisto(hSpectrum[r][i][m], 0, LimSup, ColorC[i], 1, titleX, titleY,  title+SmoltLegend[m],  0, 0, 0);
 	if(m==0 && r==0){
@@ -579,7 +687,9 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
 	hSpectrum[r][i][m]->Draw("same");
 	if(i==0)legend->Draw("");
 
-	canvasSpectrumRatio[r]->cd(m+1);
+	if (ispp5TeV && MultBinning==3 && m==nummolt) 	canvasSpectrumRatio[r]->cd(3);
+	else if (isppHM && MultBinning==1) 	canvasSpectrumRatio[r]->cd(m-1);
+	else 	canvasSpectrumRatio[r]->cd(m+1);
 	gPad->SetLeftMargin(0.15);
 	gStyle->SetOptStat(0);
 	StyleHisto(hSpectrumratio[r][m], LimInfRatioSpectra[r], LimSupRatioSpectra[r], Color[r], 1, titleX, titleYRatio,  title+SmoltLegend[m],  0, 0, 0);
@@ -611,7 +721,10 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
 	  lineat1->Draw("same");
 	}
 
-	canvasSpectrumRelErrorClosure[r]->cd(m+1);
+	if (ispp5TeV && MultBinning==3 && m==nummolt) 	canvasSpectrumRelErrorClosure[r]->cd(3);
+	else if (isppHM && MultBinning==1) 	canvasSpectrumRelErrorClosure[r]->cd(m-1);
+	else 	canvasSpectrumRelErrorClosure[r]->cd(m+1);
+
 	gPad->SetLeftMargin(0.15);
 	gStyle->SetOptStat(0);
 	StyleHisto(hSpectrumRelErrorClosure[r][m], -0.3, 0.3, Color[r], 1, titleX, "uncertainty closure",  title+SmoltLegend[m],  0, 0, 0);
@@ -625,12 +738,15 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
     }//end loop on file
   }//end loop on regiontype
 
-  cout << "\n\n"<< endl;
+  cout << "\n\nSaving canvases"<< endl;
   TFile * fileout = new TFile(stringout, "RECREATE");
   fileout->WriteTObject(fHistEventLossMultAll);
   fileout->WriteTObject(fHistEventLoss);
-  fileout->WriteTObject(canvasTriggerEfficiency);
-  canvasTriggerEfficiency->SaveAs(stringoutpdf+"_TriggerEfficiency.pdf");
+  if (isTrigEff) {
+    canvasTriggerEfficiency->SaveAs(stringoutpdf+"_TriggerEfficiency.pdf");
+    fileout->WriteTObject(canvasTriggerEfficiency);
+  }
+  cout << "ciao " << endl;
   for (Int_t r =0; r<3; r++){ 
     if ((sys!=0 || sysPhi!=0) && r==2) continue;
     if (sys==5 && r==0) continue;
@@ -645,6 +761,7 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
     fileout->WriteTObject(canvasFitResult[r]);
     canvasSpectrumRatio[r]->SaveAs(stringoutpdf+"_PtRatio_"+RegionTypeOld[r]+".pdf");
     for(Int_t m=0; m<nummolt+1; m++){
+      if (isppHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4) ) continue;
       if (m!=nummolt && isEventLoss==2 && type==8) continue;
       fileout->WriteTObject(      hSpectrumratio[r][m]);
@@ -655,16 +772,41 @@ void MCClosureCheck( Int_t isEventLoss=0, Int_t type=0, Int_t sys=0, Int_t sysPh
       fileout->WriteTObject(hPhiFit[r][m]);
     }
   }
-  for (Int_t i =0; i<2; i++){ 
-    cout << "\n" << endl;
+  
+  cout << "Saving in pdf file: " << endl;
+  Int_t counterm=-1;
+  Int_t counterr=-1;
   for (Int_t r =0; r<3; r++){ 
     if ((sys!=0 || sysPhi!=0) && r==2) continue;
     if (sys==5 && r==0) continue;
-    cout << " region " << r << endl;
-  cout << " partendo da " <<       AllPathInAC[i][r] << " e " <<       AllPathIn0[i][r] << endl;
+    counterr++;
+    for(Int_t m=0; m<nummolt+1; m++){
+      if (isppHM && MultBinning==1 && m<=1) continue;
+      if (MultBinning==3 && (m==2 || m==3 || m==4) ) continue;
+      if (m!=nummolt && isEventLoss==2 && type==8) continue;
+      counterm++;
+      canvasProjRatio[m][r]->SaveAs(stringoutshortpdf + Form("PhiRatio_m%i_r%i.pdf", m, r));
+      if (counterm==0 && counterr==0) canvasProjRatio[m][r]->SaveAs(stringoutpdf+".pdf(");
+      else canvasProjRatio[m][r]->SaveAs(stringoutpdf+".pdf");
+      canvasProj[m][r]->SaveAs(stringoutpdf+".pdf");
+    }
+    canvasFitResult[r]->SaveAs(stringoutpdf+".pdf");
+    canvasFitResult[r]->SaveAs(stringoutshortpdf + Form("FitResult_r%i.pdf", r));
+    if (r==2)    canvasSpectrumRatio[r]->SaveAs(stringoutpdf+".pdf)");
+    else     canvasSpectrumRatio[r]->SaveAs(stringoutpdf+".pdf");
+    canvasSpectrumRatio[r]->SaveAs(stringoutshortpdf + Form("SpectrumRatio_r%i.pdf", r));
   }
+
+  for (Int_t i =0; i<2; i++){ 
+    cout << "\n" << endl;
+    for (Int_t r =0; r<3; r++){ 
+      if ((sys!=0 || sysPhi!=0) && r==2) continue;
+      if (sys==5 && r==0) continue;
+      cout << " region " << r << endl;
+      cout << " partendo da " <<       AllPathInAC[i][r] << " e " <<       AllPathIn0[i][r] << endl;
+    }
   }
-  cout << "\n\e[36mHo creato il file:\e[39m " << stringout << "\n\n"<< endl;
+  cout << "\n\e[36mHo creato il file:\e[39m " << stringout << "\n (anche il pdf con parte delle canvas)\n"<< endl;
   fileout->Close();
 }
 
