@@ -35,7 +35,7 @@ void StyleHisto(TH1D *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   //
 }
 
-void PtSpectraNew( Int_t type=8,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, Int_t numsysTriggerindex=99, Int_t sysPhi = 0, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString year=""/*"1617_AOD234_hK0s"/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/, TString yearDCAzTrigger = ""/*"1617_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/, Bool_t isEfficiency=1,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=2, Int_t PtBinning=0, Bool_t SysTuvaWay=0,  Bool_t isNewInputPath=1,  Bool_t isHM =0, Bool_t ispp5TeV=1){
+void PtSpectraNew( Int_t type=8,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, Int_t numsysTriggerindex=99, Int_t sysPhi = 0, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString year=""/*"1617_AOD234_hK0s"/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/, TString yearDCAzTrigger = ""/*"1617_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/, Bool_t isEfficiency=1,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=2, Int_t PtBinning=0, Bool_t SysTuvaWay=0,  Bool_t isNewInputPath=1,  Bool_t isHM =0, Bool_t ispp5TeV=0){
 
   Float_t PtTrigMin2=0.15;
   TString yearLowPtTrig = "";
@@ -55,15 +55,18 @@ void PtSpectraNew( Int_t type=8,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
     if (!isMC) year= "1617_AOD234_hK0s";
     isNewInputPath=1;
     numsysV0index=200;
+    MultBinning=0;
     if (isHM) {
       if (!isMC) year= "AllhK0sHM_RedNo16k";
       isNewInputPath=1;
       numsysV0index=200;
+      MultBinning=1;
     }
     if (ispp5TeV) {
       if (!isMC) year= "17pq_hK0s";
       isNewInputPath=1;
       numsysV0index=186;
+      MultBinning=3;
     }
   }
   else if (type==8){
@@ -74,6 +77,7 @@ void PtSpectraNew( Int_t type=8,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
     isNewInputPath=1;
     numsysV0index=400; //was 500
     PtTrigMin2=0.15;
+    MultBinning=0;
     if (isHM) {
       if (!isMC) year= "161718_HM_hXi_WithFlat16k_No18p";
       yearLowPtTrig = "_161718_HM_hXi_WithFlat16k_No18p";
@@ -88,6 +92,7 @@ void PtSpectraNew( Int_t type=8,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
       yearLowPtTrig = "_17pq_pp5TeV_hXi_pttrig0.15";
       isNewInputPath=1;
       numsysV0index=400;
+      MultBinning=3;
     }
   }
 
@@ -255,7 +260,7 @@ void PtSpectraNew( Int_t type=8,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
     SPtV0[1]={"0.5-1"};
   }
 
-  TString  SmoltDCAzTrigger[nummolt+1] = "";
+  TString  SmoltDCAzTrigger[nummolt+1] = {""};
   for (Int_t m=0; m<nummolt+1; m++){
     SmoltDCAzTrigger[m] = Smolt[m];
     if (isHM)     SmoltDCAzTrigger[m] = "_all";
@@ -471,10 +476,11 @@ void PtSpectraNew( Int_t type=8,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
   }
   else if (TypeAnalysis==1){
     if (type==0){
-      ALowBinFit[0]=	ALowBin[0]={1.1};
+      //OLD      ALowBinFit[0]=	ALowBin[0]={1.1};
+      ALowBinFit[0]=	ALowBin[0]={1}; //NEW
       AUpBinFit[0]=	AUpBin[0]={1.8};
 
-      ALowBinFit[1]=	ALowBin[1]={1};
+      ALowBinFit[1]=	ALowBin[1]={1.1}; //was 1 
       AUpBinFit[1]=	AUpBin[1]={1.8};
     
       ALowBinFit[2]=	ALowBin[2]={1.1};
@@ -631,7 +637,7 @@ void PtSpectraNew( Int_t type=8,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
       for (Int_t m =0; m<nummolt+1; m++){
         LowRangeJet[m] = 0.5;
         UpRangeJet[m] = 4;
-	//	if (m==0) LowRangeJet[m] = 0.8;
+	if (m==0) LowRangeJet[m] = 0.8;
         LowRangeBulk[m]= 0.1;
         LowRangeAll[m]= 0.1;
         UpRangeAll[m]= 2.0;
@@ -1353,19 +1359,15 @@ void PtSpectraNew( Int_t type=8,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
     fHistSpectrumSistRelErrorDeltaEta[m]->GetXaxis()->SetRangeUser(LowRangeSpectrumPart[m], UpRangeSpectrumPart[m]);
 
     if (isHM && type==8 && TypeAnalysis==0){
-    //    if (kFALSE){
       fHistSpectrumSistRelErrorSE[m]->Smooth(1, "R");
       fHistSpectrumSistRelErrorSETuva[m]->Smooth(1, "R");
       fHistSpectrumSistRelErrorDCAz[m]->Smooth(1, "R");
       fHistSpectrumSistRelErrorPurity[m]->Smooth(1, "R");
+      fHistSpectrumSistRelErrorDeltaEta[m]->Smooth(1, "R");
     }
     else if (type==0 && TypeAnalysis!=2){
       fHistSpectrumSistRelErrorDeltaEta[m]->Smooth(1, "R");
     }
-    else if (type==8 && TypeAnalysis==0 && isHM){
-      fHistSpectrumSistRelErrorDeltaEta[m]->Smooth(1, "R");
-    }
-    //    else if (ispp5TeV && type==8 && TypeAnalysis!=2){
     else if (ispp5TeV && TypeAnalysis!=2){
       fHistSpectrumSistRelErrorDeltaEta[m]->Smooth(1, "R");
     }
