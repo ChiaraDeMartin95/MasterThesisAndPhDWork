@@ -56,7 +56,7 @@ void StyleHistoYield(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t st
 }
 
 
-void YieldRatioNew(Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString yearK0s="1617_hK0s", TString yearK0sMC = "1617MC_hK0s", TString yearXi = "161718Full_AOD234_hXi"/*"Run2DataRed_MECorr_hXi"*/, TString yearXiMC = ""/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,    TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=0, Bool_t ZeroYieldLowPt=0, Int_t ChosenMult=5, Bool_t isBulkBlue=0, Bool_t isFit=0,  Bool_t isYieldMeanMacro=0, Bool_t ChangesIncluded=1){
+void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=0, Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString yearK0s="1617_hK0s", TString yearK0sMC = "1617MC_hK0s", TString yearXi = "161718Full_AOD234_hXi"/*"Run2DataRed_MECorr_hXi"*/, TString yearXiMC = ""/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,    TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=0, Bool_t ZeroYieldLowPt=0, Int_t ChosenMult=5, Bool_t isBulkBlue=0, Bool_t isFit=0,  Bool_t isYieldMeanMacro=0, Bool_t ChangesIncluded=1){
 
   TString       nameFit[4]={"mT-scaling", "Boltzmann", "Fermi-Dirac", "Levi"};
   //isYieldMeanMacro = 1: no difference between 1 and 0, only the input file changes (but the plots should be the same)
@@ -86,12 +86,15 @@ void YieldRatioNew(Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t
 
   Bool_t  MultOK=0;
   TString RegionType[3] = {"Jet", "Bulk", "Inclusive"};
+  TString SRegionTypeBis[3] = {"Jet", "OOj", "Full"};
   TString SRegionType[3] = {"Near-side Jet", "Out-of-jet", "Full"};
   TString NameP[2]={"h#minusK_{S}^{0}", "h#minus#Xi"};
   TString sRegion[3]={"#color[628]{Near#minusside jet}","#color[418]{Out#minusof#minusjet}","#color[600]{Full}"};
   TString sRegionBlack[3]={"#color[1]{Near#minusside jet}","#color[1]{Out#minusof#minusjet}","#color[1]{Full}"};
-  TString sRegion1K0s[3]={"|#Delta#it{#eta}| < 0.85, |#Delta#it{#varphi}| < 1.09", "0.85 < |#Delta#it{#eta}| < 1.2, 1.08 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
-  TString sRegion1Xi[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 1.09", "0.75 < |#Delta#it{#eta}| < 1.2, 0.85 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
+  //  TString sRegion1K0s[3]={"|#Delta#it{#eta}| < 0.85, |#Delta#it{#varphi}| < 1.09", "0.85 < |#Delta#it{#eta}| < 1.2, 0.96 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
+  TString sRegion1K0s[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 0.85", "0.75 < |#Delta#it{#eta}| < 1.2, 0.85 < #Delta#it{#varphi} < 2.0", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"}; //like the ones used for Preliminaries in 202
+  //  TString sRegion1Xi[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 1.09", "0.75 < |#Delta#it{#eta}| < 1.2, 0.96 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
+  TString sRegion1Xi[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 0.85", "0.75 < |#Delta#it{#eta}| < 1.2, 0.85 < #Delta#it{#varphi} < 2.0", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"}; //like the ones used for Preliminaries in 202
   TString sRegion1[3][2] ={""};
 
   gStyle->SetOptStat(0);
@@ -103,7 +106,6 @@ void YieldRatioNew(Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t
   const Int_t numregions=3;
 
   //latexnames
-  //  TLatex LatexTitle="ALICE Preliminary";
   Float_t massParticle[numtipo]= {0.497611, 1.115683, 1.115683, 1.115683, 1.32171, 1.32171, 1.67245, 1.67245, 1.32171, 1.67245};
   TString tipo[numtipo]={"K0s", "Xi"};
   TString Stipo[numtipo]={"K^{0}_{S}", "#Xi"};
@@ -206,21 +208,22 @@ void YieldRatioNew(Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t
   if (ChangesIncluded) stringout += "_ChangesIncluded";
   stringoutpdf = stringout;
   if (isFit)  stringoutpdf += "_FittedYields";
+  TString stringoutPlots = stringout + "PlotsForComparison.root";
   stringout += ".root";
   TFile * fileout = new TFile(stringout, "RECREATE");
 
   TString  TitleYPtRatio = "N_{#Xi}/N_{K^{0}_{S}}";
   TString  TitleYPtDRatio = "N_{#Xi}/N_{K^{0}_{S}}_{mult} / N_{#Xi}/N_{K^{0}_{S}}_{0-100%}_{0-100%}";
   TString titleX=  "#it{p}_{T} (GeV/#it{c})";
-  TString titleY=  "1/#Delta#it{#eta} #Delta#it{#varphi} 1/#it{N}_{trigg} d#it{N}/d#it{p}_{T} [(GeV/#it{c})^{-1}]";
+  TString titleY=  "1/(#Delta#it{#eta} #Delta#it{#varphi}) 1/#it{N}_{trigg} d#it{N}/d#it{p}_{T} [(GeV/#it{c})^{-1}]";
   TString titleYRel = "Relative uncertainty";
   TString title = "Multiplicity class "; 
   TString TitleYYieldRatio="#it{N}_{#Xi}/#it{N}_{K^{0}_{S}}";
   TString TitleYieldRatio="#Xi/K^{0}_{S} yield ratio vs multiplicity";
   TString titleYieldX="#LTd#it{N}_{ch}/d#it{#eta}#GT_{|#it{#eta}|<0.5}";
-  TString titleYieldY="N/N_{trigg} 1/#Delta#eta #Delta#it{#varphi}";
+  TString titleYieldY="N/N_{trigg} 1/(#Delta#eta #Delta#it{#varphi})";
   // TString titleYieldY="N/N_{Evt} 1/#Delta#eta #Delta#it{#varphi}";
-  TString titleYieldYType[2]={"#it{N}_{K^{0}_{S}}/#it{N}_{trigg} 1/#Delta#it{#eta} #Delta#it{#varphi}", "#it{N}_{#Xi}/#it{N}_{trigg} 1/#Delta#it{#eta} #Delta#it{#varphi}"};
+  TString titleYieldYType[2]={"#it{N}_{K^{0}_{S}}/#it{N}_{trigg} 1/(#Delta#it{#eta} #Delta#it{#varphi})", "#it{N}_{#Xi}/#it{N}_{trigg} 1/(#Delta#it{#eta} #Delta#it{#varphi})"};
   //  TString titleYieldYType[2]={"#it{N}_{K^{0}_{S}}/#it{N}_{Evt} 1/#Delta#it{#eta} #Delta#it{#varphi}", "#it{N}_{#Xi}/#it{N}_{Evt} 1/#Delta#it{#eta} #Delta#it{#varphi}"};
   TString titleYield[2]={"K^{0}_{S}", "#Xi"};
   TString titleYieldYRelErr = {"Relative uncertainty"};
@@ -286,13 +289,21 @@ void YieldRatioNew(Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t
   //Float_t LimSupSpectra[2][3] ={{100, 100, 100},{10, 10, 10}};
   Float_t LimSupSpectra[2][3] ={{299.999, 299.999, 299.999},{29.999, 29.999, 29.999}};
   Float_t LimInfSpectra[2][3] ={{5*10e-7, 5*10e-7, 5*10e-7},{1.01*10e-7, 1.01*10e-7, 1.01*10e-7}};
+  Float_t LimSupSpectraRegion[2] ={299.999*2.0, 29.999*2.0};
+  Float_t LimInfSpectraRegion[2] ={5*10e-7*0.02, 1.01*10e-7*0.02};
   if (ispp5TeV){
     for (Int_t i=0; i<3; i++){
       LimInfSpectra[0][i] = 5*10e-8;
       LimSupSpectra[0][i] = 99.999;
-      LimInfSpectra[1][i] = 1.01*10e-7;
+      LimInfSpectra[1][i] = 1.01*10e-8;
       LimSupSpectra[1][i] = 2.9999;
     }
+    LimSupSpectraRegion[0] =  LimSupSpectra[0][0] * 4.0;
+    LimInfSpectraRegion[0] =  LimInfSpectra[0][0] * 0.04;
+    LimSupSpectraRegion[1] =  LimSupSpectra[1][0] * 4.0;
+    LimSupSpectraRegion[1] =  40;
+    //LimInfSpectraRegion[1] =  LimInfSpectra[1][0] * 0.04;
+    LimInfSpectraRegion[1] =  0.2*10e-9;
   }
   if (isppHM){
     for (Int_t i=0; i<3; i++){
@@ -301,6 +312,10 @@ void YieldRatioNew(Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t
       LimInfSpectra[1][i] = 1.01*10e-7;
       LimSupSpectra[1][i] = 9.999;
     }
+    LimSupSpectraRegion[0] =  LimSupSpectra[0][0] * 4.0;
+    LimInfSpectraRegion[0] =  LimInfSpectra[0][0] * 0.04;
+    LimSupSpectraRegion[1] =  LimSupSpectra[1][0] * 4.0;
+    LimInfSpectraRegion[1] =  0.2*10e-9;
   }
   Float_t LimSupYieldErr[2] ={0.2, 0.3};
   Float_t LimInfYield[2]={10e-5, 10e-5};
@@ -340,8 +355,10 @@ void YieldRatioNew(Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t
   TString PathIn0[2];
   TString PathIn1[2];
   TString PathInYield[2];
+  TString PathInYieldFit[2];
   //  TString PathInDPhiProj[2];
   TFile * fileInYield[2];
+  TFile * fileInYieldFit[2];
   //  TFile * fileInDPhiProj[2];
   for (Int_t type=0; type<2; type++){
     if (type==0) PathIn0[type] =Form("_PtBinning%i",1);
@@ -644,13 +661,20 @@ void YieldRatioNew(Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t
       if (isYieldMeanMacro) PathInYield[type]+= "_YieldMeanMacro";
       PathInYield[type]+="_isErrorAssumedPtCorr";
       if (ChangesIncluded) PathInYield[type] += "_ChangesIncluded";
+      PathInYieldFit[type] = PathInYield[type];
+      //      if (iregion!=0 && ispp5TeV)        PathInYieldFit[type] += "_isFitForPlot";
+      if (ispp5TeV || isppHM)        PathInYieldFit[type] += "_isFitForPlot";
       if (MultBinning!=0)       PathInYield[type]+=Form("_MultBinning%i",MultBinning);
+      if (MultBinning!=0)       PathInYieldFit[type]+=Form("_MultBinning%i",MultBinning);
       PathInYield[type]+=".root";
+      PathInYieldFit[type]+=".root";
       cout << "\n\e[35mInput path\e[39m: " <<PathInYield[type]<< endl;
       //      cout << PathInDPhiProj[type]<< endl;
       fileInYield[type] = new TFile(PathInYield[type], "");
+      fileInYieldFit[type] = new TFile(PathInYieldFit[type], "");
       //      fileInDPhiProj[type] = new TFile(PathInDPhiProj[type], "");
       if (!fileInYield[type] ) {cout << "fileInYield missing " << endl; return;}
+      if (!fileInYieldFit[type] ) {cout << "fileInYieldFit missing " << endl; return;}
       fHistYieldStat[type][iregion]=(TH1F*)      fileInYield[type]->Get("fHistYieldStat");
       fHistYieldSist[type][iregion]=(TH1F*)      fileInYield[type]->Get("fHistYieldSist");
       fHistYieldSistNoExtr[type][iregion]=(TH1F*)      fileInYield[type]->Get("fHistYieldSistNoExtr");
@@ -848,11 +872,9 @@ void YieldRatioNew(Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t
       TLegend *Legend1=new TLegend(0.16,0.72,0.5,0.93); //0.6 in place of 0.53
       //Legend1->SetTextAlign(13);
       Legend1->SetMargin(0);
-      //      Legend1->SetFillStyle(0);
-      //      Legend1->AddEntry("", "#bf{ALICE Preliminary}", "");
-      Legend1->AddEntry("", "", "");
-      if (ispp5TeV)       Legend1->AddEntry("", "pp, #sqrt{#it{s}} = 5 TeV", "");
-      else       Legend1->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
+      Legend1->AddEntry("", "#bf{ALICE Preliminary}", "");
+      if (ispp5TeV)  Legend1->AddEntry("", "pp, #sqrt{#it{s}} = 5.02 TeV", "");
+      else  Legend1->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
       Legend1->AddEntry(""/*(TObject*)0*/, NameP[type]+ " correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
 
       //TLegend *Legend2=new TLegend(0.06,0.75,0.5,0.93); // ok if margin is set to default
@@ -860,9 +882,8 @@ void YieldRatioNew(Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t
       //Legend1->SetTextAlign(13);
       //      Legend2->SetFillStyle(0);
       Legend2->SetMargin(0);
-      //      Legend2->AddEntry("", "#bf{ALICE Preliminary}", "");
-      Legend2->AddEntry("", "", "");
-      if (ispp5TeV)      Legend2->AddEntry("", "pp, #sqrt{#it{s}} = 5 TeV", "");
+      Legend2->AddEntry("", "#bf{ALICE Preliminary}", "");
+      if (ispp5TeV)      Legend2->AddEntry("", "pp, #sqrt{#it{s}} = 5.02 TeV", "");
       else       Legend2->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
       Legend2->AddEntry(""/*(TObject*)0*/, NameP[type]+ " correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
 
@@ -1024,11 +1045,11 @@ void YieldRatioNew(Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t
 	//	TLegend *Legend1B=new TLegend(0.1,0.72,0.38,0.92);
 	TLegend *Legend1B=new TLegend(0.62,0.72,0.9,0.92);
 	Legend1B->SetFillStyle(0);
-	//	TLegendEntry* E1Bis =      Legend1B->AddEntry("", "#bf{ALICE Preliminary}", "");
-	TLegendEntry* E1Bis =      Legend1B->AddEntry("", "", "");
+	TLegendEntry* E1Bis =      Legend1B->AddEntry("", "#bf{ALICE Preliminary}", "");
+	//	TLegendEntry* E1Bis =      Legend1B->AddEntry("", "", "");
 	E1Bis->SetTextAlign(32);
 	TLegendEntry* E2Bis;
-	if (ispp5TeV)	E2Bis =        Legend1B->AddEntry("", "pp, #sqrt{#it{s}} = 5 TeV", "");
+	if (ispp5TeV)	E2Bis =        Legend1B->AddEntry("", "pp, #sqrt{#it{s}} = 5.02 TeV", "");
 	else	E2Bis =       Legend1B->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
 	E2Bis->SetTextAlign(32);
 	TLegendEntry* E3Bis =   	Legend1B->AddEntry(""/*(TObject*)0*/, "#it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
@@ -1160,7 +1181,7 @@ void YieldRatioNew(Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t
 	cout << "\nRatio between spectra; m= "<< m  << endl;
 	fHistSpectrumSist[m][type][iregion]=(TH1F*)fileInYield[type]->Get("fHistSpectrumSistAll_"+Smolt[m]);
 	fHistSpectrumStat[m][type][iregion]=(TH1F*)fileInYield[type]->Get("fHistSpectrum_"+Smolt[m]);
-	fFitScaled[m][type][iregion]=(TF1*)fileInYield[type]->Get( Form("fitMTscaling_m%i_fit%i",m, typefit));
+	fFitScaled[m][type][iregion]=(TF1*)fileInYieldFit[type]->Get( Form("fitMTscaling_m%i_fit%i",m, typefit));
 	
 	if (!fHistSpectrumStat[m][type][iregion]) { cout << " no hist spectrum stat" << endl;  return;}
 	if (!fHistSpectrumSist[m][type][iregion]) { cout << " no hist spectrum sist" << endl;  return;}
@@ -1409,9 +1430,9 @@ void YieldRatioNew(Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t
       TLegend *Legend1Bis=new TLegend(0.3,0.8,0.92,0.92);
       Legend1Bis->SetFillStyle(0);
       Legend1Bis->SetTextAlign(32);
-      //      Legend1Bis->AddEntry("", "#bf{ALICE Preliminary}", "");
-      Legend1Bis->AddEntry("", "", "");
-      if (ispp5TeV)      Legend1Bis->AddEntry("", "pp, #sqrt{#it{s}} = 5 TeV", "");
+      Legend1Bis->SetTextSize(0.034);
+      Legend1Bis->AddEntry("", "#bf{ALICE Preliminary}", "");
+      if (ispp5TeV)      Legend1Bis->AddEntry("", "pp, #sqrt{#it{s}} = 5.02 TeV", "");
       else       Legend1Bis->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
       Legend1Bis->AddEntry("", NameP[type]+ " correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
       //      Legend1Bis->AddEntry("", sRegionBlack[iregion], "");
@@ -1421,7 +1442,7 @@ void YieldRatioNew(Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t
 	Legend1NoPrel[type]=new TLegend(0.3,0.83,0.92,0.92);
 	Legend1NoPrel[type]->SetFillStyle(0);
 	Legend1NoPrel[type]->SetTextAlign(32);
-	if (ispp5TeV)	Legend1NoPrel[type]->AddEntry("", "pp, #sqrt{#it{s}} = 5 TeV", "");
+	if (ispp5TeV)	Legend1NoPrel[type]->AddEntry("", "pp, #sqrt{#it{s}} = 5.02 TeV", "");
 	else 	Legend1NoPrel[type]->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
 	Legend1NoPrel[type]->AddEntry("", NameP[type]+ " correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
       }
@@ -1435,6 +1456,9 @@ void YieldRatioNew(Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t
       lReAll2b=      legendRegionBlack->AddEntry("", sRegion1[iregion][type], "");
       lReAll2b->SetTextSize(0.029);
       lReAll2b->SetTextAlign(32);
+
+      TLegend* legendFitFunction = new TLegend(0.65, 0.6, 0.92, 0.68);
+      TLegendEntry* lFitFunction1;
 
       fHistSpectrumSistScaledB[nummolt][type][iregion]= (TH1F*) 	fHistSpectrumSistScaled[nummolt][type][iregion]->Clone("sistblack");
       fHistSpectrumSistScaledB[nummolt][type][iregion]->SetLineColor(1);
@@ -1469,21 +1493,37 @@ void YieldRatioNew(Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t
 	cout << "hi " << m << endl;
 	fHistSpectrumStatScaled[m][type][iregion]->Scale(ScaleFactor[m]);
 	fHistSpectrumSistScaled[m][type][iregion]->Scale(ScaleFactor[m]);
-	//	fFitScaled[m][type][iregion]->Scale(ScaleFactor[m]);
-	fFitScaled[m][type][iregion]->SetParameter(0, fFitScaled[m][type][iregion]->GetParameter(0) * ScaleFactor[m]);
+	if (iregion == 0) {
+	  fHistSpectrumStatScaled[m][type][iregion]->Scale(1.08747/0.845813); //in the legend I wrote 0.85 but I am using 1.09
+	  fHistSpectrumSistScaled[m][type][iregion]->Scale(1.08747/0.845813); //in the legend I wrote 0.85 but I am using 1.09
+	  fFitScaled[m][type][iregion]->SetParameter(0, fFitScaled[m][type][iregion]->GetParameter(0) * ScaleFactor[m] * 1.08747/0.845813);
+	}
+	else {
+	  fFitScaled[m][type][iregion]->SetParameter(0, fFitScaled[m][type][iregion]->GetParameter(0) * ScaleFactor[m]);
+	}
 	StyleHistoYield(fHistSpectrumStatScaled[m][type][iregion], LimInfSpectra[type][iregion], LimSupSpectra[type][iregion], ColorMult[m], MarkerMult[m], titleX, titleY,"", size[m],1.15, YoffsetSpectra[type] );
 	StyleHistoYield(fHistSpectrumSistScaled[m][type][iregion], LimInfSpectra[type][iregion], LimSupSpectra[type][iregion], ColorMult[m], MarkerMult[m], titleX, titleY,"", size[m], 1.15,  YoffsetSpectra[type]);
 
-	fFitScaled[m][type][iregion]->SetLineStyle(10);
+	fFitScaled[m][type][iregion]->SetLineStyle(5); //10, 8
 	fFitScaled[m][type][iregion]->SetLineColor(ColorMult[m]);
 	fHistSpectrumStatScaled[m][type][iregion]->DrawClone("same e0x0");  
 	fHistSpectrumSistScaled[m][type][iregion]->SetFillStyle(0);
 	fHistSpectrumSistScaled[m][type][iregion]->DrawClone("same e2");
-	fFitScaled[m][type][iregion]->DrawClone("same");
+	if (isFitSpectra)	fFitScaled[m][type][iregion]->DrawClone("same");
 	fHistSpectrumStatScaled[m][type][iregion]->Scale(1./ScaleFactor[m]);
 	fHistSpectrumSistScaled[m][type][iregion]->Scale(1./ScaleFactor[m]);
+	if (iregion == 0) {
+	  fHistSpectrumStatScaled[m][type][iregion]->Scale(1./(1.08747/0.845813)); //in the legend I wrote 0.85 but I am using 1.09
+	  fHistSpectrumSistScaled[m][type][iregion]->Scale(1./(1.08747/0.845813)); //in the legend I wrote 0.85 but I am using 1.09
+	}
 	fHistSpectrumSistScaledForLegend[m][type][iregion] = (TH1F*) 	fHistSpectrumSistScaled[m][type][iregion]->Clone("fHistSpectrumSistScaledForLegend_"+Smolt[m]+Form("_type%i_region%i", type,iregion));
+	fFitScaled[m][type][iregion]->SetLineColor(kBlack);
 	LegendMolt->AddEntry(fHistSpectrumSistScaledForLegend[m][type][iregion],SmoltBis[m]+"%"+sScaleFactor[m]+" ","pef");
+	if (m==nummolt) {
+	  lFitFunction1 = legendFitFunction->AddEntry(fFitScaled[m][type][iregion], "L#acute{e}vy-Tsallis fit", "l");
+	  lFitFunction1->SetTextSize(0.03);
+	  //	  lFitFunction1->SetTextAlign(32);
+	}
       }
 
       //LegendMolt->AddEntry("","Uncertainties","");
@@ -1492,6 +1532,7 @@ void YieldRatioNew(Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t
       legendRegionBlack->Draw("");
       if(type==0)legendStatBoxK0s->Draw("");
       else      if(type==1)legendStatBoxXi->Draw("");
+      if (isFitSpectra)      legendFitFunction->Draw("");
 
       canvasPtSpectraMultRatio[iregion][type]->cd();
       canvasPtSpectraMultRatio[iregion][type]->SetFillColor(0);
@@ -1550,8 +1591,8 @@ void YieldRatioNew(Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t
       fHistSpectrumStatScaled[ChosenMult][type][iregion]->Scale(ScaleFactorRegion[iregion]);
       fHistSpectrumSistScaled[ChosenMult][type][iregion]->Scale(ScaleFactorRegion[iregion]);
 
-      StyleHistoYield(fHistSpectrumStatScaled[ChosenMult][type][iregion], LimInfSpectra[type][iregion]*0.02, 0.2*LimSupSpectra[type][iregion], Color[iregion], MarkerRegion[iregion], titleX, titleY,"", sizeRegion[iregion],1.15, YoffsetSpectra[type]);
-      StyleHistoYield(fHistSpectrumSistScaled[ChosenMult][type][iregion], LimInfSpectra[type][iregion]*0.02, 0.2*LimSupSpectra[type][iregion], Color[iregion], MarkerRegion[iregion], titleX, titleY,"", sizeRegion[iregion], 1.15,  YoffsetSpectra[type]);
+      StyleHistoYield(fHistSpectrumStatScaled[ChosenMult][type][iregion], LimInfSpectraRegion[type], LimSupSpectraRegion[type], Color[iregion], MarkerRegion[iregion], titleX, titleY,"", sizeRegion[iregion],1.15, YoffsetSpectra[type]);
+      StyleHistoYield(fHistSpectrumSistScaled[ChosenMult][type][iregion], LimInfSpectraRegion[type], LimSupSpectraRegion[type], Color[iregion], MarkerRegion[iregion], titleX, titleY,"", sizeRegion[iregion], 1.15,  YoffsetSpectra[type]);
 
       if(type==0){
 	lReAll1Spectra[iregion] = legendRegionAllFSpectra->AddEntry(fHistSpectrumStatScaled[ChosenMult][type][iregion], sRegion[iregion] + Form(" (x%i)", ScaleFactorRegion[iregion]), "p");
@@ -1693,9 +1734,14 @@ void YieldRatioNew(Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t
     for (Int_t iregion=0; iregion<3; iregion++){
       cout <<"\n\e[32mRegion: " << SRegionType[iregion]<< "\e[39m" <<  endl;
       cout << "\e[36m\n" << Stipo[type] << " pt spectra\e[39m" << endl;	
-      canvasPtSpectra[iregion][type]->SaveAs(DirPicture+"FinalPtSpectra"+tipo[type]+RegionType[iregion]+".eps");
-      canvasPtSpectra[iregion][type]->SaveAs(DirPicture+"FinalPtSpectra"+tipo[type]+RegionType[iregion]+sSystem[SystemType]+".pdf");
-      canvasPtSpectra[iregion][type]->SaveAs(DirPicture+"FinalPtSpectra"+tipo[type]+RegionType[iregion]+".pdf");
+      if (isFitSpectra){
+	canvasPtSpectra[iregion][type]->SaveAs(DirPicture+"FinalPtSpectra"+tipo[type]+RegionType[iregion]+sSystem[SystemType]+"_Fit"+ nameFit[typefit] + ".eps");
+	canvasPtSpectra[iregion][type]->SaveAs(DirPicture+"FinalPtSpectra"+tipo[type]+RegionType[iregion]+sSystem[SystemType]+"_Fit"+ nameFit[typefit] + ".pdf");
+      }
+      else {
+	canvasPtSpectra[iregion][type]->SaveAs(DirPicture+"FinalPtSpectra"+tipo[type]+RegionType[iregion]+sSystem[SystemType]+".eps");
+	canvasPtSpectra[iregion][type]->SaveAs(DirPicture+"FinalPtSpectra"+tipo[type]+RegionType[iregion]+sSystem[SystemType]+".pdf");
+      }
       if (type==0 && iregion==0)      canvasPtSpectra[iregion][type]->SaveAs(stringoutpdf+"_Plots.pdf(");
       else canvasPtSpectra[iregion][type]->SaveAs(stringoutpdf+"_Plots.pdf");
       cout << "\e[36m\n" << Stipo[type] << " pt spectra to 0-100% multiplicity class\e[39m" << endl;	
@@ -1772,6 +1818,31 @@ void YieldRatioNew(Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t
 
   fileout->Close();
 
+  stringoutPlots = "Results";
+  if (ispp5TeV)  stringoutPlots += "_pp5TeV";
+  else if (isppHM)  stringoutPlots += "_pp13TeVHM";
+  else stringoutPlots += "_pp13TeVMB";
+  stringoutPlots+=  ".root";
+  TFile * fileoutPlots = new TFile(stringoutPlots, "RECREATE");
+  for (Int_t type=0; type<2; type++){
+    if (type==0) continue;
+    for (Int_t iregion=0; iregion<numregions; iregion++){
+      fHistYieldStat[type][iregion]->SetName("Yield_" + tipo[type] + "_"+ SRegionTypeBis[iregion] + "_StatErr");
+      fHistYieldSist[type][iregion]->SetName("Yield_" + tipo[type] + "_"+ SRegionTypeBis[iregion] + "_SistErr");
+      fHistYieldStat[type][iregion]->Write();
+      fHistYieldSist[type][iregion]->Write();
+      for (Int_t m=nummolt; m>=0; m--){
+	if (isppHM && MultBinning==1 && m<=1) continue;
+	if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
+	fHistSpectrumStat[m][type][iregion]->SetName("PtSpectrum_" + tipo[type] + "_"+ SRegionTypeBis[iregion] + "_"+ Smolt[m] +"_StatErr");
+	fHistSpectrumSist[m][type][iregion]->SetName("PtSpectrum_" + tipo[type] + "_"+ SRegionTypeBis[iregion] + "_"+ Smolt[m] +"_SistErr");
+	fHistSpectrumSist[m][type][iregion]->Write();
+	fHistSpectrumStat[m][type][iregion]->Write();
+      }
+    }
+  }
+  fileoutPlots->Close();
+
   cout << "\n\n\e[35m**fit to Xi/K0s with pol0 and pol1\e[39m" << endl;
   cout << "\nChi/NDF pol0 fit :" << endl;
   for (Int_t iregion=0; iregion<numregions; iregion++){
@@ -1784,7 +1855,9 @@ void YieldRatioNew(Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t
 
   for (Int_t type=0; type<2; type++){
     cout << "\nStarting from the file(s) "  <<  PathInYield[type] << endl; //" and " <<  PathInDPhiProj[type] << endl;
+    cout << " and the file (for fit function) " << PathInYieldFit[type] << endl;
   }
   cout << "\nI have created the file:\n " << stringout << "\nand the file:\n" << stringoutpdf << "_Plots.pdf\n\n" << endl;
+  cout << "I have created the file " << stringoutPlots << endl;
 }
 

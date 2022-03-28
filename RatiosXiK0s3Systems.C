@@ -46,11 +46,9 @@ TString titledNdeta="#LTd#it{N}_{ch}/d#it{#eta}#GT_{|#it{#eta}|<0.5}";
 TString titleYield[2]={"K^{0}_{S}", "#Xi"};
 TString TitleYYieldRatio="#it{N}_{#Xi}/#it{N}_{K^{0}_{S}}";
 
-TString titlePtYield=  "1/#Delta#it{#eta} #Delta#it{#varphi} 1/#it{N}_{trigg} d#it{N}/d#it{p}_{T} [(GeV/#it{c})^{-1}]";
-
-TString titlePt=  "#it{p}_{T} (GeV/#it{c})";
-TString titleYieldY="#it{N}/#it{N}_{trigg} 1/#Delta#eta #Delta#it{#varphi}";
-TString titleYieldYType[2]={"#it{N}_{K^{0}_{S}}/#it{N}_{trigg} 1/#Delta#it{#eta} #Delta#it{#varphi}", "#it{N}_{#Xi}/#it{N}_{trigg} 1/#Delta#it{#eta} #Delta#it{#varphi}"};
+//TString titleYieldYType[2]={"#it{N}_{K^{0}_{S}}/#it{N}_{trigg} 1/#Delta#it{#eta} #Delta#it{#varphi}", "#it{N}_{#Xi}/#it{N}_{trigg} 1/#Delta#it{#eta} #Delta#it{#varphi}"};
+TString titleYieldYType[2]={"#it{N}_{K^{0}_{S}}/#it{N}_{trigg} 1/(#Delta#it{#eta} #Delta#it{#varphi})", "#it{N}_{#Xi}/#it{N}_{trigg} 1/(#Delta#it{#eta} #Delta#it{#varphi})"};
+//TString titleYieldYType[2]={"#it{N}_{K^{0}_{S}}/#it{N}_{trigg} 1/#left(#Delta#it{#eta} #Delta#it{#varphi}#right)", "#it{N}_{#Xi}/#it{N}_{trigg} 1/#left(#Delta#it{#eta} #Delta#it{#varphi}#right)"}; //to much space around the parenthesis
 TString titlePtvsMultYType[2]={"#LT#it{p}^{K^{0}_{S}}_{T}#GT (GeV/c)", "#LT#it{p}^{#Xi}_{T}#GT (GeV/c)"};
 
 TString RegionType[3] = {"Jet", "Bulk", "Inclusive"};
@@ -58,17 +56,17 @@ TString SRegionType[3] = {"Near-side Jet", "Out-of-jet", "Full"};
 TString NameP[2]={"h#minusK_{S}^{0}", "h#minus#Xi"};
 TString sRegion[3]={"#color[628]{Near#minusside jet}","#color[418]{Out#minusof#minusjet}","#color[600]{Full}"};
 TString sRegionBlack[3]={"#color[1]{Near#minusside jet}","#color[1]{Out#minusof#minusjet}","#color[1]{Full}"};
-TString sRegion1[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 1.09", "0.75 < |#Delta#it{#eta}| < 1.2, 0.85 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
+//TString sRegion1[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 1.09", "0.75 < |#Delta#it{#eta}| < 1.2, 0.85 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
+TString sRegion1[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 0.85", "0.75 < |#Delta#it{#eta}| < 1.2, 0.75 < #Delta#it{#varphi} < 2.0", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
 
 
 void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t ScalingFactorXiK0s = 1/*0.8458/1.08747*/, Int_t isPreliminary =0, Bool_t isChangesIncluded=1, Bool_t isFit=1){
 
   //isPreliminary = 1: preliminary plots for RATIO (not corrected by norm factor)
   //isPreliminary = 2: preliminary plots for YIELDS (corrected by norm factor)
+
   if (PlotType==0 && isPreliminary==2) return;
   if (PlotType>0 && isPreliminary==1) return;
-  if (isFit && PlotType!=0) return;
-  if (isPreliminary) isChangesIncluded = 0;
 
   //PlotType = 0: Xi/K0s ratio
   //PlotType = 1: K0s yield vs mult 
@@ -76,10 +74,9 @@ void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t S
   //PlotType = 3: K0s pt vs mult 
   //PlotType = 4: Xi pt vs mult 
 
-  //  if (PlotType==1 || PlotType==0 || PlotType ==3) {
   if (PlotType==1 || PlotType ==3) {
-    sRegion1[0] = "|#Delta#it{#eta}| < 0.85, |#Delta#it{#varphi}| < 1.09";
-    sRegion1[1] = "0.85 < |#Delta#it{#eta}| < 1.2, 1.09 < #Delta#it{#varphi} <1.8";
+    //    sRegion1[0] = "|#Delta#it{#eta}| < 0.85, |#Delta#it{#varphi}| < 1.09";
+    //    sRegion1[1] = "0.85 < |#Delta#it{#eta}| < 1.2, 1.09 < #Delta#it{#varphi} <1.8";
   }
 
   //Set titles
@@ -96,7 +93,8 @@ void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t S
   Float_t MarkerSize[3] ={2, 2, 3};
   Int_t MarkerType[3] = {20, 21, 33};
 
-  TString titleYToOOJ = "#Xi/K^{0}_{S} (JET) / #Xi/K^{0}_{S} (OOJ)";
+  //  TString titleYToOOJ = "#Xi/K^{0}_{S} (JET) / #Xi/K^{0}_{S} (OOJ)";
+  TString titleYToOOJ = "Near-side jet / out-of-jet";
 
   //ChosenRegion == -1 //all regions (JET, OOJ, FULL) are plotted
   if (ChosenRegion>2) {cout << "Choose a valid region! " << endl; return;}
@@ -142,11 +140,14 @@ void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t S
   TF1* fitPol0[3];
 
   TF1 * fitToRatioToOOJ = new TF1("fitToRatioToOOJ", "pol0", 0, 45);
-  fitToRatioToOOJ->SetLineColor(634);
-  fitToRatioToOOJ->SetLineStyle(10);
+  fitToRatioToOOJ->SetLineColor(1);
+  fitToRatioToOOJ->SetLineStyle(2);
+  fitToRatioToOOJ->SetLineWidth(2);
 
   TH1F *histoYield[numTypes][numRegions][numColls];
+  TH1F *histoYieldAllErr[numTypes][numRegions][numColls];
   TH1F *histoYieldRatio[numRegions][numColls];
+  TH1F *histoYieldRatioAllErr[numRegions][numColls]; //stat + syst in quadrature
   TH1F *histoYieldRatioToOOJ[numColls];
   TH1F *histoYieldSist[numTypes][numRegions][numColls];
   TH1F *histoYieldRatioSist[numRegions][numColls];
@@ -163,27 +164,47 @@ void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t S
   TString YieldOrAvgPt[5] = {"Yield", "Yield", "Yield", "AvgPt","AvgPt"};
   TCanvas * canvas = new TCanvas("canvas", "canvas", 1300, 800);
   TCanvas * canvasRatioToOOJ = new TCanvas("canvasRatioToOOJ", "canvasRatioToOOJ", 1300, 800);
+  TCanvas * canvasSplit = new TCanvas("canvasSplit", "canvasSplit", 1300, 1100);
+  TPad* pad1 = new TPad( "pad1" ,"pad1" ,0 ,0.36 ,1 ,1);
+  TPad* pad2 = new TPad( "pad2" ,"pad2" ,0 ,0.01 ,1 ,0.35);
+  canvasSplit->SetFillColor(0);
+
+  pad1->SetTopMargin(0.05);
+  pad1->SetBottomMargin(0.005);
+  pad1->SetLeftMargin(0.13);
+  pad1->SetRightMargin(0.05);
+
+  pad2->SetTopMargin(0);
+  pad2->SetBottomMargin(0.32);
+  pad2->SetLeftMargin(0.13);
+  pad2->SetRightMargin(0.05);
+
+  pad1->SetTickx(1);
+  pad1->SetTicky(1);
+  pad2->SetTickx(1);
+  pad2->SetTicky(1);
 
   //legend
   TLegend *legendFit = new TLegend(0.62,0.72,0.9,0.92);
+  TLegend *legendFitRatioToOOJ = new TLegend(0.7,0.8,0.8,0.96);
+  TLegendEntry * legendFitRatio1;
 
-  TLegend *LegendRatio=new TLegend(0.62,0.72,0.9,0.92);
+  //  TLegend *LegendRatio=new TLegend(0.62,0.72,0.9,0.92);
+  TLegend *LegendRatio=new TLegend(0.62,0.77,0.9,0.92);
   LegendRatio->SetFillStyle(0);
-  //TLegendEntry* E1Ratio =      LegendRatio->AddEntry("", "#bf{ALICE Preliminary}", "");
-  //TLegendEntry* E1Ratio =      LegendRatio->AddEntry("", "", "");
-  //E1Ratio->SetTextAlign(32);
+  TLegendEntry* E1Ratio =      LegendRatio->AddEntry("", "#bf{ALICE Preliminary}", "");
   TLegendEntry* E3Ratio =           LegendRatio->AddEntry(""/*(TObject*)0*/, "#it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
   E3Ratio->SetTextAlign(32);
 
   TLegend *LegendColor=new TLegend(0.16,0.80,0.5,0.92); 
   LegendColor->SetMargin(0);
-  //LegendColor->AddEntry("", "#bf{ALICE Preliminary}", "");
+  LegendColor->AddEntry("", "#bf{ALICE Preliminary}", "");
   //LegendColor->AddEntry("", "", "");
 
   TLegend *LegendYields=new TLegend(0.16,0.75,0.5,0.93);
   LegendYields->SetMargin(0);
-  //      LegendYields->AddEntry("", "#bf{ALICE Preliminary}", "");
-  LegendYields->AddEntry("", "", "");
+  LegendYields->AddEntry("", "#bf{ALICE Preliminary}", "");
+  //LegendYields->AddEntry("", "", "");
   //  LegendYields->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
 
   TLegend *legendOneRegion=new TLegend(0.62, 0.8, 0.92, 0.9);
@@ -207,10 +228,11 @@ void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t S
   TLegendEntry *lReAll2[3];
 
   TLegend *legendEnergyBoxColor=new TLegend(0.67, 0.64, 0.90, 0.76);
-  TLegend *legendEnergyBox1=new TLegend(0.67, 0.71, 0.90, 0.78);
-  TLegend *legendEnergyBox2=new TLegend(0.68, 0.64, 0.90, 0.71);
-  TLegend *legendEnergyBoxBis1=new TLegend(0.67, 0.69, 0.90, 0.76);
-  TLegend *legendEnergyBoxBis2=new TLegend(0.68, 0.62, 0.90, 0.69);
+  TLegend *legendEnergyBox1=new TLegend(0.68, 0.71, 0.90, 0.78);
+  TLegend *legendEnergyBox2=new TLegend(0.656, 0.64, 0.90, 0.71);
+
+  TLegend *legendEnergyBoxBis1=new TLegend(0.68, 0.69, 0.89, 0.76);
+  TLegend *legendEnergyBoxBis2=new TLegend(0.68, 0.62, 0.89, 0.69);
 
   TLegend *legendStatBox=new TLegend(0.73, 0.80, 0.93, 0.92);
   TLegend *legendStatBoxBis=new TLegend(0.2, 0.48, 0.35, 0.58);
@@ -247,6 +269,8 @@ void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t S
 	cout <<  histoYield[type][ireg][Coll]->GetXaxis()->GetXmax() << endl;
 	histoYield[type][ireg][Coll]->SetName(NameHistoFinal[type][ireg][Coll]);
 
+	histoYieldAllErr[type][ireg][Coll] = (TH1F*) histoYield[type][ireg][Coll]->Clone(NameHistoFinal[type][ireg][Coll]+ "_AllErr");
+
 	if (Coll==0)	histoYieldSist[type][ireg][Coll]= (TH1F*) filein->Get(NameHistoSist13TeV);
 	else histoYieldSist[type][ireg][Coll]= (TH1F*) filein->Get(NameHistoSist5TeV);
 	if (!histoYieldSist[type][ireg][Coll]) {cout <<"no histo " << endl; return;}
@@ -263,13 +287,24 @@ void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t S
 	if ((type==1 && (PlotType == 0 || PlotType == 2 || PlotType == 4))  || (type==0 && (PlotType == 1 || PlotType == 3))) {
 	  histoYieldRatio[ireg][Coll]= (TH1F*)      histoYield[type][ireg][Coll]->Clone(Form("Ratio_reg%i_Coll%i_Ratio",ireg, Coll));
 	  histoYieldRatioSist[ireg][Coll]= (TH1F*)      histoYieldSist[type][ireg][Coll]->Clone(Form("Ratio_reg%i_Coll%i_RatioSist",ireg, Coll));
+	  histoYieldRatioAllErr[ireg][Coll]= (TH1F*)      histoYieldSist[type][ireg][Coll]->Clone(Form("Ratio_reg%i_Coll%i_RatioAllErr",ireg, Coll));
 	  histoYieldRatio[ireg][Coll]->Sumw2();
 	  histoYieldRatioSist[ireg][Coll]->Sumw2();
+	  histoYieldRatioAllErr[ireg][Coll]->Sumw2();
+	  for (Int_t i=1; i<= histoYieldRatioAllErr[ireg][Coll]->GetNbinsX(); i++){
+	    if (histoYieldRatioAllErr[ireg][Coll]->GetBinContent(i) ==0) continue;
+	    else histoYieldRatioAllErr[ireg][Coll]->SetBinError(i, sqrt(pow(histoYieldRatio[ireg][Coll]->GetBinError(i), 2) + pow(histoYieldRatioSist[ireg][Coll]->GetBinError(i),2) ));
+	  }
 	}
 	else {
 	  if (PlotType==0){
 	    histoYieldRatio[ireg][Coll]->Divide(histoYield[type][ireg][Coll]);
 	    histoYieldRatioSist[ireg][Coll]->Divide(histoYieldSist[type][ireg][Coll]);
+	    histoYieldRatioAllErr[ireg][Coll]->Divide(histoYield[type][ireg][Coll]);
+	    for (Int_t i=1; i<= histoYieldRatioAllErr[ireg][Coll]->GetNbinsX(); i++){
+	      if (histoYieldRatioAllErr[ireg][Coll]->GetBinContent(i) ==0) continue;
+	      else histoYieldRatioAllErr[ireg][Coll]->SetBinError(i, sqrt(pow(histoYieldRatio[ireg][Coll]->GetBinError(i), 2) + pow(histoYieldRatioSist[ireg][Coll]->GetBinError(i),2) ));
+	    }
 	    if (ireg ==0) {
 	      histoYieldRatio[ireg][Coll]->Scale(ScalingFactorXiK0s);
 	      histoYieldRatioSist[ireg][Coll]->Scale(ScalingFactorXiK0s);
@@ -283,17 +318,17 @@ void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t S
 	      histoYieldRatioSistToOOJ[Coll]->Divide(histoYieldRatioSist[ireg][Coll]);
 	    }
 	  }
-	  if (Coll==0 && isFit){
-	    fitPol1[ireg] = new TF1(Form("pol1_%i", ireg), "pol1", 0, 45);
-	    fitPol0[ireg] = new TF1(Form("pol0_%i", ireg), "pol0", 0, 45);
-	    fitPol1[ireg]->SetLineColor(Color[ireg]);
-	    fitPol0[ireg]->SetLineColor(Color[ireg]);
-	    fitPol0[ireg]->SetLineStyle(10);
-	    histoYieldRatio[ireg][Coll]->Fit(fitPol1[ireg], "R+");
-	    histoYieldRatio[ireg][Coll]->Fit(fitPol0[ireg], "R+");
-	    legendFit->AddEntry(fitPol0[ireg], Form("pol0 Chi2/NDF %.3f/%i", fitPol0[ireg]->GetChisquare(),fitPol0[ireg]->GetNDF()), "l" );
-	    legendFit->AddEntry(fitPol1[ireg], Form("pol1 Chi2/NDF %.3f/%i", fitPol1[ireg]->GetChisquare(),fitPol1[ireg]->GetNDF()), "l" );
-	  }
+	}
+	if (Coll==0 && isFit){
+	  fitPol1[ireg] = new TF1(Form("pol1_%i", ireg), "pol1", 0, 45);
+	  fitPol0[ireg] = new TF1(Form("pol0_%i", ireg), "pol0", 0, 45);
+	  fitPol1[ireg]->SetLineColor(Color[ireg]);
+	  fitPol0[ireg]->SetLineColor(Color[ireg]);
+	  fitPol0[ireg]->SetLineStyle(10);
+	  histoYieldRatioAllErr[ireg][Coll]->Fit(fitPol1[ireg], "R+");
+	  histoYieldRatioAllErr[ireg][Coll]->Fit(fitPol0[ireg], "R+");
+	  legendFit->AddEntry(fitPol0[ireg], Form("pol0 Chi2/NDF %.3f/%i", fitPol0[ireg]->GetChisquare(),fitPol0[ireg]->GetNDF()), "l" );
+	  legendFit->AddEntry(fitPol1[ireg], Form("pol1 Chi2/NDF %.3f/%i", fitPol1[ireg]->GetChisquare(),fitPol1[ireg]->GetNDF()), "l" );
 	}
 	if (type==0){
 	  cout << "\nXi/K0s ratio: " << endl;
@@ -304,7 +339,7 @@ void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t S
 	  }
 	}
 
-	if (type==0 && ireg == 2 && PlotType==0){
+	if (type==0 && ireg == 1 && PlotType==0){
 	  canvasRatioToOOJ->cd();
 	  canvasRatioToOOJ->SetFillColor(0);
 	  canvasRatioToOOJ->SetTickx(1);
@@ -316,12 +351,62 @@ void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t S
 	  gStyle->SetLegendBorderSize(0);
 	  gStyle->SetLegendFillColor(0);
 	  gStyle->SetLegendFont(42);
-	  StyleHisto(histoYieldRatioToOOJ[Coll], 0.4,1, ColorDiff[0][Coll], 33, titleX, titleYToOOJ, "" , 1,0, 40, xOffset, yOffset, 2);
-	  StyleHisto(histoYieldRatioSistToOOJ[Coll], 0.4,1, ColorDiff[0][Coll], 33, titleX, titleYToOOJ, "" , 1,0, 40, xOffset, yOffset, 2);
+	  StyleHisto(histoYieldRatioToOOJ[Coll], 0.42, 0.98, ColorDiff[0][Coll], MarkerType[0], titleX, titleYToOOJ, "" , 1,0, 40, xOffset, yOffset, MarkerSize[0]);
+	  StyleHisto(histoYieldRatioSistToOOJ[Coll], 0.42, 0.98, ColorDiff[0][Coll], MarkerType[0], titleX, titleYToOOJ, "" , 1,0, 40, xOffset, yOffset, MarkerSize[0]);
+	  histoYieldRatioToOOJ[Coll]->GetYaxis()->SetTitleSize(0.07);
+	  histoYieldRatioSistToOOJ[Coll]->GetYaxis()->SetTitleSize(0.07);
+	  histoYieldRatioToOOJ[Coll]->GetYaxis()->SetTitleOffset(0.7);
+	  histoYieldRatioSistToOOJ[Coll]->GetYaxis()->SetTitleOffset(0.7);
+
 	  if (Coll==0)	  histoYieldRatioToOOJ[Coll]->Fit(fitToRatioToOOJ, "R+");
-	  histoYieldRatioToOOJ[Coll]->Draw("same e0x0");
+	  if (Coll==0)	{
+	    legendFitRatio1 = legendFitRatioToOOJ->AddEntry(fitToRatioToOOJ, "pol0 fit", "l");
+	    legendFitRatio1->SetTextAlign(22);
+	    legendFitRatio1->SetTextSize(0.08);
+	  }
+	  histoYieldRatioToOOJ[Coll]->DrawClone("same e0x0");
 	  histoYieldRatioSistToOOJ[Coll]->SetFillStyle(0);
-	  histoYieldRatioSistToOOJ[Coll]->Draw("same e2");
+	  histoYieldRatioSistToOOJ[Coll]->DrawClone("same e2");
+
+	  canvasSplit->cd();
+	  gStyle->SetLegendBorderSize(0);
+	  gStyle->SetLegendFillColor(0);
+	  gStyle->SetLegendFont(42);
+	  pad2->Draw();
+	  pad2->cd();
+
+	  if (Coll==0){
+	  histoYieldRatioToOOJ[Coll]->GetYaxis()->SetTitleSize(0.07);
+	  histoYieldRatioSistToOOJ[Coll]->GetYaxis()->SetTitleSize(0.07);
+	  histoYieldRatioToOOJ[Coll]->GetYaxis()->SetTitleOffset(0.7);
+	  histoYieldRatioSistToOOJ[Coll]->GetYaxis()->SetTitleOffset(0.7);
+
+	  histoYieldRatioToOOJ[Coll]->GetYaxis()->SetLabelSize(0.10);
+	  histoYieldRatioSistToOOJ[Coll]->GetYaxis()->SetLabelSize(0.10);
+	  histoYieldRatioToOOJ[Coll]->GetYaxis()->SetLabelOffset(0.009);
+	  histoYieldRatioSistToOOJ[Coll]->GetYaxis()->SetLabelOffset(0.009);
+
+	  histoYieldRatioToOOJ[Coll]->GetXaxis()->SetTitleSize(0.10);
+	  histoYieldRatioSistToOOJ[Coll]->GetXaxis()->SetTitleSize(0.10);
+	  histoYieldRatioToOOJ[Coll]->GetXaxis()->SetTitleOffset(1.3);
+	  histoYieldRatioSistToOOJ[Coll]->GetXaxis()->SetTitleOffset(1.3);
+
+	  histoYieldRatioToOOJ[Coll]->GetXaxis()->SetLabelSize(0.10);
+	  histoYieldRatioSistToOOJ[Coll]->GetXaxis()->SetLabelSize(0.10);
+	  histoYieldRatioToOOJ[Coll]->GetXaxis()->SetLabelOffset(0.02);
+	  histoYieldRatioSistToOOJ[Coll]->GetXaxis()->SetLabelOffset(0.02);
+
+	  histoYieldRatioToOOJ[Coll]->GetYaxis()->SetNdivisions(305);
+	  histoYieldRatioSistToOOJ[Coll]->GetYaxis()->SetNdivisions(305);
+	  histoYieldRatioToOOJ[Coll]->GetYaxis()->SetTickLength(0.02);
+	  histoYieldRatioSistToOOJ[Coll]->GetYaxis()->SetTickLength(0.02);
+	  }
+
+	  histoYieldRatioToOOJ[Coll]->DrawClone("same e0x0");
+	  histoYieldRatioSistToOOJ[Coll]->SetFillStyle(0);
+	  histoYieldRatioSistToOOJ[Coll]->DrawClone("same e2");
+	  
+	  legendFitRatioToOOJ->Draw("");
 	}
 
 	canvas->cd();
@@ -343,6 +428,8 @@ void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t S
 	  histoYieldRatioSist[ireg][Coll]->GetYaxis()->SetTitleSize(0.07);
 	  histoYieldRatio[ireg][Coll]->GetYaxis()->SetTitleOffset(0.7);
 	  histoYieldRatioSist[ireg][Coll]->GetYaxis()->SetTitleOffset(0.7);
+	  histoYieldRatio[ireg][Coll]->GetYaxis()->SetTickLength(0.02);
+	  histoYieldRatioSist[ireg][Coll]->GetYaxis()->SetTickLength(0.02);
 	}
 
 	//legend
@@ -355,17 +442,17 @@ void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t S
 	  if (Coll==0){
 	    TLegendEntry* L1 = legendEnergyBox1->AddEntry(fHistYieldStatGrey[Coll], "pp, #sqrt{#it{s}} = 13 TeV", "pe");
 	    L1->SetTextAlign(32);
-	    L1->SetTextSize(0.044);
+	    L1->SetTextSize(0.042);
 	    TLegendEntry* L1Bis = legendEnergyBoxBis1->AddEntry(fHistYieldStatGrey[Coll], "pp, #sqrt{#it{s}} = 13 TeV", "pe");
-	    L1Bis->SetTextAlign(32);
+	    L1Bis->SetTextAlign(22);
 	    L1Bis->SetTextSize(0.044);
 	  }
 	  else {
-	    TLegendEntry* L2 = legendEnergyBox2->AddEntry(fHistYieldStatGrey[Coll], "pp, #sqrt{#it{s}} = 5 TeV", "pe");
+	    TLegendEntry* L2 = legendEnergyBox2->AddEntry(fHistYieldStatGrey[Coll], "pp, #sqrt{#it{s}} = 5.02 TeV", "pe");
 	    L2->SetTextAlign(32);
-	    L2->SetTextSize(0.044);
-	    TLegendEntry* L2Bis = legendEnergyBoxBis2->AddEntry(fHistYieldStatGrey[Coll], "pp, #sqrt{#it{s}} = 5 TeV", "pe");
-	    L2Bis->SetTextAlign(32);
+	    L2->SetTextSize(0.042);
+	    TLegendEntry* L2Bis = legendEnergyBoxBis2->AddEntry(fHistYieldStatGrey[Coll], "pp, #sqrt{#it{s}} = 5.02 TeV", "pe");
+	    L2Bis->SetTextAlign(22);
 	    L2Bis->SetTextSize(0.044);
 	  }
 	}
@@ -418,12 +505,14 @@ void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t S
 	}
 	if (Coll==0)	LegendColor->AddEntry(""/*(TObject*)0*/, NameP[type]+ " correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
 
-	if (Coll==1)	legendEnergyBoxColor->AddEntry(histoYieldRatio[ireg][Coll], "pp, #sqrt{#it{s}} = 5 TeV", "pe");
+	if (Coll==1)	legendEnergyBoxColor->AddEntry(histoYieldRatio[ireg][Coll], "pp, #sqrt{#it{s}} = 5.02 TeV", "pe");
 	else 	legendEnergyBoxColor->AddEntry(histoYieldRatio[ireg][Coll], "pp, #sqrt{#it{s}} = 13 TeV", "pe");
 
 	histoYieldRatio[ireg][Coll]->Draw("same e0x0");
 	histoYieldRatioSist[ireg][Coll]->SetFillStyle(0);
 	histoYieldRatioSist[ireg][Coll]->Draw("same e2");
+	fitPol0[ireg]->Draw("same");
+	fitPol1[ireg]->Draw("same");
 
 	if (PlotType==0){
 	  LegendRatio->Draw("");
@@ -454,6 +543,31 @@ void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t S
 	    legendEnergyBoxColor->Draw("");
 	  }
 	}
+
+	
+	canvasSplit->cd();
+	gStyle->SetLegendBorderSize(0);
+	gStyle->SetLegendFillColor(0);
+	gStyle->SetLegendFont(42);
+	pad1->Draw();
+	pad1->cd();
+	if (PlotType==0){
+	  histoYieldRatio[ireg][Coll]->Draw("same e0x0");
+	  histoYieldRatioSist[ireg][Coll]->SetFillStyle(0);
+	  histoYieldRatioSist[ireg][Coll]->Draw("same e2");
+	  LegendRatio->Draw("");
+	  legendRegionJet->Draw("");
+	  legendRegionBulk->Draw("");
+	  legendRegionFull->Draw("");
+	  legendStatBoxBis->Draw("");
+	  if (!isFit){
+	  legendEnergyBoxBis1->Draw("");
+	  legendEnergyBoxBis2->Draw("");
+	  }
+	  if (isFit){
+	    legendFit->Draw("");
+	  }
+	}
       }
     }
   }
@@ -471,9 +585,18 @@ void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t S
   }
   if (ChosenRegion<0){
     canvas->SaveAs("XiK0s3Systems"+SPlotType[PlotType]+SisPreliminary[isPreliminary]+SisFit[isFit] +".pdf");
-    if (PlotType==0)  canvasRatioToOOJ->SaveAs("XiK0s3Systems"+SPlotType[PlotType]+SisPreliminary[isPreliminary]+"_RatioToOOJ.pdf");
+    canvas->SaveAs("XiK0s3Systems"+SPlotType[PlotType]+SisPreliminary[isPreliminary]+SisFit[isFit] +".eps");
+    if (PlotType==0) {
+      canvasRatioToOOJ->SaveAs("XiK0s3Systems"+SPlotType[PlotType]+SisPreliminary[isPreliminary]+"_RatioToOOJ.pdf");
+      canvasSplit->SaveAs("XiK0s3Systems"+SPlotType[PlotType]+SisPreliminary[isPreliminary]+"_WithRatioToOOJ.pdf");
+      canvasRatioToOOJ->SaveAs("XiK0s3Systems"+SPlotType[PlotType]+SisPreliminary[isPreliminary]+"_RatioToOOJ.eps");
+      canvasSplit->SaveAs("XiK0s3Systems"+SPlotType[PlotType]+SisPreliminary[isPreliminary]+"_WithRatioToOOJ.eps");
+    }
   }
-  else     canvas->SaveAs("XiK0s3Systems"+SPlotType[PlotType]+Region[ChosenRegion]+SisPreliminary[isPreliminary]+".pdf");
+  else {
+    canvas->SaveAs("XiK0s3Systems"+SPlotType[PlotType]+Region[ChosenRegion]+SisPreliminary[isPreliminary]+".pdf");
+    canvas->SaveAs("XiK0s3Systems"+SPlotType[PlotType]+Region[ChosenRegion]+SisPreliminary[isPreliminary]+".eps");
+  }
 
   TFile* fileout = new TFile("FinalPlot.root", "RECREATE");
   canvas->Write();
