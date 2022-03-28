@@ -38,7 +38,7 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0, TString year=""/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=0, Int_t PtBinning=1, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,  Bool_t TwoFitFunctions=0, Bool_t isNormCorrFullyComputed=1, Bool_t isMeanMacro=0, Bool_t ispp5TeV=1,  Bool_t isErrorAssumedPtCorr=1){
+void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0, TString year=""/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=0, Int_t PtBinning=1, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,  Bool_t TwoFitFunctions=0, Bool_t isNormCorrFullyComputed=1, Bool_t isMeanMacro=0, Bool_t ispp5TeV=0,  Bool_t isErrorAssumedPtCorr=1, Bool_t isFitForPlot=0){
 
   if (TypeAnalysis>3) {cout << "sys errors not yet implemented for these regions " << endl; return;}
   if (type!=0 && type!=8) {cout << "Macro not working for particles different from K0s (type=0) and Xi (type=8)" << endl; return;}
@@ -293,6 +293,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
   //  stringout +="_Ter";
   //  stringout +="_Prova";
   //  if (type==8)  PathInFakeSBDef += "_SBMEFromPeak";
+  if (isFitForPlot)  stringout += "_isFitForPlot";
   TString PathOutPictures = stringout;
   //  stringout += "_NewDPhiRangeBis";
   //  stringout += "_OldDPhiRange";
@@ -359,7 +360,10 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
 	LowRangeAll[m]= 0.5; 
 	UpRangeAll[m]= 2.5; 
 	UpRangeBulk[m]= 2.5; 
-
+	if (m==4) {
+	  LowRangeBulk[m]= 0.1; 
+	  UpRangeBulk[m]= 2.0; 
+	}
 	LowPtLimitForAvgPtFS[m] = 0.5;
       }
     }
@@ -389,8 +393,12 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
 	LowRangeAll[m]= 0.5;
 	UpRangeAll[m]= 3; 
 	UpRangeBulk[m]= 3; 
-
 	LowPtLimitForAvgPtFS[m] = 0.8;
+	if (isFitForPlot) {
+	  UpRangeBulk[m] = 8;
+	  UpRangeAll[m] = 8;
+	  UpRangeJet[m] = 8;
+	}
       }
       else if (type==8){
 	LowRangeJet[m] = 1.5;
@@ -401,8 +409,12 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
 	UpRangeJet[m] = 8;
 	UpRangeBulk[m] = 3;
 	UpRangeAll[m] = 3;
-
 	LowPtLimitForAvgPtFS[m] = 2;
+	if (isFitForPlot) {
+	  UpRangeBulk[m] = 8;
+	  UpRangeAll[m] = 8;
+	  UpRangeJet[m] = 8;
+	}
       }
     }
   }
@@ -411,11 +423,16 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
       for (Int_t m =0; m<nummolt+1; m++){
         LowRangeJet[m] = 0.5;
         UpRangeJet[m] = 4;
-	//        if (m==0) LowRangeJet[m] = 0.8;
+	if (m==0) LowRangeJet[m] = 0.8;
         LowRangeBulk[m]= 0.1;
         LowRangeAll[m]= 0.1;
         UpRangeAll[m]= 2.0;
         UpRangeBulk[m]= 2;
+	if (isFitForPlot) {
+	  UpRangeBulk[m] = 8;
+	  UpRangeAll[m] = 8;
+	  UpRangeJet[m] = 8;
+	}
       }
     }
     else if (type==8){
@@ -429,6 +446,11 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
 	else  UpRangeBulk[m] = 3;
 	if (m==0)      UpRangeAll[m] = 4;
 	else      UpRangeAll[m] = 3;
+	if (isFitForPlot) {
+	  UpRangeBulk[m] = 8;
+	  UpRangeAll[m] = 8;
+	  UpRangeJet[m] = 8;
+	}
       }
     }
   }
@@ -965,11 +987,10 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
       cout << " m " << m << endl;
       for (Int_t sysDPhi=1; sysDPhi<numsysDPhi; sysDPhi++){
 	if (TypeAnalysis==0 && sysDPhi>2) continue;
-	if (TypeAnalysis==0 && sysDPhi==1 && type==0) continue;
+	if (TypeAnalysis==0 && sysDPhi==1) continue; //|dphi| < 0.86 does not include all of the jet, I cannot take it as systematic uncertainty
 	PathIn=PathIn0;
 	PathIn+=   Form("_SysPhi%i_PtMin%.1f_", sysDPhi, PtTrigMin);
 	PathIn+= RegionType[TypeAnalysis];
-	//	PathIn += "_OldDPhiRange";
 	if (MultBinning!=0) PathIn += Form("_MultBinning%i", MultBinning);
 	PathIn+= ".root";
 	cout << "" << PathIn << endl;
@@ -1015,7 +1036,6 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
 	  hBarlowVar[m][sysDPhi] ->SetBinContent(v+1, BarlowVar[m][v][sysDPhi]) ;
 	  hBarlowVar[m][sysDPhi] ->SetBinError(v+1, 0) ;
 	  //cout << "barlow var " << NPtV0[v] << " "  << 	  hBarlowVar[m][sysDPhi] ->GetBinContent(v+1)<<" " <<	  hBarlowVar[m][sysDPhi] ->GetBinError(v+1) << endl;
-
 	}//end loop v
 	if (BarlowSign[m][sysDPhi]>= NSign) BarlowPassed[m][sysDPhi]=1;
 	Int_t LimDPhi = 5;
@@ -1034,7 +1054,6 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
 	lineat0->Draw("same");
 
 	if (!BarlowPassed[m][sysDPhi]) continue;
-	//      cout << "defining max and min for " << endl;
 	for(Int_t v=PtV0Min; v < numPtV0Max; v++){
 	  if (v==1 && TypeAnalysis==0 && type==0 && (m==0 || m==1 || m==3)) continue;
 	  if (v==1 && TypeAnalysis==0 && type==8) continue;
@@ -1058,26 +1077,23 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
 	fHistSpectrumSistRelErrorDPhi[m]->SetBinError(v+1,0);
 	if (v==1 && TypeAnalysis==0 && type==0) continue;
 	if (NPtV0[v]==4 && type==0 && m==4) continue;
-	//      cout << " v: " << v << endl;
 	ErrDPhi[m][v] = TMath::Abs(fHistSpectrum_min[m]->GetBinContent(v+1) - fHistSpectrum_max[m]->GetBinContent(v+1))/2;
-	//	cout << fHistSpectrum_min[m]->GetBinContent(v+1)<< " << " << fHistSpectrumStat[m]->GetBinContent(v+1)<< " << " <<fHistSpectrum_max[m]->GetBinContent(v+1)<<endl;
-	//	cout << "err dphi " << ErrDPhi[m][v] << endl;
 	fHistSpectrumSistDPhi[m]->SetBinError(v+1, ErrDPhi[m][v]);
 
 	if (fHistSpectrumStat[m]->GetBinContent(v+1)!=0){
 	  if (ErrDPhi[m][v]!=0)	  ErrDPhiCounter[m]++;
 	  fHistSpectrumSistRelErrorDPhi[m]->SetBinContent(v+1, ErrDPhi[m][v]/fHistSpectrumStat[m]->GetBinContent(v+1));
 	}
-	//	else       fHistSpectrumSistRelErrorDPhi[m]->SetBinContent(v+1,0);
 	fHistSpectrumSistRelErrorDPhi[m]->SetBinError(v+1,0);
       } //end new
     }//end loop on m
+
     for(Int_t m=0; m<nummolt; m++){
       if (isppHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       for(Int_t v=PtV0Min; v < numPtV0Max; v++){
-	if (v==1 && TypeAnalysis==0 && type==0) continue;
-	if (NPtV0[v]==4 && type==0 && m==4) continue;
+	//	if (v==1 && TypeAnalysis==0 && type==0) continue; //?
+	//	if (NPtV0[v]==4 && type==0 && m==4) continue; //?
 	if (TypeAnalysis==0){
 	  //	  cout << "ErrDPhi " << ErrDPhi[nummolt][v] << endl;
 	  //	  cout << "stat " << fHistSpectrumStat[nummolt]->GetBinContent(v+1) << endl;
@@ -1085,7 +1101,9 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
 	  fHistSpectrumSistDPhi[m]->SetBinError(v+1, ErrDPhi[nummolt][v]/fHistSpectrumStat[nummolt]->GetBinContent(v+1)* fHistSpectrumStat[m]->GetBinContent(v+1));
 	}
       }
-      //SMOOTH
+
+      //SMOOTH the relative uncertainty and compute the absolute uncertainty
+      fHistSpectrumSistRelErrorDPhi[m]->GetXaxis()->SetRangeUser(LowRangeSpectrumPart[m], UpRangeSpectrumPart[m]);
       fHistSpectrumSistRelErrorDPhi[m]->Smooth();
       for(Int_t v=PtV0Min; v < numPtV0Max; v++){
 	if (fHistSpectrumStat[m]->GetBinContent(v+1)==0){
@@ -1457,7 +1475,9 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
     }
   }//end loop syst associated to how fake K0s/Xi are subtracted
 
-  TString PathInSBRelErr = "FinalOutput/DATA2016/PtSpectraBisNew_161718Full_AOD234_hXi_Xi_Eta0.8_AllAssoc_PtMin3.0_Inclusive_isNormCorrFullyComputed_isErrorAssumedPtCorr_ChangesIncluded.root";
+  TString PathInSBRelErr = "FinalOutput/DATA2016/PtSpectraBisNew_161718Full_AOD234_hXi_Xi_Eta0.8_AllAssoc_PtMin3.0_";
+  PathInSBRelErr += RegionType[TypeAnalysis];
+  PathInSBRelErr += "_isNormCorrFullyComputed_isErrorAssumedPtCorr_ChangesIncluded.root";
   if (type==8 && ispp5TeV){
     TFile * fileinFakeSBRelErr = new TFile(PathInSBRelErr);
     for(Int_t m=0; m<nummolt +1; m++){
@@ -1561,36 +1581,11 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
 	if (NPtV0[v] >=2.5 && !isppHM) continue;
 	if (BarlowPassedOOJSubDef[m]){
 	  if (isppHM ) {
-	    /* OLD WAY
-	    if (NPtV0[v]>=3){
-	      fHistSpectrumSistOOJSubDef[m]->SetBinError(v+1,	  TMath::Abs(fHistSpectrumStat[m]->GetBinContent(v+1) -    fHistSpectrumStatOOJSubDef[m]->GetBinContent(v+1))/2);
-	      fHistSpectrumSistRelErrorOOJSubDef[m]->SetBinContent(v+1,fHistSpectrumSistOOJSubDef[m]->GetBinError(v+1)/fHistSpectrumStat[m]->GetBinContent(v+1));
-	    }
-	    else {
-	      fHistSpectrumSistRelErrorOOJSubDef[m]->SetBinContent(v+1,0);
-	    }
-	    OLD WAY */
 	  }
-	  //	  else 	  fHistSpectrumSistOOJSubDef[m]->SetBinError(v+1,	  TMath::Abs(fHistSpectrumStat[m]->GetBinContent(fHistSpectrumStat[m]->FindBin(3.01)) -    fHistSpectrumStatOOJSubDef[m]->GetBinContent(fHistSpectrumStatOOJSubDef[m]->FindBin(3.01)))/2/ fHistSpectrumStat[m]->GetBinContent(fHistSpectrumStat[m]->FindBin(3.01))* fHistSpectrumStat[m]->GetBinContent(v+1));
 	  else 	  fHistSpectrumSistOOJSubDef[m]->SetBinError(v+1,	  TMath::Abs(fHistSpectrumStat[m]->GetBinContent(fHistSpectrumStat[m]->FindBin(2.01)) -    fHistSpectrumStatOOJSubDef[m]->GetBinContent(fHistSpectrumStatOOJSubDef[m]->FindBin(2.01)))/2/ fHistSpectrumStat[m]->GetBinContent(fHistSpectrumStat[m]->FindBin(2.01))* fHistSpectrumStat[m]->GetBinContent(v+1));
 	  //	  YieldSpectrumErrOOJSub[m]+= TMath::Abs(   fHistSpectrumStat[m]->GetBinContent(v+1) -    fHistSpectrumStatOOJSubDef[m]->GetBinContent(v+1));
 	}
       }
-
-      /* OLD WAY
-      if (isppHM  && BarlowPassedOOJSubDef[m]){
-	for(Int_t v=PtV0Min; v < numPtV0Max; v++){
-	  if (NPtV0[v]>=1.5 && NPtV0[v]< 3) {
-	    fHistSpectrumSistOOJSubDef[m]->SetBinError(v+1, fHistSpectrumSistRelErrorOOJSubDef[m]->GetBinContent(fHistSpectrumSistRelErrorOOJSubDef[m]->FindBin(3.01))*fHistSpectrumStat[m]->GetBinContent(v+1));
-	    fHistSpectrumSistRelErrorOOJSubDef[m]->SetBinContent(v+1, fHistSpectrumSistRelErrorOOJSubDef[m]->GetBinContent(fHistSpectrumSistRelErrorOOJSubDef[m]->FindBin(3.01)));
-	  }
-	  else {
-	    fHistSpectrumSistOOJSubDef[m]->SetBinError(v+1,0);
-	    fHistSpectrumSistRelErrorOOJSubDef[m]->SetBinContent(v+1,0);
-	  }
-	}
-      }
-      OLD WAY */
     }//end loop m
 
     for(Int_t m=0; m<nummolt+1; m++){
@@ -1598,7 +1593,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue; 
       if (isppHM) {
 	for(Int_t v=PtV0Min; v < numPtV0Max; v++){
-	  if (NPtV0[v]>=1.5 && NPtV0[v]< 3) {
+	  if (NPtV0[v]>=1.5 && NPtV0[v]< 2.5) {
 	    fHistSpectrumSistOOJSubDef[m]->SetBinError(v+1,	  TMath::Abs(fHistSpectrumStat[3]->GetBinContent(v+1) -    fHistSpectrumStatOOJSubDef[3]->GetBinContent(v+1))/2/ fHistSpectrumStat[3]->GetBinContent(v+1)* fHistSpectrumStat[m]->GetBinContent(v+1)); //take uncertainty from 0.01-0.05% mult class
 	    fHistSpectrumSistRelErrorOOJSubDef[m]->SetBinContent(v+1, fHistSpectrumSistOOJSubDef[m]->GetBinError(v+1)/fHistSpectrumSistOOJSubDef[m]->GetBinContent(v+1));
 	  }
