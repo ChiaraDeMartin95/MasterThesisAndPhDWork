@@ -109,6 +109,7 @@ void FractionEventswTrigger(Int_t MinRange=0){
   Float_t Nmolt[3][nummolt+1]={{0,5,10,30,50,100}, {0, 10, 100, 100, 100, 100}, {0, 0.01, 0.05, 0.1, 0.1, 0.1}};
   Float_t dNdEta[3][nummolt+1]={{21.2, 16.17, 11.4625, 7.135, 3.33, 6.94}, {13.89, 6.95, 0, 0, 0, 0}, {36.29, 32.57, 30.43, 0, 0, 0}};
   TH1F*  hRatioPtMin[5];
+  TH1F*  hRatioPtMinGrey[5];
   TH1F*  hRatio5TeVPtMin[5];
   TH1F*  hRatioPtMinNorm[5];
   TH1F*  hRatio5TeVPtMinNorm[5];
@@ -123,13 +124,14 @@ void FractionEventswTrigger(Int_t MinRange=0){
 
 
   //Set titles
-  TString titleY = "Fraction of events w trigger particle";
+  //  TString titleY = "Fraction of events with trigger particle";
+  TString titleY = "#it{N}_{trigg}/#it{N}_{ev}";
   TString titleYNorm = "Fraction of events w trigger particle wrt 50-100% class";
   TString titleYBis = "#LT#trigger particles#GT / #LT#trigger particles#GT (0-100%)";
   TString titleYTer = "#LT#trigger particles#GT / event";
   TString  titleX = titledNdeta;
   Float_t xOffset =1.2;
-  Float_t yOffset =1.25;
+  Float_t yOffset =0.9; //1.25
   Float_t MarkerSize[3] ={2, 2, 3};
   Int_t MarkerType[3] = {20, 21, 33};
 
@@ -141,14 +143,31 @@ void FractionEventswTrigger(Int_t MinRange=0){
   Float_t PtMin[5] = {3, 3.5, 4, 5, 6};
   //  Float_t Size[numTypes] = {2, 1.4};
 
-  TLegend *legendPtMin=new TLegend(0.2, 0.6, 0.5, 0.8);
+  TLegend *LegendTitle=new TLegend(0.18,0.80,0.5,0.92);
+  LegendTitle->SetMargin(0);
+  LegendTitle->AddEntry("", "#bf{ALICE Preliminary}", "");
+  LegendTitle->SetTextSize(0.06);
+
+  TLegend *LegendEnergy=new TLegend(0.14,0.65,0.48,0.8);
+  LegendEnergy->SetTextSize(0.05);
+
+  TLegend *legendPtMin=new TLegend(0.18, 0.48, 0.51, 0.58);
+  legendPtMin->SetMargin(0.15);
+  legendPtMin->SetTextSize(0.045);
 
   for (Int_t pt=0; pt<5; pt++){
     cout <<"\n\nPtMin: " << PtMin[pt] << endl;
     hRatioPtMin[pt] = new TH1F (Form("hRatioPtMin%i", pt), Form("hRatioPtMin%i", pt),450, 0, 45);
+    hRatioPtMinGrey[pt] = new TH1F (Form("hRatioPtMinGrey%i", pt), Form("hRatioPtMinGrey%i", pt),450, 0, 45);
     hRatio5TeVPtMin[pt] = new TH1F (Form("hRatio5TeVPtMin%i", pt), Form("hRatio5TeVPtMin%i", pt),450, 0, 45);
     hRatioPtMinNorm[pt] = new TH1F (Form("hRatioPtMinNorm%i", pt), Form("hRatioPtMinNorm%i", pt),450, 0, 45);
     hRatio5TeVPtMinNorm[pt] = new TH1F (Form("hRatio5TeVPtMinNorm%i", pt), Form("hRatio5TeVPtMinNorm%i", pt),450, 0, 45);
+    for (Int_t bin=1; bin <=  hRatioPtMin[pt]->GetNbinsX(); bin++){
+      hRatioPtMin[pt]->SetBinContent(hRatioPtMin[pt]->FindBin(bin), 0);
+      hRatioPtMin[pt]->SetBinError(hRatioPtMin[pt]->FindBin(bin), 0);
+      hRatio5TeVPtMin[pt]->SetBinContent(hRatioPtMin[pt]->FindBin(bin), 0);
+      hRatio5TeVPtMin[pt]->SetBinError(hRatioPtMin[pt]->FindBin(bin), 0);  
+    }
   }
   TH1F *hNumberTriggervsMult = new TH1F ("hNumberTriggervsMult", "hNumberTriggervsMult" ,450, 0, 45);
   TH1F *hNumberTriggervsMult5TeV = new TH1F ("hNumberTriggervsMult5TeV", "hNumberTriggervsMult5TeV" ,450, 0, 45);
@@ -157,7 +176,7 @@ void FractionEventswTrigger(Int_t MinRange=0){
 
   TCanvas * canvas = new TCanvas("canvas", "canvas", 1300, 800);
   canvasStyle(canvas);
-  canvas->SetGrid();
+  //  canvas->SetGrid();
 
   TCanvas * canvasNorm = new TCanvas("canvasNorm", "canvasNorm", 1300, 800);
   canvasStyle(canvasNorm);
@@ -200,6 +219,7 @@ void FractionEventswTrigger(Int_t MinRange=0){
 
 
     for (Int_t pt=0; pt<5; pt++){
+      if (pt>0) continue;
       cout <<"\n\nPtMin: " << PtMin[pt] << endl;
       hEventsvsMult_EvwTrigger[i] = (TH1F*)     hEventsvsMult_EvwTriggerBis[i]->ProjectionY(NameEventsvsMult_EvwTrigger[i], hEventsvsMult_EvwTriggerBis[i]->GetXaxis()->FindBin(PtMin[pt]+0.0001), hEventsvsMult_EvwTriggerBis[i]->GetXaxis()->FindBin(30));
 
@@ -230,19 +250,35 @@ void FractionEventswTrigger(Int_t MinRange=0){
 	}
 	cout << "m " << Nmolt[i][m] << " (dNdEta = " << dNdEta[i][m]<< ")  Fraction of events w trigger particle: " << FracEvWTrigger << endl;
 	cout << "Min fraction of events w trigger particle: " << MinFracEvwTrigger[pt] << endl;
-	//      cout << hRatioPtMin[pt]->GetBinContent(hRatioPtMin[pt]->FindBin(dNdEta[i][m])) << " +- " << hRatioPtMin[pt]->GetBinError(hRatioPtMin[pt]->FindBin(dNdEta[i][m])) << endl;
+	// cout << hRatioPtMin[pt]->GetBinContent(hRatioPtMin[pt]->FindBin(dNdEta[i][m])) << " +- " << hRatioPtMin[pt]->GetBinError(hRatioPtMin[pt]->FindBin(dNdEta[i][m])) << endl;
       }
-      StyleHisto(hRatioPtMin[pt], 0.001, 0.6, Color13TeV[pt], Marker[pt], titleX, titleY, "" , 1,0, 40, xOffset, yOffset, 2);
-      StyleHisto(hRatio5TeVPtMin[pt], 0.001, 0.6, Color5TeV[pt], Marker[pt], titleX, titleY, "" , 1,0, 40, xOffset, yOffset, 2);
-      StyleHisto(hRatioPtMinNorm[pt], 0.9, 75, Color13TeV[pt], Marker[pt], titleX, titleYNorm, "" , 1,0, 40, xOffset, yOffset, 2);
-      StyleHisto(hRatio5TeVPtMinNorm[pt], 0.9, 75, Color5TeV[pt], Marker[pt], titleX, titleYNorm, "" , 1,0, 40, xOffset, yOffset, 2);
+      StyleHisto(hRatioPtMin[pt], 10e-5, 0.6-10e-5, Color13TeV[pt], Marker[pt], titleX, titleY, "" , 1,0, 40, xOffset, yOffset, 3);
+      StyleHisto(hRatio5TeVPtMin[pt], 10e-5, 0.6-10e-5, Color5TeV[pt], Marker[pt], titleX, titleY, "" , 1,0, 40, xOffset, yOffset, 3);
+      StyleHisto(hRatioPtMinNorm[pt], 0.9, 75, Color13TeV[pt], Marker[pt], titleX, titleYNorm, "" , 1,0, 40, xOffset, yOffset, 3);
+      StyleHisto(hRatio5TeVPtMinNorm[pt], 0.9, 75, Color5TeV[pt], Marker[pt], titleX, titleYNorm, "" , 1,0, 40, xOffset, yOffset, 3);
       hRatioPtMinNorm[pt]->GetYaxis()->SetTitleSize(0.03);
       hRatio5TeVPtMinNorm[pt]->GetYaxis()->SetTitleSize(0.03);
 
-      if (i==0)      legendPtMin->AddEntry(hRatioPtMin[pt], Form("p_{trig}>%.1f", PtMin[pt]), "pl");
+      hRatioPtMin[pt]->GetYaxis()->SetTitleSize(0.06);
+      hRatio5TeVPtMin[pt]->GetYaxis()->SetTitleSize(0.06);
+
+      if (i==0)  {
+	if (pt==0){
+	  hRatioPtMinGrey[pt] = (TH1F*) hRatioPtMin[pt]->Clone("hRatioPtMinGrey");
+	  hRatioPtMinGrey[pt]->SetMarkerColor(922);
+	  hRatioPtMinGrey[pt]->SetLineColor(922);
+	  legendPtMin->AddEntry(hRatioPtMinGrey[pt], Form("#it{p}_{T}^{trigg} > %.0f GeV/#it{c}", PtMin[pt]), "pe");
+	  LegendEnergy->AddEntry(hRatioPtMin[pt], "pp, #sqrt{#it{s}} = 13 TeV", "pe");
+	}
+	else  legendPtMin->AddEntry(hRatioPtMin[pt], Form("#it{p}_{T}^{trigg} > %.0f GeV/#it{c}", PtMin[pt]), "pe");
+      }
+      else if (i==1){
+	if (pt==0) LegendEnergy->AddEntry(hRatio5TeVPtMin[pt], "pp, #sqrt{#it{s}} = 5.02 TeV", "pe");
+      }
+
       canvas->cd();
-      hRatioPtMin[pt]->DrawClone("same");
-      hRatio5TeVPtMin[pt]->DrawClone("same");
+      hRatioPtMin[pt]->DrawClone("same p");
+      hRatio5TeVPtMin[pt]->DrawClone("same p");
       //      Diagonal->Draw("same");
 
       canvasNorm->cd();
@@ -252,7 +288,9 @@ void FractionEventswTrigger(Int_t MinRange=0){
   }
 
   canvas->cd();
+  LegendTitle->Draw("");
   legendPtMin->Draw("");
+  LegendEnergy->Draw("");
   canvasNorm->cd();
   legendPtMin->Draw("");
 
@@ -262,6 +300,7 @@ void FractionEventswTrigger(Int_t MinRange=0){
   //  legendEnergyBoxColor->Draw("");
 
   cout <<"\n\n\n"<< endl;
+  TF1 * pol1Fit = new TF1("pol1", "pol1", 0, 25);
   //number of particles with pt > 3 GeV in events with at least one such particle
   for (Int_t i =0; i<3; i++){
     cout <<"\nAnalysing : " << System[i] << endl;
@@ -290,6 +329,7 @@ void FractionEventswTrigger(Int_t MinRange=0){
 	hNumberTriggervsMultNorm ->SetBinError(hNumberTriggervsMult->FindBin(dNdEta[i][m]), 0);
 	hNumberTriggervsMult ->SetBinError(hNumberTriggervsMult->FindBin(dNdEta[i][m]),hTriggervsMult1D[i][m]->GetMeanError());
 	cout << "m " << Nmolt[i][m] << " (dNdEta = " << dNdEta[i][m]<< ") Average number of charged tracks with pt> 3 GeV/c (norm to MB) " << hNumberTriggervsMultNorm->GetBinContent(hNumberTriggervsMult->FindBin(dNdEta[i][m])) << endl;
+	cout << "error  " << hNumberTriggervsMult->GetBinError(hNumberTriggervsMult->FindBin(dNdEta[i][m]))<< endl;
       }
       else if (i==1){
 	hNumberTriggervsMult5TeVNorm ->SetBinContent(hNumberTriggervsMult->FindBin(dNdEta[i][m]), hTriggervsMult1D[i][m]->GetMean()/hTriggervsMult1DAllMult[1]->GetMean());
@@ -333,8 +373,44 @@ void FractionEventswTrigger(Int_t MinRange=0){
 
   StyleHisto(hNumberTriggervsMult, LowLimit, UpLimit, Color13TeV[0], Marker[0], titleX, titleYTer, "" , 1,0, 40, xOffset, yOffset, 2);
   StyleHisto(hNumberTriggervsMult5TeV, LowLimit, UpLimit, Color5TeV[0], Marker[0], titleX, titleYTer, "" , 1,0, 40, xOffset, yOffset, 2);
+
+
   hNumberTriggervsMult->DrawClone("same p");
   hNumberTriggervsMult5TeV->DrawClone("same p");
+
+  TLegend* legendParameters = new TLegend(0.5, 0.7, 0.8, 0.85);
+
+  pol1Fit->SetLineWidth(0.3);
+  pol1Fit->SetRange(0,25);
+  hNumberTriggervsMult->Fit(pol1Fit, "R0");
+  pol1Fit->SetRange(0,45);
+  pol1Fit->SetLineStyle(9);
+  pol1Fit->SetLineColor(Color13TeV[0]);
+  pol1Fit->DrawClone("same");
+  TF1 * pol1FitClone1 = (TF1*) pol1Fit->Clone("pol1FitClone1");
+  legendParameters->AddEntry(pol1FitClone1, Form("y = %.3f x + %.3f (fit for dNdeta < 25)", pol1Fit->GetParameter(1), pol1Fit->GetParameter(0)) , "l");
+
+  pol1Fit->SetRange(0,45);
+  hNumberTriggervsMult->Fit(pol1Fit, "R0");
+  pol1Fit->SetLineStyle(1);
+  pol1Fit->SetLineColor(Color13TeV[0]+1);
+  pol1Fit->DrawClone("same");
+  TF1 * pol1FitClone2 = (TF1*) pol1Fit->Clone("pol1FitClone2");
+  legendParameters->AddEntry(pol1FitClone2, Form("y = %.3f x + %.3f (fit for dNdeta < 45)", pol1Fit->GetParameter(1), pol1Fit->GetParameter(0)), "l");
+
+  pol1Fit->SetRange(25, 45);
+  hNumberTriggervsMult->Fit(pol1Fit, "R0");
+  pol1Fit->SetRange(0,45);
+  pol1Fit->SetLineStyle(9);
+  pol1Fit->SetLineColor(Color5TeV[0]);
+  pol1Fit->DrawClone("same");
+  TF1 * pol1FitClone3 = (TF1*) pol1Fit->Clone("pol1FitClone3");
+  legendParameters->AddEntry(pol1FitClone3, Form("y = %.3f x + %.3f (fit for dNdeta > 25)", pol1Fit->GetParameter(1), pol1Fit->GetParameter(0)), "l");
+
+
+  //  legendParameters->AddEntry("", "Fit for "+ titledNdeta +" < 25", "");
+  legendParameters->Draw("");
+
   //  DiagonalNorm->Draw("same");
   legendEnergyBoxColor->Draw("");
   
