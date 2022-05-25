@@ -28,12 +28,25 @@ void StyleHisto(TH1D *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitleSize(1.5);
 }
 
-void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Int_t TypeAnalysis=0, Bool_t isMC=0,   Int_t israp=0,TString year="AllhK0sHM_RedNo16k"/*"161718Full_AOD234_hXi"/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/, Int_t type=8,  Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=1, Int_t PtBinning=0, Int_t sysTrigger=0, Int_t sys=0,/*leave it like this*/ Float_t PtTrigMin1=0.15, Bool_t SysTuvaWay=0, Bool_t isPreliminary=0, TString yearLowPtTrig="", Bool_t isHM=0, Bool_t isNewdEtaJet=0, Bool_t ispp5TeV =1, Bool_t NewdEtaChoice=1, Bool_t isSidebands=0){
+void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Int_t TypeAnalysis=0, Bool_t isMC=1,   Int_t israp=0,TString year="AllhK0sHM_RedNo16k"/*"161718Full_AOD234_hXi"/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/, Int_t type=0,  Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=1, Int_t PtBinning=0, Int_t sysTrigger=0, Int_t sys=0,/*leave it like this*/ Float_t PtTrigMin1=0.15, Bool_t SysTuvaWay=0, Bool_t isPreliminary=0, TString yearLowPtTrig="", Bool_t isHM=1, Bool_t isNewdEtaJet=1, Bool_t ispp5TeV =0, Bool_t NewdEtaChoice=0, Bool_t isSidebands=1, Bool_t isEffCorr=1){
 
   //  if (SESysTuvaWay) I calculate the sys uncertainty associated to topo selection taking |max yield - min yield|/2 among the values obtained with the tightest and the loosest selections
 
+  //isGenOnTheFly --> events were generated on the fly and only the kinematic part is saved; the multiplicity distribution in percentile classes is not abvailable, instead classes based on the number of particles in the V0 acceptance are used
+  Bool_t isGenOnTheFly = 0;
+  if (isMC && !isEfficiency) isGenOnTheFly = 1;
+  if (!isMC && isGenOnTheFly) return;
+  if (isGenOnTheFly) { //these variabes have no meaning for the MCtruth analysis -- they are set to zero in order not to appearin output file name
+    MultBinning = 0;
+    isHM =0;
+    isEfficiency = 0;
+    isSidebands = 0;
+    isEffCorr = 0;
+  }
+
   if (isHM && NewdEtaChoice) return;
   if (type==8 && isNewdEtaJet) return;
+  if (type==0 && NewdEtaChoice) return; //NewdEtaChoice = 1 -> deltaEta is varied also for the OOJ distributions used to subtract the jet production 
   if (TypeAnalysis>1 && !SysTuvaWay) {cout << "DeltaEta Sys errors not implemented for these regions " << endl; return;}
 
   if (ishhCorr && type!=0){
@@ -44,30 +57,38 @@ void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, I
     SkipAssoc =0;
     MultBinning=0;
     if (type==0){
+      isNewdEtaJet =1;
       PtBinning =1;
       year = "1617_GP_hK0s";
+      if (isGenOnTheFly) year = "_PythiaRopes_Test1";
     }
     else if (type==8){
+      isNewdEtaJet = 0;
       PtBinning=0;
       year ="161718_hXi";
-
+      if (isGenOnTheFly) year = "";
     }
   }
   else {
     if (type==0){
       if (isPreliminary)    year = "1617_hK0s"; //for preliminary results
-      else year = "1617_AOD234_hK0s";
+      else {
+	year = "1617_AOD234_hK0s";
+	isEffCorr =1; //fix of efficiency
+      }
       yearLowPtTrig= "";
       MultBinning =0;
+      PtBinning=1;
+      isNewdEtaJet =1;
       if (isHM) {
 	year = "AllhK0sHM_RedNo16k";
-	if (TypeAnalysis==0) isNewdEtaJet=1;
+	isNewdEtaJet=1;
 	MultBinning =1;
       }
       else if (ispp5TeV) {
 	year = "17pq_hK0s";
 	MultBinning =3;
-	//      if (TypeAnalysis==0) isNewdEtaJet=1;
+	isNewdEtaJet =1; 
       }
     }
     else if (type==8){
@@ -129,7 +150,9 @@ void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, I
 
   TString isMCOrData[3] = {"_Data", "_MC", "_DataMC"};
 
-  const Int_t nummolt=5;
+  const Int_t nummolt=10;
+  Int_t nummoltMax =10;
+  if (!isGenOnTheFly) nummoltMax = 5;
   const Int_t numzeta=1;
   const Int_t numPtV0=10;//9
   const Int_t numPtTrigger=1;
@@ -162,8 +185,10 @@ void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, I
   TString SmoltLegend2[nummolt+1]={"0-2 %", "2-7 %", "7-15 %", "15-30 %", "30-100 %", "0-100 %"};
   TString Smolt5TeV[nummolt+1]={"0-10", "10-100", "100-100", "100-100", "100-100", "_all"};
   Double_t Nmolt5TeV[nummolt+1]={0, 10, 100, 100, 100, 100};
+  TString SmoltGenOnTheFly[nummolt+1]={"0-30", "30-60", "60-90", "90-120", "120-150", "150-180", "180-210", "210-240", "240-270", "270-300", "0-300"};
+  Double_t NmoltGenOnTheFly[nummolt+1]={0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300};
 
-  for (Int_t m=0; m<nummolt+1; m++){
+  for (Int_t m=0; m<nummoltMax+1; m++){
     if (MultBinning==0){
       Nmolt[m] = Nmolt0[m];
       Smolt[m] = Smolt0[m];
@@ -195,7 +220,7 @@ void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, I
     Smolt[1] = "0.001-0.005";
     Smolt[2] = "0.005-0.01";
     Smolt[3] = "0.01-0.05";
-    Smolt[4] = "0.05-0.1";
+<    Smolt[4] = "0.05-0.1";
     Smolt[5] = "0-0.1";
     if (MultBinning==1){
       Nmolt[1] = 0;
@@ -203,6 +228,13 @@ void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, I
       Smolt[0] = "0-0a";
       Smolt[1] = "0-0b";
       Smolt[2] = "0-0.01";
+    }
+  }
+
+  if (isGenOnTheFly){
+    for (Int_t m=0; m<nummoltMax+1; m++){
+      Smolt[m] = SmoltGenOnTheFly[m];
+      Nmolt[m] = NmoltGenOnTheFly[m];
     }
   }
 
@@ -256,6 +288,11 @@ void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, I
       NPtV0[v] = NPtV02[v];
     }
   }
+  if (isMC && !isEfficiency && type==0){
+    SPtV0[0]="0-0.5";
+    NPtV0[0]=0;
+  }
+
   TString SErrorSpectrum[3]={"stat.","syst. uncorr.","syst. corr."};
   TString SSystJet[2]={"BC [-1.0, 1.0]", "BC [-1.2, 1.2]"};
   TString SSystBulk[3]={"BC [1.0, 2.0]", "BC [2.0, 4.28]", "BC [1.0, 4.28]"};
@@ -297,9 +334,11 @@ void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, I
   if (isSidebands) stringout+= "_Sidebands";
   if (isNewdEtaJet)   stringout += "_NewdEtaChoice";
   if (NewdEtaChoice)   stringout += "_NewDEtaChoice";
+  if (isEffCorr) stringout += "_EffCorr";
   if (isMC && !isEfficiency) stringout += "_MCPrediction";
   //  stringout += "_Test";
   stringout += ".root";
+  cout <<"Path out " << stringout << endl;
   TFile * fileout = new TFile(stringout, "RECREATE");
 
   //canvas definition
@@ -355,9 +394,21 @@ void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, I
   if (isHM && type==0) PathInNTrig += "_isBkgParab";
   if (isNewdEtaJet) PathInNTrig += "_NewdEtaChoice";
   PathInNTrig += ".root";
-  TFile *fileNTrig = new TFile(PathInNTrig, "");
-  if (!fileNTrig) return;
-  TH1F* NTriggerHisto = (TH1F*)  fileNTrig->Get("NTriggerHisto");
+  TFile *fileNTrig;
+  TString PathInACorr = "";
+  if (isGenOnTheFly){
+    PathInACorr += "FinalOutput/DATA2016/histo/AngularCorrelation" + year+ "_MCTruth_PtBinning1_";
+    PathInACorr += tipo[type];
+    if (type == 0)  PathInACorr +="_Eta0.8_AllAssoc_SysT0_SysV00_Sys0_PtMin3.0_Output_IsMEFromCorrectCentrality_NewdEtaChoice_MCPrediction.root";
+    else  PathInACorr += "Eta0.8_AllAssoc_SysT0_SysV00_Sys0_PtMin3.0_Output_IsMEFromCorrectCentrality_NewdEtaChoice_MCPrediction.root";
+  }
+  if (isGenOnTheFly) fileNTrig = new TFile(PathInACorr, "");
+  else fileNTrig = new TFile(PathInNTrig, "");
+  if (!fileNTrig) {cout << "fileNTrig not found " << endl; return;}
+  TH1F* NTriggerHisto;
+  if (isGenOnTheFly)  NTriggerHisto = (TH1F*)  fileNTrig->Get("fHistNTrigger");
+  else  NTriggerHisto = (TH1F*)  fileNTrig->Get("NTriggerHisto");
+  if (!NTriggerHisto) {cout << "histp Ntrigger not found " << endl;return;}
 
   Int_t PtV0Min=1;
   //  if (!ishhCorr && type==0) PtV0Min=0;
@@ -371,7 +422,10 @@ void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, I
 
   Int_t sysV0=0;    
   if(isMC && isEfficiency) file = year + "_MCEff" +Path1;
-  if (isMC && !isEfficiency) file = year + "_MCTruth";
+  if (isMC && !isEfficiency) {
+    file = year + "_MCTruth" ;
+    if (PtBinning!=0) file += Form("_PtBinning%i", PtBinning);
+  }
 
   TF1* lineat1= new TF1("pol0", "pol0", -TMath::Pi()/2, TMath::Pi()*3./2);
   lineat1->SetLineColor(kBlue);
@@ -380,12 +434,12 @@ void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, I
   lineat0->SetLineColor(kBlack);
   lineat0->FixParameter(0,0);
 
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     if (isHM && MultBinning==1 && m<=1) continue;
-    //    if (m!=nummolt) continue;
+    //    if (m!=nummoltMax) continue;
     cout << "\n\n\e[35mAnalysing multiplicity... " << Smolt[m] << "\e[39m" <<  endl;
-    if (m!=nummolt) {
+    if (m!=nummoltMax) {
       NTrigger[m] =    NTriggerHisto->GetBinContent(NTriggerHisto->FindBin(Nmolt[m]+0.0001));
       NTriggerAll +=    NTriggerHisto->GetBinContent(NTriggerHisto->FindBin(Nmolt[m]+0.0001));
     }
@@ -416,6 +470,8 @@ void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, I
       PathIn1 +=SSkipAssoc[SkipAssoc];
       PathIn0=PathIn1;
       PathIn1+= hhCorr[ishhCorr]+Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f", sysTrigger, sysV0, sys, PtTrigMin)+"_Output";
+      PathIn1 += "_IsMEFromCorrectCentrality";
+      if (isNewdEtaJet)  PathIn1 += "_NewdEtaChoice";
       PathIn1+= "_MCPrediction";
       PathIn1 += ".root";
     }
@@ -447,6 +503,7 @@ void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, I
       if (isSidebands) PathInOOJ1 += "_Sidebands";
       if (isNewdEtaJet)  PathIn1 += "_NewdEtaChoice";
       if (NewdEtaChoice)  PathInOOJ1 += "_NewDEtaChoice";
+      if (isEffCorr) PathIn1 += "_EffCorr";
       //      if (isHM) PathInOOJ1 += "_isOOJFromAllMult";
       PathIn1+=".root";
       PathInOOJ1+=".root";
@@ -471,7 +528,7 @@ void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, I
       if (type==8 && sysDEta==5 && TypeAnalysis==1 &&!SysTuvaWay && (!isHM && !ispp5TeV)) continue;
       if (type==0 && isHM && TypeAnalysis==0 && sysDEta==6 && !isNewdEtaJet) continue; //I am cutting a part of the jet with this selection (-0.64 - 0.64)
       if (type==0 && isHM && TypeAnalysis==0 && sysDEta==6 && isNewdEtaJet) continue;
-      if (type==8 && sysDEta==6 && TypeAnalysis==0 && ispp5TeV) continue; //I am cutting part of the jet in this way - no systematic should be associated because of that
+      if (type==8 && sysDEta==6 && TypeAnalysis==0) continue; //I am cutting part of the jet in this way - no systematic should be associated because of that
       //      if (type==0 && sysDEta != 0 && sysDEta!=4) continue;
       cout << "sysDEta " <<       sysDEta << endl;
       //      if (sysDEta>numsysDEta) return;
@@ -481,7 +538,7 @@ void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, I
 	PathInDeltaEtaSys[sysDEta]+="_Output";
 	PathInDeltaEtaSysOOJ[sysDEta] = PathInOOJ0 + hhCorr[ishhCorr]+Form("_sys%i_PtTrigMin%.1f_PtTrigMin%.1f", sysDEta, PtTrigMin, PtTrigMin1)+"_Output";
 	if (isMC && !isEfficiency){
-	  if (isMC && !isEfficiency) PathInDeltaEtaSys[sysDEta] += "_MCPrediction";
+	  PathInDeltaEtaSys[sysDEta] += "_IsMEFromCorrectCentrality";
 	}
 	else {
 	  if (ispp5TeV && type==8)      PathInDeltaEtaSys[sysDEta] += "_IsMEFrom13TeV";
@@ -496,6 +553,8 @@ void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, I
 	//	if (isHM) PathInDeltaEtaSysOOJ[sysDEta] += "_isOOJFromAllMult";
 	if (NewdEtaChoice)  PathInDeltaEtaSysOOJ[sysDEta] += "_NewDEtaChoice";
 	if (isNewdEtaJet)  PathInDeltaEtaSys[sysDEta] += "_NewdEtaChoice";
+	if (isEffCorr) PathInDeltaEtaSys[sysDEta] += "_EffCorr";
+	if (isMC && !isEfficiency) PathInDeltaEtaSys[sysDEta] += "_MCPrediction";
 	PathInDeltaEtaSys[sysDEta] += ".root";
 	PathInDeltaEtaSysOOJ[sysDEta] += ".root";
       }
@@ -546,7 +605,7 @@ void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, I
 
       for (Int_t sysDEta=minDEta; sysDEta<=numsysDEta; sysDEta++){
 	if (type==8 && sysDEta==5 && TypeAnalysis==1 &&!SysTuvaWay && (!isHM && !ispp5TeV)) continue;
-	if (type==8 && sysDEta==6 && TypeAnalysis==0 && ispp5TeV) continue; 
+	if (type==8 && sysDEta==6 && TypeAnalysis==0) continue; 
 	if (type==0 && isHM && TypeAnalysis==0 && sysDEta==6 && !isNewdEtaJet) continue; //I am cutting a part of the jet with this selection (-0.64 - 0.64)
 	if (type==0 && isHM && TypeAnalysis==0 && sysDEta==6 && isNewdEtaJet) continue;
 	//	if (type==0 && sysDEta != 0 && sysDEta!=4) continue;
@@ -579,13 +638,13 @@ void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, I
       StyleHisto(fHistPhiDistr_master[m][v], YInf, YSup, Color[TypeAnalysis] ,1, Form("%.1f < p_{T} < %.1f", NPtV0[v], NPtV0[v+1]));
       if (!SysTuvaWay)       SDeltaEta[0] =Form("%.2f-%.2f", LowEtaLimit[0], UpEtaLimit[0]);
       else    SDeltaEta[0] ="default sel";
-      if (m==nummolt && v==PtV0Min)	legend->AddEntry(	fHistPhiDistr_master[m][v], SDeltaEta[0], "pl");
+      if (m==nummoltMax && v==PtV0Min)	legend->AddEntry(	fHistPhiDistr_master[m][v], SDeltaEta[0], "pl");
       //      cout << "ciao chiara.." << SDeltaEta[0] << endl;
       //      fHistPhiDistr_master[m][v]->Rebin(2);
       fHistPhiDistr_master[m][v]->DrawClone("");
       
       for (Int_t sysDEta=minDEta; sysDEta<=numsysDEta; sysDEta++){
-	if (type==8 && sysDEta==6 && TypeAnalysis==0 && ispp5TeV) continue;
+	if (type==8 && sysDEta==6 && TypeAnalysis==0) continue;
 	if (type==8 && sysDEta==5 && TypeAnalysis==1 &&!SysTuvaWay && (!isHM && !ispp5TeV)) continue;
 	if (type==0 && isHM && TypeAnalysis==0 && sysDEta==6 && !isNewdEtaJet) continue; //I am cutting a part of the jet with this selection (-0.64 - 0.64)
 	if (type==0 && isHM && TypeAnalysis==0 && sysDEta==6 && isNewdEtaJet) continue;
@@ -600,7 +659,7 @@ void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, I
 	fHistPhiDistr_DeltaEta[m][v][sysDEta]->Sumw2();
 	if (!(type==8 && TypeAnalysis==0 &&!isMC))  	fHistPhiDistr_DeltaEta[m][v][sysDEta]->Scale(1./NTrigger[m]);
 	StyleHisto(	fHistPhiDistr_DeltaEta[m][v][sysDEta], YInf, YSup, ColorsysDEta[sysDEta] ,1, Form("%.1f < p_{T} < %.1f", NPtV0[v], NPtV0[v+1]));
-	if (m==nummolt && v==PtV0Min)	legend->AddEntry(	fHistPhiDistr_DeltaEta[m][v][sysDEta], SDeltaEta[sysDEta], "pl");
+	if (m==nummoltMax && v==PtV0Min)	legend->AddEntry(	fHistPhiDistr_DeltaEta[m][v][sysDEta], SDeltaEta[sysDEta], "pl");
 	//	fHistPhiDistr_DeltaEta[m][v][sysDEta]->Rebin(2);
 	fHistPhiDistr_DeltaEta[m][v][sysDEta]->DrawClone("same");
 	fHistPhiDistr_DeltaEtaRatio[m][v][sysDEta] = (TH1D*) fHistPhiDistr_DeltaEta[m][v][sysDEta]->Clone("PhiDistr_DeltaEtaRatio_m"+Smolt[m]+"_v"+SPtV0[v]);
@@ -613,7 +672,7 @@ void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, I
       
       cout << "\n\e[35m2. I evaluate if they are Barlow significant (and plot sigmaBarlow), are they correlated? \e[39m " << endl;
       for (Int_t sysDEta=minDEta; sysDEta<=numsysDEta; sysDEta++){
-	if (type==8 && sysDEta==6 && TypeAnalysis==0 && ispp5TeV) continue;
+	if (type==8 && sysDEta==6 && TypeAnalysis==0) continue;
 	if (type==8 && sysDEta==5 && TypeAnalysis==1 &&!SysTuvaWay && (!isHM && !ispp5TeV)) continue;
 	if (type==0 && isHM && TypeAnalysis==0 && sysDEta==6 && !isNewdEtaJet) continue; //I am cutting a part of the jet with this selection (-0.64 - 0.64)
 	if (type==0 && isHM && TypeAnalysis==0 && sysDEta==6 && isNewdEtaJet) continue;
@@ -681,7 +740,7 @@ void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, I
       cout << "\n\e[35m3. If Barlow significant, I calculate the systematic error associated \e[39m" << endl;
       Int_t IsSystematic=0;
       for (Int_t sysDEta=minDEta; sysDEta<=numsysDEta; sysDEta++){
-	if (type==8 && sysDEta==6 && TypeAnalysis==0 && ispp5TeV) continue;
+	if (type==8 && sysDEta==6 && TypeAnalysis==0) continue;
 	if (type==8 && sysDEta==5 && TypeAnalysis==1 &&!SysTuvaWay && (!isHM && !ispp5TeV)) continue;
 	if (type==0 && isHM && TypeAnalysis==0 && sysDEta==6 && !isNewdEtaJet) continue; //I am cutting a part of the jet with this selection (-0.64 - 0.64)
 	if (type==0 && isHM && TypeAnalysis==0 && sysDEta==6 && isNewdEtaJet) continue;
@@ -753,7 +812,7 @@ void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, I
   } //end loop m
 
   cout << "\n\e[35mGoing to write on file...\e[39m"<< endl;  
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     if (isHM && MultBinning==1 && m<=1) continue;
     fileout->WriteTObject(canvasDeltaEta[m]);
@@ -776,7 +835,7 @@ void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, I
 
   cout << "\n\nDefault limit: " << LowEtaLimit[0] << "- " <<     UpEtaLimit[0]<< "\n" <<endl;
   for (Int_t sysDEta=minDEta; sysDEta<=numsysDEta; sysDEta++){
-    if (type==8 && sysDEta==6 && TypeAnalysis==0 && ispp5TeV) continue;	
+    if (type==8 && sysDEta==6 && TypeAnalysis==0) continue;	
     if (type==8 && sysDEta==5 && TypeAnalysis==1 &&!SysTuvaWay && (!isHM && !ispp5TeV)) continue;
     if (type==0 && isHM && TypeAnalysis==0 && sysDEta==6 && !isNewdEtaJet) continue; //I am cutting a part of the jet with this selection (-0.64 - 0.64)
     if (type==0 && isHM && TypeAnalysis==0 && sysDEta==6 && isNewdEtaJet) continue;
@@ -790,17 +849,17 @@ void SysDeltaEta(Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, I
   cout << "\n\e[35mI have created the file:\e[39m " << stringout << endl;
   cout << "The effect is considered significant if |Barlow variable| > 2 for more than " << NSign << " out of ";
     Int_t counter=0;
-    for (Int_t n=1; n<= fHistPhiDistr_DeltaEta[5][1][minDEta]->GetNbinsX(); n++){
+    for (Int_t n=1; n<= fHistPhiDistr_DeltaEta[nummoltMax][1][minDEta]->GetNbinsX(); n++){
       if (TypeAnalysis==0) {
-	if (TMath::Abs(fHistPhiDistr_master[5][1]->GetBinCenter(n)) <= 1.05) {
+	if (TMath::Abs(fHistPhiDistr_master[nummoltMax][1]->GetBinCenter(n)) <= 1.05) {
 	  counter++;
-	  //	  cout << fHistPhiDistr_master[5][1]->GetBinCenter(n) << endl;
+	  //	  cout << fHistPhiDistr_master[nummoltMax][1]->GetBinCenter(n) << endl;
 	}
       }
       else if (TypeAnalysis==1) {
-	if (fHistPhiDistr_master[5][1]->GetBinCenter(n) > 0.85 && fHistPhiDistr_master[5][1]->GetBinCenter(n) < 2.1) {
+	if (fHistPhiDistr_master[nummoltMax][1]->GetBinCenter(n) > 0.85 && fHistPhiDistr_master[nummoltMax][1]->GetBinCenter(n) < 2.1) {
 	  counter++;
-	  //	  cout << fHistPhiDistr_master[5][1]->GetBinCenter(n) << endl;
+	  //	  cout << fHistPhiDistr_master[nummoltMax][1]->GetBinCenter(n) << endl;
 	}
       } 
    }
