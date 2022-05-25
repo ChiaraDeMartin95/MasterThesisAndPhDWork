@@ -20,7 +20,15 @@ Double_t SetEfficiencyError(Int_t k, Int_t n){
   return sqrt(((Double_t)k+1)*((Double_t)k+2)/(n+2)/(n+3) - pow((Double_t)(k+1),2)/pow(n+2,2));
 }
 
-void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAssoc=0, Int_t israp=0, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=3,Float_t PtTrigMinFit=3, Int_t sysTrigger=0, Int_t sysV0=0,Int_t syst=0,bool isMC = 1, Bool_t isEfficiency=0,TString year0="2016", TString year="17l3b_hK0s_Hybrid"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/*"16kl_hK0s_Hybrid"/*"2019h11_HM_hK0s"/*"17pq_pp5TeV_Hybrid"*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio"/*"1617GP_hK0s"/"1617_AOD234_hK0s"/*"2016kl_pass2_Fio"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/"AllhK0sHM_RedNo16k"/*"MCPrediction->1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_RlabelBis_15runs_hK0s_Hybrid"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/"2016k_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018g4_extra_EtaEff_hK0s"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617GP_hK0s_Hybrid"/*"2018f1_Reco_hK0s"/"2018f1_extra_hK0s"/*"2018f1_extra_hK0s"/*"LHC17_hK0s"/"1617_hK0s"/*"2016kehjl_hK0s"/"2018f1_extra_hK0s_30runs_Hybrid"/"2016k_hK0s"/"2018f1_extra_hK0s"/"2018g4_extra_EtaEff_hK0s"*/,  TString Path1 ="",  Double_t ptjmax =15, Double_t nsigmamax=10, Bool_t isSigma=kFALSE, Int_t PtBinning=1, Bool_t IsTrueParticle=1, Bool_t IsPtTrigMultDep =0, Int_t TriggerPDGChoice=0, Bool_t isEtaEff=1, TString yearMC/*path of file where efficiency is stored*/ = "17l3b_hK0s"/*"161718HM_hK0s"/*"16kl_hK0s"/*"2019h11_HM_hK0s"/*"17d20bEPOS_hK0s_EtaEff"/*"17pq_pp5TeV"*"17pq_hK0s"/*"1617_GP_AOD235_With18c12b"/*"17pq_hK0s"/*"2019h11abc_extra_HM_hK0s"/*"2018g4_extra_EtaEff_hK0s"*/, TString yearMCTrigEff ="17l3b_hK0s"/* "161718HM_hK0s_TriggEff"/*"18f1_extra_EffTrigger_5runs"*/, Bool_t isEta05=0, Bool_t isPrimaryTrigger=0, Bool_t isNewInputPath=1, Bool_t isHM=0, Int_t MultBinning=3, /*Int_t VarRange =0, */Bool_t isSysPurity=0, Int_t VarRange =0, Bool_t isMCForNorm=1, Bool_t isTrigEff=0){
+void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAssoc=0, Int_t israp=0, Bool_t isBkgParab=1, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=3,Float_t PtTrigMinFit=3, Int_t sysTrigger=0, Int_t sysV0=0,Int_t syst=0,bool isMC = 1, Bool_t isEfficiency=0,TString year0="2016", TString year="_PythiaRopes_Test1"/*"17l3b_hK0s_Hybrid"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/*"16kl_hK0s_Hybrid"/*"2019h11_HM_hK0s"/*"17pq_pp5TeV_Hybrid"/"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio"/*"1617GP_hK0s"/"1617_AOD234_hK0s"/*"2016kl_pass2_Fio"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/"AllhK0sHM_RedNo16k"/*"MCPrediction->1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_RlabelBis_15runs_hK0s_Hybrid"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/"2016k_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018g4_extra_EtaEff_hK0s"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617GP_hK0s_Hybrid"/*"2018f1_Reco_hK0s"/"2018f1_extra_hK0s"/*"2018f1_extra_hK0s"/*"LHC17_hK0s"/"1617_hK0s"/*"2016kehjl_hK0s"/"2018f1_extra_hK0s_30runs_Hybrid"/"2016k_hK0s"/"2018f1_extra_hK0s"/"2018g4_extra_EtaEff_hK0s"*/,  TString Path1 ="",  Double_t ptjmax =15, Double_t nsigmamax=10, Bool_t isSigma=kFALSE, Int_t PtBinning=1, Bool_t IsTrueParticle=0, Bool_t IsPtTrigMultDep =0, Int_t TriggerPDGChoice=0, Bool_t isEtaEff=1, TString yearMC/*path of file where efficiency is stored*/ = ""/*"17pq_hK0s_EffCorr"/*"17l3b_hK0s"/*"161718HM_hK0s"/*"16kl_hK0s"/"2019h11_HM_hK0s_EffCorr"/*"17d20bEPOS_hK0s_EtaEff"/*"17pq_pp5TeV"*"17pq_hK0s"/"1617_GP_AOD235_With18c12b_EffCorr"/*"17pq_hK0s"/*"2019h11abc_extra_HM_hK0s"/*"2018g4_extra_EtaEff_hK0s"*/, TString yearMCTrigEff =""/*"17l3b_hK0s_EffCorr"/* "161718HM_hK0s_TriggEff"/*"18f1_extra_EffTrigger_5runs"*/, Bool_t isEta05=0, Bool_t isPrimaryTrigger=0, Bool_t isNewInputPath=1, Bool_t isHM=1, Int_t MultBinning=1, /*Int_t VarRange =0, */Bool_t isSysPurity=0, Int_t VarRange =0, Bool_t isMCForNorm=0, Bool_t isTrigEff=0, Bool_t isGenOnTheFly=1){
+
+  //isGenOnTheFly --> events were generated on the fly and only the kinematic part is saved; the multiplicity distribution in percentile classes is not abvailable, instead classes based on the number of particles in the V0 acceptance are used
+  if (!isMC && isGenOnTheFly) return;
+  if (isGenOnTheFly) { //these variabes have no meaning for the MCtruth analysis -- they are set to zero in order not to appear in output file name
+    isBkgParab = 0;
+    MultBinning = 0;
+    isHM =0;
+  }
 
   //  if (isSysPurity) {cout << "isSysPurity = 1; are you sure you want it to be like this? " << endl; }
   //isMCForNorm -> pt binning same as data!
@@ -95,7 +103,9 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   Float_t ctauCasc[numtipo] = {2.6844,7.89, 7.89, 7.89};
   Float_t PDGCode[numtipo-1] = {310, 3122, -3122};
 
-  const Int_t nummolt=5;
+  Int_t nummolt=10;
+  Int_t nummoltMax =10;
+  if (!isGenOnTheFly) nummoltMax = 5;
   const Int_t numzeta=1;
   const Int_t numPtV0=9;
   const Int_t numPtTrigger=1;
@@ -108,6 +118,9 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   TString Szeta[numzeta]={""};
   TString Smoltpp5TeV[nummolt+1]={"0-10", "10-100", "100-100", "100-100", "100-100", "_all"};
   Double_t Nmoltpp5TeV[nummolt+1]={0, 10, 100, 100, 100, 100};
+  TString SmoltGenOnTheFly[nummolt+1]={"0-30", "30-60", "60-90", "90-120", "120-150", "150-180", "180-210", "210-240", "240-270", "270-300", "0-300"};
+  TString SBismoltGenOnTheFly[nummolt+1]={"0-30", "30-60", "60-90", "90-120", "120-150", "150-180", "180-210", "210-240", "240-270", "270-300", "0-300"};
+  Double_t NmoltGenOnTheFly[nummolt+1]={0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300};
 
   Int_t numMultBins=100;
   Float_t UpperLimitMult = 100;
@@ -153,9 +166,16 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   }
 
   if (MultBinning==3){
-    for (Int_t m=0; m<nummolt+1; m++){
+    for (Int_t m=0; m<nummoltMax+1; m++){
       Smolt[m] = Smoltpp5TeV[m];
       Nmolt[m] = Nmoltpp5TeV[m];
+    }
+  }
+  if (isGenOnTheFly){
+    for (Int_t m=0; m<nummoltMax+1; m++){
+      Smolt[m] = SmoltGenOnTheFly[m];
+      Nmolt[m] = NmoltGenOnTheFly[m];
+      SBismolt[m] = SBismoltGenOnTheFly[m];
     }
   }
 
@@ -213,7 +233,9 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   //  PathOut += "_AllEta";
   //  PathOut += "_AllEff2019";
   //  PathOut +="_EPOS";
+  if (yearMC.Index("EffCorr")!=-1) PathOut +="_EffCorr" ;
   if (isMC && !isEfficiency && !isMCForNorm) PathOut += "_MCPrediction";
+  //PathOut += "_Test";
   TString pathoutpdf = PathOut;
   PathOut+= ".root";
 
@@ -265,7 +287,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   TH1F * fHistEfficiencyTrigPtPtBins[nummolt+1];
   if (isEtaEff){
     if (!fileinEfficiency) {cout << " input file with efficiency not found " << endl; return;}
-    for(Int_t molt=0; molt<nummolt+1; molt++){
+    for(Int_t molt=0; molt<nummoltMax+1; molt++){
       if (MultBinning==3 && (molt==2 || molt==3 || molt==4)) continue;
       if (MultBinning==1 && isHM){
 	if (molt==0 || molt==1) continue;
@@ -308,7 +330,8 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
       else {
 	//	if (year.Index("Fio")!=-1) d = (TDirectoryFile*)fin->Get("MyTask_MCTruth_PtTrigMin0.2_PtTrigMax15.0");
 	//else	d = (TDirectoryFile*)fin->Get("MyTask_MCTruth_PtTrigMin3.0_PtTrigMax30.0");
-	dName = "MyTask_MCTruth_PtTrigMin3.0_PtTrigMax15.0";
+	//	dName = "MyTask_MCTruth_PtTrigMin3.0_PtTrigMax15.0";
+	dName = "MyTask_PtTrigMin3.0_PtTrigMax15.0";
       }
     }
     else {
@@ -326,7 +349,8 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   TString NameContainer= "";
   if (isNewInputPath){
     if (isMC && !isEfficiency){
-      NameContainer = "_hK0s_Task_Truth";
+      //      NameContainer = "_hK0s_Task_Truth";
+      NameContainer = "_hK0s_Task_K0s";
       if (year.Index("Hybrid")!=-1)  NameContainer = "_hK0s_Task_Hybrid";
     }
     else if (isMC && isEfficiency){
@@ -343,7 +367,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
 
   TTree * tSign;
   TTree * tBkg;
-  if (year.Index("Fio")!=-1 || year.Index("pp5TeV")!=-1 || year.Index( "16kl_hK0s")!=-1 || year.Index("161718HM_hK0s")!=-1 || year.Index("17l3b_hK0s")!=-1){
+  if (year.Index("Fio")!=-1 || year.Index("pp5TeV")!=-1 || year.Index( "16kl_hK0s")!=-1 || year.Index("161718HM_hK0s")!=-1 || year.Index("17l3b_hK0s")!=-1 || year == "_PythiaRopes_Test1"){
     tSign = (TTree *)d->Get("MyOutputContainer1" + NameContainer);
     tBkg = (TTree *)d->Get("MyOutputContainer2" + NameContainer);
   }
@@ -413,9 +437,9 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   cout <<" bin label: " << fHistEventMult->GetXaxis()->GetBinLabel(7) << endl;
   Double_t TotEvtINT7 = fHistEventMult->GetBinContent(7);
 
-  for (Int_t m=0; m<nummolt+1; m++){
+  for (Int_t m=0; m<nummoltMax+1; m++){
     cout << "hola " << m <<  endl;
-    if (m!=nummolt)    fHistPtMaxvsMultBefAllProj[m] = (TH1F*) fHistPtMaxvsMultBefAll->ProjectionX(Form("fHistPtMaxvsMultBefAllProj_m%i",m),   fHistPtMaxvsMultBefAll->GetYaxis()->FindBin(Nmolt[m]+0.0001),  fHistPtMaxvsMultBefAll->GetYaxis()->FindBin(Nmolt[m+1]-0.0001));
+    if (m!=nummoltMax)    fHistPtMaxvsMultBefAllProj[m] = (TH1F*) fHistPtMaxvsMultBefAll->ProjectionX(Form("fHistPtMaxvsMultBefAllProj_m%i",m),   fHistPtMaxvsMultBefAll->GetYaxis()->FindBin(Nmolt[m]+0.0001),  fHistPtMaxvsMultBefAll->GetYaxis()->FindBin(Nmolt[m+1]-0.0001));
     else     fHistPtMaxvsMultBefAllProj[m] = (TH1F*) fHistPtMaxvsMultBefAll->ProjectionX(Form("fHistPtMaxvsMultBefAllProj_m%i",m), 0, UpperLimitMult);
     fHistQA[5]->SetBinContent(m+1, fHistPtMaxvsMultBefAllProj[m]->GetMean());
     fHistQA[5]->SetBinError(m+1, fHistPtMaxvsMultBefAllProj[m]->GetMeanError());
@@ -474,7 +498,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   Float_t PtTrigMultDep[nummolt+1] = {3.0, 3.05, 3.05, 3.1, 3.1, 3};
   Double_t NPtTrigger[numPtTrigger+1]={PtTrigMin,ptjmax};
 
-  for (Int_t m=0; m<nummolt+1; m++){
+  for (Int_t m=0; m<nummoltMax+1; m++){
     if (!IsPtTrigMultDep) PtTrigMultDep[m] = PtTrigMin;
     fHistPtTriggervsPtAssoc[m]=new TH1F (Form("fHistPtTriggervsPtAssoc%i",m), Form("fHistPtTriggervsPtAssoc%i",m), numPtV0,NPtV0);
     fHistNonPrimaryTrigger[m]=new TH1F (Form("fHistNonPrimaryTrigger%i",m), Form("fHistNonPrimaryTrigger%i",m), numPtV0,NPtV0);
@@ -497,12 +521,12 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
 
   if (!ishhCorr){ 
     if(isMC==0 || (isMC==1 && isEfficiency==1)){
-      for(Int_t m=0; m<nummolt+1; m++){
+      for(Int_t m=0; m<nummoltMax+1; m++){
 	if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
 	if (MultBinning==1 && isHM){
 	  if (m==0 || m==1) continue;
 	}
-	//      if (m!= nummolt) continue;
+	//      if (m!= nummoltMax) continue;
 	//      PathInMassDef=PathInMass+ "_"+year+"_"+tipo[type]+Form("_molt%i_sysT%i_sysV0%i_Sys%i_PtMin%.1f.root", m, sysTrigger, sysV0, syst, PtTrigMin);
 	PathInMassDef=PathInMass+ "_"+year+"_"+tipo[type]+Srap[israp]+SSkipAssoc[SkipAssoc]+"_"+MassFixedPDG[isMeanFixedPDG] + BkgType[isBkgParab];
 	if(IsPtTrigMultDep) PathInMassDef  +="_IsPtTrigMultDep" ;
@@ -740,7 +764,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   TH2D *hSign_DeltaEtaEtaV0[nummolt+1];
   TH2D *hSign_DeltaEtaEtaTrigger[nummolt+1];
 
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     if (MultBinning==1 && isHM){
       if (m==0 || m==1) continue;
@@ -754,7 +778,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
     }
   }
 
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     if (MultBinning==1 && isHM){
       if (m==0 || m==1) continue;
@@ -875,7 +899,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   TH2D *hBkg_DeltaEtaEtaTrigger[nummolt+1];
 
 
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     if (MultBinning==1 && isHM){
       if (m==0 || m==1) continue;
@@ -889,7 +913,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
     }
   }
 
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     if (MultBinning==1 && isHM){
       if (m==0 || m==1) continue;
@@ -1040,7 +1064,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
     }
     else {
       Bool_t IsSelectionPtMinNotPassed=0;
-      for(Int_t m=0; m<nummolt; m++){
+      for(Int_t m=0; m<nummoltMax; m++){
 	if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
 	if (MultBinning==1 && isHM){
 	  if (m==0 || m==1) continue;
@@ -1100,12 +1124,12 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
       }
     }
   
-    for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t m=0; m<nummoltMax+1; m++){
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       if (MultBinning==1 && isHM){
 	if (m==0 || m==1) continue;
       }
-      if(m< nummolt) BoolVar = fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1];
+      if(m< nummoltMax) BoolVar = fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1];
       else BoolVar=kTRUE;
       for(Int_t v=PtBinMin; v<numPtV0Max; v++){
 	BoolMC =TMath::Abs((fSignTreeVariableInvMass - mass[type][m][v]))<sigmacentral[type][m][v]*sigma[type][m][v]; 
@@ -1172,12 +1196,12 @@ if (counterpdg==0)   fHistTriggerPDGCode->Fill(10);
     if (fSignTreeVariableDeltaPhi < (-0.5*TMath::Pi())) fSignTreeVariableDeltaPhi += 2.0*TMath::Pi();
 
 
-    for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t m=0; m<nummoltMax+1; m++){
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       if (MultBinning==1 && isHM){
 	if (m==0 || m==1) continue;
       }
-      if(m< nummolt) BoolVar = fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1];
+      if(m< nummoltMax) BoolVar = fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1];
       else BoolVar=kTRUE;
       for(Int_t v=PtBinMin; v<numPtV0Max; v++){
 	if(BoolVar && fSignTreeVariablePtV0>=NPtV0[v]&& fSignTreeVariablePtV0<NPtV0[v+1]){
@@ -1190,12 +1214,12 @@ if (counterpdg==0)   fHistTriggerPDGCode->Fill(10);
 
     if (isMC){
       if (fSignTreeVariableisPrimaryTrigger !=1) {
-	for(Int_t m=0; m<nummolt+1; m++){
+	for(Int_t m=0; m<nummoltMax+1; m++){
 	  if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
 	  if (MultBinning==1 && isHM){
 	    if (m==0 || m==1) continue;
 	  }
-	  if(m< nummolt) BoolVar = fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1];
+	  if(m< nummoltMax) BoolVar = fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1];
 	  else BoolVar=kTRUE;
 	  for(Int_t v=PtBinMin; v<numPtV0Max; v++){
 	    if(BoolVar && fSignTreeVariablePtV0>=NPtV0[v]&& fSignTreeVariablePtV0<NPtV0[v+1]){
@@ -1208,14 +1232,14 @@ if (counterpdg==0)   fHistTriggerPDGCode->Fill(10);
     }
 
 
-    for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t m=0; m<nummoltMax+1; m++){
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       if (MultBinning==1 && isHM){
 	if (m==0 || m==1) continue;
       }
-      //      if (m!= nummolt) continue;
+      //      if (m!= nummoltMax) continue;
       //      cout << " m " << m << endl;
-      if(m< nummolt) BoolVar = fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1];
+      if(m< nummoltMax) BoolVar = fSignTreeVariableMultiplicity>=Nmolt[m] && fSignTreeVariableMultiplicity<Nmolt[m+1];
       else BoolVar=kTRUE;
       hSign_DeltaEtaEtaV0[m]->Fill(fSignTreeVariableEtaV0, fSignTreeVariableDeltaEta);
       hSign_DeltaEtaEtaTrigger[m]->Fill(fSignTreeVariableEtaTrigger, fSignTreeVariableDeltaEta);
@@ -1426,7 +1450,7 @@ if (counterpdg==0)   fHistTriggerPDGCode->Fill(10);
     }
     else {
       Bool_t IsSelectionPtMinNotPassedBkg=0;
-      for(Int_t m=0; m<nummolt; m++){
+      for(Int_t m=0; m<nummoltMax; m++){
 	if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       if (MultBinning==1 && isHM){
 	if (m==0 || m==1) continue;
@@ -1517,13 +1541,13 @@ if (counterpdg==0)   fHistTriggerPDGCode->Fill(10);
 
       cout << " New: deltaphi: " << fBkgTreeVariableDeltaPhiMinus << "  new: " << fBkgTreeVariablePhiV0-fBkgTreeVariablePhiTrigger <<  endl;
     */
-    for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t m=0; m<nummoltMax+1; m++){
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       if (MultBinning==1 && isHM){
 	if (m==0 || m==1) continue;
       }
-      //      if (m!= nummolt) continue;
-      if(m< nummolt) BoolVar =  fBkgTreeVariableMultiplicity>=Nmolt[m] && fBkgTreeVariableMultiplicity<Nmolt[m+1];
+      //      if (m!= nummoltMax) continue;
+      if(m< nummoltMax) BoolVar =  fBkgTreeVariableMultiplicity>=Nmolt[m] && fBkgTreeVariableMultiplicity<Nmolt[m+1];
       else BoolVar=kTRUE;
       hBkg_DeltaEtaEtaV0[m]->Fill(fBkgTreeVariableEtaV0, fBkgTreeVariableDeltaEta);
       hBkg_DeltaEtaEtaTrigger[m]->Fill(fBkgTreeVariableEtaTrigger, fBkgTreeVariableDeltaEta);
@@ -1638,7 +1662,7 @@ if (counterpdg==0)   fHistTriggerPDGCode->Fill(10);
   }
 
   //put correct errors on 2D histograms
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     if (MultBinning==1 && isHM){
       if (m==0 || m==1) continue;
@@ -1761,7 +1785,7 @@ if (counterpdg==0)   fHistTriggerPDGCode->Fill(10);
   TLegend * legendLow = new TLegend(0.6, 0.1, 0.9, 0.4);
 
   for(Int_t z=0; z<numzeta; z++){
-    for (Int_t m =0; m<nummolt+1; m++){
+    for (Int_t m =0; m<nummoltMax+1; m++){
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       if (MultBinning==1 && isHM){
 	if (m==0 || m==1) continue;
@@ -1784,7 +1808,7 @@ if (counterpdg==0)   fHistTriggerPDGCode->Fill(10);
 
       }
 
-      if (m!=nummolt){
+      if (m!=nummoltMax){
 	//      hSign_PtTriggerCountedOnceBis[m][z]->Rebin(4);
 	hSign_PtTrigger[m][z]->Rebin(4);
 	hSign_PtTrigger[m][z]->Scale(1./ CounterACPairs[m][z]/4);
@@ -1823,11 +1847,11 @@ if (counterpdg==0)   fHistTriggerPDGCode->Fill(10);
       hSign_PtTrigger[m][z]->GetXaxis()->SetRangeUser(PtTrigMin, 6);
       hSign_PtTrigger[m][z]->GetYaxis()->SetRangeUser(0.01, 0.15);
       hSign_PtTrigger[m][z]->Draw("same p");
-      if (m==nummolt) legend->Draw("");
+      if (m==nummoltMax) legend->Draw("");
 
       canvasQA[0]->cd(4);
       hSign_PtTriggerRatio[m][z]->GetYaxis()->SetRangeUser(0.98, 1.12);
-      if (m!=nummolt)      hSign_PtTriggerRatio[m][z]->Draw("same l");
+      if (m!=nummoltMax)      hSign_PtTriggerRatio[m][z]->Draw("same l");
       lineat1->Draw("same");
 
       canvasQA[1]->cd(2);
@@ -1837,11 +1861,11 @@ if (counterpdg==0)   fHistTriggerPDGCode->Fill(10);
       hSign_PtTriggerCountedOnceBis[m][z]->GetXaxis()->SetRangeUser(PtTrigMin, 15);
       hSign_PtTriggerCountedOnceBis[m][z]->GetYaxis()->SetRangeUser(0.001, 1);
       hSign_PtTriggerCountedOnceBis[m][z]->Draw("same p");
-      if (m==nummolt) legend->Draw("");
+      if (m==nummoltMax) legend->Draw("");
 
       canvasQA[1]->cd(4);
       hSign_PtTriggerCountedOnceRatio[m][z]->GetYaxis()->SetRangeUser(0.9, 1.1);
-      if (m!=nummolt)      hSign_PtTriggerCountedOnceRatio[m][z]->Draw("same l");
+      if (m!=nummoltMax)      hSign_PtTriggerCountedOnceRatio[m][z]->Draw("same l");
       lineat1->Draw("same");
 
       canvasQA[1]->cd(1);
@@ -1872,15 +1896,15 @@ if (counterpdg==0)   fHistTriggerPDGCode->Fill(10);
 
       canvasQA[4]->cd();
       fHistPtTriggervsPtAssoc[m]->Draw("same p");
-      if (m==nummolt) legendLow->Draw("");
+      if (m==nummoltMax) legendLow->Draw("");
 
       canvasQA[6]->cd();
       fHistNonPrimaryTrigger[m]->Draw("same p");
-      if (m==nummolt) legendLow->Draw("");
+      if (m==nummoltMax) legendLow->Draw("");
 
       canvasQA[7]->cd();
       fHistEfficiencyReduction[m]->Draw("same p");
-      if (m==nummolt) legendLow->Draw("");
+      if (m==nummoltMax) legendLow->Draw("");
 
       canvasQA[6] -> SaveAs(pathoutpdf + "_NonPrimaryTriggerFraction.pdf");
       fout->WriteTObject(fHistPtTriggervsPtAssoc[m]);
@@ -1905,7 +1929,7 @@ if (counterpdg==0)   fHistTriggerPDGCode->Fill(10);
     fout->WriteTObject(fHistDCATrigger);
     canvasQA[5] ->cd(2);
     gPad->SetLogy();
-    for (Int_t m=0; m<nummolt+1; m++){
+    for (Int_t m=0; m<nummoltMax+1; m++){
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       if (MultBinning==1 && isHM){
 	if (m==0 || m==1) continue;
@@ -1923,18 +1947,18 @@ if (counterpdg==0)   fHistTriggerPDGCode->Fill(10);
       legend->Draw("");
     }
     canvasQA[5] ->cd(4);
-    for (Int_t m=0; m<nummolt+1; m++){
+    for (Int_t m=0; m<nummoltMax+1; m++){
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       if (MultBinning==1 && isHM){
 	if (m==0 || m==1) continue;
       }
-      if(m!=nummolt)      fHistPtMaxvsMultBefAllProj[m]->Rebin(5);
+      if(m!=nummoltMax)      fHistPtMaxvsMultBefAllProj[m]->Rebin(5);
       if (m==0)      fHistPtMaxvsMultBefAllProj[5]->Rebin(5);
       fHistPtMaxvsMultBefAllProjRatio[m]= (TH1F*)     fHistPtMaxvsMultBefAllProj[m]->Clone(Form("fHistPtMaxvsMultBefAllProjRatio_m%i",m));
       fHistPtMaxvsMultBefAllProjRatio[m]->Divide(    fHistPtMaxvsMultBefAllProj[5]);
       fHistPtMaxvsMultBefAllProjRatio[m]->GetYaxis()->SetRangeUser(0.8, 1.2);
       fHistPtMaxvsMultBefAllProjRatio[m]->GetYaxis()->SetTitle("");
-      if (m!=nummolt)      fHistPtMaxvsMultBefAllProjRatio[m]->Draw("same ep");
+      if (m!=nummoltMax)      fHistPtMaxvsMultBefAllProjRatio[m]->Draw("same ep");
       //      legend->Draw("");
     }
 
@@ -1945,7 +1969,7 @@ if (counterpdg==0)   fHistTriggerPDGCode->Fill(10);
     canvasQA[3]->cd();
     fHistQA[3]->Draw();
 
-    for (Int_t m=0; m<nummolt+1; m++){
+    for (Int_t m=0; m<nummoltMax+1; m++){
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       if (MultBinning==1 && isHM){
 	if (m==0 || m==1) continue;
@@ -1963,7 +1987,7 @@ if (counterpdg==0)   fHistTriggerPDGCode->Fill(10);
 
   fout->Write();
 
-  for (Int_t m=0; m<nummolt+1; m++){
+  for (Int_t m=0; m<nummoltMax+1; m++){
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     if (MultBinning==1 && isHM){
       if (m==0 || m==1) continue;

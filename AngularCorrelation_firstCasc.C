@@ -17,8 +17,22 @@
 #include <TFile.h>
 #include <TLegend.h>
 
-void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAssoc=0, Float_t ptjmin=3,  Float_t PtTrigMinFit=3, Int_t sysV0=0,Int_t type=0 /*0 = K0s, 8 = Xi*/,  Int_t israp=0, Bool_t isMC=1, Bool_t isEfficiency=1, TString yearME="16kl_hK0s"/*_Hybrid"/*"2019h11_HM_hK0s"/*"161718_hXi"/"1617_GP_hK0s"/"AllhK0sHM_RedNo16k"/"161718_HM_hXi_WithFlat16k_No18p"/*"161718Full_AOD234_hXi"/*"17pq_pp5TeV_hXi_pttrig0.15"/"17pq_hK0s"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"*//*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"/"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/*"2018f1_extra_Mylabel_15runs_hK0s_Hybrid"/*"2016k_HM_hK0s"/"1617_hK0s"/*"161718_MD_hXi_Hybrid_MCTruth"/*"2018f1g4_extra_hXi_Hybrid_MCTruth"/"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018g4_extra_EtaEff_hK0s_MCEff"*/, TString year="16kl_hK0s"/*"2019h11_HM_hK0s"/*"161718_hXi"/"1617_GP_hK0s"/ "17pq_hK0s"/"AllhK0sHM_RedNo16k"/"161718_HM_hXi_WithFlat16k_No18p"/*"161718Full_AOD234_hXi"/*"17pq_pp5TeV_hXi_pttrig0.15"/"17pq_hXi"/*"17pq_pp5TeV_Hybrid"/*"1617_AOD234_hK0s"/"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"/"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"//"2016k_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617_hK0s"/*"2018g4_extra_EtaEff_hK0s"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/"161718_MD_EtaEff_hXi"/*"LHC16_17_GP_Hybrid_hXi"/*"2018f1g4_extra_hXi"/"2018g4_extra_hXi_SelTrigger"/*_15runsBis"/"1617_hK0s"/*AllMC_hXi"/"2018f1_extra_hK0s"/*"2016k_hK0s"/*"2016k_MECorr"/"Run2DataRed_MECorr_hXi"/*/, TString yearMC="16kl_hK0s"/*"2019h11_HM_hK0s"/*"161718_hXi"/*"161718Full_AOD235_hXi"/*"1617GP_hK0s_Hybrid_New" /"17pq_pp5TeV_Hybrid"/*"1617_GP_AOD235_With18c12b"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/*"1617GP_hK0s"/*"1617_GP_AOD235"/*"1617_GP_AOD235_With18c12b"/*"161718_hXi"/*"17pq_hK0s"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/*""//*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/"2019h11c_extra_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617MC_hK0s"/"2018g4_extra_EtaEff_hK0s"/*"161718_MD_EtaEff_hXi"/"2018f1g4_extra_hXi"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/*"161718_MD_hXi_Hybrid"/*"LHC16_17_GP_Hybrid_hXi"/*"17d20bEPOS_hK0s"/"2018g4_extra_hXi_SelTrigger"/*"1617MC_hK0s"/"AllMC_hXi"/*"1617GP_hXi"/*"2016kl_hXi"/*"2018f1_extra_MECorr"/"2018f1_extra_Hybrid_hK0s"/*"17d20bEPOS_hXi"*/,  TString Path1 =""/*"_PtTrigMax2.5"/*"_NewMultClassBis"*/, TString yearMCTrigEff="18f1_extra_EffTrigger_5runs",  TString Dir ="FinalOutput/",  Float_t ptjmax=15, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Int_t MultBinning=0, Int_t PtBinning=1, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t IsPtTrigMultDep=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsParticleTrue=0, Bool_t IsEfficiencyMassSel=0, Bool_t isSidebands=0, Bool_t isMESBFromPeak =0,  Bool_t isMEFromHybrid=1, Bool_t isMEFromCorrectCentrality = 0, Bool_t isEtaEff=1, Bool_t isMEFromK0s=0, Bool_t isNewInputPath=1, Bool_t isHM=0,  Bool_t isNewdEtaJet =1, Bool_t isSysPurity =0, Int_t VarRange = 0, Bool_t isMCForNorm=0, Bool_t isTrigEff =1){ 
+void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAssoc=0, Float_t ptjmin=3,  Float_t PtTrigMinFit=3, Int_t sysV0=0,Int_t type=0 /*0 = K0s, 8 = Xi*/,  Int_t israp=0, Bool_t isMC=1, Bool_t isEfficiency=0, TString yearME="_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*"16kl_hK0s_Hybrid"/*"2019h11_HM_hK0s"/*"161718_hXi"/"1617_GP_hK0s"/"AllhK0sHM_RedNo16k"/*"161718_HM_hXi_WithFlat16k_No18p"*"161718Full_AOD234_hXi"/"17pq_pp5TeV_hXi_pttrig0.15"/"17pq_hK0s"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"/"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/*"2018f1_extra_Mylabel_15runs_hK0s_Hybrid"/*"2016k_HM_hK0s"/"1617_hK0s"/*"161718_MD_hXi_Hybrid_MCTruth"/*"2018f1g4_extra_hXi_Hybrid_MCTruth"/"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018g4_extra_EtaEff_hK0s_MCEff"*/, TString year="_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/*"2019h11_HM_hK0s"/*"161718_hXi"/"1617_GP_hK0s"/ "17pq_hK0s"/"AllhK0sHM_RedNo16k"/*"161718_HM_hXi_WithFlat16k_No18p"/*"161718Full_AOD234_hXi"*"17pq_pp5TeV_hXi_pttrig0.15"/*"17pq_hXi"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"/"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"//"2016k_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617_hK0s"/*"2018g4_extra_EtaEff_hK0s"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/"161718_MD_EtaEff_hXi"/*"LHC16_17_GP_Hybrid_hXi"/*"2018f1g4_extra_hXi"/"2018g4_extra_hXi_SelTrigger"/*_15runsBis"/"1617_hK0s"/*AllMC_hXi"/"2018f1_extra_hK0s"/*"2016k_hK0s"/*"2016k_MECorr"/"Run2DataRed_MECorr_hXi"/*/, TString yearMC="_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/"2019h11_HM_hK0s_EffCorr"/*"161718_hXi"/*"161718Full_AOD235_hXi"/*"1617GP_hK0s_Hybrid_New" /"17pq_pp5TeV_Hybrid"/*"1617_GP_AOD235_With18c12b"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/*"1617GP_hK0s"/*"1617_GP_AOD235"/*"1617_GP_AOD235_With18c12b"/*"161718_hXi"/*"17pq_hK0s"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/*""//*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/"2019h11c_extra_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617MC_hK0s"/"2018g4_extra_EtaEff_hK0s"/*"161718_MD_EtaEff_hXi"/"2018f1g4_extra_hXi"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/*"161718_MD_hXi_Hybrid"/*"LHC16_17_GP_Hybrid_hXi"/*"17d20bEPOS_hK0s"/"2018g4_extra_hXi_SelTrigger"/*"1617MC_hK0s"/"AllMC_hXi"/*"1617GP_hXi"/*"2016kl_hXi"/*"2018f1_extra_MECorr"/"2018f1_extra_Hybrid_hK0s"/*"17d20bEPOS_hXi"*/,  TString yearMCTrigEff=""/*"17l3b_hK0s"/*"161718HM_hK0s_TriggEff"/*"18f1_extra_EffTrigger_5runs"*/,  TString Dir ="FinalOutput/",  Float_t ptjmax=15, Bool_t isBkgParab=1, Bool_t isMeanFixedPDG=1, Int_t MultBinning=1, Int_t PtBinning=1, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t IsPtTrigMultDep=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsParticleTrue=0, Bool_t IsEfficiencyMassSel=0, Bool_t isSidebands=1, Bool_t isMESBFromPeak =0,  Bool_t isMEFromHybrid=0, Bool_t isMEFromCorrectCentrality = 0, Bool_t isEtaEff=1, Bool_t isMEFromK0s=0, Bool_t isNewInputPath=1, Bool_t isHM=1,  Bool_t isNewdEtaJet =1, Bool_t isSysPurity =0, Int_t VarRange = 0, Bool_t isMCForNorm=0, Bool_t isEffCorr=1, Bool_t isGenOnTheFly=1){ 
 
+  //isGenOnTheFly --> events were generated on the fly and only the kinematic part is saved; the multiplicity distribution in percentile classes is not abvailable, instead classes based on the number of particles in the V0 acceptance are used
+  if (!isMC && isGenOnTheFly) return;
+  if (isGenOnTheFly) { //these variabes have no meaning for the MCtruth analysis -- they are set to zero in order not to appear in output file name
+    isBkgParab = 0;
+    MultBinning = 0;
+    isHM =0;
+    isSidebands = 0;
+    isEffCorr =0;
+    if (type==0) isNewdEtaJet =1;
+    isMEFromCorrectCentrality =1;
+  }
+
+  TString Path1 ="";/*"_PtTrigMax2.5"/*"_NewMultClassBis"*/
+  Bool_t isTrigEff =0;
   Int_t sysTrigger=0;
   Int_t indexsysTrigger=0;
   Bool_t ishhCorr=0;
@@ -36,7 +50,10 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 
 
   if (isMEFromK0s && type==0) {cout << "the option isMEFromK0s is meant to be used when Xi is being analyzed" << endl; return;}
-  if (year=="17pq_hXi") MultBinning=3;
+  if (year=="17pq_hXi") {
+    MultBinning=3;
+    isMEFrom13TeV=1;
+  }
   if (year=="17pq_pp5TeV_hXi_pttrig0.15") MultBinning=3;
 
   Int_t rebin=2;
@@ -270,7 +287,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   if (SidebandsSide ==1) PathInME+= "_LeftSB";
   else if (SidebandsSide ==2) PathInME+= "_RightSB";
   if (isEtaEff && !isMEFromHybrid) PathInME += "_isEtaEff";
-  if (isTrigEff)  PathInME += "_isTrigEff";
+  if (isTrigEff && !isMEFromHybrid)  PathInME += "_isTrigEff";
   if (isBkgParab) PathInME += BkgType[isBkgParab];
   if (isMEFromHM) PathInME += "_MultBinning1";
   //PathInME += "_isEtaEff";
@@ -279,6 +296,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   if (VarRange!=0) PathInME += Form("_VarRange%i", VarRange);
   //  PathInME += "_AllEff2019";
   //  PathInME+="_EPOS";
+  if (isEffCorr) PathInME +="_EffCorr" ;
   if (isMC && !isEfficiency &&!isMCForNorm) PathInME += "_MCPrediction";
   PathInME += ".root";
 
@@ -308,6 +326,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   if (VarRange!=0) PathIn += Form("_VarRange%i", VarRange);
   //    PathIn+= "_AllEff2019";
   //  PathIn+="_EPOS";
+  if (isEffCorr) PathIn +="_EffCorr" ;
   if (isMC && !isEfficiency &&!isMCForNorm) PathIn += "_MCPrediction";
   PathIn+=".root";
 
@@ -408,6 +427,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
       else if (isMC && !isEfficiency) {
 	if (year.Index("Fio")!=-1) ContainerName = "_hK0s_Task_Truth"; 
 	//	else ContainerName = "_hK0s_Task_MCTruth"; 
+	else if (isGenOnTheFly) ContainerName = "_hK0s_Task_K0s"; 
 	else ContainerName = "_hK0s_Task_Truth"; 
       }
       else if (isMC && isEfficiency){
@@ -417,6 +437,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
       else ContainerName = "_hK0s_Task_"; 
     }
     else {
+      if (isGenOnTheFly) ContainerName = "_hK0s_Task_Xi"; 
       //      if (year.Index("New")!=-1)  	ContainerName="_h" + tipo[type] +"_Task_MCTruth"; 
       if (year.Index("New")!=-1)  	ContainerName="_h" + tipo[type] +"_Task_Hybrid"; 
       else if (year.Index("Hybrid")!=-1)  ContainerName = "_hXi_Task_Hybrid"; 
@@ -424,10 +445,11 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
       else if (isMC && !isEfficiency && type==8) ContainerName = "_hXi_Task_MCTruth"; 
       //else ContainerName = "_hXi_Task"; 
       else  {
-	ContainerName="_hXi_Task_";
-	if (type==8) 	ContainerName="_hXi_Task_Default";
-	if (isHM) ContainerName="_hXi_Task_Default";
-	if (TMath::Abs(PtTrigMin - 0.15) < 0.001) 	ContainerName="_hXi_Task_LowPtTrig";
+	  ContainerName="_hXi_Task_Default";
+	  if (year=="17pq_hXi") 	ContainerName="_hXi_Task_";
+	  if (isHM) ContainerName="_hXi_Task_Default";
+	  if (TMath::Abs(PtTrigMin - 0.15) < 0.001) 	ContainerName="_hXi_Task_LowPtTrig";
+	  if (year=="17pq_pp5TeV_hXi_pttrig0.15") 	ContainerName="_hXi_Task_";
       }
     }
   }
@@ -440,6 +462,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
     else if (isMC) {
       //      if (year.Index("Fio")!=-1) TaskName = "_MCTruth_PtTrigMin0.2_PtTrigMax15.0"; 
       if (year.Index("New")!=-1) TaskName = "_MCTruth_PtTrigMin3.0_PtTrigMax15.0"; 
+      else  if (isGenOnTheFly) TaskName = "_PtTrigMin3.0_PtTrigMax15.0"; 
       else  TaskName = "_MCTruth_PtTrigMin3.0_PtTrigMax15.0"; 
     }
     //    else TaskName = "_PtTrigMin3.0_PtTrigMax30.0";
@@ -483,7 +506,9 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   cout << "********************************************"<< endl;
   cout << "********************************************"<< endl;
 
-  const Int_t nummolt=5;
+  const Int_t nummolt=10;
+  Int_t nummoltMax =10;
+  if (!isGenOnTheFly) nummoltMax = 5;
   const Int_t numzeta=1;
   const Int_t numPtV0=9;
   const Int_t numPtTrigger=1;
@@ -515,8 +540,10 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   Double_t Nmolt2[nummolt+1]={0,2,7,15,30,100}; 
   TString Smoltpp5TeV[nummolt+1]={"0-10", "10-100", "100-100", "100-100", "100-100", "_all"};
   Double_t Nmoltpp5TeV[nummolt+1]={0, 10, 100, 100, 100, 100};
+  TString SmoltGenOnTheFly[nummolt+1]={"0-30", "30-60", "60-90", "90-120", "120-150", "150-180", "180-210", "210-240", "240-270", "270-300",  "0-300"};
+  Double_t NmoltGenOnTheFly[nummolt+1]={0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300};
 
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (MultBinning==0){
       Smolt[m] = Smolt0[m];
       Nmolt[m] = Nmolt0[m];
@@ -532,6 +559,13 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
     else if (MultBinning==3){
       Smolt[m] = Smoltpp5TeV[m];
       Nmolt[m] = Nmoltpp5TeV[m];
+    }
+  }
+
+  if (isGenOnTheFly){
+    for (Int_t m=0; m<nummoltMax+1; m++){
+      Smolt[m] = SmoltGenOnTheFly[m];
+      Nmolt[m] = NmoltGenOnTheFly[m];
     }
   }
 
@@ -666,10 +700,10 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 
   fHistTriggervsMult_MultProj= (TH1D*)fHistTriggervsMult->ProjectionY("fHistTriggervsMult_MultProj", fHistTriggervsMult->GetXaxis()->FindBin(PtTrigMin+0.0001),fHistTriggervsMult->GetXaxis()->FindBin(ptjmax-0.00001) );
 
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (isHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
-    if(m<nummolt){
+    if(m<nummoltMax){
       fHistTriggervsMult_PtProj[m]= (TH1D*)fHistTriggervsMult->ProjectionX(Form("fHistTriggervsMult_PtProj_m%i", m), fHistTriggervsMult->GetYaxis()->FindBin(Nmolt[m]+0.0001),fHistTriggervsMult->GetYaxis()->FindBin(Nmolt[m+1]-0.0001) );
     }
     else {
@@ -696,7 +730,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 
   if (isTrigEff){
     if (!fileinTrigEfficiency) {cout << " input file with efficiency not found " << endl; return;}
-    for(Int_t molt=0; molt<nummolt+1; molt++){
+    for(Int_t molt=0; molt<nummoltMax+1; molt++){
       if (MultBinning==3 && (molt==2 || molt==3 || molt==4)) continue;
       if (MultBinning==1 && isHM){
         if (molt==0 || molt==1) continue;
@@ -772,7 +806,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   Float_t norm_MEbins[nummolt+1][numPtV0][numSB]={0}; //valore ME isto in (0,0)
   Float_t norm_MEbins_norm[nummolt+1][numPtV0][numSB]={0}; //valore ME isto normalizzato in (0,0)
 
-  TH1F * fHistNTrigger = new TH1F("fHistNTrigger", "fHistNTrigger", nummolt, Nmolt);
+  TH1F * fHistNTrigger = new TH1F("fHistNTrigger", "fHistNTrigger", nummoltMax, Nmolt);
   TH1F * fHistNTriggerMult  = new TH1F("fHistNTriggerMult", "fHistNTriggerMult", 1, 0, 100);
   Float_t   NTrigger[nummolt+1]={0}; //total number of trigger particles 
   Int_t   NTriggerNotEffCorr[nummolt+1]={0}; //total number of trigger particles 
@@ -804,7 +838,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   //********************************************************************* 
   //**************calcolo numero particelle di trigger*******************
   //********************************************************************* 
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (isHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     //    if (m==0) continue;
@@ -816,7 +850,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 	if (!HistContV0PtBins[m]) {cout << "no HistContV0PtBins " << PathInEfficiency<<endl; return;}; 
       }
     }
-    if(m<nummolt){
+    if(m<nummoltMax){
       for(Int_t j=fHistTriggervsMult_MultProj->GetXaxis()->FindBin(Nmolt[m]+0.0001); j<=fHistTriggervsMult_MultProj->GetXaxis()->FindBin(Nmolt[m+1]-0.0001); j++ ){
 	NTrigger[m]+= fHistTriggervsMult_MultProj->GetBinContent(j);
       }
@@ -832,7 +866,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 
   //new definition of NTrigger for when trigger particle efficiency is used
   if (isTrigEff){
-    for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t m=0; m<nummoltMax+1; m++){
       if (isHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       //    if (m==0) continue;
@@ -848,18 +882,18 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
     }
   }
   //*******************
-  for(Int_t m=0; m<nummolt; m++){
+  for(Int_t m=0; m<nummoltMax; m++){
     if (isHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     fHistNTrigger->SetBinContent(m+1, NTrigger[m]);
   }
-  fHistNTriggerMult->SetBinContent(1, NTrigger[nummolt]);
+  fHistNTriggerMult->SetBinContent(1, NTrigger[nummoltMax]);
       
   for(Int_t sb=0; sb< numSB; sb++){
     if(sb==1 && isMC && !isEfficiency) continue;
     if(sb==1 && ishhCorr) continue;
-    //    for(Int_t m=0; m<nummolt+1; m++){
-    for(Int_t m=nummolt; m>=0; m--){
+    //    for(Int_t m=0; m<nummoltMax+1; m++){
+    for(Int_t m=nummoltMax; m>=0; m--){
       if (isHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       //if (m==0) continue;
@@ -926,7 +960,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 	      hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]= (TH2D*)fileinME-> Get("ME_m0-0.1_v" + SPtV0[v] + Ssideband[0] +"_Effw");
 	    }
 	    else if (isMEFrom13TeV){
-	      hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]= (TH2D*)fileinME-> Get(nameME[nummolt][z][v][tr][0]+"_Effw");
+	      hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]= (TH2D*)fileinME-> Get(nameME[nummoltMax][z][v][tr][0]+"_Effw");
 	    }
 	    else if (isEtaEff && (sb==0 || isSidebands) && !isMEFromHybrid){
 	      hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]= (TH2D*)fileinME-> Get(nameME[m][z][v][tr][sb]+ "_Effw");
@@ -1003,11 +1037,11 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 		else hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb], hDeltaEtaDeltaPhi_ME_normbins[m][z][v][tr][sb]);
 	      }
 	      else {
-		if (isMEFromPeak && sb==1) 		hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb], hDeltaEtaDeltaPhi_ME_normbins[5][z][v][tr][0]);
-		else hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb], hDeltaEtaDeltaPhi_ME_normbins[5][z][v][tr][sb]);
+		if (isMEFromPeak && sb==1) 		hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb], hDeltaEtaDeltaPhi_ME_normbins[nummoltMax][z][v][tr][0]);
+		else hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb], hDeltaEtaDeltaPhi_ME_normbins[nummoltMax][z][v][tr][sb]);
 	      }
 	    }
-	    if (ishhCorr)	    hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb], hDeltaEtaDeltaPhi_ME_normbins[5][z][v][tr][0]);
+	    if (ishhCorr)	    hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb], hDeltaEtaDeltaPhi_ME_normbins[nummoltMax][z][v][tr][0]);
 	    //	    cout << "I have divided " << endl; //error are propagated assuming non correlated histograms
 	    hDeltaEtaDeltaPhi_ACbins_Error[m][z][v][tr][sb]=(TH2D*)hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]-> Clone(nameME[m][z][v][tr][sb]+"_AC_RelError");
 
@@ -1015,7 +1049,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 	      for (Int_t l=1; l<=hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb]->GetNbinsY(); l++){
 		Int_t Binuniv=  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb]->GetBin(j,l);
 		//	      cout <<	      hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb]->GetBinContent(Binuniv) << " +-  " << 	      hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb]->GetBinError(Binuniv) << endl;
-		//	      cout <<	      hDeltaEtaDeltaPhi_ME_normbins[5][z][v][tr][0]->GetBinContent(Binuniv) << " +-  " << 	      hDeltaEtaDeltaPhi_ME_normbins[5][z][v][tr][0]->GetBinError(Binuniv) << endl;
+		//	      cout <<	      hDeltaEtaDeltaPhi_ME_normbins[nummoltMax][z][v][tr][0]->GetBinContent(Binuniv) << " +-  " << 	      hDeltaEtaDeltaPhi_ME_normbins[nummoltMax][z][v][tr][0]->GetBinError(Binuniv) << endl;
 		//	      cout <<	      hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetBinContent(Binuniv) << " +-  " << 	      hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetBinError(Binuniv) << endl;
 		hDeltaEtaDeltaPhi_ACbins_Error[m][z][v][tr][sb]->SetBinContent(Binuniv,         hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetBinError(Binuniv)/  hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetBinContent(Binuniv));
 		hDeltaEtaDeltaPhi_ACbins_Error[m][z][v][tr][sb]->SetBinError(Binuniv,0);
@@ -1122,11 +1156,11 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   cout << "              **            **" << endl;
   cout << " \n\n ********** second part of the program *******************" << endl;
 
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (isHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     //if (m==0) continue;
-    // for(Int_t m=nummolt; m>=0; m--){
+    // for(Int_t m=nummoltMax; m>=0; m--){
     for(Int_t z=0; z<numzeta; z++){
       for(Int_t tr=0; tr<numPtTrigger; tr++){
 	for(Int_t v=PtV0Min; v<numPtV0Max; v++){
@@ -1513,7 +1547,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   for(Int_t sb=0; sb< numSB; sb++){
     if(sb==1 && isMC && !isEfficiency && !ishhCorr) continue;
     if(sb==1 && ishhCorr) continue;
-    for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t m=0; m<nummoltMax+1; m++){
       if (isHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       //if (m==0) continue;
@@ -1527,7 +1561,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 	    hDeltaEtaDeltaPhi_MEbins_rapMolt[m][z][v][tr][sb]->SetTitle("ME " +Smolt[m]+"% / ME 0-100%"+TitleStringTris[v] );
 	    hDeltaEtaDeltaPhi_MEbins_rapMolt[m][z][v][tr][sb]->GetXaxis()->SetTitle("#Delta#eta");
 	    hDeltaEtaDeltaPhi_MEbins_rapMolt[m][z][v][tr][sb]->GetYaxis()->SetTitle("#Delta#phi (radians)");
-	    hDeltaEtaDeltaPhi_MEbins_rapMolt[m][z][v][tr][sb]->Divide( hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb], hDeltaEtaDeltaPhi_MEbins[5][z][v][tr][sb]);
+	    hDeltaEtaDeltaPhi_MEbins_rapMolt[m][z][v][tr][sb]->Divide( hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb], hDeltaEtaDeltaPhi_MEbins[nummoltMax][z][v][tr][sb]);
 	  }
 	}
       }
@@ -1540,7 +1574,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 
 
   TCanvas *canvasJetFit[nummolt+1];
-  for(Int_t m=0; m< nummolt+1; m++){
+  for(Int_t m=0; m< nummoltMax+1; m++){
     if (isHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     //if (m==0) continue;
@@ -1624,6 +1658,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   //  PathOut1 += "Try";
   if (VarRange!=0) PathOut1 += Form("_VarRange%i", VarRange);
   if (isMC && !isEfficiency &&!isMCForNorm) PathOut1 += "_MCPrediction";
+  if (isEffCorr) PathOut1 +="_EffCorr" ;
   PathOut1+=".root";
 
   if (isEnlargedDeltaEtaPhi)    PathOut1 = Dir+"/histo/AngularCorrelation" + file  + Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f", sysTrigger, sysV0, sys, PtTrigMin)+"_DeltaEtaPhiEnlarged_Output.root";
@@ -1635,17 +1670,17 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   fHistNTrigger->Write();
   fHistNTriggerMult->Write();
 
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (isHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
-    fHistEfficiencyTrigPtPtBins[m]->Write();
+    if (isTrigEff)    fHistEfficiencyTrigPtPtBins[m]->Write();
     fHistTriggervsMult_PtProj[m]->Write();
     //if (m==0) continue;
     //    cout << "\n" <<m << endl;
     for(Int_t z=0; z<numzeta; z++){
       for(Int_t tr=0; tr<numPtTrigger; tr++){
 	for(Int_t v=PtV0Min; v<numPtV0Max; v++){
-	  //	  cout << "v " << v << endl;
+	  //cout << "v " << v << endl;
 	  if(!isMC || (isMC && isEfficiency)){
 	    if (!ishhCorr){
 	      if (!IsParticleTrue){
@@ -1758,7 +1793,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 
   cout << "Drawing canvas" << endl;
   TCanvas *canvasDraw[nummolt+1][numzeta][numPtTrigger][numPtV0][5];
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (isHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     //if (m==0) continue;
@@ -1794,17 +1829,17 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
     }
   }
 
-  fHistEtaLimitsOfRegion->SetBinContent(1,hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->FindBin(-JetValue)));
+  fHistEtaLimitsOfRegion->SetBinContent(1,hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->FindBin(-JetValue)));
   fHistEtaLimitsOfRegion->GetXaxis()->SetBinLabel(1, "JetLowValue");
-  fHistEtaLimitsOfRegion->SetBinContent(2,hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->FindBin(JetValue)));
+  fHistEtaLimitsOfRegion->SetBinContent(2,hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->FindBin(JetValue)));
   fHistEtaLimitsOfRegion->GetXaxis()->SetBinLabel(2, "JetUpValue");
-  fHistEtaLimitsOfRegion->SetBinContent(3,hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->FindBin(BulkLowValue)));
+  fHistEtaLimitsOfRegion->SetBinContent(3,hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->FindBin(BulkLowValue)));
   fHistEtaLimitsOfRegion->GetXaxis()->SetBinLabel(3, "BulkLowValue");
-  fHistEtaLimitsOfRegion->SetBinContent(4,hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->FindBin(BulkUpValue)));
+  fHistEtaLimitsOfRegion->SetBinContent(4,hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->FindBin(BulkUpValue)));
   fHistEtaLimitsOfRegion->GetXaxis()->SetBinLabel(4, "BulkUpValue");
-  fHistEtaLimitsOfRegion->SetBinContent(5,hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->FindBin(InclusiveLowValue)));
+  fHistEtaLimitsOfRegion->SetBinContent(5,hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->FindBin(InclusiveLowValue)));
   fHistEtaLimitsOfRegion->GetXaxis()->SetBinLabel(5, "InclusiveLowValue");
-  fHistEtaLimitsOfRegion->SetBinContent(6,hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->FindBin(InclusiveUpValue)));
+  fHistEtaLimitsOfRegion->SetBinContent(6,hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->FindBin(InclusiveUpValue)));
   fHistEtaLimitsOfRegion->GetXaxis()->SetBinLabel(6, "InclusiveUpValue");
 
   fHistEtaLimitsOfRegion->Write();
@@ -1814,19 +1849,19 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   if (!isMEFromCorrectCentrality)  cout << "****** sto utilizzando pair acceptance della classe molt 0-100%*****\n"<< endl;
 
   cout << "DeltaEta intervals used:" << endl;
-  cout << "--> DeltaEta Jet interval " << hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->FindBin(-JetValue)) << " - " << hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->FindBin(JetValue)) << endl;
+  cout << "--> DeltaEta Jet interval " << hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->FindBin(-JetValue)) << " - " << hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->FindBin(JetValue)) << endl;
 
-  cout << "Jet values used for normalisation: " << hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->FindBin(-JetValueDefault)) << " - " << hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->FindBin(JetValueDefault)) << endl;
+  cout << "Jet values used for normalisation: " << hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->FindBin(-JetValueDefault)) << " - " << hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->FindBin(JetValueDefault)) << endl;
 
-  cout << "--> DeltaEta Bulk interval " << hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->FindBin(BulkLowValue)) << " - " << hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->FindBin(BulkUpValue)) << endl;
+  cout << "--> DeltaEta Bulk interval " << hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->FindBin(BulkLowValue)) << " - " << hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->FindBin(BulkUpValue)) << endl;
 
-  cout << "--> DeltaEta Full interval " << hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->FindBin(InclusiveLowValue)) << " - " << hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[nummolt][0][1][0][0]->GetXaxis()->FindBin(InclusiveUpValue)) << endl;
+  cout << "--> DeltaEta Full interval " << hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->FindBin(InclusiveLowValue)) << " - " << hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->FindBin(InclusiveUpValue)) << endl;
 
   cout << "! se valori si sovrappongono, modificare intervallo DeltaEta \n" << endl;
 
   Int_t OJEntries=0;
   Int_t NBins=0;
-  for (Int_t m=0; m<nummolt+1; m++){
+  for (Int_t m=0; m<nummoltMax+1; m++){
     if (isHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     //cout << "\n m " << m << endl;
@@ -1853,7 +1888,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 
   cout << " hi " << endl;
   if (isSidebands){
-    for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t m=0; m<nummoltMax+1; m++){
       if (isHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
 
@@ -1865,10 +1900,10 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   }
   cout << "\nRatio between ME and SE entries: " << endl;
   for(Int_t v=PtV0Min; v<numPtV0Max; v++){
-    cout <<  "Pt: " << NPtV0[v] << " ME entries: " <<  hDeltaEtaDeltaPhi_MEbins[nummolt][0][v][0][0]->GetEntries()<< " SE entries: " <<  hDeltaEtaDeltaPhi_SEbins[nummolt][0][v][0][0]->GetEntries()<< " ratio ME/SE entries " << (float)hDeltaEtaDeltaPhi_MEbins[nummolt][0][v][0][0]->GetEntries()/ hDeltaEtaDeltaPhi_SEbins[nummolt][0][v][0][0]->GetEntries()  << endl;
+    cout <<  "Pt: " << NPtV0[v] << " ME entries: " <<  hDeltaEtaDeltaPhi_MEbins[nummoltMax][0][v][0][0]->GetEntries()<< " SE entries: " <<  hDeltaEtaDeltaPhi_SEbins[nummoltMax][0][v][0][0]->GetEntries()<< " ratio ME/SE entries " << (float)hDeltaEtaDeltaPhi_MEbins[nummoltMax][0][v][0][0]->GetEntries()/ hDeltaEtaDeltaPhi_SEbins[nummoltMax][0][v][0][0]->GetEntries()  << endl;
   }
  
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (isHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     cout << "\nm " << m << " NTrigger(not effcorr) " << NTriggerNotEffCorr[m] << endl;
