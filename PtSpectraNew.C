@@ -35,7 +35,10 @@ void StyleHisto(TH1D *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   //
 }
 
-void PtSpectraNew( Int_t type=8,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, Int_t numsysTriggerindex=99, Int_t sysPhi = 0, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString year=""/*"1617_AOD234_hK0s"/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/, TString yearDCAzTrigger = ""/*"1617_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/, Bool_t isEfficiency=1,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=2, Int_t PtBinning=0, Bool_t SysTuvaWay=0,  Bool_t isNewInputPath=1,  Bool_t isHM =0, Bool_t ispp5TeV=0){
+void PtSpectraNew( Int_t type=8,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, Int_t numsysTriggerindex=99, Int_t sysPhi = 0, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString year=""/*"1617_AOD234_hK0s"/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/, TString yearDCAzTrigger = ""/*"1617_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/, Bool_t isEfficiency=1,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=1, Int_t PtBinning=0, Bool_t SysTuvaWay=0,  Bool_t isNewInputPath=1,  Bool_t isHM =1, Bool_t ispp5TeV=0, Bool_t isEffCorr=1){
+
+  //isEffCorr = 1 --> for K0s analysis. Efficiency was found to have a bug, the correctd efficiency is applied if isEffCorr = 1
+  if (type==8) isEffCorr=0;
 
   Float_t PtTrigMin2=0.15;
   TString yearLowPtTrig = "";
@@ -51,6 +54,7 @@ void PtSpectraNew( Int_t type=8,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
 
   if (type==0){
     PtBinning=1;
+    isEffCorr =1; //fix of efficiency
     yearDCAzTrigger="1617_hK0s";
     if (!isMC) year= "1617_AOD234_hK0s";
     isNewInputPath=1;
@@ -433,6 +437,7 @@ void PtSpectraNew( Int_t type=8,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
   // stringout += "_Boh";
   TString stringoutpdf = stringout;
   //  stringout += "_OldDPhiRange";
+  if (isEffCorr) stringout += "_EffCorr";
   stringout += ".root";
   TFile * fileout = new TFile(stringout, "RECREATE");
 
@@ -888,6 +893,7 @@ void PtSpectraNew( Int_t type=8,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
       PathInDefault += "_IsEtaEff";
       if (MultBinning!=0) PathInDefault += Form("_MultBinning%i", MultBinning);
       if (type==0) PathInDefault +="_NewdEtaChoice";
+      if (isEffCorr) PathInDefault += "_EffCorr";
       PathInDefault += ".root";
     }
     //    cout << "\n\n" << PathIn1 << endl;
@@ -992,7 +998,8 @@ void PtSpectraNew( Int_t type=8,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
       if (type==8 && TypeAnalysis==1 && ispp5TeV) {
 	PathInDeltaEtaSys +="_NewDEtaChoice";
       }
-      PathInDeltaEtaSys += +".root";
+      if (isEffCorr) PathInDeltaEtaSys += "_EffCorr";
+      PathInDeltaEtaSys += ".root";
       cout <<"Syst. assoc to choice of DeltaEta: " <<  PathInSysDeltaEta << endl;
       fileinDeltaEtaSys = new TFile(PathInDeltaEtaSys, "");
       cout << "File with DeltaEta syst.: " << PathInDeltaEtaSys << endl;
