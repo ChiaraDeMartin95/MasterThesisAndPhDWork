@@ -15,12 +15,13 @@
 #include <TTree.h>
 #include <TLatex.h>
 #include <TLegend.h>
+#include "Macros/constants.h"
 
 Double_t SetEfficiencyError(Int_t k, Int_t n){
   return sqrt(((Double_t)k+1)*((Double_t)k+2)/(n+2)/(n+3) - pow((Double_t)(k+1),2)/pow(n+2,2));
 }
 
-void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAssoc=0, Int_t israp=0, Bool_t isBkgParab=1, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=3,Float_t PtTrigMinFit=3, Int_t sysTrigger=0, Int_t sysV0=0,Int_t syst=0,bool isMC = 1, Bool_t isEfficiency=0,TString year0="2016", TString year="_PythiaRopes_Test1"/*"17l3b_hK0s_Hybrid"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/*"16kl_hK0s_Hybrid"/*"2019h11_HM_hK0s"/*"17pq_pp5TeV_Hybrid"/"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio"/*"1617GP_hK0s"/"1617_AOD234_hK0s"/*"2016kl_pass2_Fio"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/"AllhK0sHM_RedNo16k"/*"MCPrediction->1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_RlabelBis_15runs_hK0s_Hybrid"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/"2016k_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018g4_extra_EtaEff_hK0s"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617GP_hK0s_Hybrid"/*"2018f1_Reco_hK0s"/"2018f1_extra_hK0s"/*"2018f1_extra_hK0s"/*"LHC17_hK0s"/"1617_hK0s"/*"2016kehjl_hK0s"/"2018f1_extra_hK0s_30runs_Hybrid"/"2016k_hK0s"/"2018f1_extra_hK0s"/"2018g4_extra_EtaEff_hK0s"*/,  TString Path1 ="",  Double_t ptjmax =15, Double_t nsigmamax=10, Bool_t isSigma=kFALSE, Int_t PtBinning=1, Bool_t IsTrueParticle=0, Bool_t IsPtTrigMultDep =0, Int_t TriggerPDGChoice=0, Bool_t isEtaEff=1, TString yearMC/*path of file where efficiency is stored*/ = ""/*"17pq_hK0s_EffCorr"/*"17l3b_hK0s"/*"161718HM_hK0s"/*"16kl_hK0s"/"2019h11_HM_hK0s_EffCorr"/*"17d20bEPOS_hK0s_EtaEff"/*"17pq_pp5TeV"*"17pq_hK0s"/"1617_GP_AOD235_With18c12b_EffCorr"/*"17pq_hK0s"/*"2019h11abc_extra_HM_hK0s"/*"2018g4_extra_EtaEff_hK0s"*/, TString yearMCTrigEff =""/*"17l3b_hK0s_EffCorr"/* "161718HM_hK0s_TriggEff"/*"18f1_extra_EffTrigger_5runs"*/, Bool_t isEta05=0, Bool_t isPrimaryTrigger=0, Bool_t isNewInputPath=1, Bool_t isHM=1, Int_t MultBinning=1, /*Int_t VarRange =0, */Bool_t isSysPurity=0, Int_t VarRange =0, Bool_t isMCForNorm=0, Bool_t isTrigEff=0, Bool_t isGenOnTheFly=1){
+void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAssoc=0, Int_t israp=0, Bool_t isBkgParab=1, Bool_t isMeanFixedPDG=1, Float_t PtTrigMin=3,Float_t PtTrigMinFit=3, Int_t sysTrigger=0, Int_t sysV0=0,Int_t syst=0,bool isMC = 1, Bool_t isEfficiency=0,TString year0="2016", TString year="PythiaRopes"/*"Train2387_001"/*"_PythiaRopes_Test1"/*"17l3b_hK0s_Hybrid"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/*"16kl_hK0s_Hybrid"/*"2019h11_HM_hK0s"/*"17pq_pp5TeV_Hybrid"/"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio"/*"1617GP_hK0s"/"1617_AOD234_hK0s"/*"2016kl_pass2_Fio"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/"AllhK0sHM_RedNo16k"/*"MCPrediction->1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_RlabelBis_15runs_hK0s_Hybrid"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/"2016k_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018g4_extra_EtaEff_hK0s"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617GP_hK0s_Hybrid"/*"2018f1_Reco_hK0s"/"2018f1_extra_hK0s"/*"2018f1_extra_hK0s"/*"LHC17_hK0s"/"1617_hK0s"/*"2016kehjl_hK0s"/"2018f1_extra_hK0s_30runs_Hybrid"/"2016k_hK0s"/"2018f1_extra_hK0s"/"2018g4_extra_EtaEff_hK0s"*/,  TString Path1 ="",  Double_t ptjmax =15, Double_t nsigmamax=10, Bool_t isSigma=kFALSE, Int_t PtBinning=1, Bool_t IsTrueParticle=0, Bool_t IsPtTrigMultDep =0, Int_t TriggerPDGChoice=0, Bool_t isEtaEff=1, TString yearMC/*path of file where efficiency is stored*/ = ""/*"17pq_hK0s_EffCorr"/*"17l3b_hK0s"/*"161718HM_hK0s"/*"16kl_hK0s"/"2019h11_HM_hK0s_EffCorr"/*"17d20bEPOS_hK0s_EtaEff"/*"17pq_pp5TeV"*"17pq_hK0s"/"1617_GP_AOD235_With18c12b_EffCorr"/*"17pq_hK0s"/*"2019h11abc_extra_HM_hK0s"/*"2018g4_extra_EtaEff_hK0s"*/, TString yearMCTrigEff =""/*"17l3b_hK0s_EffCorr"/* "161718HM_hK0s_TriggEff"/*"18f1_extra_EffTrigger_5runs"*/, Bool_t isEta05=0, Bool_t isPrimaryTrigger=0, Bool_t isNewInputPath=1, Bool_t isHM=1, Int_t MultBinning=1, /*Int_t VarRange =0, */Bool_t isSysPurity=0, Int_t VarRange =0, Bool_t isMCForNorm=0, Bool_t isTrigEff=0, Bool_t isGenOnTheFly=1){
 
   //isGenOnTheFly --> events were generated on the fly and only the kinematic part is saved; the multiplicity distribution in percentile classes is not abvailable, instead classes based on the number of particles in the V0 acceptance are used
   if (!isMC && isGenOnTheFly) return;
@@ -103,8 +104,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   Float_t ctauCasc[numtipo] = {2.6844,7.89, 7.89, 7.89};
   Float_t PDGCode[numtipo-1] = {310, 3122, -3122};
 
-  Int_t nummolt=10;
-  Int_t nummoltMax =10;
+  Int_t nummoltMax = nummolt;
   if (!isGenOnTheFly) nummoltMax = 5;
   const Int_t numzeta=1;
   const Int_t numPtV0=9;
@@ -118,9 +118,6 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
   TString Szeta[numzeta]={""};
   TString Smoltpp5TeV[nummolt+1]={"0-10", "10-100", "100-100", "100-100", "100-100", "_all"};
   Double_t Nmoltpp5TeV[nummolt+1]={0, 10, 100, 100, 100, 100};
-  TString SmoltGenOnTheFly[nummolt+1]={"0-30", "30-60", "60-90", "90-120", "120-150", "150-180", "180-210", "210-240", "240-270", "270-300", "0-300"};
-  TString SBismoltGenOnTheFly[nummolt+1]={"0-30", "30-60", "60-90", "90-120", "120-150", "150-180", "180-210", "210-240", "240-270", "270-300", "0-300"};
-  Double_t NmoltGenOnTheFly[nummolt+1]={0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300};
 
   Int_t numMultBins=100;
   Float_t UpperLimitMult = 100;
@@ -367,7 +364,7 @@ void readTreePLChiarahK0s_second(Bool_t ishhCorr=0, Int_t type=0, Bool_t SkipAss
 
   TTree * tSign;
   TTree * tBkg;
-  if (year.Index("Fio")!=-1 || year.Index("pp5TeV")!=-1 || year.Index( "16kl_hK0s")!=-1 || year.Index("161718HM_hK0s")!=-1 || year.Index("17l3b_hK0s")!=-1 || year == "_PythiaRopes_Test1"){
+  if (year.Index("Fio")!=-1 || year.Index("pp5TeV")!=-1 || year.Index( "16kl_hK0s")!=-1 || year.Index("161718HM_hK0s")!=-1 || year.Index("17l3b_hK0s")!=-1 || year == "_PythiaRopes_Test1" || year == "Train2387_001" || year == "PythiaRopes"){
     tSign = (TTree *)d->Get("MyOutputContainer1" + NameContainer);
     tBkg = (TTree *)d->Get("MyOutputContainer2" + NameContainer);
   }
