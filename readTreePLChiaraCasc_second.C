@@ -16,6 +16,8 @@
 #include <TLatex.h>
 #include <TFile.h>
 #include <TLegend.h>
+#include "Macros/constants.h"
+
 Double_t SetEfficiencyError(Int_t k, Int_t n){
   return sqrt(((Double_t)k+1)*((Double_t)k+2)/(n+2)/(n+3) - pow((Double_t)(k+1),2)/pow(n+2,2));
 }
@@ -87,8 +89,7 @@ void readTreePLChiaraCasc_second(Int_t type=4, Bool_t SkipAssoc=0, Int_t israp=0
   TString file;
 
   const Int_t numtipo=6;
-  Int_t nummolt=12;
-  Int_t nummoltMax =12;
+  Int_t nummoltMax = nummolt;
   if (!isGenOnTheFly) nummoltMax = 5; //11 for estimate run3 (isEstimateRun3)
   const Int_t numzeta=1;
   const Int_t numPtV0=8; //14; //was 8 in my analysis
@@ -108,9 +109,6 @@ void readTreePLChiaraCasc_second(Int_t type=4, Bool_t SkipAssoc=0, Int_t israp=0
   Double_t NmoltBin2[nummolt+1]={0, 2, 7, 15, 30, 100};
   TString Smoltpp5TeV[nummolt+1]={"0-10", "10-100", "100-100", "100-100", "100-100", "_all"};
   Double_t Nmoltpp5TeV[nummolt+1]={0, 10, 100, 100, 100, 100};
-  TString SmoltGenOnTheFly[nummolt+1]={"0-15", "15-30", "30-45", "45-54", "54-63", "63-72", "72-81", "81-90", "90-105", "105-120", "120-160", "160-300", "0-300"};
-  TString SBismoltGenOnTheFly[nummolt+1]={"0-15", "15-30", "30-45", "45-54", "54-63", "63-72", "72-81", "81-90", "90-105", "105-120", "120-160", "160-300", "0-300"};
-  Double_t NmoltGenOnTheFly[nummolt+1]={0, 15, 30, 45, 54, 63, 72, 81, 90, 105, 120, 160, 300};
 
   TString Smolt[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "_all"};
   Double_t Nmolt[nummolt+1]={0, 5, 10, 30, 50, 100};

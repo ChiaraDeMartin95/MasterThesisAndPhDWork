@@ -17,8 +17,9 @@
 #include <TLatex.h>
 #include <TFile.h>
 #include <TLegend.h>
+#include "Macros/constants.h"
 
-void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t ishhCorr=0, Float_t PtTrigChosen=3, Float_t PtTrigMax =15, Bool_t SkipAssoc=0,Int_t israp=0, Int_t sysV0=0, Int_t sysTrigger=0,Int_t sys=0, Int_t type=0, Int_t PtIntervalShown=1,   TString year0 = "2016",TString year="_PythiaRopes_Test1"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/*_Hybrid"/*"2019h11_HM_hK0s"/*"161718_hXi"/*"1617_GP_hK0s"/"17pq_hK0s"/"161718_HM_hXi_WithFlat16k_No18p"/*"161718_HM_hXi"/"161718Full_AOD234_hXi"/*"17pq_pp5TeV_hXi_pttrig0.15"/*"17pq_hXi"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/"17pq_hXi"/*"LHC16kl_pass2_GP_Fio"/*"1617GP_hK0s"/*"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_hXi_New"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"2016k_HM_hK0s"/*"1617GP_hK0s_Hybrid_New"/*"1617_hK0s"/*"2018g4_extra_hXi_SelTrigger"/*"161718_MD_hXi"/"2018f1g4_extra_EtaEff_hXi"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/""/*"161718_MD_EtaEff_hXi"/*"AllMC_hXi"/*"2016kehjl_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*/, TString yearMC="_PythiaRopes_Test1"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/*"16kl_hK0s_Hybrid"/*"2019h11_HM_hK0s"/*"161718_hXi"/"161718_HM_hXi"/*"17pq_hXi"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio"/*"1617GP_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi"/*"2018f1_extra_hK0s_Fio"/*"1617GP_hK0s_Hybrid_New"/*"1617GP_hK0s"/*"1617MC_hK0s"/*"161718_MD_EtaEff_hXi"/"2018g4_extra_EtaEff_Hybrid_hK0s"/*"2018f1g4_extra_EtaEff_hXi"/"2018g4_extra_EtaEff_hK0s"/*"2018f1_extra_Reco_hK0s"/"1617MC_hK0s"/"AllMC_hXi"/*"161718_MD_hXi_Hybrid"*/,  TString Path1 =""/*"_Jet0.75"/*"_PtTrigMax2.5_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/, TString Path2 =""/*"_PtTrigMax2.5"/*"_NewMultClassBis_Jet0.75"*/, TString Dir ="FinalOutput/", Bool_t isEnlargedDeltaEta=0, Int_t isMC=1, Int_t isEfficiency=0, Int_t MultBinning=3, Int_t PtBinning=1, Bool_t isSidebands=0, Bool_t isSidebandsAnalysis =0, Bool_t IsMEFromHybrid=0, Bool_t isMEFromCorrectCentrality=0, Bool_t isCompWithMEFromHybrid=0, TString yearHybrid =""/*"2018g4_extra_EtaEff_Hybrid_hK0s"/* "161718_MD_hXi_Hybrid_MCTruth"*/, Bool_t IsParticleTrue=0, Bool_t isEtaEff=1, Bool_t isEtaEffComp=0, Bool_t isEta05=0 , Bool_t isCompWithMEFromXi=0, TString yearXiComp= "161718_MD_EtaEff_hXi",  Int_t TriggerPDGChoice=0, Bool_t isNewInputPath=1, Bool_t isHM=0, Bool_t isEPOSEff=0, Bool_t isMEFromPeak=0, Bool_t isMEFromK0s=0, Bool_t isBkgParab=0 , Bool_t isSysDef =0, Int_t isDefaultSel = 0, Bool_t isMCForNorm=0, Bool_t VarRange=0,  Bool_t isGenOnTheFly=1){
+void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t ishhCorr=0, Float_t PtTrigChosen=3, Float_t PtTrigMax =15, Bool_t SkipAssoc=0,Int_t israp=0, Int_t sysV0=0, Int_t sysTrigger=0,Int_t sys=0, Int_t type=0, Int_t PtIntervalShown=1,   TString year0 = "2016",TString year="PythiaRopes"/*"_PythiaRopes_Test1"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/*_Hybrid"/*"2019h11_HM_hK0s"/*"161718_hXi"/*"1617_GP_hK0s"/"17pq_hK0s"/"161718_HM_hXi_WithFlat16k_No18p"/*"161718_HM_hXi"/"161718Full_AOD234_hXi"/*"17pq_pp5TeV_hXi_pttrig0.15"/*"17pq_hXi"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/"17pq_hXi"/*"LHC16kl_pass2_GP_Fio"/*"1617GP_hK0s"/*"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_hXi_New"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"2016k_HM_hK0s"/*"1617GP_hK0s_Hybrid_New"/*"1617_hK0s"/*"2018g4_extra_hXi_SelTrigger"/*"161718_MD_hXi"/"2018f1g4_extra_EtaEff_hXi"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/""/*"161718_MD_EtaEff_hXi"/*"AllMC_hXi"/*"2016kehjl_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*/, TString yearMC="PythiaRopes"/*"_PythiaRopes_Test1"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/*"16kl_hK0s_Hybrid"/*"2019h11_HM_hK0s"/*"161718_hXi"/"161718_HM_hXi"/*"17pq_hXi"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio"/*"1617GP_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi"/*"2018f1_extra_hK0s_Fio"/*"1617GP_hK0s_Hybrid_New"/*"1617GP_hK0s"/*"1617MC_hK0s"/*"161718_MD_EtaEff_hXi"/"2018g4_extra_EtaEff_Hybrid_hK0s"/*"2018f1g4_extra_EtaEff_hXi"/"2018g4_extra_EtaEff_hK0s"/*"2018f1_extra_Reco_hK0s"/"1617MC_hK0s"/"AllMC_hXi"/*"161718_MD_hXi_Hybrid"*/,  TString Path1 =""/*"_Jet0.75"/*"_PtTrigMax2.5_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/, TString Path2 =""/*"_PtTrigMax2.5"/*"_NewMultClassBis_Jet0.75"*/, TString Dir ="FinalOutput/", Bool_t isEnlargedDeltaEta=0, Int_t isMC=1, Int_t isEfficiency=0, Int_t MultBinning=3, Int_t PtBinning=0, Bool_t isSidebands=0, Bool_t isSidebandsAnalysis =0, Bool_t IsMEFromHybrid=0, Bool_t isMEFromCorrectCentrality=0, Bool_t isCompWithMEFromHybrid=0, TString yearHybrid =""/*"2018g4_extra_EtaEff_Hybrid_hK0s"/* "161718_MD_hXi_Hybrid_MCTruth"*/, Bool_t IsParticleTrue=0, Bool_t isEtaEff=1, Bool_t isEtaEffComp=0, Bool_t isEta05=0 , Bool_t isCompWithMEFromXi=0, TString yearXiComp= "161718_MD_EtaEff_hXi",  Int_t TriggerPDGChoice=0, Bool_t isNewInputPath=1, Bool_t isHM=0, Bool_t isEPOSEff=0, Bool_t isMEFromPeak=0, Bool_t isMEFromK0s=0, Bool_t isBkgParab=0 , Bool_t isSysDef =0, Int_t isDefaultSel = 0, Bool_t isMCForNorm=0, Bool_t VarRange=0,  Bool_t isGenOnTheFly=1){
 
   //isGenOnTheFly --> events were generated on the fly and only the kinematic part is saved; the multiplicity distribution in p ercentile classes is not abvailable, instead classes based on the number of particles in the V0 acceptance are used
   if (!isMC && isGenOnTheFly) return;
@@ -28,7 +29,7 @@ void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t 
   cout << "Do you want to use the left + right sidebands (0), the left one only (1), or the right one only (2)?" << endl;
   cin >> SidebandsSide;
   }
-  Bool_t isNewDEtaJet=0;
+  Int_t isNewDEtaJet=0;
   if (type==0) isNewDEtaJet=1;
 
   if (isMC && !isEfficiency) isEtaEff=0;
@@ -55,8 +56,14 @@ void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t 
     isSidebands = 0;
     IsMEFromHybrid=0;
     isMEFrom13TeV=0;
-    if (type==0)    isNewDEtaJet =1;
-    isMEFromCorrectCentrality = 1;
+    //if (type==0) isNewDEtaJet =1;
+    //else isNewDEtaJet =0;
+    isNewDEtaJet = 1;
+    if (type==8) isNewDEtaJet = 2;
+    if (type==0) isMEFromCorrectCentrality = 1;
+    else  isMEFromCorrectCentrality = 0;
+    if (type==0) PtBinning=1;
+    else PtBinning=0;
   }
 
   TString sTriggerPDGChoice[3] = {"", "_IsOnlypiKpemu", "_IsNotSigmaOnly"};
@@ -137,8 +144,7 @@ void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t 
   if (PtBinning>0) file[1]+= Form("_PtBinning%i", PtBinning);
   file[1]+=Path2; 
 
-  const Int_t nummolt=10;
-  Int_t nummoltMax =10;
+  Int_t nummoltMax = nummolt;
   if (!isGenOnTheFly) nummoltMax = 5;
   const Int_t numzeta=1;
   const Int_t numPtV0=9;
@@ -224,9 +230,6 @@ void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t 
   Double_t Nmoltpp5TeV[nummolt+1]={0, 10, 100, 100, 100, 100};
   TString Smolt[nummolt+1]={"0-2", "2-7", "7-15", "15-30", "30-100", "_all"};
   Double_t Nmolt[nummolt+1]={0,2,7,15,30,100}; 
-  TString SmoltGenOnTheFly[nummolt+1]={"0-30", "30-60", "60-90", "90-120", "120-150", "150-180", "180-210", "210-240", "240-270", "270-300", "0-300"};
-  TString SmoltBisGenOnTheFly[nummolt+1]={"0-30", "30-60", "60-90", "90-120", "120-150", "150-180", "180-210", "210-240", "240-270", "270-300", "0-300"};
-  Double_t NmoltGenOnTheFly[nummolt+1]={0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300};
 
   for(Int_t m=0; m<nummoltMax+1; m++){
     if (MultBinning==0){
@@ -251,7 +254,7 @@ void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t 
   if (isGenOnTheFly){
     for (Int_t m=0; m<nummoltMax+1; m++){
       Smolt[m] = SmoltGenOnTheFly[m];
-      SmoltBis[m] = SmoltBisGenOnTheFly[m];
+      SmoltBis[m] = SBismoltGenOnTheFly[m];
       Nmolt[m] = NmoltGenOnTheFly[m];
     }
   }
@@ -564,7 +567,9 @@ void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t 
 
     TString dirinputtype[numtipo] = {"", "Lambda", "Lambda", "Lambda", "Xi",   "Xi", "Omega","Omega", "Xi", "Omega"};
     cout << "Drectory name " << "MyTask"<<dirinputtype[type] << TaskName<< endl;
-    TDirectoryFile *dir = (TDirectoryFile*)fileinbis[IntisMC]->Get("MyTask"+dirinputtype[type]+ TaskName);
+    TDirectoryFile *dir;
+    dir = (TDirectoryFile*)fileinbis[IntisMC]->Get("MyTask"+dirinputtype[type]+ TaskName);
+    if (isGenOnTheFly)     dir = (TDirectoryFile*)fileinbis[IntisMC]->Get("MyTask"+ TaskName);
     if (!dir) {cout << " directory not present " << endl; return;}
     TDirectoryFile *dirPart1;
     TDirectoryFile *dirPart2;
@@ -664,7 +669,8 @@ void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t 
   nomefileoutput+= sTriggerPDGChoice[TriggerPDGChoice];
   if (MultBinning !=0) nomefileoutput+= Form("_MultBinning%i", MultBinning);
   if (isMC && !isEfficiency && !isMCForNorm) nomefileoutput += "_MCPrediction";
-  if (isNewDEtaJet)  nomefileoutput += "_NewdEtaChoice";
+  if (isNewDEtaJet == 1)  nomefileoutput += "_NewdEtaChoice";
+  else   if (isNewDEtaJet == 2)  nomefileoutput += "_NewdEtaChoice2";
   if (sysang!=0)   nomefileoutput += Form("_sys%i", sysang);
   //  nomefileoutput += "_Try";
   //  nomefileoutput+= "_LargerJetWidthLargerBulkWidth";
@@ -870,7 +876,8 @@ cout << "\n\n " << endl;
 	  if (isTrigEff) PathIn[PtTrig]+= "_IsTrigEff";
 	  if (MultBinning!=0) PathIn[PtTrig]+=Form("_MultBinning%i", MultBinning);
 	  //	  PathIn[PtTrig] += "_thinptbins";
-	  if (isNewDEtaJet)	  PathIn[PtTrig] += "_NewdEtaChoice";
+	  if (isNewDEtaJet == 1)	  PathIn[PtTrig] += "_NewdEtaChoice";
+	  else 	  if (isNewDEtaJet == 2)	  PathIn[PtTrig] += "_NewdEtaChoice2";
 	  if (isMC && !isEfficiency && !isMCForNorm) PathIn[PtTrig]+= "_MCPrediction";
 	  if (isMC && !isEfficiency && !isMCForNorm) PathInComp[PtTrig]+= "_MCPrediction";
 	  //	  PathIn[PtTrig] += "_Try1";
@@ -1543,8 +1550,16 @@ cout << "\n\n " << endl;
 	    else if (m==0) LimSupY[0] = 0.0012;
 	  }
 
-	  cout << LimSupY[0] << endl;
-	  //	  return;
+	  if (isGenOnTheFly){
+	    if (type==0){
+
+	    } else {
+	      if (m < nummoltMax && m > 6)  LimSupY[0] = 0.0012;
+	      else if (m <= 1)  LimSupY[0] = 0.00032;
+	      else LimSupY[0] = 0.0006;
+	    }
+	  }
+
 	  hDeltaEtaDeltaPhi_PhiProjJetBulk[m][v][PtTrig]->GetYaxis()->SetRangeUser(LimInfY[ishhCorr], LimSupY[ishhCorr]); //-0.004 for hh and hK0s
 	  hDeltaEtaDeltaPhi_PhiProjJet[m][v][PtTrig]    ->GetYaxis()->SetRangeUser(LimInfY[ishhCorr], LimSupY[ishhCorr]);
 	  hDeltaEtaDeltaPhi_PhiProjJetZYAM[m][v][PtTrig]    ->GetYaxis()->SetRangeUser(LimInfY[ishhCorr], LimSupY[ishhCorr]);
@@ -2153,7 +2168,9 @@ cout << "\n\n " << endl;
   for(Int_t m=nummoltMax; m>=0; m--){
     if (isHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
-    cout << "n trigger in mult range (all triggers)    " << m << "  " <<  " is MC " << 0 << "  " << NTrigger[m][0] <<   endl;
+    if (!isMC)    cout << "n trigger in mult range (all triggers)    " << Smolt[m] << "  " <<  " is MC " << 0 << "  " << NTrigger[m][0] <<   endl;
+    else     cout << "n trigger in mult range (all triggers)    " << Smolt[m] << "  " <<  " is MC " << 1 << "  " << NTrigger[m][1] <<   endl;
   }
+  cout << "Hola " << endl;
 }
 
