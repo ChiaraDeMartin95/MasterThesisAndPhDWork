@@ -16,8 +16,9 @@
 #include <TLatex.h>
 #include <TFile.h>
 #include <TLegend.h>
+#include "Macros/constants.h"
 
-void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAssoc=0, Float_t ptjmin=3,  Float_t PtTrigMinFit=3, Int_t sysV0=0,Int_t type=0 /*0 = K0s, 8 = Xi*/,  Int_t israp=0, Bool_t isMC=1, Bool_t isEfficiency=0, TString yearME="_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*"16kl_hK0s_Hybrid"/*"2019h11_HM_hK0s"/*"161718_hXi"/"1617_GP_hK0s"/"AllhK0sHM_RedNo16k"/*"161718_HM_hXi_WithFlat16k_No18p"*"161718Full_AOD234_hXi"/"17pq_pp5TeV_hXi_pttrig0.15"/"17pq_hK0s"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"/"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/*"2018f1_extra_Mylabel_15runs_hK0s_Hybrid"/*"2016k_HM_hK0s"/"1617_hK0s"/*"161718_MD_hXi_Hybrid_MCTruth"/*"2018f1g4_extra_hXi_Hybrid_MCTruth"/"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018g4_extra_EtaEff_hK0s_MCEff"*/, TString year="_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/*"2019h11_HM_hK0s"/*"161718_hXi"/"1617_GP_hK0s"/ "17pq_hK0s"/"AllhK0sHM_RedNo16k"/*"161718_HM_hXi_WithFlat16k_No18p"/*"161718Full_AOD234_hXi"*"17pq_pp5TeV_hXi_pttrig0.15"/*"17pq_hXi"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"/"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"//"2016k_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617_hK0s"/*"2018g4_extra_EtaEff_hK0s"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/"161718_MD_EtaEff_hXi"/*"LHC16_17_GP_Hybrid_hXi"/*"2018f1g4_extra_hXi"/"2018g4_extra_hXi_SelTrigger"/*_15runsBis"/"1617_hK0s"/*AllMC_hXi"/"2018f1_extra_hK0s"/*"2016k_hK0s"/*"2016k_MECorr"/"Run2DataRed_MECorr_hXi"/*/, TString yearMC="_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/"2019h11_HM_hK0s_EffCorr"/*"161718_hXi"/*"161718Full_AOD235_hXi"/*"1617GP_hK0s_Hybrid_New" /"17pq_pp5TeV_Hybrid"/*"1617_GP_AOD235_With18c12b"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/*"1617GP_hK0s"/*"1617_GP_AOD235"/*"1617_GP_AOD235_With18c12b"/*"161718_hXi"/*"17pq_hK0s"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/*""//*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/"2019h11c_extra_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617MC_hK0s"/"2018g4_extra_EtaEff_hK0s"/*"161718_MD_EtaEff_hXi"/"2018f1g4_extra_hXi"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/*"161718_MD_hXi_Hybrid"/*"LHC16_17_GP_Hybrid_hXi"/*"17d20bEPOS_hK0s"/"2018g4_extra_hXi_SelTrigger"/*"1617MC_hK0s"/"AllMC_hXi"/*"1617GP_hXi"/*"2016kl_hXi"/*"2018f1_extra_MECorr"/"2018f1_extra_Hybrid_hK0s"/*"17d20bEPOS_hXi"*/,  TString yearMCTrigEff=""/*"17l3b_hK0s"/*"161718HM_hK0s_TriggEff"/*"18f1_extra_EffTrigger_5runs"*/,  TString Dir ="FinalOutput/",  Float_t ptjmax=15, Bool_t isBkgParab=1, Bool_t isMeanFixedPDG=1, Int_t MultBinning=1, Int_t PtBinning=1, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t IsPtTrigMultDep=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsParticleTrue=0, Bool_t IsEfficiencyMassSel=0, Bool_t isSidebands=1, Bool_t isMESBFromPeak =0,  Bool_t isMEFromHybrid=0, Bool_t isMEFromCorrectCentrality = 0, Bool_t isEtaEff=1, Bool_t isMEFromK0s=0, Bool_t isNewInputPath=1, Bool_t isHM=1,  Bool_t isNewdEtaJet =1, Bool_t isSysPurity =0, Int_t VarRange = 0, Bool_t isMCForNorm=0, Bool_t isEffCorr=1, Bool_t isGenOnTheFly=1){ 
+void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAssoc=0, Float_t ptjmin=3,  Float_t PtTrigMinFit=3, Int_t sysV0=0,Int_t type=0 /*0 = K0s, 8 = Xi*/,  Int_t israp=0, Bool_t isMC=1, Bool_t isEfficiency=0, TString yearME="PythiaRopes"/*"_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*"16kl_hK0s_Hybrid"/*"2019h11_HM_hK0s"/*"161718_hXi"/"1617_GP_hK0s"/"AllhK0sHM_RedNo16k"/*"161718_HM_hXi_WithFlat16k_No18p"*"161718Full_AOD234_hXi"/"17pq_pp5TeV_hXi_pttrig0.15"/"17pq_hK0s"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"/"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/*"2018f1_extra_Mylabel_15runs_hK0s_Hybrid"/*"2016k_HM_hK0s"/"1617_hK0s"/*"161718_MD_hXi_Hybrid_MCTruth"/*"2018f1g4_extra_hXi_Hybrid_MCTruth"/"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018g4_extra_EtaEff_hK0s_MCEff"*/, TString year="PythiaRopes"/*"_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/*"2019h11_HM_hK0s"/*"161718_hXi"/"1617_GP_hK0s"/ "17pq_hK0s"/"AllhK0sHM_RedNo16k"/*"161718_HM_hXi_WithFlat16k_No18p"/*"161718Full_AOD234_hXi"*"17pq_pp5TeV_hXi_pttrig0.15"/*"17pq_hXi"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"/"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"//"2016k_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617_hK0s"/*"2018g4_extra_EtaEff_hK0s"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/"161718_MD_EtaEff_hXi"/*"LHC16_17_GP_Hybrid_hXi"/*"2018f1g4_extra_hXi"/"2018g4_extra_hXi_SelTrigger"/*_15runsBis"/"1617_hK0s"/*AllMC_hXi"/"2018f1_extra_hK0s"/*"2016k_hK0s"/*"2016k_MECorr"/"Run2DataRed_MECorr_hXi"/*/, TString yearMC="PythiaRopes"/*"_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/"2019h11_HM_hK0s_EffCorr"/*"161718_hXi"/*"161718Full_AOD235_hXi"/*"1617GP_hK0s_Hybrid_New" /"17pq_pp5TeV_Hybrid"/*"1617_GP_AOD235_With18c12b"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/*"1617GP_hK0s"/*"1617_GP_AOD235"/*"1617_GP_AOD235_With18c12b"/*"161718_hXi"/*"17pq_hK0s"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/*""//*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/"2019h11c_extra_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617MC_hK0s"/"2018g4_extra_EtaEff_hK0s"/*"161718_MD_EtaEff_hXi"/"2018f1g4_extra_hXi"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/*"161718_MD_hXi_Hybrid"/*"LHC16_17_GP_Hybrid_hXi"/*"17d20bEPOS_hK0s"/"2018g4_extra_hXi_SelTrigger"/*"1617MC_hK0s"/"AllMC_hXi"/*"1617GP_hXi"/*"2016kl_hXi"/*"2018f1_extra_MECorr"/"2018f1_extra_Hybrid_hK0s"/*"17d20bEPOS_hXi"*/,  TString yearMCTrigEff=""/*"17l3b_hK0s"/*"161718HM_hK0s_TriggEff"/*"18f1_extra_EffTrigger_5runs"*/,  TString Dir ="FinalOutput/",  Float_t ptjmax=15, Bool_t isBkgParab=1, Bool_t isMeanFixedPDG=1, Int_t MultBinning=1, Int_t PtBinning=0, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t IsPtTrigMultDep=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsParticleTrue=0,  Bool_t isSidebands=1, Bool_t isMESBFromPeak =0,  Bool_t isMEFromHybrid=0, Bool_t isMEFromCorrectCentrality = 0, Bool_t isEtaEff=1, Bool_t isMEFromK0s=0, Bool_t isNewInputPath=1, Bool_t isHM=1,  Int_t isNewdEtaJet =2, Bool_t isSysPurity =0, Int_t VarRange = 0, Bool_t isMCForNorm=0, Bool_t isEffCorr=1, Bool_t isGenOnTheFly=1){ 
 
   //isGenOnTheFly --> events were generated on the fly and only the kinematic part is saved; the multiplicity distribution in percentile classes is not abvailable, instead classes based on the number of particles in the V0 acceptance are used
   if (!isMC && isGenOnTheFly) return;
@@ -27,10 +28,22 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
     isHM =0;
     isSidebands = 0;
     isEffCorr =0;
-    if (type==0) isNewdEtaJet =1;
-    isMEFromCorrectCentrality =1;
+    //if (type==0) isNewdEtaJet =1;
+    //else  isNewdEtaJet =0;
+    isNewdEtaJet = 1;
+    if (type==8) {
+      cout << "Do you want to run with the option isNewdEtaJet = 1 (type 1) or 2 (type 2)? (default choice of dEta region is different) "<< endl;
+      cin >> isNewdEtaJet;
+      //      isNewdEtaJet = 2; //for jet
+      //      isNewdEtaJet = 1; //for OOJjet
+    }
+    if (type==0) isMEFromCorrectCentrality =1;
+    else isMEFromCorrectCentrality =0;
+    if (type==0) PtBinning=1;
+    else PtBinning=0;
   }
 
+  Bool_t IsEfficiencyMassSel=0;
   TString Path1 ="";/*"_PtTrigMax2.5"/*"_NewMultClassBis"*/
   Bool_t isTrigEff =0;
   Int_t sysTrigger=0;
@@ -112,8 +125,12 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
  
   Float_t JetValue=0.84;
   Float_t JetValueDefault=0.84; //questo valore è indipendente dalla scelta del valore di sys ed è il valore per cui viene diviso lo yield nel jet, in modo da essere confrontatato con lo yield OJ e JOJ
-  if (isNewdEtaJet){
+  if (isNewdEtaJet==1){
     JetValue = 0.9;
+    JetValueDefault = 0.84;
+  }
+  if (isNewdEtaJet==2){ //built for Xi MC truth (JET production)
+    JetValue = 1; //pt-dependent (most pt bins: 0.96 (OOj sub: 0.96-1.3))
     JetValueDefault = 0.84;
   }
 
@@ -123,22 +140,22 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
     else  if (sys==4) JetValue=0.9;
   }
   else {
-    if (sys==4) {
-      JetValue=0.9;
-      if (isMC && !isEfficiency && !isMCForNorm) {
-	if (type==8) 	JetValue=1;  //pt dependent!
-      }
-    }
+    if (sys==4) JetValue=0.9;
     if (sys==6) JetValue=0.74;
     if (sys==7) JetValue=0.9;
-    if (isNewdEtaJet){
+    if (isNewdEtaJet == 1){
       if (sys==4) JetValue=0.9;
       if (sys==6) JetValue=0.84;
       if (sys==7) JetValue=1;
       if (sys==8) JetValue=1.1;
     }
+    else if (isNewdEtaJet == 2){
+      if (sys==4) JetValue=1.1; //pt-independent 1.1 (OOj sub: 1.1-1.4)
+      if (sys==5) JetValue=1.0; //pt-independent 0.96 (OOj sub: 0.96-1.3)
+      if (sys==6) JetValue=0.9; //pt-independent 0.86 (OOj sub: 0.86-1.18)
+      if (sys==7) JetValue=0.9; //pt-independent 0.86 (OOj sub: 0.86-1.3)
+    }
   }
-
 
   Float_t BulkLowValue=0.84;
   Float_t BulkUpValue=1.1;
@@ -150,7 +167,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 
   //InclusiveLowValue=0; // for asymmetric DeltaEta interval
   //  InclusiveUpValue=0-0.001; // for asymmetric DeltaEta interval
-  if (isNewdEtaJet){
+  if (isNewdEtaJet == 1){
     BulkLowValue = 0.9;
     BulkUpValue = 1.1;
     if (sys==4) {
@@ -168,6 +185,26 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
     else if (sys==8){
       BulkLowValue = 1.1;
       BulkUpValue = 1.35;
+    }
+  }
+  else if (isNewdEtaJet == 2){
+    BulkLowValue = 1;
+    BulkUpValue = 1.25;
+    if (sys==4) {
+      BulkLowValue = 1.1;
+      BulkUpValue = 1.35;
+    }
+    else if (sys==5) {
+      BulkLowValue = 1;
+      BulkUpValue = 1.25;
+    }
+    else if (sys==6){
+      BulkLowValue = 0.9;
+      BulkUpValue = 1.1;
+    }
+    else if (sys==7){
+      BulkLowValue = 0.9;
+      BulkUpValue = 1.25;
     }
   }
   else {
@@ -439,7 +476,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
     else {
       if (isGenOnTheFly) ContainerName = "_hK0s_Task_Xi"; 
       //      if (year.Index("New")!=-1)  	ContainerName="_h" + tipo[type] +"_Task_MCTruth"; 
-      if (year.Index("New")!=-1)  	ContainerName="_h" + tipo[type] +"_Task_Hybrid"; 
+      else if (year.Index("New")!=-1)  	ContainerName="_h" + tipo[type] +"_Task_Hybrid"; 
       else if (year.Index("Hybrid")!=-1)  ContainerName = "_hXi_Task_Hybrid"; 
       //      else if (isMC && !isEfficiency) ContainerName = "_hXi_Task_Truth"; 
       else if (isMC && !isEfficiency && type==8) ContainerName = "_hXi_Task_MCTruth"; 
@@ -482,6 +519,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   TDirectoryFile *dir;
   if (type==0)    dir= (TDirectoryFile*)fileinbis->Get("MyTask"+ TaskName);
   else dir= (TDirectoryFile*)fileinbis->Get("MyTask"+dirinputtype[type]+ TaskName);
+  if (isGenOnTheFly) dir= (TDirectoryFile*)fileinbis->Get("MyTask"+ TaskName);
   if (!dir) {cout << "directory not present " << endl; return;}
   TDirectoryFile *dirPart1;
   TDirectoryFile *dirPart2;
@@ -506,8 +544,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   cout << "********************************************"<< endl;
   cout << "********************************************"<< endl;
 
-  const Int_t nummolt=10;
-  Int_t nummoltMax =10;
+  Int_t nummoltMax = nummolt;
   if (!isGenOnTheFly) nummoltMax = 5;
   const Int_t numzeta=1;
   const Int_t numPtV0=9;
@@ -540,8 +577,6 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   Double_t Nmolt2[nummolt+1]={0,2,7,15,30,100}; 
   TString Smoltpp5TeV[nummolt+1]={"0-10", "10-100", "100-100", "100-100", "100-100", "_all"};
   Double_t Nmoltpp5TeV[nummolt+1]={0, 10, 100, 100, 100, 100};
-  TString SmoltGenOnTheFly[nummolt+1]={"0-30", "30-60", "60-90", "90-120", "120-150", "150-180", "180-210", "210-240", "240-270", "270-300",  "0-300"};
-  Double_t NmoltGenOnTheFly[nummolt+1]={0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300};
 
   for(Int_t m=0; m<nummoltMax+1; m++){
     if (MultBinning==0){
@@ -1082,13 +1117,14 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 	    //*****************************************************************************************************************
 	    //proietto in Delta Phi
 	    //****************************************************************************************************************
-	    if (isMC && !isEfficiency && !isMCForNorm){
-	      if (type==8 && sys==4){
-		if (NPtV0[v] <2.0){	JetValue=1; BulkLowValue =1; BulkUpValue=1.25;}
-		else {	JetValue=1; BulkLowValue =0.9; BulkUpValue=1.1;}
+	    
+ 	    if (isNewdEtaJet == 2){
+	      if (type==8){
+		if (NPtV0[v] < 1.5){	JetValue=1.1; BulkLowValue =1.1; BulkUpValue=1.35;}
+		else {JetValue=1.; BulkLowValue = 1.; BulkUpValue=1.25;}
 	      }
 	    }
-
+	    
 	    hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][sb][0]= (TH1D*)(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->ProjectionY(nameME[m][z][v][tr][sb]+"_AC_phi_etaJet", hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->FindBin(-JetValue)+1, hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->FindBin(JetValue)-1, "E"));
 	    hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][sb][2]= (TH1D*)(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->ProjectionY(nameME[m][z][v][tr][sb]+"_AC_phi_etaAll",  hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->FindBin(InclusiveLowValue), hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->FindBin(InclusiveUpValue), "E"));
 
@@ -1232,10 +1268,10 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 	  //***************************************************************
 	  //sottraggo distribuzione del bulk 
 	  //***************************************************************
-	  if (isMC && !isEfficiency && !isMCForNorm){
-	    if (type==8 && sys==4){
-	      if (NPtV0[v] <2.0){	JetValue=1; BulkLowValue =1; BulkUpValue=1.25;}
-	      else {	JetValue=1; BulkLowValue =0.9; BulkUpValue=1.1;}
+	  if (isNewdEtaJet == 2){
+	    if (type==8){
+	      if (NPtV0[v] < 1.5){	JetValue=1.1; BulkLowValue =1.1; BulkUpValue=1.35;}
+	      else {JetValue=1.; BulkLowValue = 1.; BulkUpValue=1.25;}
 	    }
 	  }
 
@@ -1646,7 +1682,8 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   if (isAllDeltaEta) PathOut1+= "_isAllDeltaEta";
   PathOut1+= sTriggerPDGChoice[TriggerPDGChoice];
   if (MultBinning!=0) PathOut1 += Form("_MultBinning%i", MultBinning);
-  if (isNewdEtaJet)  PathOut1 += "_NewdEtaChoice";
+  if (isNewdEtaJet == 1)  PathOut1 += "_NewdEtaChoice";
+  else if (isNewdEtaJet == 2)  PathOut1 += "_NewdEtaChoice2";
   //  PathOut1 += "_Try1";
   //    PathOut1+="_TryisEta05";
   //    PathOut1+="_thinptbinsbis";
