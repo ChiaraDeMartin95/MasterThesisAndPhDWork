@@ -21,6 +21,7 @@
 #include <TRandom.h>
 #include </data/dataalice/AliceSoftware/aliphysics/master_chiara/src/PWG/Tools/AliPWGFunc.h>
 #include </data/dataalice/cdemart/AliPhysicsChiara/AliPhysics/PWGLF/SPECTRA/UTILS/YieldMean.C>
+#include "Macros/constants.h"
 //#include </data/dataalice/cdemart/ALICE_analysis_tutorial/YieldMean.C>
 
 void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, TString titleX, TString titleY, TString title, Bool_t XRange, Float_t XLow, Float_t XUp){
@@ -38,7 +39,19 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0, TString year=""/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=0, Int_t PtBinning=1, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,  Bool_t TwoFitFunctions=0, Bool_t isNormCorrFullyComputed=1, Bool_t isMeanMacro=0, Bool_t ispp5TeV=0,  Bool_t isErrorAssumedPtCorr=1, Bool_t isFitForPlot=0, Bool_t isEffCorr=1){
+void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=1,   Int_t israp=0, TString year=""/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=0, Int_t PtBinning=1, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,  Bool_t TwoFitFunctions=0, Bool_t isNormCorrFullyComputed=1, Bool_t isMeanMacro=0, Bool_t ispp5TeV=0,  Bool_t isErrorAssumedPtCorr=1, Bool_t isFitForPlot=0, Bool_t isEffCorr=1){
+
+  Bool_t isGenOnTheFly = 0;
+  if (isMC) isGenOnTheFly = 1;
+  //isGenOnTheFly --> events were generated on the fly and only the kinematic part is saved; the multiplicity distribution in percentile classes is not abvailable, instead classes based on the number of particles in the V0 acceptance are used
+  if (!isMC && isGenOnTheFly) return;
+  if (isGenOnTheFly) { //these variabes have no meaning for the MCtruth analysis -- they are set to zero in order not to appear in output file name
+    MultBinning = 0;
+    isppHM =0;
+    isEffCorr=0;
+    isEfficiency = 0;
+    isNormCorrFullyComputed = 0; //normalisation factor not needed for MC truth
+  }
 
   if (TypeAnalysis>3) {cout << "sys errors not yet implemented for these regions " << endl; return;}
   if (type!=0 && type!=8) {cout << "Macro not working for particles different from K0s (type=0) and Xi (type=8)" << endl; return;}
@@ -55,6 +68,12 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     else  year= "";
     SfileNormCorrFC = "FinalOutput/DATA2016/MCClosureCheck_HybridtoTrue1617GP_hK0s_Hybrid_New_vs_1617GP_hK0s_PtBinning1_K0s_Eta0.8_PtMin3.0_FIXED.root";
     isEffCorr=1; //fix in efficiency
+    if (isGenOnTheFly){
+      MultBinning = 0;
+      isppHM =0;
+      isEffCorr =0;
+      year= "PythiaRopes";
+    }
   }
   else if (type==8){
     MultBinning=0;
@@ -64,6 +83,11 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     SfileNormCorrFC = "FinalOutput/DATA2016/MCClosureCheck_HybridtoTrue161718_hXi_Hybrid_vs_161718_hXi_Xi_Eta0.8_PtMin3.0";
     if (TypeAnalysis==3) SfileNormCorrFC += "_isBulkBlue";
     SfileNormCorrFC += "_FIXED.root";
+    if (isGenOnTheFly){
+      MultBinning = 0;
+      isppHM =0;
+      year= "PythiaRopes";
+    }
   }
 
   if (isppHM) {
@@ -141,7 +165,8 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 
   TString isMCOrData[3] = {"_Data", "_MC", "_DataMC"};
 
-  const Int_t nummolt=5;
+  Int_t nummoltMax = nummolt;
+  if (!isGenOnTheFly) nummoltMax = 5;
   const Int_t numzeta=1;
   const Int_t numPtV0=10;//9
   const Int_t numPtTrigger=1;
@@ -153,6 +178,10 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   Int_t PtV0Min = 0; //0 el
   if (type>0)   PtV0Min =1;
   if (type==0 && PtBinning!=0) PtV0Min=1;
+  if (isMC) {
+    PtV0Min =0;
+    if (type==0 && PtBinning!=0) PtV0Min=1;
+  }
 
   TString DataOrMC[2]={"Data", "MC"};
   Int_t jet=TypeAnalysis;
@@ -185,7 +214,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   TString SmoltLegendHM[nummolt+1]={"0-0a %", "0-0b %", "0-0.01 %", "0.01-0.05 %", "0.05-0.1 %", "0-0.1 %"};
   TString SmoltLegendpp5TeV[nummolt+1]={"0-10 %", "10-100 %", "100-100 %", "100-100 %", "100-100 %", "0-100 %"};
 
-  for (Int_t m=0; m<nummolt+1; m++){
+  for (Int_t m=0; m<nummoltMax+1; m++){
     if (MultBinning==0){
       Nmolt[m] = Nmolt0[m];
       Smolt[m] = Smolt0[m];
@@ -212,11 +241,19 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       SmoltLegend[m] = SmoltLegendHM[m];
     }
   }
+  if (isGenOnTheFly){
+    for (Int_t m=0; m<nummoltMax+1; m++){
+      Smolt[m] = SmoltGenOnTheFly[m];
+      Nmolt[m] = NmoltGenOnTheFly[m];
+      SmoltLegend[m] = SmoltGenOnTheFly[m];
+    }
+  }
 
   TString SPtV0[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8", "", ""};  
   //TString SPtV0[numPtV0]={"", "0.5-1", "0.5-1",  "1-1.5","1.5-2", "2-3", "3-4", "4-8"};
   if (type>0)SPtV0[1]={"0.5-1"};
   else {SPtV0[0]={"0-0.5"}; SPtV0[1]={"0.5-1"};}
+  if (isGenOnTheFly && type==8) SPtV0[0]={"0-0.5"};
 
   Double_t NPtV0[numPtV0+1]={0,0,1,1.5,2,2.5,3,4,8, 100, 100};
   //Double_t NPtV0[numPtV0+1]={0,0,0.5,1,1.5,2,3,4,8};
@@ -232,6 +269,10 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   if (PtBinning==1 || PtBinning==2) numPtV0Max = numPtV0;
   else numPtV0Max = numPtV0-2;
 
+  if (isMC && !isEfficiency){
+    SPtV01[1]= "0-0.5";
+    NPtV01[1]= 0.;
+  }
   if (PtBinning==1){
     for(Int_t v=0; v<numPtV0Max+1; v++){
       if (v<numPtV0Max)      SPtV0[v] = SPtV01[v];
@@ -287,7 +328,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   //stringout += "_Fixed";
   if (isMeanMacro)  stringout += "_YieldMeanMacro"; 
   if (isErrorAssumedPtCorr)  stringout += "_isErrorAssumedPtCorr"; 
-  stringout += "_ChangesIncluded";
+  if (!isGenOnTheFly)  stringout += "_ChangesIncluded";
   //  if (isdNdEtaTriggered) stringout += "_isdNdEtaTriggered";
   //  stringout += "_NewTopoSelSys";
   //stringout += "_PicAN";
@@ -355,7 +396,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 
   if (type==0){
     if (year=="1617_AOD234_hK0s") {    
-      for (Int_t m=0; m<nummolt+1; m++){
+      for (Int_t m=0; m<nummoltMax+1; m++){
 	LowRangeJet[m] = 0.5;     LowRangeJetBFit[m] =     LowRangeJetZYAM[m]= 0.1;
 	UpRangeJet[m] = UpRangeJetBFit[m] = UpRangeJetZYAM[m]=3;
 	LowRangeBulk[m]= 0.5; 
@@ -372,7 +413,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   }
   else if (type==8){
     if (year == "161718Full_AOD234_hXi"){
-      for (Int_t m=0; m<nummolt+1; m++){
+      for (Int_t m=0; m<nummoltMax+1; m++){
 	LowRangeJet[m] = 1; 
 	if (m==1 || m ==0 || m==4) LowRangeJet[m]=  1.5;
 	UpRangeJet[m] =4;
@@ -387,7 +428,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   }
 
   if (isppHM){
-    for (Int_t m=0; m<nummolt+1; m++){
+    for (Int_t m=0; m<nummoltMax+1; m++){
       if (type==0){
 	LowRangeJet[m] = 0.5;    
 	UpRangeJet[m] = 4;
@@ -422,7 +463,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   }
   else if (ispp5TeV){
     if (type==0){
-      for (Int_t m =0; m<nummolt+1; m++){
+      for (Int_t m =0; m<nummoltMax+1; m++){
         LowRangeJet[m] = 0.5;
         UpRangeJet[m] = 4;
 	if (m==0) LowRangeJet[m] = 0.8;
@@ -438,7 +479,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       }
     }
     else if (type==8){
-      for (Int_t m=0; m<nummolt+1; m++){
+      for (Int_t m=0; m<nummoltMax+1; m++){
 	LowRangeJet[m] = 1.5;
 	//      if (m!=0 && TypeOOJSub==1)  LowRangeJet[m] = 1;
 	LowRangeBulk[m] = 1.;
@@ -457,12 +498,28 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     }
   }
 
+  if (isMC && !isEfficiency){ //MCPrediction
+    for (Int_t m=0; m<nummoltMax+1; m++){
+      LowRangeAll[m] = 3.; //we are only interested in high-pt extrapolation (which is negligible however) 
+      LowRangeBulk[m] = 3.;
+      if (type==0){
+	LowRangeAll[m] = 1.;
+	LowRangeBulk[m] = 1.;
+      }
+      if (type==0)   LowRangeJet[m] = 0.;
+      else  LowRangeJet[m] = 1.;
+      UpRangeJet[m] = 8;
+      UpRangeAll[m] = 8;
+      UpRangeBulk[m] = 8;
+    }
+  }
+
   Float_t LowPtLimitForAvgPtFSAllMult = LowPtLimitForAvgPtFS[nummolt];
   //end of low and upper ranges for the fit****************************
   //************************************************************
 
   Int_t PtBinMin[nummolt+1]={0};
-  for (Int_t m=0; m<nummolt+1; m++){
+  for (Int_t m=0; m<nummoltMax+1; m++){
     if (TypeAnalysis==0 || TypeAnalysis==10){
       LowRange[m] =  LowRangeJet[m];
       UpRange[m] =  UpRangeJet[m];
@@ -506,6 +563,9 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       if (type>0 && !isMC)    LowRangeSpectrumPart[m] = 0.5;
       else if (type>0 && isMC && m!=5)    LowRangeSpectrumPart[m] = 1.;
       else     LowRangeSpectrumPart[m] = 0.1;
+      if (isMC & !isEfficiency) {
+        LowRangeSpectrumPart[m] = 0;
+      }
     }
     else  {
       LowRangeSpectrumPart[m] = LowRange[m];
@@ -528,6 +588,8 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       //      cout << "PtBinMin " << PtBinMin[m] << endl;
     }
 
+    if (isGenOnTheFly && type==0 && PtBinMin[m]==0) PtBinMin[m] = 1; //to skip first bin, which is 0-0
+
     //UpRangeSpectrumPart:
     UpRangeSpectrumPart[m] = 8;
     if (year== "161718Full_AOD234_hXi"){
@@ -542,10 +604,9 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       else UpRangeSpectrumPart[m] = 8;
       if (TypeAnalysis==0)   LowRangeSpectrumPart[m] = 1.5;
     }
-    
   }
 
-  for (Int_t m=0; m<nummolt+1; m++){
+  for (Int_t m=0; m<nummoltMax+1; m++){
     cout << "\n\e[32m*******Multiplicity: " << SmoltLegend[m] << " *************\e[39m" << endl;
     cout << "fit range " << LowRange[m] << "- " << UpRange[m] << endl;
     cout << "!extrapolation range " << LowRangeSpectrumPart[m] << "- " << UpRangeSpectrumPart[m] << endl;
@@ -622,7 +683,8 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   if (isppHM || MultBinning==3)   canvasNormFactor->Divide(2,2);
   else   canvasNormFactor->Divide(3,2);
   TCanvas* canvasPtSpectra = new TCanvas ("canvasPtSpectra", "canvasPtSpectra", 1300, 800);
-  if (isppHM || MultBinning==3)   canvasPtSpectra->Divide(2,2);
+  if (isGenOnTheFly) canvasPtSpectra->Divide((nummoltMax+2)/2, 2);
+  else if (isppHM || MultBinning==3)   canvasPtSpectra->Divide(2,2);
   else   canvasPtSpectra->Divide(3,2);
   TCanvas* canvaspol0 = new TCanvas ("canvaspol0", "canvaspol0", 1300, 800);
   if (isppHM || MultBinning==3)   canvaspol0->Divide(2,2);
@@ -642,33 +704,41 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   canvasNormCorrRatio->Divide(3,2);
 
   TCanvas* canvasPtSpectraFit = new TCanvas ("canvasPtSpectraFit", "canvasPtSpectraFit", 1300, 800);
-  if (isppHM || MultBinning==3)   canvasPtSpectraFit->Divide(2,2);
+  if (isGenOnTheFly) canvasPtSpectraFit->Divide((nummoltMax+2)/2, 2);
+  else if (isppHM || MultBinning==3)   canvasPtSpectraFit->Divide(2,2);
   else   canvasPtSpectraFit->Divide(3,2);
   TCanvas* canvasPtSpectraFitUp = new TCanvas ("canvasPtSpectraFitUp", "canvasPtSpectraFitUp", 1300, 800);
-  if (isppHM || MultBinning==3)   canvasPtSpectraFitUp->Divide(2,2);
+  if (isGenOnTheFly) canvasPtSpectraFitUp->Divide((nummoltMax+2)/2, 2);
+  else if (isppHM || MultBinning==3)   canvasPtSpectraFitUp->Divide(2,2);
   else  canvasPtSpectraFitUp->Divide(3,2);
   TCanvas* canvasPtSpectraFitDown = new TCanvas ("canvasPtSpectraFitDown", "canvasPtSpectraFitDown", 1300, 800);
-  if (isppHM || MultBinning==3)   canvasPtSpectraFitDown->Divide(2,2);
+  if (isGenOnTheFly) canvasPtSpectraFitDown->Divide((nummoltMax+2)/2, 2);
+  else if (isppHM || MultBinning==3)   canvasPtSpectraFitDown->Divide(2,2);
   else  canvasPtSpectraFitDown->Divide(3,2);
   TCanvas* canvasPtSpectraFitHard = new TCanvas ("canvasPtSpectraFitHard", "canvasPtSpectraFitHard", 1300, 800);
-  if (isppHM || MultBinning==3)   canvasPtSpectraFitHard->Divide(2,2);
+  if (isGenOnTheFly) canvasPtSpectraFitHard->Divide((nummoltMax+2)/2, 2);
+  else if (isppHM || MultBinning==3)   canvasPtSpectraFitHard->Divide(2,2);
   else  canvasPtSpectraFitHard->Divide(3,2);
   TCanvas* canvasPtSpectraFitSoft = new TCanvas ("canvasPtSpectraFitSoft", "canvasPtSpectraFitSoft", 1300, 800);
-  if (isppHM || MultBinning==3)   canvasPtSpectraFitSoft->Divide(2,2);
+  if (isGenOnTheFly) canvasPtSpectraFitSoft->Divide((nummoltMax+2)/2, 2);
+  else if (isppHM || MultBinning==3)   canvasPtSpectraFitSoft->Divide(2,2);
   else  canvasPtSpectraFitSoft->Divide(3,2);
   TCanvas* canvasDummy = new TCanvas ("canvasDummy", "canvasDummy", 1300, 800);
   TCanvas* canvasPtSpectraFitRatio = new TCanvas ("canvasPtSpectraFitRatio", "canvasPtSpectraFitRatio", 1300, 800);
-  if (isppHM || MultBinning==3)   canvasPtSpectraFitRatio->Divide(2,2);
+  if (isGenOnTheFly) canvasPtSpectraFitRatio->Divide((nummoltMax+2)/2, 2);
+  else if (isppHM || MultBinning==3)   canvasPtSpectraFitRatio->Divide(2,2);
   else  canvasPtSpectraFitRatio->Divide(3,2);
 
   TCanvas* canvasPtSpectraFitBis = new TCanvas ("canvasPtSpectraFitBis", "canvasPtSpectraFitBis", 1300, 800);
   canvasPtSpectraFitBis->Divide(3,2);
 
   TCanvas* canvasPtSpectraAll = new TCanvas ("canvasPtSpectraAll", "canvasPtSpectraAll", 1300, 800);
-  if (isppHM || MultBinning==3)   canvasPtSpectraAll->Divide(2,2);
+  if (isGenOnTheFly) canvasPtSpectraAll->Divide((nummoltMax+2)/2, 2);
+  else if (isppHM || MultBinning==3)   canvasPtSpectraAll->Divide(2,2);
   else   canvasPtSpectraAll->Divide(3,2);
   TCanvas* canvasBarlow = new TCanvas ("canvasBarlow", "canvasBarlow", 1300, 800);
-  if (isppHM || MultBinning==3)   canvasBarlow->Divide(2,2);
+  if (isGenOnTheFly) canvasBarlow->Divide((nummoltMax+2)/2, 2);
+  else if (isppHM || MultBinning==3)   canvasBarlow->Divide(2,2);
   else  canvasBarlow->Divide(3,2);
   TCanvas* canvasBarlowpol0 = new TCanvas ("canvasBarlowpol0", "canvasBarlowpol0", 1300, 800);
   canvasBarlowpol0->Divide(3,2);
@@ -685,10 +755,12 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   canvasRatioFakeSBDef->Divide(3,2);
 
   TCanvas* canvasPtSpectraRelError = new TCanvas ("canvasPtSpectraRelError", "canvasPtSpectraRelError", 1300, 800);
-  if (isppHM || MultBinning==3)   canvasPtSpectraRelError->Divide(2,2);  
+  if (isGenOnTheFly) canvasPtSpectraRelError->Divide((nummoltMax+2)/2, 2);
+  else if (isppHM || MultBinning==3)   canvasPtSpectraRelError->Divide(2,2);  
   else  canvasPtSpectraRelError->Divide(3,2);
   TCanvas* canvasPtSpectraRelErrorAll = new TCanvas ("canvasPtSpectraRelErrorAll", "canvasPtSpectraRelErrorAll", 1300, 800);
-  if (isppHM || MultBinning==3)   canvasPtSpectraRelErrorAll->Divide(2,2);  
+  if (isGenOnTheFly) canvasPtSpectraRelErrorAll->Divide((nummoltMax+2)/2, 2);
+  else if (isppHM || MultBinning==3)   canvasPtSpectraRelErrorAll->Divide(2,2);  
   else  canvasPtSpectraRelErrorAll->Divide(3,2);
 
   Float_t HighPtRatio[numtipo] = {1.15, 0, 0, 0, 0, 0, 0, 0, 1.2, 0};
@@ -789,7 +861,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     if (TypeAnalysis==0) LimSupPtvsMultTight=2.7;
     if (TypeAnalysis==1) LimSupPtvsMultTight=1.5;
     if (TypeAnalysis==2) LimSupPtvsMultTight=1.5;
-    for (Int_t m=0; m<=nummolt+1; m++){
+    for (Int_t m=0; m<=nummoltMax+1; m++){
       if (isppHM) nrebin[m] = 8;
     }
   }
@@ -801,7 +873,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     if (TypeAnalysis==0) LimSupPtvsMultTight=4;
     if (TypeAnalysis==1) LimSupPtvsMultTight=2.5;
     if (TypeAnalysis==2) LimSupPtvsMultTight=2.5;
-    for (Int_t m=0; m<=nummolt+1; m++){
+    for (Int_t m=0; m<=nummoltMax+1; m++){
       if (isppHM) nrebin[m] = 8;
       else if (ispp5TeV) nrebin[m] = 8;
       else {
@@ -896,7 +968,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   cout << " from the file: " << PathInDef << endl;
   TFile *  fileinDef = new TFile(PathInDef, "");
   if (!fileinDef) {cout << PathInDef << " does not exist" << endl; return;}
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (isppHM && m<2) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     //    cout << Smolt[m] << endl;
@@ -972,6 +1044,10 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   if (type==8){
     OOBPU = IBPU = MB = 0.02;
   }
+  if (isMC && !isEfficiency){
+    OOBPU = IBPU = MB = 0;
+  }
+
   //Pt-dependent material budget
   Float_t MBPtXi[numPtV0+1] = {0, 0.05, 0.03, 0.022, 0.018, 0.015, 0.01, 0.006 };
   Float_t MBPtK0s[numPtV0+1] = {0, 0.03, 0.017, 0.01, 0.007, 0.006, 0.005, 0.005, 0.005, 0.005};
@@ -979,12 +1055,19 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   //second part: I evaluate syst uncertainty associated to choice of DeltaPhi (for jet and out of jet)
   Int_t NSign=3;
 
+  for(Int_t m=0; m<nummoltMax+1; m++){
+    if (isppHM && MultBinning==1 && m<=1) continue;
+    if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
+    for(Int_t v=PtV0Min; v < numPtV0Max; v++){
+      fHistSpectrumSistDPhi[m]->SetBinError(v+1, 0);
+    }
+  }
+
   if (TypeAnalysis!=2){
     cout << "\n**************************"<<endl;
     cout << "Second part: I evaluate syst uncertainty associated to choice of DeltaPhi (for jet and out of jet)\n " << endl;
-
     cout << "2a. Evaluating Barlow significance of DeltaPhi change" << endl;
-    for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t m=0; m<nummoltMax+1; m++){
       if (isppHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       cout << " m " << m << endl;
@@ -1011,13 +1094,13 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 	StyleHisto(fHistSpectrumStat[m], 0, LimSup, Color[TypeAnalysis], 1, titleX, titleY,  title+SmoltLegend[m],  0, 0, 0);
 
 	if (isppHM)     canvasPtSpectraAll->cd(m+1-2);
-	else if (MultBinning==3 && ispp5TeV && m==nummolt)  canvasPtSpectraAll->cd(3);
+	else if (MultBinning==3 && ispp5TeV && m==nummoltMax)  canvasPtSpectraAll->cd(3);
 	else     canvasPtSpectraAll->cd(m+1);
 	//      cout << "I'm drawing on the canvas " << endl;
 	gPad->SetLeftMargin(0.15);
-	if(m==nummolt && sysDPhi==1) legendPhi->AddEntry(fHistSpectrumStat[m],Form("%.2f-%.2f", LowBinDPhi[0], UpBinDPhi[0]) ,"l");
-	if(m==nummolt) legendPhi->AddEntry(fHistSpectrumStatDPhi[m][sysDPhi],Form("%.2f-%.2f", LowBinDPhi[sysDPhi], UpBinDPhi[sysDPhi]) ,"l");
-	if (sysDPhi==1) fHistSpectrumStat[m]->DrawClone("");
+	if(m==nummoltMax && sysDPhi==1) legendPhi->AddEntry(fHistSpectrumStat[m],Form("%.2f-%.2f", LowBinDPhi[0], UpBinDPhi[0]) ,"l");
+	if(m==nummoltMax) legendPhi->AddEntry(fHistSpectrumStatDPhi[m][sysDPhi],Form("%.2f-%.2f", LowBinDPhi[sysDPhi], UpBinDPhi[sysDPhi]) ,"l");
+	if (sysDPhi==numsysDPhi-1) fHistSpectrumStat[m]->DrawClone("");
 	fHistSpectrumStatDPhi[m][sysDPhi]->Draw("same");
 	if (sysDPhi==numsysDPhi-1) legendPhi->Draw("same");
 	if (TypeAnalysis==0 && sysDPhi==numsysDPhi-2) legendPhi->Draw("same");
@@ -1051,7 +1134,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 
 	//	cout << "Barlow passed " << BarlowPassed[m][sysDPhi] << endl;
 	if (isppHM)     canvasBarlow->cd(m+1-2);
-	else if (MultBinning==3 && ispp5TeV && m==nummolt)  canvasBarlow->cd(3);
+	else if (MultBinning==3 && ispp5TeV && m==nummoltMax)  canvasBarlow->cd(3);
 	else     canvasBarlow->cd(m+1);
 	gPad->SetLeftMargin(0.15);
 	hBarlowVar[m][sysDPhi] ->Draw("same p");
@@ -1092,7 +1175,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       } //end new
     }//end loop on m
 
-    for(Int_t m=0; m<nummolt; m++){
+    for(Int_t m=0; m<nummoltMax; m++){
       if (isppHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       for(Int_t v=PtV0Min; v < numPtV0Max; v++){
@@ -1101,8 +1184,8 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 	if (TypeAnalysis==0){
 	  //	  cout << "ErrDPhi " << ErrDPhi[nummolt][v] << endl;
 	  //	  cout << "stat " << fHistSpectrumStat[nummolt]->GetBinContent(v+1) << endl;
-	  fHistSpectrumSistRelErrorDPhi[m]->SetBinContent(v+1, ErrDPhi[nummolt][v]/fHistSpectrumStat[nummolt]->GetBinContent(v+1));
-	  fHistSpectrumSistDPhi[m]->SetBinError(v+1, ErrDPhi[nummolt][v]/fHistSpectrumStat[nummolt]->GetBinContent(v+1)* fHistSpectrumStat[m]->GetBinContent(v+1));
+	  fHistSpectrumSistRelErrorDPhi[m]->SetBinContent(v+1, ErrDPhi[nummoltMax][v]/fHistSpectrumStat[nummoltMax]->GetBinContent(v+1));
+	  fHistSpectrumSistDPhi[m]->SetBinError(v+1, ErrDPhi[nummoltMax][v]/fHistSpectrumStat[nummoltMax]->GetBinContent(v+1)* fHistSpectrumStat[m]->GetBinContent(v+1));
 	}
       }
 
@@ -1119,12 +1202,23 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     }
   } //end of type analysis
 
+  //diagnostic cout:
+  for(Int_t m=0; m<nummoltMax+1; m++){
+    if (isppHM && MultBinning==1 && m<=1) continue;
+    if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
+    if (m!=0) continue; //choose the multiplicity for diagnosis
+    cout << "\nSyst. uncert. associated to choice of DeltaPhi,  (mult "<< m << ")" << endl;
+    for (Int_t b=PtV0Min; b<= fHistSpectrumStat[m]->GetNbinsX(); b++){
+      cout << NPtV0[b-1]<<"-"<<NPtV0[b] << ":    " << fHistSpectrumStat[m]->GetBinContent(b) << " +- " << fHistSpectrumSistDPhi[m]->GetBinError(b) << " (" << fHistSpectrumSistDPhi[m]->GetBinError(b)/fHistSpectrumStat[m]->GetBinContent(b) << ") " << endl;
+    }
+  }
+
   //here syst related to pt < pt,trigg 
   //cout << "\n*******************************************"<<endl;
   //cout<< "hXi: systematic effect associated to selection pt,assoc < pt,Trigg  " << endl;
   Float_t   YieldSpectrumErrLeadTrack[nummolt+1]={0};
   TString    PathInLeadTrackDef;
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (isppHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     for(Int_t v=PtV0Min; v < numPtV0Max; v++){
@@ -1152,7 +1246,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     TFile *  fileinLeadTrackDef = new TFile(PathInLeadTrackDef, "");
     if (!fileinLeadTrackDef) {cout << PathInLeadTrackDef << " does not exist" << endl; return;}
 
-    for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t m=0; m<nummoltMax+1; m++){
       if (isppHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       //    cout << " m " << m << endl;
@@ -1205,7 +1299,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     }//end loop m
   }//end loop syst associated to choice pt <pt,trigg
   //diagnostic cout:
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (isppHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     if (m!=0) continue; //choose the multiplicity for diagnosis
@@ -1225,7 +1319,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   Int_t Varm = 0;
   TString PathMCChoiceSyst="";
 
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (isppHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     for(Int_t v=PtV0Min; v < numPtV0Max; v++){
@@ -1250,7 +1344,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     TFile *  fileinMCChoiceDef = new TFile(PathInMCChoiceDef, "");
     if (!fileinMCChoiceDef) {cout << PathInMCChoiceDef << " does not exist" << endl; return;}
 
-    for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t m=0; m<nummoltMax+1; m++){
       if (isppHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       //    cout << " m " << m << endl;
@@ -1284,10 +1378,10 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       gPad->SetLogy();
       gPad->SetLeftMargin(0.15);
       StyleHisto(fHistSpectrumStat[m], LimInf, LimSup, Color[TypeAnalysis], 1, titleX, titleY,  title+SmoltLegend[m], 0, 0, 0);
-      if (m==nummolt)      legendMCChoice->AddEntry(fHistSpectrumStat[m], "PYTHIA8", "ple");
+      if (m==nummoltMax)      legendMCChoice->AddEntry(fHistSpectrumStat[m], "PYTHIA8", "ple");
       fHistSpectrumStat[m]->DrawClone("ep");
       StyleHisto(fHistSpectrumStatMCChoiceDef[m], LimInf, LimSup, 1, 1, titleX, titleY,  title+SmoltLegend[m], 0, 0, 0);
-      if (m==nummolt)      legendMCChoice->AddEntry(fHistSpectrumStatMCChoiceDef[m], "EPOS", "ple");
+      if (m==nummoltMax)      legendMCChoice->AddEntry(fHistSpectrumStatMCChoiceDef[m], "EPOS", "ple");
       fHistSpectrumStatMCChoiceDef[m]->Draw("same ep");
       legendMCChoice->Draw("");
 
@@ -1304,7 +1398,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 	}
       }
     }//end loop m
-    for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t m=0; m<nummoltMax+1; m++){
       if (isppHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       for(Int_t v=PtV0Min; v < numPtV0Max; v++){
@@ -1314,9 +1408,9 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       }
     }
   }//end loop syst associated to MC used to calculate efficiency
-  else if (type==0){
+  else if (type==0 && !isGenOnTheFly){
     //set pt-independent relative uncertainty of 3%
-    for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t m=0; m<nummoltMax+1; m++){
       if (isppHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       for(Int_t v=PtV0Min; v < numPtV0Max; v++){
@@ -1326,7 +1420,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   }
   else if (type==8){
     //set pt-independent relative uncertainty of 3%
-    for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t m=0; m<nummoltMax+1; m++){
       if (isppHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       for(Int_t v=PtV0Min; v < numPtV0Max; v++){
@@ -1337,10 +1431,10 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   }
 
   //diagnostic cout:
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (isppHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
-    if (m!=nummolt) continue; //choose the multiplicity for diagnosis
+    if (m!=nummoltMax) continue; //choose the multiplicity for diagnosis
     cout << "\nSyst. uncert. associated to spectrum (mult "<< m << ")" << endl;
     for (Int_t b=PtV0Min; b<= fHistSpectrumStat[m]->GetNbinsX(); b++){
       cout << NPtV0[b-1]<<"-"<<NPtV0[b] << ":    " << fHistSpectrumStat[m]->GetBinContent(b) << " +- " << fHistSpectrumSistMCChoice[m]->GetBinError(b)<< " (" << fHistSpectrumSistMCChoice[m]->GetBinError(b) / fHistSpectrumStat[m]->GetBinContent(b)  << ") " << endl;
@@ -1353,7 +1447,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   TString    PathInFakeSBDef;
   TString PathFakeSBSyst="";
   TLegend * legendFakeSB= new TLegend(0.6, 0.6, 0.9, 0.9);
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (isppHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     for(Int_t v=PtV0Min; v < numPtV0Max; v++){
@@ -1362,7 +1456,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   }
   cout << "\n*******************************************"<<endl;
   cout<< "Systematic effect associated to how fake K0s/Xi are sub  " << endl;
-  if (type==8 && !isppHM && !ispp5TeV){
+  if (type==8 && !isppHM && !ispp5TeV && !isGenOnTheFly){
     PathInFakeSBDef = Dir+"/DATA"+year0+"/SystematicAnalysis" +year;
     if (PtBinning>0) PathInFakeSBDef +=Form("_PtBinning%i",PtBinning);
     if (type==8 && isppHM && TypeAnalysis==0) PathInFakeSBDef +="_OOJAllMult";
@@ -1384,7 +1478,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     TFile *  fileinFakeSBDef = new TFile(PathInFakeSBDef, "");
     if (!fileinFakeSBDef) {cout << PathInFakeSBDef << " does not exist" << endl; return;}
 
-    for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t m=0; m<nummoltMax+1; m++){
       if (isppHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       //    cout << " m " << m << endl;
@@ -1433,10 +1527,10 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       gPad->SetLogy();
       gPad->SetLeftMargin(0.15);
       StyleHisto(fHistSpectrumStat[m], LimInf, LimSup, Color[TypeAnalysis], 1, titleX, titleY,  title+SmoltLegend[m], 0, 0, 0);
-      if (m==nummolt)      legendFakeSB->AddEntry(fHistSpectrumStat[m], "Default", "ple");
+      if (m==nummoltMax)      legendFakeSB->AddEntry(fHistSpectrumStat[m], "Default", "ple");
       fHistSpectrumStat[m]->DrawClone("ep");
       StyleHisto(fHistSpectrumStatFakeSBDef[m], LimInf, LimSup, 1, 1, titleX, titleY,  title+SmoltLegend[m], 0, 0, 0);
-      if (m==nummolt)      legendFakeSB->AddEntry(fHistSpectrumStatFakeSBDef[m], "Sidebands", "ple");
+      if (m==nummoltMax)      legendFakeSB->AddEntry(fHistSpectrumStatFakeSBDef[m], "Sidebands", "ple");
       fHistSpectrumStatFakeSBDef[m]->DrawClone("same ep");
       legendFakeSB->Draw("");
 
@@ -1446,22 +1540,22 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 	if (fHistSpectrumStatFakeSBDef[m]->GetBinContent(v+1) ==0) continue;
 	//	if(TMath::Abs(BarlowVarFakeSBDef[m][v])>2){
 	//	if (BarlowPassedFakeSBDef[m]){
-	if (m==nummolt)	{
+	if (m==nummoltMax)	{
 	  fHistSpectrumSistFakeSB[m]->SetBinError(v+1,	  (fHistSpectrumStat[m]->GetBinContent(v+1) -    fHistSpectrumStatFakeSBDef[m]->GetBinContent(v+1))/2);
 	}
 	//	}
       }
     }//end loop m
-    for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t m=0; m<nummoltMax+1; m++){
       if (isppHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       for(Int_t v=PtV0Min; v < numPtV0Max; v++){
-	if (m!=nummolt)	fHistSpectrumSistFakeSB[m]->SetBinError(v+1,	  (fHistSpectrumStat[5]->GetBinContent(v+1) -    fHistSpectrumStatFakeSBDef[5]->GetBinContent(v+1))/2/ fHistSpectrumSistFakeSB[5]->GetBinContent(v+1)* fHistSpectrumSistFakeSB[m]->GetBinContent(v+1));
+	if (m!=nummoltMax)	fHistSpectrumSistFakeSB[m]->SetBinError(v+1,	  (fHistSpectrumStat[5]->GetBinContent(v+1) -    fHistSpectrumStatFakeSBDef[5]->GetBinContent(v+1))/2/ fHistSpectrumSistFakeSB[5]->GetBinContent(v+1)* fHistSpectrumSistFakeSB[m]->GetBinContent(v+1));
 	//TO SMOOTH
 	fHistSpectrumSistRelErrorFakeSB[m]->SetBinContent(v+1,	 fHistSpectrumSistFakeSB[m]->GetBinError(v+1)/ fHistSpectrumSistFakeSB[m]->GetBinContent(v+1));
       }
     }
-    for(Int_t m=0; m<nummolt +1; m++){
+    for(Int_t m=0; m<nummoltMax +1; m++){
       if (isppHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       //      cout << "Multiplicity " << m << endl;
@@ -1484,7 +1578,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   PathInSBRelErr += "_isNormCorrFullyComputed_isErrorAssumedPtCorr_ChangesIncluded.root";
   if (type==8 && ispp5TeV){
     TFile * fileinFakeSBRelErr = new TFile(PathInSBRelErr);
-    for(Int_t m=0; m<nummolt +1; m++){
+    for(Int_t m=0; m<nummoltMax +1; m++){
       if (isppHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       fHistSpectrumSistRelErrorFakeSB[m]    =(TH1F*)fileinFakeSBRelErr->Get("fHistSpectrumSistRelErrorFakeSB__all"); 
@@ -1499,10 +1593,10 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   }
   
   //diagnostic cout:
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (isppHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
-    if (m!=nummolt) continue; //choose the multiplicity for diagnosis
+    if (m!=nummoltMax) continue; //choose the multiplicity for diagnosis
     cout << "\nSyst. fake K0s/Xi uncert. associated to spectrum (mult "<< m << ")" << endl;
     for (Int_t b=PtV0Min; b<= fHistSpectrumStat[m]->GetNbinsX(); b++){
       cout << NPtV0[b-1]<<"-"<<NPtV0[b] << ":    " << fHistSpectrumStat[m]->GetBinContent(b) << " +- " << fHistSpectrumSistFakeSB[m]->GetBinError(b) << " (" << fHistSpectrumSistFakeSB[m]->GetBinError(b)/fHistSpectrumStat[m]->GetBinContent(b) << ") " << endl;
@@ -1513,7 +1607,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   //for Xi in-jet production: systematic effect associated to ooj subtraction
   //*************************************************************************
 
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (isppHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     for(Int_t v=PtV0Min; v < numPtV0Max; v++){
@@ -1522,7 +1616,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   }
   Float_t   YieldSpectrumErrOOJSub[nummolt+1]={0};
   TString    PathInOOJSubDef;
-  if (TypeAnalysis==0 && type==8){
+  if (TypeAnalysis==0 && type==8 && !isGenOnTheFly){
     cout << "\n*******************************************"<<endl;
     cout<< "hXi: systematic effect associated to OOJ subtraction " << endl;
     PathInOOJSubDef = Dir+"/DATA"+year0+"/SystematicAnalysis" +year;
@@ -1542,7 +1636,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     TFile *  fileinOOJSubDef = new TFile(PathInOOJSubDef, "");
     if (!fileinOOJSubDef) {cout << PathInOOJSubDef << " does not exist" << endl; return;}
 
-    for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t m=0; m<nummoltMax+1; m++){
       if (isppHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       //    cout << " m " << m << endl;
@@ -1592,7 +1686,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       }
     }//end loop m
 
-    for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t m=0; m<nummoltMax+1; m++){
       if (isppHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue; 
       if (isppHM) {
@@ -1611,11 +1705,11 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   } //end loop ooj sub for hXi
 
   //diagnostic cout:
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (isppHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     if (type==0) continue;
-    //    if (m!=nummolt && isppHM) continue; //choose the multiplicity for diagnosis
+    //    if (m!=nummoltMax && isppHM) continue; //choose the multiplicity for diagnosis
     if (m!=0 && !isppHM) continue; //choose the multiplicity for diagnosis
     cout << "\n*******************************************"<<endl;
     cout << "\nSyst. uncert. associated to how OOJ is subtracted (only for Jet) ,  (mult "<< m << ")" << endl;
@@ -1647,7 +1741,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     TFile *  fileinpol0 = new TFile(PathInpol0, "");
     if (!fileinpol0) {cout << PathInpol0 << " does not exist" << endl; return;}
 
-    for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t m=0; m<nummoltMax+1; m++){
       if (isppHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       //    cout << " m " << m << endl;
@@ -1687,7 +1781,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 
 
   //Summing errors altogether********************
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (isppHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     for(Int_t v=PtV0Min; v < numPtV0Max; v++){
@@ -1695,12 +1789,13 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       Sigma2IBPU[m] =pow(IBPU *fHistSpectrumStat[m]->GetBinContent(v+1),2) ;
       if (type==0) MB = MBPtK0s[v];
       else MB = MBPtXi[v];
+      if (isMC && !isEfficiency) MB = 0;
       Sigma2MB[m]= pow(MB *fHistSpectrumStat[m]->GetBinContent(v+1),2) ;
 
       fHistSpectrumSistAll[m]->SetBinError(v+1,sqrt(pow(fHistSpectrumSistDPhi[m]->GetBinError(v+1),2) + pow(fHistSpectrumSist[m]->GetBinError(v+1),2) + Sigma2OOBPU[m]+ Sigma2IBPU[m] + Sigma2MB[m] + pow(fHistSpectrumSistLeadTrack[m]->GetBinError(v+1),2)+  pow(fHistSpectrumSistMCChoice[m]->GetBinError(v+1),2)+ pow(fHistSpectrumSistFakeSB[m]->GetBinError(v+1),2) + pow(fHistSpectrumSistOOJSubDef[m]->GetBinError(v+1),2)));
 
       if (fHistSpectrumSistAll[m]->GetBinContent(v+1) == 0) fHistSpectrumSistAll[m]->SetBinError(v+1, 0);
-      if ( fHistSpectrumStat[m]->GetBinContent(v+1)!=0){
+      if (fHistSpectrumStat[m]->GetBinContent(v+1)!=0){
 	fHistSpectrumSistRelErrorAll[m]->SetBinContent(v+1, fHistSpectrumSistAll[m]->GetBinError(v+1)/fHistSpectrumStat[m]->GetBinContent(v+1));
 	fHistSpectrumSistRelErrorMB[m]->SetBinContent(v+1,MB);
 	fHistSpectrumSistRelErrorIBPU[m]->SetBinContent(v+1,IBPU);
@@ -1726,7 +1821,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   
     //  cout << "Drawing sist rel error " << endl;
     if (isppHM)     canvasPtSpectraRelErrorAll->cd(m+1-2);
-    else if (MultBinning==3 && ispp5TeV && m==nummolt)  canvasPtSpectraRelErrorAll->cd(3);
+    else if (MultBinning==3 && ispp5TeV && m==nummoltMax)  canvasPtSpectraRelErrorAll->cd(3);
     else     canvasPtSpectraRelErrorAll->cd(m+1);
     gPad->SetLeftMargin(0.15);
     StyleHisto(fHistSpectrumStatRelError[m], LimInfError, LimSupError, Color[TypeAnalysis], 33, titleX, titleYRel ,  title+SmoltLegend[m],0,0,0);
@@ -1796,13 +1891,13 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     cout << "From file: " << SfileNormCorrFC << endl;
     fileNormCorrFC=new TFile(SfileNormCorrFC,"");
     if (!fileNormCorrFC) {cout << "file norm not there " << endl; return;}
-    for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t m=0; m<nummoltMax+1; m++){
       if (isppHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
 
       fHistSpectrumStatNotNorm[m] = (TH1F*) fHistSpectrumStat[m]->Clone(""+ Smolt[m] + "_NotNorm");
       if (isppHM)     canvasNormFactor->cd(m+1-2);
-      else if (MultBinning==3 && ispp5TeV && m==nummolt)  canvasNormFactor->cd(3);
+      else if (MultBinning==3 && ispp5TeV && m==nummoltMax)  canvasNormFactor->cd(3);
       else     canvasNormFactor->cd(m+1);
 
       if (TypeAnalysis==3) RegionTypeOld[TypeAnalysis] = "BulkBlue";
@@ -1857,12 +1952,12 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 
   cout << "...end of spectra normalization *********************** \n" << endl;
 
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (isppHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
 
     if (isppHM)     canvasPtSpectra->cd(m+1-2);
-    else if (MultBinning==3 && ispp5TeV && m==nummolt)  canvasPtSpectra->cd(3);
+    else if (MultBinning==3 && ispp5TeV && m==nummoltMax)  canvasPtSpectra->cd(3);
     else     canvasPtSpectra->cd(m+1);
     gPad->SetLeftMargin(0.15);
     StyleHisto(fHistSpectrumSistAll[m], LimInf, LimSup, Color[TypeAnalysis], 1, titleX, titleY, title+SmoltLegend[m], 0, 0, 0);
@@ -1870,7 +1965,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     fHistSpectrumStat[m]->DrawClone("same");
     fHistSpectrumSistAll[m]->SetFillStyle(0);
     fHistSpectrumSistAll[m]->DrawClone("same e2");
-    if (m==nummolt){
+    if (m==nummoltMax){
       legendError2->AddEntry(fHistSpectrumStat[m], "stat.", "ple");
       legendError2->AddEntry(fHistSpectrumSist[m], "syst.", "fe");
     }
@@ -1882,7 +1977,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     }
 
     if (isppHM)     canvasPtSpectraRelErrorAll->cd(m+1-2);
-    else if (MultBinning==3 && ispp5TeV && m==nummolt)  canvasPtSpectraRelErrorAll->cd(3);
+    else if (MultBinning==3 && ispp5TeV && m==nummoltMax)  canvasPtSpectraRelErrorAll->cd(3);
     else     canvasPtSpectraRelErrorAll->cd(m+1);
 
     gPad->SetLeftMargin(0.15);
@@ -1894,17 +1989,17 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     fHistSpectrumStatRelError[m]->Draw("same p");
 
     if (isppHM)     canvasPtSpectraRelError->cd(m+1-2);
-    else if (MultBinning==3 && ispp5TeV && m==nummolt)  canvasPtSpectraRelError->cd(3);
+    else if (MultBinning==3 && ispp5TeV && m==nummoltMax)  canvasPtSpectraRelError->cd(3);
     else     canvasPtSpectraRelError->cd(m+1);
     gPad->SetLeftMargin(0.15);
-    if (m==nummolt) fHistSpectrumSistRelErrorPublished->Draw("same");
+    if (m==nummoltMax) fHistSpectrumSistRelErrorPublished->Draw("same");
     fHistSpectrumSistRelErrorAll[m]->Draw("same p");
     fHistSpectrumStatRelError[m]->Draw("same p");
-    if (m==nummolt){
+    if (m==nummoltMax){
       legendError->AddEntry(    fHistSpectrumStatRelError[m], "stat.", "pl");
       legendError->AddEntry(    fHistSpectrumSistRelErrorAll[m], "syst.", "pl");
     }
-    if (m==nummolt)      legendError->AddEntry(fHistSpectrumSistRelErrorPublished, "syst. published", "l");
+    if (m==nummoltMax)      legendError->AddEntry(fHistSpectrumSistRelErrorPublished, "syst. published", "l");
     legendError->Draw("");
   } //end loop m
 
@@ -2063,9 +2158,9 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   cout << "Fitting the pt spectra... " <<endl; 
   cout << "\n*******************************************************\n\e[39m" << endl;
   for (Int_t typefit =0; typefit<numfittipo; typefit++){
-    hFitResult[typefit] = new TH1F ("hFitResult"+nameFit[typefit], "hFitResult",nummolt, Nmolt);
+    hFitResult[typefit] = new TH1F ("hFitResult"+nameFit[typefit], "hFitResult",nummoltMax, Nmolt);
   }
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     if (isppHM && m<2) continue;
     cout << "\n\e[35m*** Multiplicity: " << SmoltLegend[m] << " ***\e[39m" << endl;
@@ -2111,7 +2206,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 	fit_MTscaling[m][typefit]->SetParameter(2, 0.7);
 	if (ispp5TeV && type==0 && TypeAnalysis==2)   fit_MTscaling[m][typefit]->SetParLimits(2, 0.25, 10);
       }
-      if (m==nummolt)    legendfit->AddEntry( fit_MTscaling[m][typefit], nameFit[typefit],"l");
+      if (m==nummoltMax)    legendfit->AddEntry( fit_MTscaling[m][typefit], nameFit[typefit],"l");
 
       fit_MTscaling[m][typefit]->SetLineColor(ColorFit[typefit]);
 
@@ -2183,7 +2278,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       fit_MTscaling[m][typefit]->SetRange(0,20);
 
       if (isppHM)     canvasPtSpectraFit->cd(m+1-2);
-      else if (MultBinning==3 && ispp5TeV && m==nummolt)  canvasPtSpectraFit->cd(3);
+      else if (MultBinning==3 && ispp5TeV && m==nummoltMax)  canvasPtSpectraFit->cd(3);
       else     canvasPtSpectraFit->cd(m+1);
       gPad->SetLeftMargin(0.15);
       fHistSpectrumStat[m]->Draw("same");
@@ -2193,7 +2288,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       fFitResultPtr1[m][typefit]=       fHistSpectrumStat[m]->Fit(    fit_MTscalingBis[m][typefit],"SR0IQ");
       fit_MTscalingBis[m][typefit]->SetRange(0,20);
       if (isppHM)     canvasPtSpectraFitBis->cd(m+1-2);
-      else if (MultBinning==3 && ispp5TeV && m==nummolt)  canvasPtSpectraFitBis->cd(3);
+      else if (MultBinning==3 && ispp5TeV && m==nummoltMax)  canvasPtSpectraFitBis->cd(3);
       else     canvasPtSpectraFitBis->cd(m+1);
       gPad->SetLeftMargin(0.15);
       fHistSpectrumStat[m]->Draw("same");
@@ -2203,7 +2298,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       fHistSpectrumRatioFit[m][typefit] = (TH1F*) fHistSpectrumStat[m]->Clone(Form("HistRatioFit_m%i_typefit%i", m, typefit));
       fHistSpectrumRatioFit[m][typefit]->Divide(fit_MTscaling[m][typefit]);
       if (isppHM)     canvasPtSpectraFitRatio->cd(m+1-2);
-      else if (MultBinning==3 && ispp5TeV && m==nummolt)  canvasPtSpectraFitRatio->cd(3);
+      else if (MultBinning==3 && ispp5TeV && m==nummoltMax)  canvasPtSpectraFitRatio->cd(3);
       else     canvasPtSpectraFitRatio->cd(m+1);
       gPad->SetLeftMargin(0.15);
       StyleHisto(fHistSpectrumRatioFit[m][typefit], 0.4, 2, ColorFit[typefit], 33, "p_{T} (GeV/c)", "", "Spectra/Fit ratio", 0, 0, 0);
@@ -2211,7 +2306,6 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       fHistSpectrumRatioFit[m][typefit]->Draw("samee");
       if (typefit==0)      rettaUno->Draw("same");
       legendfit->Draw("");
-
       hFitResult[typefit] ->SetBinContent(m+1,fit_MTscaling[m][typefit]->GetChisquare()/fit_MTscaling[m][typefit]->GetNDF());
 
       //DEFINE + FIT SPECTRA TO COMPUTE SYST UNCERTAINTY
@@ -2219,11 +2313,19 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 	fHistSpectrumStatUp[m]->SetBinContent(v+1,fHistSpectrumSistAll[m]->GetBinError(v+1)+fHistSpectrumStat[m]->GetBinContent(v+1));
 	fHistSpectrumStatDown[m]->SetBinContent(v+1,-fHistSpectrumSistAll[m]->GetBinError(v+1)+fHistSpectrumStat[m]->GetBinContent(v+1));
       }
-
-      fHistSpectrumStatHard[m] = (TH1F*)YieldMean_ReturnExtremeHardHisto(fHistSpectrumSist[m]);
-      fHistSpectrumStatHard[m]->SetName("fHistSpectrumHard_"+Smolt[m]);
-      fHistSpectrumStatSoft[m] = (TH1F*)YieldMean_ReturnExtremeSoftHisto(fHistSpectrumSist[m]);
-      fHistSpectrumStatSoft[m]->SetName("fHistSpectrumSoft_"+Smolt[m]);
+      if (isMC && !isEfficiency){
+	if (type == 8 && (TypeAnalysis == 2 || TypeAnalysis == 1 || TypeAnalysis == 0)){
+	  fHistSpectrumStatHard[m] = (TH1F*)fHistSpectrumStat[m]->Clone("fHistSpectrumHard_"+Smolt[m]);
+	  fHistSpectrumStatSoft[m] = (TH1F*)fHistSpectrumStat[m]->Clone("fHistSpectrumSoft_"+Smolt[m]);
+	}
+      }
+      else { //only when systematic error is non-zero!
+	cout << "If I break, it's because the systematic error of the spectra is zero! " << endl;
+	fHistSpectrumStatHard[m] = (TH1F*)YieldMean_ReturnExtremeHardHisto(fHistSpectrumSist[m]); //I should use only the pt-uncorr part of the systematic uncertainty (I am including some pt-correlated part as well...)
+	fHistSpectrumStatHard[m]->SetName("fHistSpectrumHard_"+Smolt[m]);
+	fHistSpectrumStatSoft[m] = (TH1F*)YieldMean_ReturnExtremeSoftHisto(fHistSpectrumSist[m]);
+	fHistSpectrumStatSoft[m]->SetName("fHistSpectrumSoft_"+Smolt[m]);
+      }
 
       //fit +1sigma sistematica
       fit_MTscalingUp[m][typefit]= (TF1*)       fit_MTscaling[m][typefit]->Clone(      nameMTscaling[m][typefit]+ "_Up");    
@@ -2231,7 +2333,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       fFitResultPtrUp[m][typefit]=       fHistSpectrumStatUp[m]->Fit(    fit_MTscalingUp[m][typefit],"SR0IQ");
       fit_MTscalingUp[m][typefit]->SetRange(0,20);
       if (isppHM)     canvasPtSpectraFitUp->cd(m+1-2);
-      else if (MultBinning==3 && ispp5TeV && m==nummolt)  canvasPtSpectraFitUp->cd(3);
+      else if (MultBinning==3 && ispp5TeV && m==nummoltMax)  canvasPtSpectraFitUp->cd(3);
       else     canvasPtSpectraFitUp->cd(m+1);
       gPad->SetLeftMargin(0.15);
       fHistSpectrumStatUp[m]->Draw("same");
@@ -2244,7 +2346,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       fFitResultPtrDown[m][typefit]=       fHistSpectrumStatDown[m]->Fit(    fit_MTscalingDown[m][typefit],"SR0IQ");
       fit_MTscalingDown[m][typefit]->SetRange(0,20);
       if (isppHM)     canvasPtSpectraFitDown->cd(m+1-2);
-      else if (MultBinning==3 && ispp5TeV && m==nummolt)  canvasPtSpectraFitDown->cd(3);
+      else if (MultBinning==3 && ispp5TeV && m==nummoltMax)  canvasPtSpectraFitDown->cd(3);
       else     canvasPtSpectraFitDown->cd(m+1);
       gPad->SetLeftMargin(0.15);
       fHistSpectrumStatDown[m]->Draw("same");
@@ -2257,7 +2359,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       fFitResultPtrSoft[m][typefit]=       fHistSpectrumStatSoft[m]->Fit(    fit_MTscalingSoft[m][typefit],"SR0IQ");
       fit_MTscalingSoft[m][typefit]->SetRange(0,20);
       if (isppHM)     canvasPtSpectraFitSoft->cd(m+1-2);
-      else if (MultBinning==3 && ispp5TeV && m==nummolt)  canvasPtSpectraFitSoft->cd(3);
+      else if (MultBinning==3 && ispp5TeV && m==nummoltMax)  canvasPtSpectraFitSoft->cd(3);
       else     canvasPtSpectraFitSoft->cd(m+1);
       gPad->SetLeftMargin(0.15);
       fHistSpectrumStatSoft[m]->Draw("same");
@@ -2270,7 +2372,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       fFitResultPtrHard[m][typefit]=       fHistSpectrumStatHard[m]->Fit(    fit_MTscalingHard[m][typefit],"SR0IQ");
       fit_MTscalingHard[m][typefit]->SetRange(0,20);
       if (isppHM)     canvasPtSpectraFitHard->cd(m+1-2);
-      else if (MultBinning==3 && ispp5TeV && m==nummolt)  canvasPtSpectraFitHard->cd(3);
+      else if (MultBinning==3 && ispp5TeV && m==nummoltMax)  canvasPtSpectraFitHard->cd(3);
       else     canvasPtSpectraFitHard->cd(m+1);
       gPad->SetLeftMargin(0.15);
       fHistSpectrumStatHard[m]->Draw("same");
@@ -2666,7 +2768,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   }//end loop m
 
   cout << "\n\nYields : " << endl;
-  for (Int_t m=0; m<nummolt +1; m++){
+  for (Int_t m=0; m<nummoltMax +1; m++){
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     if (isppHM && m<2) continue;
     cout <<"\n\e[32m************ Multiplicity: " << SmoltLegend[m] << " *****************\e[39m"  << endl;
@@ -2776,6 +2878,20 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     }
   }
 
+  if (isGenOnTheFly){
+    dNdEta[0] = 8.45;
+    dNdEta[1] = 12.42;
+    dNdEta[2] = 15.11;
+    dNdEta[3] = 17.15;
+    dNdEta[4] = 19.12;
+    dNdEta[5] = 20.99;
+    dNdEta[6] = 22.75;
+    dNdEta[7] = 24.84;
+    dNdEta[8] = 27.36;
+    dNdEta[9] = 30.35;
+    dNdEta[10] = 16.5;
+  }
+
   Int_t LimSupChi=120;
   if (type==1) LimSupChi=100;
   canvasFitResult->cd();
@@ -2786,7 +2902,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     if (typefit==0)    legendfit->Draw("");
   }
 
-  for(Int_t m=0; m<nummolt; m++){
+  for(Int_t m=0; m<nummoltMax; m++){
     if (isppHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     fHistPtvsMultStat->SetBinContent(fHistPtvsMultStat->FindBin(dNdEta[m]),AvgPt[m]);
@@ -2825,7 +2941,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     fHistPtSistRelErrFit->SetBinError(fHistPtvsMultSist->FindBin(dNdEta[m]),0);
   }
 
-  for(Int_t m=0; m<nummolt; m++){
+  for(Int_t m=0; m<nummoltMax; m++){
     if (isppHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     fHistYieldStat->SetBinContent(fHistYieldStat->FindBin(dNdEta[m]),Yield[m]);
@@ -2858,8 +2974,9 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 
   Float_t LimSupdNdEtaAxis = 25;
   if (isppHM) LimSupdNdEtaAxis = 40;
+  if (isGenOnTheFly) LimSupdNdEtaAxis = 40;
 
-  for (Int_t m=0; m<nummolt+1; m++){
+  for (Int_t m=0; m<nummoltMax+1; m++){
       if (isppHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
     multctrbin[m] =   fHistYieldStat->GetXaxis()->GetBinCenter(  fHistYieldStat->FindBin(dNdEta[m]));
@@ -2975,7 +3092,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 
   cout << "\n\n going to write on file " << endl;   
   if (isMeanMacro){
-    for(Int_t m=0; m<nummolt+1; m++){
+    for(Int_t m=0; m<nummoltMax+1; m++){
       if (isppHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       fileout->WriteTObject(hhoutYield[m]);
@@ -3023,29 +3140,33 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   fileout->WriteTObject(fHistYieldStatRelErr);
   fileout->WriteTObject(fHistYieldSistRelErr);
   fileout->WriteTObject(fHistYieldSistNoExtrRelErr);
-  for(Int_t m=0; m<nummolt+1; m++){
-      if (isppHM && MultBinning==1 && m<=1) continue;
-      if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
-      fHistAvgPtFSDistr[m] ->GetXaxis()->SetRangeUser(LimInfPtvsMultTight, LimSupPtvsMultTight);
-      fHistAvgPtDistr[m][0] ->GetXaxis()->SetRangeUser(LimInfPtvsMultTight, LimSupPtvsMultTight);
-      fileout->WriteTObject( fHistAvgPtDistr[m][0]);
-      fileout->WriteTObject( fHistAvgPtFSDistr[m]);
+  for(Int_t m=0; m<nummoltMax+1; m++){
+    if (isppHM && MultBinning==1 && m<=1) continue;
+    if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
+    fHistAvgPtFSDistr[m] ->GetXaxis()->SetRangeUser(LimInfPtvsMultTight, LimSupPtvsMultTight);
+    fHistAvgPtDistr[m][0] ->GetXaxis()->SetRangeUser(LimInfPtvsMultTight, LimSupPtvsMultTight);
+    fileout->WriteTObject( fHistAvgPtDistr[m][0]);
+    fileout->WriteTObject( fHistAvgPtFSDistr[m]);
   }
-  if (TypeAnalysis==0 && type==8) {
-    fileout->WriteTObject(canvasOOJSubDef);
-    fileout->WriteTObject(canvasBarlowOOJSubDef);
+  if (!(isMC && !isEfficiency)){
+    if (TypeAnalysis==0 && type==8) {
+      fileout->WriteTObject(canvasOOJSubDef);
+      fileout->WriteTObject(canvasBarlowOOJSubDef);
+    }
+    if (type==8){
+      fileout->WriteTObject(canvasLeadTrackDef);
+      fileout->WriteTObject(canvasBarlowLeadTrackDef);
+    }
+    fileout->WriteTObject(canvasMCChoiceDef);
+    fileout->WriteTObject(canvasBarlowMCChoiceDef);
+    fileout->WriteTObject(canvasFakeSBDef);
+    fileout->WriteTObject(canvasBarlowFakeSBDef);
+    fileout->WriteTObject(canvasRatioFakeSBDef);
+    fileout->WriteTObject(canvaspol0);
+    fileout->WriteTObject(canvasBarlowpol0);
   }
-  if (type==8){
-    fileout->WriteTObject(canvasLeadTrackDef);
-    fileout->WriteTObject(canvasBarlowLeadTrackDef);
-  }
-  fileout->WriteTObject(canvasMCChoiceDef);
-  fileout->WriteTObject(canvasBarlowMCChoiceDef);
-  fileout->WriteTObject(canvasFakeSBDef);
-  fileout->WriteTObject(canvasBarlowFakeSBDef);
-  fileout->WriteTObject(canvasRatioFakeSBDef);
   fileout->WriteTObject(canvasPtSpectraAll);
-  fileout->WriteTObject(canvaspol0);
+  fileout->WriteTObject(canvasBarlow);
   fileout->WriteTObject(canvasPtSpectra);
   fileout->WriteTObject(canvasPtSpectraFit);
   fileout->WriteTObject(canvasPtSpectraFitRatio);
@@ -3054,13 +3175,11 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   fileout->WriteTObject(canvasPtSpectraFitHard);
   fileout->WriteTObject(canvasPtSpectraFitSoft);
   fileout->WriteTObject(canvasPtSpectraFitBis);
-  fileout->WriteTObject(canvasBarlow);
-  fileout->WriteTObject(canvasBarlowpol0);
   fileout->WriteTObject(canvasPtSpectraRelError);
   fileout->WriteTObject(canvasPtSpectraRelErrorAll);
   fileout->WriteTObject(canvasFitResult);
   if (isNormCorrFullyComputed==1) fileout->WriteTObject(canvasNormFactor);
-  for(Int_t m=0; m<nummolt+1; m++){
+  for(Int_t m=0; m<nummoltMax+1; m++){
     if (isppHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
       for (Int_t typefit=0; typefit<numfittipo; typefit++){
@@ -3097,16 +3216,18 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   canvasPtSpectraRelErrorAll->SaveAs(DirPicture+"PtSpectraRelErrAll"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
   canvasFitResult->SaveAs(DirPicture+"ChiSquare"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
 
-  canvasYield->SaveAs("PicturePaperProposal/YieldvsMult"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
-  canvasYieldErr->SaveAs("PicturePaperProposal/YieldvsMultErr"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
-  canvasPtErr->SaveAs("PicturePaperProposal/PtvsMultErr"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
-  canvasPtvsMult->SaveAs("PicturePaperProposal/AvgPtvsMult"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
-  canvasPtSpectra->SaveAs("PicturePaperProposal/PtSpectra"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
-  canvasPtSpectraFit->SaveAs("PicturePaperProposal/PtSpectraFit"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
-  canvasPtSpectraFitBis->SaveAs("PicturePaperProposal/PtSpectraFitBis"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
-  canvasPtSpectraRelError->SaveAs("PicturePaperProposal/PtSpectraRelErr"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
-  canvasPtSpectraRelErrorAll->SaveAs("PicturePaperProposal/PtSpectraRelErrAll"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
-  canvasFitResult->SaveAs("PicturePaperProposal/ChiSquare"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
+  TString SisMCTruth = "";
+  if (isMC && !isEfficiency) SisMCTruth = "MCTruth/"; 
+  canvasYield->SaveAs("PicturePaperProposal/"+SisMCTruth+"YieldvsMult"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
+  canvasYieldErr->SaveAs("PicturePaperProposal/"+SisMCTruth+"YieldvsMultErr"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
+  canvasPtErr->SaveAs("PicturePaperProposal/"+SisMCTruth+"PtvsMultErr"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
+  canvasPtvsMult->SaveAs("PicturePaperProposal/"+SisMCTruth+"AvgPtvsMult"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
+  canvasPtSpectra->SaveAs("PicturePaperProposal/"+SisMCTruth+"PtSpectra"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
+  canvasPtSpectraFit->SaveAs("PicturePaperProposal/"+SisMCTruth+"PtSpectraFit"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
+  canvasPtSpectraFitBis->SaveAs("PicturePaperProposal/"+SisMCTruth+"PtSpectraFitBis"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
+  canvasPtSpectraRelError->SaveAs("PicturePaperProposal/"+SisMCTruth+"PtSpectraRelErr"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
+  canvasPtSpectraRelErrorAll->SaveAs("PicturePaperProposal/"+SisMCTruth+"PtSpectraRelErrAll"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
+  canvasFitResult->SaveAs("PicturePaperProposal/"+SisMCTruth+"ChiSquare"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
 
   fileout->Close();
 
@@ -3117,24 +3238,23 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   cout << PathInDef << endl;
   if (TypeAnalysis==0) cout << "Rel uncertainty associated to dphi choice is taken from the whole multiplicity interval " << endl;
   if (TypeAnalysis!=2) cout << "Rel uncertainty associated to dphi choice is smoothed " << endl;
-  if (type==0 && TypeAnalysis==0)  cout << "\n\e[35m->to get uncertainty related to OOJ subtraction:\e[39m " << PathInpol0<< endl
-;
-  if (type==8) cout << "\n\e[35m->to get uncertainty related to OOJ subtraction:\e[39m " << PathInOOJSubDef << endl;
-  if (type==8 && SkipAssoc) cout << "\n\e[35m->to get uncertainty related to pt < pt,trig:\e[39m " <<   PathInLeadTrackDef << endl;
-  if (type==8) {
-    cout << "To get uncertainty related to the use of purity instead of sidebands" << endl;
-    if (ispp5TeV) cout << PathInSBRelErr  << endl;
-    else cout <<  PathInFakeSBDef << endl;
-  }
-
-
+  if (!(isMC && !isEfficiency)){
+    if (type==0 && TypeAnalysis==0)  cout << "\n\e[35m->to get uncertainty related to OOJ subtraction:\e[39m " << PathInpol0<< endl
+				       ;
+    if (type==8) cout << "\n\e[35m->to get uncertainty related to OOJ subtraction:\e[39m " << PathInOOJSubDef << endl;
+    if (type==8 && SkipAssoc) cout << "\n\e[35m->to get uncertainty related to pt < pt,trig:\e[39m " <<   PathInLeadTrackDef << endl;
+    if (type==8) {
+      cout << "To get uncertainty related to the use of purity instead of sidebands" << endl;
+      if (ispp5TeV) cout << PathInSBRelErr  << endl;
+      else cout <<  PathInFakeSBDef << endl;
+    }
   cout << "\e[35m->to get uncertainty related to sidebands:\e[39m ";
   if (type ==0) cout << PathInFakeSBDef<< endl;
-
   if (isNormCorrFullyComputed) cout << "\n\e[35mFile from where normalisation factor is taken:\e[39m " << SfileNormCorrFC << endl;
 
   cout << "\nWith respect to preliminaries: " << endl;
   cout << "1) The final spectra are obtained using PYTHIA8 efficiency, and are not an average of the spectra obtaiend with EPOS and PYTHIA8, becasue I couldn't compute 2D efficiency using EPOS. The relative uncertainty associated to the choice of MC is however computed from 0-100% class, starting from the file:\n" <<PathInMCChoiceDef << endl;
+  }
 
   cout << "\nI have created the file:\n" << stringout << "\n" <<endl;
 

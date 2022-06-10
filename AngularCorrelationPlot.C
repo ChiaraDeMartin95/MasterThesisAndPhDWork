@@ -56,10 +56,10 @@ void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t 
     isSidebands = 0;
     IsMEFromHybrid=0;
     isMEFrom13TeV=0;
-    //if (type==0) isNewDEtaJet =1;
-    //else isNewDEtaJet =0;
-    isNewDEtaJet = 1;
-    if (type==8) isNewDEtaJet = 2;
+    //    isNewDEtaJet = 1;
+    //    if (type==8) isNewDEtaJet = 2;
+    cout << "Do you want to run with the option isNewdEtaJet = 1 (type 1) or 2 (type 2)? (default choice of dEta region is different) "<< endl;
+    cin >> isNewDEtaJet;
     if (type==0) isMEFromCorrectCentrality = 1;
     else  isMEFromCorrectCentrality = 0;
     if (type==0) PtBinning=1;
