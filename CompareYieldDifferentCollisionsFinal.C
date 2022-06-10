@@ -35,7 +35,7 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, Int_t isComp=0,  Bool_t isAvgPtvsMult=0,  Int_t isPreliminary=0, Bool_t FitYields=0, Bool_t isYieldMeanMacro=0, Bool_t isChangesIncluded=1){
+void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, Int_t isComp=0,  Bool_t isAvgPtvsMult=0,  Int_t isPreliminary=0, Bool_t FitYields=1, Bool_t isYieldMeanMacro=0, Bool_t isChangesIncluded=1){
 
   //isPreliminary = 1: preliminary plots for RATIO (not corrected by norm factor)
   //isPreliminary = 2: preliminary plots for YIELDS (corrected by norm factor)
@@ -45,8 +45,8 @@ void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, I
 
   if (isAvgPtvsMult) FitYields = 0;
   //isComp =0 : MB compared to HM
-  //isComp =1 : MB compared to pp5TeV (same mult classes)
-  //isComp =2 : MB compared to pp5TeV (only two mult classes for 5TeV)
+  //isComp =1 : MB compared to pp5TeV 
+  if (isComp>1) {cout << "Analysis not implemented for the chosen values of isComp " << endl; return;}
 
   Float_t ScalingFactor =1;
   //  if (isPreliminary && TypeAnalysis==0) ScalingFactor = 0.8458/1.08747; //=1./1.286
@@ -55,7 +55,7 @@ void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, I
   TString SisPreliminary[3] = {"", "_isPreliminaryForRatio", "_isPreliminaryForYields"};
   TString YieldOrAvgPt[2] = {"Yield", "AvgPt"};
   TString SFitYields[2] = {"", "_FitToYields"};
-  TString CollisionsComp[3] = {"_vsHM", "_vs5TeV5Mult", "_vs5TeV"};
+  TString CollisionsComp[2] = {"_vsHM", "_vs5TeV"};
   gStyle->SetOptStat(0);
   TString titleYieldX="#LTd#it{N}_{ch}/d#it{#eta}#GT_{|#it{#eta}|<0.5}";
   TString titleYieldY="N/N_{trigg} 1/#Delta#eta #Delta#it{#varphi}";
@@ -76,8 +76,8 @@ void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, I
   Float_t UpPt[3] = {2.5, 1.3, 1.3};
   if (type==1) {
     Low[0] = 10e-6; Up[0] = 0.003;
-    Up[1] = 0.03;
-    Up[2] = 0.03;
+    Low[1] = 10e-6;    Up[1] = 0.03;
+    Low[2] = 10e-6;    Up[2] = 0.03;
     LowPt[0] = 1.5;     LowPt[1] = 1;     LowPt[2] = 1;
     UpPt[0] = 5;     UpPt[1] = 2.2;     UpPt[2] = 2.2;
   }
@@ -123,7 +123,7 @@ void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, I
     pathin[0] +="_isNormCorrFullyComputed";
     if (isYieldMeanMacro)  pathin[0] += "_YieldMeanMacro";
     pathin[0] +="_isErrorAssumedPtCorr";
-    if (isChangesIncluded)  pathin[0] +="_ChangesIncluded";
+    if (isChangesIncluded)  pathin[0] +="_ChangesIncluded_EffCorr";
     pathin[0] += ".root";
     if (isPreliminary>0){
       pathin[0] = "FinalOutput/DATA2016/PtSpectraBis_PtBinning1_K0s_Eta0.8_PtMin3.0_";
@@ -142,8 +142,8 @@ void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, I
     if (isYieldMeanMacro)  pathin[1] += "_YieldMeanMacro";
     pathin[1] +="_isErrorAssumedPtCorr";
     if (isChangesIncluded)  pathin[1] +="_ChangesIncluded";
-    if (isComp==0)    pathin[1] += "_MultBinning1.root";
-    else     pathin[1] += "_MultBinning3.root";
+    if (isComp==0)    pathin[1] += "_MultBinning1_EffCorr.root";
+    else     pathin[1] += "_MultBinning3_EffCorr.root";
 
   }
   else if (type==1){
@@ -209,6 +209,7 @@ void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, I
     histoYieldSistComparison -> SetBinError(b, 0);
   }
 
+  TLegend* legendParameters = new TLegend(0.2, 0.7, 0.6, 0.85);
 
   for (Int_t i=0; i< NSystems; i++){
     file[i] = new TFile(pathin[i], "");
@@ -242,7 +243,19 @@ void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, I
     pol1[i]->SetLineColor(ColorDiff[TypeAnalysis][i]);
     histoYieldFinal[i]->Draw("same");
     cout << "Fit of yield " << i << endl;
-    if (FitYields)    histoYieldFinal[i]->Fit(pol1[i], "R+");
+    if (FitYields){
+      histoYieldFinal[i]->Fit(pol1[i], "R+");
+      if (i==0) {
+	TF1 * pol1FitClone1 = (TF1*) pol1[i]->Clone("pol1FitClone1");
+	if (isComp==0)	legendParameters->AddEntry(pol1FitClone1, Form("y = %.4f x + %.4f (fit for dNdeta < 25)", pol1[i]->GetParameter(1), pol1[i]->GetParameter(0)) , "l");
+	else legendParameters->AddEntry(pol1FitClone1, Form("y = %.4f x + %.4f (fit of 13 TeV points)", pol1[i]->GetParameter(1), pol1[i]->GetParameter(0)) , "l");
+      }
+      else if (i==1)  {
+	TF1 * pol1FitClone2 = (TF1*) pol1[i]->Clone("pol1FitClone2");
+	if (isComp==0)	legendParameters->AddEntry(pol1FitClone2, Form("y = %.4f x + %.4f (fit for dNdeta > 25)", pol1[i]->GetParameter(1), pol1[i]->GetParameter(0)) , "l");
+	else 	legendParameters->AddEntry(pol1FitClone2, Form("y = %.4f x + %.4f (fit of 5 TeV points)", pol1[i]->GetParameter(1), pol1[i]->GetParameter(0)) , "l");
+      }
+    }
     histoYieldSistFinal[i]->SetFillStyle(0);
     histoYieldSistFinal[i]->Draw("same e2");
 
@@ -265,6 +278,8 @@ void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, I
     cout << "\nFit of total yield vs mult " << endl; 
     if (TypeAnalysis!=0 && FitYields && i==1)  {
       histoYieldComparison->Fit(pol1Common, "R+");
+      if (isComp==0) legendParameters->AddEntry(pol1Common, Form("y = %.4f x + %.4f (fit for dNdeta < 45)", pol1Common->GetParameter(1), pol1Common->GetParameter(0)) , "l");
+      else legendParameters->AddEntry(pol1Common, Form("y = %.4f x + %.4f (fit of 5 TeV and 13 TeV points)", pol1Common->GetParameter(1), pol1Common->GetParameter(0)) , "l");
     }
   }
 
@@ -276,10 +291,10 @@ void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, I
   NameFileout +="_"+ ParticleType[type] + Region[TypeAnalysis];
   if (isPreliminary==1)  NameFileout += "_isPreliminaryForRatio";
   else if (isPreliminary==2)  NameFileout += "_isPreliminaryForYields";
-  NameFileout  += "_ChangesIncluded";
+  if (type==0)  NameFileout  += "_ChangesIncluded_EffCorr";
   NameFileout += ".root";
 
-  TString HistoTitle = "Yield vs multiplicity";
+  TString HistoTitle = tipo[type] + "Yield vs multiplicity";
   if (isAvgPtvsMult) HistoTitle = "Avg pt vs multiplicity";
   StyleHisto(histoYieldComparison, Low[TypeAnalysis] , Up[TypeAnalysis], Color[TypeAnalysis], 33, 2, titleYieldX, titleYieldY, HistoTitle, 0,0, UpRangeMult);
   StyleHisto(histoYieldSistComparison, Low[TypeAnalysis] , Up[TypeAnalysis], Color[TypeAnalysis], 33, 2, titleYieldX, titleYieldY, HistoTitle, 0,0, UpRangeMult);
@@ -291,6 +306,7 @@ void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, I
   if (FitYields){
     pol1[0]->Draw("same");
     pol1[1]->Draw("same");
+    legendParameters->Draw("");
   }
 
   TFile * fileout = new TFile (NameFileout, "RECREATE");
