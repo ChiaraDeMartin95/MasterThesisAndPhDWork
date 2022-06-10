@@ -31,12 +31,10 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
     //if (type==0) isNewdEtaJet =1;
     //else  isNewdEtaJet =0;
     isNewdEtaJet = 1;
-    if (type==8) {
-      cout << "Do you want to run with the option isNewdEtaJet = 1 (type 1) or 2 (type 2)? (default choice of dEta region is different) "<< endl;
-      cin >> isNewdEtaJet;
-      //      isNewdEtaJet = 2; //for jet
-      //      isNewdEtaJet = 1; //for OOJjet
-    }
+    cout << "Do you want to run with the option isNewdEtaJet = 1 (type 1) or 2 (type 2)? (default choice of dEta region is different) "<< endl;
+    cin >> isNewdEtaJet;
+    //      isNewdEtaJet = 2; //for jet
+    //      isNewdEtaJet = 1; //for OOJjet
     if (type==0) isMEFromCorrectCentrality =1;
     else isMEFromCorrectCentrality =0;
     if (type==0) PtBinning=1;
@@ -129,9 +127,13 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
     JetValue = 0.9;
     JetValueDefault = 0.84;
   }
+
+  Float_t LowLimit =0;
   if (isNewdEtaJet==2){ //built for Xi MC truth (JET production)
     JetValue = 1; //pt-dependent (most pt bins: 0.96 (OOj sub: 0.96-1.3))
     JetValueDefault = 0.84;
+    if (type==0) LowLimit = 2.; //pt cut-off
+    else if (type==8) LowLimit = 1.5;
   }
 
   if (ishhCorr || (!ishhCorr && isEnlargedDeltaEtaPhi)) {//rendo ampiezza Jet uguale per hh e hK0s (l'output di hK0s è nel file DeltaEtaPhiEnlarged)
@@ -1119,8 +1121,8 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 	    //****************************************************************************************************************
 	    
  	    if (isNewdEtaJet == 2){
-	      if (type==8){
-		if (NPtV0[v] < 1.5){	JetValue=1.1; BulkLowValue =1.1; BulkUpValue=1.35;}
+	      if (sys == 0){
+		if (NPtV0[v] < LowLimit){	JetValue=1.1; BulkLowValue =1.1; BulkUpValue=1.35;}
 		else {JetValue=1.; BulkLowValue = 1.; BulkUpValue=1.25;}
 	      }
 	    }
@@ -1269,8 +1271,8 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 	  //sottraggo distribuzione del bulk 
 	  //***************************************************************
 	  if (isNewdEtaJet == 2){
-	    if (type==8){
-	      if (NPtV0[v] < 1.5){	JetValue=1.1; BulkLowValue =1.1; BulkUpValue=1.35;}
+	    if (sys==0){
+	      if (NPtV0[v] < LowLimit){	JetValue=1.1; BulkLowValue =1.1; BulkUpValue=1.35;}
 	      else {JetValue=1.; BulkLowValue = 1.; BulkUpValue=1.25;}
 	    }
 	  }
