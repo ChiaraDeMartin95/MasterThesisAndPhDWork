@@ -23,6 +23,7 @@
 #include "TGraphAsymmErrors.h"
 #include </data/dataalice/AliceSoftware/aliphysics/master_chiara/src/PWG/Tools/AliPWGFunc.h>
 #include </data/dataalice/cdemart/ALICE_analysis_tutorial/Macros/ErrRatioCorr.C>
+#include "Macros/constants.h"
 
 void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, TString titleX, TString titleY, TString title){
   histo->GetYaxis()->SetRangeUser(Low, Up);
@@ -56,7 +57,18 @@ void StyleHistoYield(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t st
 }
 
 
-void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=0, Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString yearK0s="1617_hK0s", TString yearK0sMC = "1617MC_hK0s", TString yearXi = "161718Full_AOD234_hXi"/*"Run2DataRed_MECorr_hXi"*/, TString yearXiMC = ""/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,    TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=0, Bool_t ZeroYieldLowPt=0, Int_t ChosenMult=5, Bool_t isBulkBlue=0, Bool_t isFit=0,  Bool_t isYieldMeanMacro=0, Bool_t ChangesIncluded=1){
+void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=1,   Int_t israp=0,TString yearK0s="1617_hK0s", TString yearK0sMC = "1617MC_hK0s", TString yearXi = "161718Full_AOD234_hXi"/*"Run2DataRed_MECorr_hXi"*/, TString yearXiMC = ""/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,    TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=0, Bool_t ZeroYieldLowPt=0, Int_t ChosenMult=5, Bool_t isBulkBlue=0, Bool_t isFit=0,  Bool_t isYieldMeanMacro=0, Bool_t ChangesIncluded=1){
+
+  Bool_t isGenOnTheFly = 0;
+  if (isMC) isGenOnTheFly = 1;
+  //isGenOnTheFly --> events were generated on the fly and only the kinematic part is saved; the multiplicity distribution in percentile classes is not abvailable, instead classes based on the number of particles in the V0 acceptance are used
+  if (!isMC && isGenOnTheFly) return;
+  if (isGenOnTheFly) { //these variabes have no meaning for the MCtruth analysis -- they are set to zero in order not to appear in outputfile name
+    MultBinning = 0;
+    isppHM =0;
+    ispp5TeV=0;
+    ChangesIncluded = 0;
+  }
 
   TString       nameFit[4]={"mT-scaling", "Boltzmann", "Fermi-Dirac", "Levi"};
   //isYieldMeanMacro = 1: no difference between 1 and 0, only the input file changes (but the plots should be the same)
@@ -83,14 +95,21 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
     DPhiFactor =1;
     //    DPhiFactor = 0.845813/1.08747;
   }
+  if (isGenOnTheFly){
+    yearK0s = "PythiaRopes";
+    yearXi = "PythiaRopes";
+  }
 
   Bool_t  MultOK=0;
   TString RegionType[3] = {"Jet", "Bulk", "Inclusive"};
   TString SRegionTypeBis[3] = {"Jet", "OOj", "Full"};
   TString SRegionType[3] = {"Near-side Jet", "Out-of-jet", "Full"};
   TString NameP[2]={"h#minusK_{S}^{0}", "h#minus#Xi"};
-  TString sRegion[3]={"#color[628]{Near#minusside jet}","#color[418]{Out#minusof#minusjet}","#color[600]{Full}"};
-  TString sRegionBlack[3]={"#color[1]{Near#minusside jet}","#color[1]{Out#minusof#minusjet}","#color[1]{Full}"};
+  //  TString sRegion[3]={"#color[628]{Near#minusside jet}","#color[418]{Out#minusof#minusjet}","#color[600]{Full}"};
+  TString sRegion[3]={"#color[628]{Toward leading}","#color[418]{Transverse to leading}","#color[600]{Full}"};
+  //  TString sRegionBlack[3]={"#color[1]{Near#minusside jet}","#color[1]{Out#minusof#minusjet}","#color[1]{Full}"};
+  TString sRegionBlack[3]={"#color[1]{Toward leading}","#color[1]{Transverse to leading}","#color[1]{Full}"};
+
   //  TString sRegion1K0s[3]={"|#Delta#it{#eta}| < 0.85, |#Delta#it{#varphi}| < 1.09", "0.85 < |#Delta#it{#eta}| < 1.2, 0.96 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
   TString sRegion1K0s[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 0.85", "0.75 < |#Delta#it{#eta}| < 1.2, 0.85 < #Delta#it{#varphi} < 2.0", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"}; //like the ones used for Preliminaries in 202
   //  TString sRegion1Xi[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 1.09", "0.75 < |#Delta#it{#eta}| < 1.2, 0.96 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
@@ -101,7 +120,8 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
 
   TString hhCorr[2]={"", "_hhCorr"};
 
-  const Int_t nummolt=5;
+  Int_t nummoltMax = nummolt;
+  if (!isGenOnTheFly) nummoltMax = 5;
   const Int_t numtipo=10;
   const Int_t numregions=3;
 
@@ -137,7 +157,7 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
   TString SmoltLegendHM[nummolt+1]={"0-0a %", "0-0b %", "0-0.01 %", "0.01-0.05 %", "0.05-0.1 %", "0-0.1 %"};
   TString SmoltLegendpp5TeV[nummolt+1]={"0-10 %", "10-100 %", "100-100 %", "100-100 %", "100-100 %", "0-100 %"};
 
-  for (Int_t m=0; m<nummolt+1; m++){
+  for (Int_t m=0; m<nummoltMax+1; m++){
     if (MultBinning==0){
       Nmolt[m] = Nmolt0[m];
       Smolt[m] = Smolt0[m];
@@ -167,6 +187,15 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
     }
   }
 
+  if (isGenOnTheFly){
+    for (Int_t m=0; m<nummoltMax+1; m++){
+      Smolt[m] = SmoltGenOnTheFly[m];
+      SmoltBis[m] = SmoltGenOnTheFly[m];
+      Nmolt[m] = NmoltGenOnTheFly[m];
+      SmoltLegend[m] = SmoltGenOnTheFly[m];
+    }
+  }
+
   TString SErrorSpectrum[3]={"stat.","syst. uncorr.","syst. corr."};
   //  Int_t Marker[numSyst]={20,21, 22, 23, 20, 25, 26, 25, 25, 29, 29, 31, 32};
   //  Int_t MarkerBetter[numSyst]={1,22, 32, 1, 29, 1,   3,  34, 33, 1, 20, 21, 22};
@@ -179,15 +208,26 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
   Int_t YmarkerRegionTer[3] = {29, 29, 29};
   Float_t YoffsetSpectra[2] = {1.6, 1.65};
   Int_t ColorMult[nummolt+1] ={628,801,418,867,601,1};
+  Int_t ColorMultGenOnTheFly[nummolt+1] ={634, 628, 807, 797, 815, 418, 429, 867, 856, 601, 1};
+  if (isGenOnTheFly) {
+    for (Int_t m=0; m<nummoltMax+1; m++){
+      ColorMult[m] = ColorMultGenOnTheFly[m];
+    }
+  }
   //Int_t ColorMult[nummolt+1] ={1,2,8,4,6,868};
-  Float_t FracTrig[nummolt+1] ={0.27, 0.18, 0.11, 0.05, 0.013,0.06};
-  Float_t size[nummolt+1] ={2, 2, 2.5, 2.5, 2.5, 2};
+  Float_t size[nummolt+1] ={2, 2, 2.5, 2.5, 2.5, 2, 2, 2, 2.5, 2.5, 2};
   Float_t sizeRegion[nummolt+1] ={2.3, 2.2, 3};
   Float_t MarkerSize[nummolt+1] ={2, 2, 3};
   Int_t MarkerMult[nummolt+1] ={20,21,33,34,29,25};
+  Int_t MarkerMultGenOnTheFly[nummolt+1] ={20,21,33,34,29,25, 20, 21, 33, 34, 21};
   Int_t Color[3] ={628, 418, 600};
   Int_t ColorBis[3] ={634, 829, 867};
   Int_t ColorType[2] ={628,881};
+  if (isGenOnTheFly) {
+    for (Int_t m=0; m<nummoltMax+1; m++){
+      MarkerMult[m] = MarkerMultGenOnTheFly[m];
+    }
+  }
 
   TString stringout;
   TString stringoutpdf;
@@ -195,6 +235,7 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
   if (isppHM)   stringout+="_ispp13TeVHM";
   else   if (ispp5TeV)   stringout+="_ispp5TeV";
   else   stringout+="_ispp13TeVMB";
+  if (isMC && isGenOnTheFly) stringout += "_FastMCPrediction";
   stringout +=Srap[israp];
   stringout +=SSkipAssoc[SkipAssoc];
   stringout+=   Form("_PtMin%.1f", PtTrigMin);
@@ -206,9 +247,10 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
   if (isBulkBlue) stringout += "_isXiBulkBlue";
   if (MultBinning!=0) stringout += Form("_MultBinning%i", MultBinning);
   if (ChangesIncluded) stringout += "_ChangesIncluded";
+  //  stringout += "_Boh";
   stringoutpdf = stringout;
   if (isFit)  stringoutpdf += "_FittedYields";
-  TString stringoutPlots = stringout + "PlotsForComparison.root";
+  TString stringoutPlots = "";
   stringout += ".root";
   TFile * fileout = new TFile(stringout, "RECREATE");
 
@@ -248,12 +290,14 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
   TCanvas* canvasYieldJet = new TCanvas ("canvasYieldJet", "canvasYieldJet", 1300, 800);
 
   TCanvas * 	canvasPtSpectraRatio= new TCanvas("canvasPtSpectraRatio", "canvasPtSpectraRatio", 1300, 800);
+  //  if (isGenOnTheFly) canvasPtSpectraRatio->Divide((nummoltMax+2)/2, 2);
   canvasPtSpectraRatio->Divide(3,2);
   TCanvas * 	canvasPtSpectraRatioAllMult= new TCanvas("canvasPtSpectraRatioAllMult", "canvasPtSpectraRatioAllMult", 1300, 400);
+  //if (isGenOnTheFly) canvasPtSpectraRatioAllMult->Divide((nummoltMax+2)/2, 2);
   canvasPtSpectraRatioAllMult->Divide(3,1);
-    
   TCanvas * 	canvasPtSpectraK0s= new TCanvas("canvasPtSpectraK0s", "canvasPtSpectraK0s", 1300, 800);
-  canvasPtSpectraK0s->Divide(3,2);
+  if (isGenOnTheFly) canvasPtSpectraK0s->Divide((nummoltMax+2)/2, 2);
+  else canvasPtSpectraK0s->Divide(3,2);
 
   for (Int_t type=0; type<2; type++){
     canvasPtSpectraOneMult[type] = new TCanvas("canvasPtSpectraOneMult"+tipo[type], "canvasPtSpectraOneMult"+tipo[type], 900, 1000);
@@ -271,6 +315,10 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
     LimSupMultRatio[0] = 2;
     LimSupMultRatio[1] = 2;
   }
+  if (isGenOnTheFly){
+    LimSupMultRatio[0] = 4.;
+    LimSupMultRatio[1] = 4.5;
+  }
   //  Float_t LimSupYieldF[2][3] ={{0.07, 0.25, 0.25},{0.003, 0.02, 0.02}};
   Float_t LimSupYieldF[2][3] ={{0.0699, 0.24999, 0.24999},{0.002999, 0.01999, 0.01999}};
   Float_t LimSupYieldFAll[2][3] ={{0.2699, 0.26999, 0.26999},{0.002999, 0.01999, 0.01999}};
@@ -283,6 +331,14 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
     LimSupYieldF[1][2] = 0.02799;
     LimSupYieldFAll[1][1] = 0.02799;
     LimSupYieldFAll[1][2] = 0.02799;
+  }
+  if (isGenOnTheFly){
+    LimSupYieldF[0][1] = 0.35999;
+    LimSupYieldF[0][2] = 0.35999;
+    LimSupYieldFAll[0][1] = 0.35999;
+    LimSupYieldF[1][1] = 0.02999;
+    LimSupYieldF[1][2] = 0.02999;
+    LimSupYieldFAll[1][1] = 0.02999;
   }
   //  Float_t LimSupYieldFAll[2][3] ={{0.1, 0.1, 0.1},{0.006, 0.006, 0.006}}; This for Yield/event  
   //Float_t LimSupSpectra[2][3] ={{0.02, 0.2, 0.2},{0.001, 0.01, 0.01}};
@@ -326,6 +382,7 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
   Float_t LimInfRatioYield = 0.015;
   Float_t LimSupRatioYield = 0.13999; //0.12
   Float_t ScaleFactor[nummolt+1]={128,64, 32,16,8,1};
+  Float_t ScaleFactorGenOnTheFly[nummolt+1]={4096, 1024, 256, 128, 64, 32,16,8, 4, 2, 1};
   Int_t ScaleFactorRegion[3]={1,8,16};
   if (isppHM) {
     ScaleFactorRegion[1] = 4;
@@ -334,6 +391,7 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
   if (ispp5TeV) {
   }
   TString sScaleFactor[nummolt+1]={" (x2^{7})"," (x2^{6})"," (x2^{5})"," (x2^{4})"," (x2^{3})",""};
+  TString sScaleFactorGenOnTheFly[nummolt+1]={ " (x2^{12})", " (x2^{10})"," (x2^{8})"," (x2^{7})"," (x2^{6})", " (x2^{5})", " (x2^{4})"," (x2^{3})", " (x2^{2})", " (x2)",""};
   if (isppHM){
     ScaleFactor[2] = 16;
     ScaleFactor[3] = 8;
@@ -348,6 +406,13 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
     sScaleFactor[0] =" (x2^{3})";
     sScaleFactor[1] =" (x2^{2})";
   }
+  if (isGenOnTheFly) {
+    for (Int_t m=0; m<nummoltMax+1; m++){
+      ScaleFactor[m] = ScaleFactorGenOnTheFly[m];
+      sScaleFactor[m] = sScaleFactorGenOnTheFly[m];
+    }
+  }
+
   TString sScaleFactorRegion[3]={""};
   //" (x2^{7})"," (x2^{6})"," (x2^{5})"," (x2^{4})"," (x2^{3})",""};
 
@@ -657,7 +722,7 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
       else if (ispp5TeV)      PathInYield[type] += "_pp5TeV";
       PathInYield[type] += hhCorr[ishhCorr] + PathIn0[type] +  RegionType[iregion];
       if (ZeroYieldLowPt && iregion==0 && type==1) PathInYield[type] = Dir+"/DATA"+year0+"/PtSpectraBisNew" +hhCorr[ishhCorr] + PathIn0[type] +  RegionType[iregion]+ "_ZeroYLowPtJet"; 
-      PathInYield[type]+= "_isNormCorrFullyComputed";
+      if (!isGenOnTheFly) PathInYield[type]+= "_isNormCorrFullyComputed";
       if (isYieldMeanMacro) PathInYield[type]+= "_YieldMeanMacro";
       PathInYield[type]+="_isErrorAssumedPtCorr";
       if (ChangesIncluded) PathInYield[type] += "_ChangesIncluded";
@@ -932,19 +997,6 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
 	//      lReAll2[iregion]->SetTextAlign(32);
 	//      }
       
-      /*
-	Int_t m=nummolt;
-	for (Int_t b=0; b<=fHistYieldStat[type][iregion]->GetNbinsX(); b++){
-	if (	fHistYieldStat[type][iregion]->GetBinContent(b)!=0) m--;
-	else continue;
-	cout << " trigger fraction" << FracTrig[m] << endl;
-	fHistYieldStat[type][iregion]->SetBinContent(b,       fHistYieldStat[type][iregion]->GetBinContent(b)*FracTrig[m]);
-	fHistYieldStat[type][iregion]->SetBinError(b, fHistYieldStat[type][iregion]->GetBinError(b)*FracTrig[m]);
-	fHistYieldSist[type][iregion]->SetBinContent(b,       fHistYieldSist[type][iregion]->GetBinContent(b)*FracTrig[m]);
-	fHistYieldSist[type][iregion]->SetBinError(b, fHistYieldSist[type][iregion]->GetBinError(b)*FracTrig[m]);
-
-	}
-      */
       fHistYieldStat[type][iregion]->DrawClone("same e0x0");  
       fHistYieldSist[type][iregion]->SetFillStyle(0);
       fHistYieldSist[type][iregion]->DrawClone("same e2");
@@ -1175,7 +1227,7 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
       }
 
       //      for (Int_t m=0; m<nummolt+1; m++){
-      for (Int_t m=nummolt; m>=0; m--){
+      for (Int_t m=nummoltMax; m>=0; m--){
 	if (isppHM && MultBinning==1 && m<=1) continue;
 	if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
 	cout << "\nRatio between spectra; m= "<< m  << endl;
@@ -1286,15 +1338,18 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
 	  StyleHisto(fHistSpectrumSistRatio[m][iregion], 0.00001, 0.4,  ColorMult[m], 33, titleX,  "", "");
 	  fHistSpectrumStatRatio[m][iregion]->SetMarkerSize(0.8);
 	  fHistSpectrumSistRatio[m][iregion]->SetMarkerSize(0.8);
-	  MultOK = (m==0 || m ==4 || m ==nummolt);
-	  if (isppHM)	  MultOK = (m==2 || m == 4 || m ==nummolt);
-	  else if (ispp5TeV) 	  MultOK = (m==0 || m ==1 || m ==nummolt);
+	  MultOK = (m==0 || m ==4 || m ==nummoltMax);
+	  if (isppHM)	  MultOK = (m==2 || m == 4 || m ==nummoltMax);
+	  else if (ispp5TeV) 	  MultOK = (m==0 || m ==1 || m ==nummoltMax);
+	  if (isGenOnTheFly){
+	    MultOK = (m==0 || m==9 || m == nummoltMax);
+	  }
 	  if (MultOK){
 	    if (iregion==0)	    legendMult->AddEntry(	  fHistSpectrumStatRatio[m][iregion], SmoltLegend[m], "pl");
 	    fHistSpectrumStatRatio[m][iregion]->DrawClone("same e");
 	    fHistSpectrumSistRatio[m][iregion]->SetFillStyle(0);
 	    fHistSpectrumSistRatio[m][iregion]->DrawClone("same e2");
-	    if (m==nummolt && iregion==0) legendMult->Draw("");
+	    if (m==nummoltMax && iregion==0) legendMult->Draw("");
 	  }
 
 	  canvasPtSpectraRatioAllMult->cd(iregion+1);
@@ -1303,14 +1358,14 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
 	  fHistSpectrumStatRatio[m][iregion]->DrawClone("same e");
 	  fHistSpectrumSistRatio[m][iregion]->SetFillStyle(0);
 	  fHistSpectrumSistRatio[m][iregion]->DrawClone("same e2");
-	  if (m==nummolt && iregion==0) legendAllMult->Draw("");
+	  if (m==nummoltMax && iregion==0) legendAllMult->Draw("");
 
 	  //	  cout << "Peng Yao ratio " << endl;
 	  if (iregion==0){
 	    canvasPtSpectraRatioJetPY->cd(1);
 	    gPad->SetLeftMargin(0.15);
 	   
-	    if (m==nummolt){
+	    if (m==nummoltMax){
 	      fHistPengYaoRatio->SetTitle(SRegionType[iregion]);
 	      fHistPengYaoRatio->Scale(2);
 	      StyleHisto(fHistPengYaoRatio, 0.00001, 0.15, 857, 33, titleX,  TitleYPtRatio,  "Near-side jet");
@@ -1323,25 +1378,18 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
 	    fHistSpectrumSistRatio[m][iregion]-> SetTitle(SRegionType[iregion]);
 	    fHistSpectrumStatRatio[m][iregion]->	   GetYaxis()->SetRangeUser(10-5,0.15);
 	    fHistSpectrumSistRatio[m][iregion]->	   GetYaxis()->SetRangeUser(10-5,0.15);
-	    if (isppHM){
-	      if (m==2 || m==4 || m==nummolt){
-		legendPY->AddEntry(	  fHistSpectrumStatRatio[m][iregion], "This analysis "+ SmoltLegend[m], "pl");
-		fHistSpectrumStatRatio[m][iregion]->DrawClone("same e");
-		fHistSpectrumSistRatio[m][iregion]->Draw("same e2");
-	      }
-	    }
-	    else if (m==0 || m==4 || m==nummolt){	   
+	    if (MultOK){
 	      legendPY->AddEntry(	  fHistSpectrumStatRatio[m][iregion], "This analysis "+ SmoltLegend[m], "pl");
 	      fHistSpectrumStatRatio[m][iregion]->DrawClone("same e");
 	      fHistSpectrumSistRatio[m][iregion]->Draw("same e2");
 	    }
-	    if (m==nummolt && iregion==0) legendPY->Draw("");
+	    if (m==nummoltMax && iregion==0) legendPY->Draw("");
 	  }
 	  if (iregion==1){
 	    canvasPtSpectraRatioJetPY->cd(2);
 	    gPad->SetLeftMargin(0.15);
 	   
-	    if (m==nummolt){
+	    if (m==nummoltMax){
 	      fHistPengYaoRatioOJ->Scale(2);
 	      fHistPengYaoRatioOJ->SetTitle(SRegionType[iregion]);
 	      StyleHisto(fHistPengYaoRatioOJ, 0.00001, 0.4, 857, 33, titleX,  TitleYPtRatio,  "Out-of-jet");
@@ -1352,15 +1400,18 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
 	    fHistSpectrumStatRatio[m][iregion]->	   GetYaxis()->SetRangeUser(10-5,0.5);
 	    fHistSpectrumSistRatio[m][iregion]->	   GetYaxis()->SetRangeUser(10-5,0.5);
 
-	    MultOK = (m==0 || m ==4 || m ==nummolt);
-	    if (isppHM)	  MultOK = (m==2 || m == 4 || m ==nummolt);
-	    else if (ispp5TeV) 	  MultOK = (m==0 || m ==1 || m ==nummolt);
+	    MultOK = (m==0 || m ==4 || m ==nummoltMax);
+	    if (isppHM)	  MultOK = (m==2 || m == 4 || m ==nummoltMax);
+	    else if (ispp5TeV) 	  MultOK = (m==0 || m ==1 || m ==nummoltMax);
+	    if (isGenOnTheFly){
+	      MultOK = (m==0 || m==9 || m == nummoltMax);
+	    }
 
 	    if (MultOK){
 	      fHistSpectrumStatRatio[m][iregion]->DrawClone("same e");
 	      fHistSpectrumSistRatio[m][iregion]->Draw("same e2");
 	    }
-	    if (m==nummolt && iregion==0) legendPY->Draw("");
+	    if (m==nummoltMax && iregion==0) legendPY->Draw("");
 	  }
 
 
@@ -1377,9 +1428,9 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
 	  fHistSpectrumSistDoubleRatio[m][iregion]=(TH1F*) fHistSpectrumSistRatio[m][iregion]->Clone("fHistSpectrumSistDoubleRatio_"+Smolt[m]+Form("_region%i", iregion));
 	  
 	  fHistSpectrumSistDoubleRatio[m][iregion]->Sumw2();
-	  fHistSpectrumSistDoubleRatio[m][iregion]->Divide(	  fHistSpectrumSistRatio[5][iregion]);
+	  fHistSpectrumSistDoubleRatio[m][iregion]->Divide(	  fHistSpectrumSistRatio[nummoltMax][iregion]);
 	  fHistSpectrumStatDoubleRatio[m][iregion]->Sumw2();
-	  fHistSpectrumStatDoubleRatio[m][iregion]->Divide(	  fHistSpectrumStatRatio[5][iregion]);
+	  fHistSpectrumStatDoubleRatio[m][iregion]->Divide(	  fHistSpectrumStatRatio[nummoltMax][iregion]);
 
 	  if (iregion==0){
 	    for (Int_t b=1; b<=  fHistSpectrumStatDoubleRatio[m][iregion]->GetNbinsX(); b++){
@@ -1396,10 +1447,13 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
 	  StyleHisto(fHistSpectrumSistDoubleRatio[m][iregion], 0.0001, 2,  ColorMult[m], 33, titleX, "", "");
 	  fHistSpectrumStatDoubleRatio[m][iregion]->SetMarkerSize(1.2);
 	  fHistSpectrumSistDoubleRatio[m][iregion]->SetMarkerSize(1.2);
-	  //	  if (m!=nummolt){
+	  //	  if (m!=nummoltMax){
 	  MultOK = (m==0 || m ==4);
 	  if (isppHM)	  MultOK = (m==2 || m == 4);
 	  else if (ispp5TeV) 	  MultOK = (m==0 || m ==1);
+	  if (isGenOnTheFly){
+	    MultOK = (m==0 || m==9 || m == nummoltMax);
+	  }
 
 	  if (MultOK){
 	    fHistSpectrumStatDoubleRatio[m][iregion]->Draw("same p");
@@ -1460,17 +1514,17 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
       TLegend* legendFitFunction = new TLegend(0.65, 0.6, 0.92, 0.68);
       TLegendEntry* lFitFunction1;
 
-      fHistSpectrumSistScaledB[nummolt][type][iregion]= (TH1F*) 	fHistSpectrumSistScaled[nummolt][type][iregion]->Clone("sistblack");
-      fHistSpectrumSistScaledB[nummolt][type][iregion]->SetLineColor(1);
-      fHistSpectrumSistScaledB[nummolt][type][iregion]->SetMarkerColor(1);
-      fHistSpectrumSistScaledB[nummolt][type][iregion]->SetMarkerStyle(20);
+      fHistSpectrumSistScaledB[nummoltMax][type][iregion]= (TH1F*) 	fHistSpectrumSistScaled[nummoltMax][type][iregion]->Clone("sistblack");
+      fHistSpectrumSistScaledB[nummoltMax][type][iregion]->SetLineColor(1);
+      fHistSpectrumSistScaledB[nummoltMax][type][iregion]->SetMarkerColor(1);
+      fHistSpectrumSistScaledB[nummoltMax][type][iregion]->SetMarkerStyle(20);
       TLegend *legendStatBoxK0s=new TLegend(0.25, 0.33, 0.47, 0.42);
-      legendStatBoxK0s->AddEntry(fHistSpectrumSistScaledB[nummolt][type][iregion], "stat. error", "pe");
-      legendStatBoxK0s->AddEntry(fHistSpectrumSistScaledB[nummolt][type][iregion], "syst. error", "ef");
+      legendStatBoxK0s->AddEntry(fHistSpectrumSistScaledB[nummoltMax][type][iregion], "stat. error", "pe");
+      legendStatBoxK0s->AddEntry(fHistSpectrumSistScaledB[nummoltMax][type][iregion], "syst. error", "ef");
 
       TLegend *legendStatBoxXi=new TLegend(0.23, 0.83, 0.42, 0.92);
-      legendStatBoxXi->AddEntry(fHistSpectrumSistScaledB[nummolt][type][iregion], "stat. error", "pe");
-      legendStatBoxXi->AddEntry(fHistSpectrumSistScaledB[nummolt][type][iregion], "syst. error", "ef");
+      legendStatBoxXi->AddEntry(fHistSpectrumSistScaledB[nummoltMax][type][iregion], "stat. error", "pe");
+      legendStatBoxXi->AddEntry(fHistSpectrumSistScaledB[nummoltMax][type][iregion], "syst. error", "ef");
 
       TLegend *LegendMolt=new TLegend(0.25,0.16,0.9,0.31);
       LegendMolt->SetNColumns(3);
@@ -1483,11 +1537,12 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
       TLegend *LegendMoltBis=new TLegend(0.5,0.7,0.905,0.78);
       //      LegendMoltBis->SetFillStyle(0);
       LegendMoltBis->SetHeader("V0M Multiplicity Percentile " + SmoltBis[ChosenMult]+"%");
+      if (isGenOnTheFly)       LegendMoltBis->SetHeader("V0M Multiplicity Percentile " + SmoltBis[ChosenMult]);
       TLegendEntry *lheaderBis = (TLegendEntry*)LegendMoltBis->GetListOfPrimitives()->First();
       lheaderBis-> SetTextSize(0.028);
       LegendMoltBis->SetTextAlign(32);
 
-      for (Int_t m=0; m<nummolt+1; m++){
+      for (Int_t m=0; m<nummoltMax+1; m++){
 	if (isppHM && MultBinning==1 && m<=1) continue;
 	if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
 	cout << "hi " << m << endl;
@@ -1518,8 +1573,9 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
 	}
 	fHistSpectrumSistScaledForLegend[m][type][iregion] = (TH1F*) 	fHistSpectrumSistScaled[m][type][iregion]->Clone("fHistSpectrumSistScaledForLegend_"+Smolt[m]+Form("_type%i_region%i", type,iregion));
 	fFitScaled[m][type][iregion]->SetLineColor(kBlack);
-	LegendMolt->AddEntry(fHistSpectrumSistScaledForLegend[m][type][iregion],SmoltBis[m]+"%"+sScaleFactor[m]+" ","pef");
-	if (m==nummolt) {
+	if (isGenOnTheFly)	LegendMolt->AddEntry(fHistSpectrumSistScaledForLegend[m][type][iregion],SmoltBis[m]+sScaleFactor[m]+" ","pef");
+	else 	LegendMolt->AddEntry(fHistSpectrumSistScaledForLegend[m][type][iregion],SmoltBis[m]+"%"+sScaleFactor[m]+" ","pef");
+	if (m==nummoltMax) {
 	  lFitFunction1 = legendFitFunction->AddEntry(fFitScaled[m][type][iregion], "L#acute{e}vy-Tsallis fit", "l");
 	  lFitFunction1->SetTextSize(0.03);
 	  //	  lFitFunction1->SetTextAlign(32);
@@ -1550,15 +1606,15 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
       lineat1Mult->SetLineColor(1);
       lineat1Mult->SetLineStyle(2);
 
-      fHistSpectrumStatMultRatio[nummolt][type][iregion]= (TH1F*) fHistSpectrumStat[nummolt][type][iregion]->Clone("fHistSpectrumStatMultRatio_"+Smolt[nummolt]+Form("_type%i_region%i", type,iregion));
-      fHistSpectrumSistMultRatio[nummolt][type][iregion]= (TH1F*) fHistSpectrumSist[nummolt][type][iregion]->Clone("fHistSpectrumSistMultRatio_"+Smolt[nummolt]+Form("_type%i_region%i", type,iregion));
-      for (Int_t m=0; m<nummolt; m++){
+      fHistSpectrumStatMultRatio[nummoltMax][type][iregion]= (TH1F*) fHistSpectrumStat[nummoltMax][type][iregion]->Clone("fHistSpectrumStatMultRatio_"+Smolt[nummoltMax]+Form("_type%i_region%i", type,iregion));
+      fHistSpectrumSistMultRatio[nummoltMax][type][iregion]= (TH1F*) fHistSpectrumSist[nummoltMax][type][iregion]->Clone("fHistSpectrumSistMultRatio_"+Smolt[nummoltMax]+Form("_type%i_region%i", type,iregion));
+      for (Int_t m=0; m<nummoltMax; m++){
 	if (isppHM && MultBinning==1 && m<=1) continue;
 	if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
 	fHistSpectrumStatMultRatio[m][type][iregion]= (TH1F*) fHistSpectrumStat[m][type][iregion]->Clone("fHistSpectrumStatMultRatio_"+Smolt[m]+Form("_type%i_region%i", type,iregion));
 	fHistSpectrumSistMultRatio[m][type][iregion]= (TH1F*) fHistSpectrumSist[m][type][iregion]->Clone("fHistSpectrumSistMultRatio_"+Smolt[m]+Form("_type%i_region%i", type,iregion));
-	fHistSpectrumStatMultRatio[m][type][iregion]->Divide(	fHistSpectrumStatMultRatio[nummolt][type][iregion]);
-	fHistSpectrumSistMultRatio[m][type][iregion]->Divide(	fHistSpectrumSistMultRatio[nummolt][type][iregion]);
+	fHistSpectrumStatMultRatio[m][type][iregion]->Divide(	fHistSpectrumStatMultRatio[nummoltMax][type][iregion]);
+	fHistSpectrumSistMultRatio[m][type][iregion]->Divide(	fHistSpectrumSistMultRatio[nummoltMax][type][iregion]);
 	StyleHistoYield(fHistSpectrumStatMultRatio[m][type][iregion], 10e-5, LimSupMultRatio[type], ColorMult[m], MarkerMult[m], titleX, "Ratio to 0-100% class","", size[m],1.15, YoffsetSpectra[type] );
 	StyleHistoYield(fHistSpectrumSistMultRatio[m][type][iregion], 10e-5, LimSupMultRatio[type], ColorMult[m], MarkerMult[m], titleX,  "Ratio to 0-100% class","", size[m], 1.15,  YoffsetSpectra[type]);
 
@@ -1822,6 +1878,7 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
   if (ispp5TeV)  stringoutPlots += "_pp5TeV";
   else if (isppHM)  stringoutPlots += "_pp13TeVHM";
   else stringoutPlots += "_pp13TeVMB";
+  if (isGenOnTheFly) stringoutPlots += "_FastMCPrediction";
   stringoutPlots+=  ".root";
   TFile * fileoutPlots = new TFile(stringoutPlots, "RECREATE");
   for (Int_t type=0; type<2; type++){
@@ -1831,7 +1888,7 @@ void YieldRatioNew(Bool_t isFitSpectra=0, Int_t typefit = 3, Bool_t isppHM=0, Bo
       fHistYieldSist[type][iregion]->SetName("Yield_" + tipo[type] + "_"+ SRegionTypeBis[iregion] + "_SistErr");
       fHistYieldStat[type][iregion]->Write();
       fHistYieldSist[type][iregion]->Write();
-      for (Int_t m=nummolt; m>=0; m--){
+      for (Int_t m=nummoltMax; m>=0; m--){
 	if (isppHM && MultBinning==1 && m<=1) continue;
 	if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
 	fHistSpectrumStat[m][type][iregion]->SetName("PtSpectrum_" + tipo[type] + "_"+ SRegionTypeBis[iregion] + "_"+ Smolt[m] +"_StatErr");
