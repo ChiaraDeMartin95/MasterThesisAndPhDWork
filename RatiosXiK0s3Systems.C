@@ -54,13 +54,15 @@ TString titlePtvsMultYType[2]={"#LT#it{p}^{K^{0}_{S}}_{T}#GT (GeV/c)", "#LT#it{p
 TString RegionType[3] = {"Jet", "Bulk", "Inclusive"};
 TString SRegionType[3] = {"Near-side Jet", "Out-of-jet", "Full"};
 TString NameP[2]={"h#minusK_{S}^{0}", "h#minus#Xi"};
-TString sRegion[3]={"#color[628]{Near#minusside jet}","#color[418]{Out#minusof#minusjet}","#color[600]{Full}"};
-TString sRegionBlack[3]={"#color[1]{Near#minusside jet}","#color[1]{Out#minusof#minusjet}","#color[1]{Full}"};
+//TString sRegion[3]={"#color[628]{Near#minusside jet}","#color[418]{Out#minusof#minusjet}","#color[600]{Full}"};
+TString sRegion[3]={"#color[628]{Toward leading}","#color[418]{Transverse to leading}","#color[600]{Full}"};
+//TString sRegionBlack[3]={"#color[1]{Near#minusside jet}","#color[1]{Out#minusof#minusjet}","#color[1]{Full}"};
+TString sRegionBlack[3]={"#color[1]{Toward leading}","#color[1]{Transverse to leading}","#color[1]{Full}"};
 //TString sRegion1[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 1.09", "0.75 < |#Delta#it{#eta}| < 1.2, 0.85 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
-TString sRegion1[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 0.85", "0.75 < |#Delta#it{#eta}| < 1.2, 0.75 < #Delta#it{#varphi} < 2.0", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
+TString sRegion1[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 0.85", "0.75 < |#Delta#it{#eta}| < 1.2, 0.85 < #Delta#it{#varphi} < 2.0", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
 
 
-void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t ScalingFactorXiK0s = 1/*0.8458/1.08747*/, Int_t isPreliminary =0, Bool_t isChangesIncluded=1, Bool_t isFit=1){
+void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t ScalingFactorXiK0s = 1/*0.8458/1.08747*/, Int_t isPreliminary =0, Bool_t isChangesIncluded=1, Bool_t isFit=0){
 
   //isPreliminary = 1: preliminary plots for RATIO (not corrected by norm factor)
   //isPreliminary = 2: preliminary plots for YIELDS (corrected by norm factor)
@@ -94,7 +96,8 @@ void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t S
   Int_t MarkerType[3] = {20, 21, 33};
 
   //  TString titleYToOOJ = "#Xi/K^{0}_{S} (JET) / #Xi/K^{0}_{S} (OOJ)";
-  TString titleYToOOJ = "Near-side jet / out-of-jet";
+  //  TString titleYToOOJ = "Near-side jet / out-of-jet";
+  TString titleYToOOJ = "Toward / Transverse";
 
   //ChosenRegion == -1 //all regions (JET, OOJ, FULL) are plotted
   if (ChosenRegion>2) {cout << "Choose a valid region! " << endl; return;}
@@ -257,6 +260,7 @@ void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t S
 	if (isPreliminary ==1) pathin +=  "_isPreliminaryForRatio";
 	else if (isPreliminary==2) pathin +=  "_isPreliminaryForYields";
 	if (isChangesIncluded)  pathin +=  "_ChangesIncluded";
+	if (type==0 && isPreliminary==0) pathin += "_EffCorr";
 	pathin +=  ".root";
 	cout << "\n\e[35mPathin: " << pathin << "\e[39m"<< endl;
 	TFile *filein = new TFile(pathin, "");
@@ -305,6 +309,7 @@ void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t S
 	      if (histoYieldRatioAllErr[ireg][Coll]->GetBinContent(i) ==0) continue;
 	      else histoYieldRatioAllErr[ireg][Coll]->SetBinError(i, sqrt(pow(histoYieldRatio[ireg][Coll]->GetBinError(i), 2) + pow(histoYieldRatioSist[ireg][Coll]->GetBinError(i),2) ));
 	    }
+	    cout << "ciao " << endl;
 	    if (ireg ==0) {
 	      histoYieldRatio[ireg][Coll]->Scale(ScalingFactorXiK0s);
 	      histoYieldRatioSist[ireg][Coll]->Scale(ScalingFactorXiK0s);
@@ -511,8 +516,10 @@ void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t S
 	histoYieldRatio[ireg][Coll]->Draw("same e0x0");
 	histoYieldRatioSist[ireg][Coll]->SetFillStyle(0);
 	histoYieldRatioSist[ireg][Coll]->Draw("same e2");
-	fitPol0[ireg]->Draw("same");
-	fitPol1[ireg]->Draw("same");
+	if (isFit){
+	  fitPol0[ireg]->Draw("same");
+	  fitPol1[ireg]->Draw("same");
+	}
 
 	if (PlotType==0){
 	  LegendRatio->Draw("");
@@ -597,6 +604,29 @@ void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t S
     canvas->SaveAs("XiK0s3Systems"+SPlotType[PlotType]+Region[ChosenRegion]+SisPreliminary[isPreliminary]+".pdf");
     canvas->SaveAs("XiK0s3Systems"+SPlotType[PlotType]+Region[ChosenRegion]+SisPreliminary[isPreliminary]+".eps");
   }
+
+  TString fileoutHistosName = "RatiosXiK0s3Systems_" + SPlotType[PlotType];
+  if (ChosenRegion>=0) fileoutHistosName += "_" + RegionType[ChosenRegion];
+  fileoutHistosName += ".root";
+  TFile * fileoutHistos = new TFile(fileoutHistosName, "RECREATE");
+  cout <<" Saving histos in file " << endl;
+  for (Int_t ireg=0; ireg<numRegions; ireg++){
+    if (ChosenRegion>=0 && ireg != ChosenRegion) continue;
+    NLoopRegion++;
+    for (Int_t Coll=0; Coll<2; Coll++){ //loop on: ppMB + ppHM, pp5TeV
+      if (Coll==0){
+	histoYieldRatio[ireg][Coll]->SetName(SPlotType[PlotType] + "_" + RegionType[ireg] + "_13TeV_Stat");
+	histoYieldRatioSist[ireg][Coll]->SetName(SPlotType[PlotType] + "_" + RegionType[ireg] + "_13TeV_Sist");
+      }
+      else {
+	histoYieldRatio[ireg][Coll]->SetName(SPlotType[PlotType] + "_" + RegionType[ireg] + "_5TeV_Stat");
+	histoYieldRatioSist[ireg][Coll]->SetName(SPlotType[PlotType] + "_" + RegionType[ireg] + "_5TeV_Sist");
+      }
+      histoYieldRatio[ireg][Coll]->Write();
+      histoYieldRatioSist[ireg][Coll]->Write();
+    }
+  }
+  cout << "I have created the file " << fileoutHistosName << endl;
 
   TFile* fileout = new TFile("FinalPlot.root", "RECREATE");
   canvas->Write();
