@@ -71,13 +71,14 @@ TString RegionTypeBis[3] = {"Jet", "OOj", "Full"};
 TString SRegionType[3] = {"Near-side Jet", "Out-of-jet", "Full"};
 TString NameP[2]={"h#minusK_{S}^{0}", "h#minus#Xi"};
 //TString sRegion[3]={"#color[628]{Near#minusside jet}","#color[418]{Out#minusof#minusjet}","#color[600]{Full}"};
-TString sRegion[3]={"#color[628]{Toward leading}","#color[418]{Transverse to leading}","#color[600]{Full}"};
+//TString sRegion[3]={"#color[628]{Toward leading}","#color[418]{Transverse to leading}","#color[600]{Full}"};
+TString sRegion[3]={"#color[634]{Toward leading}","#color[418]{Transverse to leading}","#color[600]{Full}"};
 //TString sRegionBlack[3]={"#color[1]{Near#minusside jet}","#color[1]{Out#minusof#minusjet}","#color[1]{Full}"};
 TString sRegionBlack[3]={"#color[1]{Toward leading}","#color[1]{Transverse to leading}","#color[1]{Full}"};
 //TString sRegion1[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 1.09", "0.75 < |#Delta#it{#eta}| < 1.2, 0.85 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
 TString sRegion1[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 0.85", "0.75 < |#Delta#it{#eta}| < 1.2, 0.85 < #Delta#it{#varphi} < 2.0", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
 TString titleYToOOJ = "Toward / Transverse";
-TString titleYMCToData = "MC / Data";
+TString titleYMCToData = "Model / Data";
 
 const Int_t NumberOfMCs=2;
 const Int_t numColls =2; //pp13 TeV (MB + HM), pp5TeV
@@ -132,7 +133,7 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
   Int_t ColorDiffMCRopes[numRegions][numColls] = {{634,628}, {418,829} , {601, 867}};
   //  Int_t ColorDiffMC[numRegions][numColls] = {{907, 907}, {812,812} , {870, 870}};
   //  Int_t ColorDiffMCRopes[numRegions][numColls] = {{807, 907}, {411,812} , {598, 870}};
-  Int_t LineStyle[numDataorMC] = {1, 9, 1};
+  Int_t LineStyle[numDataorMC] = {1, 8, 1};
 
   //ChosenRegion == -1 //all regions (JET, OOJ, FULL) are plotted
   if (ChosenRegion>2) {cout << "Choose a valid region! " << endl; return;}
@@ -147,30 +148,52 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
   Float_t Up= 0.14-10e-6;
   Float_t Low = 0.02+10e-6;
   if (PlotType==0){
-    Low = 0.014 + 10e-6;
-    Up = 0.12-10e-6;
+    //    Low = 0.014 + 10e-6;
+    Low = 0.012 + 10e-6;
+    //    Up = 0.12-10e-6;
+    Up = 0.5-10e-6;
   }
   if (PlotType==1) {
     Low = 10e-6; Up = 0.50-10e-6; //0.45
-    if (ChosenRegion==0) {Low = 0.015+10e-6; Up = 0.06-10e-6;} //0.035 
+    if (ChosenRegion==0) {Low = 0.015+10e-6; Up = 0.08-10e-6;} //0.035 
   }
   if (PlotType==2) {
     Low = 10e-6; Up = 0.04-10e-6;
     if (ChosenRegion==0) {Up = 0.0045-10e-6;}
   }
   if (PlotType==3) {
-    Low = 0+10e-4; Up = 3.5;
-    if (ChosenRegion==0) {Low = 1.5; Up = 2.5;}
-    else if (ChosenRegion>0) {Low = 0.8; Up = 1.3;}
+    Low = 0+10e-4; Up = 5.-10e-4;
+    if (ChosenRegion==0) {Low = 1.2+10e-4; Up = 2.7-10e-4;}
+    else if (ChosenRegion>0) {Low = 0.8+10e-4; Up = 1.3-10e-4;}
   }
   if (PlotType==4) {
-    Low = 0+10e-4; Up = 4.999;
+    Low = 0+10e-4; Up = 6.999;
     if (ChosenRegion==0) {Low = 1.5; Up = 5;}
     else if (ChosenRegion>0) {Low = 1.0; Up = 2.2;}
   }
 
-  Float_t LowRatio = 0.+10e-4;
-  Float_t UpRatio = 3.-10e-4;
+  Float_t LowRatio = 0.5+10e-4;
+  Float_t UpRatio = 2.5-10e-4;
+  if (PlotType==0) {
+    LowRatio = 0.+10e-4;
+    UpRatio = 1.5-10e-4;
+  }
+  else if (PlotType==1) {
+    LowRatio = 0.5+10e-4;
+    UpRatio = 2.5-10e-4;
+  }
+  else if (PlotType==2) {
+    LowRatio = 0.05+10e-4;
+    UpRatio = 2.5-10e-4;
+  }
+  else if (PlotType==3){
+    LowRatio = 0.7+10e-4;
+    UpRatio = 1.3-10e-4;
+  }
+  else if (PlotType ==4) {
+    LowRatio = 0.7+10e-4;
+    UpRatio = 1.3-10e-4;
+  }
 
   TF1 * fitToRatioToOOJ = new TF1("fitToRatioToOOJ", "pol0", 0, 45);
   fitToRatioToOOJ->SetLineColor(1);
@@ -191,6 +214,7 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
   Float_t YieldRatios[numRegions][numColls][numDataorMC][nummoltMax] = {0};
   Float_t YieldRatiosErrors[numRegions][numColls][numDataorMC][nummoltMax] = {0};
   TGraphErrors*	ghistoYield[numRegions][numColls][numDataorMC];
+  TGraphErrors*	ghistoYieldGrey[numRegions][numColls][numDataorMC];
   TGraphErrors*	ghistoYieldRatio[numRegions][numColls][numDataorMC];
 
   TH1F*  fHistYieldStatBlack;
@@ -249,6 +273,19 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
     dNdEta[0][8] = 0;
     dNdEta[0][9] = 0;
     dNdEta[0][10] = 0;   
+
+    dNdEtaError[0][0] = 0;
+    dNdEtaError[0][1] = 0;
+    dNdEtaError[0][2] = 0;
+    dNdEtaError[0][3] = 0;
+    dNdEtaError[0][4] = 0;
+    dNdEtaError[0][5] = 0;
+    dNdEtaError[0][6] = 0;
+    dNdEtaError[0][7] = 0;
+    dNdEtaError[0][8] = 0;
+    dNdEtaError[0][9] = 0;
+    dNdEtaError[0][10] = 0;
+
     //Monash
     dNdEta[1][0] = 4.01;
     dNdEta[1][1] = 9.04;
@@ -261,6 +298,19 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
     dNdEta[1][8] = 25.58;
     dNdEta[1][9] = 29.09;
     dNdEta[1][10] = 7.00;   
+
+    dNdEtaError[1][0] = 0;
+    dNdEtaError[1][1] = 0;
+    dNdEtaError[1][2] = 0;
+    dNdEtaError[1][3] = 0;
+    dNdEtaError[1][4] = 0;
+    dNdEtaError[1][5] = 0;
+    dNdEtaError[1][6] = 0;
+    dNdEtaError[1][7] = 0;
+    dNdEtaError[1][8] = 0;
+    dNdEtaError[1][9] = 0;
+    dNdEtaError[1][10] = 0;
+
     //Ropes (now it's Monash...)
     dNdEta[2][0] = 4.01;
     dNdEta[2][1] = 9.04;
@@ -273,6 +323,18 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
     dNdEta[2][8] = 25.58;
     dNdEta[2][9] = 29.09;
     dNdEta[2][10] = 7.00;   
+
+    dNdEtaError[2][0] = 0;
+    dNdEtaError[2][1] = 0;
+    dNdEtaError[2][2] = 0;
+    dNdEtaError[2][3] = 0;
+    dNdEtaError[2][4] = 0;
+    dNdEtaError[2][5] = 0;
+    dNdEtaError[2][6] = 0;
+    dNdEtaError[2][7] = 0;
+    dNdEtaError[2][8] = 0;
+    dNdEtaError[2][9] = 0;
+    dNdEtaError[2][10] = 0;
   }
 
   TString pathin[NumberOfMCs+2] ={""};
@@ -308,6 +370,7 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
   TLegend *LegendRatio=new TLegend(0.62,0.77,0.9,0.92);
   LegendRatio->SetFillStyle(0);
   TLegendEntry* E1Ratio =      LegendRatio->AddEntry("", "#bf{ALICE Preliminary}", "");
+  //  TLegendEntry* E1Ratio =      LegendRatio->AddEntry("", "", "");
   TLegendEntry* E3Ratio =           LegendRatio->AddEntry(""/*(TObject*)0*/, "#it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
   E3Ratio->SetTextAlign(32);
 
@@ -319,8 +382,11 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
   TLegend *LegendYields=new TLegend(0.16,0.75,0.5,0.93);
   LegendYields->SetMargin(0);
   LegendYields->AddEntry("", "#bf{ALICE Preliminary}", "");
-  //LegendYields->AddEntry("", "", "");
-  //  LegendYields->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
+  //  LegendYields->AddEntry("", "", "");
+  LegendYields->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
+  if (PlotType == 1 || PlotType ==3)     LegendYields->AddEntry(""/*(TObject*)0*/, "h#minusK_{S}^{0} correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
+  else if (PlotType == 2 || PlotType == 4) LegendYields->AddEntry(""/*(TObject*)0*/, "h#minus#Xi correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", ""); 
+
 
   TLegend *legendOneRegion=new TLegend(0.62, 0.8, 0.92, 0.9);
 
@@ -353,9 +419,14 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
   TLegend *legendStatBoxBis=new TLegend(0.2, 0.48, 0.35, 0.58);
   TLegend *legendStatBoxColor=new TLegend(0.18, 0.56, 0.35, 0.71);
 
-  Int_t NLoopType =-1;
-  Int_t NLoopRegion =-1;
+  TLegend *legendMCTypes = new TLegend(0.66, 0.65, 0.90, 0.76);
 
+  Int_t NLoopRegion =-1;
+  Int_t NTypeMC =-1;
+  Int_t MCindexForPlotting = 0;
+  if (MonashTune==1) MCindexForPlotting = 2;
+  else if (MonashTune==2) MCindexForPlotting = 1;
+  else if (MonashTune==3) MCindexForPlotting = 2;
 
   cout << "\n\e[35mPlot type:  " << SPlotType[PlotType] << "\e[39m" << endl;
   for (Int_t ireg=0; ireg<numRegions; ireg++){
@@ -367,9 +438,11 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
       cout << "\nCollisions: ";
       if (Coll==0) cout << " 13 TeV " << endl;
       else cout << " 5 TeV " << endl;
+      NTypeMC=-1;
       for (Int_t isMC = 0; isMC <= NumberOfMCs; isMC++){
-	if (MonashTune==1 && isMC!=2) continue; //only Ropes 
-	if (MonashTune==2 && isMC!=1) continue; //only Pythia default
+	if (MonashTune==1 && isMC==1) continue; //only Ropes 
+	if (MonashTune==2 && isMC==2) continue; //only Pythia default
+	NTypeMC++;
 	cout << "\nisMC? " << MCType[isMC] << endl;
 	//Input file 
 	if (isMC==0) {
@@ -380,7 +453,7 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	else {
 	  pathin[isMC] = "Results_pp13TeVMB_FastMCPrediction"; //temporary solution
 	  if (isdNdEtaTriggered)  pathin[isMC]+= "_isdNdEtaTriggered";
-	  if (isWingsCorrectionApplied && isMC==1) pathin[isMC] += "_isWingsCorrectionApplied";
+	  if (isWingsCorrectionApplied) pathin[isMC] += "_isWingsCorrectionApplied";
 	  if (MonashTune==2) pathin[isMC] += "_PythiaMonash";
 	  else if (MonashTune==1) pathin[isMC] += "_PythiaRopes";
 	  else if (MonashTune==3){
@@ -447,6 +520,7 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	  YieldsErrors[ireg][Coll][isMC][m] = sqrt(pow(histoYield[ireg][Coll][isMC]->GetBinError(histoYield[ireg][Coll][isMC]->FindBin(dNdEta[isMC][m])), 2) +  pow(histoYieldSist[ireg][Coll][isMC]->GetBinError(histoYield[ireg][Coll][isMC]->FindBin(dNdEta[isMC][m])),2) );
 	}
 	ghistoYield[ireg][Coll][isMC] = new TGraphErrors(nummoltDataorMC,dNdEta[isMC],Yields[ireg][Coll][isMC],dNdEtaError[isMC],YieldsErrors[ireg][Coll][isMC]);
+	ghistoYield[ireg][Coll][isMC]->SetName(Form("ghistoYield_reg%i_Coll%i_isMC%i", ireg, Coll, isMC));
 	StyleTGraphErrors(ghistoYield[ireg][Coll][isMC], ColorDiff[ireg][Coll], 1, 1, LineStyle[isMC]);
 
 	//Splines to TGraphs
@@ -492,84 +566,89 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	  histoYieldSist[ireg][Coll][isMC]->GetYaxis()->SetTickLength(0.02);
 	}
 
-	/*
 	//legend
-	if (NLoopType ==0 && NLoopRegion==0){
-	fHistYieldStatGrey[Coll]= (TH1F*)      histoYield[ireg][Coll][isMC]->Clone("fHistYieldStatBlack");
-	fHistYieldStatGrey[Coll]->SetLineColor(ColorEnergy[Coll]);
-	fHistYieldStatGrey[Coll]->SetMarkerColor(ColorEnergy[Coll]);
-	fHistYieldStatGrey[Coll]->SetMarkerStyle(20);
-
-	if (Coll==0){
-	TLegendEntry* L1 = legendEnergyBox1->AddEntry(fHistYieldStatGrey[Coll], "pp, #sqrt{#it{s}} = 13 TeV", "pe");
-	L1->SetTextAlign(32);
-	L1->SetTextSize(0.042);
-	TLegendEntry* L1Bis = legendEnergyBoxBis1->AddEntry(fHistYieldStatGrey[Coll], "pp, #sqrt{#it{s}} = 13 TeV", "pe");
-	L1Bis->SetTextAlign(22);
-	L1Bis->SetTextSize(0.044);
-	}
-	else {
-	TLegendEntry* L2 = legendEnergyBox2->AddEntry(fHistYieldStatGrey[Coll], "pp, #sqrt{#it{s}} = 5.02 TeV", "pe");
-	L2->SetTextAlign(32);
-	L2->SetTextSize(0.042);
-	TLegendEntry* L2Bis = legendEnergyBoxBis2->AddEntry(fHistYieldStatGrey[Coll], "pp, #sqrt{#it{s}} = 5.02 TeV", "pe");
-	L2Bis->SetTextAlign(22);
-	L2Bis->SetTextSize(0.044);
-	}
+	if (NLoopRegion==0 && Coll==0 && isMC!=0){
+	  ghistoYieldGrey[ireg][Coll][isMC] = (TGraphErrors*)ghistoYield[ireg][Coll][isMC]->Clone(Form("ghistoYieldGrey_ireg%i_Coll%i_isMC%i", ireg, Coll, isMC));
+	  ghistoYieldGrey[ireg][Coll][isMC]->SetLineColor(kGray+3);
+	  legendMCTypes->AddEntry(ghistoYieldGrey[ireg][Coll][isMC], MCType[isMC], "l");
 	}
 
-	if (NLoopType==0 && Coll==0){
-	if (ireg==0) lReAll1Bis[ireg] = legendRegionJet->AddEntry(histoYield[ireg][Coll][isMC], sRegion[ireg], "p");
-	else if (ireg==1)lReAll1Bis[ireg] = legendRegionBulk->AddEntry(histoYield[ireg][Coll][isMC], sRegion[ireg], "p");
-	else lReAll1Bis[ireg] = legendRegionFull->AddEntry(histoYield[ireg][Coll][isMC], sRegion[ireg], "p");
-	lReAll1Bis[ireg]->SetTextSize(0.045);
-	//      lReAll1Bis[ireg]->SetTextAlign(32);
+	if (NLoopRegion==0 && Coll==0 && NTypeMC==0){
+	  fHistYieldStatGrey[Coll]= (TH1F*) histoYield[ireg][Coll][isMC]->Clone("fHistYieldStatBlack");
+	  fHistYieldStatGrey[Coll]->SetLineColor(ColorEnergy[Coll]);
+	  fHistYieldStatGrey[Coll]->SetMarkerColor(ColorEnergy[Coll]);
+	  fHistYieldStatGrey[Coll]->SetMarkerStyle(20);
 
-	if (ireg==0) lReAll2Bis[ireg]=      legendRegionJet->AddEntry("", sRegion1[ireg], "");
-	else    if (ireg==1) lReAll2Bis[ireg]=      legendRegionBulk->AddEntry("", sRegion1[ireg], "");
-	else    lReAll2Bis[ireg]=      legendRegionFull->AddEntry("", sRegion1[ireg], "");
-	lReAll2Bis[ireg]->SetTextSize(0.035);
-
-	lReAll1[ireg] = legendRegionAll->AddEntry(histoYield[ireg][Coll][isMC], sRegion[ireg], "p");
-	lReAll1[ireg]->SetTextSize(0.048);
-	lReAll2[ireg]= legendRegionAll->AddEntry("", sRegion1[ireg], "");
-	lReAll2[ireg]->SetTextSize(0.038);
-
-	if (NLoopRegion==0){
-	fHistYieldStatBlack= (TH1F*)      histoYield[ireg][Coll][isMC]->Clone("fHistYieldStatBlack");
-	fHistYieldSistBlack= (TH1F*)      histoYieldSist[ireg][Coll][isMC]->Clone("fHistYieldSistBlack");
-	fHistYieldStatBlack->SetLineColor(1);
-	fHistYieldStatBlack->SetMarkerColor(1);
-	fHistYieldStatBlack->SetMarkerStyle(20);
-	fHistYieldSistBlack->SetLineColor(1);
-	fHistYieldSistBlack->SetMarkerColor(1);
-	fHistYieldSistBlack->SetMarkerStyle(20);
-
-	legendStatBoxBis->AddEntry(fHistYieldSistBlack, "syst. error", "ef");
-	legendStatBoxBis->AddEntry(fHistYieldStatBlack, "stat. error", "pe");
-	legendStatBox->AddEntry(fHistYieldSistBlack, "syst. error", "ef");
-	legendStatBox->AddEntry(fHistYieldStatBlack, "stat. error", "pe");
-
-	}
+	  if (Coll==0){
+	    TLegendEntry* L1 = legendEnergyBox1->AddEntry(fHistYieldStatGrey[Coll], "pp, #sqrt{#it{s}} = 13 TeV", "pe");
+	    L1->SetTextAlign(32);
+	    L1->SetTextSize(0.042);
+	    TLegendEntry* L1Bis = legendEnergyBoxBis1->AddEntry(fHistYieldStatGrey[Coll], "pp, #sqrt{#it{s}} = 13 TeV", "pe");
+	    L1Bis->SetTextAlign(22);
+	    L1Bis->SetTextSize(0.044);
+	  }
+	  else {
+	    TLegendEntry* L2 = legendEnergyBox2->AddEntry(fHistYieldStatGrey[Coll], "pp, #sqrt{#it{s}} = 5.02 TeV", "pe");
+	    L2->SetTextAlign(32);
+	    L2->SetTextSize(0.042);
+	    TLegendEntry* L2Bis = legendEnergyBoxBis2->AddEntry(fHistYieldStatGrey[Coll], "pp, #sqrt{#it{s}} = 5.02 TeV", "pe");
+	    L2Bis->SetTextAlign(22);
+	    L2Bis->SetTextSize(0.044);
+	  }
 	}
 
-	if (Coll==1){
-	legendStatBoxColor->AddEntry(histoYield[ireg][Coll][isMC], "stat. error", "pe");
-	legendStatBoxColor->AddEntry(histoYieldSist[ireg][Coll][isMC], "syst. error", "ef");
+	if (Coll==0 && NTypeMC ==0){
 
-	TLegendEntry * lRe1 = legendOneRegion->AddEntry("", sRegion[ireg], "");
-	lRe1->SetTextSize(0.06);
-	lRe1->SetTextAlign(32);
-	TLegendEntry *leR2=      legendOneRegion->AddEntry("", sRegion1[ireg], "");
-	leR2->SetTextSize(0.04);
-	leR2->SetTextAlign(32);
+	  if (ireg==0) lReAll1Bis[ireg] = legendRegionJet->AddEntry(histoYield[ireg][Coll][isMC], sRegion[ireg], "p");
+	  else if (ireg==1)lReAll1Bis[ireg] = legendRegionBulk->AddEntry(histoYield[ireg][Coll][isMC], sRegion[ireg], "p");
+	  else lReAll1Bis[ireg] = legendRegionFull->AddEntry(histoYield[ireg][Coll][isMC], sRegion[ireg], "p");
+
+	  lReAll1Bis[ireg]->SetTextSize(0.045);
+	  //      lReAll1Bis[ireg]->SetTextAlign(32);
+
+	  if (ireg==0) lReAll2Bis[ireg]=      legendRegionJet->AddEntry("", sRegion1[ireg], "");
+	  else    if (ireg==1) lReAll2Bis[ireg]=      legendRegionBulk->AddEntry("", sRegion1[ireg], "");
+	  else    lReAll2Bis[ireg]=      legendRegionFull->AddEntry("", sRegion1[ireg], "");
+	  lReAll2Bis[ireg]->SetTextSize(0.035);
+
+	  lReAll1[ireg] = legendRegionAll->AddEntry(histoYield[ireg][Coll][isMC], sRegion[ireg], "p");
+	  lReAll1[ireg]->SetTextSize(0.048);
+	  lReAll2[ireg]= legendRegionAll->AddEntry("", sRegion1[ireg], "");
+	  lReAll2[ireg]->SetTextSize(0.038);
+
+	  if (NLoopRegion==0){
+	    fHistYieldStatBlack= (TH1F*)      histoYield[ireg][Coll][isMC]->Clone("fHistYieldStatBlack");
+	    fHistYieldSistBlack= (TH1F*)      histoYieldSist[ireg][Coll][isMC]->Clone("fHistYieldSistBlack");
+	    fHistYieldStatBlack->SetLineColor(1);
+	    fHistYieldStatBlack->SetMarkerColor(1);
+	    fHistYieldStatBlack->SetMarkerStyle(20);
+	    fHistYieldSistBlack->SetLineColor(1);
+	    fHistYieldSistBlack->SetMarkerColor(1);
+	    fHistYieldSistBlack->SetMarkerStyle(20);
+
+	    legendStatBoxBis->AddEntry(fHistYieldSistBlack, "syst. error", "ef");
+	    legendStatBoxBis->AddEntry(fHistYieldStatBlack, "stat. error", "pe");
+	    legendStatBox->AddEntry(fHistYieldSistBlack, "syst. error", "ef");
+	    legendStatBox->AddEntry(fHistYieldStatBlack, "stat. error", "pe");
+
+	  }
 	}
-	if (Coll==0)	LegendColor->AddEntry("", NameP[type]+ " correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
+
+	if (Coll==0 && NTypeMC==0){
+	  legendStatBoxColor->AddEntry(histoYield[ireg][Coll][isMC], "stat. error", "pe");
+	  legendStatBoxColor->AddEntry(histoYieldSist[ireg][Coll][isMC], "syst. error", "ef");
+
+	  TLegendEntry * lRe1 = legendOneRegion->AddEntry("", sRegion[ireg], "");
+	  lRe1->SetTextSize(0.06);
+	  lRe1->SetTextAlign(32);
+	  TLegendEntry *leR2=      legendOneRegion->AddEntry("", sRegion1[ireg], "");
+	  leR2->SetTextSize(0.04);
+	  leR2->SetTextAlign(32);
+	}
+	//	if (Coll==0)	LegendColor->AddEntry("", NameP[type]+ " correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
 
 	if (Coll==1)	legendEnergyBoxColor->AddEntry(histoYield[ireg][Coll][isMC], "pp, #sqrt{#it{s}} = 5.02 TeV", "pe");
 	else 	legendEnergyBoxColor->AddEntry(histoYield[ireg][Coll][isMC], "pp, #sqrt{#it{s}} = 13 TeV", "pe");
-
-	*/
 
 	if (isMC ==1 || isMC==2){
 	  ghistoYield[ireg][Coll][isMC]->Draw("same");
@@ -582,6 +661,33 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	}
 	//if (ireg!=0)	fitY[ireg][Coll][isMC]->Draw("same");
 	//else if (ireg==0)	fsplineY[ireg][Coll][isMC]->Draw("same");
+
+	if (isMC == MCindexForPlotting){
+	  if (PlotType==0){
+	    LegendRatio->Draw("");
+	    legendRegionJet->Draw("");
+	    legendRegionBulk->Draw("");
+	    legendRegionFull->Draw("");
+	    legendStatBoxBis->Draw("");
+	  }
+	  else {
+	    if (ChosenRegion == -1){
+	      LegendYields->Draw("");
+	      //legendEnergyBox1->Draw("");
+	      //legendEnergyBox2->Draw("");
+	      legendStatBox->Draw("");
+	      legendRegionAll->Draw("");
+	    }
+	    else {
+	      LegendYields->Draw("");
+	      //LegendColor->Draw("");
+	      legendStatBoxColor->Draw("");
+	      legendOneRegion->Draw("");
+	      //legendEnergyBoxColor->Draw("");
+	    }
+ 	  }
+	  legendMCTypes->Draw("");
+	}
 
 	//MC / DATA Ratios
 	if (isMC >0){
@@ -600,6 +706,11 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
   pad2->cd();
 
   TH1F* hdummy = new TH1F ("hdummy", "hdummy",  1000, 0, 40); 
+  TF1 * lineAt1 = new TF1 ("lineAt1", "pol0", 0, 40);
+  lineAt1->SetParameter(0,1);
+  lineAt1->SetLineColor(1);
+  lineAt1->SetLineStyle(2);
+
   for (Int_t ireg=0; ireg<numRegions; ireg++){
     if (ChosenRegion>=0 && ireg != ChosenRegion) continue;
     for (Int_t Coll=0; Coll<2; Coll++){ //loop on: ppMB + ppHM, pp5TeV
@@ -630,7 +741,7 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 
 	StyleHisto(hdummy, LowRatio, UpRatio, ColorDiff[ireg][Coll], 1, titleX, titleYMCToData, "" , 1, 0, 40, xOffset, yOffset, 1);
 
-	hdummy->GetYaxis()->SetTitleSize(0.07);
+	hdummy->GetYaxis()->SetTitleSize(0.1);
 	hdummy->GetYaxis()->SetTitleOffset(0.7);
 
 	hdummy->GetYaxis()->SetLabelSize(0.10);
@@ -650,11 +761,14 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	for (Int_t m=0; m< nummolt; m++){
 	  YieldRatios[ireg][Coll][isMC][m] = hMCDataRatio[ireg][Coll][isMC]->GetBinContent(hMCDataRatio[ireg][Coll][isMC]->FindBin(dNdEta[isMC][m]));
 	  YieldRatiosErrors[ireg][Coll][isMC][m] = 0; 
+	  //	  cout << "m " << dNdEta[isMC][m] << " " << YieldRatios[ireg][Coll][isMC][m] << endl;
 	}
 	ghistoYieldRatio[ireg][Coll][isMC] = new TGraphErrors(nummolt,dNdEta[isMC],YieldRatios[ireg][Coll][isMC],dNdEtaError[isMC],YieldRatiosErrors[ireg][Coll][isMC]);
+	ghistoYieldRatio[ireg][Coll][isMC]->SetName(Form("ghistoYieldRatio_reg%i_Coll%i_isMC%i", ireg, Coll, isMC));
 	StyleTGraphErrors(ghistoYieldRatio[ireg][Coll][isMC], ColorDiff[ireg][Coll], 1, 1, LineStyle[isMC]);
 
 	ghistoYieldRatio[ireg][Coll][isMC]->Draw("same");
+	lineAt1->Draw("same");
       }
     }
   }
@@ -699,4 +813,20 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
     canvas->SaveAs("CompareDatavsMC_"+SPlotType[PlotType]+"_" + RegionType[ChosenRegion]+ MCTypeBis[MonashTune-1]+".pdf");
     canvas->SaveAs("CompareDatavsMC_"+SPlotType[PlotType]+"_" + RegionType[ChosenRegion]+ MCTypeBis[MonashTune-1]+".eps");
   }
+
+  TFile *fileout = new TFile("CompareDatavsMC.root", "RECREATE");
+  fileout->WriteTObject(canvas);
+  for (Int_t ireg=0; ireg<numRegions; ireg++){
+    if (ChosenRegion>=0 && ireg != ChosenRegion) continue;
+    for (Int_t Coll=0; Coll<2; Coll++){ //loop on: ppMB + ppHM, pp5TeV
+      if (Coll==1) continue; //for the time being, only 13 TeV
+      for (Int_t isMC = 0; isMC <= NumberOfMCs; isMC++){
+	if (isMC==0) continue;
+	if (MonashTune==1 && isMC!=2) continue; //only Ropes 
+	if (MonashTune==2 && isMC!=1) continue; //only Pythia default
+	ghistoYieldRatio[ireg][Coll][isMC]->Write();
+      }
+    }
+  }
+  fileout->Close();
 }
