@@ -76,7 +76,7 @@ TString sRegion[3]={"#color[634]{Toward leading}","#color[418]{Transverse to lea
 //TString sRegionBlack[3]={"#color[1]{Near#minusside jet}","#color[1]{Out#minusof#minusjet}","#color[1]{Full}"};
 TString sRegionBlack[3]={"#color[1]{Toward leading}","#color[1]{Transverse to leading}","#color[1]{Full}"};
 //TString sRegion1[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 1.09", "0.75 < |#Delta#it{#eta}| < 1.2, 0.85 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
-TString sRegion1[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 0.85", "0.75 < |#Delta#it{#eta}| < 1.2, 0.85 < #Delta#it{#varphi} < 2.0", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
+TString sRegion1[3]={"|#Delta#it{#eta}| < 0.86, |#Delta#it{#varphi}| < 0.85", "0.86 < |#Delta#it{#eta}| < 1.2, 0.85 < #Delta#it{#varphi} < 2.0", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
 TString titleYToOOJ = "Toward / Transverse";
 TString titleYMCToData = "Model / Data";
 
@@ -369,19 +369,21 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
   //  TLegend *LegendRatio=new TLegend(0.62,0.72,0.9,0.92);
   TLegend *LegendRatio=new TLegend(0.62,0.77,0.9,0.92);
   LegendRatio->SetFillStyle(0);
-  TLegendEntry* E1Ratio =      LegendRatio->AddEntry("", "#bf{ALICE Preliminary}", "");
-  //  TLegendEntry* E1Ratio =      LegendRatio->AddEntry("", "", "");
+  //  TLegendEntry* E1Ratio =      LegendRatio->AddEntry("", "#bf{ALICE Preliminary}", "");
+  TLegendEntry* E1Ratio =      LegendRatio->AddEntry("", "#bf{#color[0]{ALICE Preliminary}}", "");
   TLegendEntry* E3Ratio =           LegendRatio->AddEntry(""/*(TObject*)0*/, "#it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
   E3Ratio->SetTextAlign(32);
 
   TLegend *LegendColor=new TLegend(0.16,0.80,0.5,0.92); 
   LegendColor->SetMargin(0);
-  LegendColor->AddEntry("", "#bf{ALICE Preliminary}", "");
+  //  LegendColor->AddEntry("", "#bf{ALICE Preliminary}", "");
+  LegendColor->AddEntry("", "#color[0]{#bf{ALICE Preliminary}}", "");
   //LegendColor->AddEntry("", "", "");
 
   TLegend *LegendYields=new TLegend(0.16,0.75,0.5,0.93);
   LegendYields->SetMargin(0);
-  LegendYields->AddEntry("", "#bf{ALICE Preliminary}", "");
+  //  LegendYields->AddEntry("", "#bf{ALICE Preliminary}", "");
+  LegendYields->AddEntry("", "#color[0]{#bf{ALICE Preliminary}}", "");
   //  LegendYields->AddEntry("", "", "");
   LegendYields->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
   if (PlotType == 1 || PlotType ==3)     LegendYields->AddEntry(""/*(TObject*)0*/, "h#minusK_{S}^{0} correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
@@ -453,7 +455,7 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	else {
 	  pathin[isMC] = "Results_pp13TeVMB_FastMCPrediction"; //temporary solution
 	  if (isdNdEtaTriggered)  pathin[isMC]+= "_isdNdEtaTriggered";
-	  if (isWingsCorrectionApplied) pathin[isMC] += "_isWingsCorrectionApplied";
+	  if (isWingsCorrectionApplied) pathin[isMC] += "_isWingsCorrectionAppliedNew";
 	  if (MonashTune==2) pathin[isMC] += "_PythiaMonash";
 	  else if (MonashTune==1) pathin[isMC] += "_PythiaRopes";
 	  else if (MonashTune==3){
@@ -569,8 +571,20 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	//legend
 	if (NLoopRegion==0 && Coll==0 && isMC!=0){
 	  ghistoYieldGrey[ireg][Coll][isMC] = (TGraphErrors*)ghistoYield[ireg][Coll][isMC]->Clone(Form("ghistoYieldGrey_ireg%i_Coll%i_isMC%i", ireg, Coll, isMC));
-	  ghistoYieldGrey[ireg][Coll][isMC]->SetLineColor(kGray+3);
-	  legendMCTypes->AddEntry(ghistoYieldGrey[ireg][Coll][isMC], MCType[isMC], "l");
+	  if (ChosenRegion==-1) 	  ghistoYieldGrey[ireg][Coll][isMC]->SetLineColor(kGray+3);
+	  else  {
+	    ghistoYieldGrey[ireg][Coll][isMC]->SetLineColor(ColorDiff[ireg][Coll]);
+	    ghistoYieldGrey[ireg][Coll][isMC]->SetFillColor(ColorDiff[ireg][Coll]);
+	  }
+	  //	  if (/*PlotType==0 ||*/ ChosenRegion==0){
+	  if (PlotType==0 || ChosenRegion==0){
+	    if (isMC==1) ghistoYieldGrey[ireg][Coll][isMC]->SetFillStyle(3001);
+	    else ghistoYieldGrey[ireg][Coll][isMC]->SetFillStyle(3002);
+	    legendMCTypes->AddEntry(ghistoYieldGrey[ireg][Coll][isMC], MCType[isMC], "f");
+	  }
+	  else {
+	    legendMCTypes->AddEntry(ghistoYieldGrey[ireg][Coll][isMC], MCType[isMC], "l");
+	  }
 	}
 
 	if (NLoopRegion==0 && Coll==0 && NTypeMC==0){
@@ -651,7 +665,17 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	else 	legendEnergyBoxColor->AddEntry(histoYield[ireg][Coll][isMC], "pp, #sqrt{#it{s}} = 13 TeV", "pe");
 
 	if (isMC ==1 || isMC==2){
-	  ghistoYield[ireg][Coll][isMC]->Draw("same");
+	  //	  if (/*PlotType==0 ||*/ ChosenRegion==0){
+	  if (PlotType==0 || ChosenRegion==0){
+	    ghistoYield[ireg][Coll][isMC]->SetFillColor(ColorDiff[ireg][Coll]);
+	    if (isMC==1)	  ghistoYield[ireg][Coll][isMC]->SetFillStyle(3001);
+	    else 	  ghistoYield[ireg][Coll][isMC]->SetFillStyle(3002); //NO: 3003
+	    ghistoYield[ireg][Coll][isMC]->Draw("same 3");
+	    //	    legendMCTypes->AddEntry(ghistoYield[ireg][Coll][isMC], MCType[isMC], "f");
+	  }
+	  else {
+	    ghistoYield[ireg][Coll][isMC]->Draw("same");
+	  }
 	}
 	else {
 	  histoYield[ireg][Coll][isMC]->Draw("same e0x0");
