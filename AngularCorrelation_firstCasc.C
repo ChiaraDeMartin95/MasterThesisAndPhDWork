@@ -18,8 +18,9 @@
 #include <TLegend.h>
 #include "Macros/constants.h"
 
-void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAssoc=0, Float_t ptjmin=3,  Float_t PtTrigMinFit=3, Int_t sysV0=0,Int_t type=0 /*0 = K0s, 8 = Xi*/,  Int_t israp=0, Bool_t isMC=1, Bool_t isEfficiency=0, TString yearME="PythiaMonash"/*"PythiaRopes"/*"_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*"16kl_hK0s_Hybrid"/*"2019h11_HM_hK0s"/*"161718_hXi"/"1617_GP_hK0s"/"AllhK0sHM_RedNo16k"/*"161718_HM_hXi_WithFlat16k_No18p"*"161718Full_AOD234_hXi"/"17pq_pp5TeV_hXi_pttrig0.15"/"17pq_hK0s"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"/"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/*"2018f1_extra_Mylabel_15runs_hK0s_Hybrid"/*"2016k_HM_hK0s"/"1617_hK0s"/*"161718_MD_hXi_Hybrid_MCTruth"/*"2018f1g4_extra_hXi_Hybrid_MCTruth"/"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018g4_extra_EtaEff_hK0s_MCEff"*/, TString year=""/*"PythiaRopes"/*"_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/*"2019h11_HM_hK0s"/*"161718_hXi"/"1617_GP_hK0s"/ "17pq_hK0s"/"AllhK0sHM_RedNo16k"/*"161718_HM_hXi_WithFlat16k_No18p"/*"161718Full_AOD234_hXi"*"17pq_pp5TeV_hXi_pttrig0.15"/*"17pq_hXi"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"/"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"//"2016k_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617_hK0s"/*"2018g4_extra_EtaEff_hK0s"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/"161718_MD_EtaEff_hXi"/*"LHC16_17_GP_Hybrid_hXi"/*"2018f1g4_extra_hXi"/"2018g4_extra_hXi_SelTrigger"/*_15runsBis"/"1617_hK0s"/*AllMC_hXi"/"2018f1_extra_hK0s"/*"2016k_hK0s"/*"2016k_MECorr"/"Run2DataRed_MECorr_hXi"/*/, TString yearMC="PythiaMonash"/*"PythiaRopes_IncreasedStatXi"/*"PythiaRopes"/*"_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/"2019h11_HM_hK0s_EffCorr"/*"161718_hXi"/*"161718Full_AOD235_hXi"/*"1617GP_hK0s_Hybrid_New" /"17pq_pp5TeV_Hybrid"/*"1617_GP_AOD235_With18c12b"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/*"1617GP_hK0s"/*"1617_GP_AOD235"/*"1617_GP_AOD235_With18c12b"/*"161718_hXi"/*"17pq_hK0s"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/*""//*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/"2019h11c_extra_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617MC_hK0s"/"2018g4_extra_EtaEff_hK0s"/*"161718_MD_EtaEff_hXi"/"2018f1g4_extra_hXi"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/*"161718_MD_hXi_Hybrid"/*"LHC16_17_GP_Hybrid_hXi"/*"17d20bEPOS_hK0s"/"2018g4_extra_hXi_SelTrigger"/*"1617MC_hK0s"/"AllMC_hXi"/*"1617GP_hXi"/*"2016kl_hXi"/*"2018f1_extra_MECorr"/"2018f1_extra_Hybrid_hK0s"/*"17d20bEPOS_hXi"*/,  TString yearMCTrigEff=""/*"17l3b_hK0s"/*"161718HM_hK0s_TriggEff"/*"18f1_extra_EffTrigger_5runs"*/,  TString Dir ="FinalOutput/",  Float_t ptjmax=15, Bool_t isBkgParab=1, Bool_t isMeanFixedPDG=1, Int_t MultBinning=1, Int_t PtBinning=0, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t IsPtTrigMultDep=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsParticleTrue=0,  Bool_t isSidebands=1, Bool_t isMESBFromPeak =0,  Bool_t isMEFromHybrid=0, Bool_t isMEFromCorrectCentrality = 0, Bool_t isEtaEff=1, Bool_t isMEFromK0s=0, Bool_t isNewInputPath=1, Bool_t isHM=1,  Int_t isNewdEtaJet =2, Bool_t isSysPurity =0, Int_t VarRange = 0, Bool_t isMCForNorm=0, Bool_t isEffCorr=1, Bool_t isGenOnTheFly=1, Bool_t isWingsCorrectionApplied=1){ 
+void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAssoc=0, Float_t ptjmin=3,  Float_t PtTrigMinFit=3, Int_t sysV0=0,Int_t type=8 /*0 = K0s, 8 = Xi*/,  Int_t israp=0, Bool_t isMC=0, Bool_t isEfficiency=0, TString yearME=/*"EPOSLHC"/*"EPOS17d20b_hK0s"/*_Hybrid"/"PythiaMonash_IncreasedStatXi"/*"PythiaRopes"/*"_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*"16kl_hK0s_Hybrid"/*"2019h11_HM_hK0s"/*"161718_hXi"/"1617_GP_hK0s"/"AllhK0sHM_RedNo16k"/*"161718_HM_hXi_WithFlat16k_No18p"*/"161718Full_AOD234_hXi"/*"17pq_pp5TeV_hXi_pttrig0.15"/"17pq_hK0s"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"/"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hXi"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/*"2018f1_extra_Mylabel_15runs_hK0s_Hybrid"/*"2016k_HM_hK0s"/"1617_hK0s"/*"161718_MD_hXi_Hybrid_MCTruth"/*"2018f1g4_extra_hXi_Hybrid_MCTruth"/"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018g4_extra_EtaEff_hK0s_MCEff"*/, TString year=/*"EPOSLHC"/"PythiaMonash_IncreasedStatXi"/*"_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/*"2019h11_HM_hK0s"/*"161718_hXi"/"1617_GP_hK0s"*/ "17pq_hXi"/*"AllhK0sHM_RedNo16k"/*"161718_HM_hXi_WithFlat16k_No18p"/"161718Full_AOD234_hXi"/**"17pq_pp5TeV_hXi_pttrig0.15"/*"17pq_hXi"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"/"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"//"2016k_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617_hK0s"/*"2018g4_extra_EtaEff_hK0s"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/"161718_MD_EtaEff_hXi"/*"LHC16_17_GP_Hybrid_hXi"/*"2018f1g4_extra_hXi"/"2018g4_extra_hXi_SelTrigger"/*_15runsBis"/"1617_hK0s"/*AllMC_hXi"/"2018f1_extra_hK0s"/*"2016k_hK0s"/*"2016k_MECorr"/"Run2DataRed_MECorr_hXi"/*/, TString yearMC=/*"EPOSLHC"/*"EPOS17d20b_hK0s"/*_Hybrid"*/"PythiaMonash_IncreasedStatXi"/*"PythiaRopes_IncreasedStatXi"/*"PythiaRopes"/*"_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/"2019h11_HM_hK0s_EffCorr"/*"161718_hXi"/*"161718Full_AOD235_hXi"/*"1617GP_hK0s_Hybrid_New" /"17pq_pp5TeV_Hybrid"/*"1617_GP_AOD235_With18c12b"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/*"1617GP_hK0s"/*"1617_GP_AOD235"/*"1617_GP_AOD235_With18c12b"/*"161718_hXi"/*"17pq_hK0s"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/*""//*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/"2019h11c_extra_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617MC_hK0s"/"2018g4_extra_EtaEff_hK0s"/*"161718_MD_EtaEff_hXi"/"2018f1g4_extra_hXi"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/*"161718_MD_hXi_Hybrid"/*"LHC16_17_GP_Hybrid_hXi"/*"17d20bEPOS_hK0s"/"2018g4_extra_hXi_SelTrigger"/*"1617MC_hK0s"/"AllMC_hXi"/*"1617GP_hXi"/*"2016kl_hXi"/*"2018f1_extra_MECorr"/"2018f1_extra_Hybrid_hK0s"/*"17d20bEPOS_hXi"*/,  TString yearMCTrigEff=""/*"17l3b_hK0s"/*"161718HM_hK0s_TriggEff"/*"18f1_extra_EffTrigger_5runs"*/,  TString Dir ="FinalOutput/",  Float_t ptjmax=15, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Int_t MultBinning=3, Int_t PtBinning=0, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t IsPtTrigMultDep=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsParticleTrue=0,  Bool_t isSidebands=0, Bool_t isMESBFromPeak =0,  Bool_t isMEFromHybrid=0, Bool_t isMEFromCorrectCentrality = 0, Bool_t isEtaEff=1, Bool_t isMEFromK0s=0, Bool_t isNewInputPath=1, Bool_t isHM=0,  Int_t isNewdEtaJet =0, Bool_t isSysPurity =0, Int_t VarRange = 0, Bool_t isMCForNorm=0, Bool_t isEffCorr=0, Bool_t isGenOnTheFly=0){ 
 
+  Bool_t isWingsCorrectionApplied=0;
   //isGenOnTheFly --> events were generated on the fly and only the kinematic part is saved; the multiplicity distribution in percentile classes is not abvailable, instead classes based on the number of particles in the V0 acceptance are used
   if (!isMC && isGenOnTheFly) return;
   if (isGenOnTheFly) { //these variabes have no meaning for the MCtruth analysis -- they are set to zero in order not to appear in output file name
@@ -43,6 +44,9 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
     if (type==0) PtBinning=1;
     else PtBinning=0;
   }
+
+  cout <<"Do you want to analyse the files with the wings correction applied? Type 1 if you DO want" << endl;
+  cin >> isWingsCorrectionApplied ;
 
   Bool_t IsEfficiencyMassSel=0;
   TString Path1 ="";/*"_PtTrigMax2.5"/*"_NewMultClassBis"*/
@@ -818,6 +822,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   TString RegionType[3]={"Jet", "BI", "All"};
 
   TH2D *hDeltaEtaDeltaPhi_ME_normbins[nummolt+1][numzeta][numPtV0][numPtTrigger][numSB];
+  TH2D *hDeltaEtaDeltaPhi_ME_normbins_WCorr[nummolt+1][numzeta][numPtV0][numPtTrigger][numSB];
   TH1D *hDeltaEtaDeltaPhi_ME_normbins_ProjDPhiPos[nummolt+1][numzeta][numPtV0][numPtTrigger][numSB];
   TH1D *hDeltaEtaDeltaPhi_CorrFactor[nummolt+1][numzeta][numPtV0][numPtTrigger][numSB];
   TH2D *hDeltaEtaDeltaPhi_CorrFactor2D[nummolt+1][numzeta][numPtV0][numPtTrigger][numSB];
@@ -1020,6 +1025,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 	    }
 	    if (!hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]) {cout << "missing histo: " << nameME[m][z][v][tr][sb] << endl;  return;}
 	    if (isMEFromHM)   hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]->SetName(nameME[m][z][v][tr][sb]+ "_Effw_HM0-0.1");
+	    if (isMEFrom13TeV)   hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]->SetName(nameME[m][z][v][tr][sb]+ "_EffFrom13TeV");
 	    //	    cout << "\nCiaoo: pt : " << v << " " <<  hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb] ->GetEntries() << endl;
 	    hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb]->Sumw2();
 	    hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]->Sumw2();
@@ -1068,6 +1074,9 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 	    cout << "valore histo in DeltaEta=0 e DeltaPhi=0 (media in delta phi, 2 righe) " <<  norm_MEbins[m][v][sb] << endl;
 
 	    hDeltaEtaDeltaPhi_ME_normbins[m][z][v][tr][sb]=(TH2D*)hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]-> Clone(nameME[m][z][v][tr][sb]+"_norm");
+	    cout << hDeltaEtaDeltaPhi_ME_normbins[m][z][v][tr][sb]->GetYaxis()->GetBinWidth(1) << endl;
+	    cout << hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb]->GetYaxis()->GetBinWidth(1) << endl;
+	    //	    return;
 	    hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]=(TH2D*)hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb]-> Clone(nameME[m][z][v][tr][sb]+"_AC");
 	    if (norm_MEbins[m][v][sb]==0){
 	      cout << "sb " << sb << endl;
@@ -1099,19 +1108,31 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 		  hDeltaEtaDeltaPhi_CorrFactor2D[m][z][v][tr][sb]->SetBinContent(Bin2D, 1./hDeltaEtaDeltaPhi_CorrFactor[m][z][v][tr][sb]->GetBinContent(j)); 
 		}
 	      }
-	      //allpy the correction: 
-	      hDeltaEtaDeltaPhi_ME_normbins[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_CorrFactor2D[m][z][v][tr][sb]);
+	      //apply the correction: 
+	      if (isMEFromCorrectCentrality){
+		hDeltaEtaDeltaPhi_ME_normbins[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_CorrFactor2D[m][z][v][tr][sb]);
+	      }
+	      else {
+		//the correction factor depends on the multiplicity, so at every multiplicity the histogram WCorr will change
+		hDeltaEtaDeltaPhi_ME_normbins_WCorr[m][z][v][tr][sb] = (TH2D*) hDeltaEtaDeltaPhi_ME_normbins[nummoltMax][z][v][tr][sb]->Clone(Form("hDeltaEtaDeltaPhi_ME_normbins_WCorr_m%i", m));
+		hDeltaEtaDeltaPhi_ME_normbins_WCorr[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_CorrFactor2D[m][z][v][tr][sb]);
+		//if (m==nummoltMax) hDeltaEtaDeltaPhi_ME_normbins[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_CorrFactor2D[m][z][v][tr][sb]);
+	      }
 	    }
 
-	    //	    cout << "\n divido SE distribution per ME disatribution normalized" << endl;
+	    cout << "Wings correction was performed " << endl;
+	    //	    cout << "\n divido SE distribution per ME distribution normalized" << endl;
 	    if (!ishhCorr){
 	      if (isMEFromCorrectCentrality){
 		if (isMEFromPeak && sb==1) 		hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb], hDeltaEtaDeltaPhi_ME_normbins[m][z][v][tr][0]);
 		else hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb], hDeltaEtaDeltaPhi_ME_normbins[m][z][v][tr][sb]);
 	      }
 	      else {
-		if (isMEFromPeak && sb==1) 		hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb], hDeltaEtaDeltaPhi_ME_normbins[nummoltMax][z][v][tr][0]);
-		else hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb], hDeltaEtaDeltaPhi_ME_normbins[nummoltMax][z][v][tr][sb]);
+		if (isWingsCorrectionApplied) hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb], hDeltaEtaDeltaPhi_ME_normbins_WCorr[m][z][v][tr][sb]);
+		else {
+		  if (isMEFromPeak && sb==1) 		hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb], hDeltaEtaDeltaPhi_ME_normbins[nummoltMax][z][v][tr][0]);
+		  else hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb], hDeltaEtaDeltaPhi_ME_normbins[nummoltMax][z][v][tr][sb]);
+		}
 	      }
 	    }
 	    if (ishhCorr)	    hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb], hDeltaEtaDeltaPhi_ME_normbins[nummoltMax][z][v][tr][0]);
@@ -1148,7 +1169,11 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 	    hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->SetTitleOffset(1.3);
 	    norm_MEbins_norm[m][v][sb]= hDeltaEtaDeltaPhi_ME_normbins[m][z][v][tr][sb]->GetBinContent(hDeltaEtaDeltaPhi_ME_normbins[m][z][v][tr][sb]->GetXaxis()->FindBin(0.000001), hDeltaEtaDeltaPhi_ME_normbins[m][z][v][tr][sb]->GetYaxis()->FindBin(0.000001));
 	    cout << "valore histo  in DeltaEta=0 e DeltaPhi=0, histo normalizzato  " <<  norm_MEbins_norm[m][v][sb] <<"\n"<< endl;
-
+	    cout << hDeltaEtaDeltaPhi_ME_normbins[m][z][v][tr][0]->GetYaxis()->GetBinWidth(1) << endl;
+	    cout << hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][0]->GetYaxis()->GetBinWidth(1) << endl;
+	    cout << hDeltaEtaDeltaPhi_ME_normbins[m][z][v][tr][0]->GetXaxis()->GetBinWidth(1) << endl;
+	    cout << hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][0]->GetXaxis()->GetBinWidth(1) << endl;
+	    //	    return;
 	    //histograms of relative errors of SE, ME and AC (not yet here)
 
 
@@ -1734,7 +1759,11 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   if (VarRange!=0) PathOut1 += Form("_VarRange%i", VarRange);
   if (isMC && !isEfficiency &&!isMCForNorm) PathOut1 += "_MCPrediction";
   if (isEffCorr) PathOut1 +="_EffCorr" ;
-  if (isWingsCorrectionApplied) PathOut1 += "_isWingsCorrectionApplied";
+  if (isWingsCorrectionApplied) {
+    if (isMEFromCorrectCentrality) PathOut1 += "_isWingsCorrectionApplied";
+    else PathOut1 += "_isWingsCorrectionAppliedNew";
+  }
+  //  PathOut1+="_OnlyToPeak";
   PathOut1+=".root";
 
   if (isEnlargedDeltaEtaPhi)    PathOut1 = Dir+"/histo/AngularCorrelation" + file  + Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f", sysTrigger, sysV0, sys, PtTrigMin)+"_DeltaEtaPhiEnlarged_Output.root";
@@ -1902,6 +1931,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 	    //	    if (m==0 && v ==1) canvasDraw[m][z][v][tr][0]->SaveAs("MESBRatio05.pdf");
 	    canvasDraw[m][z][v][tr][0]->Close();	      
 	    //fileout->WriteTObject(canvasDraw[m][z][v][tr][0]);
+
 	  }
 	}
 
