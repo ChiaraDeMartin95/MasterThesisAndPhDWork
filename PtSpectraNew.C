@@ -36,10 +36,12 @@ void StyleHisto(TH1D *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   //
 }
 
-void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, Int_t numsysTriggerindex=99, Int_t sysPhi = 0, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=1,   Int_t israp=0,TString year="_PythiaRopes_Test1"/*"1617_AOD234_hK0s"/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/, TString yearDCAzTrigger = ""/*"1617_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/, Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=1, Int_t PtBinning=0, Bool_t SysTuvaWay=0,  Bool_t isNewInputPath=1,  Bool_t isHM =1, Bool_t ispp5TeV=0, Bool_t isEffCorr=1){
+void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, Int_t numsysTriggerindex=99, Int_t sysPhi = 0, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString year="_PythiaRopes_Test1"/*"1617_AOD234_hK0s"/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/, TString yearDCAzTrigger = ""/*"1617_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/, Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=1, Int_t PtBinning=0, Bool_t SysTuvaWay=0,  Bool_t isNewInputPath=1,  Bool_t isHM =0, Bool_t ispp5TeV=1, Bool_t isEffCorr=1){
 
   Bool_t isGenOnTheFly = 0;
   if (isMC) isGenOnTheFly = 1; 
+  Bool_t isWingsCorrectionApplied=0;
+  Int_t MonashTune =0;
   //isGenOnTheFly --> events were generated on the fly and only the kinematic part is saved; the multiplicity distribution in percentile classes is not abvailable, instead classes based on the number of particles in the V0 acceptance are used
   if (!isMC && isGenOnTheFly) return;
   if (isGenOnTheFly) { //these variabes have no meaning for the MCtruth analysis -- they are set to zero in order not to appear in output file name
@@ -47,8 +49,10 @@ void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
     isHM =0;
     isEffCorr=0;
     isNewInputPath = 1;
-    isEfficiency = 0;
+    isEfficiency = 0; 
   }
+  cout <<"Do you want to analyse the files with the wings correction applied? Type 1 if you DO want" << endl;
+  cin >> isWingsCorrectionApplied;
 
   //isEffCorr = 1 --> for K0s analysis. Efficiency was found to have a bug, the correctd efficiency is applied if isEffCorr = 1
   if (type==8) isEffCorr=0;
@@ -71,6 +75,7 @@ void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
     yearDCAzTrigger="1617_hK0s";
     year= "1617_AOD234_hK0s";
     isNewInputPath=1;
+    numsysTriggerindex =99;
     numsysV0index=200;
     MultBinning=0;
     if (isHM) {
@@ -89,7 +94,11 @@ void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
       MultBinning = 0;
       isHM =0;
       isEffCorr =0;
-      year= "PythiaRopes";
+      cout << "Should be analyse Ropes (=1) or MonashDefault (=2)? " << endl;
+      cin >> MonashTune;
+      if (MonashTune == 1)    year = "PythiaRopes";
+      else if (MonashTune ==2)        year = "PythiaMonash";
+      else {cout << "option not valid " << endl; return;}
     }
   }
   else if (type==8){
@@ -99,6 +108,7 @@ void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
     yearLowPtTrig = "_161718Full_AOD234_hXi";
     isNewInputPath=1;
     numsysV0index=400; //was 500
+    numsysTriggerindex =99;
     PtTrigMin2=0.15;
     MultBinning=0;
     if (isHM) {
@@ -120,7 +130,11 @@ void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
     if (isMC){
       MultBinning = 0;
       isHM =0;
-      year= "PythiaRopes";
+      cout << "Should be analyse Ropes (=1) or MonashDefault (=2)? " << endl;
+      cin >> MonashTune;
+      if (MonashTune == 1)    year = "PythiaRopes_IncreasedStatXi";
+      else if (MonashTune ==2)        year = "PythiaMonash_IncreasedStatXi";
+      else {cout << "option not valid " << endl; return;}
     }
   }
 
@@ -479,9 +493,17 @@ void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
   if (MultBinning!=0) stringout += Form("_MultBinning%i", MultBinning);
   //  stringout += "_NewTopoSelSys";
   //  stringout += "_Boh";
-  TString stringoutpdf = stringout;
   //  stringout += "_OldDPhiRange";
   if (isEffCorr) stringout += "_EffCorr";
+  if (isWingsCorrectionApplied) {
+    stringout += "_isWingsCorrectionApplied";
+    if (isGenOnTheFly){
+      if(type==8)  stringout += "New";
+    }
+    else stringout += "New";
+  }
+  if (sys!=0) stringout += Form("_dEtaSys%i", sys);
+  TString stringoutpdf = stringout;
   stringout += ".root";
 
   //********************************************************************* 
@@ -655,8 +677,21 @@ void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
 
   if (isMC && !isEfficiency){ //MCPrediction
     for (Int_t m=0; m<nummoltMax+1; m++){
-      if (type==0)   LowRangeJet[m] = 0.;
-      else  LowRangeJet[m] = 1.;
+      if (type==0)   LowRangeJet[m] = 0.5;
+      else {
+	//	if (m==nummoltMax-1 || m==nummoltMax-2 || m==nummoltMax-3)	LowRangeJet[m] = 1.5;
+	//	else 	LowRangeJet[m] = 1.;
+	if (MonashTune==1){
+	  if (m==nummoltMax-1 || m == nummoltMax-2)	LowRangeJet[m] = 1.5;
+	  else LowRangeJet[m] = 1;
+	  //          LowRangeJet[m] = 1.5;
+        }
+        else if (MonashTune==2){
+          if (m==nummoltMax-1) LowRangeJet[m] = 2;
+          else if (m==nummoltMax-4 || m==nummoltMax-3 || m==nummoltMax-2) LowRangeJet[m] = 1.5;
+          else LowRangeJet[m] = 1.5;
+        }
+      }
     }
   }
 
@@ -839,6 +874,13 @@ void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
     else if (type==0) PathInDefault +="_NewdEtaChoice";
     if (isEffCorr) PathInDefault += "_EffCorr";
     if (isMC && !isEfficiency) PathInDefault += "_MCPrediction";
+    if (isWingsCorrectionApplied) {
+      PathInDefault += "_isWingsCorrectionApplied";
+      if (isGenOnTheFly){
+	if(type==8)     PathInDefault += "New";
+      }
+      else PathInDefault += "New";
+    }
     PathInDefault += ".root";
 
     cout << "\nDefault file: " << PathInDefault << endl;
@@ -952,6 +994,13 @@ void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
       }
       if (isEffCorr) PathInDeltaEtaSys += "_EffCorr";
       if (isMC && !isEfficiency) PathInDeltaEtaSys+="_MCPrediction";
+      if (isWingsCorrectionApplied){
+	PathInDeltaEtaSys += "_isWingsCorrectionApplied";
+	if (isGenOnTheFly){
+	  if (type==8) PathInDeltaEtaSys += "New";
+	}
+	else PathInDeltaEtaSys += "New";
+      }
       PathInDeltaEtaSys += ".root";
       cout <<"Syst. assoc to choice of DeltaEta: " <<  PathInSysDeltaEta << endl;
       fileinDeltaEtaSys = new TFile(PathInDeltaEtaSys, "");
@@ -1365,7 +1414,8 @@ void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
       fHistSpectrumSistRelErrorDeltaEta[m]->Smooth(1, "R");
     }
     else if (type==0 && TypeAnalysis!=2){
-      fHistSpectrumSistRelErrorDeltaEta[m]->Smooth(1, "R");
+      if (!isHM && !ispp5TeV && TypeAnalysis==1)      fHistSpectrumSistRelErrorDeltaEta[m]->Smooth(2, "R");
+      else       fHistSpectrumSistRelErrorDeltaEta[m]->Smooth(1, "R");
     }
     else if (ispp5TeV && TypeAnalysis!=2){
       fHistSpectrumSistRelErrorDeltaEta[m]->Smooth(1, "R");
@@ -1529,8 +1579,8 @@ void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
     if (TypeAnalysis!=2) cout << "Systematics on DeltaEta choice: comparison of dphi projections is done in this macro" << endl;
     cout << "\nFor syst. associated to DeltaEta region:\n " << PathInDeltaEtaSys <<  endl;
   }
-  if (!isGenOnTheFly){
-    if (TypeAnalysis == 0) cout << "I have manually set the systematic uncertainty associated to the DeltaEta choice to zero (see reasons in the macro " << endl;
+  if (isGenOnTheFly){
+    if (TypeAnalysis == 0) cout << "I have manually set the systematic uncertainty associated to the DeltaEta choice to zero (see reasons in the macro) " << endl;
   }
   cout << "\nI have created the file " << stringout << "\n" << endl;
 

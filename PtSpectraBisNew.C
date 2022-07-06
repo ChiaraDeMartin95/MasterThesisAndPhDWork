@@ -39,19 +39,24 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=1,   Int_t israp=0, TString year=""/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=0, Int_t PtBinning=1, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,  Bool_t TwoFitFunctions=0, Bool_t isNormCorrFullyComputed=1, Bool_t isMeanMacro=0, Bool_t ispp5TeV=0,  Bool_t isErrorAssumedPtCorr=1, Bool_t isFitForPlot=0, Bool_t isEffCorr=1){
+void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=1,   Int_t israp=0, TString year=""/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=1, Int_t PtBinning=1, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,  Bool_t TwoFitFunctions=0, Bool_t isNormCorrFullyComputed=1, Bool_t isMeanMacro=0, Bool_t ispp5TeV=0,  Bool_t isErrorAssumedPtCorr=1, Bool_t isFitForPlot=0, Bool_t isEffCorr=0, Bool_t isdNdEtaTriggered=0, Int_t sys=0){
 
   Bool_t isGenOnTheFly = 0;
   if (isMC) isGenOnTheFly = 1;
+  Bool_t isWingsCorrectionApplied =0;
+  Int_t MonashTune =0;
   //isGenOnTheFly --> events were generated on the fly and only the kinematic part is saved; the multiplicity distribution in percentile classes is not abvailable, instead classes based on the number of particles in the V0 acceptance are used
   if (!isMC && isGenOnTheFly) return;
   if (isGenOnTheFly) { //these variabes have no meaning for the MCtruth analysis -- they are set to zero in order not to appear in output file name
+    ispp5TeV=0;
     MultBinning = 0;
     isppHM =0;
     isEffCorr=0;
     isEfficiency = 0;
     isNormCorrFullyComputed = 0; //normalisation factor not needed for MC truth
   }
+  cout <<"Do you want to analyse the files with the wings correction applied? Type 1 if you DO want" << endl;
+  cin >> isWingsCorrectionApplied;
 
   if (TypeAnalysis>3) {cout << "sys errors not yet implemented for these regions " << endl; return;}
   if (type!=0 && type!=8) {cout << "Macro not working for particles different from K0s (type=0) and Xi (type=8)" << endl; return;}
@@ -67,15 +72,20 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     if (!isMC) year= "1617_AOD234_hK0s";
     else  year= "";
     SfileNormCorrFC = "FinalOutput/DATA2016/MCClosureCheck_HybridtoTrue1617GP_hK0s_Hybrid_New_vs_1617GP_hK0s_PtBinning1_K0s_Eta0.8_PtMin3.0_FIXED.root";
-    isEffCorr=1; //fix in efficiency
+    isEffCorr=1; //fix in efficiency for K0s --- introduced in MAY 2022
     if (isGenOnTheFly){
       MultBinning = 0;
       isppHM =0;
       isEffCorr =0;
-      year= "PythiaRopes";
+      cout << "Should be analyse Ropes (=1) or MonashDefault (=2)? " << endl;
+      cin >> MonashTune;
+      if (MonashTune == 1)    year = "PythiaRopes";
+      else if (MonashTune ==2)        year = "PythiaMonash";
+      else {cout << "option not valid " << endl; return;}
     }
   }
   else if (type==8){
+    isEffCorr=0;
     MultBinning=0;
     PtBinning=0;
     if (!isMC) year="161718Full_AOD234_hXi";
@@ -86,7 +96,11 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     if (isGenOnTheFly){
       MultBinning = 0;
       isppHM =0;
-      year= "PythiaRopes";
+      cout << "Should be analyse Ropes (=1) or MonashDefault (=2)? " << endl;
+      cin >> MonashTune;
+      if (MonashTune == 1)    year = "PythiaRopes_IncreasedStatXi";
+      else if (MonashTune ==2)        year = "PythiaMonash_IncreasedStatXi";
+      else {cout << "option not valid " << endl; return;}
     }
   }
 
@@ -329,18 +343,26 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   if (isMeanMacro)  stringout += "_YieldMeanMacro"; 
   if (isErrorAssumedPtCorr)  stringout += "_isErrorAssumedPtCorr"; 
   if (!isGenOnTheFly)  stringout += "_ChangesIncluded";
-  //  if (isdNdEtaTriggered) stringout += "_isdNdEtaTriggered";
+  if (isdNdEtaTriggered) stringout += "_isdNdEtaTriggered";
   //  stringout += "_NewTopoSelSys";
   //stringout += "_PicAN";
   //  stringout +="_Ter";
   //  stringout +="_Prova";
   //  if (type==8)  PathInFakeSBDef += "_SBMEFromPeak";
   if (isFitForPlot)  stringout += "_isFitForPlot";
-  TString PathOutPictures = stringout;
   //  stringout += "_NewDPhiRangeBis";
   //  stringout += "_OldDPhiRange";
   if (MultBinning!=0) stringout += Form("_MultBinning%i", MultBinning);
   if (isEffCorr) stringout += "_EffCorr";
+  if (isWingsCorrectionApplied) {
+    stringout += "_isWingsCorrectionApplied";
+    if (isGenOnTheFly){
+      if (type==8) stringout += "New";
+    }
+    else stringout += "New";
+  }
+  if (sys!=0) stringout += Form("_dEtaSys%i", sys);
+  TString PathOutPictures = stringout;
   stringout += ".root";
   TFile * fileout = new TFile(stringout, "RECREATE");
 
@@ -505,15 +527,37 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       if (type==0){
 	LowRangeAll[m] = 1.;
 	LowRangeBulk[m] = 1.;
+	LowRangeJet[m] = 0.5;
+	if (TypeAnalysis==0)	LowPtLimitForAvgPtFS[m] = 0.5;
       }
-      if (type==0)   LowRangeJet[m] = 0.;
-      else  LowRangeJet[m] = 1.;
-      UpRangeJet[m] = 8;
+      else {
+	/*	
+	if (m==nummoltMax-1 || m==nummoltMax-2 || m==nummoltMax-3) LowRangeJet[m] = 1.5;
+	else    LowRangeJet[m] = 1.;
+	*/
+	if (MonashTune==1){
+	  if (m==nummoltMax-1 || m == nummoltMax-2)  LowRangeJet[m] = 1.5;
+          else LowRangeJet[m] = 1.;
+	  //	  LowRangeJet[m] = 1.5;
+	}
+	else if (MonashTune==2){
+	  if (m==nummoltMax-1) LowRangeJet[m] = 2;
+	  else if (m==nummoltMax-4 || m==nummoltMax-3 || m==nummoltMax-2) LowRangeJet[m] = 1.5;
+	  else LowRangeJet[m] = 1.5;
+	}
+	if (TypeAnalysis==0)	LowPtLimitForAvgPtFS[m] = LowRangeJet[m];
+      }
+      if (type==0)       UpRangeJet[m] = 3;
+      else     {
+	//UpRangeJet[m] = 4;
+	if (m==nummoltMax-1 || m==nummoltMax-2 || m==nummoltMax-3 || m==nummoltMax-4) UpRangeJet[m] = 8;
+	else    UpRangeJet[m] = 4;	
+      }
       UpRangeAll[m] = 8;
       UpRangeBulk[m] = 8;
+      cout <<  LowRangeJet[m] << "- " <<  UpRangeJet[m] << endl;
     }
   }
-
   Float_t LowPtLimitForAvgPtFSAllMult = LowPtLimitForAvgPtFS[nummolt];
   //end of low and upper ranges for the fit****************************
   //************************************************************
@@ -964,6 +1008,14 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   //  PathInDef += "_OldDPhiRange";
   if (MultBinning!=0) PathInDef += Form("_MultBinning%i", MultBinning);
   if (isEffCorr) PathInDef += "_EffCorr";
+  if (isWingsCorrectionApplied) {
+    PathInDef += "_isWingsCorrectionApplied";
+    if (isGenOnTheFly){
+      if (type==8) PathInDef += "New";
+    }
+    else PathInDef += "New";
+  }
+  if (sys!=0) PathInDef += Form("_dEtaSys%i", sys);
   PathInDef += ".root";
   cout << " from the file: " << PathInDef << endl;
   TFile *  fileinDef = new TFile(PathInDef, "");
@@ -1079,6 +1131,14 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 	PathIn+= RegionType[TypeAnalysis];
 	if (MultBinning!=0) PathIn += Form("_MultBinning%i", MultBinning);
 	if (isEffCorr) PathIn += "_EffCorr";
+	if (isWingsCorrectionApplied) {
+	  PathIn += "_isWingsCorrectionApplied";
+	  if (isGenOnTheFly){
+	    if (type==8) PathIn += "New";
+	  }
+	  else PathIn += "New";
+	}
+	if (sys!=0) PathIn += Form("_dEtaSys%i", sys);
 	PathIn+= ".root";
 	cout << "" << PathIn << endl;
 	filein = new TFile(PathIn, "");
@@ -1100,7 +1160,8 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 	gPad->SetLeftMargin(0.15);
 	if(m==nummoltMax && sysDPhi==1) legendPhi->AddEntry(fHistSpectrumStat[m],Form("%.2f-%.2f", LowBinDPhi[0], UpBinDPhi[0]) ,"l");
 	if(m==nummoltMax) legendPhi->AddEntry(fHistSpectrumStatDPhi[m][sysDPhi],Form("%.2f-%.2f", LowBinDPhi[sysDPhi], UpBinDPhi[sysDPhi]) ,"l");
-	if (sysDPhi==numsysDPhi-1) fHistSpectrumStat[m]->DrawClone("");
+	//	if (sysDPhi==numsysDPhi-1) fHistSpectrumStat[m]->DrawClone("");
+	fHistSpectrumStat[m]->DrawClone("same");
 	fHistSpectrumStatDPhi[m][sysDPhi]->Draw("same");
 	if (sysDPhi==numsysDPhi-1) legendPhi->Draw("same");
 	if (TypeAnalysis==0 && sysDPhi==numsysDPhi-2) legendPhi->Draw("same");
@@ -2195,6 +2256,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
       if (typefit==1) {
 	fit_MTscaling[m][typefit]=    pwgfunc.GetBoltzmann(massParticle[type],0.1, 0.04*factor, nameMTscaling[m][typefit]);
 	if (type==8 && TypeAnalysis==0 && isppHM)	fit_MTscaling[m][typefit]->SetParLimits(1, 0.1, 10);
+	if (type==8 && TypeAnalysis==0 && isGenOnTheFly && MonashTune==2)	fit_MTscaling[m][typefit]->SetParLimits(1, 0.1, 10);
       }
       if (typefit==2)      fit_MTscaling[m][typefit]=    pwgfunc.GetFermiDirac(massParticle[type],0.1, 0.04*factor, nameMTscaling[m][typefit]);
       if (typefit==3)  {
@@ -2202,7 +2264,10 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 	fit_MTscaling[m][typefit]->SetParLimits(0, 0,fHistSpectrumStat[m]->GetBinContent(fHistSpectrumStat[m]->GetMaximumBin())*0.5*10); //norm
 	fit_MTscaling[m][typefit]->SetParLimits(2, 0.1, 10); //T
 	fit_MTscaling[m][typefit]->SetParLimits(1, 2, 30); //n
-	if (type==8)         fit_MTscaling[m][typefit]->SetParLimits(1, 15,30);
+	if (type==8) {
+	  fit_MTscaling[m][typefit]->SetParLimits(1, 15,30);
+	  if (isGenOnTheFly && TypeAnalysis==0) fit_MTscaling[m][typefit]->SetParLimits(1, 2, 100000); 
+	}
 	fit_MTscaling[m][typefit]->SetParameter(2, 0.7);
 	if (ispp5TeV && type==0 && TypeAnalysis==2)   fit_MTscaling[m][typefit]->SetParLimits(2, 0.25, 10);
       }
@@ -2274,7 +2339,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 
       }
 
-      fFitResultPtr0[m][typefit] = fHistSpectrumStat[m]->Fit(fit_MTscaling[m][typefit],"SR0IQ");
+      fFitResultPtr0[m][typefit] = fHistSpectrumStat[m]->Fit(fit_MTscaling[m][typefit],"SR0I");
       fit_MTscaling[m][typefit]->SetRange(0,20);
 
       if (isppHM)     canvasPtSpectraFit->cd(m+1-2);
@@ -2752,7 +2817,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     cout << "Rel errors:  " <<  AvgPtStatErr[m]/AvgPt[m] << " (stat.) +- " << AvgPtSistErr[m]/AvgPt[m] << " (syst. no function choice) +- "<< AvgPtSistErrFit[m]/AvgPt[m]<< " (syst. function choice)"<<  endl;
     
     cout << "\nAvg pt from spectrum (no fit, calculated for pt > " << 	LowPtLimitForAvgPtFS[m]  << "): " << AvgPtFS[m]<< " +- " << AvgPtStatErrFS[m] << " (stat.) +- " << AvgPtSistErrFS[m] << " (syst. no function choice) "<< endl; 
-    cout << " MEAN: " << fHistAvgPtFSDistr[m]->GetMean()<< ", RMS: " << fHistAvgPtFSDistr[m]->GetRMS() << endl;  
+    cout << "From distribution of mean pt obtained by varying spectra within stat. uncertainty: \n MEAN: " << fHistAvgPtFSDistr[m]->GetMean()<< ", RMS: " << fHistAvgPtFSDistr[m]->GetRMS() << endl;  
     cout << "Rel errors:  " <<  AvgPtStatErrFS[m]/AvgPtFS[m] << " (stat.) +- " << AvgPtSistErrFS[m]/AvgPtFS[m] << " (syst. no function choice) +- "<< endl;
     cout << "Mean of fHistSpectrumStat: " << fHistSpectrumStat[m]->GetMean() << endl;
 
@@ -2879,17 +2944,48 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   }
 
   if (isGenOnTheFly){
-    dNdEta[0] = 8.45;
-    dNdEta[1] = 12.42;
-    dNdEta[2] = 15.11;
-    dNdEta[3] = 17.15;
-    dNdEta[4] = 19.12;
-    dNdEta[5] = 20.99;
-    dNdEta[6] = 22.75;
-    dNdEta[7] = 24.84;
-    dNdEta[8] = 27.36;
-    dNdEta[9] = 30.35;
-    dNdEta[10] = 16.5;
+    /* MonashRopes, events with trigger particle */
+    if (isdNdEtaTriggered){
+      if (MonashTune==1) { //ropes
+	dNdEta[0] = 8.45;
+	dNdEta[1] = 12.42;
+	dNdEta[2] = 15.11;
+	dNdEta[3] = 17.15;
+	dNdEta[4] = 19.12;
+	dNdEta[5] = 20.99;
+	dNdEta[6] = 22.75;
+	dNdEta[7] = 24.84;
+	dNdEta[8] = 27.36;
+	dNdEta[9] = 30.35;
+	dNdEta[10] = 16.5;
+      } else if (MonashTune==2){ //default
+	dNdEta[0] = 8.27;
+	dNdEta[1] = 12.48;
+	dNdEta[2] = 15.23;
+	dNdEta[3] = 17.26;
+	dNdEta[4] = 19.22;
+	dNdEta[5] = 21.1;
+	dNdEta[6] = 22.9;
+	dNdEta[7] = 25.1;
+	dNdEta[8] = 27.81;
+	dNdEta[9] = 31.26;
+	dNdEta[10] = 16.78;
+      }
+    }
+    else { 
+      //    Monash Default CR, all events INEL > 0 (to simulate tabulated values)
+      dNdEta[0] = 4.01;
+      dNdEta[1] = 9.04;
+      dNdEta[2] = 12.1;
+      dNdEta[3] = 14.29;
+      dNdEta[4] = 16.4;
+      dNdEta[5] = 18.46;
+      dNdEta[6] = 20.37;
+      dNdEta[7] = 22.68;
+      dNdEta[8] = 25.58;
+      dNdEta[9] = 29.09;
+      dNdEta[10] = 7.00;
+    }
   }
 
   Int_t LimSupChi=120;
@@ -3211,6 +3307,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   canvasPtvsMult->SaveAs(DirPicture+"AvgPtvsMult"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
   canvasPtSpectra->SaveAs(DirPicture+"PtSpectra"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
   canvasPtSpectraFit->SaveAs(DirPicture+"PtSpectraFit"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
+  canvasPtSpectraFitRatio->SaveAs(DirPicture+"PtSpectraFitRatio"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
   canvasPtSpectraFitBis->SaveAs(DirPicture+"PtSpectraFitBis"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
   canvasPtSpectraRelError->SaveAs(DirPicture+"PtSpectraRelErr"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
   canvasPtSpectraRelErrorAll->SaveAs(DirPicture+"PtSpectraRelErrAll"+tipo[type]+RegionType[TypeAnalysis]+".pdf");
@@ -3218,12 +3315,15 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
 
   TString SisMCTruth = "";
   if (isMC && !isEfficiency) SisMCTruth = "MCTruth/"; 
+  if (MonashTune==1) SisMCTruth += "PythiaRopes/";
+  else   if (MonashTune==2) SisMCTruth += "PythiaMonash/";
   canvasYield->SaveAs("PicturePaperProposal/"+SisMCTruth+"YieldvsMult"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
   canvasYieldErr->SaveAs("PicturePaperProposal/"+SisMCTruth+"YieldvsMultErr"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
   canvasPtErr->SaveAs("PicturePaperProposal/"+SisMCTruth+"PtvsMultErr"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
   canvasPtvsMult->SaveAs("PicturePaperProposal/"+SisMCTruth+"AvgPtvsMult"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
   canvasPtSpectra->SaveAs("PicturePaperProposal/"+SisMCTruth+"PtSpectra"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
   canvasPtSpectraFit->SaveAs("PicturePaperProposal/"+SisMCTruth+"PtSpectraFit"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
+  canvasPtSpectraFitRatio->SaveAs("PicturePaperProposal/"+SisMCTruth+"PtSpectraRatioFit"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
   canvasPtSpectraFitBis->SaveAs("PicturePaperProposal/"+SisMCTruth+"PtSpectraFitBis"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
   canvasPtSpectraRelError->SaveAs("PicturePaperProposal/"+SisMCTruth+"PtSpectraRelErr"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
   canvasPtSpectraRelErrorAll->SaveAs("PicturePaperProposal/"+SisMCTruth+"PtSpectraRelErrAll"+tipo[type]+RegionType[TypeAnalysis]+TypeAnalysisPic+".pdf");
