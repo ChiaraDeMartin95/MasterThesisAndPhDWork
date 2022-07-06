@@ -35,10 +35,23 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, Int_t isComp=0,  Bool_t isAvgPtvsMult=0,  Int_t isPreliminary=0, Bool_t FitYields=1, Bool_t isYieldMeanMacro=0, Bool_t isChangesIncluded=1){
+void CompareYieldDifferentCollisionsFinal(Bool_t isMCGenOnTheFly = 1, Int_t TypeAnalysis=0,  Int_t type=1, Int_t isComp=1,  Bool_t isAvgPtvsMult=0,  Int_t isPreliminary=0, Bool_t FitYields=0, Bool_t isYieldMeanMacro=0, Bool_t isChangesIncluded=1){
+
+  //NB: "ChangesIncluded" labels the new file produced by choosing Sidebands for K0s and Xi in HM, !SkipAssoc, and larger dEta choice for K0s
+
+  //isMCGenOnTheFly = 1 -> MC predictions 
 
   //isPreliminary = 1: preliminary plots for RATIO (not corrected by norm factor)
   //isPreliminary = 2: preliminary plots for YIELDS (corrected by norm factor)
+
+  if (isMCGenOnTheFly){
+    isPreliminary = 0;
+    isChangesIncluded = 1;
+  }
+
+  Bool_t isWingsCorrectionApplied = 0;
+  cout <<"Do you want to analyse the files with the wings correction applied? Type 1 if you DO want" << endl;
+  cin >> isWingsCorrectionApplied;
 
   if (isPreliminary && isAvgPtvsMult) return;
   const   Int_t NSystems =2;
@@ -49,9 +62,11 @@ void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, I
   if (isComp>1) {cout << "Analysis not implemented for the chosen values of isComp " << endl; return;}
 
   Float_t ScalingFactor =1;
-  //  if (isPreliminary && TypeAnalysis==0) ScalingFactor = 0.8458/1.08747; //=1./1.286
+  /*
   if (TypeAnalysis==0 && isAvgPtvsMult==0)  ScalingFactor = 0.8458/1.08747; //=1./1.286
   //ScalingFactor =1./( 0.8458/1.08747); to adjust MB preliminary bins to the others
+  */
+
   TString SisPreliminary[3] = {"", "_isPreliminaryForRatio", "_isPreliminaryForYields"};
   TString YieldOrAvgPt[2] = {"Yield", "AvgPt"};
   TString SFitYields[2] = {"", "_FitToYields"};
@@ -124,6 +139,7 @@ void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, I
     if (isYieldMeanMacro)  pathin[0] += "_YieldMeanMacro";
     pathin[0] +="_isErrorAssumedPtCorr";
     if (isChangesIncluded)  pathin[0] +="_ChangesIncluded_EffCorr";
+    if (isWingsCorrectionApplied) pathin[0] +="_isWingsCorrectionAppliedNew";
     pathin[0] += ".root";
     if (isPreliminary>0){
       pathin[0] = "FinalOutput/DATA2016/PtSpectraBis_PtBinning1_K0s_Eta0.8_PtMin3.0_";
@@ -142,8 +158,10 @@ void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, I
     if (isYieldMeanMacro)  pathin[1] += "_YieldMeanMacro";
     pathin[1] +="_isErrorAssumedPtCorr";
     if (isChangesIncluded)  pathin[1] +="_ChangesIncluded";
-    if (isComp==0)    pathin[1] += "_MultBinning1_EffCorr.root";
-    else     pathin[1] += "_MultBinning3_EffCorr.root";
+    if (isComp==0)  pathin[1] += "_MultBinning1_EffCorr";
+    else     pathin[1] += "_MultBinning3_EffCorr";
+    if (isWingsCorrectionApplied) pathin[1] +="_isWingsCorrectionAppliedNew";
+    pathin[1] +=".root";
 
   }
   else if (type==1){
@@ -171,9 +189,10 @@ void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, I
     if (isYieldMeanMacro)  pathin[1] += "_YieldMeanMacro";
     pathin[1] +="_isErrorAssumedPtCorr";
     if (isChangesIncluded)  pathin[1] +="_ChangesIncluded";
-    if (isComp==0)    pathin[1] += "_MultBinning1.root";
-    else     pathin[1] += "_MultBinning3.root";
-
+    if (isComp==0)    pathin[1] += "_MultBinning1";
+    else     pathin[1] += "_MultBinning3";
+    if (isWingsCorrectionApplied) pathin[1] +="_isWingsCorrectionAppliedNew";
+    pathin[1] +=".root";
   }
 
   TF1 * pol1Common = new TF1("pol1Common", "pol1", 0, UpRangeMult);
@@ -222,7 +241,7 @@ void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, I
 
     if (TypeAnalysis==0){
       if (isPreliminary>0){
-	if (i==1){ //5 TeV and 13 TeV HM were done with dPhi = 1.08, whereas preliminary results were done with dphi = 0.85. In this way I adjust the dphi interval of the HM and 5 TeV results TO the 13 TeV preliminarie s(which cannot be changed)
+	if (i==1){ //5 TeV and 13 TeV HM were done with dPhi = 1.08, whereas preliminary results were done with dphi = 0.85. In this way I adjust the dphi interval of the HM and 5 TeV results TO the 13 TeV preliminaries(which cannot be changed)
 	  histoYieldFinal[i]->Scale(1./ScalingFactor);
 	  histoYieldSistFinal[i]->Scale(1./ScalingFactor);
 	}
@@ -291,7 +310,9 @@ void CompareYieldDifferentCollisionsFinal(Int_t TypeAnalysis=0,  Int_t type=0, I
   NameFileout +="_"+ ParticleType[type] + Region[TypeAnalysis];
   if (isPreliminary==1)  NameFileout += "_isPreliminaryForRatio";
   else if (isPreliminary==2)  NameFileout += "_isPreliminaryForYields";
-  if (type==0)  NameFileout  += "_ChangesIncluded_EffCorr";
+  NameFileout  += "_ChangesIncluded";
+  if (type==0)  NameFileout  += "_EffCorr";
+  if (isWingsCorrectionApplied) NameFileout  += "_WingsCorrApplied";
   NameFileout += ".root";
 
   TString HistoTitle = tipo[type] + "Yield vs multiplicity";
