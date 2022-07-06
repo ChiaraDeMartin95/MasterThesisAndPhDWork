@@ -64,6 +64,12 @@ TString sRegion1[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 0.85", "0
 
 void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t ScalingFactorXiK0s = 1/*0.8458/1.08747*/, Int_t isPreliminary =0, Bool_t isChangesIncluded=1, Bool_t isFit=0){
 
+  //NB: "ChangesIncluded" labels the new file produced by choosing Sidebands for K0s and Xi in HM, !SkipAssoc, and larger dEta choice for K0s
+
+  Bool_t isWingsCorrectionApplied = 0;
+  cout <<"Do you want to analyse the files with the wings correction applied? Type 1 if you DO want" << endl;
+  cin >> isWingsCorrectionApplied;
+
   //isPreliminary = 1: preliminary plots for RATIO (not corrected by norm factor)
   //isPreliminary = 2: preliminary plots for YIELDS (corrected by norm factor)
 
@@ -261,6 +267,9 @@ void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t S
 	else if (isPreliminary==2) pathin +=  "_isPreliminaryForYields";
 	if (isChangesIncluded)  pathin +=  "_ChangesIncluded";
 	if (type==0 && isPreliminary==0) pathin += "_EffCorr";
+	if (isWingsCorrectionApplied) {
+	  if (type==0)  pathin += "_WingsCorrApplied";
+	}
 	pathin +=  ".root";
 	cout << "\n\e[35mPathin: " << pathin << "\e[39m"<< endl;
 	TFile *filein = new TFile(pathin, "");
@@ -607,6 +616,7 @@ void RatiosXiK0s3Systems( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t S
 
   TString fileoutHistosName = "RatiosXiK0s3Systems_" + SPlotType[PlotType];
   if (ChosenRegion>=0) fileoutHistosName += "_" + RegionType[ChosenRegion];
+  if (isWingsCorrectionApplied) fileoutHistosName += "_WingsCorrApplied";
   fileoutHistosName += ".root";
   TFile * fileoutHistos = new TFile(fileoutHistosName, "RECREATE");
   cout <<" Saving histos in file " << endl;
