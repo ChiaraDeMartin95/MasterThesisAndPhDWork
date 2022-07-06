@@ -57,10 +57,12 @@ void StyleHistoYield(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t st
 }
 
 
-void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=1, Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=1,   Int_t israp=0,TString yearK0s="1617_hK0s", TString yearK0sMC = "1617MC_hK0s", TString yearXi = "161718Full_AOD234_hXi"/*"Run2DataRed_MECorr_hXi"*/, TString yearXiMC = ""/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,    TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=0, Bool_t ZeroYieldLowPt=0, Int_t ChosenMult=5, Bool_t isBulkBlue=0, Bool_t isFit=0,  Bool_t isYieldMeanMacro=0, Bool_t ChangesIncluded=1){
+void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=0, Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=1,   Int_t israp=0,TString yearK0s="1617_hK0s", TString yearK0sMC = "1617MC_hK0s", TString yearXi = "161718Full_AOD234_hXi"/*"Run2DataRed_MECorr_hXi"*/, TString yearXiMC = ""/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,    TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=0, Bool_t ZeroYieldLowPt=0, Int_t ChosenMult=5, Bool_t isBulkBlue=0, Bool_t isFit=0,  Bool_t isYieldMeanMacro=0, Bool_t ChangesIncluded=1, Bool_t isdNdEtaTriggered=0){
 
   Bool_t isGenOnTheFly = 0;
   if (isMC) isGenOnTheFly = 1;
+  Bool_t isWingsCorrectionApplied=0;
+  Int_t MonashTune =0;
   //isGenOnTheFly --> events were generated on the fly and only the kinematic part is saved; the multiplicity distribution in percentile classes is not abvailable, instead classes based on the number of particles in the V0 acceptance are used
   if (!isMC && isGenOnTheFly) return;
   if (isGenOnTheFly) { //these variabes have no meaning for the MCtruth analysis -- they are set to zero in order not to appear in outputfile name
@@ -68,6 +70,8 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
     isppHM =0;
     ispp5TeV=0;
     ChangesIncluded = 0;
+    cout <<"Do you want to analyse the files with the wings correction applied? Type 1 if you DO want" << endl;
+    cin >> isWingsCorrectionApplied;
   }
 
   TString       nameFit[4]={"mT-scaling", "Boltzmann", "Fermi-Dirac", "Levi"};
@@ -96,8 +100,12 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
     //    DPhiFactor = 0.845813/1.08747;
   }
   if (isGenOnTheFly){
-    yearK0s = "PythiaRopes";
-    yearXi = "PythiaRopes_IncreasedStatXi";
+    //    isNormCorr = 0;
+    cout << "Should be analyse Ropes (=1) or MonashDefault (=2)? " << endl;
+    cin >> MonashTune;
+    if (MonashTune == 1)  {  yearK0s = "PythiaRopes";  yearXi = "PythiaRopes_IncreasedStatXi";}
+    else if (MonashTune ==2)  { yearK0s = "PythiaMonash";  yearXi = "PythiaMonash_IncreasedStatXi";}
+    else {cout << "option not valid " << endl; return;}
   }
 
   Bool_t  MultOK=0;
@@ -249,9 +257,13 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
   if (isBulkBlue) stringout += "_isXiBulkBlue";
   if (MultBinning!=0) stringout += Form("_MultBinning%i", MultBinning);
   if (ChangesIncluded) stringout += "_ChangesIncluded";
+  if (isdNdEtaTriggered) stringout += "_isdNdEtaTriggered";
   //  stringout += "_Boh";
-  stringoutpdf = stringout;
   if (isFit)  stringoutpdf += "_FittedYields";
+  if (isWingsCorrectionApplied) stringout += "_isWingsCorrectionAppliedNew";
+  if (MonashTune==2) stringout += "_PythiaMonash";
+  else if (MonashTune==1) stringout += "_PythiaRopes";
+  stringoutpdf = stringout;
   TString stringoutPlots = "";
   stringout += ".root";
   TFile * fileout = new TFile(stringout, "RECREATE");
@@ -321,6 +333,9 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
     LimSupMultRatio[0] = 4.;
     LimSupMultRatio[1] = 4.5;
   }
+  LimSupMultRatio[0] = 4.;
+  LimSupMultRatio[1] = 4.5;
+
   //  Float_t LimSupYieldF[2][3] ={{0.07, 0.25, 0.25},{0.003, 0.02, 0.02}};
   Float_t LimSupYieldF[2][3] ={{0.0699, 0.24999, 0.24999},{0.002999, 0.01999, 0.01999}};
   Float_t LimSupYieldFAll[2][3] ={{0.2699, 0.26999, 0.26999},{0.002999, 0.01999, 0.01999}};
@@ -395,6 +410,9 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
     LimInfPt[0] = 0;
     LimInfPt[1] = 0;
   }
+  LimInfPt[0] = 0;
+  LimInfPt[1] = 0;
+
   //  Float_t LimInfYield[2]={10e-6, 10e-7}; //this for yield/event
   //  Float_t LimInfRatioYield = 10e-5;
   Float_t LimInfRatioYield = 0.015;
@@ -754,6 +772,14 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
       if (ispp5TeV || isppHM)        PathInYieldFit[type] += "_isFitForPlot";
       if (MultBinning!=0)       PathInYield[type]+=Form("_MultBinning%i",MultBinning);
       if (MultBinning!=0)       PathInYieldFit[type]+=Form("_MultBinning%i",MultBinning);
+      if (isWingsCorrectionApplied) {
+	PathInYield[type] += "_isWingsCorrectionApplied";
+	PathInYieldFit[type] += "_isWingsCorrectionApplied";
+	if (isGenOnTheFly && type==1) {
+	  PathInYield[type] += "New";
+	  PathInYieldFit[type] += "New";
+	}
+      }
       PathInYield[type]+=".root";
       PathInYieldFit[type]+=".root";
       cout << "\n\e[35mInput path\e[39m: " <<PathInYield[type]<< endl;
@@ -960,9 +986,15 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
       TLegend *Legend1=new TLegend(0.16,0.72,0.5,0.93); //0.6 in place of 0.53
       //Legend1->SetTextAlign(13);
       Legend1->SetMargin(0);
-      Legend1->AddEntry("", "#bf{ALICE Preliminary}", "");
+      Legend1->AddEntry("", "#color[0]{#bf{ALICE Preliminary}}", "");
       if (ispp5TeV)  Legend1->AddEntry("", "pp, #sqrt{#it{s}} = 5.02 TeV", "");
-      else  Legend1->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
+      else {
+	if (isGenOnTheFly){
+	  if (MonashTune==1)	  Legend1->AddEntry("", "Pythia 8 Ropes, pp, #sqrt{#it{s}} = 13 TeV", "");
+	  else if (MonashTune==2)	  Legend1->AddEntry("", "Pythia 8 Monash, pp, #sqrt{#it{s}} = 13 TeV", "");
+	}
+	else 	  Legend1->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
+      }
       Legend1->AddEntry(""/*(TObject*)0*/, NameP[type]+ " correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
 
       //TLegend *Legend2=new TLegend(0.06,0.75,0.5,0.93); // ok if margin is set to default
@@ -970,9 +1002,18 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
       //Legend1->SetTextAlign(13);
       //      Legend2->SetFillStyle(0);
       Legend2->SetMargin(0);
-      Legend2->AddEntry("", "#bf{ALICE Preliminary}", "");
+      //      Legend2->AddEntry("", "#bf{ALICE Preliminary}", "");
+      Legend2->AddEntry("", "#color[0]{#bf{ALICE Preliminary}}", "");
       if (ispp5TeV)      Legend2->AddEntry("", "pp, #sqrt{#it{s}} = 5.02 TeV", "");
-      else       Legend2->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
+      else  {
+	if (isGenOnTheFly){
+	  if (MonashTune==1)	  Legend2->AddEntry("", "Pythia 8 Ropes, pp, #sqrt{#it{s}} = 13 TeV", "");
+	  else if (MonashTune==2)	  Legend2->AddEntry("", "Pythia 8 Monash, pp, #sqrt{#it{s}} = 13 TeV", "");
+	}
+	else {
+	  Legend2->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
+	}
+      }
       Legend2->AddEntry(""/*(TObject*)0*/, NameP[type]+ " correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
 
       StyleHistoYield(fHistYieldStat[type][iregion], LimInfYield[type]+10e-7, LimSupYieldF[type][iregion], Color[iregion], YmarkerRegion[iregion], titleYieldX, titleYieldYType[type],"", MarkerSize[iregion],1.2,1.25 );
@@ -1120,7 +1161,8 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
 	//	TLegend *Legend1B=new TLegend(0.1,0.72,0.38,0.92);
 	TLegend *Legend1B=new TLegend(0.62,0.72,0.9,0.92);
 	Legend1B->SetFillStyle(0);
-	TLegendEntry* E1Bis =      Legend1B->AddEntry("", "#bf{ALICE Preliminary}", "");
+	//	TLegendEntry* E1Bis =      Legend1B->AddEntry("", "#bf{ALICE Preliminary}", "");
+	TLegendEntry* E1Bis =      Legend1B->AddEntry("", "#color[0]{#bf{ALICE Preliminary}}", "");
 	//	TLegendEntry* E1Bis =      Legend1B->AddEntry("", "", "");
 	E1Bis->SetTextAlign(32);
 	TLegendEntry* E2Bis;
@@ -1294,12 +1336,13 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
 
 	  
 	  for (Int_t b=2; b<=  fHistSpectrumStatRatio[m][iregion]->GetNbinsX(); b++){
+	    /*
 	    if ((m==4 || m==3) && b==fHistSpectrumStatRatio[m][iregion]->GetNbinsX()){
 	      fHistSpectrumStatRatio[m][iregion]-> SetBinContent(b,0);
 	      fHistSpectrumSistRatio[m][iregion]-> SetBinContent(b,0);
 	      continue;
 	    }
-	  
+	    */
 	    if ( fHistSpectrumStatRatio[m][iregion]->GetXaxis()->GetBinLowEdge(b) <2.){
 	      fHistSpectrumStatRatio[m][iregion]-> SetBinContent(b,fHistSpectrumStat[m][1][iregion]->GetBinContent(b)/splineK0s[m][iregion]->Eval(fHistSpectrumStat[m][1][iregion]->GetBinCenter(b)));
 	      fHistSpectrumStatRatio[m][iregion]-> SetBinError(b,sqrt(pow(fHistSpectrumStat[m][1][iregion]->GetBinError(b)/fHistSpectrumStat[m][1][iregion]->GetBinContent(b),2) + pow(AvgStat[m][iregion],2)) *  fHistSpectrumStatRatio[m][iregion]->GetBinContent(b) ); 
@@ -1495,9 +1538,18 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
       Legend1Bis->SetFillStyle(0);
       Legend1Bis->SetTextAlign(32);
       Legend1Bis->SetTextSize(0.034);
-      Legend1Bis->AddEntry("", "#bf{ALICE Preliminary}", "");
+      //      Legend1Bis->AddEntry("", "#bf{ALICE Preliminary}", "");
+      Legend1Bis->AddEntry("", "#color[0]{#bf{ALICE Preliminary}}", "");
       if (ispp5TeV)      Legend1Bis->AddEntry("", "pp, #sqrt{#it{s}} = 5.02 TeV", "");
-      else       Legend1Bis->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
+      else      {
+	if (isGenOnTheFly){
+	  if (MonashTune==1)	  Legend1Bis->AddEntry("", "Pythia 8 Ropes, pp, #sqrt{#it{s}} = 13 TeV", "");
+	  else if (MonashTune==2)	  Legend1Bis->AddEntry("", "Pythia 8 Monash, pp, #sqrt{#it{s}} = 13 TeV", "");
+	}
+	else {
+	  Legend1Bis->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
+	}
+      }
       Legend1Bis->AddEntry("", NameP[type]+ " correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
       //      Legend1Bis->AddEntry("", sRegionBlack[iregion], "");
 
@@ -1733,10 +1785,11 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
 	fHistPtvsMultStat[type][iregion]->DrawClone("same e0x0");  
 	fHistPtvsMultSist[type][iregion]->SetFillStyle(0);
 	fHistPtvsMultSist[type][iregion]->DrawClone("same e2");
-
+	/*
 	fHistPtvsMultStatFS[type][iregion]->DrawClone("same e0x0");  
 	fHistPtvsMultSistFS[type][iregion]->SetFillStyle(0);
 	fHistPtvsMultSistFS[type][iregion]->DrawClone("same e2");
+	*/
       }
       if (isYieldMeanMacro){
 	fHistPtvsMultStatMeanMacro[type][iregion]->DrawClone("same e0x0");  
@@ -1813,6 +1866,10 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
   if (isppHM)  DirPicture += "pp13TeVHM/";
   else if (ispp5TeV) DirPicture += "pp5TeV/";
   else   DirPicture += "pp13TeVMB/";
+  if (isGenOnTheFly){
+    if (MonashTune==1)  DirPicture+="PythiaRopes/";
+    else if (MonashTune==2)  DirPicture+="PythiaMonash/";
+  }
   if (!isNormCorr) DirPicture = "PictureForNote/IsNotNormCorr_";
 
   Int_t SystemType =0;
@@ -1914,6 +1971,10 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
   else if (isppHM)  stringoutPlots += "_pp13TeVHM";
   else stringoutPlots += "_pp13TeVMB";
   if (isGenOnTheFly) stringoutPlots += "_FastMCPrediction";
+  if (isdNdEtaTriggered) stringoutPlots += "_isdNdEtaTriggered";
+  if (isWingsCorrectionApplied) stringoutPlots += "_isWingsCorrectionAppliedNew";
+  if (MonashTune==2) stringoutPlots += "_PythiaMonash";
+  else if (MonashTune==1) stringoutPlots += "_PythiaRopes";
   stringoutPlots+=  ".root";
   TFile * fileoutPlots = new TFile(stringoutPlots, "RECREATE");
   for (Int_t type=0; type<2; type++){
@@ -1923,10 +1984,14 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
       fHistYieldSist[type][iregion]->SetName("Yield_" + tipo[type] + "_"+ SRegionTypeBis[iregion] + "_SistErr");
       fHistPtvsMultStat[type][iregion]->SetName("PtvsMult_" + tipo[type] + "_"+ SRegionTypeBis[iregion] + "_StatErr");
       fHistPtvsMultSist[type][iregion]->SetName("PtvsMult_" + tipo[type] + "_"+ SRegionTypeBis[iregion] + "_SistErr");
+      fHistPtvsMultStatFS[type][iregion]->SetName("PtvsMult_" + tipo[type] + "_"+ SRegionTypeBis[iregion] + "_StatErrFS");
+      fHistPtvsMultSistFS[type][iregion]->SetName("PtvsMult_" + tipo[type] + "_"+ SRegionTypeBis[iregion] + "_SistErrFS");
       fHistYieldStat[type][iregion]->Write();
       fHistYieldSist[type][iregion]->Write();
       fHistPtvsMultStat[type][iregion]->Write();
       fHistPtvsMultSist[type][iregion]->Write();
+      fHistPtvsMultStatFS[type][iregion]->Write();
+      fHistPtvsMultSistFS[type][iregion]->Write();
       if (type==0) fHistYieldStatRatio[iregion]->Write();
       if (type==0) fHistYieldSistRatio[iregion]->Write();
       for (Int_t m=nummoltMax; m>=0; m--){
