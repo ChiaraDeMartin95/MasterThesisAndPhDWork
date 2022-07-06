@@ -19,11 +19,13 @@
 #include <TLegend.h>
 #include "Macros/constants.h"
 
-void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t ishhCorr=0, Float_t PtTrigChosen=3, Float_t PtTrigMax =15, Bool_t SkipAssoc=0,Int_t israp=0, Int_t sysV0=0, Int_t sysTrigger=0,Int_t sys=0, Int_t type=0, Int_t PtIntervalShown=1,   TString year0 = "2016",TString year="PythiaRopes"/*"_PythiaRopes_Test1"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/*_Hybrid"/*"2019h11_HM_hK0s"/*"161718_hXi"/*"1617_GP_hK0s"/"17pq_hK0s"/"161718_HM_hXi_WithFlat16k_No18p"/*"161718_HM_hXi"/"161718Full_AOD234_hXi"/*"17pq_pp5TeV_hXi_pttrig0.15"/*"17pq_hXi"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/"17pq_hXi"/*"LHC16kl_pass2_GP_Fio"/*"1617GP_hK0s"/*"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_hXi_New"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"2016k_HM_hK0s"/*"1617GP_hK0s_Hybrid_New"/*"1617_hK0s"/*"2018g4_extra_hXi_SelTrigger"/*"161718_MD_hXi"/"2018f1g4_extra_EtaEff_hXi"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/""/*"161718_MD_EtaEff_hXi"/*"AllMC_hXi"/*"2016kehjl_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*/, TString yearMC="PythiaRopes"/*"_PythiaRopes_Test1"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/*"16kl_hK0s_Hybrid"/*"2019h11_HM_hK0s"/*"161718_hXi"/"161718_HM_hXi"/*"17pq_hXi"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio"/*"1617GP_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi"/*"2018f1_extra_hK0s_Fio"/*"1617GP_hK0s_Hybrid_New"/*"1617GP_hK0s"/*"1617MC_hK0s"/*"161718_MD_EtaEff_hXi"/"2018g4_extra_EtaEff_Hybrid_hK0s"/*"2018f1g4_extra_EtaEff_hXi"/"2018g4_extra_EtaEff_hK0s"/*"2018f1_extra_Reco_hK0s"/"1617MC_hK0s"/"AllMC_hXi"/*"161718_MD_hXi_Hybrid"*/,  TString Path1 =""/*"_Jet0.75"/*"_PtTrigMax2.5_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/, TString Path2 =""/*"_PtTrigMax2.5"/*"_NewMultClassBis_Jet0.75"*/, TString Dir ="FinalOutput/", Bool_t isEnlargedDeltaEta=0, Int_t isMC=1, Int_t isEfficiency=0, Int_t MultBinning=3, Int_t PtBinning=0, Bool_t isSidebands=0, Bool_t isSidebandsAnalysis =0, Bool_t IsMEFromHybrid=0, Bool_t isMEFromCorrectCentrality=0, Bool_t isCompWithMEFromHybrid=0, TString yearHybrid =""/*"2018g4_extra_EtaEff_Hybrid_hK0s"/* "161718_MD_hXi_Hybrid_MCTruth"*/, Bool_t IsParticleTrue=0, Bool_t isEtaEff=1, Bool_t isEtaEffComp=0, Bool_t isEta05=0 , Bool_t isCompWithMEFromXi=0, TString yearXiComp= "161718_MD_EtaEff_hXi",  Int_t TriggerPDGChoice=0, Bool_t isNewInputPath=1, Bool_t isHM=0, Bool_t isEPOSEff=0, Bool_t isMEFromPeak=0, Bool_t isMEFromK0s=0, Bool_t isBkgParab=0 , Bool_t isSysDef =0, Int_t isDefaultSel = 0, Bool_t isMCForNorm=0, Bool_t VarRange=0,  Bool_t isGenOnTheFly=1){
+void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t ishhCorr=0, Float_t PtTrigChosen=3, Float_t PtTrigMax =15, Bool_t SkipAssoc=0,Int_t israp=0, Int_t sysV0=0, Int_t sysTrigger=0,Int_t sys=0, Int_t type=8, Int_t PtIntervalShown=1,   TString year0 = "2016",TString year=/*""/"PythiaMonash_IncreasedStatXi"/*"_PythiaRopes_Test1"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/*_Hybrid"/*"2019h11_HM_hK0s"/*"161718_hXi"/*"1617_GP_hK0s"*/"17pq_hXi"/*"161718_HM_hXi_WithFlat16k_No18p"/*"161718_HM_hXi"/"161718Full_AOD234_hXi"/*"17pq_pp5TeV_hXi_pttrig0.15"/*"17pq_hXi"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/*"17pq_hXi"/*"LHC16kl_pass2_GP_Fio"/*"1617GP_hK0s"/*"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_hXi_New"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"2016k_HM_hK0s"/*"1617GP_hK0s_Hybrid_New"/*"1617_hK0s"/*"2018g4_extra_hXi_SelTrigger"/*"161718_MD_hXi"/"2018f1g4_extra_EtaEff_hXi"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/""/*"161718_MD_EtaEff_hXi"/*"AllMC_hXi"/*"2016kehjl_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*/, TString yearMC=""/*"EPOS17d20b_hK0s_Hybrid"/"PythiaMonash_IncreasedStatXi"/*"PythiaRopes_IncreasedStatXi"/*"PythiaRopes"/*"_PythiaRopes_Test1"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/*"16kl_hK0s_Hybrid"/*"2019h11_HM_hK0s"/*"161718_hXi"/"161718_HM_hXi"/*"17pq_hXi"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio"/*"1617GP_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi"/*"2018f1_extra_hK0s_Fio"/*"1617GP_hK0s_Hybrid_New"/*"1617GP_hK0s"/*"1617MC_hK0s"/*"161718_MD_EtaEff_hXi"/"2018g4_extra_EtaEff_Hybrid_hK0s"/*"2018f1g4_extra_EtaEff_hXi"/"2018g4_extra_EtaEff_hK0s"/*"2018f1_extra_Reco_hK0s"/"1617MC_hK0s"/"AllMC_hXi"/*"161718_MD_hXi_Hybrid"*/,  TString Path1 =""/*"_Jet0.75"/*"_PtTrigMax2.5_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/, TString Path2 =""/*"_PtTrigMax2.5"/*"_NewMultClassBis_Jet0.75"*/, TString Dir ="FinalOutput/", Bool_t isEnlargedDeltaEta=0, Int_t isMC=0, Int_t isEfficiency=0, Int_t MultBinning=3, Int_t PtBinning=0, Bool_t isSidebands=0, Bool_t isSidebandsAnalysis =0, Bool_t IsMEFromHybrid=0, Bool_t isMEFromCorrectCentrality=0, Bool_t isCompWithMEFromHybrid=0, TString yearHybrid =""/*"2018g4_extra_EtaEff_Hybrid_hK0s"/* "161718_MD_hXi_Hybrid_MCTruth"*/, Bool_t IsParticleTrue=0, Bool_t isEtaEff=1, Bool_t isEtaEffComp=0, Bool_t isEta05=0 , Bool_t isCompWithMEFromXi=0, TString yearXiComp= "161718_MD_EtaEff_hXi",  Int_t TriggerPDGChoice=0, Bool_t isNewInputPath=1, Bool_t isHM=0, Bool_t isEPOSEff=0, Bool_t isMEFromPeak=0, Bool_t isMEFromK0s=0, Bool_t isBkgParab=0, Bool_t isSysDef =0, Int_t isDefaultSel = 0, Bool_t isMCForNorm=0, Bool_t VarRange=0,  Bool_t isGenOnTheFly=0){
 
   //isGenOnTheFly --> events were generated on the fly and only the kinematic part is saved; the multiplicity distribution in p ercentile classes is not abvailable, instead classes based on the number of particles in the V0 acceptance are used
   if (!isMC && isGenOnTheFly) return;
-
+  Bool_t isWingsCorrectionApplied=1;
+  Bool_t EffCorr = 0;
+  if (type==0 && !isMC) EffCorr=1; //fix in efficiency introduced after 2022 preliminaries
   Int_t SidebandsSide =0;
   if (isSidebands){
   cout << "Do you want to use the left + right sidebands (0), the left one only (1), or the right one only (2)?" << endl;
@@ -33,12 +35,15 @@ void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t 
   if (type==0) isNewDEtaJet=1;
 
   if (isMC && !isEfficiency) isEtaEff=0;
-  Bool_t isMEFrom13TeV = 1;
+  Bool_t isMEFrom13TeV = 0;
   if ((isDefaultSel==0 || isDefaultSel > 3) && isSysDef) return;
   //isDefaultSel=3 -> isLoosest, isDefaultSel=2 -> isTightest
 
   if (isMEFromK0s && type==0) {cout << "the option isMEFromK0s is meant to be used when Xi is being analyzed" <<endl; return;}
-  if (year=="17pq_hXi") MultBinning=3;
+  if (year=="17pq_hXi") {
+    isMEFrom13TeV=1;
+    MultBinning=3;
+  }
   if (year=="17pq_pp5TeV_hXi_pttrig0.15") MultBinning=3;
   //isSidebands = 1 :to display also the ME and the SE/ME obtained from sdebands of invariant mass (to check for example if there is enough statistics to use the sidebands)
   //isSidebandsAnalysis = 1 :to take dphi projections obtained by subtracting fake K0s/Xi contribution using the sidbands distribution
@@ -60,11 +65,19 @@ void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t 
     //    if (type==8) isNewDEtaJet = 2;
     cout << "Do you want to run with the option isNewdEtaJet = 1 (type 1) or 2 (type 2)? (default choice of dEta region is different) "<< endl;
     cin >> isNewDEtaJet;
+   
     if (type==0) isMEFromCorrectCentrality = 1;
     else  isMEFromCorrectCentrality = 0;
+   
+    //    isMEFromCorrectCentrality = 1;
     if (type==0) PtBinning=1;
     else PtBinning=0;
   }
+  cout <<"Do you want to analyse the files with the wings correction applied? Type 1 if you DO want" << endl;
+  cin >> isWingsCorrectionApplied ;
+
+  Float_t LargestdEtaValue = 1.5;
+  if (isGenOnTheFly) LargestdEtaValue=1.5;
 
   TString sTriggerPDGChoice[3] = {"", "_IsOnlypiKpemu", "_IsNotSigmaOnly"};
   if (!isMC) TriggerPDGChoice=0;
@@ -121,6 +134,7 @@ void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t 
   if (sys==1) sysang=1;
   if (sys==2) sysang=2;
   if (sys==4) sysang =4;
+  if (sys==5) sysang =5;
   if (sys==7) sysang =7;
   if (sys==8) sysang =8;
   //sysang =4; //new
@@ -161,6 +175,7 @@ void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t 
   if (isMC && !isEfficiency && !isMCForNorm) PtV0Min =0;
   Int_t numPtV0Chosen = 4; 
   Int_t multchosen =5;
+  if (isGenOnTheFly) multchosen = nummoltMax;
 
   Int_t ColorPt[numPtV0]= {401,801,628,909,881,860,868,842, 921};
 
@@ -299,6 +314,7 @@ void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t 
   TString nameRawSE[nummolt+1][numPtV0];
   TString nameSE[nummolt+1][numPtV0];
   TString nameME[nummolt+1][numPtV0];
+  TString nameMEForSF[nummolt+1][numPtV0];
   TString nameSESB[nummolt+1][numPtV0];
   TString nameMESB[nummolt+1][numPtV0];
   TString nameMEEtaProj[nummolt+1][numPtV0];
@@ -326,6 +342,7 @@ void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t 
   TH1F * hMEtoSEEntriesvsPt[nummolt+1];
   Int_t MEEntries[nummolt]={0};
   Int_t SEEntries[nummolt]={0};
+  TH2F *hDeltaEtaDeltaPhi_ScalingFactor[nummolt+1][numPtV0][numPtTrig];
   TH2F *hDeltaEtaDeltaPhi_RawSEbins[nummolt+1][numPtV0][numPtTrig];
   TH2F *hDeltaEtaDeltaPhi_SEbins[nummolt+1][numPtV0][numPtTrig];
   TH2F *hDeltaEtaDeltaPhi_MEbins[nummolt+1][numPtV0][numPtTrig];
@@ -371,6 +388,7 @@ void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t 
   TH1F *hDeltaEtaDeltaPhi_PhiProjJetFromBulkFitRatio[nummolt+1][numPtV0][numPtTrig];
   TH1F *hDeltaEtaDeltaPhi_PhiProjJetZYAMRatio[nummolt+1][numPtV0][numPtTrig];
 
+  TF1*    pol0Wings[nummolt+1][numPtV0][numPtTrig];
   TF1*	  pol0ZYAM[nummolt+1][numPtV0][numPtTrig];
   TF1*	  pol0ZYAMOrigin[nummolt+1][numPtV0][numPtTrig];
   TF1*	  pol0BulkBis[nummolt+1][numPtV0][numPtTrig];
@@ -408,16 +426,25 @@ void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t 
 
   //  TLine *tlineEtaSx=new TLine(-1.04, -TMath::Pi()/2, -1.04,  3*TMath::Pi()/2);
   //  TLine *tlineEtaDx=new TLine(1.04, -TMath::Pi()/2, 1.04,  3*TMath::Pi()/2);
-  TLine *tlineEtaSx=new TLine(-0.78, -TMath::Pi()/2, -0.78,  3*TMath::Pi()/2);
-  TLine *tlineEtaDx=new TLine(0.78, -TMath::Pi()/2, 0.78,  3*TMath::Pi()/2);
-  TLine *tlineEtaInclSx=new TLine(-1.14, -TMath::Pi()/2, -1.14,  3*TMath::Pi()/2);
-  TLine *tlineEtaInclDx=new TLine(1.14, -TMath::Pi()/2, 1.14,  3*TMath::Pi()/2);
+  Float_t JetLowValue = 0;
+  Float_t JetUpValue = 0;
+  Float_t BulkLowValue = 0;
+  Float_t BulkUpValue = 0;
+  Float_t InclusiveLowValue = 0;
+  Float_t InclusiveUpValue = 0;
+  TLine *tlineEtaSx;
+  TLine *tlineEtaDx;
+  TLine *tlineEtaInclSx;
+  TLine *tlineEtaInclDx;
+  TLine *tlineEtaBulkSx;
+  TLine *tlineEtaBulkDx;
   //  TLine *tlinePhiSx=new TLine(-1.5, -1.06, 1.5,  -1.06); //was 1.32
   //  TLine *tlinePhiDx=new TLine(-1.5, +1.06, 1.5,  +1.06);
-  TLine *tlinePhiSx=new TLine(-1.15, -0.85, 1.15,  -0.85); //was 1.32
-  TLine *tlinePhiDx=new TLine(-1.15, 0.85, 1.15,  0.85);
+  TLine *tlinePhiSx=new TLine(-1.15, -1.05, 1.15,  -1.05); //was 1.32
+  TLine *tlinePhiDx=new TLine(-1.15, 1.05, 1.15,  1.05);
   TLine *tlinePhiBase=new TLine(-TMath::Pi()/2, 0, 3*TMath::Pi()/2,0);
   TLine *tlineAtOne=new TLine(-1, 1, 1, 1);
+  TLine *tlineVerticalAtZero=new TLine(0, 0.8, 0, 1.2);
   TLine *tlineAtOneLong=new TLine(-1.2, 1, 1.2, 1);
   TLine *tlineAtOnePt=new TLine(0, 1, 8, 1);
   tlineAtOnePt->SetLineColor(881);
@@ -431,6 +458,10 @@ void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t 
   TCanvas *  canvasWidthGaussianEta[2];
   TCanvas *  canvasWidthGaussianAS[2];
   TCanvas * canvasWings[2];
+  TCanvas * canvasBaselineJet;
+  canvasBaselineJet= new TCanvas ("canvasBaselineJet","canvasBaselineJet", 800, 500);
+  if (isGenOnTheFly)  canvasBaselineJet -> Divide((nummoltMax+2)/2,2);
+  else canvasBaselineJet->Divide(3,2);
 
   TCanvas*    canvasSBJetFitResult = new TCanvas("canvasSBJetFitResult", "canvasSBJetFitResult", 1300,800);
   canvasSBJetFitResult->Divide(3,3);
@@ -441,20 +472,25 @@ void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t 
 
   for (Int_t i =0; i<2; i++){  
     canvasWings[i] = new TCanvas (Form("canvasWings%i",i), Form("canvasWings%i",i), 800, 500);
-    canvasWings[i]->Divide(3,2);
+    if (isGenOnTheFly)     canvasWings[i]->Divide((nummoltMax+2)/2,2);
+    else     canvasWings[i]->Divide(3,2);
 
     canvasWidthGaussian[i] = new TCanvas (Form("canvasWidthGaussian%i",i), Form("canvasWidthGaussian%i",i), 800, 500);
-    canvasWidthGaussian[i]->Divide(3,2);
+    if (isGenOnTheFly)     canvasWidthGaussian[i]->Divide((nummoltMax+2)/2,2);
+    else     canvasWidthGaussian[i]->Divide(3,2);
     canvasWidthGaussianEta[i] = new TCanvas (Form("canvasWidthGaussianEta%i",i), Form("canvasWidthGaussianEta%i",i), 800, 500);
-    canvasWidthGaussianEta[i]->Divide(3,2);
+    if (isGenOnTheFly)     canvasWidthGaussianEta[i]->Divide((nummoltMax+2)/2,2);
+    else canvasWidthGaussianEta[i]->Divide(3,2);
     canvasWidthGaussianAS[i] = new TCanvas (Form("canvasWidthGaussianAS%i",i), Form("canvasWidthGaussianAS%i",i), 800, 500);
-    canvasWidthGaussianAS[i]->Divide(3,2);
+    if (isGenOnTheFly)     canvasWidthGaussianAS[i]->Divide((nummoltMax+2)/2,2);
+    else canvasWidthGaussianAS[i]->Divide(3,2);
   }
 
   TCanvas *canvasPlot[nummolt+1][2];
   TCanvas *canvasPlotSB[nummolt+1][2];
   TCanvas *canvasPlotSE[nummolt+1][2];
   TCanvas *canvasPlotME[nummolt+1][2];
+  TCanvas *canvasPlotScalingFactor[nummolt+1][2];
   TCanvas *canvasPlotMEEtaProjComp[nummolt+1][2];
   TCanvas *canvasPlotMEEtaProjCompRatio[nummolt+1][2];
   TCanvas *canvasPlotMESB[nummolt+1][2];
@@ -480,6 +516,7 @@ void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t 
   TH1F *RatioHistoWidthGaussianAS[nummolt+1][numPtTrig];
   TH1F *RatioHistoWidthGaussianEta[nummolt+1][numPtTrig];
   TH1F * hWings[nummolt+1][2][numPtTrig];
+  TH1F * hBaseLineJet[nummolt+1][numPtTrig];
   TH1F * hWingsLeft[nummolt+1][2][numPtTrig];
   TH1F * hWingsRight[nummolt+1][2][numPtTrig];
   TH1F*  hJetSBFitResult[nummolt+1];
@@ -675,6 +712,12 @@ void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t 
   //  nomefileoutput += "_Try";
   //  nomefileoutput+= "_LargerJetWidthLargerBulkWidth";
   if (VarRange!=0) nomefileoutput+= Form("_VarRange%i", VarRange);
+  if (EffCorr) nomefileoutput += "_EffCorr";
+  if (isWingsCorrectionApplied) {
+    if (isMEFromCorrectCentrality)  nomefileoutput += "_isWingsCorrectionApplied";
+    else  nomefileoutput += "_isWingsCorrectionAppliedNew";
+  }
+  //  nomefileoutput +="_OnlyToPeak";
   TString nomefileoutputpdf=nomefileoutput;
   //  nomefileoutput +="_thinptbins";
   nomefileoutput += ".root";
@@ -715,6 +758,8 @@ void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t 
       canvasPlotME[m][IntisMC]->Divide(numC,2);
       canvasPlotSE[m][IntisMC]=new TCanvas(Form("canvasPlotSE_m%i_MC%i",m,  IntisMC), "canvasPlotSE"+Smolt[m], 1300, 800);
       canvasPlotSE[m][IntisMC]->Divide(numC,2);
+      canvasPlotScalingFactor[m][IntisMC]=new TCanvas(Form("canvasPlotScalingFactor_m%i_MC%i",m,  IntisMC), "canvasPlotScalingFactor"+Smolt[m], 1300, 800);
+      canvasPlotScalingFactor[m][IntisMC]->Divide(numC,2);
 
       canvasPlotMEEtaProjCompHybrid[m][IntisMC]=new TCanvas(Form("canvasPlotMEEtaProjCompHybrid_m%i_MC%i",m,  IntisMC), "canvasPlotMEEtaProjCompHybrid"+Smolt[m], 1300, 800);
       canvasPlotMEEtaProjCompHybrid[m][IntisMC]->Divide(numC,2);
@@ -784,6 +829,8 @@ void AngularCorrelationPlot(Bool_t isTrigEff =0, Bool_t isTrigEffComp=0, Bool_t 
       hWingsRight[m][0][PtTrig] = new TH1F(Form("hWingsRight_m%i_Data", m), Form("hWingsRight_m%i_Data", m), numPtV0, NPtV0);
       hWingsRight[m][1][PtTrig] = new TH1F(Form("hWingsRight_m%i_Pythia8", m), Form("hWingsRight_m%i_Pythia", m), numPtV0, NPtV0);
 
+      hBaseLineJet[m][PtTrig] = new TH1F(Form("hBaseLineJet_m%i", m), Form("hBaseLineJet_m%i", m), numPtV0, NPtV0);
+
       hJetSBFitResult[m]=new TH1F(Form("hJetSBFitResult_m%i", m), Form("hJetSBFitResult_m%i", m), numPtV0, NPtV0);
       hBulkSBFitResult[m]=new TH1F(Form("hBulkSBFitResult_m%i", m), Form("hBulkSBFitResult_m%i", m), numPtV0, NPtV0);
       hAllSBFitResult[m]=new TH1F(Form("hAllSBFitResult_m%i", m), Form("hAllSBFitResult_m%i", m), numPtV0, NPtV0);
@@ -801,6 +848,7 @@ cout << "\n\n " << endl;
       nameSE[m][v]+="m"+ Smolt[m]+"_v"+SPtV0[v]+Ssideband[0]+"_AC";
       nameSESB[m][v]="ME_m"+ Smolt[m]+"_v"+SPtV0[v]+Ssideband[1]+"_AC";
       nameME[m][v]="ME_m"+ Smolt[m]+"_v"+SPtV0[v]+Ssideband[0]+"_norm";
+      nameMEForSF[m][v]="ME_m"+ Smolt[m]+"_v"+SPtV0[v]+Ssideband[0]+"";
       nameMESB[m][v]="ME_m"+ Smolt[m]+"_v"+SPtV0[v]+Ssideband[1]+"_norm";
 
       nameMEEtaProj[m][v] =nameME[m][v]+"_EtaProj";
@@ -884,12 +932,39 @@ cout << "\n\n " << endl;
 	  //	  PathInComp[PtTrig]+= "_Try";
 	  if (VarRange!=0) PathIn[PtTrig]+= Form("_VarRange%i", VarRange);
 	  if (VarRange!=0) PathInComp[PtTrig]+= Form("_VarRange%i", VarRange);
+	  if (EffCorr) PathIn[PtTrig] += "_EffCorr";
+	  if (EffCorr) PathInComp[PtTrig] += "_EffCorr";
+	  if (isWingsCorrectionApplied) {
+	    PathIn[PtTrig]+= "_isWingsCorrectionApplied";
+	    PathInComp[PtTrig]+= "_isWingsCorrectionApplied";
+	    if (!isMEFromCorrectCentrality){
+	      PathIn[PtTrig]+="New";
+	      PathInComp[PtTrig]+="New";	      
+	    }
+	    //	    PathIn[PtTrig]+="_OnlyToPeak";
+	    //	    PathInComp[PtTrig]+="_OnlyToPeak";
+	  }
 	  PathIn[PtTrig]+= ".root";
 	  PathInComp[PtTrig]+= ".root";
 	  if (!ishhCorr && isEnlargedDeltaEta)	  PathIn[PtTrig]= Dir+"/histo/AngularCorrelation" + file[IntisMC] + hhCorr[ishhCorr]+ Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f", sysTrigger, sysV0, sysang, PtTrigMin)+"_DeltaEtaPhiEnlarged_Output.root";
 	  cout <<"path in : " <<  PathIn[PtTrig] << endl;
 	  filein[PtTrig]= new TFile(PathIn[PtTrig], "");
+	  TH1F * fHistEtaLimitsOfRegion = (TH1F*)filein[PtTrig]->Get("fHistEtaLimitsOfRegion");
+	  JetLowValue = fHistEtaLimitsOfRegion->GetBinContent(1);
+	  JetUpValue = fHistEtaLimitsOfRegion->GetBinContent(2);
+	  BulkLowValue = fHistEtaLimitsOfRegion->GetBinContent(3);
+	  BulkUpValue = fHistEtaLimitsOfRegion->GetBinContent(4);
+	  InclusiveLowValue = fHistEtaLimitsOfRegion->GetBinContent(5);
+	  InclusiveUpValue = fHistEtaLimitsOfRegion->GetBinContent(6);
 
+	  tlineEtaSx=new TLine(JetLowValue, -TMath::Pi()/2, JetLowValue,  3*TMath::Pi()/2);
+	  tlineEtaDx=new TLine(JetUpValue, -TMath::Pi()/2, JetUpValue,  3*TMath::Pi()/2);
+	  tlineEtaBulkSx=new TLine(-BulkUpValue, -TMath::Pi()/2, -BulkUpValue,  3*TMath::Pi()/2);
+	  tlineEtaBulkDx=new TLine(BulkUpValue, -TMath::Pi()/2, BulkUpValue,  3*TMath::Pi()/2);
+	  tlineEtaInclSx=new TLine(InclusiveLowValue, -TMath::Pi()/2, InclusiveLowValue,  3*TMath::Pi()/2);
+	  tlineEtaInclDx=new TLine(InclusiveUpValue, -TMath::Pi()/2, InclusiveUpValue,  3*TMath::Pi()/2);
+	  tlineEtaInclSx->SetLineColor(13); //Grey
+	  tlineEtaInclDx->SetLineColor(13);
 	  if (isTrigEff){
 	    histoNTrigger = (TH1F*)filein[PtTrig]->Get("fHistNTrigger");
 	    histoNTriggerMult = (TH1F*)filein[PtTrig]->Get("fHistNTriggerMult");
@@ -919,6 +994,7 @@ cout << "\n\n " << endl;
 	  }
 
 	  hDeltaEtaDeltaPhi_RawSEbins[m][v][PtTrig]= (TH2F*)filein[PtTrig]->Get(nameRawSE[m][v]);
+	  if (isWingsCorrectionApplied) 	  hDeltaEtaDeltaPhi_ScalingFactor[m][v][PtTrig]= (TH2F*)filein[PtTrig]->Get(nameMEForSF[m][v]+ "_ScalingFactor");
 	  hDeltaEtaDeltaPhi_SEbins[m][v][PtTrig]= (TH2F*)filein[PtTrig]->Get(nameSE[m][v]);
 	  hDeltaEtaDeltaPhi_SEbinsSB[m][v][PtTrig]= (TH2F*)filein[PtTrig]->Get(nameSESB[m][v]);
 	  //	  else 	  hDeltaEtaDeltaPhi_SEbinsSB[m][v][PtTrig]= (TH2F*)filein[PtTrig]->Get(nameSE[m][v]);
@@ -951,6 +1027,7 @@ cout << "\n\n " << endl;
 	  //	  else 	  hDeltaEtaDeltaPhi_MEbinsSB[m][v][PtTrig]= (TH2F*)filein[PtTrig]->Get(nameME[m][v]);
 	  if (v==PtV0Min)  hDeltaEtaDeltaPhi_MEbins[m][numPtV0Chosen][PtTrig]= (TH2F*)filein[PtTrig]->Get("ME_m"+ Smolt[m]+"_v"+SPtV0[numPtV0Chosen]+Ssideband[0]+"_norm");
 	  if (!hDeltaEtaDeltaPhi_RawSEbins[m][v][PtTrig]){cout << "no Raw SE 2D histo for v = "<<v << " name of the histo " << nameRawSE[m][v] << endl;  return;}
+	  if (isWingsCorrectionApplied && !hDeltaEtaDeltaPhi_ScalingFactor[m][v][PtTrig]){cout << "no scaling factor histo for v = "<<v << "name of the histo " << nameME[m][v]+ "_SalingFactor"<< endl;  return;}
 	  if (!hDeltaEtaDeltaPhi_SEbins[m][v][PtTrig]){cout << "no SE 2D histo for v = "<<v << " name of the histo " << nameSE[m][v] << endl;  return;}
 	  if (!hDeltaEtaDeltaPhi_MEbins[m][v][PtTrig]){cout << "no ME 2D histo for v = " << v << " name of the histo " << nameME[m][v] <<  endl;  return;}
 	  if (isSidebands){
@@ -1053,10 +1130,10 @@ cout << "\n\n " << endl;
 	  //	  hDeltaEtaDeltaPhi_EtaProjPHalf[m][v][PtTrig]= (TH1F*)	hDeltaEtaDeltaPhi_SEbins[m][v][PtTrig]->ProjectionX(nameEtaProj[m][v][PtTrig]+"PHalf",hDeltaEtaDeltaPhi_SEbins[m][v][PtTrig]->GetYaxis()->FindBin(3+0.001) ,hDeltaEtaDeltaPhi_SEbins[m][v][PtTrig]->GetYaxis()->FindBin(3./2 * TMath::Pi()- 0.001)  , "E");
 	  hDeltaEtaDeltaPhi_EtaProjNHalf[m][v][PtTrig]= (TH1F*)	hDeltaEtaDeltaPhi_SEbins[m][v][PtTrig]->ProjectionX(nameEtaProj[m][v][PtTrig]+"NHalf",hDeltaEtaDeltaPhi_SEbins[m][v][PtTrig]->GetYaxis()->FindBin(-TMath::Pi()/2+ 0.001) ,hDeltaEtaDeltaPhi_SEbins[m][v][PtTrig]->GetYaxis()->FindBin(+1./2*TMath::Pi()- 0.001)  , "E");
 
-	  pol0SideDX[m][v][PtTrig] = new TF1(Form("pol0SideDX_m%i_v%i", m, v),"pol0", 0.75, 1.15);
-	  pol0SideSX[m][v][PtTrig] = new TF1(Form("pol0SideSX_m%i_v%i", m, v),"pol0", -1.15, -0.75);
-	  //	  hDeltaEtaDeltaPhi_EtaProjNHalf[m][v][PtTrig]->FindBin(-1.2), 	  hDeltaEtaDeltaPhi_EtaProjNHalf[m][v][PtTrig]->FindBin(-0.75));
-	  pol0Centr[m][v][PtTrig] = new TF1( Form("pol0Centr_m%i_v%i", m, v), "pol0",-0.75, 0.75);//,	  hDeltaEtaDeltaPhi_EtaProjNHalf[m][v][PtTrig]->FindBin(-0.75), 	  hDeltaEtaDeltaPhi_EtaProjNHalf[m][v][PtTrig]->FindBin(0.75));
+	  pol0SideDX[m][v][PtTrig] = new TF1(Form("pol0SideDX_m%i_v%i", m, v),"pol0", JetUpValue, BulkUpValue);
+	  pol0SideSX[m][v][PtTrig] = new TF1(Form("pol0SideSX_m%i_v%i", m, v),"pol0", -BulkUpValue, -JetUpValue);
+	  //	  hDeltaEtaDeltaPhi_EtaProjNHalf[m][v][PtTrig]->FindBin(-1.2), 	  hDeltaEtaDeltaPhi_EtaProjNHalf[m][v][PtTrig]->FindBin(-JetUpValue));
+	  pol0Centr[m][v][PtTrig] = new TF1( Form("pol0Centr_m%i_v%i", m, v), "pol0",-JetUpValue, JetUpValue);//,	  hDeltaEtaDeltaPhi_EtaProjNHalf[m][v][PtTrig]->FindBin(-JetUpValue), 	  hDeltaEtaDeltaPhi_EtaProjNHalf[m][v][PtTrig]->FindBin(JetUpValue));
 	  pol0Centr[m][v][PtTrig]->SetLineColor(628);
 	  pol0SideSX[m][v][PtTrig]->SetLineColor(kGreen+3);
 	  pol0SideDX[m][v][PtTrig]->SetLineColor(kGreen+3);
@@ -1091,8 +1168,8 @@ cout << "\n\n " << endl;
 	  hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig]->SetTitle(TitleNew);
 	  hDeltaEtaDeltaPhi_PhiProjJetBulk[m][v][PtTrig]->SetTitle(TitleNew);
 	  //	  hDeltaEtaDeltaPhi_SEbins[m][v][PtTrig]->GetXaxis()->SetRangeUser(-1.15, 1.15);
-	  hDeltaEtaDeltaPhi_SEbins[m][v][PtTrig]->GetXaxis()->SetRangeUser(-1.5, 1.5);
-	  if (year.Index("Fio")!=-1) 	  hDeltaEtaDeltaPhi_SEbins[m][v][PtTrig]->GetXaxis()->SetRangeUser(-1.5, 1.5);
+	  hDeltaEtaDeltaPhi_SEbins[m][v][PtTrig]->GetXaxis()->SetRangeUser(-LargestdEtaValue, LargestdEtaValue);
+	  if (year.Index("Fio")!=-1) 	  hDeltaEtaDeltaPhi_SEbins[m][v][PtTrig]->GetXaxis()->SetRangeUser(-LargestdEtaValue, LargestdEtaValue);
 	  hDeltaEtaDeltaPhi_SEbins[m][v][PtTrig]->Draw("colz");
 	  tlinePhiDx->Draw();
 	  tlinePhiSx->Draw();
@@ -1100,6 +1177,8 @@ cout << "\n\n " << endl;
 	  tlineEtaSx->Draw();
 	  tlineEtaInclDx->Draw();
 	  tlineEtaInclSx->Draw();
+	  tlineEtaBulkDx->Draw();
+	  tlineEtaBulkSx->Draw();
 
 	  canvasPlotME[m][IntisMC]->cd(v+1);
 	  gPad->SetLeftMargin(0.15);
@@ -1114,6 +1193,12 @@ cout << "\n\n " << endl;
 	  //	  hDeltaEtaDeltaPhi_RawSEbins[m][v][PtTrig]->SetTitle("Raw SE v"+SPtV0[v]+ Form(" for p_{T}^{Trigg, min} %.1f ", PtTrigMin) + MCOrNot[IntisMC]);
 	  hDeltaEtaDeltaPhi_RawSEbins[m][v][PtTrig]->SetTitle("Raw SE "+ SmoltBis[m]+ " v"+SPtV0[v]);
 	  hDeltaEtaDeltaPhi_RawSEbins[m][v][PtTrig]->Draw("colz");
+
+	  canvasPlotScalingFactor[m][IntisMC]->cd(v+1);
+	  hDeltaEtaDeltaPhi_ScalingFactor[m][v][PtTrig]->GetYaxis()->SetRangeUser(0.8,1.2);
+	  hDeltaEtaDeltaPhi_ScalingFactor[m][v][PtTrig]->Draw("colz");
+	  tlineAtOneLong->Draw("same");
+	  tlineVerticalAtZero->Draw("same");
 
 	  if (isEtaEffComp){
 	    canvasPlotMEEtaProjComp[m][IntisMC]->cd(v+1);
@@ -1153,7 +1238,7 @@ cout << "\n\n " << endl;
 	  hDeltaEtaDeltaPhi_RawSEEtaProj[m][v][PtTrig]->Scale(1./ hDeltaEtaDeltaPhi_RawSEbins[m][v][PtTrig]->GetNbinsY());
 	  //	  hDeltaEtaDeltaPhi_RawSEEtaProj[m][v][PtTrig]->Scale(1./ hDeltaEtaDeltaPhi_RawSEEtaProj[m][v][PtTrig]->Integral());
 	  hDeltaEtaDeltaPhi_RawSEEtaProj[m][v][PtTrig]->GetYaxis()->SetRangeUser(0, 1.2* hDeltaEtaDeltaPhi_RawSEEtaProj[m][v][PtTrig]->GetMaximum());
-	  hDeltaEtaDeltaPhi_RawSEEtaProj[m][v][PtTrig]->GetXaxis()->SetRangeUser(-1.15, 1.15);
+	  hDeltaEtaDeltaPhi_RawSEEtaProj[m][v][PtTrig]->GetXaxis()->SetRangeUser(-LargestdEtaValue, LargestdEtaValue);
 	  hDeltaEtaDeltaPhi_RawSEEtaProj[m][v][PtTrig]->SetTitle(SmoltBis[m] + Form(" Raw SE proj %.1f < p_{T} < %.1f GeV/c",NPtV0[v], NPtV0[v+1]));
 	  hDeltaEtaDeltaPhi_RawSEEtaProj[m][v][PtTrig]->DrawClone("same");
 	  if (v==numPtV0-1) legendPt->Draw("same");
@@ -1202,7 +1287,7 @@ cout << "\n\n " << endl;
 	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioToHybrid[m][v][PtTrig]->SetTitle(SmoltBis[m] + Form(" %.1f < p_{T} < %.1f",NPtV0[v], NPtV0[v+1]));
 	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioToHybrid[m][v][PtTrig]->Divide(hDeltaEtaDeltaPhi_MEbins_EtaProjHybrid[m][v][PtTrig]);
 	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioToHybrid[m][v][PtTrig]->GetYaxis()->SetRangeUser(0.8, 1.2);
-	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioToHybrid[m][v][PtTrig]->GetXaxis()->SetRangeUser(-1.15, 1.15);
+	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioToHybrid[m][v][PtTrig]->GetXaxis()->SetRangeUser(-LargestdEtaValue, LargestdEtaValue);
 	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioToHybrid[m][v][PtTrig]->Draw("");
 	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioToHybrid[m][v][PtTrig]->GetYaxis()->SetTitle("Pair acceptance ratio");	  
 	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioToHybrid[m][v][PtTrig]->GetYaxis()->SetTitleSize(0.05);
@@ -1247,7 +1332,7 @@ cout << "\n\n " << endl;
 	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioToXi[m][v][PtTrig]->SetTitle(SmoltBis[m] + Form(" %.1f < p_{T} < %.1f",NPtV0[v], NPtV0[v+1]));
 	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioToXi[m][v][PtTrig]->Divide(hDeltaEtaDeltaPhi_MEbins_EtaProjXi[m][v][PtTrig]);
 	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioToXi[m][v][PtTrig]->GetYaxis()->SetRangeUser(0.8, 1.2);
-	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioToXi[m][v][PtTrig]->GetXaxis()->SetRangeUser(-1.15, 1.15);
+	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioToXi[m][v][PtTrig]->GetXaxis()->SetRangeUser(-LargestdEtaValue, LargestdEtaValue);
 	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioToXi[m][v][PtTrig]->Draw("");
 	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioToXi[m][v][PtTrig]->GetYaxis()->SetTitle("Pair acceptance ratio K0s to Xi");	  
 	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioToXi[m][v][PtTrig]->GetYaxis()->SetTitleSize(0.05);
@@ -1262,13 +1347,13 @@ cout << "\n\n " << endl;
 	    hDeltaEtaDeltaPhi_MEbins_EtaProj[m][v][PtTrig]->SetTitle("ME " + SmoltBis[m]+"%" + " v"+ SPtV0[v]);
 	    hDeltaEtaDeltaPhi_MEbins_EtaProj[m][v][PtTrig]->GetXaxis()->SetTitleOffset(1);
 	    hDeltaEtaDeltaPhi_MEbins_EtaProj[m][v][PtTrig]->GetYaxis()->SetRangeUser(0,1.2);
-	    hDeltaEtaDeltaPhi_MEbins_EtaProj[m][v][PtTrig]->GetXaxis()->SetRangeUser(-1.15, 1.15);
+	    hDeltaEtaDeltaPhi_MEbins_EtaProj[m][v][PtTrig]->GetXaxis()->SetRangeUser(-LargestdEtaValue, LargestdEtaValue);
 	    hDeltaEtaDeltaPhi_MEbins_EtaProj[m][v][PtTrig]->Draw("same");
 	    if (v==numPtV0-1) legendPt->Draw("same");
 	    canvasPlotMEEtaProj[IntisMC]->cd(m+1); //+6
 	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatio[m][v][PtTrig]->GetXaxis()->SetTitleOffset(1);
 	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatio[m][v][PtTrig]->GetYaxis()->SetRangeUser(0.8, 1.2);
-	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatio[m][v][PtTrig]->GetXaxis()->SetRangeUser(-1.15, 1.15);
+	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatio[m][v][PtTrig]->GetXaxis()->SetRangeUser(-LargestdEtaValue, LargestdEtaValue);
 	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatio[m][v][PtTrig]->SetTitle("ME ratio " + Smolt[m]+ Form(" to %.1f < p_{T} < %.1f", NPtV0[numPtV0Chosen],  NPtV0[numPtV0Chosen+1]));
 	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatio[m][v][PtTrig]->Draw("same");
 	    if (v==numPtV0-1) legendPt->Draw("same");
@@ -1287,7 +1372,7 @@ cout << "\n\n " << endl;
 	    if (v==PtV0Min)	    legendMult->AddEntry(	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioMolt[m][v][PtTrig], SmoltBis[m], "pl");
 	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioMolt[m][v][PtTrig]->GetYaxis()->SetRangeUser(0.9, 1.1);
 	    if (type==0 && year=="1617_hK0s") 	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioMolt[m][v][PtTrig]->GetYaxis()->SetRangeUser(0.9, 1.1);
-	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioMolt[m][v][PtTrig]->GetXaxis()->SetRangeUser(-1.15, 1.15);
+	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioMolt[m][v][PtTrig]->GetXaxis()->SetRangeUser(-LargestdEtaValue, LargestdEtaValue);
 	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioMolt[m][v][PtTrig]->GetXaxis()->SetTitleOffset(1);
 	    //	    if (m==0 || m ==1 || m==2)	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioMolt[m][v][PtTrig]->Draw("same");
 	    hDeltaEtaDeltaPhi_MEbins_EtaProjRatioMolt[m][v][PtTrig]->Draw("same");
@@ -1557,6 +1642,7 @@ cout << "\n\n " << endl;
 	      if (m < nummoltMax && m > 6)  LimSupY[0] = 0.0012;
 	      else if (m <= 1)  LimSupY[0] = 0.00032;
 	      else LimSupY[0] = 0.0006;
+	      if (yearMC.Index("Monash")!=-1) LimSupY[0] = LimSupY[0]/2.5;
 	    }
 	  }
 
@@ -1616,8 +1702,13 @@ cout << "\n\n " << endl;
 	  //	  pol0ZYAMOrigin[m][v][PtTrig]->Draw("same");
 	  //	  pol0BulkBis[m][v][PtTrig]->Draw("same");
 	  hDeltaEtaDeltaPhi_PhiProjJet[m][v][PtTrig]    ->Draw("same");
+	  pol0Wings[m][v][PtTrig] = new TF1(Form("pol0Wings_m%i_v%i_PtTrig%i", m, v, PtTrig), "pol0", 1.5, 4);
+	  hDeltaEtaDeltaPhi_PhiProjJet[m][v][PtTrig]->Fit(pol0Wings[m][v][PtTrig], "R+");
+	  hBaseLineJet[m][PtTrig]->SetBinContent(v+1, pol0Wings[m][v][PtTrig]->GetParameter(0));
 	  //	  hDeltaEtaDeltaPhi_PhiProjJetZYAM[m][v][PtTrig]    ->Draw("same");
 	  //	  hDeltaEtaDeltaPhi_PhiProjJetFromBulkFit[m][v][PtTrig]    ->Draw("same");
+	  hBaseLineJet[m][PtTrig]->GetYaxis()->SetRangeUser(-0.0003, 0.0003);
+	  hBaseLineJet[m][PtTrig]->GetXaxis()->SetRangeUser(0, 8);
 	  hDeltaEtaDeltaPhi_PhiProjBulk[m][v][PtTrig]   ->Draw("same");
 	  tlinePhiBase->Draw("");
 
@@ -1685,10 +1776,10 @@ cout << "\n\n " << endl;
 	      hDeltaEtaDeltaPhi_EtaProj[m][v][PtTrig]->GetYaxis()->SetRangeUser(0, 1.5* hDeltaEtaDeltaPhi_EtaProj[m][v][PtTrig]->GetMaximum());
 	      hDeltaEtaDeltaPhi_EtaProj[m][v][PtTrig]->SetTitle(SmoltBis[m] + Form(" AC proj %.1f <p_{T} <%.1f GeV/c", NPtV0[v], NPtV0[v+1])); 
 	      hDeltaEtaDeltaPhi_EtaProj[m][v][PtTrig]->GetXaxis()->SetTitleOffset(1); 
-	      hDeltaEtaDeltaPhi_EtaProj[m][v][PtTrig]->GetXaxis()->SetRangeUser(-1.15, 1.15);
+	      hDeltaEtaDeltaPhi_EtaProj[m][v][PtTrig]->GetXaxis()->SetRangeUser(-LargestdEtaValue, LargestdEtaValue);
 	      hDeltaEtaDeltaPhi_EtaProj[m][v][PtTrig]->DrawClone("");
-	      lineEtam075=new TLine(-0.75, 0, -0.75, 1* hDeltaEtaDeltaPhi_EtaProj[m][v][PtTrig]->GetMaximum());
-	      lineEta075=new TLine(0.75, 0, 0.75, 1* hDeltaEtaDeltaPhi_EtaProj[m][v][PtTrig]->GetMaximum());
+	      lineEtam075=new TLine(-JetUpValue, 0, -JetUpValue, 1* hDeltaEtaDeltaPhi_EtaProj[m][v][PtTrig]->GetMaximum());
+	      lineEta075=new TLine(JetUpValue, 0, JetUpValue, 1* hDeltaEtaDeltaPhi_EtaProj[m][v][PtTrig]->GetMaximum());
 							    
 	    }
 	    else if (t==1){
@@ -1698,13 +1789,13 @@ cout << "\n\n " << endl;
 	      hDeltaEtaDeltaPhi_EtaProjPHalf[m][v][PtTrig]->SetTitle(SmoltBis[m] + Form(" AC proj(+) %.1f <p_{T} <%.1f GeV/c", NPtV0[v], NPtV0[v+1])); 
 	      //	      hDeltaEtaDeltaPhi_EtaProjPHalf[m][v][PtTrig]->SetTitle(SmoltBis[m] + Form("%.1f <p_{T} <%.1f GeV/c", NPtV0[v], NPtV0[v+1])); 
 	      hDeltaEtaDeltaPhi_EtaProjPHalf[m][v][PtTrig]->GetXaxis()->SetTitleOffset(1); 
-	      //	      hDeltaEtaDeltaPhi_EtaProjPHalf[m][v][PtTrig]->Fit(pol0Centr[m][v][PtTrig], "R+");
-	      //	      hDeltaEtaDeltaPhi_EtaProjPHalf[m][v][PtTrig]->Fit(pol0SideSX[m][v][PtTrig], "R+");
-	      //	      hDeltaEtaDeltaPhi_EtaProjPHalf[m][v][PtTrig]->Fit(pol0SideDX[m][v][PtTrig], "R+");
-	      hDeltaEtaDeltaPhi_EtaProjPHalf[m][v][PtTrig]->GetXaxis()->SetRangeUser(-1.15, 1.15);
+	      hDeltaEtaDeltaPhi_EtaProjPHalf[m][v][PtTrig]->Fit(pol0Centr[m][v][PtTrig], "R+");
+	      hDeltaEtaDeltaPhi_EtaProjPHalf[m][v][PtTrig]->Fit(pol0SideSX[m][v][PtTrig], "R+");
+	      hDeltaEtaDeltaPhi_EtaProjPHalf[m][v][PtTrig]->Fit(pol0SideDX[m][v][PtTrig], "R+");
+	      hDeltaEtaDeltaPhi_EtaProjPHalf[m][v][PtTrig]->GetXaxis()->SetRangeUser(-LargestdEtaValue, LargestdEtaValue);
 	      hDeltaEtaDeltaPhi_EtaProjPHalf[m][v][PtTrig]->DrawClone("");
-	      lineEtam075=new TLine(-0.75, 0, -0.75,  hDeltaEtaDeltaPhi_EtaProjPHalf[m][v][PtTrig]->GetMaximum());
-	      lineEta075=new TLine(0.75, 0,  0.75,  hDeltaEtaDeltaPhi_EtaProjPHalf[m][v][PtTrig]->GetMaximum());
+	      lineEtam075=new TLine(-JetUpValue, 0, -JetUpValue,  hDeltaEtaDeltaPhi_EtaProjPHalf[m][v][PtTrig]->GetMaximum());
+	      lineEta075=new TLine(JetUpValue, 0,  JetUpValue,  hDeltaEtaDeltaPhi_EtaProjPHalf[m][v][PtTrig]->GetMaximum());
 
 	    }
 	    else if (t==2){
@@ -1715,10 +1806,10 @@ cout << "\n\n " << endl;
 	      hDeltaEtaDeltaPhi_EtaProjNHalf[m][v][PtTrig]->SetTitle(SmoltBis[m] + Form(" AC proj(-) %.1f <p_{T} <%.1f GeV/c", NPtV0[v], NPtV0[v+1])); 
 	      //hDeltaEtaDeltaPhi_EtaProjNHalf[m][v][PtTrig]->SetTitle(SmoltBis[m] + Form("%.1f <p_{T} <%.1f GeV/c", NPtV0[v], NPtV0[v+1])); 
 	      hDeltaEtaDeltaPhi_EtaProjNHalf[m][v][PtTrig]->GetXaxis()->SetTitleOffset(1); 
-	      hDeltaEtaDeltaPhi_EtaProjNHalf[m][v][PtTrig]->GetXaxis()->SetRangeUser(-1.15, 1.15);
+	      hDeltaEtaDeltaPhi_EtaProjNHalf[m][v][PtTrig]->GetXaxis()->SetRangeUser(-LargestdEtaValue, LargestdEtaValue);
 	      hDeltaEtaDeltaPhi_EtaProjNHalf[m][v][PtTrig]->DrawClone("same");
-	      lineEtam075=new TLine(-0.75, 0, -0.75, hDeltaEtaDeltaPhi_EtaProjNHalf[m][v][PtTrig]->GetMaximum());
-	      lineEta075=new TLine(0.75, 0, 0.75,  hDeltaEtaDeltaPhi_EtaProjNHalf[m][v][PtTrig]->GetMaximum());
+	      lineEtam075=new TLine(-JetUpValue, 0, -JetUpValue, hDeltaEtaDeltaPhi_EtaProjNHalf[m][v][PtTrig]->GetMaximum());
+	      lineEta075=new TLine(JetUpValue, 0, JetUpValue,  hDeltaEtaDeltaPhi_EtaProjNHalf[m][v][PtTrig]->GetMaximum());
 
 	    }
 
@@ -1737,12 +1828,12 @@ cout << "\n\n " << endl;
 	      hDeltaEtaDeltaPhi_RawSEEtaProj[m][v][PtTrig]->SetLineColor(kBlack);
 	      hDeltaEtaDeltaPhi_RawSEEtaProj[m][v][PtTrig]->SetMarkerColor(kBlack);
 	      hDeltaEtaDeltaPhi_RawSEEtaProj[m][v][PtTrig]->GetXaxis()->SetTitleOffset(1); 
-	      hDeltaEtaDeltaPhi_RawSEEtaProj[m][v][PtTrig]->GetXaxis()->SetRangeUser(-1.15, 1.15);
+	      hDeltaEtaDeltaPhi_RawSEEtaProj[m][v][PtTrig]->GetXaxis()->SetRangeUser(-LargestdEtaValue, LargestdEtaValue);
 	      hDeltaEtaDeltaPhi_RawSEEtaProj[m][v][PtTrig]->Scale(1./ hDeltaEtaDeltaPhi_RawSEEtaProj[m][v][PtTrig]->Integral());
 	      hDeltaEtaDeltaPhi_RawSEEtaProj[m][v][PtTrig]->GetYaxis()->SetRangeUser(0, 1.2* hDeltaEtaDeltaPhi_RawSEEtaProj[m][v][PtTrig]->GetMaximum());
 	      hDeltaEtaDeltaPhi_RawSEEtaProj[m][v][PtTrig]->Draw("");						
-	      lineEtam075=new TLine(-0.75, 0, -0.75, hDeltaEtaDeltaPhi_RawSEEtaProj[m][v][PtTrig]->GetMaximum());
-	      lineEta075=new TLine(0.75, 0, 0.75,  hDeltaEtaDeltaPhi_RawSEEtaProj[m][v][PtTrig]->GetMaximum());
+	      lineEtam075=new TLine(-JetUpValue, 0, -JetUpValue, hDeltaEtaDeltaPhi_RawSEEtaProj[m][v][PtTrig]->GetMaximum());
+	      lineEta075=new TLine(JetUpValue, 0, JetUpValue,  hDeltaEtaDeltaPhi_RawSEEtaProj[m][v][PtTrig]->GetMaximum());
 
 							    
 	    }
@@ -1751,7 +1842,7 @@ cout << "\n\n " << endl;
 	      hDeltaEtaDeltaPhi_RawSEEtaProjPHalf[m][v][PtTrig]->SetMarkerColor(kBlack);
 	      hDeltaEtaDeltaPhi_RawSEEtaProjPHalf[m][v][PtTrig]->SetMarkerStyle(33);
 	      hDeltaEtaDeltaPhi_RawSEEtaProjPHalf[m][v][PtTrig]->GetXaxis()->SetTitleOffset(1); 
-	      hDeltaEtaDeltaPhi_RawSEEtaProjPHalf[m][v][PtTrig]->GetXaxis()->SetRangeUser(-1.15, 1.15);
+	      hDeltaEtaDeltaPhi_RawSEEtaProjPHalf[m][v][PtTrig]->GetXaxis()->SetRangeUser(-LargestdEtaValue, LargestdEtaValue);
 	      //	      hDeltaEtaDeltaPhi_RawSEEtaProjPHalf[m][v][PtTrig]->GetYaxis()->SetRangeUser(0, 1.2* hDeltaEtaDeltaPhi_RawSEEtaProjPHalf[m][v][PtTrig]->GetMaximum());
 	      hDeltaEtaDeltaPhi_RawSEEtaProjPHalf[m][v][PtTrig]->SetTitle(SmoltBis[m] + Form(" Raw SE proj(+) %.1f < p_{T} < %.1f GeV/c",NPtV0[v], NPtV0[v+1]));
 	      hDeltaEtaDeltaPhi_RawSEEtaProjPHalf[m][v][PtTrig]->Scale(2./(hDeltaEtaDeltaPhi_RawSEEtaProjPHalf[m][v][PtTrig]->GetBinContent(hDeltaEtaDeltaPhi_RawSEEtaProjPHalf[m][v][PtTrig]->FindBin(0.05)) + hDeltaEtaDeltaPhi_RawSEEtaProjPHalf[m][v][PtTrig]->GetBinContent(hDeltaEtaDeltaPhi_RawSEEtaProjPHalf[m][v][PtTrig]->FindBin(-0.05))));
@@ -1759,20 +1850,20 @@ cout << "\n\n " << endl;
 	      hDeltaEtaDeltaPhi_MEbins_EtaProj[m][v][PtTrig]->GetYaxis()->SetRangeUser(0,1.2);
 	      hDeltaEtaDeltaPhi_RawSEEtaProjPHalf[m][v][PtTrig]->Draw("");				     
 	      hDeltaEtaDeltaPhi_MEbins_EtaProj[m][v][PtTrig]->DrawClone("same");				    
-	      lineEtam075=new TLine(-0.75, 0, -0.75, 1.2);
-	      lineEta075=new TLine(0.75, 0, 0.75, 1.2);
+	      lineEtam075=new TLine(-JetUpValue, 0, -JetUpValue, BulkUpValue);
+	      lineEta075=new TLine(JetUpValue, 0, JetUpValue, BulkUpValue);
 
 	    }
 	    else if (t==2){
 	      hDeltaEtaDeltaPhi_RawSEEtaProjNHalf[m][v][PtTrig]->SetLineColor(kBlack);
 	      hDeltaEtaDeltaPhi_RawSEEtaProjNHalf[m][v][PtTrig]->SetMarkerColor(kBlack);
 	      hDeltaEtaDeltaPhi_RawSEEtaProjNHalf[m][v][PtTrig]->GetXaxis()->SetTitleOffset(1); 
-	      hDeltaEtaDeltaPhi_RawSEEtaProjNHalf[m][v][PtTrig]->GetXaxis()->SetRangeUser(-1.15, 1.15);
+	      hDeltaEtaDeltaPhi_RawSEEtaProjNHalf[m][v][PtTrig]->GetXaxis()->SetRangeUser(-LargestdEtaValue, LargestdEtaValue);
 	      hDeltaEtaDeltaPhi_RawSEEtaProjNHalf[m][v][PtTrig]->GetYaxis()->SetRangeUser(0, 1.2* hDeltaEtaDeltaPhi_RawSEEtaProjNHalf[m][v][PtTrig]->GetMaximum());
 	      hDeltaEtaDeltaPhi_RawSEEtaProjNHalf[m][v][PtTrig]->SetTitle(SmoltBis[m] + Form(" Raw SE proj(-) %.1f < p_{T} < %.1f GeV/c",NPtV0[v], NPtV0[v+1]));
 	      hDeltaEtaDeltaPhi_RawSEEtaProjNHalf[m][v][PtTrig]->Draw("");			      		
-	      lineEtam075=new TLine(-0.75, 0, -0.75, hDeltaEtaDeltaPhi_RawSEEtaProjNHalf[m][v][PtTrig]->GetMaximum());
-	      lineEta075=new TLine(0.75, 0, 0.75,  hDeltaEtaDeltaPhi_RawSEEtaProjNHalf[m][v][PtTrig]->GetMaximum());
+	      lineEtam075=new TLine(-JetUpValue, 0, -JetUpValue, hDeltaEtaDeltaPhi_RawSEEtaProjNHalf[m][v][PtTrig]->GetMaximum());
+	      lineEta075=new TLine(JetUpValue, 0, JetUpValue,  hDeltaEtaDeltaPhi_RawSEEtaProjNHalf[m][v][PtTrig]->GetMaximum());
 
 	    }
 
@@ -1789,8 +1880,8 @@ cout << "\n\n " << endl;
 	  hDeltaEtaDeltaPhi_RawSEEtaProjPHalfRatioToME[m][v][PtTrig]->GetYaxis()->SetRangeUser(0.9, 1.1);
 	  hDeltaEtaDeltaPhi_RawSEEtaProjPHalfRatioToME[m][v][PtTrig]->SetTitle(SmoltBis[m] + Form(" SE(+)/ME proj %.1f < p_{T} < %.1f GeV/c",NPtV0[v], NPtV0[v+1]));
 	  hDeltaEtaDeltaPhi_RawSEEtaProjPHalfRatioToME[m][v][PtTrig]->Draw("");				     
-	  lineEtam075=new TLine(-0.75, 0.9, -0.75, 1.1);
-	  lineEta075=new TLine(0.75, 0.9, 0.75, 1.1);
+	  lineEtam075=new TLine(-JetUpValue, 0.9, -JetUpValue, 1.1);
+	  lineEta075=new TLine(JetUpValue, 0.9, JetUpValue, 1.1);
 	  lineEta075->SetLineColor(628);
 	  lineEtam075->SetLineColor(628);
 	  lineEta075->Draw("same");
@@ -1912,6 +2003,15 @@ cout << "\n\n " << endl;
 	hWingsLeft[m][IntisMC][PtTrig]->Draw("same e");
 	hWingsRight[m][IntisMC][PtTrig]->Draw("same e");
 	tlineAtOnePt->Draw("same");
+
+	canvasBaselineJet->cd(m+1);
+	TF1* hpol0At1 = new TF1("pol0At1", "pol0", 0, 8);
+	hBaseLineJet[m][PtTrig]->Draw("");
+	hpol0At1->FixParameter(0,0);
+	hpol0At1->SetLineWidth(1);
+	hpol0At1->SetLineColor(1);
+	hpol0At1->SetLineStyle(8);
+	hpol0At1->Draw("same");
       }
     } //end second intisMC loop
 
@@ -1994,6 +2094,7 @@ cout << "\n\n " << endl;
       else canvasPlotSE[m][IntisMC]->SaveAs(nomefileoutputpdf+".pdf");
       canvasPlotME[m][IntisMC]->SaveAs(nomefileoutputpdf+".pdf");
       canvasPlot[m][IntisMC]->SaveAs(nomefileoutputpdf+".pdf");
+      if(isWingsCorrectionApplied)      canvasPlotScalingFactor[m][IntisMC]->SaveAs(nomefileoutputpdf+".pdf");
       canvasPlotProj[m][IntisMC]->SaveAs(nomefileoutputpdf+".pdf");
       if (isSidebandsAnalysis){
 	for (Int_t t=0; t<3; t++){
@@ -2095,6 +2196,7 @@ cout << "\n\n " << endl;
   }
   fileout->WriteTObject(canvasSummedPt); 
   fileout->WriteTObject(canvasWings[0]);
+  fileout->WriteTObject(canvasBaselineJet);
   fileout->WriteTObject(canvasWidthGaussian[0]);
   fileout->WriteTObject(canvasWidthGaussianAS[0]);
   fileout->WriteTObject(canvasWidthGaussian[1]);
@@ -2107,7 +2209,8 @@ cout << "\n\n " << endl;
 
   canvasMEtoSEMult->SaveAs(nomefileoutputpdf+".pdf");
   canvasMEtoSE->SaveAs(nomefileoutputpdf+".pdf");
-  canvasWings[0]->SaveAs(nomefileoutputpdf+".pdf)");
+  canvasWings[0]->SaveAs(nomefileoutputpdf+".pdf");
+  canvasBaselineJet->SaveAs(nomefileoutputpdf+".pdf)");
 
   cout << "baseline fits " << endl;
   for(Int_t m=nummoltMax; m>=0; m--){
