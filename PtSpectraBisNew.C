@@ -39,7 +39,7 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=1,   Int_t israp=0, TString year=""/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=1, Int_t PtBinning=1, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,  Bool_t TwoFitFunctions=0, Bool_t isNormCorrFullyComputed=1, Bool_t isMeanMacro=0, Bool_t ispp5TeV=0,  Bool_t isErrorAssumedPtCorr=1, Bool_t isFitForPlot=0, Bool_t isEffCorr=0, Bool_t isdNdEtaTriggered=0, Int_t sys=0){
+void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0, TString year=""/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=1, Int_t PtBinning=1, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,  Bool_t TwoFitFunctions=0, Bool_t isNormCorrFullyComputed=1, Bool_t isMeanMacro=0, Bool_t ispp5TeV=0,  Bool_t isErrorAssumedPtCorr=1, Bool_t isFitForPlot=0, Bool_t isEffCorr=0, Bool_t isdNdEtaTriggered=0, Int_t sys=0, Int_t MaterialBudgetCorr=2){
 
   Bool_t isGenOnTheFly = 0;
   if (isMC) isGenOnTheFly = 1;
@@ -54,6 +54,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
     isEffCorr=0;
     isEfficiency = 0;
     isNormCorrFullyComputed = 0; //normalisation factor not needed for MC truth
+    MaterialBudgetCorr=0;
   }
   cout <<"Do you want to analyse the files with the wings correction applied? Type 1 if you DO want" << endl;
   cin >> isWingsCorrectionApplied;
@@ -362,6 +363,8 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
     else stringout += "New";
   }
   if (sys!=0) stringout += Form("_dEtaSys%i", sys);
+  if (MaterialBudgetCorr==1) stringout += "_MatBudgetCorr";
+  else if (MaterialBudgetCorr==2) stringout += "_MatBudgetCorrFAST";
   TString PathOutPictures = stringout;
   stringout += ".root";
   TFile * fileout = new TFile(stringout, "RECREATE");
@@ -456,8 +459,14 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
 	UpRangeJet[m] = 4;
 	LowRangeBulk[m]= 0.5;
 	LowRangeAll[m]= 0.5;
-	UpRangeAll[m]= 3; 
-	UpRangeBulk[m]= 3; 
+	if (MatetrialBudgetCorr==0){
+	  UpRangeAll[m]= 3.; 
+	  UpRangeBulk[m]= 3.; 
+	}
+	else {
+	  UpRangeAll[m]= 2.5; 
+	  UpRangeBulk[m]= 2.5; 
+	}
 	LowPtLimitForAvgPtFS[m] = 0.8;
 	if (isFitForPlot) {
 	  UpRangeBulk[m] = 8;
@@ -1016,6 +1025,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
     else PathInDef += "New";
   }
   if (sys!=0) PathInDef += Form("_dEtaSys%i", sys);
+  if (MaterialBudgetCorr==1) PathInDef += "_MatBudgetCorr";
   PathInDef += ".root";
   cout << " from the file: " << PathInDef << endl;
   TFile *  fileinDef = new TFile(PathInDef, "");
@@ -1139,6 +1149,7 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
 	  else PathIn += "New";
 	}
 	if (sys!=0) PathIn += Form("_dEtaSys%i", sys);
+	if (MaterialBudgetCorr==1) PathIn += "_MatBudgetCorr";
 	PathIn+= ".root";
 	cout << "" << PathIn << endl;
 	filein = new TFile(PathIn, "");
@@ -1937,6 +1948,72 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
     legendErrorAll->Draw("");
   }
     
+  if (MaterialBudgetCorr==2){
+    cout << "Correction by efficiency ratio between 22e1 and old efficiency; The MC 22e1 is characterised by a R-dependent material budget" << endl;
+    for(Int_t m=0; m<nummoltMax+1; m++){
+      if (isppHM && MultBinning==1 && m<=1) continue;
+      if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
+      if (m!=0 && !isppHM) continue; //choose the multiplicity for diagnosis
+      if (isppHM && m!=5) continue;
+      cout << "\n*******************************************"<<endl;
+      cout << "\nStat and syst uncertainty BEFORE correction by efficiency scaling,  (mult "<< m << ")" << endl;
+      for (Int_t b=PtV0Min; b<= fHistSpectrumStat[m]->GetNbinsX(); b++){
+	cout << NPtV0[b-1]<<"-"<<NPtV0[b] << ":    " << fHistSpectrumStat[m]->GetBinContent(b) << " (stat. rel. error: " << fHistSpectrumStat[m]->GetBinError(b)/fHistSpectrumStat[m]->GetBinContent(b) << ", syst. rel. error:  "<< fHistSpectrumSistAll[m]->GetBinError(b)/fHistSpectrumStat[m]->GetBinContent(b) << " )" << endl;
+      }
+    }
+
+    TString PathInMBCorr = "";
+    PathInMBCorr = "FinalOutput/DATA2016/Efficiency/RatioBetweenEficiency22e1ToEfficiencyOld";
+    if (type==0) PathInMBCorr += "_K0s.root";
+    else  PathInMBCorr += "_Xi.root";
+
+    TFile * fileMBCorr = new TFile(PathInMBCorr);
+    TH1F * histoMBCorr[nummoltMax+1];
+    for (Int_t m=0; m<=nummoltMax; m++){
+      if (isppHM && MultBinning==1 && m<=1) continue;
+      if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
+      if (ispp5TeV) {
+	histoMBCorr[m] = (TH1F*)fileMBCorr->Get(Form("fHistCorrFactor_%i", 5)); //22e1/old efficiency
+	histoMBCorr[m]->SetName(Form("fHistCorrFactor_%i", m));
+      }
+      else if (isppHM){
+	histoMBCorr[m] = (TH1F*)fileMBCorr->Get(Form("fHistCorrFactor_%i", 0)); //22e1/old efficiency
+	histoMBCorr[m]->SetName(Form("fHistCorrFactor_%i", m));
+      }
+      else histoMBCorr[m] = (TH1F*)fileMBCorr->Get(Form("fHistCorrFactor_%i", m)); //22e1/old efficiency
+    }
+    Int_t CorrespondingBin=0;
+    Float_t RelError[nummoltMax+1] = {0};
+    for(Int_t m=0; m<nummoltMax+1; m++){
+      if (isppHM && MultBinning==1 && m<=1) continue;
+      if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
+
+      for (Int_t b=PtBinMin[m]+1; b<= fHistSpectrumSistAll[m]->GetNbinsX(); b++){ //I only have to *scale* sist error
+	//	cout <<	fHistSpectrumSistAll[m]->GetBinLowEdge(b) << " vs " << histoMBCorr[m]->GetBinLowEdge(histoMBCorr[m]->FindBin(fHistSpectrumStat[m]->GetBinCenter(b)))<< endl;
+	CorrespondingBin = histoMBCorr[m]->FindBin(fHistSpectrumStat[m]->GetBinCenter(b));
+	RelError[m] = sqrt(pow(fHistSpectrumStat[m]->GetBinError(b)/fHistSpectrumStat[m]->GetBinContent(b), 2) + pow(histoMBCorr[m]->GetBinError(CorrespondingBin)/histoMBCorr[m]->GetBinContent(CorrespondingBin),2));
+
+	fHistSpectrumStat[m]->SetBinContent(b,fHistSpectrumStat[m]->GetBinContent(b)/histoMBCorr[m]->GetBinContent(CorrespondingBin));
+	fHistSpectrumStat[m]->SetBinError(b, RelError[m]*fHistSpectrumStat[m]->GetBinContent(b));
+
+	fHistSpectrumSistAll[m]->SetBinContent(b,fHistSpectrumSistAll[m]->GetBinContent(b)/histoMBCorr[m]->GetBinContent(CorrespondingBin));
+	fHistSpectrumSistAll[m]->SetBinError(b,fHistSpectrumSistAll[m]->GetBinError(b)/histoMBCorr[m]->GetBinContent(CorrespondingBin));
+      }
+    }
+  }
+  //diagnostic cout:
+  for(Int_t m=0; m<nummoltMax+1; m++){
+    if (isppHM && MultBinning==1 && m<=1) continue;
+    if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
+    if (m!=0 && !isppHM) continue; //choose the multiplicity for diagnosis
+    if (isppHM && m!=5) continue;
+    cout << "\n*******************************************"<<endl;
+    cout << "\nStat and syst uncertainty after correction by efficiency scaling,  (mult "<< m << ")" << endl;
+    for (Int_t b=PtV0Min; b<= fHistSpectrumStat[m]->GetNbinsX(); b++){
+      cout << NPtV0[b-1]<<"-"<<NPtV0[b] << ":    " << fHistSpectrumStat[m]->GetBinContent(b) << " (stat. rel. error: " << fHistSpectrumStat[m]->GetBinError(b)/fHistSpectrumStat[m]->GetBinContent(b) << ", syst. rel. error:  "<< fHistSpectrumSistAll[m]->GetBinError(b)/fHistSpectrumStat[m]->GetBinContent(b) << " )" << endl;
+    }
+  }
+
   cout << "\n //*************spectra normalization ******************" << endl;
 
   TFile* fileNormCorrFC;
@@ -2012,6 +2089,18 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
   }
 
   cout << "...end of spectra normalization *********************** \n" << endl;
+
+  cout << "UPDATE of STAT REL ERROR " << endl;
+  for(Int_t m=0; m<nummoltMax+1; m++){
+    if (isppHM && MultBinning==1 && m<=1) continue;
+    if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
+    for(Int_t v=PtV0Min; v <    fHistSpectrumSistAll[m]->GetNbinsX() ; v++){
+      if (fHistSpectrumStat[m]->GetBinContent(v+1)!=0){
+	fHistSpectrumStatRelError[m]->SetBinContent(v+1, fHistSpectrumStat[m]->GetBinError(v+1)/ fHistSpectrumStat[m]->GetBinContent(v+1));
+      }
+    }
+  }
+  cout << "END OF UPDATE of STAT REL ERROR " << endl;
 
   for(Int_t m=0; m<nummoltMax+1; m++){
     if (isppHM && MultBinning==1 && m<=1) continue;
@@ -2254,7 +2343,13 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
       cout << "\n***********Fitting pt spectra with: " << nameFit[typefit]<< " (Quiet mode selected) "<< endl;
       if (typefit==0)      fit_MTscaling[m][typefit]=    pwgfunc.GetMTExp(massParticle[type], 0.1, 0.04*factor, nameMTscaling[m][typefit]); //mass, T, norm, name                                
       if (typefit==1) {
+	//0: normalisation
+	//1: temperature
 	fit_MTscaling[m][typefit]=    pwgfunc.GetBoltzmann(massParticle[type],0.1, 0.04*factor, nameMTscaling[m][typefit]);
+	if (MaterialBudgetCorr==2 && type==0 && isppHM && TypeAnalysis!=0) {
+	  //	  fit_MTscaling[m][typefit]->SetParLimits(0, 2, 10);
+	  //	  fit_MTscaling[m][typefit]->SetParameter(0, 4);
+	}
 	if (type==8 && TypeAnalysis==0 && isppHM)	fit_MTscaling[m][typefit]->SetParLimits(1, 0.1, 10);
 	if (type==8 && TypeAnalysis==0 && isGenOnTheFly && MonashTune==2)	fit_MTscaling[m][typefit]->SetParLimits(1, 0.1, 10);
       }
@@ -2264,6 +2359,9 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
 	fit_MTscaling[m][typefit]->SetParLimits(0, 0,fHistSpectrumStat[m]->GetBinContent(fHistSpectrumStat[m]->GetMaximumBin())*0.5*10); //norm
 	fit_MTscaling[m][typefit]->SetParLimits(2, 0.1, 10); //T
 	fit_MTscaling[m][typefit]->SetParLimits(1, 2, 30); //n
+	if (MaterialBudgetCorr==2 && type==0 && isppHM && TypeAnalysis!=0) {
+	  fit_MTscaling[m][typefit]->SetParLimits(2, 0.4, 10); //T
+	}
 	if (type==8) {
 	  fit_MTscaling[m][typefit]->SetParLimits(1, 15,30);
 	  if (isGenOnTheFly && TypeAnalysis==0) fit_MTscaling[m][typefit]->SetParLimits(1, 2, 100000); 
@@ -2903,6 +3001,14 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
   TH1F* fHistYieldStatNormCorrRatioRef;
 
   Float_t   dNdEta[nummolt+1]={21.2, 16.17, 11.4625, 7.135, 3.33, 6.94};
+  if (isdNdEtaTriggered){ //values estimated with official task
+    dNdEta[0] = 24.05;
+    dNdEta[1] = 18.95;
+    dNdEta[2] = 14.77;
+    dNdEta[3] = 10.68;
+    dNdEta[4] = 7.39;
+    dNdEta[5] = 15.83;
+  }
   if (isppHM) {
     dNdEta[0] = 39.40;
     dNdEta[1] = 36.89;
@@ -2917,6 +3023,14 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
       dNdEta[3] =32.57;
       dNdEta[4] =30.43;
       dNdEta[5] = 31.5;
+      if (isdNdEtaTriggered){ //values estimated with official task
+	dNdEta[0] =0;
+	dNdEta[1] =0;
+	dNdEta[2] =36.29; //values from 16l with 19h11c MC
+	dNdEta[3] =32.57;
+	dNdEta[4] =30.43;
+	dNdEta[5] =31.5;
+      }
     }
   }
   if (ispp5TeV){
@@ -2926,25 +3040,24 @@ void PtSpectraBisNew(Int_t type=0,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
     dNdEta[3] = 5.78;
     dNdEta[4] = 3.03;
     dNdEta[5] = 5.49;
-    //    if (isdNdEtaTriggered){
-    //      dNdEta[4] = 3.42;
-    //    }
     if (MultBinning==3){
       /*      
-	      dNdEta[0] = 13.595; //estimated by me = 13.89, tabulated = 13.595
+      dNdEta[0] = 13.595; //estimated by me = 13.89, tabulated = 13.595
       dNdEta[1] = 4.91;//estimated by me = 6.95, tabulated= 4.91
       dNdEta[5] = 5.49;
       */
-      //      if (isdNdEtaTriggered){
-      dNdEta[0] = 13.89;
+      dNdEta[0] = 13.89; //these values were estimated by me
       dNdEta[1] = 6.95;
       dNdEta[5] = 5.49;
-      //      }
+      if (isdNdEtaTriggered){ //values estimated with official task
+	dNdEta[0] = 16.93;
+	dNdEta[1] = 10.22;
+	dNdEta[5] = 12.51;
+      }
     }
   }
 
   if (isGenOnTheFly){
-    /* MonashRopes, events with trigger particle */
     if (isdNdEtaTriggered){
       if (MonashTune==1) { //ropes
 	dNdEta[0] = 8.45;
