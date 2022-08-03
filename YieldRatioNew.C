@@ -39,6 +39,7 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->GetYaxis()->SetTitleOffset(1.3);
   histo->SetTitle(title);
 }
+
 void StyleHistoYield(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, TString titleX, TString titleY, TString title, Float_t mSize, Float_t xOffset, Float_t yOffset){
   histo->GetYaxis()->SetRangeUser(Low, Up);
   histo->SetLineColor(color);
@@ -57,7 +58,7 @@ void StyleHistoYield(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t st
 }
 
 
-void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=0, Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=1,   Int_t israp=0,TString yearK0s="1617_hK0s", TString yearK0sMC = "1617MC_hK0s", TString yearXi = "161718Full_AOD234_hXi"/*"Run2DataRed_MECorr_hXi"*/, TString yearXiMC = ""/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,    TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=0, Bool_t ZeroYieldLowPt=0, Int_t ChosenMult=5, Bool_t isBulkBlue=0, Bool_t isFit=0,  Bool_t isYieldMeanMacro=0, Bool_t ChangesIncluded=1, Bool_t isdNdEtaTriggered=0){
+void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bool_t ispp5TeV=0, Bool_t isNormCorr=1, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString yearK0s="1617_hK0s", TString yearK0sMC = "1617MC_hK0s", TString yearXi = "161718Full_AOD234_hXi"/*"Run2DataRed_MECorr_hXi"*/, TString yearXiMC = ""/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/,    TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=0, Bool_t ZeroYieldLowPt=0, Int_t ChosenMult=5, Bool_t isBulkBlue=0, Bool_t isFit=0,  Bool_t isYieldMeanMacro=0, Bool_t ChangesIncluded=1, Bool_t isdNdEtaTriggered=1, Bool_t MaterialBudgetCorr=1 ){
 
   Bool_t isGenOnTheFly = 0;
   if (isMC) isGenOnTheFly = 1;
@@ -70,9 +71,10 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
     isppHM =0;
     ispp5TeV=0;
     ChangesIncluded = 0;
-    cout <<"Do you want to analyse the files with the wings correction applied? Type 1 if you DO want" << endl;
-    cin >> isWingsCorrectionApplied;
   }
+
+  cout <<"Do you want to analyse the files with the wings correction applied? Type 1 if you DO want (NOTE: for the DTA analysis, the wings correction is applied to K0s only)" << endl;
+  cin >> isWingsCorrectionApplied;
 
   TString       nameFit[4]={"mT-scaling", "Boltzmann", "Fermi-Dirac", "Levi"};
   //isYieldMeanMacro = 1: no difference between 1 and 0, only the input file changes (but the plots should be the same)
@@ -119,9 +121,9 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
   TString sRegionBlack[3]={"#color[1]{Toward leading}","#color[1]{Transverse to leading}","#color[1]{Full}"};
 
   //  TString sRegion1K0s[3]={"|#Delta#it{#eta}| < 0.85, |#Delta#it{#varphi}| < 1.09", "0.85 < |#Delta#it{#eta}| < 1.2, 0.96 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
-  TString sRegion1K0s[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 0.85", "0.75 < |#Delta#it{#eta}| < 1.2, 0.85 < #Delta#it{#varphi} < 2.0", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"}; //like the ones used for Preliminaries in 202
+  TString sRegion1K0s[3]={"|#Delta#it{#eta}| < 0.86, |#Delta#it{#varphi}| < 1.1", "0.86 < |#Delta#it{#eta}| < 1.2, 0.96 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"}; //like the ones used for Preliminaries in 202
   //  TString sRegion1Xi[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 1.09", "0.75 < |#Delta#it{#eta}| < 1.2, 0.96 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
-  TString sRegion1Xi[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 0.85", "0.75 < |#Delta#it{#eta}| < 1.2, 0.85 < #Delta#it{#varphi} < 2.0", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"}; //like the ones used for Preliminaries in 202
+  TString sRegion1Xi[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 1.1", "0.75 < |#Delta#it{#eta}| < 1.2, 0.96 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"}; //like the ones used for Preliminaries in 202
   TString sRegion1K0sGen[3]={"|#Delta#it{#eta}| < 0.96, |#Delta#it{#varphi}| < 1.09", "0.86 < |#Delta#it{#eta}| < 1.2, 0.97 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"}; //like the ones used for Preliminaries in 202
   TString sRegion1XiGen[3]={"|#Delta#it{#eta}| < 0.96, |#Delta#it{#varphi}| < 1.09", "0.75 < |#Delta#it{#eta}| < 1.2, 0.97 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"}; //like the ones used for Preliminaries in 202
   TString sRegion1[3][2] ={""};
@@ -263,6 +265,7 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
   if (isWingsCorrectionApplied) stringout += "_isWingsCorrectionAppliedNew";
   if (MonashTune==2) stringout += "_PythiaMonash";
   else if (MonashTune==1) stringout += "_PythiaRopes";
+  if (MaterialBudgetCorr) stringout += "_MatBudgetCorr";
   stringoutpdf = stringout;
   TString stringoutPlots = "";
   stringout += ".root";
@@ -636,46 +639,6 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
   TLegendEntry *lReAll2Bis[3];
 
   TGraphAsymmErrors * gYield;
-  Float_t   dNdEta[nummolt+1]={21.2, 16.17, 11.4625, 7.135, 3.33, 6.94};
-  if (isppHM) {
-    dNdEta[0] = 39.40;
-    dNdEta[1] = 36.89;
-    dNdEta[2] = 35.16;
-    dNdEta[3] = 32.57;
-    dNdEta[4] = 30.43;
-    dNdEta[5] = 31.5;
-    if (MultBinning==1){
-      dNdEta[0] =0;
-      dNdEta[1] =0;
-      dNdEta[2] =36.29; //values from 16l with 18d8 MC
-      dNdEta[3] =32.57;
-      dNdEta[4] =30.43;
-      dNdEta[5] = 31.5;
-    }
-  }
-  if (ispp5TeV){
-    dNdEta[0] = 15.27;
-    dNdEta[1] = 11.91;
-    dNdEta[2] = 8.73;
-    dNdEta[3] = 5.78;
-    dNdEta[4] = 3.03;
-    dNdEta[5] = 5.49;
-    //    if (isdNdEtaTriggered){
-    //      dNdEta[4] = 3.42;
-    //    }
-    if (MultBinning==3){
-      /*
-	dNdEta[0] = 13.595; //estimated by me = 13.89, tabulated = 13.595
-	dNdEta[1] = 4.91;//estimated by me = 6.95, tabulated= 4.91
-	dNdEta[5] = 5.49;
-      */
-      //if (isdNdEtaTriggered){
-      dNdEta[0] = 13.89;
-      dNdEta[1] = 6.95;
-      dNdEta[5] = 5.49;
-      //}
-    }
-  }
 
   //published yields ******************************************************
 
@@ -767,17 +730,49 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
       if (isYieldMeanMacro) PathInYield[type]+= "_YieldMeanMacro";
       PathInYield[type]+="_isErrorAssumedPtCorr";
       if (ChangesIncluded) PathInYield[type] += "_ChangesIncluded";
+      if (isdNdEtaTriggered) PathInYield[type] +="_isdNdEtaTriggered";
       PathInYieldFit[type] = PathInYield[type];
       //      if (iregion!=0 && ispp5TeV)        PathInYieldFit[type] += "_isFitForPlot";
-      if (ispp5TeV || isppHM)        PathInYieldFit[type] += "_isFitForPlot";
+      if (!isdNdEtaTriggered && (ispp5TeV || isppHM))        PathInYieldFit[type] += "_isFitForPlot";
       if (MultBinning!=0)       PathInYield[type]+=Form("_MultBinning%i",MultBinning);
       if (MultBinning!=0)       PathInYieldFit[type]+=Form("_MultBinning%i",MultBinning);
+      if (type==0 && !isGenOnTheFly){
+	PathInYield[type]+= "_EffCorr";
+	PathInYieldFit[type]+= "_EffCorr";
+      }
       if (isWingsCorrectionApplied) {
-	PathInYield[type] += "_isWingsCorrectionApplied";
-	PathInYieldFit[type] += "_isWingsCorrectionApplied";
-	if (isGenOnTheFly && type==1) {
-	  PathInYield[type] += "New";
-	  PathInYieldFit[type] += "New";
+	if (isGenOnTheFly){
+	  PathInYield[type] += "_isWingsCorrectionApplied";
+	  PathInYieldFit[type] += "_isWingsCorrectionApplied";
+	  if (type==1) {
+	    PathInYield[type] += "New";
+	    PathInYieldFit[type] += "New";
+	  }
+	}
+	else {
+	  if (type==0) {
+	    PathInYield[type] += "_isWingsCorrectionAppliedNew";
+	    PathInYieldFit[type] += "_isWingsCorrectionAppliedNew";
+	  }
+	  else if (type==1 && iregion!=0) {/*
+	    PathInYield[type] += "_isWingsCorrectionAppliedNew";
+	    PathInYieldFit[type] += "_isWingsCorrectionAppliedNew";
+					   */
+	  }
+	}
+      }
+      if (MaterialBudgetCorr){
+	if (type==0) {
+	  PathInYield[type]+= "_MatBudgetCorr";
+	  PathInYieldFit[type]+= "_MatBudgetCorr";
+	  if (isppHM || ispp5TeV) {
+	    PathInYield[type]+= "FAST";
+	    PathInYieldFit[type]+= "FAST";
+	  }
+	}
+	else {
+	  PathInYield[type]+= "_MatBudgetCorrFAST";
+	  PathInYieldFit[type]+= "_MatBudgetCorrFAST";
 	}
       }
       PathInYield[type]+=".root";
@@ -886,24 +881,6 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
       Float_t YieldRatioErrSistUp[nummolt+1]= {0};
       TGraphAsymmErrors * gYieldRatio;
 
-      /*
-	if (iregion==0 && type==0){
-	for (Int_t m=0; m<nummolt+1; m++){
-	if (isppHM && MultBinning==1 && m<=1) continue;
-	if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
-	bin[m] =   fHistYieldStat[type][iregion]->FindBin(dNdEta[m]);
-	multctrbin[m] =   fHistYieldStat[type][iregion]->GetXaxis()->GetBinCenter(bin[m]);
-	YieldRatio[m] =      fHistYieldStatRatio[iregion]->GetBinContent( bin[m]);
-	YieldRatioErrSistLow[m] = sqrt(pow(fHistYieldSistLowRelErr[1][iregion]->GetBinContent( bin[m]),2) + pow( fHistYieldSist[0][iregion]->GetBinError(bin[m])/ fHistYieldSist[0][iregion]->GetBinContent(bin[m]),2)) *  fHistYieldSistRatio[iregion]->GetBinContent(bin[m]);
-	YieldRatioErrSistUp[m] = sqrt(pow(fHistYieldSistUpRelErr[1][iregion]->GetBinContent( bin[m]),2) + pow( fHistYieldSist[0][iregion]->GetBinError(bin[m])/ fHistYieldSist[0][iregion]->GetBinContent(bin[m]),2)) *  fHistYieldSistRatio[iregion]->GetBinContent(bin[m]);
-	}
-
-	gYieldRatio= new TGraphAsymmErrors(nummolt,multctrbin,YieldRatio,Xl, Xh, YieldRatioErrSistLow, YieldRatioErrSistUp);
-	gYieldRatio->SetMarkerColor(kBlue);
-	gYieldRatio->SetLineColor(kBlue);
-	gYieldRatio->SetMarkerStyle(1);
-	}
-      */
       canvasYield[type]->cd();
 
       StyleHisto(fHistYieldStat[type][iregion], LimInfYield[type], LimSupYield[type], Color[iregion], 1, titleYieldX, titleYieldYType[type], titleYield[type] + " yield vs multiplicity");
@@ -1431,6 +1408,7 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
 	    fHistSpectrumSistRatio[m][iregion]-> SetTitle(SRegionType[iregion]);
 	    fHistSpectrumStatRatio[m][iregion]->	   GetYaxis()->SetRangeUser(10-5,0.15);
 	    fHistSpectrumSistRatio[m][iregion]->	   GetYaxis()->SetRangeUser(10-5,0.15);
+	    MultOK = (m==5); 
 	    if (MultOK){
 	      legendPY->AddEntry(	  fHistSpectrumStatRatio[m][iregion], "This analysis "+ SmoltLegend[m], "pl");
 	      fHistSpectrumStatRatio[m][iregion]->DrawClone("same e");
@@ -1459,6 +1437,7 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
 	    if (isGenOnTheFly){
 	      MultOK = (m==0 || m==9 || m == nummoltMax);
 	    }
+	    MultOK = (m==5); 
 
 	    if (MultOK){
 	      fHistSpectrumStatRatio[m][iregion]->DrawClone("same e");
@@ -1591,7 +1570,8 @@ void YieldRatioNew(Bool_t isFitSpectra=1, Int_t typefit = 3, Bool_t isppHM=0, Bo
       TLegend *LegendMolt=new TLegend(0.25,0.16,0.9,0.31);
       LegendMolt->SetNColumns(3);
       LegendMolt->SetFillStyle(0);
-      LegendMolt->SetHeader("V0M Multiplicity Percentile");
+      if (isGenOnTheFly)       LegendMolt->SetHeader("Number of particles in V0 acceptance");
+      else       LegendMolt->SetHeader("V0M Multiplicity Percentile");
       TLegendEntry *lheader = (TLegendEntry*)LegendMolt->GetListOfPrimitives()->First();
       lheader-> SetTextSize(0.033);
       //LegendMolt->SetTextAlign(32);
