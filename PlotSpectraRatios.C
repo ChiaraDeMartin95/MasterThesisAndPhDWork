@@ -57,6 +57,18 @@ void StyleHistoYield(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t st
   histo->SetTitle(title);
 }
 
+void StyleCanvas(TCanvas *canvas, Float_t TopMargin, Float_t BottomMargin, Float_t LeftMargin, Float_t RightMargin){
+  canvas->SetFillColor(0);
+  canvas->SetTickx(1);
+  canvas->SetTicky(1);
+  gPad->SetTopMargin(TopMargin);
+  gPad->SetLeftMargin(LeftMargin);
+  gPad->SetBottomMargin(BottomMargin);
+  gPad->SetRightMargin(RightMargin);
+  gStyle->SetLegendBorderSize(0);
+  gStyle->SetLegendFillColor(0);
+  gStyle->SetLegendFont(42);
+}
 //take spectra in input (MB + HM 13 TeV)
 //produces ratio of spectra wrt 0-100% multiplciity class
 
@@ -72,6 +84,7 @@ TString TitleYPtDRatio = "N_{#Xi}/N_{K^{0}_{S}}_{mult} / N_{#Xi}/N_{K^{0}_{S}}_{
 TString titleX=  "#it{p}_{T} (GeV/#it{c})";
 TString titleY=  "1/(#Delta#it{#eta} #Delta#it{#varphi}) 1/#it{N}_{trigg} d#it{N}/d#it{p}_{T} [(GeV/#it{c})^{-1}]";
 TString title = "Multiplicity class "; 
+TString titleYSpectraRatio = "(d#it{N}^{#Xi}/d#it{p}_{T}) / (d#it{N}^{K^{0}_{S}}/d#it{p}_{T})";
 TString titlePtvsMultYType[2]={"#LT#it{p}^{K^{0}_{S}}_{T}#GT (GeV/c)", "#LT#it{p}^{#Xi}_{T}#GT (GeV/c)"};
 TString RegionType[3] = {"Jet", "Bulk", "Inclusive"};
 TString SRegionTypeBis[3] = {"Jet", "OOj", "Full"};
@@ -93,7 +106,7 @@ TString tipoTitle[numtipo]={"K0s", "#Lambda", "#AntiLambda","#Lambda + #AntiLamb
 TString Srap[2] = {"_Eta0.8", "_y0.5"};
 TString SSkipAssoc[2] = {"_AllAssoc", ""};
 
-void PlotSpectraRatio(Float_t PtTrigMin =3, Float_t PtTrigMax=15, TString Dir="FinalOutput",TString year0="2016",Int_t ChosenMult=8 /*0-100%*/){
+void PlotSpectraRatio(Bool_t ispp5TeV = 1, Float_t PtTrigMin =3, Float_t PtTrigMax=15, TString Dir="FinalOutput",TString year0="2016",Int_t ChosenMult=8 /*0-100%*/){
 
   Bool_t  MultOK=0;
 
@@ -102,7 +115,7 @@ void PlotSpectraRatio(Float_t PtTrigMin =3, Float_t PtTrigMax=15, TString Dir="F
   //latexnames
   TString SmoltBis[nummoltMax+1+3]={"0#minus0.01", "0.01#minus0.05", "0.05#minus0.1", "0#minus5", "5#minus10", "10#minus30", "30#minus50", "50#minus100", "0#minus100"};
   TString Smolt[nummoltMax+1+3]={ "0-0.01", "0.01-0.05", "0.05-0.1", "0-5", "5-10", "10-30", "30-50", "50-100", "_all"};
-  TString SmoltLegend[nummoltMax+1+3]={"0-0.01%", "0.01-0.05%", "0.05-0.1%", "0-5 %", "5-10 %", "10-30 %", "30-50 %", "50-100 %", "0-100 %"};
+  TString SmoltLegend[nummoltMax+1+3]={"0-0.01%", "0.01-0.05%", "0.05-0.1%", "0-5%", "5-10%", "10-30%", "30-50%", "50-100%", "0-100%"};
 
   TString SErrorSpectrum[3]={"stat.","syst. uncorr.","syst. corr."};
   Float_t YoffsetSpectra[2] = {1.6, 1.65};
@@ -125,17 +138,38 @@ void PlotSpectraRatio(Float_t PtTrigMin =3, Float_t PtTrigMax=15, TString Dir="F
   TString sScaleFactorXi[nummoltMax+1+3]={" (x2^{11})", " (x2^{10})", " (x2^{9})", " (x2^{8})"," (x2^{7})"," (x2^{6})"," (x2^{5})"," (x2^{4})",""};
   
   //filein
-  TString  PathInYieldMB[2] = {"FinalOutput/DATA2016/PtSpectraBisNew_PtBinning1_1617_AOD234_hK0s_K0s_Eta0.8_AllAssoc_PtMin3.0_Inclusive_isNormCorrFullyComputed_isErrorAssumedPtCorr_ChangesIncluded_isdNdEtaTriggered_EffCorr_isWingsCorrectionAppliedNew_MatBudgetCorr.root", "FinalOutput/DATA2016/PtSpectraBisNew_161718Full_AOD234_hXi_Xi_Eta0.8_AllAssoc_PtMin3.0_Inclusive_isNormCorrFullyComputed_isErrorAssumedPtCorr_ChangesIncluded_isdNdEtaTriggered_MatBudgetCorrFAST.root"};
-  TString  PathInYieldHM[2] =  {"FinalOutput/DATA2016/PtSpectraBisNew_pp13TeVHM_PtBinning1_AllhK0sHM_RedNo16k_K0s_Eta0.8_AllAssoc_PtMin3.0_Inclusive_isNormCorrFullyComputed_isErrorAssumedPtCorr_ChangesIncluded_isdNdEtaTriggered_MultBinning1_EffCorr_isWingsCorrectionAppliedNew_MatBudgetCorrFAST.root", "FinalOutput/DATA2016/PtSpectraBisNew_pp13TeVHM_161718_HM_hXi_WithFlat16k_No18p_Xi_Eta0.8_AllAssoc_PtMin3.0_Inclusive_isNormCorrFullyComputed_isErrorAssumedPtCorr_ChangesIncluded_isdNdEtaTriggered_MultBinning1_MatBudgetCorrFAST.root"};
+  TString  PathInYieldMB[2][3];
+  TString  PathInYieldHM[2][3]; 
 
   TFile * fileInYield[2];
-  TFile * fileInYieldMB[2];
-  TFile * fileInYieldHM[2];
+  TFile * fileInYieldMB[2][3];
+  TFile * fileInYieldHM[2][3];
   TFile * fileInYieldFit[2];
   //  TFile * fileInDPhiProj[2];
   for (Int_t type=0; type<2; type++){
-    fileInYieldMB[type] = new TFile(PathInYieldMB[type], "");
-    fileInYieldHM[type] = new TFile(PathInYieldHM[type], "");
+    for (Int_t iregion=0; iregion<3; iregion++){
+
+      PathInYieldMB[type][iregion] += "FinalOutput/DATA2016/PtSpectraBisNew";
+      if (type==0)  PathInYieldMB[type][iregion] += "_PtBinning1_1617_AOD234_hK0s_K0s";
+      else  PathInYieldMB[type][iregion] += "_161718Full_AOD234_hXi_Xi";
+      PathInYieldMB[type][iregion] += "_Eta0.8_AllAssoc_PtMin3.0_";
+      PathInYieldMB[type][iregion] += RegionType[iregion];
+      PathInYieldMB[type][iregion] += "_isNormCorrFullyComputed_isErrorAssumedPtCorr_ChangesIncluded_isdNdEtaTriggered";
+      if (type==0) PathInYieldMB[type][iregion] += "_EffCorr_isWingsCorrectionAppliedNew_MatBudgetCorr.root";
+      else PathInYieldMB[type][iregion] += "_MatBudgetCorrFAST.root";
+
+      PathInYieldHM[type][iregion] += "FinalOutput/DATA2016/PtSpectraBisNew";
+      if (type==0)  PathInYieldHM[type][iregion] += "_pp13TeVHM_PtBinning1_AllhK0sHM_RedNo16k_K0s";
+      else  PathInYieldHM[type][iregion] += "_pp13TeVHM_161718_HM_hXi_WithFlat16k_No18p_Xi";
+      PathInYieldHM[type][iregion] += "_Eta0.8_AllAssoc_PtMin3.0_";
+      PathInYieldHM[type][iregion] += RegionType[iregion];
+      PathInYieldHM[type][iregion] += "_isNormCorrFullyComputed_isErrorAssumedPtCorr_ChangesIncluded_isdNdEtaTriggered_MultBinning1";
+      if (type==0) PathInYieldHM[type][iregion] += "_EffCorr_isWingsCorrectionAppliedNew_MatBudgetCorrFAST.root";
+      else PathInYieldHM[type][iregion] += "_MatBudgetCorrFAST.root";
+
+      fileInYieldMB[type][iregion] = new TFile(PathInYieldMB[type][iregion], "");
+      fileInYieldHM[type][iregion] = new TFile(PathInYieldHM[type][iregion], "");
+    }
   }
 
   //fileout name
@@ -192,17 +226,35 @@ void PlotSpectraRatio(Float_t PtTrigMin =3, Float_t PtTrigMax=15, TString Dir="F
   TF1 * lineat1 = new TF1 ("pol0", "pol0",0,8);
   lineat1->SetParameter(0,1);
   lineat1->SetLineColor(kBlack);
-  Float_t AvgStat[nummoltMax+1][numregions]={0};
-  Float_t AvgSist[nummoltMax+1][numregions]={0};
+  lineat1->SetLineWidth(0.5);
+  Float_t AvgStat[nummoltMax+1+3][numregions]={0};
+  Float_t AvgSist[nummoltMax+1+3][numregions]={0};
 
-  gStyle->SetLegendBorderSize(1);
-  TLegend *legendMult = new TLegend(0.6, 0.7, 0.9, 0.9);
-  legendMult->SetHeader("Multiplicity classes");
-  TLegend *legendAllMult = new TLegend(0.6, 0.6, 0.9, 0.9);
-  legendAllMult->SetHeader("Multiplicity classes");
+  //  gStyle->SetLegendBorderSize(1);
+  TLegend *legendMult = new TLegend(0.22, 0.55, 0.77, 0.7);
+  legendMult->SetHeader("V0M Multiplicity Percentile");
+  legendMult->SetNColumns(3);
+  legendMult->SetFillStyle(0);
+  TLegendEntry *lheaderMult = (TLegendEntry*)legendMult->GetListOfPrimitives()->First();
+  lheaderMult-> SetTextSize(0.04);
+
+  TLegend *legendAllMult = new TLegend(0.22, 0.45, 0.77, 0.7);
+  legendAllMult->SetHeader("V0M Multiplicity Percentile");
+  legendAllMult->SetNColumns(2);
+  legendAllMult->SetFillStyle(0);
+  TLegendEntry *lheaderAllMult = (TLegendEntry*)legendAllMult->GetListOfPrimitives()->First();
+  lheaderAllMult-> SetTextSize(0.04);
 
   gStyle->SetLegendFillColor(0);
   gStyle->SetLegendBorderSize(0);
+
+  TLegend *Legend1BisRatio=new TLegend(0.13,0.77,0.53,0.94);
+  Legend1BisRatio->SetFillStyle(0);
+  Legend1BisRatio->SetTextAlign(13);
+  Legend1BisRatio->SetTextSize(0.04);
+  Legend1BisRatio->AddEntry("", "#bf{This work}", "");
+  Legend1BisRatio->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
+  Legend1BisRatio->AddEntry("", "#it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
 
   for (Int_t i=0; i<3; i++) {
     sRegion1[i][0] = sRegion1K0s[i];
@@ -210,27 +262,39 @@ void PlotSpectraRatio(Float_t PtTrigMin =3, Float_t PtTrigMax=15, TString Dir="F
   }
   cout << "\n**************************"<<endl;
   for (Int_t type=1; type>=0; type--){
+
+    TLegend *Legend1Bis=new TLegend(0.3,0.8,0.92,0.92);
+    Legend1Bis->SetFillStyle(0);
+    Legend1Bis->SetTextAlign(32);
+    Legend1Bis->SetTextSize(0.034);
+    //      Legend1Bis->AddEntry("", "#bf{ALICE Preliminary}", "");
+    Legend1Bis->AddEntry("", "#bf{This work}", "");
+    //      Legend1Bis->AddEntry("", "#color[0]{#bf{ALICE Preliminary}}", "");
+    Legend1Bis->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
+    Legend1Bis->AddEntry("", NameP[type]+ " correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
+    //      Legend1Bis->AddEntry("", sRegionBlack[iregion], "");
+
     for (Int_t iregion=0; iregion<numregions; iregion++){
       //      for (Int_t m=0; m<nummolt+1; m++){
       for (Int_t m=nummoltMax+1+2; m>=0; m--){
 	cout << "Multiplicity : " << Smolt[m] << endl;
 	if (m>=3){
-	  fHistSpectrumSist[m][type][iregion]=(TH1F*)fileInYieldMB[type]->Get("fHistSpectrumSistAll_"+Smolt[m]);
-	  fHistSpectrumStat[m][type][iregion]=(TH1F*)fileInYieldMB[type]->Get("fHistSpectrum_"+Smolt[m]);
+	  fHistSpectrumSist[m][type][iregion]=(TH1F*)fileInYieldMB[type][iregion]->Get("fHistSpectrumSistAll_"+Smolt[m]);
+	  fHistSpectrumStat[m][type][iregion]=(TH1F*)fileInYieldMB[type][iregion]->Get("fHistSpectrum_"+Smolt[m]);
 	}
 	else {
-	  fHistSpectrumSist[m][type][iregion]=(TH1F*)fileInYieldHM[type]->Get("fHistSpectrumSistAll_"+Smolt[m]);
-	  fHistSpectrumStat[m][type][iregion]=(TH1F*)fileInYieldHM[type]->Get("fHistSpectrum_"+Smolt[m]);
+	  fHistSpectrumSist[m][type][iregion]=(TH1F*)fileInYieldHM[type][iregion]->Get("fHistSpectrumSistAll_"+Smolt[m]);
+	  fHistSpectrumStat[m][type][iregion]=(TH1F*)fileInYieldHM[type][iregion]->Get("fHistSpectrum_"+Smolt[m]);
 	}
 	if (!fHistSpectrumStat[m][type][iregion]) { cout << " no hist spectrum stat" << endl;  return;}
 	if (!fHistSpectrumSist[m][type][iregion]) { cout << " no hist spectrum sist" << endl;  return;}
 
 	fHistSpectrumSist[m][type][iregion]->SetName("fHistSpectrumSist_"+Smolt[m]+Form("_type%i_region%i", type, iregion));
 	fHistSpectrumStat[m][type][iregion]->SetName("fHistSpectrumStat_"+Smolt[m]+Form("_type%i_region%i", type, iregion));
-
 	fHistSpectrumSistScaled[m][type][iregion]=(TH1F*)	fHistSpectrumSist[m][type][iregion]->Clone("fHistSpectrumSistScaled_"+Smolt[m]+Form("_type%i_region%i", type,iregion));
 	fHistSpectrumStatScaled[m][type][iregion]=(TH1F*)	fHistSpectrumStat[m][type][iregion]->Clone("fHistSpectrumStatScaled_"+Smolt[m]+Form("_type%i_region%i", type,iregion));
 
+	//Xi/K0s ratio of spectra:
 	if (type==1){
 	  fHistSpectrumSistRatio[m][iregion]=(TH1F*)	fHistSpectrumSist[m][type][iregion]->Clone("fHistSpectrumSistRatio_"+Smolt[m]+Form("_region%i", iregion));
 	  fHistSpectrumStatRatio[m][iregion]=(TH1F*)	fHistSpectrumStat[m][type][iregion]->Clone("fHistSpectrumStatRatio_"+Smolt[m]+Form("_region%i", iregion));
@@ -239,11 +303,12 @@ void PlotSpectraRatio(Float_t PtTrigMin =3, Float_t PtTrigMax=15, TString Dir="F
 	  splineK0s[m][iregion] = new TSpline3(fHistSpectrumStat[m][type][iregion] , Form("splineK0s_m%i_region%i",m, iregion),0.1, 3 );
 	     
 	  //I calculate the average stat and sist error in the pt region where I do the spline
-
 	  Int_t Counter=0;
+	  AvgStat[m][iregion] = 0;
+	  AvgSist[m][iregion] = 0;
 	  for (Int_t b=1; b<=  fHistSpectrumStat[m][type][iregion]->GetNbinsX(); b++){
 	    if (fHistSpectrumStat[m][type][iregion]->GetBinContent(b)==0) continue;
-	    if ( fHistSpectrumStat[m][type][iregion]->GetXaxis()->GetBinLowEdge(b) <2.){
+	    if (fHistSpectrumStat[m][type][iregion]->GetXaxis()->GetBinLowEdge(b) <2.){
 	      Counter++;
 	      AvgStat[m][iregion] += fHistSpectrumStat[m][0][iregion]->GetBinError(b)/ fHistSpectrumStat[m][0][iregion]->GetBinContent(b);
 	      AvgSist[m][iregion] += fHistSpectrumSist[m][0][iregion]->GetBinError(b)/ fHistSpectrumStat[m][0][iregion]->GetBinContent(b);
@@ -251,10 +316,15 @@ void PlotSpectraRatio(Float_t PtTrigMin =3, Float_t PtTrigMax=15, TString Dir="F
 	  }
 	  AvgStat[m][iregion]=  AvgStat[m][iregion]/Counter;
 	  AvgSist[m][iregion] =  AvgSist[m][iregion]/Counter;
-	  //	  cout << " m " << m << "iregion " << iregion << " avg stat rel error" << AvgStat[m][iregion]<< endl;
   
 	  for (Int_t b=2; b<=  fHistSpectrumStatRatio[m][iregion]->GetNbinsX(); b++){
-	    if ( fHistSpectrumStatRatio[m][iregion]->GetXaxis()->GetBinLowEdge(b) <2.){
+	    if (fHistSpectrumStat[m][1][iregion]->GetBinContent(b)==0){
+	      fHistSpectrumStatRatio[m][iregion]-> SetBinContent(b,0);
+	      fHistSpectrumSistRatio[m][iregion]-> SetBinContent(b,0);
+	      fHistSpectrumStatRatio[m][iregion]-> SetBinError(b,0);
+	      fHistSpectrumSistRatio[m][iregion]-> SetBinError(b,0);
+	    }
+	    else if ( fHistSpectrumStatRatio[m][iregion]->GetXaxis()->GetBinLowEdge(b) <2.){
 	      fHistSpectrumStatRatio[m][iregion]-> SetBinContent(b,fHistSpectrumStat[m][1][iregion]->GetBinContent(b)/splineK0s[m][iregion]->Eval(fHistSpectrumStat[m][1][iregion]->GetBinCenter(b)));
 	      fHistSpectrumStatRatio[m][iregion]-> SetBinError(b,sqrt(pow(fHistSpectrumStat[m][1][iregion]->GetBinError(b)/fHistSpectrumStat[m][1][iregion]->GetBinContent(b),2) + pow(AvgStat[m][iregion],2)) *  fHistSpectrumStatRatio[m][iregion]->GetBinContent(b) ); 
 	      fHistSpectrumSistRatio[m][iregion]-> SetBinContent(b,fHistSpectrumSist[m][1][iregion]->GetBinContent(b)/splineK0s[m][iregion]->Eval(fHistSpectrumSist[m][1][iregion]->GetBinCenter(b)));
@@ -279,89 +349,107 @@ void PlotSpectraRatio(Float_t PtTrigMin =3, Float_t PtTrigMax=15, TString Dir="F
 	  splineK0s[m][iregion]->SetLineColor(Color[iregion]);
 	  //splineK0s[m][iregion]->Draw("same");
 	  */
-
-	  cout <<"\nDrawing pt spectra ratio Xi/K0s\e[39m" << endl;
-	  canvasPtSpectraRatio->cd(iregion+1);
-	  gPad->SetLeftMargin(0.15);
-	  if (iregion==0){
+	  if (m==0 || m ==1 || m==2 || m==6 || m==7){
 	    fHistSpectrumStatRatio[m][iregion]->SetBinContent(fHistSpectrumStatRatio[m][iregion]->FindBin(0.6),0);
 	    fHistSpectrumStatRatio[m][iregion]->SetBinError(fHistSpectrumStatRatio[m][iregion]->FindBin(0.6),0);
 	    fHistSpectrumSistRatio[m][iregion]->SetBinContent(fHistSpectrumStatRatio[m][iregion]->FindBin(0.6),0);
 	    fHistSpectrumSistRatio[m][iregion]->SetBinError(fHistSpectrumSistRatio[m][iregion]->FindBin(0.6),0);
 	  }
-	  if ((iregion==0 || iregion==1) && m==4){
+	  if (m==7){
 	    fHistSpectrumStatRatio[m][iregion]->SetBinContent(fHistSpectrumStatRatio[m][iregion]->FindBin(5),0);
 	    fHistSpectrumStatRatio[m][iregion]->SetBinError(fHistSpectrumStatRatio[m][iregion]->FindBin(5),0);
 	    fHistSpectrumSistRatio[m][iregion]->SetBinContent(fHistSpectrumStatRatio[m][iregion]->FindBin(5),0);
 	    fHistSpectrumSistRatio[m][iregion]->SetBinError(fHistSpectrumSistRatio[m][iregion]->FindBin(5),0);
 	  }
-	  StyleHisto(fHistSpectrumStatRatio[m][iregion], 0.00001, 0.4,  ColorMult[m], 33, titleX, "",  "");
-	  StyleHisto(fHistSpectrumSistRatio[m][iregion], 0.00001, 0.4,  ColorMult[m], 33, titleX,  "", "");
-	  fHistSpectrumStatRatio[m][iregion]->SetMarkerSize(0.8);
-	  fHistSpectrumSistRatio[m][iregion]->SetMarkerSize(0.8);
-	  MultOK = (m==6 || m == 4 || m == nummoltMax);
-	  if (MultOK){
-	    if (iregion==0)	    legendMult->AddEntry(	  fHistSpectrumStatRatio[m][iregion], SmoltLegend[m], "pl");
-	    fHistSpectrumStatRatio[m][iregion]->DrawClone("same e");
-	    fHistSpectrumSistRatio[m][iregion]->SetFillStyle(0);
-	    fHistSpectrumSistRatio[m][iregion]->DrawClone("same e2");
-	    if (m==nummoltMax && iregion==0) legendMult->Draw("");
-	  }
 
-	  canvasPtSpectraRatioAllMult->cd(iregion+1);
-	  gPad->SetLeftMargin(0.15);
-	  if (iregion==0)	    legendAllMult->AddEntry(	  fHistSpectrumStatRatio[m][iregion], SmoltLegend[m], "pl");
-	  fHistSpectrumStatRatio[m][iregion]->DrawClone("same e");
-	  fHistSpectrumSistRatio[m][iregion]->SetFillStyle(0);
-	  fHistSpectrumSistRatio[m][iregion]->DrawClone("same e2");
-	  if (m==nummoltMax && iregion==0) legendAllMult->Draw("");
+	  StyleHistoYield(fHistSpectrumStatRatio[m][iregion], 10e-4, 0.4-10e-4,  ColorMult[m], MarkerMult[m], titleX, titleYSpectraRatio,  "", 0.8,1.15, YoffsetSpectra[type] );
+	  StyleHistoYield(fHistSpectrumSistRatio[m][iregion], 10e-4, 0.4-10e-4,  ColorMult[m], MarkerMult[m], titleX, titleYSpectraRatio, "", 0.8 ,1.15, YoffsetSpectra[type] );
+	  //	  fHistSpectrumStatRatio[m][iregion]->SetMarkerSize(0.8);
+	  //	  fHistSpectrumSistRatio[m][iregion]->SetMarkerSize(0.8);
 
+	  /*
 	  for (Int_t b=1; b<=  fHistSpectrumStatRatio[m][iregion]->GetNbinsX(); b++){
 	    bcorr = fHistSpectrumStat[m][0][iregion]->FindBin(fHistSpectrumStat[m][1][iregion]->GetBinCenter(b));	
-	    //	    cout << "\n iregion " << iregion << " m: " << m << " low edge bin: " <<	    fHistSpectrumStatRatio[m][iregion]->GetXaxis()->GetBinLowEdge(b)<< endl;
-	    //	    cout << " num info " << fHistSpectrumStat[m][1][iregion]->GetBinContent(b) <<endl;
-	    //	    cout << " denum info " << fHistSpectrumStat[m][0][iregion]->GetBinContent(bcorr) << " or spline " << splineK0s[m][iregion]->Eval(fHistSpectrumSist[m][1][iregion]->GetBinCenter(b))<<endl;
-	    //	    cout << fHistSpectrumStatRatio[m][iregion]->GetBinContent(b) << "+-" << fHistSpectrumStatRatio[m][iregion]->GetBinError(b)<< endl;
-	    //	    cout << fHistSpectrumSistRatio[m][iregion]->GetBinContent(b) << "+-" << fHistSpectrumSistRatio[m][iregion]->GetBinError(b)<< endl;
+	    cout << "\n iregion " << iregion << " m: " << m << " low edge bin: " <<	    fHistSpectrumStatRatio[m][iregion]->GetXaxis()->GetBinLowEdge(b)<< endl;
+	    cout << " num info " << fHistSpectrumStat[m][1][iregion]->GetBinContent(b) << "+-" << fHistSpectrumStat[m][1][iregion]->GetBinError(b) << endl;
+	    cout << " denum info " << fHistSpectrumStat[m][0][iregion]->GetBinContent(bcorr) << " or spline " << splineK0s[m][iregion]->Eval(fHistSpectrumSist[m][1][iregion]->GetBinCenter(b))<< "+-" << AvgStat[m][iregion] << endl;
+	    cout << fHistSpectrumStatRatio[m][iregion]->GetBinContent(b) << "+-" << fHistSpectrumStatRatio[m][iregion]->GetBinError(b)<< endl;
+	    cout << fHistSpectrumSistRatio[m][iregion]->GetBinContent(b) << "+-" << fHistSpectrumSistRatio[m][iregion]->GetBinError(b)<< endl;
 	  }
+	  */
 
 	  fHistSpectrumStatDoubleRatio[m][iregion]=(TH1F*) fHistSpectrumStatRatio[m][iregion]->Clone("fHistSpectrumStatDoubleRatio_"+Smolt[m]+Form("_region%i", iregion));
 	  fHistSpectrumSistDoubleRatio[m][iregion]=(TH1F*) fHistSpectrumSistRatio[m][iregion]->Clone("fHistSpectrumSistDoubleRatio_"+Smolt[m]+Form("_region%i", iregion));
 	  
 	  fHistSpectrumSistDoubleRatio[m][iregion]->Sumw2();
-	  fHistSpectrumSistDoubleRatio[m][iregion]->Divide(	  fHistSpectrumSistRatio[nummoltMax][iregion]);
+	  fHistSpectrumSistDoubleRatio[m][iregion]->Divide(fHistSpectrumSistRatio[ChosenMult][iregion]);
 	  fHistSpectrumStatDoubleRatio[m][iregion]->Sumw2();
-	  fHistSpectrumStatDoubleRatio[m][iregion]->Divide(	  fHistSpectrumStatRatio[nummoltMax][iregion]);
+	  fHistSpectrumStatDoubleRatio[m][iregion]->Divide(fHistSpectrumStatRatio[ChosenMult][iregion]);
 
+	  /*
 	  if (iregion==0){
 	    for (Int_t b=1; b<=  fHistSpectrumStatDoubleRatio[m][iregion]->GetNbinsX(); b++){
-	      //	      cout << "\n iregion " << iregion << " m: " << m << " low edge bin: " <<	    fHistSpectrumStatDoubleRatio[m][iregion]->GetXaxis()->GetBinLowEdge(b)<< endl;
-	      //	      cout << fHistSpectrumStatDoubleRatio[m][iregion]->GetBinContent(b) << "+-" << fHistSpectrumStatDoubleRatio[m][iregion]->GetBinError(b)<< endl;
-	      //	      cout << fHistSpectrumSistDoubleRatio[m][iregion]->GetBinContent(b) << "+-" << fHistSpectrumSistDoubleRatio[m][iregion]->GetBinError(b)<< endl;
+	      cout << "\n iregion " << iregion << " m: " << m << " low edge bin: " <<	    fHistSpectrumStatDoubleRatio[m][iregion]->GetXaxis()->GetBinLowEdge(b)<< endl;
+	      cout << fHistSpectrumStatDoubleRatio[m][iregion]->GetBinContent(b) << "+-" << fHistSpectrumStatDoubleRatio[m][iregion]->GetBinError(b)<< endl;
+	      cout << fHistSpectrumSistDoubleRatio[m][iregion]->GetBinContent(b) << "+-" << fHistSpectrumSistDoubleRatio[m][iregion]->GetBinError(b)<< endl;
 	    }
 	  }
+	  */
+	}//end type 0 else
+      }//end loop on mult
+
+      for (Int_t m=0; m<nummoltMax+1+3; m++){
+	if (type==0){
+	  cout <<"\nDrawing pt spectra ratio Xi/K0s\e[39m" << endl;
+	  canvasPtSpectraRatio->cd(iregion+1);
+	  StyleCanvas(canvasPtSpectraRatio, 0.01, 0.14, 0.18, 0.01);
+	  MultOK = (m==0 || m == 7 || m == ChosenMult);
+	  if (MultOK){
+	    if (iregion==0) legendMult->AddEntry(fHistSpectrumStatRatio[m][iregion], SmoltLegend[m], "pl");
+	    fHistSpectrumStatRatio[m][iregion]->DrawClone("same e");
+	    fHistSpectrumSistRatio[m][iregion]->SetFillStyle(0);
+	    fHistSpectrumSistRatio[m][iregion]->DrawClone("same e2");
+	    if (m==nummoltMax+1+2 && iregion==0) legendMult->Draw("");
+	  }
+	  TLegend *legendRegionBlackRatio=new TLegend(0.67, 0.82, 0.94, 0.94);
+	  TLegendEntry* lReAll1bRatio;
+	  TLegendEntry* lReAll2bRatio;
+	  lReAll1bRatio = legendRegionBlackRatio->AddEntry("", sRegionBlack[iregion], "");
+	  lReAll1bRatio->SetTextSize(0.044);
+	  lReAll1bRatio->SetTextAlign(32);
+	  lReAll2bRatio = legendRegionBlackRatio->AddEntry("", sRegion1[iregion][type], "");
+	  lReAll2bRatio->SetTextSize(0.039);
+	  lReAll2bRatio->SetTextAlign(32);
+
+	  legendRegionBlackRatio->Draw("");
+	  if (iregion==0) Legend1BisRatio->Draw("");
+
+	  canvasPtSpectraRatioAllMult->cd(iregion+1);
+	  StyleCanvas(canvasPtSpectraRatioAllMult, 0.01, 0.14, 0.18, 0.01);
+	  //	  StyleCanvas(canvasPtSpectraRatioAllMult, 0.05, 0.1, 0.1, 0.05);
+	  if (iregion==0) legendAllMult->AddEntry(fHistSpectrumStatRatio[m][iregion], SmoltLegend[m], "pl");
+	  fHistSpectrumStatRatio[m][iregion]->DrawClone("same e");
+	  fHistSpectrumSistRatio[m][iregion]->SetFillStyle(0);
+	  fHistSpectrumSistRatio[m][iregion]->DrawClone("same e2");
+	  if (m==nummoltMax+1+2 && iregion==0) legendAllMult->Draw("");
+	  legendRegionBlackRatio->Draw("");
+	  if (iregion==0) Legend1BisRatio->Draw("");
 
 	  canvasPtSpectraRatio->cd(iregion+4);
-	  gPad->SetLeftMargin(0.15);
-	  //	  StyleHisto(fHistSpectrumStatDoubleRatio[m][iregion], 0.0001, 2,  ColorMult[m], 33, titleX,  TitleYPtDRatio,  TitleYYieldRatio + " spectra ratio " + RegionType[iregion]);
-	  StyleHisto(fHistSpectrumStatDoubleRatio[m][iregion], 0.0001, 2,  ColorMult[m], 33, titleX, "", "");
-	  //	  StyleHisto(fHistSpectrumSistDoubleRatio[m][iregion], 0.0001, 2,  ColorMult[m], 33, titleX,  TitleYPtDRatio,  TitleYYieldRatio + " spectra ratio " + RegionType[iregion]);
-	  StyleHisto(fHistSpectrumSistDoubleRatio[m][iregion], 0.0001, 2,  ColorMult[m], 33, titleX, "", "");
+	  StyleCanvas(canvasPtSpectraRatio, 0.01, 0.14, 0.18, 0.01);
+	  StyleHistoYield(fHistSpectrumStatDoubleRatio[m][iregion], 10e-4, 2.2-10e-4,  ColorMult[m], MarkerMult[m], titleX, "Ratio to 0-100%", "",0.8 ,1.15, YoffsetSpectra[type] );
+	  StyleHistoYield(fHistSpectrumSistDoubleRatio[m][iregion], 10e-4, 2.2-10e-4,  ColorMult[m], MarkerMult[m], titleX, "Ratio to 0-100%", "", 0.8 ,1.15, YoffsetSpectra[type] );
 	  fHistSpectrumStatDoubleRatio[m][iregion]->SetMarkerSize(1.2);
 	  fHistSpectrumSistDoubleRatio[m][iregion]->SetMarkerSize(1.2);
-	  //	  if (m!=nummoltMax){
-	  MultOK = (m==0 || m ==4);
-
+	  MultOK = (m==0 || m==7);
 	  if (MultOK){
 	    fHistSpectrumStatDoubleRatio[m][iregion]->Draw("same p");
 	    fHistSpectrumSistDoubleRatio[m][iregion]->SetFillStyle(0);
 	    fHistSpectrumSistDoubleRatio[m][iregion]->Draw("same e2");
-	    //	  fHistSpectrumSistDoubleRatio[m][iregion]->Draw("same p hist");
 	    lineat1->Draw("same");
 	  }
-	}//end type 0 else
-      }//end loop on mult
-
+	}
+      }
 
       cout << "\n\e[35mDrawing spectra " << endl;
       //drawing spectra
@@ -378,24 +466,13 @@ void PlotSpectraRatio(Float_t PtTrigMin =3, Float_t PtTrigMax=15, TString Dir="F
       gStyle->SetLegendFillColor(0);
       gStyle->SetLegendFont(42);
 
-      TLegend *Legend1Bis=new TLegend(0.3,0.8,0.92,0.92);
-      Legend1Bis->SetFillStyle(0);
-      Legend1Bis->SetTextAlign(32);
-      Legend1Bis->SetTextSize(0.034);
-      //      Legend1Bis->AddEntry("", "#bf{ALICE Preliminary}", "");
-      Legend1Bis->AddEntry("", "#bf{This work}", "");
-      //      Legend1Bis->AddEntry("", "#color[0]{#bf{ALICE Preliminary}}", "");
-      Legend1Bis->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
-      Legend1Bis->AddEntry("", NameP[type]+ " correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
-      //      Legend1Bis->AddEntry("", sRegionBlack[iregion], "");
-
       TLegend *legendRegionBlack=new TLegend(0.65, 0.7, 0.92, 0.78);
       TLegendEntry* lReAll1b;
       TLegendEntry* lReAll2b;
       lReAll1b = legendRegionBlack->AddEntry("", sRegionBlack[iregion], "");
       lReAll1b->SetTextSize(0.036);
       lReAll1b->SetTextAlign(32);
-      lReAll2b=      legendRegionBlack->AddEntry("", sRegion1[iregion][type], "");
+      lReAll2b = legendRegionBlack->AddEntry("", sRegion1[iregion][type], "");
       lReAll2b->SetTextSize(0.029);
       lReAll2b->SetTextAlign(32);
 
@@ -458,7 +535,7 @@ void PlotSpectraRatio(Float_t PtTrigMin =3, Float_t PtTrigMax=15, TString Dir="F
 	fHistSpectrumSistScaled[m][type][iregion]->Scale(1./ScaleFactor[m]);
 	fHistSpectrumSistScaledForLegend[m][type][iregion] = (TH1F*) 	fHistSpectrumSistScaled[m][type][iregion]->Clone("fHistSpectrumSistScaledForLegend_"+Smolt[m]+Form("_type%i_region%i", type,iregion));
  	LegendMolt->AddEntry(fHistSpectrumSistScaledForLegend[m][type][iregion],SmoltBis[m]+"%"+sScaleFactor[m]+" ","pef");
-	if (m!=ChosenMult) 	LegendMoltRatio->AddEntry(fHistSpectrumSistScaledForLegend[m][type][iregion],SmoltBis[m]+"%"+sScaleFactor[m]+" ","pef");
+	if (m!=ChosenMult) 	LegendMoltRatio->AddEntry(fHistSpectrumSistScaledForLegend[m][type][iregion],SmoltBis[m]+"% ","pef");
       }
 
       LegendMolt->Draw("");
@@ -479,8 +556,6 @@ void PlotSpectraRatio(Float_t PtTrigMin =3, Float_t PtTrigMax=15, TString Dir="F
       gStyle->SetLegendFillColor(0);
       gStyle->SetLegendFont(42);
 
-      fHistSpectrumStatMultRatio[nummoltMax][type][iregion]= (TH1F*) fHistSpectrumStat[nummoltMax][type][iregion]->Clone("fHistSpectrumStatMultRatio_"+Smolt[nummoltMax]+Form("_type%i_region%i", type,iregion));
-      fHistSpectrumSistMultRatio[nummoltMax][type][iregion]= (TH1F*) fHistSpectrumSist[nummoltMax][type][iregion]->Clone("fHistSpectrumSistMultRatio_"+Smolt[nummoltMax]+Form("_type%i_region%i", type,iregion));
       for (Int_t m=0; m<nummoltMax+1+3; m++){
 	fHistSpectrumStatMultRatio[m][type][iregion]= (TH1F*) fHistSpectrumStat[m][type][iregion]->Clone("fHistSpectrumStatMultRatio_"+Smolt[m]+Form("_type%i_region%i", type,iregion));
 	fHistSpectrumSistMultRatio[m][type][iregion]= (TH1F*) fHistSpectrumSist[m][type][iregion]->Clone("fHistSpectrumSistMultRatio_"+Smolt[m]+Form("_type%i_region%i", type,iregion));
@@ -503,7 +578,7 @@ void PlotSpectraRatio(Float_t PtTrigMin =3, Float_t PtTrigMax=15, TString Dir="F
     }//end loop region
   }
 
-  TString DirPicture = "PictureForNote/pp13TeV/";
+  TString DirPicture = "PictureForThesis/pp13TeV/";
 
   for (Int_t type=0; type<2; type++){
     cout << "\e[32m\n\n************* " << Stipo[type] << " *********************" << endl;
@@ -536,8 +611,8 @@ void PlotSpectraRatio(Float_t PtTrigMin =3, Float_t PtTrigMax=15, TString Dir="F
   fileout->Close();
 
   for (Int_t type=0; type<2; type++){
-    cout << "\nStarting from the file(s) for MB: "  <<  PathInYieldMB[type] << endl;
-    cout << "\nStarting from the file(s) for HM: "  <<  PathInYieldHM[type] << endl;
+    cout << "\nStarting from the file(s) for MB (for the 3 diff. regions): "  <<  PathInYieldMB[type][0] << endl;
+    cout << "\nStarting from the file(s) for HM (for the 3 diff. regions): "  <<  PathInYieldHM[type][0] << endl;
   }
   cout << "\nI have created the file:\n " << stringout << "\nand the file:\n" << stringoutpdf << "_Plots.pdf\n\n" << endl;
 }
