@@ -16,8 +16,10 @@
 #include <TLatex.h>
 #include <TFile.h>
 #include <TLegend.h>
+#include <TLegendEntry.h>
 #include <Macros/ErrRatioCorr.C>
 #include <Macros/BarlowVariable.C>
+#include <Macros/constants.h>
 
 Double_t SetEfficiencyError(Int_t k, Int_t n){
   return sqrt(((Double_t)k+1)*((Double_t)k+2)/(n+2)/(n+3) - pow((Double_t)(k+1),2)/pow(n+2,2));
@@ -40,7 +42,10 @@ void StyleHistoYield(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t st
   histo->SetTitle(title);
 }
 
-void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*only used when a given multiplicity has to be manually selected*/, Int_t type =0, Int_t AnalysisType =2, TString  CommonFileName = ""/*name common to all files */,  TString OutputName ="", Bool_t isBarlow=1, Bool_t ispp5TeV=0, Bool_t isppHM =0, Float_t ScalingFactorXiK0s = 0.8458/1.08747, Int_t MultBinning=0){
+void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=5, Int_t multDef = 5 /*only used when a given multiplicity has to be manually selected*/, Int_t type =0, Int_t AnalysisType =2, TString  CommonFileName = ""/*name common to all files */,  TString OutputName ="", Bool_t isBarlow=0, Bool_t ispp5TeV=0, Bool_t isppHM =0, Float_t ScalingFactorXiK0s = 0.8458/1.08747, Int_t MultBinning=0, Bool_t isGenOnTheFly=0){
+
+  Int_t nummoltMax = nummolt;
+  if (!isGenOnTheFly) nummoltMax = 5;
 
   //RunVar should be increased when you want to do a new comparison; also, OutputName And CommonFileName should be updated below!!
   //  TString TypeAnalysis[3] = {"Jet", "BulkBlue", "All"};
@@ -103,10 +108,12 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
     OutputName = "hXiEstimateTriggerRun3/hXiEstimateForTriggerRun3_SpectraComparison";
     numFiles=3;
   }
-  else if (RunVar==7){ 
-    //comparison between Xi efficiency obtained with old AODs and with new (refiltered) AODs (AOD235)
+  else if (RunVar==7 || RunVar==89){ 
+    //comparison between Xi efficiency obtained with old AODs and with new (refiltered) AODs (AOD235) (RunVar==7)
+    //comparison between K0s efficiency obtained with new MC 22e1 (with radius dependent material budget) and "default" MC (RunVar==89)
     CommonFileName = "FinalOutput/DATA2016/Efficiency/Efficiency";
-    OutputName = "FinalOutput/DATA2016/Efficiency/EfficiencyComparisonOldNewAODsXi";
+    if (RunVar==7)    OutputName = "FinalOutput/DATA2016/Efficiency/EfficiencyComparisonOldNewAODsXi";
+    else    OutputName = "FinalOutput/DATA2016/Efficiency/EfficiencyComparisonOldvsNew"+ tipo[type];
     numFiles=12; //2 x 6 mult classes
     TypeOfComparison = 2; 
   }
@@ -194,7 +201,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
      //    CommonFileName = "FinalOutput/DATA2016/Efficiency/Efficiency2018f1_extra_hK0s_PtBinning1_K0s_y0.5_AllAssoc_SysT0_SysV00_PtMin0.2.root";
      //    OutputName = "CompareEfficiencyAcrossMult_2018f1_extra_hK0s_y0.5_AllAssoc_PtMin0.15";
 
-     CommonFileName = "FinalOutput/DATA2016/Efficiency/Efficiency1617_GP_AOD235_With18c12b_PtBinning1_K0s_Eta0.8_AllAssoc_SysT0_SysV00_PtMin3.0.root";
+     CommonFileName = "FinalOutput/DATA2016/Efficiency/Efficiency1617_GP_AOD235_With18c12b_EffCorr_PtBinning1_K0s_Eta0.8_AllAssoc_SysT0_SysV00_PtMin3.0.root";
      OutputName = "CompareEfficiencyAcrossMult_1617_GP_AOD235_extra_hK0s_Eta0.8_PtMin3";
 
      //CommonFileName = "FinalOutput/DATA2016/Efficiency/Efficiency2018f1_extra_AOD235_hK0s_PtBinning1_K0s_Eta0.8_SysT0_SysV00_PtMin3.0.root";
@@ -238,8 +245,8 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
      //    CommonFileName = "FinalOutput/DATA2016/Efficiency/EfficiencyLHC18_GP_AOD235_Xi_Eta0.8_SysT0_SysV00_PtMin3.0.root";
      //    OutputName = "CompareEfficiencyAcrossMult_LHC18_AOD235_hXi";
 
-     CommonFileName = "FinalOutput/DATA2016/Efficiency/Efficiency161718Full_AOD235_hXi_Xi_Eta0.8_AllAssoc_SysT0_SysV00_PtMin3.0.root";
-     OutputName = "CompareEfficiencyAcrossMult_LHC161718_AOD235_hXi";
+     //CommonFileName = "FinalOutput/DATA2016/Efficiency/Efficiency161718Full_AOD235_hXi_Xi_Eta0.8_AllAssoc_SysT0_SysV00_PtMin3.0.root";
+     //OutputName = "CompareEfficiencyAcrossMult_LHC161718_AOD235_hXi";
 
      /*
      CommonFileName = "FinalOutput/DATA2016/Efficiency/Efficiency2019h11_HM_hK0s_PtBinning1_K0s_Eta0.8_AllAssoc_SysT0_SysV00_PtMin3.0_MultBinning1.root";
@@ -272,7 +279,17 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
 
      CommonFileName = "FinalOutput/DATA2016/Efficiency/Efficiency18f1_extra_CrossedRows70_PtBinning1_K0s_Eta0.8_AllAssoc_SysT0_SysV00_PtMin0.2.root";
      OutputName = "CompareEfficiencyAcrossMult_hK0s_CrossedRows70";
+
+     CommonFileName = "FinalOutput/DATA2016/Efficiency/Efficiency18f1_extra_60runs_FixMCLabelForFioComp_hK0s_PtBinning1_K0s_y0.5_AllAssoc_SysT0_SysV00_PtMin0.2.root";
+     OutputName = "CompareEfficiencyAcrossMult_LHC18f1_MCFix";
      */
+
+     //CommonFileName = "FinalOutput/DATA2016/Efficiency/Efficiency22e1_hK0s_PtBinning1_K0s_Eta0.8_AllAssoc_SysT0_SysV00_PtMin3.0.root";
+     //OutputName = "CompareEfficiencyAcrossMult_LHC22e1";
+
+     //     CommonFileName = "FinalOutput/DATA2016/Efficiency/Efficiency22e1_pttrig0.15_hXi_Xi_Eta0.8_AllAssoc_SysT0_SysV00_PtMin0.2.root";
+     //     OutputName = "CompareEfficiencyAcrossMult_LHC22e1";
+
      numFiles=6; 
    }
    else if (RunVar==20){
@@ -814,370 +831,538 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
     NSigma =2;
     NSign =2;
   }
-   //this macros superimpose in a same canvas pad same histos found in different files. A loop over the files is done. The ratio of the histos to the histo found in the first file is performed. You can choose if histos have to be considered fully correlated, uncorrelated, or if the histos are obtaiend from a subsample of the data used to obtain the histo found in the first file (i.e. partial correlation)
+  else if (RunVar==83){ 
+    //comparison between K0s efficiency acceting negative labels vs rejectiong negative labels for daughters
+    CommonFileName = "FinalOutput/DATA2016/Efficiency/Efficiency";
+    OutputName = "FinalOutput/DATA2016/Efficiency/EfficiencyNegvsPosLabels";
+    numFiles=12; //2 x 6 mult classes
+    TypeOfComparison = 2; 
+  }
+  else if (RunVar==84){
+    //comparison between K0s efficiency (corrected) and K0s efficiency (old)
+    CommonFileName = "FinalOutput/DATA2016/Efficiency/Efficiency";
+    OutputName = "CompareK0sEfficiency_NewvsOld";
+    numFiles=12; //2+6 mult
+    TypeOfComparison = 2; 
+  }
+  else if (RunVar==85 || RunVar==86){
+    //comparison between K0s spectra (correct efficiency) and K0s spectra (from second preliminary)
+    if (ispp5TeV){
+      CommonFileName = "FinalOutput/DATA2016/PtSpectraBisNew_pp5TeV_PtBinning1_17pq_hK0s_K0s_Eta0.8_AllAssoc_PtMin3.0_";
+      CommonFileName += TypeAnalysisBis[AnalysisType];
+      CommonFileName += "_isNormCorrFullyComputed_isErrorAssumedPtCorr_ChangesIncluded_MultBinning3";
+    }
+    else if (isppHM){
+      CommonFileName ="FinalOutput/DATA2016/PtSpectraBisNew_pp13TeVHM_PtBinning1_AllhK0sHM_RedNo16k_K0s_Eta0.8_AllAssoc_PtMin3.0_" ;
+      CommonFileName += TypeAnalysisBis[AnalysisType];
+      CommonFileName += "_isNormCorrFullyComputed_isErrorAssumedPtCorr_ChangesIncluded_MultBinning1";
+    }
+    else {
+      CommonFileName = "FinalOutput/DATA2016/PtSpectraBisNew_PtBinning1_1617_AOD234_hK0s_K0s_Eta0.8_AllAssoc_PtMin3.0_";
+      CommonFileName += TypeAnalysisBis[AnalysisType];
+      CommonFileName += "_isNormCorrFullyComputed_isErrorAssumedPtCorr_ChangesIncluded";
+    }
+    if (RunVar==85)    OutputName = "CompareK0sSpectra_NewvsOld" + TypeAnalysis[AnalysisType];
+    else     OutputName = "CompareK0sYields_NewvsOld" + TypeAnalysis[AnalysisType];
+    if (RunVar==85)    numFiles=12; //2+6 mult
+    else numFiles = 2;
+    TypeOfComparison = 2; 
+  }
+  else if (RunVar==87 || RunVar==88){
+    //compare spectra (=87) or yields (=88) with wings correction and without wings correction (MC ran on the fly, PythiaMonash)
+    CommonFileName = "FinalOutput/DATA2016/PtSpectraBisNew";
+    if (isppHM)  CommonFileName += "_pp13TeVHM";
+    if (type==0)    CommonFileName += "_PtBinning1";
+    if (isGenOnTheFly){
+      CommonFileName += "_PythiaRopes";
+      if (type==1) CommonFileName += "_IncreasedStatXi";
+    }
+    else {
+      if (type==0) {
+	if (isppHM) CommonFileName +="_AllhK0sHM_RedNo16k";
+	else CommonFileName +="_1617_AOD234_hK0s";
+      }
+      else if (type==1) {
+	CommonFileName += "_161718Full_AOD234_hXi";
+      }
+    }
+    CommonFileName += "_" + tipo[type];
+    CommonFileName += "_Eta0.8_AllAssoc_PtMin3.0_";
+    CommonFileName += TypeAnalysisBis[AnalysisType];
+    if (!isGenOnTheFly){
+      CommonFileName += "_isNormCorrFullyComputed";
+    }
+    CommonFileName += "_isErrorAssumedPtCorr";
+    if (!isGenOnTheFly){
+      CommonFileName+= "_ChangesIncluded";
+      if (isppHM) CommonFileName += "_MultBinning1";
+      if (type==0)      CommonFileName+= "_EffCorr";
+    }
+    if (RunVar==87)    OutputName = "Compare" + tipo[type] + "Spectra_WithWithoutWings" + TypeAnalysis[AnalysisType];
+    else     OutputName = "Compare" + tipo[type] + "Yields_WithWithouWings" + TypeAnalysis[AnalysisType];
+    if (RunVar==87){
+      if (isGenOnTheFly) numFiles=20; //2x 10 mult
+      else numFiles = 12;
+    }
+    else numFiles = 2;
+    TypeOfComparison = 2; 
+  }
+  else if (RunVar==90 || RunVar==91 || RunVar==92){
+    //compare spectra (=90) or yields (=91) with 22e1 R-dependent material budget with "default" ones 
+    //compare spectra (=92) corrected by efficiency vs spectra obtained with full usage of 22e1 efficiency
+    CommonFileName = "FinalOutput/DATA2016/PtSpectraBisNew";
+    if (isppHM)  CommonFileName += "_pp13TeVHM";
+    else if (ispp5TeV) CommonFileName+="_pp5TeV";
+    if (type==0)    CommonFileName += "_PtBinning1";
+    if (type==0) {
+      if (isppHM) CommonFileName +="_AllhK0sHM_RedNo16k";
+      else if (ispp5TeV) CommonFileName += "_17pq_hK0s";
+      else CommonFileName +="_1617_AOD234_hK0s";
+    }
+    else if (type==1){
+      if (isppHM) CommonFileName +="_161718_HM_hXi_WithFlat16k_No18p";
+      else if (ispp5TeV) CommonFileName += "_17pq_hXi";
+      else CommonFileName +="_161718Full_AOD234_hXi";
+    }
+    CommonFileName += "_" + tipo[type];
+    CommonFileName += "_Eta0.8_AllAssoc_PtMin3.0_";
+    CommonFileName += TypeAnalysisBis[AnalysisType];
+    CommonFileName += "_isNormCorrFullyComputed";
+    CommonFileName += "_isErrorAssumedPtCorr";
+    CommonFileName+= "_ChangesIncluded";
+    if (isppHM) CommonFileName += "_MultBinning1";
+    else if (ispp5TeV) CommonFileName += "_MultBinning3";
+    if (!isppHM && !ispp5TeV && type==0)    CommonFileName+= "_isdNdEtaTriggered";
+    if (type==0) CommonFileName+= "_EffCorr";
+    if (type==0)    CommonFileName+= "_isWingsCorrectionAppliedNew";
+    if (RunVar==90)    OutputName = "Compare" + tipo[type] + "Spectra_WithMC22e1" + TypeAnalysis[AnalysisType];
+    else if (RunVar==91)    OutputName = "Compare" + tipo[type] + "Yields_WithMC22e1" + TypeAnalysis[AnalysisType];
+    else if (RunVar==92) OutputName = "Compare" + tipo[type] + "Spectra_WithMC22e1FAST" + TypeAnalysis[AnalysisType];
+    if (RunVar==90 || RunVar==92) numFiles = 12;
+    else numFiles = 2;
+    TypeOfComparison = 2; 
+  }
+  else if (RunVar==93 || RunVar==94 || RunVar ==95){
+    //Compare purity vs pt across multiplicity (93)
+    //Compare mean vs pt across multiplicity (94)
+    //Compare sigma vs pt across multiplicity (95)
+    CommonFileName = "FinalOutput/DATA2016/invmass_distribution_thesis/invmass_distribution";
+    OutputName = "Compare";
+    if (RunVar==93)     OutputName += "Purity";
+    else if (RunVar==94)     OutputName += "Mean";
+    else if (RunVar==95)     OutputName += "Sigma";
+    if (type==0) {
+      CommonFileName += "_PtBinning1_1617_AOD234_hK0s_K0s_Eta0.8_AllAssoc_isMeanFixedPDG_BkgRetta";
+      OutputName +="AcrossMult_1617_AOD234_hK0s_Eta0.8_PtMin3";
+    }
+    else if (type==1) {
+      CommonFileName += "_161718Full_AOD234_hXi_Xi_Eta0.8_AllAssoc_isMeanFixedPDG_BkgRetta";
+      OutputName += "AcrossMult_161718Full_AOD234_hXi_Eta0.8_PtMin3";
+    }
+    numFiles=6; 
+  }
+  //this macros superimpose in a same canvas pad same histos found in different files. A loop over the files is done. The ratio of the histos to the histo found in the first file is performed. You can choose if histos have to be considered fully correlated, uncorrelated, or if the histos are obtaiend from a subsample of the data used to obtain the histo found in the first file (i.e. partial correlation)
 
-   TString VarName[numFiles] = {""}; 
-   TString NameHisto[numFiles] = {""}; 
-   TString histoName= "fHistQA6";
-   if (RunVar==71)     histoName = "fHist_multiplicity_EvwTrigger";
-   //   if (RunVar==71)     histoName = "fHist_multiplicityAllSelEvents";
-   else if (RunVar==80) histoName = "";
-   else if (RunVar==6) histoName = "histo_S";
-   else   if (RunVar==7 || RunVar==11 || RunVar==14 || RunVar==18 || RunVar==19 || RunVar==20 || RunVar==21 || RunVar==24 || RunVar==25 || RunVar==32 || RunVar==37 || RunVar==38 || RunVar==41 || RunVar==64 || RunVar==68) histoName = "fHistV0EfficiencyPtBins";
-   else if (RunVar==81) histoName = "histo_SRatioCentral";
-   else if (RunVar==82) histoName = "SpectrumRatio";
-   else if (RunVar==78) histoName = "fHistAllTriggerEfficiencyPtBins";
-   //   if (RunVar==64) histoName = "fHistGenerated_1D_V0Pt";
-   //   if (RunVar==64) histoName = "fHistV0EfficiencyPt";
-   else if (RunVar==22 || RunVar==23 || RunVar==42 || RunVar==66) histoName = "fHistV0EfficiencyEta";
-   else if (RunVar==8 || RunVar==9 || RunVar==43 || RunVar==45 || RunVar==48 || RunVar==58) histoName = "SpectrumRatio" +  TypeAnalysis[AnalysisType]+"_m"; //All -> Jet, Bulk
-   else if (RunVar==10 || RunVar==12) histoName = "histoYieldComparison";
-   else if (RunVar==13 || RunVar==47 || RunVar==52 || RunVar==55 || RunVar==57 || RunVar==63 || RunVar==73 || RunVar==75) histoName = "fHistYieldvsErrSoloStat";
-   else if (RunVar==76) histoName = "histoYieldComparison";
-   else if (RunVar==77) histoName = "Ratio_reg0_Coll0_Ratio";
-   else if (RunVar==15 || RunVar==16) histoName = "";
-   else if (RunVar==17) histoName = "histo_SSB";
-   else if (RunVar>=26 && RunVar<=29) histoName = "";
-   else if (RunVar==30) histoName = "";
-   else if (RunVar==31) histoName = "histo_SEffCorr";
-   else if (RunVar==33 || RunVar==34) histoName = "";
-   else if (RunVar==36) histoName = "histo_S"; //SSB
-   else if (RunVar==39 || RunVar==46 || RunVar==49 || RunVar==54 || RunVar==56 || RunVar==62 || RunVar==65 || RunVar==67 || RunVar==69 || RunVar==70 || RunVar==72 || RunVar==79) histoName = "fHistSpectrumPart_";
-   else if (RunVar==40 || RunVar ==44) histoName = "";
-   else if (RunVar==50) histoName = "ME_m_all_v";
-   else if (RunVar==51) histoName = "hSign_EtaV0";
-   else if (RunVar==74) histoName = "";
+  TString VarName[numFiles] = {""}; 
+  TString NameHisto[numFiles] = {""}; 
+  TString histoName= "fHistQA6";
+  if (RunVar==71)     histoName = "fHist_multiplicity_EvwTrigger";
+  //   if (RunVar==71)     histoName = "fHist_multiplicityAllSelEvents";
+  else if (RunVar==80) histoName = "";
+  else if (RunVar==6) histoName = "histo_S";
+  else   if (RunVar==7 || RunVar==11 || RunVar==14 || RunVar==18 || RunVar==19 || RunVar==20 || RunVar==21 || RunVar==24 || RunVar==25 || RunVar==32 || RunVar==37 || RunVar==38 || RunVar==41 || RunVar==64 || RunVar==68 || RunVar==83 || RunVar==84 || RunVar==89) histoName = "fHistV0EfficiencyPtBins";
+  else if (RunVar==81) histoName = "histo_SRatioCentral";
+  else if (RunVar==82) histoName = "SpectrumRatio";
+  else if (RunVar==78) histoName = "fHistAllTriggerEfficiencyPtBins";
+  //   if (RunVar==64) histoName = "fHistGenerated_1D_V0Pt";
+  //   if (RunVar==64) histoName = "fHistV0EfficiencyPt";
+  else if (RunVar==22 || RunVar==23 || RunVar==42 || RunVar==66 || RunVar==89) histoName = "fHistV0EfficiencyEta";
+  else if (RunVar==8 || RunVar==9 || RunVar==43 || RunVar==45 || RunVar==48 || RunVar==58) histoName = "SpectrumRatio" +  TypeAnalysis[AnalysisType]+"_m"; //All -> Jet, Bulk
+  else if (RunVar==10 || RunVar==12) histoName = "histoYieldComparison";
+  else if (RunVar==13 || RunVar==47 || RunVar==52 || RunVar==55 || RunVar==57 || RunVar==63 || RunVar==73 || RunVar==75) histoName = "fHistYieldvsErrSoloStat";
+  else if (RunVar==76) histoName = "histoYieldComparison";
+  else if (RunVar==77) histoName = "Ratio_reg0_Coll0_Ratio";
+  else if (RunVar==15 || RunVar==16) histoName = "";
+  else if (RunVar==17 || RunVar==93) histoName = "histo_SSB";
+  else if (RunVar>=26 && RunVar<=29) histoName = "";
+  else if (RunVar==30) histoName = "";
+  else if (RunVar==31) histoName = "histo_SEffCorr";
+  else if (RunVar==33 || RunVar==34) histoName = "";
+  else if (RunVar==36) histoName = "histo_S"; //SSB
+  else if (RunVar==39 || RunVar==46 || RunVar==49 || RunVar==54 || RunVar==56 || RunVar==62 || RunVar==65 || RunVar==67 || RunVar==69 || RunVar==70 || RunVar==72 || RunVar==79) histoName = "fHistSpectrumPart_";
+  else if (RunVar==40 || RunVar ==44) histoName = "";
+  else if (RunVar==50) histoName = "ME_m_all_v";
+  else if (RunVar==51) histoName = "hSign_EtaV0";
+  else if (RunVar==74) histoName = "";
+  else if (RunVar==85 || RunVar==87 || RunVar==90 || RunVar==92) histoName = "fHistSpectrum";
+  else if (RunVar==86 || RunVar==88 || RunVar==91) histoName = "fHistYieldStat";
+  else if (RunVar==94) histoName = "histo_mean";
+  else if (RunVar==95) histoName = "histo_sigma";
 
-   Int_t numDef=3;
-   if (RunVar>=7) numDef=0;
-   Float_t num=0;
-   Int_t numEff=0;
+  Int_t numDef=3;
+  if (RunVar>=7) numDef=0;
+  Float_t num=0;
+  Int_t numEff=0;
 
-   Float_t LimSupPol0=8;
-   Float_t LimInfPol0 = 0;
-   if (RunVar==10 || RunVar==13) LimSupPol0 = 45;
-   else if (RunVar==15 || RunVar==30 || RunVar==47 || RunVar==73 || RunVar==75) LimSupPol0 = 30;
-   if ( RunVar==76 || RunVar==77) LimSupPol0 = 45;
-   if (RunVar==13) LimInfPol0 = 25;
-   if (RunVar==52 || RunVar==55 || RunVar==57) LimSupPol0=25;
-   if (RunVar==22 || RunVar==23) {LimInfPol0 = -0.8; LimSupPol0 = 0.8;}
-   if (isppHM) LimInfPol0 = 25;
-   if (isppHM) LimSupPol0 = 40;
-   if (RunVar==39) {LimInfPol0 =0; LimSupPol0=8;}
-   if (RunVar==50 || RunVar==53 || RunVar==59) { LimInfPol0 = -1.2; LimSupPol0 = 1.2;}
-   if (RunVar==74) {LimInfPol0 = -TMath::Pi()/2; LimSupPol0 = 3./2*TMath::Pi();}
-   if (RunVar==78) {LimInfPol0 =0; LimSupPol0=15;}
-   TF1 * pol0At1 = new TF1("pol0", "pol0", LimInfPol0, LimSupPol0);
-   pol0At1->SetParameter(0,1);
-   pol0At1->SetLineColor(1);
-   pol0At1->SetLineWidth(0.5);
-   TF1 * pol1[numFiles]; 
-   TF1* 	lineatB0 = new TF1("pol0", "pol0B", LimInfPol0, LimSupPol0);
-   lineatB0->SetParameter(0,0);
-   lineatB0->SetLineColor(1);
-   TF1 * pol0Fit = new TF1("pol0", "pol0Fit", 0.3,7);
-   pol0Fit->SetParameter(0,0.01);
+  Float_t LimSupPol0=8;
+  Float_t LimInfPol0 = 0;
+  if (RunVar==10 || RunVar==13) LimSupPol0 = 45;
+  else if (RunVar==15 || RunVar==30 || RunVar==47 || RunVar==73 || RunVar==75 || RunVar==86) LimSupPol0 = 30;
+  if ( RunVar==76 || RunVar==77) LimSupPol0 = 45;
+  if (RunVar==13) LimInfPol0 = 25;
+  if (RunVar==52 || RunVar==55 || RunVar==57) LimSupPol0=25;
+  if (RunVar==22 || RunVar==23) {LimInfPol0 = -0.8; LimSupPol0 = 0.8;}
+  if (isppHM) LimInfPol0 = 25;
+  if (isppHM) LimSupPol0 = 40;
+  if (RunVar==39) {LimInfPol0 =0; LimSupPol0=8;}
+  if (RunVar==50 || RunVar==53 || RunVar==59) { LimInfPol0 = -1.2; LimSupPol0 = 1.2;}
+  if (RunVar==74) {LimInfPol0 = -TMath::Pi()/2; LimSupPol0 = 3./2*TMath::Pi();}
+  if (RunVar==78) {LimInfPol0 =0; LimSupPol0=15;}
+  TF1 * pol0At1 = new TF1("pol0", "pol0", LimInfPol0, LimSupPol0);
+  pol0At1->SetParameter(0,1);
+  pol0At1->SetLineColor(1);
+  pol0At1->SetLineWidth(0.5);
+  TF1 * pol1[numFiles]; 
+  TF1* 	lineatB0 = new TF1("pol0", "pol0B", LimInfPol0, LimSupPol0);
+  lineatB0->SetParameter(0,0);
+  lineatB0->SetLineColor(1);
+  TF1 * pol0Fit = new TF1("pol0", "pol0Fit", 0.3,7);
+  pol0Fit->SetParameter(0,0.01);
 
-   //histo style selections
-   Float_t Low=10e-8;
-   Float_t Up=0.003;
-   Float_t LowRatio=10e-8;
-   Float_t UpRatio=0.6;
-   Float_t LowBarlow=-3;
-   Float_t UpBarlow=3;
-   Float_t LimSupSys=1;
-   Float_t UpError=0.1;
-   Int_t color[10]={1,402 , 628, /*905, 881,*/601, 867, 418, 905, 881};
-   //  Int_t color[13]={1, 401,801,628, 909, 881,860,868,841,  418, 881, 7, 1};
-   Int_t style =27;
-   TString titleX = "Multiplicity class";
-   TString titleY="#hXi events / #INT7 events";
-   TString title="Fraction of INT7 events containing trigger particle and Xi";
-   TString titleRatio="Ratio to #it{p}_{T}^{trigg} > 3 GeV/#it{c}";
-   Float_t Nmolt[6] = {0, 5, 10, 30, 50, 100};
-   TString Smolt[6] = {"_0-5", "_5-10", "_10-30", "_30-50", "_50-100", "__all"};  
-   TString SmoltShort[6] = {"0-5", "5-10", "10-30", "30-50", "50-100", "_all"};  
-   TString Smolt5TeV[6] = {"_0-10", "_10-100", "_100-100", "_100-100", "_100-100", "__all"};  
-   TString SmoltMultBinning4[6] = {"_0-5", "_5-100", "_100-100", "_100-100", "_100-100", "__all"};  
-   //  TString SmoltHM[6] = {"_0-0.001", "_0.001-0.005", "_0.005-0.01", "_0.01-0.05", "_0.05-0.1", "__all"};  
-   TString SmoltHM[6] = {"_0-0a", "_0-0b", "_0-0.01", "_0.01-0.05", "_0.05-0.1", "_0-0.1"};  
-   TString SmoltHMShort[6] = {"0-0a", "0-0b", "0-0.01", "0.01-0.05", "0.05-0.1", "0-0.1"};  
-   TString SmoltBisHM[6] = {"_0-0a", "_0-0b", "0-0.01%", "0.01-0.05%", "0.05-0.1%", "0-0.1%"};  
-   TString SmoltBis[6] = {" 0-5%", " 5-10%", " 10-30%", " 30-50%", " 50-100%", " 0-100%"};  
-   TString SmoltBis5TeV[6] = {" 0-10%", " 10-100%", " 100-100%", " 100-100%", " 100-100%", " 0-100%"};  
-   TString SmoltBisMultBinning4[6] = {" 0-5%", " 5-100%", " 100-100%", " 100-100%", " 100-100%", " 0-100%"};  
-   TString PtInterval[7]={"0.5-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8"};
-   TString PtIntervalK0s[9]={"0.1-0.5", "0.5-0.8", "0.8-1.2", "1.2-1.6","1.6-2", "2-2.5","2.5-3", "3-4", "4-8"};
+  TF1 * pol0MassK0s = new TF1("pol0", "pol0MassK0s", 0.1,8);
+  pol0MassK0s->FixParameter(0, 0.497614);
+  pol0MassK0s->SetLineColor(1);
+  pol0MassK0s->SetLineWidth(0.5);
 
-   if (ispp5TeV){
-     for (Int_t i=0; i<6; i++) { Smolt[i] = Smolt5TeV[i];  SmoltBis[i] = SmoltBis5TeV[i];}
-   }
-   if (isppHM){
-     for (Int_t i=0; i<6; i++) { Smolt[i] = SmoltHM[i];  SmoltBis[i] = SmoltBisHM[i];  SmoltShort[i] = SmoltHMShort[i];}
-   }
-   if (MultBinning==4) {
-     for (Int_t i=0; i<6; i++) { Smolt[i] = SmoltMultBinning4[i];  SmoltBis[i] = SmoltBisMultBinning4[i];}
-   }
-   if (RunVar==2){
-     titleRatio = "Ratio of only TOF to (SPD+TOF) pileup rej";
-     LowRatio = 0.5;
-     UpRatio = 1;
-   }
+  TF1 * pol0MassXi = new TF1("pol0", "pol0MassXi", 0.5,8);
+  pol0MassXi->FixParameter(0, 1.32171);
+  pol0MassXi->SetLineColor(1);
+  pol0MassXi->SetLineWidth(0.5);
 
-   else  if (RunVar==3){
-     titleRatio = "Ratio of Run3 to Run 2 selections";
-     LowRatio = 0.5;
-     UpRatio = 1;
-   }
+  TLegend *LegendMass=new TLegend(0.45,0.25,0.75,0.33);
+  LegendMass->SetFillStyle(0);
+  LegendMass->SetTextAlign(22);
+  LegendMass->SetTextSize(0.035);
+  if (type==0)  LegendMass->AddEntry(pol0MassK0s, "K_{S}^{0} PDG mass", "l");
+  else  if (type==1)  LegendMass->AddEntry(pol0MassXi, "#Xi^{-} PDG mass", "l");
 
-   else  if (RunVar==5){
-     titleRatio = "Ratio of SkipAssoc to AllAssoc with Run3Sel";
-     LowRatio = 0.8;
-     UpRatio = 1.3;
-   }
-   else  if (RunVar==6){
-     titleRatio = "Ratio to default Run2Sel";
-     Low = 10e-6;
-     Up = 5*10e-3;
-     LowRatio = 0;
-     UpRatio = 1.5;
-     titleY = "1/N_{trigg} dN^{#Xi}/dp_{T}";
-     titleX = "p_{T} (GeV/c)";
-     title = "Raw Xi spectrum 0-100%, p_{T}^{trigg} > 3 GeV/c";
-   }
-   else  if (RunVar==7){
-     titleRatio = "Ratio to new AODs";
-     Low = 0;
-     Up = 0.1;//0.3
-     LowRatio = 0.8;
-     UpRatio = 1;
-     titleY = "Xi efficiency";
-     titleX = "p_{T} (GeV/c)";
-     title = "Xi efficiency";
-   }
-   else  if (RunVar==8){
-     titleRatio = "Ratio to 300M events (new) norm factor";
-     Low = 0.9;
-     Up = 1.2;
-     LowRatio = 0.95;
-     UpRatio = 1.1;
-     titleY = "K0s norm factor";
-     titleX = "p_{T} (GeV/c)";
-     title = "K0s norm factor";
-   }
-   else  if (RunVar==9){
-     titleRatio = "Ratio to 0-100% norm factor";
-     Low = 0.95;
-     Up = 1.05;
-     LowRatio = 0.95;
-     UpRatio = 1.05;
-     titleY = "K0s norm factor";
-     titleX = "p_{T} (GeV/c)";
-     title = "K0s norm factor";
-   }
-   else  if (RunVar==10){
-     titleRatio = "Ratio to 16k only";
-     Low = 0.95;
-     Up = 1.05;
-     LowRatio = 0.95;
-     UpRatio = 1.05;
-     titleY = "K0s yield";
-     titleX = "dN/d#eta";
-     title = "K0s yield";
-   }
-   else  if (RunVar==11){
-     titleRatio = "Ratio to 1617MC";
-     Low = 0.95;
-     Up = 1.05;
-     LowRatio = 0.95;
-     UpRatio = 1.05;
-     titleY = "K0s efficiency";
-     titleX = "p_{T}";
-     title = "K0s efficiency";
-   }
-   else  if (RunVar==12){
-     titleRatio = "Ratio to non-eta-dependent eff";
-     Low = 0.95;
-     Up = 1.05;
-     LowRatio = 0.95;
-     UpRatio = 1.05;
-     titleY = "K0s yield";
-     titleX = "dN/d#eta";
-     title = "K0s yield";
-   }
-   else  if (RunVar==13){
-     titleRatio = "Ratio to 2019h11c_extra eff";
-     Low = 0.95;
-     Up = 1.05;
-     LowRatio = 0.95;
-     UpRatio = 1.05;
-     titleY = "K0s yield";
-     titleX = "dN/d#eta";
-     title = "K0s yield";
-   }
-   else  if (RunVar==14 || RunVar==64 || RunVar==68){
-     if (RunVar==14)     titleRatio = "Ratio to 13 TeV efficiency";
-     else if (RunVar==64) titleRatio = "Ratio to PYTHIA";
-     else titleRatio = "Ratio to eff. in all events";
-     Low = 0;
-     Up = 0.8;
-     LowRatio = 0.8;
-     UpRatio = 1.2;
-     if (type==1){
-     LowRatio = 0.8;
-     UpRatio = 1.2;
-     }
-     LowBarlow=-7;
-     UpBarlow=7;
-     LimSupSys = 0.1;
-     //     titleY = tipo[type]+" efficiency";
-     //     titleY = tipo[type]+" generated spectrum";
-     titleX = "p_{T}";
-     //     title = tipo[type]+" generated spectrum";
-     titleY = tipo[type]+" efficiency";
-     title = tipo[type]+" efficiency";
-   }
-   else  if (RunVar==15){
-     titleRatio = "Ratio to 13 TeV";
-     if (AnalysisType==0){
-       Low = 0.02;
-       Up = 0.04;
-       if (type==1){
-	 Up = 0.004;
-       }
-     }
-     else {
-       Low = 0;
-       Up = 0.3;
-       if (type==1){
-	 Up = 0.02;
-       }
-     }
-     LowRatio = 0.95;
-     UpRatio = 1.05;
-     titleY = tipo[type]+" yield";
-     titleX = "dN/d#eta";
-     title = tipo[type] + " yield";
-   }
-   else  if (RunVar==16){
-     titleRatio = "Ratio to 0-100%";
-     if (AnalysisType==0){
-       Low = 0.0005;
-       Up = 0.02;
-     }
-     else {
-       Low = 0.00005;
-       Up = 0.3;
-     }
-     LowRatio = 0;
-     UpRatio = 2;
-     titleY = "1/N_{trigg} dN/dp_{T} (1/(GeV/c))";
-     titleX = "p_{T} (GeV/c)";
-     title = "K0s yield";
-   }
-   else  if (RunVar==17){
-     titleRatio = "Ratio to 0-100%";
-     Low = 0.95;
-     Up = 1;
-     LowRatio = 0.95;
-     UpRatio = 1.05;
-     titleY = "Purity";
-     titleX = "p_{T} (GeV/c)";
-     title = "K0s purity";
-   }
-   else  if (RunVar==18){
-     titleRatio = "Ratio to CENTwoSDD";
-     Low = 0;
-     Up = 0.5;
-     LowRatio = 0.95;
-     UpRatio = 1.05;
-     titleY = "Efficiency";
-     titleX = "p_{T} (GeV/c)";
-     title = "K0s efficiency";
-   }
-   else  if (RunVar==19 || RunVar==20 || RunVar==21 || RunVar==24 || RunVar==25 || RunVar==37){
-     titleRatio = "Ratio to 0-100%";
-     if (isppHM)      titleRatio = "Ratio to 0-0.1%";
-     if (RunVar==21)     titleRatio = "Ratio to old AODs";
-     else if (RunVar==24)     titleRatio = "Ratio to 2018f1_extra";
-     else if (RunVar==25)     titleRatio = "Ratio to standard efficiency";
-     Low = 0;
-     Up = 0.5;
-     LowRatio = 0.85;
-     UpRatio = 1.15;
-     titleY = tipo[type] +" efficiency";
-     titleX = "p_{T} (GeV/c)";
-     title = tipo[type] + " efficiency";
-   }
-   else  if (RunVar==22 || RunVar==23){
-     titleRatio = "Ratio to 0-100%";
-     if (RunVar==23)     titleRatio = "Ratio to old AODs";
-     Low = 0;
-     Up = 0.5;
-     LowRatio = 0.8;
-     UpRatio = 1.2;
-     titleY = "K0s efficiency";
-     titleX = "#eta";
-     title = "K0s efficiency";
-   }
-   else  if (RunVar>=26 && RunVar<=29){
-     if (RunVar==26 || RunVar ==27)    titleRatio = "Ratio MC/DATA";
-     else titleRatio = "Ratio to 0-100%";
-     if (AnalysisType==0){
-       Low = 0.0005;
-       Up = 0.04;
-       if (type==1){ //Xi
-	 Low = 10-7;
-	 Up = 0.008;
-       }
-     }
-     else {
-       Low = 0.00005;
-       Up = 0.3;
-       if (type==1){ //Xi
-	 Low = 10-6;
-	 Up = 0.01;
-       }
-     }
-     LowRatio = 0;
-     UpRatio = 2;
-     titleY = "1/N_{trigg} dN/dp_{T} (1/(GeV/c))";
-     titleX = "p_{T} (GeV/c)";
-     title = tipo[type] + " yield "+ TypeAnalysisTer[AnalysisType];
-   }
-   else  if (RunVar==30){
-     titleRatio = "Ratio MC/DATA";
-     Low = 0;
-     Up = 0.3;
-     if (AnalysisType==0) Up = 0.1;
-     if (type==1){
-       if (AnalysisType==0) Up = 0.004;
-       else Up = 0.03;
-     }
-     LowRatio = 0.4;
-     UpRatio = 1.6;
-     titleY = "N/N_{trigg} 1/#Delta#eta #Delta#varphi";
-     titleX = "#LTdN_{ch}/d#eta#GT_{|#eta|<0.5}";
-     title = tipo[type] + " yield "+ TypeAnalysisTer[AnalysisType];
-   }
-   else  if (RunVar==31){
-     titleRatio = "Ratio to 16k";
-     Low = 0.0005;
-     Up = 1;
-     LowRatio = 0;
-     UpRatio = 2;
-     titleY = "1/N_{evt} dN/dp_{T} (1/(GeV/c))";
-     titleX = "p_{T} (GeV/c)";
-     title = "K0s inclusive yield ";
-   }
-   else  if (RunVar==32){
-     titleRatio = "Ratio to 1617_GP_AOD235";
-     Low = 0;
-         Up = 0.5;
+  //histo style selections
+  Float_t Low=10e-8;
+  Float_t Up=0.003;
+  Float_t LowRatio=10e-8;
+  Float_t UpRatio=0.6;
+  Float_t LowBarlow=-3;
+  Float_t UpBarlow=3;
+  Float_t LimSupSys=1;
+  Float_t UpError=0.1;
+  //Int_t color[10]={1,402 , 628, /*905, 881,*/601, 867, 418, 905, 881};
+  Int_t color[6]={401,801,628, 867,601, 1};
+  //  Int_t MarkerMult[13] ={20, 21, 33, 34, 27, 24, 27, 28, 25};
+  Int_t MarkerMult[6] ={24, 21, 33, 34, 29, 20};
+  //  Float_t MarkerSize[6] ={2, 1.8, 2.8, 2.5, 2.8, 2};
+  Float_t MarkerSize[6] ={1.8, 1.8, 2.8, 2.5, 2.8, 1.8};
+  Int_t style =27;
+  TString titleX = "Multiplicity class";
+  TString titleY="#hXi events / #INT7 events";
+  TString title="Fraction of INT7 events containing trigger particle and Xi";
+  TString titleRatio="Ratio to #it{p}_{T}^{trigg} > 3 GeV/#it{c}";
+  Float_t Nmolt[nummolt+1] = {0, 5, 10, 30, 50, 100};
+  TString Smolt[nummolt+1] = {"_0-5", "_5-10", "_10-30", "_30-50", "_50-100", "__all"};  
+  TString SmoltShort[nummolt+1] = {"0-5", "5-10", "10-30", "30-50", "50-100", "_all"};  
+  TString Smolt5TeV[nummolt+1] = {"_0-10", "_10-100", "_100-100", "_100-100", "_100-100", "__all"};  
+  TString SmoltMultBinning4[nummolt+1] = {"_0-5", "_5-100", "_100-100", "_100-100", "_100-100", "__all"};  
+  //  TString SmoltHM[nummolt+1] = {"_0-0.001", "_0.001-0.005", "_0.005-0.01", "_0.01-0.05", "_0.05-0.1", "__all"};  
+  TString SmoltHM[nummolt+1] = {"_0-0a", "_0-0b", "_0-0.01", "_0.01-0.05", "_0.05-0.1", "_0-0.1"};  
+  TString SmoltHMShort[nummolt+1] = {"0-0a", "0-0b", "0-0.01", "0.01-0.05", "0.05-0.1", "0-0.1"};  
+  TString SmoltBisHM[nummolt+1] = {"_0-0a", "_0-0b", "0-0.01%", "0.01-0.05%", "0.05-0.1%", "0-0.1%"};  
+  TString SmoltBis[nummolt+1] = {" 0-5%", " 5-10%", " 10-30%", " 30-50%", " 50-100%", " 0-100%"};  
+  TString SmoltBis5TeV[nummolt+1] = {" 0-10%", " 10-100%", " 100-100%", " 100-100%", " 100-100%", " 0-100%"};  
+  TString SmoltBisMultBinning4[nummolt+1] = {" 0-5%", " 5-100%", " 100-100%", " 100-100%", " 100-100%", " 0-100%"};  
+  TString PtInterval[7]={"0.5-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8"};
+  TString PtIntervalK0s[9]={"0.1-0.5", "0.5-0.8", "0.8-1.2", "1.2-1.6","1.6-2", "2-2.5","2.5-3", "3-4", "4-8"};
+
+  if (ispp5TeV){
+    for (Int_t i=0; i<nummoltMax+1; i++) { Smolt[i] = Smolt5TeV[i];  SmoltBis[i] = SmoltBis5TeV[i];}
+  }
+  if (isppHM){
+    for (Int_t i=0; i<nummoltMax+1; i++) { Smolt[i] = SmoltHM[i];  SmoltBis[i] = SmoltBisHM[i];  SmoltShort[i] = SmoltHMShort[i];}
+  }
+  if (MultBinning==4) {
+    for (Int_t i=0; i<nummoltMax+1; i++) { Smolt[i] = SmoltMultBinning4[i];  SmoltBis[i] = SmoltBisMultBinning4[i];}
+  }
+
+  if (isGenOnTheFly){
+    for (Int_t m=0; m<=nummoltMax; m++){
+      Smolt[m] = "_" +SmoltGenOnTheFly[m];
+      SmoltBis[m] = SmoltGenOnTheFly[m];
+      Nmolt[m] = NmoltGenOnTheFly[m];
+    }
+  }
+
+  if (RunVar==2){
+    titleRatio = "Ratio of only TOF to (SPD+TOF) pileup rej";
+    LowRatio = 0.5;
+    UpRatio = 1;
+  }
+
+  else  if (RunVar==3){
+    titleRatio = "Ratio of Run3 to Run 2 selections";
+    LowRatio = 0.5;
+    UpRatio = 1;
+  }
+
+  else  if (RunVar==5){
+    titleRatio = "Ratio of SkipAssoc to AllAssoc with Run3Sel";
+    LowRatio = 0.8;
+    UpRatio = 1.3;
+  }
+  else  if (RunVar==6){
+    titleRatio = "Ratio to default Run2Sel";
+    Low = 10e-6;
+    Up = 5*10e-3;
+    LowRatio = 0;
+    UpRatio = 1.5;
+    titleY = "1/N_{trigg} dN^{#Xi}/dp_{T}";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
+    title = "Raw Xi spectrum 0-100%, p_{T}^{trigg} > 3 GeV/c";
+  }
+  else  if (RunVar==7){
+    titleRatio = "Ratio to new AODs";
+    Low = 0;
+    Up = 0.1;//0.3
+    LowRatio = 0.8;
+    UpRatio = 1;
+    titleY = "Xi efficiency";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
+    title = "Xi efficiency";
+  }
+  else  if (RunVar==8){
+    titleRatio = "Ratio to 300M events (new) norm factor";
+    Low = 0.9;
+    Up = 1.2;
+    LowRatio = 0.95;
+    UpRatio = 1.1;
+    titleY = "K0s norm factor";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
+    title = "K0s norm factor";
+  }
+  else  if (RunVar==9){
+    titleRatio = "Ratio to 0-100% norm factor";
+    Low = 0.95;
+    Up = 1.05;
+    LowRatio = 0.95;
+    UpRatio = 1.05;
+    titleY = "K0s norm factor";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
+    title = "K0s norm factor";
+  }
+  else  if (RunVar==10){
+    titleRatio = "Ratio to 16k only";
+    Low = 0.95;
+    Up = 1.05;
+    LowRatio = 0.95;
+    UpRatio = 1.05;
+    titleY = "K0s yield";
+    titleX = "dN/d#eta";
+    title = "K0s yield";
+  }
+  else  if (RunVar==11){
+    titleRatio = "Ratio to 1617MC";
+    Low = 0.95;
+    Up = 1.05;
+    LowRatio = 0.95;
+    UpRatio = 1.05;
+    titleY = "K0s efficiency";
+    titleX = "p_{T}";
+    title = "K0s efficiency";
+  }
+  else  if (RunVar==12){
+    titleRatio = "Ratio to non-eta-dependent eff";
+    Low = 0.95;
+    Up = 1.05;
+    LowRatio = 0.95;
+    UpRatio = 1.05;
+    titleY = "K0s yield";
+    titleX = "dN/d#eta";
+    title = "K0s yield";
+  }
+  else  if (RunVar==13){
+    titleRatio = "Ratio to 2019h11c_extra eff";
+    Low = 0.95;
+    Up = 1.05;
+    LowRatio = 0.95;
+    UpRatio = 1.05;
+    titleY = "K0s yield";
+    titleX = "dN/d#eta";
+    title = "K0s yield";
+  }
+  else  if (RunVar==14 || RunVar==64 || RunVar==68){
+    if (RunVar==14)     titleRatio = "Ratio to 13 TeV efficiency";
+    else if (RunVar==64) titleRatio = "Ratio to PYTHIA";
+    else titleRatio = "Ratio to eff. in all events";
+    Low = 0;
+    Up = 0.8;
+    LowRatio = 0.8;
+    UpRatio = 1.2;
+    if (type==1){
+      LowRatio = 0.8;
+      UpRatio = 1.2;
+    }
+    LowBarlow=-7;
+    UpBarlow=7;
+    LimSupSys = 0.1;
+    //     titleY = tipo[type]+" efficiency";
+    //     titleY = tipo[type]+" generated spectrum";
+    titleX = "p_{T}";
+    //     title = tipo[type]+" generated spectrum";
+    titleY = tipo[type]+" efficiency";
+    title = tipo[type]+" efficiency";
+  }
+  else  if (RunVar==15){
+    titleRatio = "Ratio to 13 TeV";
+    if (AnalysisType==0){
+      Low = 0.02;
+      Up = 0.04;
+      if (type==1){
+	Up = 0.004;
+      }
+    }
+    else {
+      Low = 0;
+      Up = 0.3;
+      if (type==1){
+	Up = 0.02;
+      }
+    }
+    LowRatio = 0.95;
+    UpRatio = 1.05;
+    titleY = tipo[type]+" yield";
+    titleX = "dN/d#eta";
+    title = tipo[type] + " yield";
+  }
+  else  if (RunVar==16){
+    titleRatio = "Ratio to 0-100%";
+    if (AnalysisType==0){
+      Low = 0.0005;
+      Up = 0.02;
+    }
+    else {
+      Low = 0.00005;
+      Up = 0.3;
+    }
+    LowRatio = 0;
+    UpRatio = 2;
+    titleY = "1/N_{trigg} dN/dp_{T} (1/(GeV/c))";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
+    title = "K0s yield";
+  }
+  else  if (RunVar==17){
+    titleRatio = "Ratio to 0-100%";
+    Low = 0.95;
+    Up = 1;
+    LowRatio = 0.95;
+    UpRatio = 1.05;
+    titleY = "Purity";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
+    title = "K0s purity";
+  }
+  else  if (RunVar==18){
+    titleRatio = "Ratio to CENTwoSDD";
+    Low = 0;
+    Up = 0.5;
+    LowRatio = 0.95;
+    UpRatio = 1.05;
+    titleY = "Efficiency";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
+    title = "K0s efficiency";
+  }
+  else  if (RunVar==19 || RunVar==20 || RunVar==21 || RunVar==24 || RunVar==25 || RunVar==37){
+    //    titleRatio = "Ratio to 0-100%";
+    titleRatio = "";
+    if (isppHM)      titleRatio = "Ratio to 0-0.1%";
+    if (RunVar==21)     titleRatio = "Ratio to old AODs";
+    else if (RunVar==24)     titleRatio = "Ratio to 2018f1_extra";
+    else if (RunVar==25)     titleRatio = "Ratio to standard efficiency";
+    Low = 0;
+    Up = 0.5;
+    LowRatio = 0.85;
+    UpRatio = 1.15;
+    //    titleY = tipo[type] +" efficiency";
+    if (type==0)    titleY = "#varepsilon_{K^{0}_{S}}";
+    else titleY = "#varepsilon_{#Xi}";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
+    //    title = tipo[type] + " efficiency";
+    title = "";
+  }
+  else  if (RunVar==22 || RunVar==23){
+    titleRatio = "Ratio to 0-100%";
+    if (RunVar==23)     titleRatio = "Ratio to old AODs";
+    Low = 0;
+    Up = 0.5;
+    LowRatio = 0.8;
+    UpRatio = 1.2;
+    titleY = "K0s efficiency";
+    titleX = "#eta";
+    title = "K0s efficiency";
+  }
+  else  if (RunVar>=26 && RunVar<=29){
+    if (RunVar==26 || RunVar ==27)    titleRatio = "Ratio MC/DATA";
+    else titleRatio = "Ratio to 0-100%";
+    if (AnalysisType==0){
+      Low = 0.0005;
+      Up = 0.04;
+      if (type==1){ //Xi
+	Low = 10-7;
+	Up = 0.008;
+      }
+    }
+    else {
+      Low = 0.00005;
+      Up = 0.3;
+      if (type==1){ //Xi
+	Low = 10-6;
+	Up = 0.01;
+      }
+    }
+    LowRatio = 0;
+    UpRatio = 2;
+    titleY = "1/N_{trigg} dN/dp_{T} (1/(GeV/c))";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
+    title = tipo[type] + " yield "+ TypeAnalysisTer[AnalysisType];
+  }
+  else  if (RunVar==30){
+    titleRatio = "Ratio MC/DATA";
+    Low = 0;
+    Up = 0.3;
+    if (AnalysisType==0) Up = 0.1;
+    if (type==1){
+      if (AnalysisType==0) Up = 0.004;
+      else Up = 0.03;
+    }
+    LowRatio = 0.4;
+    UpRatio = 1.6;
+    titleY = "N/N_{trigg} 1/#Delta#eta #Delta#varphi";
+    titleX = "#LTdN_{ch}/d#eta#GT_{|#eta|<0.5}";
+    title = tipo[type] + " yield "+ TypeAnalysisTer[AnalysisType];
+  }
+  else  if (RunVar==31){
+    titleRatio = "Ratio to 16k";
+    Low = 0.0005;
+    Up = 1;
+    LowRatio = 0;
+    UpRatio = 2;
+    titleY = "1/N_{evt} dN/dp_{T} (1/(GeV/c))";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
+    title = "K0s inclusive yield ";
+  }
+  else  if (RunVar==32){
+    titleRatio = "Ratio to 1617_GP_AOD235";
+    Low = 0;
+    Up = 0.5;
     LowRatio = 0.9;
     UpRatio = 1.1;
     titleY = "K0s efficiency";
-    titleX = "p_{T} (GeV/c)";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
     title = "K0s efficiency";
   }
   else  if (RunVar==33 || RunVar==34){
@@ -1188,7 +1373,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
     LowRatio = 0.9;
     UpRatio = 1.1;
     titleY = tipo[type] + "1/N_{trigg} dN/dp_{T} 1/#Delta#eta#Delta#varphi";
-    titleX = "p_{T} (GeV/c)";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
     title = tipo[type] + " yield " + TypeAnalysis[AnalysisType];
 
     if (AnalysisType==0){
@@ -1213,8 +1398,8 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
     Low = 0; //for raw spectra
     Up = 0.2;
     /* for SSB
-    Low = 0.8;
-    Up =1;
+       Low = 0.8;
+       Up =1;
     */
     //    if (type==1) Up = 0.01;
     LowRatio = 0.7;
@@ -1222,7 +1407,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
     if (RunVar==36){
       titleY = tipo[type] + " raw yield";
       title = tipo[type]+" raw yield";
-      titleX = "p_{T} (GeV/c)";
+      titleX = "#it{p}_{T} (GeV/#it{c})";
     }
     else {
       Low = 0;
@@ -1240,7 +1425,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
     UpRatio = 1.15;
     titleY = "K0s efficiency";
     //titleY = "Xi efficiency";
-    titleX = "p_{T} (GeV/c)";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
     title = "K0s efficiency";
     //title = "Xi efficiency";
   }
@@ -1260,7 +1445,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
     UpError=0.1;
     titleY = "dN/dp_{T}";
     //titleY = "Xi efficiency";
-    titleX = "p_{T} (GeV/c)";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
     title = "K0s yield";
     if (type==1) title = "Xi efficiency";
   }
@@ -1305,7 +1490,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
     UpBarlow=7;
     LimSupSys = 0.005;
     titleY = "K0s norm factor";
-    titleX = "p_{T} (GeV/c)";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
     title = "K0s norm factor";
   }
   else  if (RunVar==45){
@@ -1315,7 +1500,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
     LowRatio = 0.98;
     UpRatio = 1.02;
     titleY = "Norm factor";
-    titleX = "p_{T} (GeV/c)";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
     title = tipo[type] + "Norm factor";
   }
   else  if (RunVar==46 || RunVar==49 || RunVar==54 || RunVar==56 || RunVar==62){
@@ -1336,7 +1521,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
     UpError=0.1;
     if (RunVar==49 || RunVar==54 || RunVar==56)     LimSupSys = 0.1;
     titleY = "dN/dp_{T}";
-    titleX = "p_{T} (GeV/c)";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
     title = "Xi yield";
   }
   else  if (RunVar==47){
@@ -1357,7 +1542,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
     LowRatio = 0.9;
     UpRatio = 1.1;
     titleY = "Norm factor";
-    titleX = "p_{T} (GeV/c)";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
     title = tipo[type] + "Norm factor";
   }
   else  if (RunVar==50 || RunVar==53 || RunVar==59 || RunVar==60 || RunVar==61){
@@ -1444,7 +1629,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
     UpError=0.1;
     LimSupSys = 0.1;
     titleY = "dN/dp_{T}";
-    titleX = "p_{T} (GeV/c)";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
     title = tipo[type]+ " yield";
   }
   else  if (RunVar==69 || RunVar==70 || RunVar==72 || RunVar==79){
@@ -1470,16 +1655,17 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
     if (AnalysisType==0) { LowRatio = 0;  UpRatio = 1.1;}
     if (RunVar==79) { LowRatio = 0.98;  UpRatio = 1.02;}
     titleY = "1/N_{trigg} dN/dp_{T} (1/(GeV/c))";
-    titleX = "p_{T} (GeV/c)";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
     title = tipo[type] + " yield";
    }
   else  if (RunVar==71 || RunVar==80){
-    LowRatio = 0.95;
-    UpRatio = 1.05;
+    LowRatio = 0;
+    UpRatio = 2;
     Low = 10e-5;
     Up = 0.2;
     //    titleRatio = "Ratio to PYTHIA";
-    titleRatio = "Ratio to events w/ gen trigger";
+    //    titleRatio = "Ratio to events w/ gen trigger";
+    titleRatio = "Ratio to 1617 MC";
     titleY = "";
     titleX = "Multiplicity percentile";
     title = "";
@@ -1488,7 +1674,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
       Up = 1200000;
       LowRatio = 0.6;
       UpRatio =1;
-      titleX = "p_{T} (GeV/c)";
+      titleX = "#it{p}_{T} (GeV/#it{c})";
     }
    }
   else  if (RunVar==73 || RunVar == 75 || RunVar==76){
@@ -1549,7 +1735,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
     LowRatio = 0.95;
     UpRatio = 1.05;
     titleY = "Trigger efficiency";
-    titleX = "p_{T} (GeV/c)";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
     title = "Trigger efficiency";
   }
   else  if (RunVar==81){
@@ -1559,7 +1745,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
     LowRatio = 0.85;
     UpRatio = 1.15;
     titleY = tipo[type] +" Ratio (S reco / S truth)";
-    titleX = "p_{T} (GeV/c)";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
     title = "";
   }
   else  if (RunVar==82){
@@ -1569,12 +1755,181 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
     LowRatio = 0.85;
     UpRatio = 1.15;
     titleY = tipo[type] +" Ratio (S reco / S truth)";
-    titleX = "p_{T} (GeV/c)";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
+    title = "";
+  }
+  else  if (RunVar==83){
+    titleRatio = "Ratio to old efficiency";
+    Low = 0;
+    Up = 0.5;//0.3
+    LowRatio = 0.8;
+    UpRatio = 1.2;
+    titleY = "K0s efficiency";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
+    title = "K0s efficiency";
+  }
+   else  if (RunVar==84){
+     titleRatio = "Ratio to old efficiency";
+     Low = 0;
+     Up = 0.5;
+     LowRatio = 0.9;
+     UpRatio = 1.3;
+     titleY = "K0s efficiency";
+     titleX = "p_{T}";
+     title = "K0s efficiency";
+   }
+   else  if (RunVar==85){
+     titleRatio = "Ratio to preliminary spectra";
+     Low = 0;
+     Up = 0.2;
+     if (AnalysisType==0) Up = 0.02;
+     LowRatio = 0.8;
+     UpRatio = 1;
+     titleY = "dN/dp_{T}";
+     titleX = "p_{T}";
+     title = "K0s " + TypeAnalysis[AnalysisType] + " spectra";
+   }
+   else  if (RunVar==86){
+     titleRatio = "Ratio to 13 TeV";
+     if (AnalysisType==0){
+       Low = 0.02;
+       Up = 0.03;
+       if (type==1){
+	 Up = 0.004;
+       }
+     }
+     else {
+       Low = 0;
+       Up = 0.3;
+       if (type==1){
+	 Up = 0.02;
+       }
+     }
+     LowRatio = 0.8;
+     UpRatio = 1.2;
+     titleY = tipo[type]+" yield";
+     titleX = "dN/d#eta";
+     title = tipo[type] + " yield";
+   }
+   else  if (RunVar==87 || RunVar==90 || RunVar==92){
+     titleRatio = "Ratio to spectra not corrected for wings";
+     if (RunVar==90)      titleRatio = "Ratio to spectra with wrong Mat Budget eff";
+     else if (RunVar==92)      titleRatio = "Ratio to spectra with FULL Mat Budget correction";
+     Low = 0;
+     Up = 0.2;
+     if (AnalysisType==0) {
+       Up = 0.02;
+     }
+     if (type==1) {
+       Up = 0.01;
+       if (AnalysisType==0) Up = 0.001;
+     }
+     LowRatio = 0.8;
+     UpRatio = 1.2;
+     if (!isGenOnTheFly) UpRatio = 1.3;
+     titleY = "dN/dp_{T}";
+     titleX = "p_{T}";
+     title = "K0s " + TypeAnalysis[AnalysisType] + " spectra";
+   }
+   else  if (RunVar==88 || RunVar==91){
+     titleRatio = "Ratio to yield not corrected for wings";
+     if (RunVar==91)      titleRatio = "Ratio to spectra with wrong Mat Budget eff";
+     if (AnalysisType==0){
+       Low = 0.02;
+       Up = 0.04;
+       if (type==1){
+	 Up = 0.004;
+       }
+     }
+     else {
+       Low = 0;
+       Up = 0.3;
+       if (type==1){
+	 Up = 0.02;
+       }
+     }
+     LowRatio = 0.8;
+     UpRatio = 1.2;
+     titleY = tipo[type]+" yield";
+     titleX = "dN/d#eta";
+     title = tipo[type] + " yield";
+   }
+   else  if (RunVar==89){
+    titleRatio = "Ratio to efficiency used for Preliminaries";
+    Low = 0;
+    Up = 0.5;
+    LowRatio = 0.8;
+    UpRatio = 1.2;
+    titleY = "K0s efficiency";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
+    title = "K0s efficiency";
+  }
+  else  if (RunVar==93 || RunVar==94 || RunVar==95){
+    titleRatio = "Ratio to 0-100%";
+    if (RunVar==93){
+      Low = 0.95;
+      if (type==1) Low = 0.88;
+      Up = 1;
+    }
+    else if (RunVar==94){
+      Low = 0.494+10e-7;
+      Up = 0.505-10e-7;
+      if (type==1) {
+	Low = 1.3205+10e-7;
+	Up = 1.325-10e-7;
+      }
+    }
+    else if (RunVar==95){
+      Low = 0.002+10e-5;
+      Up = 0.01-10e-5;
+      if (type==1) {
+	Low = 0.001+10e-5;
+	Up = 0.006-10e-5;
+      }
+    }
+    LowRatio = 0.95;
+    UpRatio = 1.05;
+    if (RunVar==93)    titleY = "S/(S+B)";
+    else if (RunVar==94)    titleY = "#mu (GeV/#it{c}^{2})";
+    else if (RunVar==95)    titleY = "#sigma_{G} (GeV/#it{c}^{2})";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
     title = "";
   }
 
+  TLegend *Legend1BisRatio=new TLegend(0.4,0.76,0.8,0.9);
+  Legend1BisRatio->SetFillStyle(0);
+  Legend1BisRatio->SetTextAlign(22);
+  Legend1BisRatio->SetTextSize(0.04);
+  Legend1BisRatio->AddEntry("", "#bf{This work}", "");
+  if (ispp5TeV)   Legend1BisRatio->AddEntry("", "pp, #sqrt{#it{s}} = 5.02 TeV", "");
+  else Legend1BisRatio->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
 
-  TLegend * legend = new TLegend (0.6, 0.7, 0.9, 0.9);
+  TLegend *Legend1=new TLegend(0.4,0.55,0.8,0.7);
+  Legend1->SetFillStyle(0);
+  Legend1->SetTextAlign(22);
+  Legend1->SetTextSize(0.035);
+  Legend1->AddEntry("", "#bf{This work}", "");
+  if (ispp5TeV)   Legend1->AddEntry("", "pp, #sqrt{#it{s}} = 5.02 TeV", "");
+  else   Legend1->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
+  if (type==0)  Legend1->AddEntry("", "K_{S}^{0}, |#eta| < 0.8", "");
+  else  if (type==1)  Legend1->AddEntry("", "#Xi^{-}+#bar{#Xi}^{+}, |#eta|<0.8", "");
+
+  TLegend * legend;
+  if (RunVar==19 || RunVar==93 || RunVar==94 || RunVar==95) {
+    if (RunVar==19){
+      legend= new TLegend (0.4, 0.7, 0.9, 0.9);
+    }
+    else if (RunVar>=93){
+      legend= new TLegend (0.4, 0.75, 0.9, 0.95);
+    }   
+    legend->SetHeader("V0M Multiplicity Percentile");
+    TLegendEntry *lheaderMult = (TLegendEntry*)legend->GetListOfPrimitives()->First();
+    lheaderMult-> SetTextSize(0.04);
+    legend->SetNColumns(3);
+    legend->SetFillStyle(0);
+    legend->SetBorderSize(0);
+  }
+  else     legend= new TLegend (0.6, 0.7, 0.9, 0.9);
   if (RunVar<6) legend->SetHeader("#it{p}_{T}^{trigg} > ");
   TString LegendName[numFiles]={""};
 
@@ -1594,7 +1949,22 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
 
   gStyle->SetOptStat(0);
   TCanvas * canvas = new TCanvas("canvas", "canvas", 1300, 800);
+  canvas->SetFillColor(0);
+  canvas->SetTickx(1);
+  canvas->SetTicky(1);
+  gStyle->SetLegendBorderSize(0);
+  gStyle->SetLegendFillColor(0);
+  gStyle->SetLegendFont(42);
   canvas->Divide(2,1);
+
+  TCanvas * canvasNR = new TCanvas("canvasNR", "canvasNR", 1000, 1200); //only one pad
+  canvasNR->SetFillColor(0);
+  canvasNR->SetTickx(1);
+  canvasNR->SetTicky(1);
+  gStyle->SetLegendBorderSize(0);
+  gStyle->SetLegendFillColor(0);
+  gStyle->SetLegendFont(42);
+
   TCanvas * canvasB = new TCanvas("canvasB", "canvasB", 1300, 800);
   canvasB->Divide(2,1);
 
@@ -1608,9 +1978,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
     numEff= num;
     if (TypeOfComparison==1){
       numEff = multChosen +i;
-      //      cout << "numEff " << numEff << endl;
       if (numEff > (numFiles-1)) numEff = numEff - numFiles; 
-      //      cout << "numEff " << numEff << endl;
     }
     else  if (TypeOfComparison==2){
       if (i<numFiles/2)      numEff = num;
@@ -1621,9 +1989,10 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
       else if (i>=numFiles/2) numEff=numFiles-num-1;
     }
 
-    if (RunVar==9 || RunVar==19 || RunVar==78 || RunVar==81) numEff = numFiles-num-1; 
+    //    if (RunVar==9 || RunVar==19 || RunVar==78 || RunVar==81) numEff = numFiles-num-1; 
+    if (RunVar==9 || RunVar==78 || RunVar==81) numEff = numFiles-num-1; 
     cout<< "Hola! Here is numEff: " << numEff << endl;
-    if (isppHM && (RunVar!=73 && RunVar!=75)){
+    if (isppHM && (RunVar!=73 && RunVar!=75 && RunVar!=86 && RunVar!=88 && RunVar!=91)){
       if (numEff<2) continue;
     }
     if ((ispp5TeV || RunVar==58) && RunVar!=60 && RunVar!=61 && RunVar!=36 && RunVar!=66) {
@@ -1633,6 +2002,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
     if (RunVar==70 && numEff!=5) continue;
     if (RunVar==51 && numEff!=5) continue; 
     if (RunVar==53 && numEff>=4) continue;
+    //    if (RunVar==89 && numEff!=5) continue;
     if (RunVar==64 && MultBinning==4 && numEff>1 && numEff!=5) continue;
     if (RunVar==64 && numEff!=5 && type==1) continue;
     //    if (RunVar==64 && numEff!=5) continue;
@@ -2288,17 +2658,19 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
       NameHisto[i] = Form("m%i_syst0", numEff);
     }
     else if (RunVar==71 || RunVar==80){
-      /*
       if (i>=0 && i<numFiles/2){
-	VarName[i] = "18f1+18d8_hK0s_AOD235_MCEff.root";
-	histoName = "fHist_multiplicityAllSelEvents";
+	//	VarName[i] = "18f1+18d8_hK0s_AOD235_MCEff.root";
+	VarName[i] = "1617_GP_AOD235_With18c12b_MCEff.root";
+	histoName = "fHist_multiplicity_EvwTrigger";
+	//	histoName = "fHist_multiplicityAllSelEvents";
       }
       else if (i>=numFiles/2)  {
-	VarName[i] = "18f1+18d8_hK0s_AOD235_MCEff.root";
-	//	VarName[i] = "17d20bEPOS_hK0s_EtaEff_MCEff.root";
+	//	VarName[i] = "18f1+18d8_hK0s_AOD235_MCEff.root";
+	VarName[i] = "22e1_hK0s_MCEff.root";
 	histoName = "fHist_multiplicity_EvwTrigger";
+	//	histoName = "fHist_multiplicityAllSelEvents";
       }
-      */
+      /*
       if (i>=0 && i<numFiles/2){
 	VarName[i] = "16kl_hK0s_MCEff.root";
 	histoName = "fHist_multiplicity_EvwTrigger";
@@ -2309,6 +2681,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
 	histoName = "fHist_multiplicity_EvwTrigger";
 	if (RunVar==80) histoName = "fHistPtMaxvsMultBefAllReco";
       }
+      */
     }
     else if (RunVar==72 || RunVar==73 || RunVar==75){
       if (RunVar==73){
@@ -2401,6 +2774,81 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
       VarName[i]+=".root";
       NameHisto[i] = TypeAnalysis[AnalysisType] + Form("_m%i", numEff);
     }
+    else if (RunVar==83){
+      //      if (i>=0 && i<numFiles/2) VarName[i] = "18f1_extra_EffTrigger_5runs_PtBinning1_K0s_Eta0.8_AllAssoc_SysT0_SysV00_PtMin3.0.root";
+      //      else if (i>=numFiles/2) VarName[i] = "18f1_extra_FixMCLabel_15runs_PtBinning1_K0s_Eta0.8_AllAssoc_SysT0_SysV00_PtMin3.0.root";
+      if (i>=0 && i<numFiles/2) VarName[i] = "2018f1_extra_hK0s_PtBinning1_K0s_y0.5_AllAssoc_SysT0_SysV00_PtMin0.2.root";
+      else if (i>=numFiles/2) VarName[i] = "18f1_extra_60runs_FixMCLabelForFioComp_hK0s_PtBinning1_K0s_y0.5_AllAssoc_SysT0_SysV00_PtMin0.2.root";
+      NameHisto[i] = Smolt[numEff];
+    }
+    else if (RunVar==84){
+      if (i>=0 && i<numFiles/2) {
+	if (ispp5TeV) VarName[i] = "17pq_hK0s_PtBinning1_K0s_Eta0.8_AllAssoc_SysT0_SysV00_PtMin3.0_MultBinning3.root";
+	else if (isppHM) VarName[i] = "2019h11_HM_hK0s_PtBinning1_K0s_Eta0.8_AllAssoc_SysT0_SysV00_PtMin3.0_MultBinning1.root";
+	else VarName[i] = "1617_GP_AOD235_With18c12b_PtBinning1_K0s_Eta0.8_AllAssoc_SysT0_SysV00_PtMin3.0.root";
+      }
+      else if (i>=numFiles/2) {
+	if (ispp5TeV) VarName[i] = "17pq_hK0s_EffCorr_PtBinning1_K0s_Eta0.8_AllAssoc_SysT0_SysV00_PtMin3.0_MultBinning3.root";
+	else if (isppHM) VarName[i] = "2019h11_HM_hK0s_EffCorr_PtBinning1_K0s_Eta0.8_AllAssoc_SysT0_SysV00_PtMin3.0_MultBinning1.root";
+	else VarName[i] = "1617_GP_AOD235_With18c12b_EffCorr_PtBinning1_K0s_Eta0.8_AllAssoc_SysT0_SysV00_PtMin3.0.root";
+      }
+      NameHisto[i] = Smolt[numEff];
+    }
+    else if (RunVar==85){
+      if (i>=0 && i<numFiles/2) VarName[i] = ".root";
+      else if (i>=numFiles/2) VarName[i] = "_EffCorr.root";
+      NameHisto[i] = Smolt[numEff];
+    }
+    else if (RunVar==86){
+      if (i>=0 && i<numFiles/2) VarName[i] = ".root";
+      else if (i>=numFiles/2) VarName[i] = "_EffCorr.root";
+    }
+    else if (RunVar==87){
+      if (i>=0 && i<numFiles/2) VarName[i] = ".root";
+      else if (i>=numFiles/2) VarName[i] = "_isWingsCorrectionAppliedNew.root";
+      NameHisto[i] = Smolt[numEff];
+    }
+    else if (RunVar==88){
+      if (i>=0 && i<numFiles/2) VarName[i] = ".root";
+      else if (i>=numFiles/2) VarName[i] = "_isWingsCorrectionAppliedNew.root";
+    }
+    else if (RunVar==89){
+      if (type==0){
+	if (i>=0 && i<numFiles/2) VarName[i] = "1617_GP_AOD235_With18c12b_EffCorr_PtBinning1_K0s_Eta0.8_AllAssoc_SysT0_SysV00_PtMin3.0.root";
+	else if (i>=numFiles/2) VarName[i] = "22e1_hK0s_PtBinning1_K0s_Eta0.8_AllAssoc_SysT0_SysV00_PtMin3.0.root";
+      }
+      else {
+	if (i>=0 && i<numFiles/2) VarName[i] = "161718Full_AOD235_hXi_Xi_Eta0.8_AllAssoc_SysT0_SysV00_PtMin3.0.root";
+	//	if (i>=0 && i<numFiles/2) VarName[i] = "18d8_extra_Bis_hXi_PtTrig0.15_Xi_Eta0.8_AllAssoc_SysT0_SysV00_PtMin0.2.root";
+	else if (i>=numFiles/2) VarName[i] = "22e1_pttrig0.15_hXi_Xi_Eta0.8_AllAssoc_SysT0_SysV00_PtMin0.2.root";
+      }
+      NameHisto[i] = Smolt[numEff];
+    }
+    else if (RunVar==90){
+      if (i>=0 && i<numFiles/2) VarName[i] = ".root";
+      else if (i>=numFiles/2) {
+	if (type==1)   VarName[i] = "_MatBudgetCorrFAST.root";
+	else if (isppHM || ispp5TeV)  VarName[i] = "_MatBudgetCorrFAST.root";
+	else VarName[i] = "_MatBudgetCorr.root";
+      }
+      NameHisto[i] = Smolt[numEff];
+    }
+    else if (RunVar==91){
+      if (i>=0 && i<numFiles/2) VarName[i] = ".root";
+      else if (i>=numFiles/2) {
+	if (type==1)   VarName[i] = "_MatBudgetCorrFAST.root";
+	else if (isppHM || ispp5TeV) VarName[i] = "_MatBudgetCorrFAST.root";
+	else VarName[i] = "_MatBudgetCorr.root";
+      }
+    }
+    else if (RunVar==92){
+      if (i>=0 && i<numFiles/2) VarName[i] = "_MatBudgetCorr.root";
+      else if (i>=numFiles/2) VarName[i] = "_MatBudgetCorrFAST.root";
+      NameHisto[i] = Smolt[numEff];
+    }
+    else if (RunVar==93 || RunVar==94 || RunVar==95){
+      VarName[i] = Form("_molt%i_sysT0_sysV00_Sys0_PtMin3.0_PlotForThesis.root", numEff);
+    }
 
     if (RunVar==43 && sys==5 && AnalysisType==0) continue;
     if (RunVar==45 && numEff==5) continue;
@@ -2422,16 +2870,21 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
     else if (RunVar==71 || RunVar==80){
       TDirectoryFile*  d = (TDirectoryFile*)InputFile->Get("MyTask_MCTruth_PtTrigMin3.0_PtTrigMax15.0");
       TString NameContainer="";
-      //      NameContainer = "_hK0s_Task_RecoAndEfficiency";
+      NameContainer = "_hK0s_Task_RecoAndEfficiency";
       if (i>=0 && i<numFiles/2){
 	//	NameContainer = "_hK0s_Task_Truth";
-	NameContainer = "_hK0s_Task_Hybrid";
+	//	NameContainer = "_hK0s_Task_Hybrid";
       }
       else {
-	NameContainer = "_hK0s_Task_Hybrid";
+	//	NameContainer = "_hK0s_Task_Hybrid";
       }
       TList *list = (TList*)d->Get("MyOutputContainer"+NameContainer);
-      if (RunVar==71)      histo[i] = (TH1F*)list -> FindObject(histoName);
+      if (RunVar==71)    {
+	histo[i] = (TH1F*)list -> FindObject(histoName);
+	histo[i]->Sumw2();
+	histo[i]->Scale(1./histo[i]->GetEntries());
+	cout << "Mean value for i = " << i << " " << histo[i]->GetMean() << endl;
+      }
       else if (RunVar==80)  {
 	histo2D[i] = (TH2F*)list -> FindObject(histoName);
 	if (numEff==5) 	histo[i]= (TH1F*) histo2D[i]->ProjectionX(Form("MultDistr%i", i), 0, 100);
@@ -2459,14 +2912,15 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
     if (RunVar==51)     histo[i]->Scale(1./histo[i]->Integral());
 
     canvas->cd(1);
-    if (RunVar<7 || RunVar==16 || (RunVar>=26 && RunVar<=29) || RunVar==33 || RunVar==34 || RunVar==71 || RunVar==80)    gPad->SetLogy();
-    gPad->SetLeftMargin(0.15);
+    gPad->SetLeftMargin(0.2);
+    gPad->SetRightMargin(0.05);
     gPad->SetBottomMargin(0.15);
+    if (RunVar<7 || RunVar==16 || (RunVar>=26 && RunVar<=29) || RunVar==33 || RunVar==34 || RunVar==71 || RunVar==80)    gPad->SetLogy();
     if (TypeOfComparison==2 && i>=numFiles/2) style = 33;
     if (TypeOfComparison==3 && i>=numFiles/2) style = 33;
     if (TypeOfComparison==1) style = 33;
     if (RunVar==19 || RunVar==78) style = 33;
-    if (RunVar==10 || RunVar==12 || RunVar==13 || RunVar==15) color[numEff-numDef]=1;
+    if (RunVar==10 || RunVar==12 || RunVar==13 || RunVar==15 || RunVar ==86 || RunVar==88) color[numEff-numDef]=1;
     if (RunVar==30 || RunVar==15) {
       if (i==0) color[numEff-numDef]= kRed+2;
       else  color[numEff-numDef]= kBlue-3;
@@ -2475,6 +2929,13 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
     if (RunVar==30) msize = 2;
     if (RunVar==40 || RunVar==44 || RunVar==47 || RunVar==63 || RunVar==73 || RunVar==75 || RunVar==75) msize = 2;
     StyleHistoYield(histo[i], Low, Up, color[numEff-numDef], style, titleX, titleY, title, msize, 1.2, 1.5);
+    if (RunVar==19 || RunVar==93 || RunVar==94 || RunVar==95 )  {
+      StyleHistoYield(histo[i], Low, Up, color[numEff-numDef], MarkerMult[i], titleX, titleY, title, MarkerSize[i], 1.2, 1.5);
+      if (RunVar==94 || RunVar==95) histo[i]->GetYaxis()->SetTitleOffset(2.15);
+    }
+    if (RunVar==19)  {
+      histo[i]->GetYaxis()->SetTitleSize(0.06);
+    }
     if ((RunVar==26 || RunVar==27) && AnalysisType==0){
       //      histo[i]->GetYaxis()->SetLabelSize(0.03);
       //      histo[i]->GetYaxis()->SetTitleSize(0.04);
@@ -2556,7 +3017,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
       if (i<numFiles/2)    LegendName[i] = "CENTwoSDD " + SmoltBis[numEff];
       else    LegendName[i] = "FAST " + SmoltBis[numEff];
     }
-    else if (RunVar==19 || RunVar==78 || RunVar==81){
+    else if (RunVar==19 || RunVar==78 || RunVar==81 || RunVar==93 || RunVar==94 || RunVar==95 ){
       LegendName[i] = SmoltBis[numEff];
     }
     else if (RunVar==20 || RunVar==21 || RunVar==22 || RunVar==23){
@@ -2741,8 +3202,12 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
       if (i<numFiles/2)   LegendName[i] = "PYTHIA8";
       else   LegendName[i] = "EPOS";
       */
+      /*
       if (i<numFiles/2) LegendName[i] = "Gen trigger";
       else     LegendName[i] = "Reco trigger";
+      */
+      if (i<numFiles/2) LegendName[i] = "1617 MC";
+      else     LegendName[i] = "22e1";
     }
     else if (RunVar==72 || RunVar==73 || RunVar==74){
       if (i<numFiles/2)   LegendName[i] = "p_{T} < p_{T, trig} "+ SmoltBis[numEff]; //denominator
@@ -2768,6 +3233,46 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
     else if (RunVar==82){
       if (i<numFiles/2)   LegendName[i] = "S true"+ SmoltBis[numEff]; //denominator
       else   LegendName[i] = "S reco" + SmoltBis[numEff]; //numerator
+    }
+    else if (RunVar==83){
+      if (i<numFiles/2)    LegendName[i] = "Old efficiency " + SmoltBis[numEff];
+      else    LegendName[i] = "New efficiency " + SmoltBis[numEff];
+    }
+    else if (RunVar==84){
+      if (i<numFiles/2)    LegendName[i] = "New efficiency " + SmoltBis[numEff];
+      else    LegendName[i] = "Old efficiency " + SmoltBis[numEff];
+    }
+    else if (RunVar==85){
+      if (i<numFiles/2)    LegendName[i] = "Corrected spectra " + SmoltBis[numEff];
+      else    LegendName[i] = "Preliminary spectra " + SmoltBis[numEff];
+    }
+    else if (RunVar==86){
+      if (i==0)   LegendName[i] = "Preliminary yields "; //denominator
+      else if (i==1)    LegendName[i] = "Efficiency corrected yields "; //numerator
+    }
+    else if (RunVar==87){
+      if (i<numFiles/2)    LegendName[i] = "Spectra " + SmoltBis[numEff];
+      else    LegendName[i] = "Wings-corrected spectra " + SmoltBis[numEff];
+    }
+    else if (RunVar==88){
+      if (i==0)   LegendName[i] = "Yields "; //denominator
+      else if (i==1)    LegendName[i] = "Wings-corrected yields "; //numerator
+    }
+    else if (RunVar==89){
+      if (i<numFiles/2)      LegendName[i] = "Efficiency for preliminaries " + SmoltBis[numEff];
+      else  LegendName[i] = "Radius dependent MB " + SmoltBis[numEff];
+    }
+    else if (RunVar==90){
+      if (i<numFiles/2)    LegendName[i] = "Spectra " + SmoltBis[numEff];
+      else    LegendName[i] = "22e1 eff corrected spectra " + SmoltBis[numEff];
+    }
+    else if (RunVar==91){
+      if (i==0)   LegendName[i] = "Yields "; //denominator
+      else if (i==1)    LegendName[i] = "22e1 eff corrected yields "; //numerator
+    }
+    else if (RunVar==92){
+      if (i<numFiles/2)    LegendName[i] = "22e1 eff corrected spectra " + SmoltBis[numEff];
+      else    LegendName[i] = "22e1 FAST correction " + SmoltBis[numEff];
     }
 
     legend->AddEntry(histo[i], LegendName[i], "pl");
@@ -2795,7 +3300,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
       if (RunVar!=44) histo[i]->Draw("same pe");
     }
 
-    if ((RunVar==15 && AnalysisType!=0) || RunVar==47 || RunVar==52 || RunVar==55 || RunVar==63) {
+    if ((RunVar==15 && AnalysisType!=0) || RunVar==47 || RunVar==52 || RunVar==55 || RunVar==63 || RunVar==86 || RunVar==88) {
       if (i==1) pol1[i]->SetLineStyle(8);
       pol1[i]->SetLineColor(1);
       pol1[i]->SetLineWidth(0.3);
@@ -2812,8 +3317,10 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
 
     //    cout << " first canvas ok " << endl;
     canvas->cd(2);
-    gPad->SetLeftMargin(0.15);
     gPad->SetBottomMargin(0.15);
+    gPad->SetLeftMargin(0.2);
+    gPad->SetRightMargin(0.05);
+
     if (RunVar == 22 || RunVar == 23 || RunVar==51) {
       histo[i]->GetXaxis()->SetRangeUser(-0.8, 0.8);
       // histo[i] ->Rebin(2);
@@ -2846,7 +3353,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
 	  ErrRatioCorr(histo[i], histo[i-numFiles/2], histoRatio[i], 1);
 	  CorrelationBtwHistos = 1;
 	}
-	else if (RunVar==64){
+	else if (RunVar==64 || RunVar==89){
 	  CorrelationBtwHistos = 0;
 	}
 	else if (RunVar==22 && RunVar==23) {
@@ -2866,7 +3373,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
 	for (Int_t b=1; b<= histoRatio[i]->GetNbinsX() ; b++){
 	  //	  cout << "num " << histo[i]->GetBinContent(b) << " +- " <<  histo[i]->GetBinError(b)<< " (" << histo[i]->GetBinError(b)/histo[i]->GetBinContent(b)<<  ")" <<endl;
 	  //	  cout << "denom " << histo[i-numFiles/2]->GetBinContent(b) << " +- " <<  histo[i-numFiles/2]->GetBinError(b)<< " (" <<histo[i-numFiles/2]->GetBinError(b)/histo[i-numFiles/2]->GetBinContent(b)  << ")" << endl;
-	  cout << "ratio " <<histoRatio[i]->GetBinContent(b) << " +- " <<  histoRatio[i]->GetBinError(b)<<endl;
+	  //	  cout << "ratio " <<histoRatio[i]->GetBinContent(b) << " +- " <<  histoRatio[i]->GetBinError(b)<<endl;
 	}
       }
     }
@@ -2888,7 +3395,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
 	//	cout << "num " << histo[i]->GetBinContent(b) << " +- " <<  histo[i]->GetBinError(b)<< " (" << histo[i]->GetBinError(b)/histo[i]->GetBinContent(b)<<  ")" <<endl;
 	//	if (i<numFiles/2) cout << "denom " << histo[0]->GetBinContent(b) << " +- " <<  histo[0]->GetBinError(b)<< " (" <<histo[0]->GetBinError(b)/histo[0]->GetBinContent(b)  << ")" << endl;
 	//	else cout << "denom " << histo[numFiles/2]->GetBinContent(b) << " +- " <<  histo[numFiles/2]->GetBinError(b)<< " (" <<histo[numFiles/2]->GetBinError(b)/histo[0]->GetBinContent(b)  << ")" << endl;
-	cout << "ratio " <<histoRatio[i]->GetBinContent(b) << " +- " <<  histoRatio[i]->GetBinError(b)<<endl;
+	//	cout << "ratio " <<histoRatio[i]->GetBinContent(b) << " +- " <<  histoRatio[i]->GetBinError(b)<<endl;
       }
     }
     else { //TypeOfComparison==1
@@ -2934,12 +3441,15 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
       histoRatio[i]->GetXaxis()->SetRangeUser(0.1, 8);
       histo[i]->GetXaxis()->SetRangeUser(0.1, 8);
     }
+
     StyleHistoYield(histoRatio[i], LowRatio, UpRatio, color[numEff-numDef], style, titleX, "Ratio", titleRatio, msize, 1.2, 1.4);
+    if (RunVar==19 || RunVar==93 || RunVar==94 || RunVar==95 )     StyleHistoYield(histoRatio[i], LowRatio, UpRatio, color[numEff-numDef], MarkerMult[i], titleX, "Ratio to 0-100%", titleRatio, MarkerSize[i], 1.2, 1.6);
+
     //    if (histoName.Index("Generated")!=-1 && RunVar==64){
     if (RunVar==64){
       //      histoRatio[i]->GetYaxis()->SetRangeUser(0.95, 1.05);
     }
-    if (RunVar==19){
+    if (RunVar==19 || RunVar==93 || RunVar==94 || RunVar==95){
       if (type==0){
 	histo[i]->GetXaxis()->SetRangeUser(0.1,8);
 	histoRatio[i]->GetXaxis()->SetRangeUser(0.1,8);
@@ -2956,6 +3466,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
 	if (RunVar!=44) {
 	  if (RunVar==51) 	  histoRatio[i]->Draw("same p");
 	  else 	  histoRatio[i]->Draw("same pe");
+	  //Legend1BisRatio->Draw("same");
 	  pol0At1->Draw("same");
 	}
       }
@@ -2964,6 +3475,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
       if (numEff!=5 && numEff!=11){
 	//	if (i<numFiles/2) histoRatio[i]->Draw("same pe");
 	histoRatio[i]->Draw("same pe");
+	//Legend1BisRatio->Draw("same");
       }
       if (i==numFiles-1) {
 	//	legend->Draw("");
@@ -2973,8 +3485,9 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
     else {
       if (i!=0){
 	histoRatio[i]->Draw("same pe");
+	Legend1BisRatio->Draw("same");
       }
-      if (i!=0 && (RunVar==10 || RunVar==13 || RunVar==15 || RunVar==19 || RunVar==78 || RunVar==30 || RunVar==31 || RunVar==41 || RunVar==45 || RunVar==81)) pol0At1->Draw("same");
+      if (i!=0 && (RunVar==10 || RunVar==13 || RunVar==15 || RunVar==19 || RunVar==78 || RunVar==30 || RunVar==31 || RunVar==41 || RunVar==45 || RunVar==81 || RunVar==86 || RunVar==88)) pol0At1->Draw("same");
     }
 
     hdummy[i]= new TH1F (Form("hdummy%i", i), Form("hdummy%i", i), 1000, 0, 30);
@@ -2984,6 +3497,22 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
 	hdummy[1]->Divide(hdummy[0]);
 	hdummy[1]->Draw("same");
       }
+    }
+
+    if (RunVar==93 || RunVar==94 || RunVar==95){
+      canvasNR->cd();
+      gPad->SetLeftMargin(0.2);
+      gPad->SetTopMargin(0.02);
+      gPad->SetRightMargin(0.05);
+      gPad->SetBottomMargin(0.15);
+      histo[i]->Draw("same hist ep");
+      if (RunVar==94) {
+	if (type==0) pol0MassK0s->Draw("same");
+	else pol0MassXi->Draw("same");
+	LegendMass->Draw("");
+      }
+      Legend1->Draw("");
+      legend->Draw("");
     }
 
     cout << "Histogram values. " << endl;
@@ -3057,7 +3586,16 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=0, Int_t multDef = 5 /*on
 
   cout << "\n\n"<< endl;
   canvas->SaveAs(OutputNamepdf+".pdf");
+  canvasNR->SaveAs(OutputNamepdf+"_ForThesis.pdf");
   canvasB->SaveAs(OutputNamepdf+ "_Barlow.pdf");
+  if (RunVar==89){
+    for (Int_t i=0; i<numFiles; i++){
+      if (i>=numFiles/2)  {
+	histoRatio[i]->SetName(Form("fHistCorrFactor_%i", i-6));
+	OutputFile->WriteTObject(histoRatio[i]);
+      }
+    }
+  }
   OutputFile->WriteTObject(canvas);
   OutputFile->WriteTObject(canvasB);
   OutputFile->Close();
