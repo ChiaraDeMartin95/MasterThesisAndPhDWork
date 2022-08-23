@@ -76,7 +76,11 @@ TString sRegionBlack[3]={"#color[1]{Toward leading}","#color[1]{Transverse to le
 TString sRegion1[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 0.85", "0.75 < |#Delta#it{#eta}| < 1.2, 0.85 < #Delta#it{#varphi} < 2.0", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
 
 
-void FractionEventswTrigger(Int_t MinRange=0){
+void FractionEventswTrigger(){
+
+  Int_t MinRange =0;
+  cout << "Do you want to study the average number of particles w pt> 3 GeV/c/evt in ALL events (=0) or only in events with a particle w pt > 3 geV/c? (=1)" << endl;
+  cin >> MinRange;
 
   Int_t nummolt = 5;
 
@@ -125,7 +129,10 @@ void FractionEventswTrigger(Int_t MinRange=0){
 
   //Set titles
   //  TString titleY = "Fraction of events with trigger particle";
-  TString titleY = "#it{N}_{trigg}/#it{N}_{ev}";
+  //  TString titleY = "#it{N}_{trigg}/#it{N}_{ev}";
+  //  TString titleY = "#it{N}_{ev, #it{p}_{T}^{trigg} > 3 GeV/#it{c}}/#it{N}_{ev}";
+  //TString titleY = "#it{N}_{ev}^{ #it{p}_{T}^{trigg} > 3 GeV/#it{c}}/#it{N}_{ev}";
+  TString titleY = "#it{N}_{ev} (#it{p}_{T}^{trigg} > 3 GeV/#it{c}) /#it{N}_{ev}";
   TString titleYNorm = "Fraction of events w trigger particle wrt 50-100% class";
   TString titleYBis = "#LT#trigger particles#GT / #LT#trigger particles#GT (0-100%)";
   TString titleYTer = "#LT#trigger particles#GT / event";
@@ -140,13 +147,21 @@ void FractionEventswTrigger(Int_t MinRange=0){
   Int_t Color5TeV[5] = {867, 628, 829, 878, 800};
   Int_t Color13TeV[5] = {601, 634, 418,  881, 807};
   Int_t Marker[5] = {33, 21, 20, 27, 28};
+  Int_t Marker5TeV[5] = {21, 21, 20, 27, 28};
   Float_t PtMin[5] = {3, 3.5, 4, 5, 6};
   //  Float_t Size[numTypes] = {2, 1.4};
 
   TLegend *LegendTitle=new TLegend(0.18,0.80,0.5,0.92);
   LegendTitle->SetMargin(0);
-  LegendTitle->AddEntry("", "#bf{ALICE Preliminary}", "");
+  //  LegendTitle->AddEntry("", "#bf{ALICE Preliminary}", "");
+  LegendTitle->AddEntry("", "This work", "");
   LegendTitle->SetTextSize(0.06);
+
+  TLegend *LegendTitleBis=new TLegend(0.18,0.80,0.5,0.92);
+  LegendTitleBis->SetMargin(0);
+  LegendTitleBis->AddEntry("", "This work", "");
+  LegendTitleBis->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
+  LegendTitleBis->SetTextSize(0.05);
 
   TLegend *LegendEnergy=new TLegend(0.14,0.65,0.48,0.8);
   LegendEnergy->SetTextSize(0.05);
@@ -181,6 +196,12 @@ void FractionEventswTrigger(Int_t MinRange=0){
   TCanvas * canvasNorm = new TCanvas("canvasNorm", "canvasNorm", 1300, 800);
   canvasStyle(canvasNorm);
 
+  TCanvas * canvasMultDistr = new TCanvas("canvasMultDistr", "canvasMultDistr", 1300, 800);
+  canvasStyle(canvasMultDistr);
+
+  TCanvas * canvasMultDistrEvwTrigger = new TCanvas("canvasMultDistrEvwTrigger", "canvasMultDistrEvwTrigger", 1300, 800);
+  canvasStyle(canvasMultDistrEvwTrigger);
+
   //  TLegend *legendPtMin=new TLegend(0.6, 0.2, 0.9, 0.4);
 
   Float_t MinFracEvwTrigger[5]={0};
@@ -197,13 +218,13 @@ void FractionEventswTrigger(Int_t MinRange=0){
     hEventsvsMult[i]->SetName(NameEventsvsMult[i]);
     hEventsvsMult_EvwTriggerOne[i] = (TH1F*)list->FindObject("fHist_multiplicity_EvwTrigger");
     if (!hEventsvsMult_EvwTriggerOne[i]) return;
+    hEventsvsMult_EvwTriggerOne[i]->SetName(NameEventsvsMult_EvwTrigger[i]);
     hEventsvsMult_EvwTriggerBis[i] = (TH2F*)list->FindObject("fHistPtMaxvsMultBefAll");
     if (!hEventsvsMult_EvwTriggerBis[i]) return;
     hTriggervsMult[i] = (TH2F*)list->FindObject("fHistMultvsTriggerBefAll");
     if (!hTriggervsMult[i]) return;
-    //    hEventsvsMult_EvwTrigger[i] = (TH1F*)     hEventsvsMult_EvwTriggerOne[i]->Clone(NameEventsvsMult_EvwTrigger[i]);
 
-    //number of particles with pt > 3 GeV in events with at least one such particle
+    //number of particles with pt > 3 GeV in all events or in events with at least one such particle (depending on choice of MinRange)
     hTriggervsMult1DAllMult[i] =  (TH1F*)     hTriggervsMult[i]->ProjectionX(Form("hTriggervsMult1DAllMult%i", i), 0, 100);
 
     for (Int_t m = 0; m< nummolt; m++){
@@ -253,9 +274,9 @@ void FractionEventswTrigger(Int_t MinRange=0){
 	// cout << hRatioPtMin[pt]->GetBinContent(hRatioPtMin[pt]->FindBin(dNdEta[i][m])) << " +- " << hRatioPtMin[pt]->GetBinError(hRatioPtMin[pt]->FindBin(dNdEta[i][m])) << endl;
       }
       StyleHisto(hRatioPtMin[pt], 10e-5, 0.6-10e-5, Color13TeV[pt], Marker[pt], titleX, titleY, "" , 1,0, 40, xOffset, yOffset, 3);
-      StyleHisto(hRatio5TeVPtMin[pt], 10e-5, 0.6-10e-5, Color5TeV[pt], Marker[pt], titleX, titleY, "" , 1,0, 40, xOffset, yOffset, 3);
+      StyleHisto(hRatio5TeVPtMin[pt], 10e-5, 0.6-10e-5, Color5TeV[pt], Marker5TeV[pt], titleX, titleY, "" , 1,0, 40, xOffset, yOffset, 2);
       StyleHisto(hRatioPtMinNorm[pt], 0.9, 75, Color13TeV[pt], Marker[pt], titleX, titleYNorm, "" , 1,0, 40, xOffset, yOffset, 3);
-      StyleHisto(hRatio5TeVPtMinNorm[pt], 0.9, 75, Color5TeV[pt], Marker[pt], titleX, titleYNorm, "" , 1,0, 40, xOffset, yOffset, 3);
+      StyleHisto(hRatio5TeVPtMinNorm[pt], 0.9, 75, Color5TeV[pt], Marker5TeV[pt], titleX, titleYNorm, "" , 1,0, 40, xOffset, yOffset, 2);
       hRatioPtMinNorm[pt]->GetYaxis()->SetTitleSize(0.03);
       hRatio5TeVPtMinNorm[pt]->GetYaxis()->SetTitleSize(0.03);
 
@@ -289,10 +310,34 @@ void FractionEventswTrigger(Int_t MinRange=0){
 
   canvas->cd();
   LegendTitle->Draw("");
-  legendPtMin->Draw("");
+  //legendPtMin->Draw("");
   LegendEnergy->Draw("");
+
   canvasNorm->cd();
   legendPtMin->Draw("");
+
+  canvasMultDistr->cd();
+  hEventsvsMult[0]->SetTitle("");
+  //  hEventsvsMult[0]->GetYaxis()->SetTitle("#it{N}_{ev} (#it{p}_{T}^{trigg} > 3 GeV/#it{c})");
+  hEventsvsMult[0]->GetYaxis()->SetTitle("#it{N}_{ev}");
+  hEventsvsMult[0]->GetYaxis()->SetTitleSize(0.05);
+  hEventsvsMult[0]->GetYaxis()->SetRangeUser(0, 1.2*hEventsvsMult[0]->GetMaximum());
+  hEventsvsMult[0]->GetXaxis()->SetTitle("V0M Multiplicity Percentile (%)");
+  hEventsvsMult[0]->GetXaxis()->SetTitleSize(0.05);
+  hEventsvsMult[0]->GetXaxis()->SetTitleOffset(1.2);
+  hEventsvsMult[0]->Draw();
+  LegendTitleBis->Draw();
+
+  canvasMultDistrEvwTrigger->cd();
+  hEventsvsMult_EvwTriggerOne[0]->SetTitle("");
+  hEventsvsMult_EvwTriggerOne[0]->GetYaxis()->SetTitle("#it{N}_{ev} (#it{p}_{T}^{trigg} > 3 GeV/#it{c})");
+  hEventsvsMult_EvwTriggerOne[0]->GetYaxis()->SetTitleSize(0.05);
+  hEventsvsMult_EvwTriggerOne[0]->GetYaxis()->SetRangeUser(0, 1.2*hEventsvsMult_EvwTriggerOne[0]->GetMaximum());
+  hEventsvsMult_EvwTriggerOne[0]->GetXaxis()->SetTitle("V0M Multiplicity Percentile (%)");
+  hEventsvsMult_EvwTriggerOne[0]->GetXaxis()->SetTitleSize(0.05);
+  hEventsvsMult_EvwTriggerOne[0]->GetXaxis()->SetTitleOffset(1.2);
+  hEventsvsMult_EvwTriggerOne[0]->Draw();
+  LegendTitleBis->Draw();
 
   TLegend *legendEnergyBoxColor=new TLegend(0.16, 0.62, 0.39, 0.74);
   legendEnergyBoxColor->AddEntry(hRatio5TeVPtMin[0], "pp, #sqrt{#it{s}} = 5.02 TeV", "pe");
@@ -362,7 +407,7 @@ void FractionEventswTrigger(Int_t MinRange=0){
 
   TCanvas * canvasTer = new TCanvas("canvasTer", "canvasTer", 1300, 800);
   canvasStyle(canvasTer);
-  canvasTer->SetGrid();
+  //canvasTer->SetGrid();
 
   Float_t LowLimit = 1;
   Float_t UpLimit = 2;
@@ -377,12 +422,13 @@ void FractionEventswTrigger(Int_t MinRange=0){
 
   hNumberTriggervsMult->DrawClone("same p");
   hNumberTriggervsMult5TeV->DrawClone("same p");
-
+  LegendTitle->Draw("");
+  
   TLegend* legendParameters = new TLegend(0.5, 0.7, 0.8, 0.85);
 
   pol1Fit->SetLineWidth(0.3);
   pol1Fit->SetRange(0,25);
-  hNumberTriggervsMult->Fit(pol1Fit, "R0");
+  //  hNumberTriggervsMult->Fit(pol1Fit, "R0");
   pol1Fit->SetRange(0,45);
   pol1Fit->SetLineStyle(9);
   pol1Fit->SetLineColor(Color13TeV[0]);
@@ -391,7 +437,7 @@ void FractionEventswTrigger(Int_t MinRange=0){
   legendParameters->AddEntry(pol1FitClone1, Form("y = %.3f x + %.3f (fit for dNdeta < 25)", pol1Fit->GetParameter(1), pol1Fit->GetParameter(0)) , "l");
 
   pol1Fit->SetRange(0,45);
-  hNumberTriggervsMult->Fit(pol1Fit, "R0");
+  //  hNumberTriggervsMult->Fit(pol1Fit, "R0");
   pol1Fit->SetLineStyle(1);
   pol1Fit->SetLineColor(Color13TeV[0]+1);
   pol1Fit->DrawClone("same");
@@ -399,7 +445,7 @@ void FractionEventswTrigger(Int_t MinRange=0){
   legendParameters->AddEntry(pol1FitClone2, Form("y = %.3f x + %.3f (fit for dNdeta < 45)", pol1Fit->GetParameter(1), pol1Fit->GetParameter(0)), "l");
 
   pol1Fit->SetRange(25, 45);
-  hNumberTriggervsMult->Fit(pol1Fit, "R0");
+  //  hNumberTriggervsMult->Fit(pol1Fit, "R0");
   pol1Fit->SetRange(0,45);
   pol1Fit->SetLineStyle(9);
   pol1Fit->SetLineColor(Color5TeV[0]);
@@ -409,16 +455,19 @@ void FractionEventswTrigger(Int_t MinRange=0){
 
 
   //  legendParameters->AddEntry("", "Fit for "+ titledNdeta +" < 25", "");
-  legendParameters->Draw("");
+  //legendParameters->Draw("");
 
   //  DiagonalNorm->Draw("same");
   legendEnergyBoxColor->Draw("");
   
   cout << "Saving canvas" << endl;
   canvas->SaveAs("FractionOfEventsWithTrigger.pdf");
+  canvas->SaveAs("FractionOfEventsWithTrigger.eps");
   canvasNorm->SaveAs("FractionOfEventsWithTriggerNorm.pdf");
   canvasBis->SaveAs("NumberofTriggerParticlesPerEventNormalised.pdf");
   canvasTer->SaveAs("NumberofTriggerParticlesPerEvent.pdf");
+  canvasMultDistr->SaveAs("MultDistrAllEvts.pdf");
+  canvasMultDistrEvwTrigger->SaveAs("MultDistrEvwTrigger.pdf");
 
   TString nameCanvas = Form("FractionEventsWithTrigger_%i.pdf", MinRange);
   canvas->SaveAs(nameCanvas + "(");
