@@ -18,7 +18,11 @@
 #include <TLegend.h>
 #include "Macros/constants.h"
 
-void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAssoc=0, Float_t ptjmin=3,  Float_t PtTrigMinFit=3, Int_t sysV0=0,Int_t type=8 /*0 = K0s, 8 = Xi*/,  Int_t israp=0, Bool_t isMC=0, Bool_t isEfficiency=0, TString yearME=/*"EPOSLHC"/*"EPOS17d20b_hK0s"/*_Hybrid"/"PythiaMonash_IncreasedStatXi"/*"PythiaRopes"/*"_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*"16kl_hK0s_Hybrid"/*"2019h11_HM_hK0s"/*"161718_hXi"/"1617_GP_hK0s"/"AllhK0sHM_RedNo16k"/*"161718_HM_hXi_WithFlat16k_No18p"*/"161718Full_AOD234_hXi"/*"17pq_pp5TeV_hXi_pttrig0.15"/"17pq_hK0s"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"/"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hXi"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/*"2018f1_extra_Mylabel_15runs_hK0s_Hybrid"/*"2016k_HM_hK0s"/"1617_hK0s"/*"161718_MD_hXi_Hybrid_MCTruth"/*"2018f1g4_extra_hXi_Hybrid_MCTruth"/"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018g4_extra_EtaEff_hK0s_MCEff"*/, TString year=/*"EPOSLHC"/"PythiaMonash_IncreasedStatXi"/*"_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/*"2019h11_HM_hK0s"/*"161718_hXi"/"1617_GP_hK0s"*/ "17pq_hXi"/*"AllhK0sHM_RedNo16k"/*"161718_HM_hXi_WithFlat16k_No18p"/"161718Full_AOD234_hXi"/**"17pq_pp5TeV_hXi_pttrig0.15"/*"17pq_hXi"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"/"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"//"2016k_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617_hK0s"/*"2018g4_extra_EtaEff_hK0s"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/"161718_MD_EtaEff_hXi"/*"LHC16_17_GP_Hybrid_hXi"/*"2018f1g4_extra_hXi"/"2018g4_extra_hXi_SelTrigger"/*_15runsBis"/"1617_hK0s"/*AllMC_hXi"/"2018f1_extra_hK0s"/*"2016k_hK0s"/*"2016k_MECorr"/"Run2DataRed_MECorr_hXi"/*/, TString yearMC=/*"EPOSLHC"/*"EPOS17d20b_hK0s"/*_Hybrid"*/"PythiaMonash_IncreasedStatXi"/*"PythiaRopes_IncreasedStatXi"/*"PythiaRopes"/*"_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/"2019h11_HM_hK0s_EffCorr"/*"161718_hXi"/*"161718Full_AOD235_hXi"/*"1617GP_hK0s_Hybrid_New" /"17pq_pp5TeV_Hybrid"/*"1617_GP_AOD235_With18c12b"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/*"1617GP_hK0s"/*"1617_GP_AOD235"/*"1617_GP_AOD235_With18c12b"/*"161718_hXi"/*"17pq_hK0s"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/*""//*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/"2019h11c_extra_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617MC_hK0s"/"2018g4_extra_EtaEff_hK0s"/*"161718_MD_EtaEff_hXi"/"2018f1g4_extra_hXi"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/*"161718_MD_hXi_Hybrid"/*"LHC16_17_GP_Hybrid_hXi"/*"17d20bEPOS_hK0s"/"2018g4_extra_hXi_SelTrigger"/*"1617MC_hK0s"/"AllMC_hXi"/*"1617GP_hXi"/*"2016kl_hXi"/*"2018f1_extra_MECorr"/"2018f1_extra_Hybrid_hK0s"/*"17d20bEPOS_hXi"*/,  TString yearMCTrigEff=""/*"17l3b_hK0s"/*"161718HM_hK0s_TriggEff"/*"18f1_extra_EffTrigger_5runs"*/,  TString Dir ="FinalOutput/",  Float_t ptjmax=15, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Int_t MultBinning=3, Int_t PtBinning=0, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t IsPtTrigMultDep=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsParticleTrue=0,  Bool_t isSidebands=0, Bool_t isMESBFromPeak =0,  Bool_t isMEFromHybrid=0, Bool_t isMEFromCorrectCentrality = 0, Bool_t isEtaEff=1, Bool_t isMEFromK0s=0, Bool_t isNewInputPath=1, Bool_t isHM=0,  Int_t isNewdEtaJet =0, Bool_t isSysPurity =0, Int_t VarRange = 0, Bool_t isMCForNorm=0, Bool_t isEffCorr=0, Bool_t isGenOnTheFly=0){ 
+void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAssoc=0, Float_t ptjmin=3,  Float_t PtTrigMinFit=3, Int_t sysV0=0,Int_t type=0 /*0 = K0s, 8 = Xi*/,  Int_t israp=0, Bool_t isMC=0, Bool_t isEfficiency=0, TString yearME=/*"EPOSLHC_7BEvForhXi"/*"EPOSLHC_3BEvForhK0s"/*"EPOSLHC_IncreasedStatXi"/*"EPOS17d20b_hK0s"/*_Hybrid"/"PythiaMonash_IncreasedStatXi"/*"PythiaRopes"/*"_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*"16kl_hK0s_Hybrid"/*"2019h11_HM_hK0s"/*"161718_hXi"/"1617_GP_hK0s"*/"AllhK0sHM_RedNo16k"/*"161718_HM_hXi_WithFlat16k_No18p"/"161718Full_AOD234_hXi"/*"17pq_pp5TeV_hXi_pttrig0.15"/"17pq_hK0s"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"/"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hXi"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/*"2018f1_extra_Mylabel_15runs_hK0s_Hybrid"/*"2016k_HM_hK0s"/"1617_hK0s"/*"161718_MD_hXi_Hybrid_MCTruth"/*"2018f1g4_extra_hXi_Hybrid_MCTruth"/"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018g4_extra_EtaEff_hK0s_MCEff"*/, TString year=/*"1617_AOD234_hK0s"/*"EPOSLHC_7BEvForhXi"/*"EPOSLHC_3BEvForhK0s"/*"EPOSLHC_IncreasedStatXi"/*"PythiaMonash_IncreasedStatXi"/*"_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/*"2019h11_HM_hK0s"/*"161718_hXi"/"1617_GP_hK0s"/ "17pq_hXi"*/"AllhK0sHM_RedNo16k"/*"161718_HM_hXi_WithFlat16k_No18p"/"161718Full_AOD234_hXi"/**"17pq_pp5TeV_hXi_pttrig0.15"/*"17pq_hXi"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"/"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"//"2016k_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617_hK0s"/*"2018g4_extra_EtaEff_hK0s"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/"161718_MD_EtaEff_hXi"/*"LHC16_17_GP_Hybrid_hXi"/*"2018f1g4_extra_hXi"/"2018g4_extra_hXi_SelTrigger"/*_15runsBis"/"1617_hK0s"/*AllMC_hXi"/"2018f1_extra_hK0s"/*"2016k_hK0s"/*"2016k_MECorr"/"Run2DataRed_MECorr_hXi"/*/, TString yearMC=""/*"EPOSLHC_7BEvForhXi"/*"EPOSLHC_3BEvForhK0s"/*"EPOSLHC_IncreasedStatXi"/*"EPOS17d20b_hK0s"/*_Hybrid"/"PythiaMonash_IncreasedStatXi"/*"PythiaRopes_IncreasedStatXi"/*"PythiaRopes"/*"_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/"2019h11_HM_hK0s_EffCorr"/*"161718_hXi"/*"161718Full_AOD235_hXi"/*"1617GP_hK0s_Hybrid_New" /"17pq_pp5TeV_Hybrid"/*"1617_GP_AOD235_With18c12b"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/*"1617GP_hK0s"/*"1617_GP_AOD235"/*"1617_GP_AOD235_With18c12b"/*"161718_hXi"/*"17pq_hK0s"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/*""//*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/"2019h11c_extra_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617MC_hK0s"/"2018g4_extra_EtaEff_hK0s"/*"161718_MD_EtaEff_hXi"/"2018f1g4_extra_hXi"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/*"161718_MD_hXi_Hybrid"/*"LHC16_17_GP_Hybrid_hXi"/*"17d20bEPOS_hK0s"/"2018g4_extra_hXi_SelTrigger"/*"1617MC_hK0s"/"AllMC_hXi"/*"1617GP_hXi"/*"2016kl_hXi"/*"2018f1_extra_MECorr"/"2018f1_extra_Hybrid_hK0s"/*"17d20bEPOS_hXi"*/,  TString yearMCTrigEff=""/*"17l3b_hK0s"/*"161718HM_hK0s_TriggEff"/*"18f1_extra_EffTrigger_5runs"*/,  TString Dir ="FinalOutput/",  Float_t ptjmax=15, Bool_t isBkgParab=1, Bool_t isMeanFixedPDG=1, Int_t MultBinning=1, Int_t PtBinning=1, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t IsPtTrigMultDep=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsParticleTrue=0,  Bool_t isSidebands=1, Bool_t isMESBFromPeak =0,  Bool_t isMEFromHybrid=0, Bool_t isMEFromCorrectCentrality = 0, Bool_t isEtaEff=1, Bool_t isMEFromK0s=0, Bool_t isNewInputPath=1, Bool_t isHM=1,  Int_t isNewdEtaJet =1, Bool_t isSysPurity =0, Int_t VarRange = 0, Bool_t isMCForNorm=0, Bool_t isEffCorr=1, Bool_t isGenOnTheFly=0){ 
+
+  Bool_t MaterialBudgetCorr=0;
+  if (isMC && !isEfficiency) MaterialBudgetCorr=0;
+  if (type==0 && year == "1617_AOD234_hK0s")  MaterialBudgetCorr=1;
 
   Bool_t isWingsCorrectionApplied=0;
   //isGenOnTheFly --> events were generated on the fly and only the kinematic part is saved; the multiplicity distribution in percentile classes is not abvailable, instead classes based on the number of particles in the V0 acceptance are used
@@ -32,8 +36,9 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
     //if (type==0) isNewdEtaJet =1;
     //else  isNewdEtaJet =0;
     isNewdEtaJet = 1;
-    cout << "Do you want to run with the option isNewdEtaJet = 1 (type 1) or 2 (type 2)? (default choice of dEta region is different) "<< endl;
+    cout << "Do you want to run with the option isNewdEtaJet = 1 (type 1) or 2 (type 2) or 3 (type 3, for K0s JET of EPOSLHC)? (default choice of dEta region is different) "<< endl;
     cin >> isNewdEtaJet;
+    //      isNewdEtaJet = 3; //for jet in EPOSLHC --> the only difference wrt to 2 is that at pt < 1.2 for K0s the dEta interval for jet is enlarged to 1.2
     //      isNewdEtaJet = 2; //for jet
     //      isNewdEtaJet = 1; //for OOJjet
     
@@ -136,11 +141,22 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   }
 
   Float_t LowLimit =0;
-  if (isNewdEtaJet==2){ //built for Xi MC truth (JET production)
-    JetValue = 1; //pt-dependent (most pt bins: 0.96 (OOj sub: 0.96-1.3))
+  Float_t LowLimitBis =0;
+  if (isNewdEtaJet==2){ //built for MC truth (JET production)
+    JetValue = 1; //pt-dependent (high pt bins: 0.96 (OOj sub: 0.96-1.3))
+    JetValueDefault = 0.84;
+    if (type==0) LowLimit = 2.; //pt cut-off (starting from this value on, the selection is tighter)
+    else if (type==8) {
+      LowLimit = 1.5;
+      if (year=="EPOSLHC_7BEvForhXi") LowLimit=2;
+    }
+  }
+  else if (isNewdEtaJet==3){ //built for MC truth (JET production), EPOSLHC
+    JetValue = 1; //pt-dependent (high pt bins: 0.96 (OOj sub: 0.96-1.3))
     JetValueDefault = 0.84;
     if (type==0) LowLimit = 2.; //pt cut-off (starting from this value on, the selection is tighter)
     else if (type==8) LowLimit = 1.5;
+    LowLimitBis = 1.2;
   }
 
   if (ishhCorr || (!ishhCorr && isEnlargedDeltaEtaPhi)) {//rendo ampiezza Jet uguale per hh e hK0s (l'output di hK0s è nel file DeltaEtaPhiEnlarged)
@@ -158,7 +174,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
       if (sys==7) JetValue=1;
       if (sys==8) JetValue=1.1;
     }
-    else if (isNewdEtaJet == 2){
+    else if (isNewdEtaJet == 2 || isNewdEtaJet==3){
       if (sys==4) JetValue=1.1; //pt-independent 1.1 (OOj sub: 1.1-1.4)
       if (sys==5) JetValue=1.0; //pt-independent 0.96 (OOj sub: 0.96-1.3)
       if (sys==6) JetValue=0.9; //pt-independent 0.86 (OOj sub: 0.86-1.18)
@@ -197,7 +213,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
       BulkUpValue = 1.35;
     }
   }
-  else if (isNewdEtaJet == 2){
+  else if (isNewdEtaJet == 2 || isNewdEtaJet == 3){
     BulkLowValue = 1;
     BulkUpValue = 1.25;
     if (sys==4) {
@@ -349,6 +365,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   //  PathInME+="_EPOS";
   if (isEffCorr) PathInME +="_EffCorr" ;
   if (isMC && !isEfficiency &&!isMCForNorm) PathInME += "_MCPrediction";
+  if (MaterialBudgetCorr)  PathInME += "_MatBudgetCorr";
   PathInME += ".root";
 
   if(isSysDef && isDefaultSel)    PathIn+= Form("_SysT%i_SysV0Default_Sys%i_PtMin%.1f", sysTrigger,sysang, PtTrigMin);
@@ -379,6 +396,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   //  PathIn+="_EPOS";
   if (isEffCorr) PathIn +="_EffCorr" ;
   if (isMC && !isEfficiency &&!isMCForNorm) PathIn += "_MCPrediction";
+  if (MaterialBudgetCorr)  PathIn += "_MatBudgetCorr";
   PathIn+=".root";
 
   if (MasterThesisAnalysis){
@@ -654,13 +672,13 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   TString SPtV0[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8", ""};
   //  TString SPtV0[numPtV0]={"", "","0.5-1", "1-1.5","1.5-2", "2-3", "3-4", "4-8"};
   if (type>0){
-    SPtV0[0]={"0-0.5"}; //kust used for MC truth
-    SPtV0[1]={"0.5-1"};
+    SPtV0[0]="0-0.5"; //kust used for MC truth
+    SPtV0[1]="0.5-1";
   }
-  else {SPtV0[0]={"0-0.5"}; SPtV0[1]={"0.5-1"};}
+  else {SPtV0[0]="0-0.5"; SPtV0[1]="0.5-1";}
   if (ishhCorr){
-    SPtV0[0]={"0.1-0.5"};
-    SPtV0[1]={"0.5-1"};
+    SPtV0[0]="0.1-0.5";
+    SPtV0[1]="0.5-1";
   }
   Double_t NPtV0[numPtV0+1]={0,0,1,1.5,2,2.5,3,4,8, 100};
   //Double_t NPtV0[numPtV0+1]={0,0,0.5,1,1.5,2,3,4,8};
@@ -671,10 +689,10 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   }
   TString SNPtV0[numPtV0+1]={"0.0","0.0","1.0","1.5","2.0","2.5","3.0","4.0","8.0", ""};
   //TString SNPtV0[numPtV0+1]={"0.0","0.0", "0.5","1.0","1.5","2.0","3.0","4.0","8.0"};
-  SNPtV0[1]={"0.5"};
+  SNPtV0[1]="0.5";
   if (ishhCorr){
-    SNPtV0[0]={"0.1"};
-    SNPtV0[1]={"0.5"};
+    SNPtV0[0]="0.1";
+    SNPtV0[1]="0.5";
   }
 
   TString SPtV01[numPtV0]={"0.1-0.5", "0.5-0.8", "0.8-1.2", "1.2-1.6","1.6-2", "2-2.5","2.5-3", "3-4", "4-8"};
@@ -824,13 +842,16 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   TH2D *hDeltaEtaDeltaPhi_ME_normbins[nummolt+1][numzeta][numPtV0][numPtTrigger][numSB];
   TH2D *hDeltaEtaDeltaPhi_ME_normbins_WCorr[nummolt+1][numzeta][numPtV0][numPtTrigger][numSB];
   TH1D *hDeltaEtaDeltaPhi_ME_normbins_ProjDPhiPos[nummolt+1][numzeta][numPtV0][numPtTrigger][numSB];
+  TH1D *hDeltaEtaDeltaPhi_MEbins_ProjDPhiPos[nummolt+1][numzeta][numPtV0][numPtTrigger][numSB];
   TH1D *hDeltaEtaDeltaPhi_CorrFactor[nummolt+1][numzeta][numPtV0][numPtTrigger][numSB];
   TH2D *hDeltaEtaDeltaPhi_CorrFactor2D[nummolt+1][numzeta][numPtV0][numPtTrigger][numSB];
   TH2D *hDeltaEtaDeltaPhi_ACbins[nummolt+1][numzeta][numPtV0][numPtTrigger][numSB];
   TH2D *hDeltaEtaDeltaPhi_ACbins_Error[nummolt+1][numzeta][numPtV0][numPtTrigger][numSB];
   TH1D *hDeltaEtaDeltaPhi_ACbins_phi[nummolt+1][numzeta][numPtV0][numPtTrigger][numSB][numeta]; //SE/ME norm proiettato in delta Phi
+  TH1D *hDeltaEtaDeltaPhi_ACbins_phi_SB_NTrigg[nummolt+1][numzeta][numPtV0][numPtTrigger][numeta]; 
   TH1D *hDeltaEtaDeltaPhi_ACbins_phi_Error[nummolt+1][numzeta][numPtV0][numPtTrigger][numSB][numeta]; //relative errors of histo projected above
   TH1D *hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[nummolt+1][numzeta][numPtV0][numPtTrigger][numeta]; //sottrazione bkg V0 effettuata
+  TH1D *hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BeforeSBSub[nummolt+1][numzeta][numPtV0][numPtTrigger][numeta]; 
   TH1D *hDeltaEtaDeltaPhi_ACbins_phi_V0SubFakeSB[nummolt+1][numzeta][numPtV0][numPtTrigger][numeta]; 
   TH1D *hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Rebin[nummolt+1][numzeta][numPtV0][numPtTrigger][numeta]; 
   TH1D *hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Error[nummolt+1][numzeta][numPtV0][numPtTrigger][numeta]; //relative errors of histos above
@@ -1045,6 +1066,43 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 	      }
 	    }
 
+	    /*
+	    //CORRECTION FACTOR to remove wings
+	    if (isWingsCorrectionApplied){
+	      hDeltaEtaDeltaPhi_MEbins_ProjDPhiPos[m][z][v][tr][sb] = (TH1D*)hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]->ProjectionX(nameME[m][z][v][tr][sb]+"_norm_ProjDPhiPos",hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]->GetYaxis()->FindBin(+TMath::Pi()/2+ 0.001) ,hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]->GetYaxis()->FindBin(+3./2*TMath::Pi()- 0.001)  , "E");
+	      hDeltaEtaDeltaPhi_MEbins_ProjDPhiPos[m][z][v][tr][sb]->Scale(2./(hDeltaEtaDeltaPhi_MEbins_ProjDPhiPos[m][z][v][tr][sb]->GetBinContent(hDeltaEtaDeltaPhi_MEbins_ProjDPhiPos[m][z][v][tr][sb]->FindBin(0.05)) + hDeltaEtaDeltaPhi_MEbins_ProjDPhiPos[m][z][v][tr][sb]->GetBinContent(hDeltaEtaDeltaPhi_MEbins_ProjDPhiPos[m][z][v][tr][sb]->FindBin(-0.05))));
+	      hDeltaEtaDeltaPhi_SEbins_ProjDPhiPos[m][z][v][tr][sb] = (TH1D*)hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb]->ProjectionX(nameSE[m][z][v][tr][sb]+"_ProjDPhiPos",hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb]->GetYaxis()->FindBin(+TMath::Pi()/2+ 0.001) ,hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb]->GetYaxis()->FindBin(+3./2*TMath::Pi()- 0.001)  , "E");
+	      hDeltaEtaDeltaPhi_SEbins_ProjDPhiPos[m][z][v][tr][sb]->Scale(2./(hDeltaEtaDeltaPhi_SEbins_ProjDPhiPos[m][z][v][tr][sb]->GetBinContent(hDeltaEtaDeltaPhi_SEbins_ProjDPhiPos[m][z][v][tr][sb]->FindBin(0.05)) + hDeltaEtaDeltaPhi_SEbins_ProjDPhiPos[m][z][v][tr][sb]->GetBinContent(hDeltaEtaDeltaPhi_SEbins_ProjDPhiPos[m][z][v][tr][sb]->FindBin(-0.05))));
+	      hDeltaEtaDeltaPhi_CorrFactor[m][z][v][tr][sb]= (TH1D*) hDeltaEtaDeltaPhi_SEbins_ProjDPhiPos[m][z][v][tr][sb]->Clone(nameME[m][z][v][tr][sb]+"_ScalingFactor");
+	      if (isMEFromCorrectCentrality){
+		hDeltaEtaDeltaPhi_CorrFactor[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_MEbins_ProjDPhiPos[m][z][v][tr][sb]);
+	      }
+	      else {
+		hDeltaEtaDeltaPhi_CorrFactor[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_MEbins_ProjDPhiPos[nummoltMax][z][v][tr][sb]);
+	      }
+	      //this is a DeltaEta dependent correction factor which should be applied to the ME distribution
+	      //Let's first transform it in a 2D histogram
+	      hDeltaEtaDeltaPhi_CorrFactor2D[m][z][v][tr][sb]= (TH2D*)hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]->Clone(nameME[m][z][v][tr][sb]+"_2DScaligFactor");
+	      for (Int_t j=1; j<= hDeltaEtaDeltaPhi_CorrFactor2D[m][z][v][tr][sb]->GetNbinsX(); j++){ //dEta axis
+		for (Int_t i=1; i<= hDeltaEtaDeltaPhi_CorrFactor2D[m][z][v][tr][sb]->GetNbinsY(); i++){ //dPhi axis
+		  Int_t Bin2D=  hDeltaEtaDeltaPhi_CorrFactor2D[m][z][v][tr][sb]->GetBin(j,i);
+		  hDeltaEtaDeltaPhi_CorrFactor2D[m][z][v][tr][sb]->SetBinContent(Bin2D, 1./hDeltaEtaDeltaPhi_CorrFactor[m][z][v][tr][sb]->GetBinContent(j)); 
+		}
+	      }
+	    
+	      //apply the correction: 
+	      if (isMEFromCorrectCentrality){
+		hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_CorrFactor2D[m][z][v][tr][sb]);
+	      }
+	      else {
+		hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb] = (TH2D*) hDeltaEtaDeltaPhi_MEbins[nummoltMax][z][v][tr][sb]->Clone(Form("hDeltaEtaDeltaPhi_MEbins_WCorr_m%i", m));
+		hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_CorrFactor2D[m][z][v][tr][sb]);
+	      }
+	    }
+
+	    cout << "Wings correction was performed " << endl;
+	    */
+
 	    /////////// primo modo per normalizzare ME 
 	    binwx= hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]->GetXaxis()->GetBinWidth(1);
 	    binwy= hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]->GetYaxis()->GetBinWidth(1);
@@ -1084,7 +1142,10 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 	      //norm continue;  
 	    }
 
-	    if (norm_MEbins[m][v][sb]!=0) hDeltaEtaDeltaPhi_ME_normbins[m][z][v][tr][sb]-> Scale(1./norm_MEbins[m][v][sb]);
+	    if (norm_MEbins[m][v][sb]!=0){
+	      hDeltaEtaDeltaPhi_ME_normbins[m][z][v][tr][sb]-> Scale(1./norm_MEbins[m][v][sb]);
+	    }
+
 
 	    //CORRECTION FACTOR to remove wings
 	    if (isWingsCorrectionApplied){
@@ -1108,6 +1169,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 		  hDeltaEtaDeltaPhi_CorrFactor2D[m][z][v][tr][sb]->SetBinContent(Bin2D, 1./hDeltaEtaDeltaPhi_CorrFactor[m][z][v][tr][sb]->GetBinContent(j)); 
 		}
 	      }
+	    
 	      //apply the correction: 
 	      if (isMEFromCorrectCentrality){
 		hDeltaEtaDeltaPhi_ME_normbins[m][z][v][tr][sb]->Divide(hDeltaEtaDeltaPhi_CorrFactor2D[m][z][v][tr][sb]);
@@ -1121,6 +1183,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 	    }
 
 	    cout << "Wings correction was performed " << endl;
+
 	    //	    cout << "\n divido SE distribution per ME distribution normalized" << endl;
 	    if (!ishhCorr){
 	      if (isMEFromCorrectCentrality){
@@ -1157,15 +1220,15 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
     	    hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->SetTitle("SE corrected for pair acceptance "+TitleString[m][v][sb]);
 	    hDeltaEtaDeltaPhi_ME_normbins[m][z][v][tr][sb]->GetXaxis()->SetTitle("#Delta#eta");
 	    hDeltaEtaDeltaPhi_ME_normbins[m][z][v][tr][sb]->GetXaxis()->SetTitleOffset(1.3);
-	    hDeltaEtaDeltaPhi_ME_normbins[m][z][v][tr][sb]->GetYaxis()->SetTitle("#Delta#phi (radians)");
+	    hDeltaEtaDeltaPhi_ME_normbins[m][z][v][tr][sb]->GetYaxis()->SetTitle("#Delta#varphi ");
 	    hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb]->GetXaxis()->SetTitle("#Delta#eta");
 	    hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb]->GetXaxis()->SetTitleOffset(1.3);
-	    hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb]->GetYaxis()->SetTitle("#Delta#phi (radians)");
+	    hDeltaEtaDeltaPhi_SEbins[m][z][v][tr][sb]->GetYaxis()->SetTitle("#Delta#varphi ");
 	    hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]->GetXaxis()->SetTitle("#Delta#eta");
 	    hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]->GetXaxis()->SetTitleOffset(1.3);
-	    hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]->GetYaxis()->SetTitle("#Delta#phi (radians)");
+	    hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb]->GetYaxis()->SetTitle("#Delta#varphi ");
 	    hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->SetTitle("#Delta#eta");
-	    hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetYaxis()->SetTitle("#Delta#phi (radians)");
+	    hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetYaxis()->SetTitle("#Delta#varphi ");
 	    hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][sb]->GetXaxis()->SetTitleOffset(1.3);
 	    norm_MEbins_norm[m][v][sb]= hDeltaEtaDeltaPhi_ME_normbins[m][z][v][tr][sb]->GetBinContent(hDeltaEtaDeltaPhi_ME_normbins[m][z][v][tr][sb]->GetXaxis()->FindBin(0.000001), hDeltaEtaDeltaPhi_ME_normbins[m][z][v][tr][sb]->GetYaxis()->FindBin(0.000001));
 	    cout << "valore histo  in DeltaEta=0 e DeltaPhi=0, histo normalizzato  " <<  norm_MEbins_norm[m][v][sb] <<"\n"<< endl;
@@ -1185,6 +1248,16 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 	      if (sys == 0){
 		if (NPtV0[v] < LowLimit){	JetValue=1.1; BulkLowValue =1.1; BulkUpValue=1.35;}
 		else {JetValue=1.; BulkLowValue = 1.; BulkUpValue=1.25;}
+	      }
+	    }
+ 	    else if (isNewdEtaJet == 3){
+	      if (sys == 0){
+		if (type==8) {	JetValue=1.2; BulkLowValue =1.2; BulkUpValue=1.35;}
+		else {
+		  if (NPtV0[v] < LowLimitBis){	JetValue=1.2; BulkLowValue =1.2; BulkUpValue=1.35;}
+		  else if (NPtV0[v] < LowLimit){	JetValue=1.1; BulkLowValue =1.1; BulkUpValue=1.35;}
+		  else {JetValue=1.; BulkLowValue = 1.; BulkUpValue=1.25;}
+		}
 	      }
 	    }
 	    
@@ -1207,8 +1280,8 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 
 	    for(Int_t eta=0; eta<numeta; eta++){
 	      //	      cout << " eta " << eta << endl;
-	      hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][sb][eta]->SetTitle("#Delta#phi projection in " +Proj[eta] + TitleString[m][v][sb]);
-	      hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][sb][eta]->GetXaxis()->SetTitle("#Delta#phi (radians)");
+	      hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][sb][eta]->SetTitle("#Delta#varphi projection in " +Proj[eta] + TitleString[m][v][sb]);
+	      hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][sb][eta]->GetXaxis()->SetTitle("#Delta#varphi ");
 	      hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][sb][eta]->GetYaxis()->SetTitle("Counts");
 	      hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][sb][eta]->GetXaxis()->SetTitleOffset(1);
 	      hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][sb][eta]->GetYaxis()->SetTitleOffset(1);
@@ -1230,7 +1303,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 		}
 	      }
 	      hDeltaEtaDeltaPhi_ACbins_phi_Error[m][z][v][tr][sb][eta]= (TH1D*)	 	    hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][sb][eta]->Clone(nameME[m][z][v][tr][sb]+Form("_AC_phi_eta%i_RelError",eta));
-	      hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][sb][eta]->SetTitle("Relative errors of #Delta#phi projection in " +Proj[eta] + TitleString[m][v][sb]);
+	      hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][sb][eta]->SetTitle("Relative errors of #Delta#varphi projection in " +Proj[eta] + TitleString[m][v][sb]);
 	      for(Int_t j=1; j < hDeltaEtaDeltaPhi_ACbins_phi_Error[m][z][v][tr][sb][eta]->GetNbinsX(); j++){
 		hDeltaEtaDeltaPhi_ACbins_phi_Error[m][z][v][tr][sb][eta]->SetBinContent(j,TMath::Abs(hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][sb][eta]->GetBinError(j)/hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][sb][eta]->GetBinContent(j)) );
 		hDeltaEtaDeltaPhi_ACbins_phi_Error[m][z][v][tr][sb][eta]->SetBinError(j,0);
@@ -1273,7 +1346,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 	      hDeltaEtaDeltaPhi_MErap[m][z][v][tr]->SetTitle(Title);
 	      hDeltaEtaDeltaPhi_MErap[m][z][v][tr]->GetXaxis()->SetTitle("#Delta#eta");
 	      hDeltaEtaDeltaPhi_MErap[m][z][v][tr]->GetXaxis()->SetTitleOffset(1.3);
-	      hDeltaEtaDeltaPhi_MErap[m][z][v][tr]->GetYaxis()->SetTitle("#Delta#phi (radians)");
+	      hDeltaEtaDeltaPhi_MErap[m][z][v][tr]->GetYaxis()->SetTitle("#Delta#varphi ");
 
 	    }
 	  }
@@ -1314,10 +1387,16 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 
 	    if (!IsParticleTrue)	  {
 	      cout << "purity for " << m << " v " << m << " " << histoSSB[m]->GetBinContent(v+1)<< endl;
+
+	      //Plotting
+	      hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BeforeSBSub[m][z][v][tr][eta]= (TH1D*) hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][eta]->Clone(nameME[m][z][v][tr][0]+Form("_eta%i_AC_phi_BeforeSBSub", eta)); 
+	      hDeltaEtaDeltaPhi_ACbins_phi_SB_NTrigg[m][z][v][tr][eta]= (TH1D*) hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][1][eta]->Clone(nameME[m][z][v][tr][0]+Form("_eta%i_AC_phi_SB_NTrigg", eta)); 
+	      //*************
+
 	      if (!isSidebands)  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][eta]->Scale(histoSSB[m]->GetBinContent(v+1));//this for a fast fake removal
 	      else hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][eta]->Add(hDeltaEtaDeltaPhi_ACbins_phi[m][z][v][tr][1][eta],-1); 
 	    }
-	    hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][eta]->GetXaxis()->SetTitle("#Delta#phi (radians)");
+	    hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][eta]->GetXaxis()->SetTitle("#Delta#varphi ");
 
 	    for (Int_t j=1; j<= hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][eta]->GetNbinsX() ; j++){
 	      hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Error[m][z][v][tr][eta]->SetBinContent(j, hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][eta]->GetBinError(j)/  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][eta]->GetBinContent(j));
@@ -1325,7 +1404,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 	    }
 	    hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Error[m][z][v][tr][eta]->GetYaxis()->SetRangeUser(0,1);
 
-	  }
+	  } //end loop for eta
 
 	  cout << " 	  //sottraggo distribuzione del bulk " << endl;
 	  //***************************************************************
@@ -1337,6 +1416,17 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 	      else {JetValue=1.; BulkLowValue = 1.; BulkUpValue=1.25;}
 	    }
 	  }
+	  else if (isNewdEtaJet == 3){
+	    if (type==8) {	JetValue=1.2; BulkLowValue =1.2; BulkUpValue=1.35;}
+	    else {
+	      if (sys == 0){
+		if (NPtV0[v] < LowLimitBis){	JetValue=1.2; BulkLowValue =1.2; BulkUpValue=1.35;}
+		else if (NPtV0[v] < LowLimit){	JetValue=1.1; BulkLowValue =1.1; BulkUpValue=1.35;}
+		else {JetValue=1.; BulkLowValue = 1.; BulkUpValue=1.25;}
+	      }
+	    }
+	  }
+
 
 	  ScaleFactor[m][z][v][tr]=(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(JetValue)) - hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(-JetValue)))/2./ (hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(BulkUpValue)) - hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(BulkLowValue)));
 	  //	  cout << (hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(JetValue)) - hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(-JetValue))) << "   " <<(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(BulkUpValue)) - hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(BulkLowValue)))<<"  " << (hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(BulkUpValue))) << "  " << hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(BulkLowValue));
@@ -1404,14 +1494,22 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 
 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Bulk_EffCorr_Error[m][z][v][tr]=(TH1D*)hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][1]->Clone("ME_m"+Smolt[m]+"_v"+SPtV0[v]+"_AC_phi_V0Sub_Bulk_EffCorr_RelError");	 
 
+	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BeforeSBSub[m][z][v][tr][1]->Scale(ScaleFactorBulk[m][z][v][tr]);
+	  hDeltaEtaDeltaPhi_ACbins_phi_SB_NTrigg[m][z][v][tr][1]->Scale(ScaleFactorBulk[m][z][v][tr]);
+
 	  //********jet*****
 	  ScaleFactorJet[m][z][v][tr]=(1./(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(JetValueDefault)) - hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(-JetValueDefault))));
+	  cout << "Look here! pt: " << NPtV0[v] << ", Eta jet:  " << hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(JetValue)) << " Bulk " << endl;
+	  cout << "--> DeltaEta Bulk interval " << hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->FindBin(BulkLowValue)) << " - " << hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[nummoltMax][0][1][0][0]->GetXaxis()->FindBin(BulkUpValue)) << endl;
 	  cout << "	  ScaleFactorJet[m][z][v][tr] " << 	  ScaleFactorJet[m][z][v][tr]<< endl;
 	  ScaleFactorJetNotDef[m][z][v][tr]=(1./(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinLowEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(JetValue)) - hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->GetBinUpEdge(hDeltaEtaDeltaPhi_ACbins[m][z][v][tr][0]->GetXaxis()->FindBin(-JetValue)))); //this is needed fr siplaying purposes (otherwise jetnot bulksub does not correctly superimpose to bulk distribution)---no side effects are expected
 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSubFit_EffCorr[m][z][v][tr]->Scale(ScaleFactorJet[m][z][v][tr]);
 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSub[m][z][v][tr]->Scale(ScaleFactorJet[m][z][v][tr]);
 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_EffCorr[m][z][v][tr]->Scale(ScaleFactorJetNotDef[m][z][v][tr]);
 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][0]->Scale(ScaleFactorJet[m][z][v][tr]);
+
+	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BeforeSBSub[m][z][v][tr][0]->Scale(ScaleFactorJet[m][z][v][tr]);
+	  hDeltaEtaDeltaPhi_ACbins_phi_SB_NTrigg[m][z][v][tr][0]->Scale(ScaleFactorJet[m][z][v][tr]);
 
 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSub_Error[m][z][v][tr]= (TH1D*)	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSub[m][z][v][tr]->Clone(nameME[m][z][v][tr][0]+"_AC_phi_V0Sub_BulkSub_RelError");
 	  for (Int_t j=1; j<=hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BulkSub_Error[m][z][v][tr]->GetNbinsX() ; j++){
@@ -1440,6 +1538,8 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_JetBulk_EffCorrNotScaled[m][z][v][tr]->Scale(1./ScaleFactorJetBulk[m][z][v][tr]);
 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_JetBulk_EffCorrNotScaled[m][z][v][tr]->SetTitle("Jet + UE distribution in " +Proj[0] + TitleStringBis[m][v]);
 
+	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BeforeSBSub[m][z][v][tr][2]->Scale(ScaleFactorJetBulk[m][z][v][tr]);
+	  hDeltaEtaDeltaPhi_ACbins_phi_SB_NTrigg[m][z][v][tr][2]->Scale(ScaleFactorJetBulk[m][z][v][tr]);
 
 	  //****************************************************************************************************************
 	  //divido angular correlation proietatta in deltaphi per efficienza di selezione Trigger e V0 e per contamination factors e per SSB
@@ -1659,7 +1759,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 	    hDeltaEtaDeltaPhi_MEbins_rapMolt[m][z][v][tr][sb]->SetName(nameME[m][z][v][tr][sb] + "_rapMolt");
 	    hDeltaEtaDeltaPhi_MEbins_rapMolt[m][z][v][tr][sb]->SetTitle("ME " +Smolt[m]+"% / ME 0-100%"+TitleStringTris[v] );
 	    hDeltaEtaDeltaPhi_MEbins_rapMolt[m][z][v][tr][sb]->GetXaxis()->SetTitle("#Delta#eta");
-	    hDeltaEtaDeltaPhi_MEbins_rapMolt[m][z][v][tr][sb]->GetYaxis()->SetTitle("#Delta#phi (radians)");
+	    hDeltaEtaDeltaPhi_MEbins_rapMolt[m][z][v][tr][sb]->GetYaxis()->SetTitle("#Delta#varphi ");
 	    hDeltaEtaDeltaPhi_MEbins_rapMolt[m][z][v][tr][sb]->Divide( hDeltaEtaDeltaPhi_MEbins[m][z][v][tr][sb], hDeltaEtaDeltaPhi_MEbins[nummoltMax][z][v][tr][sb]);
 	  }
 	}
@@ -1747,6 +1847,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   if (MultBinning!=0) PathOut1 += Form("_MultBinning%i", MultBinning);
   if (isNewdEtaJet == 1)  PathOut1 += "_NewdEtaChoice";
   else if (isNewdEtaJet == 2)  PathOut1 += "_NewdEtaChoice2";
+  else if (isNewdEtaJet == 3)  PathOut1 += "_NewdEtaChoice3";
   //  PathOut1 += "_Try1";
   //    PathOut1+="_TryisEta05";
   //    PathOut1+="_thinptbinsbis";
@@ -1764,6 +1865,8 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
     else PathOut1 += "_isWingsCorrectionAppliedNew";
   }
   //  PathOut1+="_OnlyToPeak";
+  if (MaterialBudgetCorr)  PathOut1 += "_MatBudgetCorr";
+  PathOut1+= "_PlotForThesis";
   PathOut1+=".root";
 
   if (isEnlargedDeltaEtaPhi)    PathOut1 = Dir+"/histo/AngularCorrelation" + file  + Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f", sysTrigger, sysV0, sys, PtTrigMin)+"_DeltaEtaPhiEnlarged_Output.root";
@@ -1839,7 +1942,11 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
 	  hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][0]->SetTitle("");
 
 	  for (Int_t eta=0; eta<=2; eta++){
+	    hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BeforeSBSub[m][z][v][tr][eta]->Scale(1./NTrigger[m]);
+	    hDeltaEtaDeltaPhi_ACbins_phi_SB_NTrigg[m][z][v][tr][eta]->Scale(1./NTrigger[m]);
 	    hDeltaEtaDeltaPhi_ACbins_phi_V0Sub[m][z][v][tr][eta]->Write();
+	    hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_BeforeSBSub[m][z][v][tr][eta]->Write();
+	    hDeltaEtaDeltaPhi_ACbins_phi_SB_NTrigg[m][z][v][tr][eta]->Write();
 	    hDeltaEtaDeltaPhi_ACbins_phi_V0Sub_Error[m][z][v][tr][eta]->Write();
 	    if (!(isMC && !isEfficiency)){
 	      hDeltaEtaDeltaPhi_ACbins_phi_V0SubFakeSB[m][z][v][tr][eta]->Write();
