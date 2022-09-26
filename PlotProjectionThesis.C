@@ -39,7 +39,7 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void PlotProjectionThesis(Int_t type=0, Int_t multChosen = 5, Int_t ptchosen = 2, Int_t isProj=0, Int_t DataSample=0, Bool_t isMERatio=1){ 
+void PlotProjectionThesis(Int_t type=1, Int_t multChosen = 5, Int_t ptchosen = 2, Int_t isProj=0, Int_t DataSample=0, Bool_t isMERatio=1){ 
 
   //type = 0 for K0s, 1 for Xi
 
@@ -126,6 +126,41 @@ void PlotProjectionThesis(Int_t type=0, Int_t multChosen = 5, Int_t ptchosen = 2
   TFile *inputFileJetXi = new TFile(SinputFileJetXi, "");
   if (!inputFileJetXi) {cout << "Input file for Xi OOJ not present. File name: " << SinputFileJetXi << endl; return;} 
 
+  TString SinputFileSistFull = "";
+  TString SinputFileSistBulk = "";
+  TString SinputFileSistJet = "";
+  TString  SInitial="";
+  TString  SFinal="";
+  if (DataSample==0) {
+    if (type==0){
+      SInitial = "FinalOutput/DATA2016/PtSpectraNew_1617_AOD234_hK0s_PtBinning1_K0s_Eta0.8_AllAssoc_SysPhi0_PtMin3.0";
+      SFinal = "_EffCorr_isWingsCorrectionAppliedNew.root";
+    }
+    else if (type==1){
+      SInitial = "FinalOutput/DATA2016/PtSpectraNew_161718Full_AOD234_hXi_Xi_Eta0.8_AllAssoc_SysPhi0_PtMin3.0";
+      SFinal = ".root";
+    }
+  }
+  else if (DataSample==1) {
+    if (type==0){
+      SInitial = "";
+      SFinal = "";
+    }
+    else if (type==1){
+      SInitial = "FinalOutput/DATA2016/PtSpectraNew_161718_HM_hXi_WithFlat16k_No18p_Xi_Eta0.8_AllAssoc_SysPhi0_PtMin3.0";
+      SFinal = "_MultBinning1.root";
+    }
+  }
+
+  SinputFileSistFull = SInitial + "_Inclusive" + SFinal;
+  SinputFileSistBulk = SInitial + "_Bulk" + SFinal;
+  SinputFileSistJet = SInitial + "_Jet" + SFinal;
+  TFile *inputFileSystFull = new TFile(SinputFileSistFull, "");
+  TFile *inputFileSystBulk = new TFile(SinputFileSistBulk, "");
+  TFile *inputFileSystJet = new TFile(SinputFileSistJet, "");
+  if (!inputFileSystFull) {cout << "Input file for syst errors FULL. File name: " << SinputFileSistFull << endl; return;}
+  if (!inputFileSystBulk) {cout << "Input file for syst errors FULL. File name: " << SinputFileSistBulk << endl; return;}
+  if (!inputFileSystJet) {cout << "Input file for syst errors FULL. File name: " << SinputFileSistJet << endl; return;}
   if (DataSample==1) Smolt[multChosen] = "0-0.1";
 
   TString nameSE = "SE_m"+Smolt[multChosen]+"_v"+SPtV0[ptchosen]+"_Effw";
@@ -145,9 +180,15 @@ void PlotProjectionThesis(Int_t type=0, Int_t multChosen = 5, Int_t ptchosen = 2
   if (DataSample==1) SLegendMolt[multChosen] = "0-0.1%";
   TCanvas* canvasPairAcceptance = new TCanvas("canvasPairAcceptance", "canvasPairAcceptance", 1000, 700);
 
+  TLegend *LegendSist = new TLegend(0.65, 0.6, 0.95, 0.75);
+  LegendSist->SetFillStyle(0);
+  LegendSist->SetTextAlign(12);
+  LegendSist->SetTextSize(0.04);
+  LegendSist->SetBorderSize(0);
+
   TLegend *LegendALICE=new TLegend(0.06,0.77,0.28,0.97);
   LegendALICE->SetFillStyle(0);
-  LegendALICE->SetTextAlign(12); //left align
+  LegendALICE->SetTextAlign(12);
   LegendALICE->SetTextSize(0.06);
   LegendALICE->SetBorderSize(0);
   LegendALICE->AddEntry("", "#bf{This work}", "");
@@ -169,8 +210,12 @@ void PlotProjectionThesis(Int_t type=0, Int_t multChosen = 5, Int_t ptchosen = 2
   //  else LegendALICEProj->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
   LegendALICEProj->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
   LegendALICEProj->AddEntry("", "V0M Multiplicity Percentile "+SLegendMolt[multChosen], "");
-  if (type==0)  LegendALICEProj->AddEntry("", "h-K_{S}^{0} correlations", "");
+  if (type==0) {
+    if (isProj==2)  LegendALICEProj->AddEntry("", "h-fake K_{S}^{0} correlations", "");
+    else  LegendALICEProj->AddEntry("", "h-K_{S}^{0} correlations", "");
+  }
   else  if (type==1)  LegendALICEProj->AddEntry("", "h-#Xi^{#pm} correlations", "");
+  //  if (isProj==2)  LegendALICEProj->AddEntry("", "|| > 4#sigma", "");
 
   TLegend *LegendALICEMERatio=new TLegend(0.27,0.14,0.47,0.34);
   LegendALICEMERatio->SetFillStyle(0);
@@ -190,7 +235,8 @@ void PlotProjectionThesis(Int_t type=0, Int_t multChosen = 5, Int_t ptchosen = 2
   LegendALICEJet->SetBorderSize(0);
   LegendALICEJet->AddEntry("", "#bf{This work}", "");
   LegendALICEJet->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
-  //LegendALICEJet->AddEntry("", "V0M Multiplicity Percentile "+SLegendMolt[multChosen], "");
+  //  LegendALICEJet->AddEntry("", "V0M Multiplicity Percentile "+SLegendMolt[multChosen], "");
+  LegendALICEJet->AddEntry("", "V0M "+SLegendMolt[multChosen], "");
   if (type==0)  LegendALICEJet->AddEntry("", "h-K_{S}^{0} correlations", "");
   else  if (type==1)  LegendALICEJet->AddEntry("", "h-#Xi^{#pm} correlations", "");
 
@@ -243,11 +289,19 @@ void PlotProjectionThesis(Int_t type=0, Int_t multChosen = 5, Int_t ptchosen = 2
 
   TLegend *LegendJetRegionsXi;
   if (DataSample==0) LegendJetRegionsXi=new TLegend(0.57,0.27,0.94,0.48);
-  else LegendJetRegionsXi=new TLegend(0.29,0.32,0.66,0.53);
+  else LegendJetRegionsXi=new TLegend(0.32,0.32,0.69,0.53);
   LegendJetRegionsXi->SetFillStyle(0);
   LegendJetRegionsXi->SetTextAlign(12); //left align
   LegendJetRegionsXi->SetTextSize(0.04);
   LegendJetRegionsXi->SetBorderSize(0);
+
+  TLegend *LegendRegionsSist;
+  if (type==0)LegendRegionsSist=new TLegend(0.54,0.5,0.91,0.71);
+  else LegendRegionsSist=new TLegend(0.54,0.55,0.91,0.76);
+  LegendRegionsSist->SetFillStyle(0);
+  LegendRegionsSist->SetTextAlign(12); //left align
+  LegendRegionsSist->SetTextSize(0.045);
+  LegendRegionsSist->SetBorderSize(0);
 
   TLegend *LegendSB=new TLegend(0.33,0.15,0.53,0.35);
   LegendSB->SetFillStyle(0);
@@ -350,10 +404,22 @@ void PlotProjectionThesis(Int_t type=0, Int_t multChosen = 5, Int_t ptchosen = 2
   TH1F *hProjBulk[3];
   TH1F *hProjFull[3];
   TH1F *hProjJet[3];
+
   TString NameJetwBulk = "";
   TString NameBulk = "";
   TString NameFull = "";
   TString NameJet = "";
+  TString NameStat = "";
+  TString NameSist = "";
+
+  TH1F *hProjBulkStat[3];
+  TH1F *hProjFullStat[3];
+  TH1F *hProjJetStat[3];
+  TH1F *hProjJetStatGrey[3];
+  TH1F *hProjJetSistGrey[3];
+  TH1F *hProjBulkSist[3];
+  TH1F *hProjFullSist[3];
+  TH1F *hProjJetSist[3];
 
   Int_t veff[3]={0};
 
@@ -383,10 +449,10 @@ void PlotProjectionThesis(Int_t type=0, Int_t multChosen = 5, Int_t ptchosen = 2
       else if (v==2) veff[v] = 5;
       */
       
-      if (v==0) veff[v] = 3;
+      if (v==0) veff[v] = 5;
       else if (v==1) {
 	if (type==0)	veff[v] = 4;
-	else 	veff[v] = 5;
+	else 	veff[v] = 6;
       }
       else if (v==2) veff[v] = 7;
       
@@ -427,7 +493,7 @@ void PlotProjectionThesis(Int_t type=0, Int_t multChosen = 5, Int_t ptchosen = 2
 	gPad->SetRightMargin(0);
 					       */
       hProjJetwBulk[v]->Scale(1./hProjJetwBulk[v]->GetXaxis()->GetBinWidth(1));
-      StyleHisto(hProjJetwBulk[v], 0, 1.3* hProjJetwBulk[v]->GetMaximum(hProjJetwBulk[v]->GetMaximumBin()),  color[0], 33,  "#Delta#varphi",  "#frac{1}{#it{N}_{trigg}} #frac{1}{#Delta#eta} #frac{d#it{N}_{assoc}}{d#Delta#varphi}", "", 0,  0,  0, 1,  2.5, 1.2);
+      StyleHisto(hProjJetwBulk[v], 0, 1.25* hProjJetwBulk[v]->GetMaximum(hProjJetwBulk[v]->GetMaximumBin()),  color[0], 33,  "#Delta#varphi",  "#frac{1}{#it{N}_{trigg}} #frac{1}{#Delta#eta} #frac{d#it{N}_{assoc}}{d#Delta#varphi}", "", 0,  0,  0, 1,  2.5, 1.2);
       if (isProj==3){
 	if (i==2) {
 	  hProjJetwBulk[v]->SetMarkerColor(634);
@@ -476,10 +542,10 @@ void PlotProjectionThesis(Int_t type=0, Int_t multChosen = 5, Int_t ptchosen = 2
       hProjFull[v]->GetYaxis()->SetNdivisions(6);
       hProjFull[v]->DrawClone("same e");
 
-      TLegend *LegendPt = new TLegend(0.3, 0.75, 0.5, 0.87);
+      TLegend *LegendPt = new TLegend(0.3, 0.8, 0.5, 0.84);
       LegendPt->AddEntry("", Form("%.1f < #it{p}_{T}^{assoc} < %.1f GeV/#it{c}", NPtV0[veff[v]],  NPtV0[veff[v]+1]), "");
       LegendPt->SetTextSize(0.05);
-      LegendPt -> Draw("same");
+      LegendPt->Draw("same");
       if (v==0 && icounter==1){
 	LegendRegions->AddEntry(hProjJetwBulk[v], "#color[628]{|#Delta#eta| < 0.86}", "pl");
 	LegendRegions->AddEntry(hProjBulk[v], "#color[418]{0.86 < |#Delta#eta| < 1.2}", "pl");
@@ -586,7 +652,8 @@ void PlotProjectionThesis(Int_t type=0, Int_t multChosen = 5, Int_t ptchosen = 2
       LegendJetRegions->AddEntry(hProjJetwBulk[v], "#color[634]{|#Delta#eta| < 0.86}", "pl");
       LegendJetRegions->AddEntry(hProjBulk[v], "#color[418]{0.86 < |#Delta#eta| < 1.2}", "pl");
       //      LegendJetRegions->AddEntry(hProjJet[v], "#color[628]{|#Delta#eta| < 0.86 - 0.86 < |#Delta#eta| < 1.2}", "pl");
-      LegendJetRegions->AddEntry(hProjJet[v], "#color[628]{Near-side jet}", "pl");
+      //      LegendJetRegions->AddEntry(hProjJet[v], "#color[628]{Near-side jet}", "pl");
+      LegendJetRegions->AddEntry(hProjJet[v], "#color[628]{Toward-leading}", "pl");
     }
     if (v==0)   LegendALICEJet->Draw("same");
     else if (v==1) LegendJetRegions->Draw("same");
@@ -598,10 +665,6 @@ void PlotProjectionThesis(Int_t type=0, Int_t multChosen = 5, Int_t ptchosen = 2
   canvasJetProjections->SaveAs(ScanvasJetProjections);
 
   TCanvas* canvasXiJetProjections;
-  /*
-  if (DataSample==0) canvasXiJetProjections = new TCanvas("canvasXiJetProjections", "canvasXiJetProjections", 1500, 600);
-  else if (DataSample==1) canvasXiJetProjections = new TCanvas("canvasXiJetProjections", "canvasXiJetProjections", 1000, 600);
-  */
   canvasXiJetProjections = new TCanvas("canvasXiJetProjections", "canvasXiJetProjections", 1500, 600);
   if (type==1){
     if (DataSample==0)    Smolt[multChosen]= "10-30";
@@ -692,7 +755,8 @@ void PlotProjectionThesis(Int_t type=0, Int_t multChosen = 5, Int_t ptchosen = 2
 	LegendJetRegionsXi->AddEntry(hProjJetwBulk[v], "#color[634]{|#Delta#eta| < 0.86}", "pl");
 	//	LegendJetRegionsXi->AddEntry(hProjBulk[v], "#color[418]{0.86 < |#Delta#eta| < 1.2 in V0M 0-0.01%}", "pl");
 	LegendJetRegionsXi->AddEntry(hProjBulk[v], "#color[418]{0.86 < |#Delta#eta| < 1.2}", "pl");
-	LegendJetRegionsXi->AddEntry(hProjJet[v], "#color[628]{Near-side jet}", "pl");
+	//	LegendJetRegionsXi->AddEntry(hProjJet[v], "#color[628]{Near-side jet}", "pl");
+	LegendJetRegionsXi->AddEntry(hProjJet[v], "#color[628]{Toward-leading}", "pl");
       }
       if (vcounter==0)   LegendALICEJetXi->Draw("same");
       else if (vcounter==1) LegendJetRegionsXi->Draw("same");
@@ -703,6 +767,149 @@ void PlotProjectionThesis(Int_t type=0, Int_t multChosen = 5, Int_t ptchosen = 2
     cout <<"\n\e[35mJet dPhi projections (before and after ooj subtraction) for Xi \e[39m" << endl;
     canvasXiJetProjections->SaveAs(ScanvasXiJetProjections);
   }
+
+  TCanvas* canvasProjectionsSyst;
+  canvasProjectionsSyst = new TCanvas("canvasProjectionsSyst", "canvasProjectionsSyst", 1500, 600);
+  if (type==0){
+    if (DataSample==0)    Smolt[multChosen]= "_all";
+    else     Smolt[multChosen]= "0.01-0.05";
+  }
+  else {
+    if (DataSample==0)    Smolt[multChosen]= "_all";
+    else     Smolt[multChosen]= "0-0.1";
+  }
+  canvasProjectionsSyst->Divide(3, 1);
+  canvasProjectionsSyst->SetFillColor(0);
+  canvasProjectionsSyst->SetTickx(1);
+  canvasProjectionsSyst->SetTicky(1);
+  gStyle->SetOptStat(0);
+  gStyle->SetLegendBorderSize(0);
+  gStyle->SetLegendFillColor(0);
+  gStyle->SetLegendFont(42);
+  gStyle->SetPalette(55, 0); //55
+
+  Int_t  vcounter=-1;
+  if (type==1) LowLimitJet = -0.0002;
+  TF1 * LineAtZero = new TF1("pol0", "pol0", -TMath::Pi()/2, 3./2*TMath::Pi());
+  LineAtZero->SetParameter(0, 0);
+  LineAtZero->SetLineColor(kGray+3);
+  LineAtZero->SetLineStyle(3);
+  for (Int_t v=0; v<3; v++){
+    vcounter++;
+    if (type==0){
+      if (v==0) veff[v] = 3;
+      else if (v==1) veff[v] = 4;
+      else if (v==2) veff[v] = 7;
+    }
+    else {
+      if (v==0) veff[v] = 5;
+      else if (v==1) veff[v] = 6;
+      else if (v==2) veff[v] = 7;
+    }
+
+    NameStat = "PhiDistr_solostat_m"+Smolt[multChosen]+"_v"+ SPtV0[veff[v]];
+    NameSist = "PhiDistr_solosist_m"+Smolt[multChosen]+"_v"+ SPtV0[veff[v]];
+
+    cout << NameStat << " " << NameSist << endl;
+    hProjFullStat[v] = (TH1F*)inputFileSystFull->Get(NameStat);
+    hProjFullSist[v] = (TH1F*)inputFileSystFull->Get(NameSist);
+    if (!hProjFullStat[v]) {cout << "no hProjFull stat" << endl; return; }
+    if (!hProjFullSist[v]) {cout << "no hProjFull syst" << endl; return; }
+    hProjFullStat[v] ->SetName(NameStat+"_Full");
+    hProjFullSist[v] ->SetName(NameSist+"_Full");
+
+    hProjBulkStat[v] = (TH1F*)inputFileSystBulk->Get(NameStat);
+    hProjBulkSist[v] = (TH1F*)inputFileSystBulk->Get(NameSist);
+    if (!hProjBulkStat[v]) {cout << "no hProjBulk stat" << endl; return; }
+    if (!hProjBulkSist[v]) {cout << "no hProjBulk syst" << endl; return; }
+    hProjBulkStat[v] ->SetName(NameStat+"_Bulk");
+    hProjBulkSist[v] ->SetName(NameSist+"_Bulk");
+
+    hProjJetStat[v] = (TH1F*)inputFileSystJet->Get(NameStat);
+    hProjJetSist[v] = (TH1F*)inputFileSystJet->Get(NameSist);
+    if (!hProjJetStat[v]) {cout << "no hProjJet stat" << endl; return; }
+    if (!hProjJetSist[v]) {cout << "no hProjJet syst" << endl; return; }
+    hProjJetStat[v] ->SetName(NameStat+"_Jet");
+    hProjJetSist[v] ->SetName(NameSist+"_Jet");
+
+    canvasProjectionsSyst->cd(v+1);
+    gPad->SetLeftMargin(0.27);
+    gPad->SetRightMargin(0.02);
+
+    hProjFullStat[v]->Rebin(2);
+    hProjFullStat[v]->Scale(1./hProjFullStat[v]->GetXaxis()->GetBinWidth(1));
+    StyleHisto(hProjFullStat[v], LowLimitJet , 1.45* hProjFullStat[v]->GetMaximum(hProjFullStat[v]->GetMaximumBin()),  601, 33,  "#Delta#varphi",  "#frac{1}{#it{N}_{trigg}} #frac{1}{#Delta#eta} #frac{d#it{N}_{assoc}}{d#Delta#varphi}", "", 0,  0,  0, 1,  2.5, 1.2);
+    hProjFullStat[v]->GetYaxis()->SetTitleSize(0.05);  
+    hProjFullStat[v]->GetYaxis()->SetNdivisions(6);
+    hProjFullStat[v]->DrawClone("same e");
+    hProjFullSist[v]->Rebin(2);
+    hProjFullSist[v]->Scale(1./hProjFullSist[v]->GetXaxis()->GetBinWidth(1));
+    StyleHisto(hProjFullSist[v], LowLimitJet , 1.45* hProjFullSist[v]->GetMaximum(hProjFullSist[v]->GetMaximumBin()), 601 , 33,  "#Delta#varphi",  "#frac{1}{#it{N}_{trigg}} #frac{1}{#Delta#eta} #frac{d#it{N}_{assoc}}{d#Delta#varphi}", "", 0,  0,  0, 1,  2.5, 1.2);
+    hProjFullSist[v]->GetYaxis()->SetTitleSize(0.05);  
+    hProjFullSist[v]->GetYaxis()->SetNdivisions(6);
+    hProjFullSist[v]->SetFillStyle(0);
+    hProjFullSist[v]->SetFillColorAlpha(color[2], 1);
+    hProjFullSist[v]->DrawClone("same e2");
+
+    hProjBulkStat[v]->Rebin(2);
+    hProjBulkStat[v]->Scale(1./hProjBulkStat[v]->GetXaxis()->GetBinWidth(1));
+    StyleHisto(hProjBulkStat[v], LowLimitJet, 1.45* hProjFullStat[v]->GetMaximum(hProjFullStat[v]->GetMaximumBin()),  color[1], 33,  "#Delta#varphi",  "#frac{1}{#it{N}_{trigg}} #frac{1}{#Delta#eta} #frac{d#it{N}_{assoc}}{d#Delta#varphi}", "", 0,  0,  0, 1,  2.5, 1.2);
+    hProjBulkStat[v]->GetYaxis()->SetTitleSize(0.05);  
+    hProjBulkStat[v]->GetYaxis()->SetNdivisions(6);
+    hProjBulkStat[v]->DrawClone("same e");
+    hProjBulkSist[v]->Rebin(2);
+    hProjBulkSist[v]->Scale(1./hProjBulkSist[v]->GetXaxis()->GetBinWidth(1));
+    StyleHisto(hProjBulkSist[v], LowLimitJet, 1.45* hProjFullSist[v]->GetMaximum(hProjFullSist[v]->GetMaximumBin()),  color[1], 33,  "#Delta#varphi",  "#frac{1}{#it{N}_{trigg}} #frac{1}{#Delta#eta} #frac{d#it{N}_{assoc}}{d#Delta#varphi}", "", 0,  0,  0, 1,  2.5, 1.2);
+    hProjBulkSist[v]->GetYaxis()->SetTitleSize(0.05);  
+    hProjBulkSist[v]->GetYaxis()->SetNdivisions(6);
+    hProjBulkSist[v]->SetFillStyle(0);
+    hProjBulkSist[v]->SetFillColorAlpha(color[1], 1);
+    hProjBulkSist[v]->DrawClone("same e2");
+
+    hProjJetStat[v]->Scale(1./hProjJetStat[v]->GetXaxis()->GetBinWidth(1));
+    StyleHisto(hProjJetStat[v], LowLimitJet, 1.45* hProjFullStat[v]->GetMaximum(hProjFullStat[v]->GetMaximumBin()),  color[0], 33,  "#Delta#varphi",  "#frac{1}{#it{N}_{trigg}} #frac{1}{#Delta#eta} #frac{d#it{N}_{assoc}}{d#Delta#varphi}", "", 0,  0,  0, 1,  2.5, 1.2);
+    hProjJetStat[v]->GetYaxis()->SetTitleSize(0.05);  
+    hProjJetStat[v]->GetYaxis()->SetNdivisions(6);
+    hProjJetStat[v]->DrawClone("same e");
+    hProjJetSist[v]->Scale(1./hProjJetSist[v]->GetXaxis()->GetBinWidth(1));
+    StyleHisto(hProjJetSist[v], LowLimitJet, 1.45* hProjFullSist[v]->GetMaximum(hProjFullSist[v]->GetMaximumBin()),  color[0], 33,  "#Delta#varphi",  "#frac{1}{#it{N}_{trigg}} #frac{1}{#Delta#eta} #frac{d#it{N}_{assoc}}{d#Delta#varphi}", "", 0,  0,  0, 1,  2.5, 1.2);
+    hProjJetSist[v]->GetYaxis()->SetTitleSize(0.05);  
+    hProjJetSist[v]->GetYaxis()->SetNdivisions(6);
+    hProjJetSist[v]->SetFillStyle(0);
+    hProjJetSist[v]->SetFillColorAlpha(color[0], 1);
+    hProjJetSist[v]->DrawClone("same e2");
+
+    LineAtZero->DrawClone("same e");
+
+    if (v==0 && icounter==1){
+      LegendRegionsSist->AddEntry(hProjJetStat[v], "#color[628]{Toward-leading}", "pl");
+      LegendRegionsSist->AddEntry(hProjBulkStat[v], "#color[418]{0.86 < |#Delta#eta| < 1.2}", "pl");
+      LegendRegionsSist->AddEntry(hProjFullStat[v], "#color[601]{|#Delta#eta| < 1.2}", "pl");
+
+      hProjJetStatGrey[v] = (TH1F*)hProjJetStat[v]->Clone("GreyProjStat");
+      hProjJetStatGrey[v]->SetLineColor(1);
+      hProjJetStatGrey[v]->SetMarkerColor(1);
+      hProjJetSistGrey[v] = (TH1F*)hProjJetSist[v]->Clone("GreyProjSist");
+      hProjJetSistGrey[v]->SetLineColor(1);
+      hProjJetSistGrey[v]->SetMarkerColor(1);
+      LegendSist->AddEntry(hProjJetStatGrey[v], "stat. error", "pe");
+      LegendSist->AddEntry(hProjJetSistGrey[v], "syst. error", "ef");
+    }
+
+    TLegend *LegendPt = new TLegend(0.3, 0.8, 0.5, 0.87);
+    LegendPt->AddEntry("", Form("%.1f < #it{p}_{T}^{assoc} < %.1f GeV/#it{c}", NPtV0[veff[v]],  NPtV0[veff[v]+1]), "");
+    LegendPt->SetTextSize(0.05);
+    LegendPt -> Draw("same");
+
+    if (v==0)   LegendALICEJet->Draw("same");
+    else if (v==2) LegendRegionsSist->Draw("same");
+    else if (v==1)    LegendSist->Draw("");
+  }
+ 
+  TString ScanvasProjectionsSyst = "";
+  ScanvasProjectionsSyst = "Canvas"+year+"_dPhi_WithErrors.pdf";
+  cout <<"\n\e[35mdPhi projections with errors \e[39m" << endl;
+  canvasProjectionsSyst->SaveAs(ScanvasProjectionsSyst);
 
   TCanvas* canvasRegions = new TCanvas("canvasRegions", "canvasRegions", 1000, 700);
   gPad->SetBottomMargin(0.15);
@@ -807,6 +1014,7 @@ void PlotProjectionThesis(Int_t type=0, Int_t multChosen = 5, Int_t ptchosen = 2
   canvasProjections->Write();
   canvasJetProjections->Write();
   if (type==1)  canvasXiJetProjections->Write();
+  canvasProjectionsSyst->Write();
   canvasMERatios->Write();
   outputf->Close();
 
