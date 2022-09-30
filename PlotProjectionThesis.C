@@ -448,14 +448,15 @@ void PlotProjectionThesis(Int_t type=1, Int_t multChosen = 5, Int_t ptchosen = 2
       else if (v==1) veff[v] = 3;
       else if (v==2) veff[v] = 5;
       */
-      
-      if (v==0) veff[v] = 5;
+      if (v==0) veff[v] = 4;
       else if (v==1) {
-	if (type==0)	veff[v] = 4;
+	if (type==0)	veff[v] = 5;
 	else 	veff[v] = 6;
       }
       else if (v==2) veff[v] = 7;
       
+      cout << SPtV0[veff[v]] << endl;
+      cout << NPtV0[veff[v]] << endl;
       if (i==0){ //dPhi projections without SB subtraction
 	NameJetwBulk = "ME_m"+Smolt[multChosen]+"_v"+ SPtV0[veff[v]]+"_eta0_AC_phi_BeforeSBSub";
 	NameBulk = "ME_m"+Smolt[multChosen]+"_v"+ SPtV0[veff[v]]+"_eta1_AC_phi_BeforeSBSub";
@@ -1008,6 +1009,41 @@ void PlotProjectionThesis(Int_t type=1, Int_t multChosen = 5, Int_t ptchosen = 2
 
   if (isMERatio)  canvasMERatios->SaveAs("Canvas"+year+"_MEMultRatios.pdf");
   else  canvasMERatios->SaveAs("Canvas"+year+"_MEMult.pdf");
+
+  //************************ Triggered event efficiency ****************
+  TCanvas * canvasTriggEff = new TCanvas("canvasTriggEff", "canvasTriggEff", 1200, 800); //only one pad
+  canvasTriggEff->SetFillColor(0);
+  canvasTriggEff->SetTickx(1);
+  canvasTriggEff->SetTicky(1);
+  gStyle->SetLegendBorderSize(0);
+  gStyle->SetLegendFillColor(0);
+  gStyle->SetLegendFont(42);
+
+  TString Sfilein5TeV = "FinalOutput/DATA2016/MCClosureCheck_HybridtoTrue17pq_pp5TeV_Hybrid_vs_17pq_pp5TeV_PtBinning1_K0s_Eta0.8_PtMin3.0_MultBinning3_FIXED.root";
+  TString Sfilein13TeV = "FinalOutput/DATA2016/MCClosureCheck_HybridtoTrue1617GP_hK0s_Hybrid_New_vs_1617GP_hK0s_PtBinning1_K0s_Eta0.8_PtMin3.0_FIXED.root";
+  TFile *filein5TeV = new TFile(Sfilein5TeV, "");
+  TFile *filein13TeV = new TFile(Sfilein13TeV, "");
+  TH1F* hTriggEff13TeV = (TH1F*)filein13TeV->Get("fHistEventLoss");
+  hTriggEff13TeV->SetName("hTriggEff13TeV");
+  TH1F* hTriggEff5TeV = (TH1F*)filein5TeV->Get("fHistEventLoss");
+  hTriggEff5TeV->SetName("hTriggEff5TeV");
+
+  hTriggEff13TeV->SetLineColor(1);
+  hTriggEff5TeV->SetLineColor(kOrange);
+  StyleHisto(hTriggEff13TeV, 0, 1, kBlack, 1,  "V0M Multiplicity Percentile (%)",  "#varepsilon_{trigg event}", "", 0,  0,  0, 1,  1, 1.2);
+  StyleHisto(hTriggEff5TeV, 0, 1, kOrange+2, 1,  "V0M Multiplicity Percentile (%)",  "#varepsilon_{trigg event}", "", 0,  0,  0, 1, 1, 1.2);
+
+  hTriggEff13TeV->Draw("same");
+  hTriggEff5TeV->Draw("same");
+
+  TLegend * legendTriggEff = new TLegend(0.15, 0.4, 0.5, 0.6);
+  legendTriggEff->SetTextSize(0.04);
+  legendTriggEff->AddEntry("", "#bf{This work}", "");
+  legendTriggEff->AddEntry(hTriggEff13TeV, "pp, #sqrt{#it{s}} = 13 TeV", "l");
+  legendTriggEff->AddEntry(hTriggEff5TeV, "pp, #sqrt{#it{s}} = 5.02 TeV", "l");
+  legendTriggEff->Draw();
+
+  canvasTriggEff->SaveAs("Canvas_triggEff.pdf");
 
   TFile * outputf = new TFile("outputf.root", "RECREATE");
   canvasThreePads->Write();
