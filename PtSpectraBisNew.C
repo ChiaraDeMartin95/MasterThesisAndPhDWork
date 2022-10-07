@@ -40,7 +40,7 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0, TString year=""/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=1, Int_t PtBinning=1, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,  Bool_t TwoFitFunctions=0, Bool_t isNormCorrFullyComputed=1, Bool_t isMeanMacro=0, Bool_t ispp5TeV=0,  Bool_t isErrorAssumedPtCorr=1, Bool_t isFitForPlot=0, Bool_t isEffCorr=0, Bool_t isdNdEtaTriggered=1, Int_t sys=0, Int_t MaterialBudgetCorr=2, Int_t isOnlyPlottingRelError=1){
+void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0, TString year=""/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=1, Int_t PtBinning=1, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,  Bool_t TwoFitFunctions=0, Bool_t isNormCorrFullyComputed=1, Bool_t isMeanMacro=0, Bool_t ispp5TeV=1,  Bool_t isErrorAssumedPtCorr=1, Bool_t isFitForPlot=0, Bool_t isEffCorr=0, Bool_t isdNdEtaTriggered=1, Int_t sys=0, Int_t MaterialBudgetCorr=2, Int_t isOnlyPlottingRelError=0){
 
   Bool_t isGenOnTheFly = 0;
   if (isMC) isGenOnTheFly = 1;
@@ -800,6 +800,9 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
   if (isGenOnTheFly) canvasPtSpectraFitRatio->Divide((nummoltMax+2)/2, 2);
   else if (isppHM || MultBinning==3)   canvasPtSpectraFitRatio->Divide(2,2);
   else  canvasPtSpectraFitRatio->Divide(3,2);
+
+  TCanvas *canvasExtrFractionLowPt = new TCanvas("canvasExtrFractionLowPt", "canvasExtrFractionLowPt", 1300, 800);
+  TCanvas *canvasExtrFractionHighPt = new TCanvas("canvasExtrFractionHighPt", "canvasExtrFractionHighPt", 1300, 800);
 
   TCanvas* canvasPtSpectraFitBis = new TCanvas ("canvasPtSpectraFitBis", "canvasPtSpectraFitBis", 1300, 800);
   canvasPtSpectraFitBis->Divide(3,2);
@@ -2184,7 +2187,12 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
 	  cout << fHistSpectrumStat[m]->GetBinError(b) / fHistSpectrumStat[m]->GetBinContent(b) << endl;
 	}
       }
-      else 	fHistSpectrumStat[m]->Divide(fHistNormCorrFC[m]);
+      else {
+	if (m==4){
+	  fHistNormCorrFC[m]->SetBinContent(fHistNormCorrFC[m]->FindBin(6), fHistNormCorrFC[3]->GetBinContent(fHistNormCorrFC[m]->FindBin(6))); //this bin is empty for 50-100% norm factor
+	}
+	fHistSpectrumStat[m]->Divide(fHistNormCorrFC[m]);
+      }
       
       for (Int_t b=PtBinMin[m]+1; b<= fHistSpectrumSistAll[m]->GetNbinsX(); b++){ //I only have to *scale* sist error
 	//	cout <<       fHistNormCorrFC[m]->GetBinContent(b) << endl;
@@ -2195,10 +2203,12 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
 	else {
 	  fHistSpectrumSistAll[m]->SetBinContent(b,fHistSpectrumSistAll[m]->GetBinContent(b)/fHistNormCorrFC[m]->GetBinContent(b));
 	  fHistSpectrumSistAll[m]->SetBinError(b,fHistSpectrumSistAll[m]->GetBinError(b)/fHistNormCorrFC[m]->GetBinContent(b));
-	  if (fHistNormCorrFC[m]->GetBinContent(b) ==0 ) {
+	  /*
+	  if (fHistNormCorrFC[m]->GetBinContent(b) ==0 ) { //this should be avoided if possible
 	    fHistSpectrumSistAll[m]->SetBinContent(b,0);
 	    fHistSpectrumSistAll[m]->SetBinError(b,0);
 	  }
+	  */
 	}
       }
     }
@@ -2283,7 +2293,6 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
   } //end loop m
 
   //PLOTS
-
   TCanvas * canvasNR = new TCanvas("canvasNR", "canvasNR", 1000, 1200); //only one pad
   canvasNR->SetFillColor(0);
   canvasNR->SetTickx(1);
@@ -2467,7 +2476,7 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
   TF1* fit_MTscalingSoft[nummolt+1][numfittipo];
   TF1* fit_MTscalingBis[nummolt+1][numfittipo];
   TF1* fit_MTscalingTemp[nummolt+1][numfittipo];
-  TString       nameFit[numfittipo]={"mT-scaling", "Boltzmann", "Fermi-Dirac", "Levi"};
+  TString nameFit[numfittipo]={"mT-scaling", "Boltzmann", "Fermi-Dirac", "Levi"};
   pwgfunc.SetVarType(AliPWGFunc::kdNdpt);
   Int_t factor=1;
 
@@ -2549,6 +2558,8 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
 
   TCanvas* canvasFitResult = new TCanvas ("canvasFitResult", "canvasFitResult", 1300, 800);
   TH1F * hFitResult[numfittipo];
+  TH1F * hExtrFractionLowPt[numfittipo+1];
+  TH1F * hExtrFractionHighPt[numfittipo+1];
   TH1F*  fHistAvgPtDistr[nummolt+1][numfittipo];
   TH1F*  fHistAvgPtFSDistr[nummolt+1];
 
@@ -2557,6 +2568,10 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
   cout << "\n*******************************************************\n\e[39m" << endl;
   for (Int_t typefit =0; typefit<numfittipo; typefit++){
     hFitResult[typefit] = new TH1F ("hFitResult"+nameFit[typefit], "hFitResult",nummoltMax, Nmolt);
+  }
+  for (Int_t typefit =0; typefit<numfittipo+1; typefit++){
+    hExtrFractionHighPt[typefit] = new TH1F ("hExtrFractionHighPt"+nameFit[typefit], "hExtrFractionHighPt",nummoltMax, Nmolt);
+    hExtrFractionLowPt[typefit] = new TH1F ("hExtrFractionLowPt"+nameFit[typefit], "hExtrFractionLowPt",nummoltMax, Nmolt);
   }
   for(Int_t m=0; m<nummoltMax+1; m++){
     numfittipoEff=0;
@@ -2652,7 +2667,7 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
 	hhoutAvgPtRelSystLow[m]  ->GetXaxis()->SetBinLabel(typefit+1, nameFit[typefit]);
 
 	cout << "m " << m << " typefit " << typefit << endl;
-	hhoutYield[m] ->SetBinContent(typefit+1, hhout[typefit][m]->GetBinContent(9)); //extrapolatedfraction
+	hhoutYield[m] ->SetBinContent(typefit+1, hhout[typefit][m]->GetBinContent(9)); //extrapolated fraction
 	hhoutYieldAvg[m] +=       hhoutYield[m] ->GetBinContent(typefit+1); 
 
 	hhoutRelStat[m] ->SetBinContent(typefit+1, hhout[typefit][m]->GetBinContent(2)); // stat error
@@ -2819,6 +2834,9 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
       hhoutAvgPtRelStatMy[m] ->SetBinContent(typefit+1, 0);
       hhoutAvgPtRelSystHighMy[m] ->SetBinContent(typefit+1, 0);
       hhoutAvgPtRelSystLowMy[m] ->SetBinContent(typefit+1, 0);
+
+      hExtrFractionLowPt[typefit] ->SetBinContent(m+1, YieldExtrLowPt[m][typefit]);
+      hExtrFractionHighPt[typefit] ->SetBinContent(m+1, YieldExtrHighPt[m][typefit]);
 
       //1.B CALCULATE STATISTICAL ERROR OF EXTRAPOLATED YIELD
       /* WRONG: I am doing 4 measurements of the same quantity, but 4 fits with 4 different functions. The statistical error on the extraplated part should not be sigma / sqrt(4) but ~sigma (I can take an average sigma of the 4 functions) */
@@ -3004,6 +3022,33 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
     YieldErrSistMy[m] = YieldErrSist[m];
     YieldErrSist[m]= sqrt(pow(YieldErrSist[m],2) + pow(Yield4FitErrSistLowPt[m],2) + pow(Yield4FitErrSistHighPt[m],2) );
 
+    for (Int_t typefit =0; typefit<numfittipo; typefit++){
+      if (type==0 && TypeAnalysis==0 && MonashTune==3 && nameFit[typefit]=="Boltzmann" ) continue;
+      hExtrFractionLowPt[typefit]->SetBinContent(m+1, hExtrFractionLowPt[typefit]->GetBinContent(m+1)/Yield[m]);
+      if (TypeAnalysis==0)      StyleHisto(hExtrFractionLowPt[typefit], 0, 0.5, ColorFit[typefit], 33, "p_{T} (GeV/c)", "", "ExtrapolatedFraction", 0, 0, 0);
+      else       StyleHisto(hExtrFractionLowPt[typefit], 0, 0.1, ColorFit[typefit], 33, "p_{T} (GeV/c)", "", "ExtrapolatedFraction", 0, 0, 0);
+      canvasExtrFractionLowPt->cd();
+      gPad->SetLeftMargin(0.15);
+      hExtrFractionLowPt[typefit]->Draw("same");
+
+      hExtrFractionHighPt[typefit]->SetBinContent(m+1, hExtrFractionHighPt[typefit]->GetBinContent(m+1)/Yield[m]);
+      if (TypeAnalysis==0)      StyleHisto(hExtrFractionHighPt[typefit], 0, 0.1, ColorFit[typefit], 33, "p_{T} (GeV/c)", "", "ExtrapolatedFraction", 0, 0, 0);
+      else StyleHisto(hExtrFractionHighPt[typefit], 0, 0.02, ColorFit[typefit], 33, "p_{T} (GeV/c)", "", "ExtrapolatedFraction", 0, 0, 0);
+      canvasExtrFractionHighPt->cd();
+      gPad->SetLeftMargin(0.15);
+      hExtrFractionHighPt[typefit]->Draw("same");
+
+    }
+    hExtrFractionLowPt[numfittipo]->SetBinContent(m+1, YieldExtrLowPtAvg[m]/Yield[m]);
+    hExtrFractionLowPt[numfittipo]->SetLineColor(kBlack);
+    hExtrFractionLowPt[numfittipo]->SetLineWidth(3);
+    hExtrFractionLowPt[numfittipo]->Draw("same");
+
+    hExtrFractionHighPt[numfittipo]->SetBinContent(m+1, YieldExtrHighPtAvg[m]/Yield[m]);
+    hExtrFractionHighPt[numfittipo]->SetLineColor(kBlack);
+    hExtrFractionHighPt[numfittipo]->SetLineWidth(3);
+    hExtrFractionHighPt[numfittipo]->Draw("same");
+
     //******************************************************************
     //FINAL VALUES TO AVERAGE PT VS MULT OBTAINED FROM FIT
     AvgPt[m] = AvgPt[m]/numfittipoEff; //AVERAGE PT
@@ -3181,7 +3226,9 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
     }
 
     cout << "Discretization error: " << AvgPtDiscrErr[m] << " (Rel to AvgPt from mean macro: " << AvgPtDiscrErr[m]/AvgPtMeanMacro[m] << ") " << endl;
+
   }//end loop m
+
 
   cout << "\n\nYields : " << endl;
   for (Int_t m=0; m<nummoltMax +1; m++){
@@ -3654,6 +3701,8 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
   fileout->WriteTObject(canvasPtSpectraRelError);
   fileout->WriteTObject(canvasPtSpectraRelErrorAll);
   fileout->WriteTObject(canvasFitResult);
+  fileout->WriteTObject(canvasExtrFractionLowPt);
+  fileout->WriteTObject(canvasExtrFractionHighPt);
   if (isNormCorrFullyComputed==1) fileout->WriteTObject(canvasNormFactor);
   for(Int_t m=0; m<nummoltMax+1; m++){
     if (isppHM && MultBinning==1 && m<=1) continue;
