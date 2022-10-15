@@ -13,10 +13,29 @@ const float inf = 1e20;
 //TString dataname = "MulLHC17p";
 //TString p6name = "MulLHC17pMCPYTHIA8";
 //TString p8name = "MulLHC17pMCPYTHIA8";
+/*
 TString dataname = "PtCutLHC17p";
 TString p6name = "PtCutLHC17pMCPYTHIA8";
 TString p8name = "PtCutLHC17pMCPYTHIA8";
-
+*/
+/*
+TString dataname = "PtCutLHC16lHM";
+TString p6name = "PtCutLHC16lHMMCPYTHIA8";
+TString p8name = "PtCutLHC16lHMMCPYTHIA8";
+*/
+/*
+TString dataname = "PtCutLHC16lHMTest";
+TString p6name = "PtCutLHC16lHMMCPYTHIA8Test";
+TString p8name = "PtCutLHC16lHMMCPYTHIA8Test";
+*/
+/*
+TString dataname = "PtCutLHC16l";
+TString p6name = "PtCutLHC16lMCPYTHIA8";
+TString p8name = "PtCutLHC16lMCPYTHIA8";
+*/
+TString dataname = "PtCutLHC16l_Full_LessBins";
+TString p6name = "PtCutLHC16lMCPYTHIA8_Full_LessBins";
+TString p8name = "PtCutLHC16lMCPYTHIA8_Full_LessBins";
 
 //TString dataname = "PtCutLHC16l";
 //TString p6name = "PtCutLHC16lMCEPOS";
@@ -51,35 +70,17 @@ enum
 	kECbegin = 1,
 	kDATA = 1,
 	kINEL,
-	// kNSD,
 	kINELg0,
-	kINEL015,
-	kINEL040,
-	kINEL050,
-	kINEL100,
-	kINEL200,
 	kINEL300,
-	kINEL04025,
-	kINEL05024,
-	kINEL05025,
 	kECend
 };
-
 enum
 {
-	kTrigbegin = 1,
-	// kMBOR = 1,
-	// kMBAND,
-	// kMBORg0,
-	// kMBANDg0,
-	kMBAND015 = 1,
-	kMBAND040,
-	kMBAND050,
-	kMBAND100,
-	kMBAND200,
-	kMBAND300,
-	kHMMBAND,
+  	kTrigbegin = 1,
+	kHMMBAND = 1,
 	kHMMBAND300,
+	kMBAND015,
+	kMBAND300,
 	kTrigend
 };
 enum
@@ -134,12 +135,25 @@ enum
 
 Double1D vtxbin = {-10, 10};
 Double1D etabin = {-0.8, 0.8};
-Int_t eventclass = kINEL300;
-Int_t triggtype = kMBAND300;
+
+//--> For comparison with twiki values (MB)
 //Int_t eventclass = kINEL;
 //Int_t triggtype = kMBAND015;
+
+//--> For comparison with twiki values (HM)
+//Int_t eventclass = kINEL;
+//Int_t triggtype = kHMMBAND;
+
+Int_t eventclass = kINEL300;
+Int_t triggtype = kMBAND300;
+//Int_t triggtype = kHMMBAND300;
+
+//Int_t triggtype = kHMMBAND;
+//Int_t eventclass = kINEL;
+//Int_t triggtype = kMBAND015;
+
 Int_t centtype = kV0M;
-Double1D cent = {10,100};
+Double1D cent = {0,5}; 
 Double1D mccent =  cent;
 //Double1D  mccent={1,5};
 //Double1D mccent =  { (cent[0]==0 && cent[1] == 0.01 ) ? 0.001 : cent[0], cent[1]<=1 ? 1 : cent[1]};
@@ -541,8 +555,8 @@ TGraphAsymmErrors *TriggerBiasSystematic()
 	gStyle->SetOptTitle(0);
 	for (int i = 0; i < nvar; i++)
 	{
-		ratios[i]->SetMinimum(0.94);
-		ratios[i]->SetMaximum(1.04);
+		ratios[i]->SetMinimum(0.85);
+		ratios[i]->SetMaximum(1.15);
 
 		hset(*ratios[i], "#it{#eta}", "Ratio", 0.9, 0.9, 0.08, 0.08, 0.01, 0.01, 0.07, 0.07, 515, 505);
 		ratios[i]->Draw("histsame][");
@@ -559,10 +573,14 @@ TGraphAsymmErrors *TriggerBiasSystematic()
 		double max = 1, min = 1;
 		double maxe = 0, mine = 0;
 		double bincenter = ratios[0]->GetXaxis()->GetBinCenter(i);
+		if (bincenter<-0.5) continue;
+		if (bincenter>0.5) continue;
+
 		for (int j = 0; j < nvar; j++)
 		{
 			double val = ratios[j]->GetBinContent(i);
 			double vale = ratios[j]->GetBinError(i);
+
 			if (val > max)
 			{
 				max = val;
@@ -906,8 +924,8 @@ TGraphAsymmErrors *VertexSystematic()
 	gStyle->SetOptTitle(0);
 	for (int i = 0; i < nvar; i++)
 	{
-		ratios[i]->SetMinimum(0.988);
-		ratios[i]->SetMaximum(1.012);
+		ratios[i]->SetMinimum(0.95);
+		ratios[i]->SetMaximum(1.05);
 
 		hset(*ratios[i], "#it{#eta}", "Ratio", 0.9, 0.9, 0.08, 0.08, 0.01, 0.01, 0.07, 0.07, 515, 505);
 		ratios[i]->Draw("histsame][");
@@ -924,6 +942,8 @@ TGraphAsymmErrors *VertexSystematic()
 		double max = 1, min = 1;
 		double maxe = 0, mine = 0;
 		double bincenter = ratios[0]->GetXaxis()->GetBinCenter(i);
+ 		if (bincenter<-0.5) continue;
+		if (bincenter>0.5) continue;
 		for (int j = 0; j < nvar; j++)
 		{
 			double val = ratios[j]->GetBinContent(i);
@@ -955,8 +975,27 @@ TGraphAsymmErrors *VertexSystematic()
 	errorl->Fit("fl", "QN");
 	fh->SetLineWidth(3);
 	fl->SetLineWidth(3);
-	//fh -> Draw("same");
-	//fl -> Draw("same");
+	fh -> Draw("same");
+	fl -> Draw("same");
+
+	//Chiara
+	double meanChiarah=0;
+	double meanChiaral=0;
+	int counter=0;
+	for (int k = 0; k < errorh->GetNbinsX(); k++)
+	{
+	  double x, yh, yl;
+	  x=errorh->GetBinCenter(k);
+	  if (x< -0.5) continue;
+	  if (x> 0.5) continue;
+	  yh = errorh->GetBinContent(k);
+	  yl = errorl->GetBinContent(k);
+	  meanChiarah += yh;
+	  meanChiaral += yl;
+	  counter+=1;
+	}
+	meanChiarah = meanChiarah/counter;
+	meanChiaral = meanChiaral/counter;
 
 	for (int k = 0; k < Error->GetN(); k++)
 	{
@@ -965,8 +1004,11 @@ TGraphAsymmErrors *VertexSystematic()
 		Error->SetPoint(k, x, 1);
 		//Error->SetPointEYhigh(k, fh->Eval(x) - 1);
 		//Error->SetPointEYlow(k, 1 - fl->Eval(x));
-		Error->SetPointEYhigh(k, globalmax);
-		Error->SetPointEYlow(k, globalmax);
+		//Error->SetPointEYhigh(k, globalmax);
+		//Error->SetPointEYlow(k, globalmax);
+		Error->SetPointEYhigh(k, meanChiarah -1); 
+		Error->SetPointEYlow(k, 1-meanChiaral); 
+
 	}
 
 	Error->SetFillColorAlpha(1, 0.35);
@@ -1105,6 +1147,7 @@ TGraphAsymmErrors *PhiCutSystematic()
 
 	Double1D phivar = {-1, 1, 2, 3}; // 0 -  2pi/3, 2pi/3 - 4pi/3, 4pi/3 - 2pi
 	vector<TString> tits = {" 0 - 2 #pi", "0 - 2/3 #pi", "2/3 #pi - 4/3 #pi", "4/3 #pi - 2 #pi"};
+
 	Filipad2 *canvas = new Filipad2(++n, 2, 0.5, 100, 50, 0.7, 1, 1);
 	canvas->Draw();
 	TPad *p = canvas->GetPad(1); //upper pad
@@ -1152,8 +1195,8 @@ TGraphAsymmErrors *PhiCutSystematic()
 	gStyle->SetOptTitle(0);
 	for (int i = 0; i < nvar; i++)
 	{
-		ratios[i]->SetMinimum(0.97);
-		ratios[i]->SetMaximum(1.03);
+		ratios[i]->SetMinimum(0.85);
+		ratios[i]->SetMaximum(1.15);
 
 		hset(*ratios[i], "#it{#eta}", "Ratio", 0.9, 0.9, 0.08, 0.08, 0.01, 0.01, 0.07, 0.07, 515, 505);
 		ratios[i]->Draw("histsame][");
@@ -1170,7 +1213,9 @@ TGraphAsymmErrors *PhiCutSystematic()
 		double max = 1, min = 1;
 		double maxe = 0, mine = 0;
 		double bincenter = ratios[0]->GetXaxis()->GetBinCenter(i);
-		
+		if (bincenter<-0.5) continue;
+		if (bincenter>0.5) continue;
+
 		for (int j = 0; j < nvar; j++)
 		{
 			double val = ratios[j]->GetBinContent(i);
@@ -1196,13 +1241,32 @@ TGraphAsymmErrors *PhiCutSystematic()
 		errorl->SetBinError(i, mine);
 	}
 
-	TF1 *fh = new TF1("fh", "[0]", -0.8, 0.8);
-	TF1 *fl = new TF1("fl", "[0]", -0.8, 0.8);
+	TF1 *fh = new TF1("fh", "[0]", -0.5, 0.5);
+	TF1 *fl = new TF1("fl", "[0]", -0.5, 0.5);
 	errorh->Fit("fh", "QN");
 	fh->SetLineWidth(3);
 	fl->SetLineWidth(3);
 	fh->Draw("same");
 	fl->Draw("same");
+
+	//Chiara
+	double meanChiarah=0;
+	double meanChiaral=0;
+	int counter=0;
+	for (int k = 0; k < errorh->GetNbinsX(); k++)
+	{
+	  double x, yh, yl;
+	  x=errorh->GetBinCenter(k);
+	  if (x< -0.5) continue;
+	  if (x> 0.5) continue;
+	  yh = errorh->GetBinContent(k);
+	  yl = errorl->GetBinContent(k);
+	  meanChiarah += yh;
+	  meanChiaral += yl;
+	  counter+=1;
+	}
+	meanChiarah = meanChiarah/counter;
+	meanChiaral = meanChiaral/counter;
 
 	for (int k = 0; k < Error->GetN(); k++)
 	{
@@ -1212,8 +1276,10 @@ TGraphAsymmErrors *PhiCutSystematic()
 		Double_t mean = ((errorh->Interpolate(x)-1)+(1-errorl->Interpolate(x)))/2.;
 		//Error->SetPointEYhigh(k, fh->Eval(x) - 1);
 		//Error->SetPointEYlow(k, fl->Eval(x) - 1);
-		Error->SetPointEYhigh(k, globalmax);
-		Error->SetPointEYlow(k, globalmax);
+		Error->SetPointEYhigh(k, meanChiarah -1); 
+		Error->SetPointEYlow(k, 1-meanChiaral); 
+		//		Error->SetPointEYhigh(k, globalmax);
+		//Error->SetPointEYlow(k, globalmax);
 		//Error->SetPointEYhigh(k, mean);
 	//	Error->SetPointEYlow(k, mean);
 	}
@@ -1229,8 +1295,6 @@ TGraphAsymmErrors *PhiCutSystematic()
 		Error->SetPointEYhigh(k, mean);
 		Error->SetPointEYlow(k, mean);
 	}
-
-	
 
 	Error->SetFillColorAlpha(1, 0.35);
 	Error->Draw("2same");
@@ -1315,8 +1379,8 @@ TGraphAsymmErrors *TrackCutSystematic()
 	gStyle->SetOptTitle(0);
 	for (int i = 0; i < nvar; i++)
 	{
-		ratios[i]->SetMinimum(0.94);
-		ratios[i]->SetMaximum(1.04);
+		ratios[i]->SetMinimum(0.95);
+		ratios[i]->SetMaximum(1.05);
 
 		hset(*ratios[i], "#it{#eta}", "Ratio", 0.9, 0.9, 0.08, 0.08, 0.01, 0.01, 0.07, 0.07, 515, 505);
 		ratios[i]->Draw("histsame");
@@ -1334,7 +1398,9 @@ TGraphAsymmErrors *TrackCutSystematic()
 		double max = 1, min = 1;
 		double maxe = 0, mine = 0;
 		double bincenter = ratios[0]->GetXaxis()->GetBinCenter(i);
-		
+		//		if (bincenter<-0.5) continue;
+		//		if (bincenter>0.5) continue;
+
 		for (int j = 0; j < nvar; j++)
 		{
 			double val = ratios[j]->GetBinContent(i);
@@ -1365,15 +1431,32 @@ TGraphAsymmErrors *TrackCutSystematic()
 		if (fabs(bincenter) < 0.8 && globalmax < localmax)
 			globalmax = localmax;
 	}
-	TF1 *fh = new TF1("fh", "[0]", -2, 2);
-	TF1 *fl = new TF1("fl", "[0]", -2, 2);
+	TF1 *fh = new TF1("fh", "[0]", -0.5, 0.5); //fit in eta range I am interested in
+	TF1 *fl = new TF1("fl", "[0]", -0.5, 0.5);//fit in eta range I am interested in
 	errorh->Fit("fh", "QN");
 	errorl->Fit("fl", "QN");
 	fh->SetLineWidth(3);
 	fl->SetLineWidth(3);
-	//fh->Draw("same");
-	//fl->Draw("same");
+	fh->Draw("same");
+	fl->Draw("same");
 
+	double meanChiarah=0;
+	double meanChiaral=0;
+	int counter=0;
+	for (int k = 0; k < errorh->GetNbinsX(); k++)
+	{
+	  double x, yh, yl;
+	  x=errorh->GetBinCenter(k);
+	  if (x< -0.5) continue;
+	  if (x> 0.5) continue;
+	  yh = errorh->GetBinContent(k);
+	  yl = errorl->GetBinContent(k);
+	  meanChiarah += yh;
+	  meanChiaral += yl;
+	  counter+=1;
+	}
+	meanChiarah = meanChiarah/counter;
+	meanChiaral = meanChiaral/counter;
 
 	for (int k = 0; k < Error->GetN(); k++)
 	{
@@ -1381,12 +1464,14 @@ TGraphAsymmErrors *TrackCutSystematic()
 		Error->GetPoint(k, x, y);
 		Error->SetPoint(k, x, 1);
 		Double_t mean = ((errorh->Interpolate(x)-1)+(1-errorl->Interpolate(x)))/2.;
-		//Error->SetPointEYhigh(k, fh->Eval(x) - 1);
-		//Error->SetPointEYlow(k, fl->Eval(x) - 1);
+		//		Error->SetPointEYhigh(k, fh->Eval(x) - 1); 
+		//		Error->SetPointEYlow(k, -fl->Eval(x) + 1); 
+		Error->SetPointEYhigh(k, meanChiarah -1); 
+		Error->SetPointEYlow(k, 1-meanChiaral); 
 		//Error->SetPointEYhigh(k, (1-fl->Eval(x) ));
 		//Error->SetPointEYlow(k, (1-fl->Eval(x) ));
-		Error->SetPointEYhigh(k, globalmax);
-		Error->SetPointEYlow(k, globalmax);
+		//Error->SetPointEYhigh(k, globalmax);
+		//Error->SetPointEYlow(k, globalmax);
 		//Error->SetPointEYhigh(k, fh -> Eval(x)-1  );
 		//Error->SetPointEYlow(k, fh -> Eval(x)-1 );
 		//Error->SetPointEYhigh(k, mean);
@@ -1654,8 +1739,8 @@ TGraphAsymmErrors *ParticleRatioSystematic()
 	gStyle->SetOptTitle(0);
 	for (int i = 0; i < nvar; i++)
 	{
-		ratios[i]->SetMinimum(0.99);
-		ratios[i]->SetMaximum(1.01);
+		ratios[i]->SetMinimum(0.95);
+		ratios[i]->SetMaximum(1.05);
 		hset(*ratios[i], "#it{#eta}", "Ratio", 0.9, 0.9, 0.08, 0.08, 0.01, 0.01, 0.07, 0.07, 515, 505);
 		ratios[i]->Draw("histsame");
 	}
@@ -1705,9 +1790,11 @@ TGraphAsymmErrors *ParticleRatioSystematic()
 	return Error;
 }
 
-void makeresult()
+//void makeresult(Double1D centMin=0, Double1D centMax=100)
+void makeresult(Bool_t DoPhiSyst=1, Bool_t DoVertexSyst = 1, Bool_t DoTrackCutSyst=1, Bool_t DoParticleRatioSyst=1, Bool_t DoStrParticleSyst=1)
 {
 
+        //Double1D cent[2] = {centMin, centMax};
 	TH1D *corrbyp6 = BaseCorrection(p6name.Data(), 0.2, 0.12, false, kNoStrVar);
 	TH1D *corrbyp8 = BaseCorrection(p8name.Data(), 0.2, 0.12, false, kNoStrVar);
 
@@ -1730,22 +1817,6 @@ void makeresult()
 	gStyle->SetOptTitle(0);
 
 	TString title = "INELg0";
-	if (eventclass == kINEL015)
-		title = "INEL_{>0, #it{p}_{T}>0.15, |#it{#eta}|<0.8}";
-	if (eventclass == kINEL050)
-		title = "INEL_{>0, #it{p}_{T}>0.5, |#it{#eta}|<0.8}";
-	if (eventclass == kINEL100)
-		title = "INEL_{>0, #it{p}_{T}>1, |#it{#eta}|<0.8}";
-	if (eventclass == kINEL200)
-		title = "INEL_{>0, #it{p}_{T}>2, |#it{#eta}|<0.8}";
-	if (eventclass == kINEL05024)
-		title = "INEL_{>0, #it{p}_{T}>0.5, |#it{#eta}|<2.4}";
-	if (eventclass == kINEL05025)
-		title = "INEL_{>0, #it{p}_{T}>0.5, |#it{#eta}|<2.5}";
-	if (eventclass == kINEL04025)
-		title = "INEL_{>0, #it{p}_{T}>0.4, |#it{#eta}|<2.5}";
-	if (eventclass == kINEL040)
-		title = "INEL_{>0, #it{p}_{T}>0.4, |#it{#eta}|<0.8}";
 
 	//TLegend  *collisionstitle = new TLegend(0.233254,0.824348,0.766746,0.893913, "pp, #sqrt{#it{s}} = 13 TeV", "brNDC");
 	TLegend  *collisionstitle = new TLegend(0.233254,0.824348,0.766746,0.893913, "p-Pb, #sqrt{#it{s}_{NN}} = 5.02 TeV", "brNDC");
@@ -1824,6 +1895,9 @@ void makeresult()
 			double max = 1, min = 1;
 			double maxe = 0, mine = 0;
 			double bincenter = ratios[0]->GetXaxis()->GetBinCenter(i);
+ 			if (bincenter<-0.5) continue;
+			if (bincenter>0.5) continue;
+
 			for (int j = 0; j < 2; j++)
 			{
 				double val = ratios[j]->GetBinContent(i);
@@ -1871,8 +1945,8 @@ void makeresult()
 		gStyle->SetOptTitle(0);
 		for (int i = 0; i < 2; i++)
 		{
-			ratios[i]->SetMinimum(0.94);
-			ratios[i]->SetMaximum(1.04);
+			ratios[i]->SetMinimum(0.85);
+			ratios[i]->SetMaximum(1.15);
 
 			hset(*ratios[i], "#it{#eta}", "Ratio", 0.9, 0.9, 0.08, 0.08, 0.01, 0.01, 0.07, 0.07, 515, 505);
 			ratios[i]->Draw("histsame][");
@@ -1915,17 +1989,27 @@ void makeresult()
 	TGraphAsymmErrors *finalresultuncorr = (TGraphAsymmErrors *)finalresult->Clone();
 
 	Double_t errorh = 0;
+	Double_t errorhTrackCut = 0;
+	Double_t errorhVertex = 0;
+	Double_t errorhPhi = 0;
+	Double_t errorhParticleRatio = 0;
+	Double_t errorhStrParticle = 0;
 	Double_t errorl = 0;
+	Double_t errorlTrackCut = 0;
+	Double_t errorlVertex = 0;
+	Double_t errorlPhi = 0;
+	Double_t errorlParticleRatio = 0;
+	Double_t errorlStrParticle = 0;
 	Double_t errorh10 = 0;
 	Double_t errorl10 = 0;
 	auto *erroronly = (TGraphAsymmErrors *)finalresult->Clone();
 	if (DoSystematic)
 	{
-		trackcutsystematic = TrackCutSystematic();
-		particleratiosystematic = ParticleRatioSystematic();
-		stranegeparticlesystematic = StrangeParticleSystematic();
-		vertexsystematic = VertexSystematic();
-		phicutsystematic = PhiCutSystematic();
+        	if (DoTrackCutSyst) trackcutsystematic = TrackCutSystematic();
+		if (DoParticleRatioSyst) particleratiosystematic = ParticleRatioSystematic();
+		if (DoStrParticleSyst) stranegeparticlesystematic = StrangeParticleSystematic();
+		if (DoVertexSyst) vertexsystematic = VertexSystematic();
+		if (DoPhiSyst) phicutsystematic = PhiCutSystematic();
 		if (DoDiffTune){
 			diffractionsystematic = DiffractionSystematic();
 			diffractionratiosystematic = DiffractionRatioSystematic();
@@ -1953,49 +2037,6 @@ void makeresult()
 			Double_t egendependence = 0;
 			Double_t material = 0.002;
 
-			if (dataname.Contains("16l")){
-				if ( triggtype == kMBAND015 )
-					egendependence = 0.009;
-				else if (triggtype == kMBAND050)
-					egendependence = 0.013;
-				else if (triggtype == kMBAND100)
-					egendependence = 0.019;
-				else if (triggtype == kMBAND200)
-					egendependence = 0.017;
-			}
-
-			if (dataname.Contains("17p"))
-			{
-				if ( triggtype == kMBAND015 )
-					egendependence = 0.01;
-				else if (triggtype == kMBAND050)
-					egendependence = 0.012;
-				else if (triggtype == kMBAND100)
-					egendependence = 0.02;
-				else if (triggtype == kMBAND200)
-					egendependence = 0.02;
-			}
-
-			/*
-			if (dataname.Contains("16l"))
-			{
-				if (eventclass == kINEL015|| eventclass == kINEL050 || eventclass == kINEL05024 || eventclass == kINEL05025)
-					ematching = 0.008;
-				else if(eventclass == kINEL100)
-					ematching = 0.0082;
-				else ematching = 0.0135;
-			}
-			if (dataname.Contains("17p"))
-			{
-				if (eventclass == kINEL015|| eventclass == kINEL050 || eventclass == kINEL05024 || eventclass == kINEL05025)
-					ematching = 0.0101;
-				else if(eventclass == kINEL100)
-					ematching = 0.02;
-				else ematching = 0.0266;
-			}
-			*/
-
-
 			if (DoDiffTune)
 			{
 				ediffh = diffractionratiosystematic->GetErrorYhigh(k);
@@ -2010,18 +2051,38 @@ void makeresult()
 				esyml = symsystematic->GetErrorYlow(k);
 			}
 
-			double eptunseenh = trackcutsystematic->GetErrorYhigh(k);
-			double eptunseenl = trackcutsystematic->GetErrorYlow(k);
-			double eparratioh = particleratiosystematic->GetErrorYhigh(k);
-			double eparratiol = particleratiosystematic->GetErrorYlow(k);
-			double estrparh = stranegeparticlesystematic->GetErrorYhigh(k);
-			double estrparl = stranegeparticlesystematic->GetErrorYlow(k);
-			double evertexh = vertexsystematic->GetErrorYhigh(k);
-			double evertexl = vertexsystematic->GetErrorYlow(k);
+			double eptunseenh = 0;
+			double eptunseenl = 0;
+			if (DoTrackCutSyst){
+			  eptunseenh = trackcutsystematic->GetErrorYhigh(k);
+			  eptunseenl = trackcutsystematic->GetErrorYlow(k);
+			}
+			double eparratioh =0;
+			double eparratiol =0;
+			if (DoParticleRatioSyst){
+			  eparratioh = particleratiosystematic->GetErrorYhigh(k);
+			  eparratiol = particleratiosystematic->GetErrorYlow(k);
+			}
+			double estrparh =0;
+			double estrparl =0;
+			if (DoStrParticleSyst){
+			  estrparh = stranegeparticlesystematic->GetErrorYhigh(k);
+			  estrparl = stranegeparticlesystematic->GetErrorYlow(k);
+			}
+			double evertexh = 0;
+			double evertexl = 0;
+			if (DoVertexSyst){
+			  evertexh = vertexsystematic->GetErrorYhigh(k);
+			  evertexl = vertexsystematic->GetErrorYlow(k);
+			}
 			//double eestimatorh = centralityestimatorsystematic->GetErrorYhigh(k);
 			//double eestimatorl = centralityestimatorsystematic->GetErrorYlow(k);
-			double ephicuth = phicutsystematic->GetErrorYhigh(k);
-			double ephicutl = phicutsystematic->GetErrorYlow(k);
+			double ephicuth=0;
+			double ephicutl=0;
+			if (DoPhiSyst){
+			  ephicuth = phicutsystematic->GetErrorYhigh(k);
+			  ephicutl = phicutsystematic->GetErrorYlow(k);
+			}
 			//double etriggerh = triggerbiassystematic->GetErrorYhigh(k);
 			//double etriggerl = triggerbiassystematic->GetErrorYlow(k);
 			eyhuncorr = sqrt(egendependence*egendependence  + evertexh * evertexh + ephicuth * ephicuth);
@@ -2030,6 +2091,21 @@ void makeresult()
 			double eylcorr = sqrt( material*material  + eptunseenl * eptunseenl+ eparratiol * eparratiol + estrparl * estrparl);
 			double eyhall = sqrt(eyhcorr * eyhcorr + eyhuncorr * eyhuncorr);
 			double eylall = sqrt(eylcorr * eylcorr + eyluncorr * eyluncorr);
+			if (x>-0.5 && x < 0.5){
+			  /*
+			  cout << "\nCoordinates: " << x << " - " << y << endl;
+			  cout << std::setprecision(4);
+			  cout << "\n\e[35meyhall " << eyhall << endl;
+			  cout << "It's composed of " << endl;
+			  cout << "Material " << material << endl;
+			  cout << "Track cut systematic " << eptunseenh << endl;
+			  cout << "Particle Ratio systematic " << eparratioh << endl;
+			  cout << "Strange particle systematic " << estrparh << endl;
+			  cout << "Phi systematic " << ephicuth << endl;
+			  cout << "Vertex " << evertexh << endl;
+			  cout << "Energy dependence " << egendependence << "\e[39m " << endl;
+			  */
+			}
 			erroronly->SetPoint(k, x, 1);
 			erroronly->SetPointEYhigh(k, eyhall);
 			erroronly->SetPointEYlow(k, eylall);
@@ -2043,6 +2119,26 @@ void makeresult()
 			{
 				errorh += finalresult->GetErrorYhigh(k) * 0.1;
 				errorl += finalresult->GetErrorYlow(k) * 0.1;
+				if (DoTrackCutSyst){
+				  errorhTrackCut += trackcutsystematic->GetErrorYhigh(k) * 0.1;
+				  errorlTrackCut += trackcutsystematic->GetErrorYlow(k) * 0.1;
+				}
+				if (DoVertexSyst){
+				  errorhVertex += vertexsystematic->GetErrorYhigh(k) * 0.1;
+				  errorlVertex += vertexsystematic->GetErrorYlow(k) * 0.1;
+				}
+				if (DoPhiSyst){
+				  errorhPhi += phicutsystematic->GetErrorYhigh(k) * 0.1;
+				  errorlPhi += phicutsystematic->GetErrorYlow(k) * 0.1;
+				}
+				if (DoStrParticleSyst){
+				  errorhStrParticle = stranegeparticlesystematic->GetErrorYhigh(k) *0.1;
+				  errorlStrParticle = stranegeparticlesystematic->GetErrorYlow(k)*0.1;
+				}
+				if (DoParticleRatioSyst){
+				  errorhParticleRatio = particleratiosystematic->GetErrorYhigh(k) *0.1;
+				  errorlParticleRatio = particleratiosystematic->GetErrorYlow(k)*0.1;
+				}
 			}
 			if (x > -0.8 && x < 0.8)
 			{
@@ -2078,6 +2174,12 @@ void makeresult()
 	leg->AddEntry(p6, Form("EPOS-LHC"), "lp3");
 	cout << "dNdeta in 0.5 : " << dndetaavgdt << " " << errorh << " " << errorl << endl;
 	cout << "dNdeta in 1.0 : " << dndetaavgdt10  << " " << errorh10 / 2 << " " << errorl10 / 2 << endl;
+	cout << "Relative errors: " << endl;
+	cout << "dNdeta in 0.5 (track cut syst) : " << dndetaavgdt << " " << errorhTrackCut << " " << errorlTrackCut << endl;
+	cout << "dNdeta in 0.5 (vertex syst) : " << dndetaavgdt << " " << errorhVertex << " " << errorlVertex << endl;
+	cout << "dNdeta in 0.5 (phi syst) : " << dndetaavgdt << " " << errorhPhi << " " << errorlPhi << endl;
+	cout << "dNdeta in 0.5 (particle ratio syst) : " << dndetaavgdt << " " << errorhParticleRatio << " " << errorlParticleRatio << endl;
+	cout << "dNdeta in 0.5 (strange particle syst) : " << dndetaavgdt << " " << errorhStrParticle << " " << errorlStrParticle << endl;
 
 	//p6->Scale(dndetaavgdt10 / dndetaat0p62 / 1.18);
 	//p8->Scale(dndetaavgdt10 / dndetaat0p62 / 1.18);
@@ -2109,7 +2211,7 @@ void makeresult()
 	cout << "\n\n"
 		 << endl;
 	cout << "    eta          data         PYTHIA6         PYTHIA8 " << endl;
-	for (int k = 0; k < finalresult->GetN(); k++)
+	for (int k = 0; k < finalresult->GetN(); k++) //this is a loop over eta values
 	{
 		double x, y;
 		finalresult->GetPoint(k, x, y);
@@ -2121,26 +2223,6 @@ void makeresult()
 	}
 
 	TGraphAsymmErrors *atlasdata = nullptr;
-	if (eventclass == kINEL05025)
-	{
-		auto fatlasdata = TFile::Open("ATLAS_500_25.root","OPEN");
-		atlasdata = (TGraphAsymmErrors *)gROOT->FindObject("Graph1D_y1");
-		atlasdata->Draw("p1same");
-		atlasdata->SetMarkerColor(kGreen + 3);
-		atlasdata->SetLineColor(kGreen + 3);
-		atlasdata->SetMarkerStyle(30);
-		leg->AddEntry(atlasdata, "ATLAS", "lp3");
-	}
-	if (eventclass == kINEL05024)
-	{
-		auto fatlasdata = TFile::Open("CMS_500_24.root","OPEN");
-		atlasdata = (TGraphAsymmErrors *)gROOT->FindObject("Graph1D_y1");
-		atlasdata->Draw("p1same");
-		atlasdata->SetMarkerColor(kRed + 3);
-		atlasdata->SetLineColor(kRed + 3);
-		atlasdata->SetMarkerStyle(30);
-		leg->AddEntry(atlasdata, "CMS", "lp3");
-	}
 	leg->Draw();
 	TLegend *ectitle2 = new TLegend(0.511962, 0.613043, 0.942584, 0.71, Form ("Cent: %d-%d", int (cent[0]), int(cent[1])), "brNDC");
 	ectitle2->SetTextSize(0.08);
@@ -2178,21 +2260,6 @@ void makeresult()
 	erroronly->Draw("2same");
 
 	TGraphAsymmErrors *atlasoveralice = nullptr;
-	if (eventclass == kINEL05025)
-	{
-
-		atlasoveralice = CCCC( atlasdata, finalresult,1);
-		atlasoveralice->SetFillColorAlpha(kGreen+3, 0.35);
-		atlasoveralice->Draw("2psame");
-	}
-	if (eventclass == kINEL05024)
-	{
-
-		atlasoveralice = CCCC( atlasdata, finalresult,1);
-		atlasoveralice->SetFillColorAlpha(kRed+3, 0.35);
-		atlasoveralice->Draw("2psame");
-	}
-
 	if (SaveResultsOnly)
 	{
 		gPad->GetCanvas()->SaveAs(Form("../Figures/%s_%d.pdf", dataname.Data(),eventclass));
@@ -2415,7 +2482,6 @@ TH1D *BaseCorrection(TString mcname, double SDR, double DDR, bool dopariclevaria
 	//{ 0EventClass, 1Cent 2z_vtx }
 	Hkinezvtx.SetBin("Cent", mccent);
 	//--------------------
-
 	auto hkinez = Hkinezvtx.GetTH1(Form("h%s-", dataname.Data()), 2, {eventclass, centselection, -1, centtype});
 	//0EventClass, 1TriggClass  2Cent 3z_vtx }
 	Hmczvtx.SetBin("Cent", cent);
@@ -2537,7 +2603,6 @@ TH1D *BaseCorrection(TString mcname, double SDR, double DDR, bool dopariclevaria
 	auto hmcdndeta = Hmcdndeta.GetTH2(Form("hr%s-", dataname.Data()), 6, 3, {eventclass, triggtype, centselection, 1, 1, iptvar, -1, centtype, phirange});
 
 
-
 	if (dopariclevariation)
 		hmcdndeta = hmcdndetapion;
 
@@ -2570,9 +2635,10 @@ TH1D *BaseCorrection(TString mcname, double SDR, double DDR, bool dopariclevaria
 	Hdatadndeta.SetBin("Z", vtxbin);
 	Hdatadndeta.SetBin("Cent", cent);
 	auto hdatadndeta = Hdatadndeta.GetTH2(Form("hd%s-", dataname.Data()), 6, 3, {kDATA, triggtype, centselection, 1, kParDATA, iptvar, -1, centtype, phirange});
+	//	cout << "It has " << hdatadndeta->GetEntries() << " entries " <<  endl;
 	auto hcorrf = (TH2D *)hkinedndeta->Clone();
 	hcorrf->Divide(hmcdndeta);
-
+	//	cout << "hCorrf has " <<  hcorrf->GetEntries() << " entries " <<  endl;
 	for (auto x = 1; x <= hcorrf->GetNbinsX(); x++)
 		for (auto y = 1; y <= hcorrf->GetNbinsY(); y++)
 		{
@@ -2598,15 +2664,23 @@ TH1D *BaseCorrection(TString mcname, double SDR, double DDR, bool dopariclevaria
 	fr->Reset();
 	auto letabin = hdatadndeta->GetXaxis()->FindBin(etabin[0]);
 	auto retabin = hdatadndeta->GetXaxis()->FindBin(etabin[1]);
+	//	cout << "letabin " << letabin << " retabin " << retabin<< endl;
 	for (auto ieta = letabin; ieta <= retabin; ieta++)
 	{
 		auto h = hdatadndeta->ProjectionY(Form("_y%s-", dataname.Data()), ieta, ieta, "e");
+		
+		for (Int_t b= 1; b<= h->GetNbinsX(); b++){ 
+		  //cout << h->GetBinContent(b) << " in bin with center " << h->GetBinCenter(b) << endl; 
+		}
+		
 		auto lbincut = hdatadndeta->GetYaxis()->FindBin(vtxbin[0]);
 		auto rbincut = hdatadndeta->GetYaxis()->FindBin(vtxbin[1]);
 		auto lbin = TMath::Max(h->FindFirstBinAbove(), lbincut);
 		auto rbin = TMath::Min(h->FindLastBinAbove(), rbincut);
-		if (lbin > rbin)
-			continue;
+		if (lbin > rbin) {
+		  //cout << lbin << " " << rbin << endl;
+		  continue;
+		}
 		Double_t totale = 0;
 		auto total = h->IntegralAndError(lbin, rbin, totale);
 		auto norm = hdataz->Integral(lbin, rbin);
@@ -2614,6 +2688,7 @@ TH1D *BaseCorrection(TString mcname, double SDR, double DDR, bool dopariclevaria
 		totale = totale / norm / hdatadndeta->GetXaxis()->GetBinWidth(ieta);
 		fr->SetBinContent(ieta, total);
 		fr->SetBinError(ieta, totale);
+		//cout << "fr -> GetBinContent " << fr->GetBinContent(ieta) << " (eta = " <<  fr->GetBinCenter(ieta) << ")" <<endl;
 	}
 
 	fr->SetLineWidth(2);
