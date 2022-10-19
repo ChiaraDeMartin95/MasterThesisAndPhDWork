@@ -1,4 +1,3 @@
-
 /*************************************************************************
 
  * Copyright(c) 1998-2015, ALICE Experiment at CERN, All rights reserved. *
@@ -252,8 +251,11 @@ void AliAnalysisPseudoRapidityDensityTemp::UserCreateOutputObjects()
 	auto binPhi = AxisVar("Phi", {0, pi * 2 / 3, pi * 4 / 3, 2 * pi});
 	auto binPt = AxisLog("Pt", 20,  0.15, 20, 0.15);
 	auto binCentClass = AxisStr("CentClass", {"V0M"});
-	auto binEventClass = AxisStr("EventClass", {"DATA", "INEL", "INELg0" , "INEL015", "INEL040",  "INEL050", "INEL100", "INEL200","INEL300","INEL04025", "INEL05024","INEL05025"});
-	auto binTriggClass = AxisStr("TriggClass", {"MBAND015","MBAND040","MBAND050", "MBAND100", "MBAND200", "MBAND300", "HMMBAND" "HMMBAND300"});
+	//	auto binEventClass = AxisStr("EventClass", {"DATA", "INEL", "INELg0" , "INEL015", "INEL040",  "INEL050", "INEL100", "INEL200","INEL300","INEL04025", "INEL05024","INEL05025"});
+	auto binEventClass = AxisStr("EventClass", {"DATA", "INEL", "INELg0" , "INEL300"}); //remove unneccessary bins
+	//	auto binTriggClass = AxisStr("TriggClass", {"MBAND015","MBAND040","MBAND050", "MBAND100", "MBAND200", "MBAND300", "HMMBAND" "HMMBAND300"});
+	//	auto binTriggClass = AxisStr("TriggClass", {"HMMBAND","HMMBAND300","MBAND050", "MBAND015", "MBAND100", "MBAND300", "MBAND200" "MBAND040"});
+	auto binTriggClass = AxisStr("TriggClass", {"HMMBAND","HMMBAND300", "MBAND015", "MBAND300","MBAND100", "MBAND200"}); //remove unneccessary bins
 	auto binParType = AxisStr("ParticleType", {"Tracks", "MotherStrange", "Bkg", "Pion", "Kaon", "Proton", "Opar"});
 	auto binV0Type = AxisStr("V0Type", {"K0s", "Lambda", "AntiLambda"});
 	auto binTrkCutVar = AxisStr("TrkCutVar", {
@@ -353,41 +355,35 @@ void AliAnalysisPseudoRapidityDensityTemp::UserCreateOutputObjects()
 	CreateTHnSparse("hkinedndeta", "kine only dndeta", 8, {binEventClass, binCent, binZ, binParType, binTrkCutVar, binEta, binCentClass, binPhi}, "s");
 	CreateTHnSparse("hkinezvtx", "kine zvtx", 4, {binEventClass, binCent, binZ, binCentClass}, "s");
 
-
+	if (!fOption.Contains("MC")){
 	CreateTHnSparse("hrecdndpt", "rec dndpt", 2, {binEta, binPt}, "s");
 	CreateTHnSparse("htruedndpt", "rec dndpt", 2, {binEta, binPt}, "s");
 	CreateTHnSparse("hdndptres", "response dndpt", 3, {binEta, binPt, binPt}, "s");
 	CreateTHnSparse("hdndptfake", "fake dndpt", 2, {binEta, binPt}, "s");
 	CreateTHnSparse("hdndptmiss", "miss dndpt", 2, {binEta, binPt}, "s");
-
 	CreateTHnSparse("hrecmult", "rec mult", 1, {binMul }, "s");
 	CreateTHnSparse("htruemult", "rec dndpt", 1, {binMul}, "s");
 	CreateTHnSparse("hmultres", "response dndpt", 2, {binMul, binMul}, "s");
 	CreateTHnSparse("hmultfake", "fake dndpt", 1, {binMul}, "s");
 	CreateTHnSparse("hmultmiss", "miss dndpt", 1, {binMul}, "s");
-
-
-
-
 	CreateTHnSparse("hv0mass", "V0 inv mass", 5,
 					{binTriggClass, binCent, binV0Type, AxisFix("v0mass", 1200, 0.3, 1.5), binCentClass}, "s");
+	}
 	CreateTHnSparse("hv0eta", "V0 daughter eta", 5,
 					{binTriggClass, binCent, binV0Type, binEta, binCentClass}, "s");
 
+	if (!fOption.Contains("MC")){
 	CreateTHnSparse("hkineGeoMult", "", 2, {binCentClass, AxisFix("GeoMult", 30000, 0, 300)}, "s");
 	CreateTHnSparse("hkinedNdEtaGeoCent", "", 3, {binCent, binEta, binCentClass}, "s");
 	CreateTHnSparse("hcentGeo", "", 2, {binCentClass, binCent}, "s");
-
 	CreateTHnSparse("hMult", "", 2, {binCentClass, AxisFix("Mult", 20000, 0, 2000)}, "s");
 	CreateTHnSparse("hMultHigh", "", 2, {binCentClass, AxisFix("Mult", 20000, 0, 2000)}, "s");
-
 	CreateTHnSparse("hMultcent", "", 3, {binCentClass, binCent, AxisFix("Multcent", 20000, 0, 2000)}, "s");
 	CreateTHnSparse("hMultHighcent", "", 3, {binCentClass, binCent, AxisFix("highMultcent", 20000, 0, 2000)}, "s");
-
 	CreateTHnSparse("hdNdEtaCent", "", 3, {binCent, binEta, binCentClass}, "s");
 	CreateTHnSparse("hcent", "", 2, {binCentClass, binCent}, "s");
-
 	CreateTHnSparse("hPhiEtaTracks", "", 3, {binTrkCutVar, AxisFix("phi", 180, 0, 2 * pi), AxisFix("eta", 40, -2, 2)}, "s");
+	}
 
 	PostData(1, fHistos->GetListOfHistograms());
 	//PID Combined
@@ -743,7 +739,9 @@ void AliAnalysisPseudoRapidityDensityTemp::UserExec(Option_t *)
 				btrigc[kHMMBAND300] = true;
 		}
 		if ( IsMinimumBias ){
-			if (fCent[kV0M]>0 && fCent[kV0M]<0.01) FillTHnSparse("hrecmult", {Double_t(tempmul)});
+		  if (fCent[kV0M]>0 && fCent[kV0M]<0.01) {
+		    	if (!fOption.Contains("MC")) FillTHnSparse("hrecmult", {Double_t(tempmul)});
+		  }
 		}
 
 		for (auto it = 0; it < fEvt->GetNumberOfTracks(); it++)
@@ -767,7 +765,7 @@ void AliAnalysisPseudoRapidityDensityTemp::UserExec(Option_t *)
 			phi = track->Phi();
 
 			if ( btrigc[kMBAND200] && fTrackCuts[kITSTPC2011].AcceptTrack(track)){
-				FillTHnSparse("hrecdndpt", {track->Eta(), track->Pt()});
+			  if (!fOption.Contains("MC"))	FillTHnSparse("hrecdndpt", {track->Eta(), track->Pt()});
 			}
 		}
 
@@ -779,13 +777,13 @@ void AliAnalysisPseudoRapidityDensityTemp::UserExec(Option_t *)
 	//if (IsMinimumBias ){
 	for (auto itrigc = 1u; itrigc < kTrigend; itrigc++)
 	{
-		if (btrigc[itrigc])
-		{
+	  if (btrigc[itrigc])
+	    {
 			for (auto icentc = UInt_t(kCentClassBinBegin); icentc < kCentClassBinEnd; icentc++)
 			{
 				FillTHnSparse("heventcount", {Double_t(itrigc), fCent[icentc], Double_t(icentc)});
 			}
-		}
+	    }
 	}
 	//}
 
@@ -835,16 +833,16 @@ void AliAnalysisPseudoRapidityDensityTemp::UserExec(Option_t *)
 				if (!isbackground)
 				{
 					if (IsGoodVertexCut && fabs(vtxMC3d[2]) < 10 && btrigc[kMBAND200] && bevtc[kINEL200] && pt > 2 && particle->Pt() > 2)
-						FillTHnSparse("hdndptres", {eta, pt, particle->Pt()});
+					  if (!fOption.Contains("MC")) FillTHnSparse("hdndptres", {eta, pt, particle->Pt()});
 				}
 				else
 				{
 
 					if (IsGoodVertexCut && fabs(vtxMC3d[2]) < 10 && !bevtc[kINEL200] && btrigc[kMBAND200] && pt > 2 && particle->Pt() > 2)
-						FillTHnSparse("hdndptfake", {eta, pt});
+					  if (!fOption.Contains("MC")) FillTHnSparse("hdndptfake", {eta, pt});
 				}
 				if ((!IsGoodVertexCut || !IsMinimumBias) && fabs(vtxMC3d[2]) < 10 && bevtc[kINEL200] && !btrigc[kMBAND200] && pt > 2 && particle->Pt() > 2)
-					FillTHnSparse("hdndptmiss", {eta, particle->Pt()});
+				  if (!fOption.Contains("MC"))	FillTHnSparse("hdndptmiss", {eta, particle->Pt()});
 
 			}
 		}
@@ -875,10 +873,10 @@ void AliAnalysisPseudoRapidityDensityTemp::UserExec(Option_t *)
 				break;
 			}
 			if (fabs(vtxMC3d[2])<10 && bevtc[kINEL200] && pt>2){
-				FillTHnSparse("htruedndpt", {eta, pt});
+			  if (!fOption.Contains("MC"))	FillTHnSparse("htruedndpt", {eta, pt});
 				if (std::find(labels.begin(), labels.end(), i) == labels.end())
 				{
-					FillTHnSparse("hdndptmiss", {eta, pt});
+				  if (!fOption.Contains("MC"))	FillTHnSparse("hdndptmiss", {eta, pt});
 				}
 			} 
 
@@ -923,12 +921,11 @@ void AliAnalysisPseudoRapidityDensityTemp::UserExec(Option_t *)
 		}
 
 		if (IsGoodVertexCut && fabs(vtxMC3d[2]) < 10 && IsMinimumBias && fCent[kV0M]>0 && fCent[kV0M]<0.01)
-			FillTHnSparse("hmultres", {Double_t(mctempmul), Double_t(truetempmul)});
-
+		  if (!fOption.Contains("MC")) FillTHnSparse("hmultres", {Double_t(mctempmul), Double_t(truetempmul)});
 		if ((!IsGoodVertexCut || !IsMinimumBias) && fabs(vtxMC3d[2]) < 10 && fCent[kV0M]>0 && fCent[kV0M]<0.01)
-			FillTHnSparse("hmultmiss", {Double_t(truetempmul)});
+		  if (!fOption.Contains("MC")) FillTHnSparse("hmultmiss", {Double_t(truetempmul)});
 		if (fabs(vtxMC3d[2]) < 10 && fCent[kV0M]>0 && fCent[kV0M]<0.01)
-			FillTHnSparse("htruemult", {Double_t(truetempmul)});
+		  if (!fOption.Contains("MC")) FillTHnSparse("htruemult", {Double_t(truetempmul)});
 	}
 
 	if (IsMinimumBias)
@@ -1018,7 +1015,7 @@ void AliAnalysisPseudoRapidityDensityTemp::FillTracks(Bool_1d bevtc, Bool_1d btr
 			}
 			for (auto ievtc = 1u; ievtc < kECend; ievtc++)
 			{
-				for (auto itrigc = UInt_t(kMBAND015); itrigc < kTrigend; itrigc++)
+				for (auto itrigc = UInt_t(kHMMBAND); itrigc < kTrigend; itrigc++)
 				{
 					if (bevtc[ievtc] && btrigc[itrigc])
 					{
@@ -1028,10 +1025,12 @@ void AliAnalysisPseudoRapidityDensityTemp::FillTracks(Bool_1d bevtc, Bool_1d btr
 							if (icut == kHybrid && fabs(eta)<0.8)
 								fHistos->FillTH1("hPhiHybrid", phi);
 						}
-						else if (itrigc == kMBAND050 && pt > 0.5)
+						else if (itrigc == kMBAND050 && pt > 0.5){
 							IsPtSelected = true;
-						else if (itrigc == kMBAND040 && pt > 0.4)
+						}
+						else if (itrigc == kMBAND040 && pt > 0.4) {
 							IsPtSelected = true;
+						}
 						else if (itrigc == kMBAND100 && pt > 1)
 							IsPtSelected = true;
 						else if (itrigc == kMBAND200 && pt > 2)
@@ -1040,8 +1039,13 @@ void AliAnalysisPseudoRapidityDensityTemp::FillTracks(Bool_1d bevtc, Bool_1d btr
 						//	IsPtSelected = true;
 						else if (itrigc == kMBAND300)  // To Chiara: Please find the modification from the commented-out previous lines. You want to fill all charged tracks with the trigger class
 							IsPtSelected = true;
-						else if (itrigc == kHMMBAND300 && pt > 3)
+						//else if (itrigc == kHMMBAND300 && pt > 3)
+						else if (itrigc == kHMMBAND300){
 							IsPtSelected = true;
+						}
+						else if (itrigc == kHMMBAND) {//I added this (Chiara)
+						  IsPtSelected = true;
+					        }
 						for (auto icentc = UInt_t(kCentClassBinBegin); icentc < kCentClassBinEnd; icentc++)
 						{
 							if (!IsPtSelected)
@@ -1056,7 +1060,7 @@ void AliAnalysisPseudoRapidityDensityTemp::FillTracks(Bool_1d bevtc, Bool_1d btr
 	}		  // icut loop
 	for (auto ievtc = 1u; ievtc < kECend; ievtc++)
 	{
-		for (auto itrigc = UInt_t(kMBAND015); itrigc < kTrigend; itrigc++)
+		for (auto itrigc = UInt_t(kHMMBAND); itrigc < kTrigend; itrigc++)
 		{
 			if (bevtc[ievtc] && btrigc[itrigc])
 			{
@@ -1086,7 +1090,6 @@ Bool_t AliAnalysisPseudoRapidityDensityTemp::FillFMDESDtracks()
 	UShort_t ivz = 0;
 	Double_t cent = -1;
 	UShort_t nClusters = 0;
-	cout << "11" << endl;
 
 	UInt_t found = fEventInspector->Process(dynamic_cast<AliESDEvent *>(fEvt), triggers, lowFlux, ivz, ip, cent, nClusters);
 	if (found & AliFMDEventInspector::kNoEvent)
@@ -1392,7 +1395,7 @@ void AliAnalysisPseudoRapidityDensityTemp::StrangenessMeasure(Bool_1d btrigc)
 			v0->ChangeMassHypothesis(310);
 			for (auto itrigc = 1u; itrigc < kTrigend; itrigc++)
 				if (btrigc[itrigc])
-					FillTHnSparse("hv0mass",
+				  if (!fOption.Contains("MC"))	FillTHnSparse("hv0mass",
 								  {Double_t(itrigc), fCent[icentc], Double_t(kK0s), v0->GetEffMass(), Double_t(icentc)});
 			if (v0->GetEffMass() > 0.482 && v0->GetEffMass() < 0.509)
 			{
@@ -1409,7 +1412,7 @@ void AliAnalysisPseudoRapidityDensityTemp::StrangenessMeasure(Bool_1d btrigc)
 			v0->ChangeMassHypothesis(3122);
 			for (auto itrigc = 1u; itrigc < kTrigend; itrigc++)
 				if (btrigc[itrigc])
-					FillTHnSparse("hv0mass",
+				  if (!fOption.Contains("MC"))		FillTHnSparse("hv0mass",
 								  {Double_t(itrigc), fCent[icentc], Double_t(kLambda), v0->GetEffMass(), Double_t(icentc)});
 			if (v0->GetEffMass() > 1.11 && v0->GetEffMass() < 1.12)
 			{
@@ -1426,7 +1429,7 @@ void AliAnalysisPseudoRapidityDensityTemp::StrangenessMeasure(Bool_1d btrigc)
 			v0->ChangeMassHypothesis(-3122);
 			for (auto itrigc = 1u; itrigc < kTrigend; itrigc++)
 				if (btrigc[itrigc])
-					FillTHnSparse("hv0mass",
+				  if (!fOption.Contains("MC")) FillTHnSparse("hv0mass",
 								  {Double_t(itrigc), fCent[icentc], Double_t(kAntiLambda), v0->GetEffMass(), Double_t(icentc)});
 			if (v0->GetEffMass() > 1.11 && v0->GetEffMass() < 1.12)
 			{
