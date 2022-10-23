@@ -40,7 +40,7 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0, TString year=""/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=1, Int_t PtBinning=1, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,  Bool_t TwoFitFunctions=0, Bool_t isNormCorrFullyComputed=1, Bool_t isMeanMacro=0, Bool_t ispp5TeV=1,  Bool_t isErrorAssumedPtCorr=1, Bool_t isFitForPlot=0, Bool_t isEffCorr=0, Bool_t isdNdEtaTriggered=1, Int_t sys=0, Int_t MaterialBudgetCorr=2, Int_t isOnlyPlottingRelError=0){
+void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0, TString year=""/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=1, Int_t PtBinning=1, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,  Bool_t TwoFitFunctions=0, Bool_t isNormCorrFullyComputed=1, Bool_t isMeanMacro=0, Bool_t ispp5TeV=0,  Bool_t isErrorAssumedPtCorr=1, Bool_t isFitForPlot=0, Bool_t isEffCorr=0, Bool_t isdNdEtaTriggered=1, Int_t sys=0, Int_t MaterialBudgetCorr=2, Int_t isOnlyPlottingRelError=0){
 
   Bool_t isGenOnTheFly = 0;
   if (isMC) isGenOnTheFly = 1;
@@ -3302,12 +3302,12 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
 
   Float_t   dNdEta[nummolt+1]={21.2, 16.17, 11.4625, 7.135, 3.33, 6.94};
   if (isdNdEtaTriggered){ //values estimated with official task
-    dNdEta[0] = 24.05;
-    dNdEta[1] = 18.95;
-    dNdEta[2] = 14.77;
-    dNdEta[3] = 10.68;
-    dNdEta[4] = 7.39;
-    dNdEta[5] = 15.83;
+    dNdEta[0] = 24.039;
+    dNdEta[1] = 18.930;
+    dNdEta[2] = 14.799;
+    dNdEta[3] = 10.703;
+    dNdEta[4] = 7.396;
+    dNdEta[5] = 15.853;
   }
   if (isppHM) {
     dNdEta[0] = 39.40;
@@ -3326,10 +3326,10 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
       if (isdNdEtaTriggered){ //values estimated with official task
 	dNdEta[0] =0;
 	dNdEta[1] =0;
-	dNdEta[2] =36.29; //values from 16l with 19h11c MC
-	dNdEta[3] =32.57;
-	dNdEta[4] =30.43;
-	dNdEta[5] =31.5;
+	dNdEta[2] =37.6; 
+	dNdEta[3] =34.063;
+	dNdEta[4] =32.047;
+	dNdEta[5] =33.479;
       }
     }
   }
