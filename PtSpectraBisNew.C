@@ -377,7 +377,7 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   if (MaterialBudgetCorr==1) stringout += "_MatBudgetCorr";
   else if (MaterialBudgetCorr==2) stringout += "_MatBudgetCorrFAST";
   TString PathOutPictures = stringout;
-  stringout += "_PlotForThesis";
+  stringout += "_PForT";
   stringout += ".root";
   TFile * fileout = new TFile(stringout, "RECREATE");
 
@@ -2292,6 +2292,7 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     legendError->Draw("");
   } //end loop m
 
+  cout << "Drawing plot rel error for thesis"  << endl;
   //PLOTS
   TCanvas * canvasNR = new TCanvas("canvasNR", "canvasNR", 1000, 1200); //only one pad
   canvasNR->SetFillColor(0);
@@ -2332,7 +2333,10 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
     if (type==8 && TypeAnalysis==0)    fHistSpectrumSistRelErrorDeltaEta[multChosen]->Draw("same");
     if (type==0) fHistSpectrumSistRelErrorDeltaEta[multChosen]->Draw("same");
     if (type==0) fHistSpectrumSistRelErrorDPhi[multChosen]->Draw("same");
-    if (type==8) fHistSpectrumSistRelErrorDPhi[0]->Draw("same");
+    if (type==8) {
+      if (!isppHM && !ispp5TeV) fHistSpectrumSistRelErrorDPhi[0]->Draw("same");
+      else fHistSpectrumSistRelErrorDPhi[multChosen]->Draw("same");
+    }
   }
 
   TString NameP1[2]={"K_{S}^{0}", "#Xi"};
@@ -2408,6 +2412,8 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =1,Float
   canvasNR->Write();
   temp->Close();
   if (isOnlyPlottingRelError) return;
+
+  cout << "(end of)Drawing plot rel error for thesis"  << endl;
 
   //fourth part: fit to obtain pt-integrated yield vs mult
   AliPWGFunc pwgfunc;
