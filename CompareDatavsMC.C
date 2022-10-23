@@ -9,6 +9,7 @@
 #include <TH3F.h>
 #include <TSpline.h>
 #include <TGraphErrors.h>
+#include <TGraphAsymmErrors.h>
 #include "TNtuple.h"
 #include "TCanvas.h"
 #include "TPad.h"
@@ -47,7 +48,7 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void StyleTGraphErrors(TGraphErrors *tgraph, Int_t color, Int_t style, Float_t mSize, Int_t linestyle){
+void StyleTGraphErrors(TGraphAsymmErrors *tgraph, Int_t color, Int_t style, Float_t mSize, Int_t linestyle){
   tgraph->SetLineColor(color);
   tgraph->SetLineWidth(2);
   tgraph->SetMarkerColor(color);
@@ -237,14 +238,14 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
   Float_t YieldRatiosErrors[numRegions][numColls][numDataorMC][nummoltMax] = {0};
   Float_t YieldRatiosDATA[numRegions][numColls][numDataorMC][nummoltMax] = {0};
   Float_t YieldRatiosErrorsDATA[numRegions][numColls][numDataorMC][nummoltMax] = {0};
-  TGraphErrors*	ghistoYield[numRegions][numColls][numDataorMC];
-  TGraphErrors*	ghistoYieldSist[numRegions][numColls][numDataorMC];
-  TGraphErrors*	ghistoRatioToOOJ[numColls][numDataorMC];
-  TGraphErrors*	ghistoSistRatioToOOJ[numColls][numDataorMC];
-  TGraphErrors*	ghistoYieldGrey[numRegions][numColls][numDataorMC];
-  TGraphErrors*	ghistoYieldRed[numRegions][numColls][numDataorMC];
-  TGraphErrors*	ghistoYieldRatio[numRegions][numColls][numDataorMC];
-  TGraphErrors*	ghistoYieldRatioDATA[numRegions][numColls][numDataorMC];
+  TGraphAsymmErrors*	ghistoYield[numRegions][numColls][numDataorMC];
+  TGraphAsymmErrors*	ghistoYieldSist[numRegions][numColls][numDataorMC];
+  TGraphAsymmErrors*	ghistoRatioToOOJ[numColls][numDataorMC];
+  TGraphAsymmErrors*	ghistoSistRatioToOOJ[numColls][numDataorMC];
+  TGraphAsymmErrors*	ghistoYieldGrey[numRegions][numColls][numDataorMC];
+  TGraphAsymmErrors*	ghistoYieldRed[numRegions][numColls][numDataorMC];
+  TGraphAsymmErrors*	ghistoYieldRatio[numRegions][numColls][numDataorMC];
+  TGraphAsymmErrors*	ghistoYieldRatioDATA[numRegions][numColls][numDataorMC];
 
   TH1F*  fHistYieldStatBlack;
   TH1F*  fHistYieldSistBlack;
@@ -260,31 +261,43 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
   TString MCTypeBis[5]= {"PythiaRopes", "PythiaMonash", "EPOSLHC", "AllPythia", "AllMC"};
   
   Float_t dNdEta[numDataorMC][numColls][nummoltMax] = {0};
-  Float_t dNdEtaError[numDataorMC][numColls][nummoltMax] = {0};
+  Float_t dNdEtaErrorL[numDataorMC][numColls][nummoltMax] = {0};
+  Float_t dNdEtaErrorR[numDataorMC][numColls][nummoltMax] = {0};
   /* MonashRopes, events with trigger particle */
   if (isdNdEtaTriggered){
     //DATA 13 TeV
-    dNdEta[0][0][0] = 7.39;
-    dNdEta[0][0][1] = 10.68;
-    dNdEta[0][0][2] = 14.77;
-    dNdEta[0][0][3] = 18.95;
-    dNdEta[0][0][4] = 24.05;
-    dNdEta[0][0][5] = 30.43;
-    dNdEta[0][0][6] = 32.57;
-    dNdEta[0][0][7] = 36.29;
+    dNdEta[0][0][0] = 7.396;
+    dNdEta[0][0][1] = 10.703;
+    dNdEta[0][0][2] = 14.799;
+    dNdEta[0][0][3] = 18.930;
+    dNdEta[0][0][4] = 24.039;
+    dNdEta[0][0][5] = 32.047;
+    dNdEta[0][0][6] = 34.063;
+    dNdEta[0][0][7] = 37.6;
     dNdEta[0][0][8] = 0;
     dNdEta[0][0][9] = 0;
 
-    dNdEtaError[0][0][0] = 0.56;
-    dNdEtaError[0][0][1] = 0.59;
-    dNdEtaError[0][0][2] = 0.43;
-    dNdEtaError[0][0][3] = 0.63;
-    dNdEtaError[0][0][4] = 0.64;
-    dNdEtaError[0][0][5] = 0.5;
-    dNdEtaError[0][0][6] = 0.5;
-    dNdEtaError[0][0][7] = 0.5;
-    dNdEtaError[0][0][8] = 0;
-    dNdEtaError[0][0][9] = 0;
+    dNdEtaErrorL[0][0][0] = 0.143;
+    dNdEtaErrorL[0][0][1] = 0.184;
+    dNdEtaErrorL[0][0][2] = 0.21;
+    dNdEtaErrorL[0][0][3] = 0.262;
+    dNdEtaErrorL[0][0][4] = 0.221;
+    dNdEtaErrorL[0][0][5] = 0.69;
+    dNdEtaErrorL[0][0][6] = 0.685;
+    dNdEtaErrorL[0][0][7] = 1.03;
+    dNdEtaErrorL[0][0][8] = 0;
+    dNdEtaErrorL[0][0][9] = 0;
+
+    dNdEtaErrorR[0][0][0] = 0.165;
+    dNdEtaErrorR[0][0][1] = 0.175;
+    dNdEtaErrorR[0][0][2] = 0.18;
+    dNdEtaErrorR[0][0][3] = 0.229;
+    dNdEtaErrorR[0][0][4] = 0.274;
+    dNdEtaErrorR[0][0][5] = 0.62;
+    dNdEtaErrorR[0][0][6] = 0.612;
+    dNdEtaErrorR[0][0][7] = 1;
+    dNdEtaErrorR[0][0][8] = 0;
+    dNdEtaErrorR[0][0][9] = 0;
 
     //DATA 5 TeV
     dNdEta[0][1][0] = 10.22;
@@ -298,16 +311,27 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
     dNdEta[0][1][8] = 0;
     dNdEta[0][1][9] = 0;
 
-    dNdEtaError[0][1][0] = 0.25;
-    dNdEtaError[0][1][1] = 0.39;
-    dNdEtaError[0][1][2] = 0.0;
-    dNdEtaError[0][1][3] = 0.0;
-    dNdEtaError[0][1][4] = 0.0;
-    dNdEtaError[0][1][5] = 0.0;
-    dNdEtaError[0][1][6] = 0.0;
-    dNdEtaError[0][1][7] = 0.0;
-    dNdEtaError[0][1][8] = 0;
-    dNdEtaError[0][1][9] = 0;
+    dNdEtaErrorL[0][1][0] = 0.17;
+    dNdEtaErrorL[0][1][1] = 0.23;
+    dNdEtaErrorL[0][1][2] = 0.0;
+    dNdEtaErrorL[0][1][3] = 0.0;
+    dNdEtaErrorL[0][1][4] = 0.0;
+    dNdEtaErrorL[0][1][5] = 0.0;
+    dNdEtaErrorL[0][1][6] = 0.0;
+    dNdEtaErrorL[0][1][7] = 0.0;
+    dNdEtaErrorL[0][1][8] = 0;
+    dNdEtaErrorL[0][1][9] = 0;
+
+    dNdEtaErrorR[0][1][0] = 0.17;
+    dNdEtaErrorR[0][1][1] = 0.23;
+    dNdEtaErrorR[0][1][2] = 0.0;
+    dNdEtaErrorR[0][1][3] = 0.0;
+    dNdEtaErrorR[0][1][4] = 0.0;
+    dNdEtaErrorR[0][1][5] = 0.0;
+    dNdEtaErrorR[0][1][6] = 0.0;
+    dNdEtaErrorR[0][1][7] = 0.0;
+    dNdEtaErrorR[0][1][8] = 0;
+    dNdEtaErrorR[0][1][9] = 0;
 
     //Monash
     dNdEta[2][0][0] = 8.45;
@@ -321,16 +345,27 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
     dNdEta[2][0][8] = 27.36;
     dNdEta[2][0][9] = 30.35;
 
-    dNdEtaError[2][0][0] = 0;
-    dNdEtaError[2][0][1] = 0;
-    dNdEtaError[2][0][2] = 0;
-    dNdEtaError[2][0][3] = 0;
-    dNdEtaError[2][0][4] = 0;
-    dNdEtaError[2][0][5] = 0;
-    dNdEtaError[2][0][6] = 0;
-    dNdEtaError[2][0][7] = 0;
-    dNdEtaError[2][0][8] = 0;
-    dNdEtaError[2][0][9] = 0;
+    dNdEtaErrorL[2][0][0] = 0;
+    dNdEtaErrorL[2][0][1] = 0;
+    dNdEtaErrorL[2][0][2] = 0;
+    dNdEtaErrorL[2][0][3] = 0;
+    dNdEtaErrorL[2][0][4] = 0;
+    dNdEtaErrorL[2][0][5] = 0;
+    dNdEtaErrorL[2][0][6] = 0;
+    dNdEtaErrorL[2][0][7] = 0;
+    dNdEtaErrorL[2][0][8] = 0;
+    dNdEtaErrorL[2][0][9] = 0;
+
+    dNdEtaErrorR[2][0][0] = 0;
+    dNdEtaErrorR[2][0][1] = 0;
+    dNdEtaErrorR[2][0][2] = 0;
+    dNdEtaErrorR[2][0][3] = 0;
+    dNdEtaErrorR[2][0][4] = 0;
+    dNdEtaErrorR[2][0][5] = 0;
+    dNdEtaErrorR[2][0][6] = 0;
+    dNdEtaErrorR[2][0][7] = 0;
+    dNdEtaErrorR[2][0][8] = 0;
+    dNdEtaErrorR[2][0][9] = 0;
 
     //Ropes
     dNdEta[1][0][0] = 8.27;
@@ -344,16 +379,27 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
     dNdEta[1][0][8] = 27.81;
     dNdEta[1][0][9] = 31.26;
 
-    dNdEtaError[1][0][0] = 0;
-    dNdEtaError[1][0][1] = 0;
-    dNdEtaError[1][0][2] = 0;
-    dNdEtaError[1][0][3] = 0;
-    dNdEtaError[1][0][4] = 0;
-    dNdEtaError[1][0][5] = 0;
-    dNdEtaError[1][0][6] = 0;
-    dNdEtaError[1][0][7] = 0;
-    dNdEtaError[1][0][8] = 0;
-    dNdEtaError[1][0][9] = 0;
+    dNdEtaErrorL[1][0][0] = 0;
+    dNdEtaErrorL[1][0][1] = 0;
+    dNdEtaErrorL[1][0][2] = 0;
+    dNdEtaErrorL[1][0][3] = 0;
+    dNdEtaErrorL[1][0][4] = 0;
+    dNdEtaErrorL[1][0][5] = 0;
+    dNdEtaErrorL[1][0][6] = 0;
+    dNdEtaErrorL[1][0][7] = 0;
+    dNdEtaErrorL[1][0][8] = 0;
+    dNdEtaErrorL[1][0][9] = 0;
+
+    dNdEtaErrorR[1][0][0] = 0;
+    dNdEtaErrorR[1][0][1] = 0;
+    dNdEtaErrorR[1][0][2] = 0;
+    dNdEtaErrorR[1][0][3] = 0;
+    dNdEtaErrorR[1][0][4] = 0;
+    dNdEtaErrorR[1][0][5] = 0;
+    dNdEtaErrorR[1][0][6] = 0;
+    dNdEtaErrorR[1][0][7] = 0;
+    dNdEtaErrorR[1][0][8] = 0;
+    dNdEtaErrorR[1][0][9] = 0;
 
     //EPOS LHC
     dNdEta[3][0][0] = 7.97;
@@ -367,16 +413,27 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
     dNdEta[3][0][8] = 27.49;
     dNdEta[3][0][9] = 31.61;
 
-    dNdEtaError[3][0][0] = 0;
-    dNdEtaError[3][0][1] = 0;
-    dNdEtaError[3][0][2] = 0;
-    dNdEtaError[3][0][3] = 0;
-    dNdEtaError[3][0][4] = 0;
-    dNdEtaError[3][0][5] = 0;
-    dNdEtaError[3][0][6] = 0;
-    dNdEtaError[3][0][7] = 0;
-    dNdEtaError[3][0][8] = 0;
-    dNdEtaError[3][0][9] = 0;
+    dNdEtaErrorL[3][0][0] = 0;
+    dNdEtaErrorL[3][0][1] = 0;
+    dNdEtaErrorL[3][0][2] = 0;
+    dNdEtaErrorL[3][0][3] = 0;
+    dNdEtaErrorL[3][0][4] = 0;
+    dNdEtaErrorL[3][0][5] = 0;
+    dNdEtaErrorL[3][0][6] = 0;
+    dNdEtaErrorL[3][0][7] = 0;
+    dNdEtaErrorL[3][0][8] = 0;
+    dNdEtaErrorL[3][0][9] = 0;
+
+    dNdEtaErrorR[3][0][0] = 0;
+    dNdEtaErrorR[3][0][1] = 0;
+    dNdEtaErrorR[3][0][2] = 0;
+    dNdEtaErrorR[3][0][3] = 0;
+    dNdEtaErrorR[3][0][4] = 0;
+    dNdEtaErrorR[3][0][5] = 0;
+    dNdEtaErrorR[3][0][6] = 0;
+    dNdEtaErrorR[3][0][7] = 0;
+    dNdEtaErrorR[3][0][8] = 0;
+    dNdEtaErrorR[3][0][9] = 0;
 
   }
   else {    
@@ -392,17 +449,6 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
     dNdEta[0][0][8] = 0;
     dNdEta[0][0][9] = 0;
 
-    dNdEtaError[0][0][0] = 0;
-    dNdEtaError[0][0][1] = 0;
-    dNdEtaError[0][0][2] = 0;
-    dNdEtaError[0][0][3] = 0;
-    dNdEtaError[0][0][4] = 0;
-    dNdEtaError[0][0][5] = 0;
-    dNdEtaError[0][0][6] = 0;
-    dNdEtaError[0][0][7] = 0;
-    dNdEtaError[0][0][8] = 0;
-    dNdEtaError[0][0][9] = 0;
-
     //Monash
     dNdEta[1][0][0] = 4.01;
     dNdEta[1][0][1] = 9.04;
@@ -414,17 +460,6 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
     dNdEta[1][0][7] = 22.68;
     dNdEta[1][0][8] = 25.58;
     dNdEta[1][0][9] = 29.09;
-
-    dNdEtaError[1][0][0] = 0;
-    dNdEtaError[1][0][1] = 0;
-    dNdEtaError[1][0][2] = 0;
-    dNdEtaError[1][0][3] = 0;
-    dNdEtaError[1][0][4] = 0;
-    dNdEtaError[1][0][5] = 0;
-    dNdEtaError[1][0][6] = 0;
-    dNdEtaError[1][0][7] = 0;
-    dNdEtaError[1][0][8] = 0;
-    dNdEtaError[1][0][9] = 0;
 
     //Ropes (now it's Monash...)
     dNdEta[2][0][0] = 4.01;
@@ -438,16 +473,14 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
     dNdEta[2][0][8] = 25.58;
     dNdEta[2][0][9] = 29.09;
 
-    dNdEtaError[2][0][0] = 0;
-    dNdEtaError[2][0][1] = 0;
-    dNdEtaError[2][0][2] = 0;
-    dNdEtaError[2][0][3] = 0;
-    dNdEtaError[2][0][4] = 0;
-    dNdEtaError[2][0][5] = 0;
-    dNdEtaError[2][0][6] = 0;
-    dNdEtaError[2][0][7] = 0;
-    dNdEtaError[2][0][8] = 0;
-    dNdEtaError[2][0][9] = 0;
+    for (Int_t iMC=0; iMC<numDataorMC; iMC++){
+      for (Int_t jcoll=0; jcoll<numColls; jcoll++){
+	for (Int_t mmult=0; mmult<nummoltMax; mmult++){
+	  dNdEtaErrorL[iMC][jcoll][mmult] = 0;
+	  dNdEtaErrorR[iMC][jcoll][mmult] = 0;
+	}
+      }
+    }
   }
 
   TString pathin[NumberOfMCs+2] ={""};
@@ -713,10 +746,10 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	    JetRatioToOOJErrorsSist[Coll][isMC][m] = histoYieldRatioSistToOOJ[Coll][isMC]->GetBinError(histoYieldSist[ireg][Coll][isMC]->FindBin(dNdEta[isMC][Coll][m]));
 	  }
 
-	  if (isMC==0) 	ghistoRatioToOOJ[Coll][isMC] = new TGraphErrors(nummoltDataorMC,dNdEta[isMC][Coll],JetRatioToOOJ[Coll][isMC],0,JetRatioToOOJErrorsStat[Coll][isMC]);
-	  else 	ghistoRatioToOOJ[Coll][isMC] = new TGraphErrors(nummoltDataorMC,dNdEta[isMC][Coll],JetRatioToOOJ[Coll][isMC],dNdEtaError[isMC][Coll],JetRatioToOOJErrors[Coll][isMC]);
+	  if (isMC==0) 	ghistoRatioToOOJ[Coll][isMC] = new TGraphAsymmErrors(nummoltDataorMC,dNdEta[isMC][Coll],JetRatioToOOJ[Coll][isMC],dNdEtaErrorL[isMC][Coll],dNdEtaErrorR[isMC][Coll],JetRatioToOOJErrorsStat[Coll][isMC], JetRatioToOOJErrorsStat[Coll][isMC]);
+	  else 	ghistoRatioToOOJ[Coll][isMC] = new TGraphAsymmErrors(nummoltDataorMC,dNdEta[isMC][Coll],JetRatioToOOJ[Coll][isMC],dNdEtaErrorL[isMC][Coll], dNdEtaErrorR[isMC][Coll], JetRatioToOOJErrors[Coll][isMC], JetRatioToOOJErrors[Coll][isMC]);
 	  ghistoRatioToOOJ[Coll][isMC]->SetName(Form("ghistoRatioToOOJ_reg%i_Coll%i_isMC%i", ireg, Coll, isMC));
-	  ghistoSistRatioToOOJ[Coll][isMC] = new TGraphErrors(nummoltDataorMC,dNdEta[isMC][Coll],JetRatioToOOJ[Coll][isMC],dNdEtaError[isMC][Coll],JetRatioToOOJErrorsSist[Coll][isMC]);
+	  ghistoSistRatioToOOJ[Coll][isMC] = new TGraphAsymmErrors(nummoltDataorMC,dNdEta[isMC][Coll],JetRatioToOOJ[Coll][isMC],dNdEtaErrorL[isMC][Coll],dNdEtaErrorR[isMC][Coll], JetRatioToOOJErrorsSist[Coll][isMC], JetRatioToOOJErrorsSist[Coll][isMC]);
 	  ghistoSistRatioToOOJ[Coll][isMC]->SetName(Form("ghistoSistRatioToOOJ_reg%i_Coll%i_isMC%i", ireg, Coll, isMC));
 
 	  if (isMC==0){
@@ -736,10 +769,10 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	  YieldsErrorsStat[ireg][Coll][isMC][m] = histoYield[ireg][Coll][isMC]->GetBinError(histoYield[ireg][Coll][isMC]->FindBin(dNdEta[isMC][Coll][m]));
 	  YieldsErrorsSist[ireg][Coll][isMC][m] = histoYieldSist[ireg][Coll][isMC]->GetBinError(histoYieldSist[ireg][Coll][isMC]->FindBin(dNdEta[isMC][Coll][m]));
 	}
-	if (isMC==0) 	ghistoYield[ireg][Coll][isMC] = new TGraphErrors(nummoltDataorMC,dNdEta[isMC][Coll],Yields[ireg][Coll][isMC],0,YieldsErrorsStat[ireg][Coll][isMC]);
-	else 	ghistoYield[ireg][Coll][isMC] = new TGraphErrors(nummoltDataorMC,dNdEta[isMC][Coll],Yields[ireg][Coll][isMC],dNdEtaError[isMC][Coll],YieldsErrors[ireg][Coll][isMC]);
+	if (isMC==0) 	ghistoYield[ireg][Coll][isMC] = new TGraphAsymmErrors(nummoltDataorMC,dNdEta[isMC][Coll],Yields[ireg][Coll][isMC],dNdEtaErrorL[isMC][Coll], dNdEtaErrorR[isMC][Coll],YieldsErrorsStat[ireg][Coll][isMC], YieldsErrorsStat[ireg][Coll][isMC]);
+	else 	ghistoYield[ireg][Coll][isMC] = new TGraphAsymmErrors(nummoltDataorMC,dNdEta[isMC][Coll],Yields[ireg][Coll][isMC],dNdEtaErrorL[isMC][Coll],dNdEtaErrorR[isMC][Coll],YieldsErrors[ireg][Coll][isMC], YieldsErrors[ireg][Coll][isMC]);
 	ghistoYield[ireg][Coll][isMC]->SetName(Form("ghistoYield_reg%i_Coll%i_isMC%i", ireg, Coll, isMC));
-	ghistoYieldSist[ireg][Coll][isMC] = new TGraphErrors(nummoltDataorMC,dNdEta[isMC][Coll],Yields[ireg][Coll][isMC],dNdEtaError[isMC][Coll],YieldsErrorsSist[ireg][Coll][isMC]);
+	ghistoYieldSist[ireg][Coll][isMC] = new TGraphAsymmErrors(nummoltDataorMC,dNdEta[isMC][Coll],Yields[ireg][Coll][isMC],dNdEtaErrorL[isMC][Coll],dNdEtaErrorR[isMC][Coll], YieldsErrorsSist[ireg][Coll][isMC], YieldsErrorsSist[ireg][Coll][isMC]);
 	ghistoYieldSist[ireg][Coll][isMC]->SetName(Form("ghistoYieldSist_reg%i_Coll%i_isMC%i", ireg, Coll, isMC));
 	if (isMC==0){
 	  StyleTGraphErrors(ghistoYield[ireg][Coll][isMC], ColorDiff[ireg][Coll], MarkerType[ireg], MarkerSize[ireg], LineStyle[isMC]);
@@ -795,13 +828,13 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 
 	//legend
 	if (NLoopRegion==0 && Coll==0 && isMC!=0){
-	  ghistoYieldGrey[ireg][Coll][isMC] = (TGraphErrors*)ghistoYield[ireg][Coll][isMC]->Clone(Form("ghistoYieldGrey_ireg%i_Coll%i_isMC%i", ireg, Coll, isMC));
+	  ghistoYieldGrey[ireg][Coll][isMC] = (TGraphAsymmErrors*)ghistoYield[ireg][Coll][isMC]->Clone(Form("ghistoYieldGrey_ireg%i_Coll%i_isMC%i", ireg, Coll, isMC));
 	  if (ChosenRegion==-1 && PlotType!=0) 	  ghistoYieldGrey[ireg][Coll][isMC]->SetLineColor(kGray+3);
 	  else  {
 	    ghistoYieldGrey[ireg][Coll][isMC]->SetLineColor(ColorDiff[ireg][Coll]);
 	    ghistoYieldGrey[ireg][Coll][isMC]->SetFillColor(ColorDiff[ireg][Coll]);
 	  }
-	  ghistoYieldRed[ireg][Coll][isMC] = (TGraphErrors*) ghistoYieldGrey[ireg][Coll][isMC]->Clone(Form("ghistoYieldRed_ireg%i_Coll%i_isMC%i", ireg, Coll, isMC));
+	  ghistoYieldRed[ireg][Coll][isMC] = (TGraphAsymmErrors*) ghistoYieldGrey[ireg][Coll][isMC]->Clone(Form("ghistoYieldRed_ireg%i_Coll%i_isMC%i", ireg, Coll, isMC));
 	  ghistoYieldRed[ireg][Coll][isMC]->SetLineColor(ColorDiff[ireg][Coll]);
 	  if (isMC==1) ghistoYieldRed[ireg][Coll][isMC]->SetFillStyle(3001);
 	  else if (isMC==2) ghistoYieldRed[ireg][Coll][isMC]->SetFillStyle(3008);
@@ -1008,7 +1041,7 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	    //cout << YieldRatiosDATA[ireg][Coll][isMC][m] << " +- " <<  YieldRatiosErrorsDATA[ireg][Coll][isMC][m] << endl;
 	  }
 	  //cout << "Define TGraph " << endl;
-	  ghistoYieldRatioDATA[ireg][Coll][isMC] = new TGraphErrors(8,dNdEta[isMC][Coll],YieldRatiosDATA[ireg][Coll][isMC],0,YieldRatiosErrorsDATA[ireg][Coll][isMC]);
+	  ghistoYieldRatioDATA[ireg][Coll][isMC] = new TGraphAsymmErrors(8,dNdEta[isMC][Coll],YieldRatiosDATA[ireg][Coll][isMC],0,YieldRatiosErrorsDATA[ireg][Coll][isMC]);
 	  ghistoYieldRatioDATA[ireg][Coll][isMC]->SetName(Form("ghistoYieldRatioDATA_reg%i_Coll%i_isMC%i", ireg, Coll, isMC));
 	  StyleTGraphErrors(ghistoYieldRatioDATA[ireg][Coll][isMC], ColorDiff[ireg][Coll], 1, 1, LineStyle[isMC]);
 	}
@@ -1075,7 +1108,7 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	  YieldRatiosErrors[ireg][Coll][isMC][m] = 0; 
 	  //	  cout << "m " << dNdEta[isMC][Coll][m] << " " << YieldRatios[ireg][Coll][isMC][m] << endl;
 	}
-	ghistoYieldRatio[ireg][Coll][isMC] = new TGraphErrors(nummolt,dNdEta[isMC][Coll],YieldRatios[ireg][Coll][isMC],dNdEtaError[isMC][Coll],YieldRatiosErrors[ireg][Coll][isMC]);
+	ghistoYieldRatio[ireg][Coll][isMC] = new TGraphAsymmErrors(nummolt,dNdEta[isMC][Coll],YieldRatios[ireg][Coll][isMC], dNdEtaErrorL[isMC][Coll],  dNdEtaErrorR[isMC][Coll], YieldRatiosErrors[ireg][Coll][isMC], YieldRatiosErrors[ireg][Coll][isMC]);
 	ghistoYieldRatio[ireg][Coll][isMC]->SetName(Form("ghistoYieldRatio_reg%i_Coll%i_isMC%i", ireg, Coll, isMC));
 	StyleTGraphErrors(ghistoYieldRatio[ireg][Coll][isMC], ColorDiff[ireg][Coll], 1, 1, LineStyle[isMC]);
 
