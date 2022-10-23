@@ -252,7 +252,7 @@ void AliAnalysisPseudoRapidityDensityTemp::UserCreateOutputObjects()
 	auto binPt = AxisLog("Pt", 20,  0.15, 20, 0.15);
 	auto binCentClass = AxisStr("CentClass", {"V0M"});
 	//	auto binEventClass = AxisStr("EventClass", {"DATA", "INEL", "INELg0" , "INEL015", "INEL040",  "INEL050", "INEL100", "INEL200","INEL300","INEL04025", "INEL05024","INEL05025"});
-	auto binEventClass = AxisStr("EventClass", {"DATA", "INEL", "INELg0" , "INEL300"}); //remove unneccessary bins
+	auto binEventClass = AxisStr("EventClass", {"DATA", "INEL", "INELg0" , "INEL300", "INEL100", "INEL200"}); //remove unneccessary bins
 	//	auto binTriggClass = AxisStr("TriggClass", {"MBAND015","MBAND040","MBAND050", "MBAND100", "MBAND200", "MBAND300", "HMMBAND" "HMMBAND300"});
 	//	auto binTriggClass = AxisStr("TriggClass", {"HMMBAND","HMMBAND300","MBAND050", "MBAND015", "MBAND100", "MBAND300", "MBAND200" "MBAND040"});
 	auto binTriggClass = AxisStr("TriggClass", {"HMMBAND","HMMBAND300", "MBAND015", "MBAND300","MBAND100", "MBAND200"}); //remove unneccessary bins
@@ -892,9 +892,11 @@ void AliAnalysisPseudoRapidityDensityTemp::UserExec(Option_t *)
 					IsPtSelected = true;
 				else if (ievtc == kINEL050 && pt > 0.5)
 					IsPtSelected = true;
-				else if (ievtc == kINEL100 && pt > 1)
+				//else if (ievtc == kINEL100 && pt > 1)
+				else if (ievtc == kINEL100)
 					IsPtSelected = true;
-				else if (ievtc == kINEL200 && pt > 2)
+				//else if (ievtc == kINEL200 && pt > 2)
+				else if (ievtc == kINEL200)
 					IsPtSelected = true;
 				//else if (ievtc == kINEL300 && pt > 3)
 				//	IsPtSelected = true;
@@ -1031,9 +1033,11 @@ void AliAnalysisPseudoRapidityDensityTemp::FillTracks(Bool_1d bevtc, Bool_1d btr
 						else if (itrigc == kMBAND040 && pt > 0.4) {
 							IsPtSelected = true;
 						}
-						else if (itrigc == kMBAND100 && pt > 1)
+						//else if (itrigc == kMBAND100 && pt > 1)
+						else if (itrigc == kMBAND100)
 							IsPtSelected = true;
-						else if (itrigc == kMBAND200 && pt > 2)
+						//else if (itrigc == kMBAND200 && pt > 2)
+						else if (itrigc == kMBAND200)
 							IsPtSelected = true;
 						//else if (itrigc == kMBAND300 && pt > 3)
 						//	IsPtSelected = true;
