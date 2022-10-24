@@ -266,73 +266,18 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
   /* MonashRopes, events with trigger particle */
   if (isdNdEtaTriggered){
     //DATA 13 TeV
-    dNdEta[0][0][0] = 7.396;
-    dNdEta[0][0][1] = 10.703;
-    dNdEta[0][0][2] = 14.799;
-    dNdEta[0][0][3] = 18.930;
-    dNdEta[0][0][4] = 24.039;
-    dNdEta[0][0][5] = 32.047;
-    dNdEta[0][0][6] = 34.063;
-    dNdEta[0][0][7] = 37.6;
-    dNdEta[0][0][8] = 0;
-    dNdEta[0][0][9] = 0;
-
-    dNdEtaErrorL[0][0][0] = 0.143;
-    dNdEtaErrorL[0][0][1] = 0.184;
-    dNdEtaErrorL[0][0][2] = 0.21;
-    dNdEtaErrorL[0][0][3] = 0.262;
-    dNdEtaErrorL[0][0][4] = 0.221;
-    dNdEtaErrorL[0][0][5] = 0.69;
-    dNdEtaErrorL[0][0][6] = 0.685;
-    dNdEtaErrorL[0][0][7] = 1.03;
-    dNdEtaErrorL[0][0][8] = 0;
-    dNdEtaErrorL[0][0][9] = 0;
-
-    dNdEtaErrorR[0][0][0] = 0.165;
-    dNdEtaErrorR[0][0][1] = 0.175;
-    dNdEtaErrorR[0][0][2] = 0.18;
-    dNdEtaErrorR[0][0][3] = 0.229;
-    dNdEtaErrorR[0][0][4] = 0.274;
-    dNdEtaErrorR[0][0][5] = 0.62;
-    dNdEtaErrorR[0][0][6] = 0.612;
-    dNdEtaErrorR[0][0][7] = 1;
-    dNdEtaErrorR[0][0][8] = 0;
-    dNdEtaErrorR[0][0][9] = 0;
-
-    //DATA 5 TeV
-    dNdEta[0][1][0] = 10.22;
-    dNdEta[0][1][1] = 16.93;
-    dNdEta[0][1][2] = 0;
-    dNdEta[0][1][3] = 0;
-    dNdEta[0][1][4] = 0;
-    dNdEta[0][1][5] = 0;
-    dNdEta[0][1][6] = 0;
-    dNdEta[0][1][7] = 0;
-    dNdEta[0][1][8] = 0;
-    dNdEta[0][1][9] = 0;
-
-    dNdEtaErrorL[0][1][0] = 0.17;
-    dNdEtaErrorL[0][1][1] = 0.23;
-    dNdEtaErrorL[0][1][2] = 0.0;
-    dNdEtaErrorL[0][1][3] = 0.0;
-    dNdEtaErrorL[0][1][4] = 0.0;
-    dNdEtaErrorL[0][1][5] = 0.0;
-    dNdEtaErrorL[0][1][6] = 0.0;
-    dNdEtaErrorL[0][1][7] = 0.0;
-    dNdEtaErrorL[0][1][8] = 0;
-    dNdEtaErrorL[0][1][9] = 0;
-
-    dNdEtaErrorR[0][1][0] = 0.17;
-    dNdEtaErrorR[0][1][1] = 0.23;
-    dNdEtaErrorR[0][1][2] = 0.0;
-    dNdEtaErrorR[0][1][3] = 0.0;
-    dNdEtaErrorR[0][1][4] = 0.0;
-    dNdEtaErrorR[0][1][5] = 0.0;
-    dNdEtaErrorR[0][1][6] = 0.0;
-    dNdEtaErrorR[0][1][7] = 0.0;
-    dNdEtaErrorR[0][1][8] = 0;
-    dNdEtaErrorR[0][1][9] = 0;
-
+    for (Int_t m=0; m<nummoltMax; m++){ 
+      dNdEta[0][0][m] =  dNdEtaFinal13TeV[m];
+      dNdEtaErrorL[0][0][m] =  dNdEtaFinal13TeV_ErrorL[m];
+      dNdEtaErrorR[0][0][m] =  dNdEtaFinal13TeV_ErrorR[m];
+      cout <<  "dNdeta values from macro " << dNdEta[0][0][m] << " + " << dNdEtaErrorR[0][0][m] << " - " <<  dNdEtaErrorL[0][0][m] << endl;
+    }
+    //DATA 5 TeV    
+    for (Int_t m=0; m<nummoltMax; m++){ 
+      dNdEta[0][1][m] =  dNdEtaFinal5TeV[m];
+      dNdEtaErrorL[0][1][m] =  dNdEtaFinal5TeV_ErrorL[m];
+      dNdEtaErrorR[0][1][m] =  dNdEtaFinal5TeV_ErrorR[m];
+    }
     //Monash
     dNdEta[2][0][0] = 8.45;
     dNdEta[2][0][1] = 12.42;
@@ -721,7 +666,7 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	else  cout << "Got histos for 5 TeV " << endl;
 	for (Int_t b=1; b<=  histoYield[ireg][Coll][isMC]->GetNbinsX(); b++){
 	  if (histoYield[ireg][Coll][isMC]->GetBinContent(b) != 0)	 {
-	    cout << histoYield[ireg][Coll][isMC]->GetBinContent(b) << " +- " << histoYield[ireg][Coll][isMC]->GetBinError(b) << " (stat.) +-  " <<  histoYieldSist[ireg][Coll][isMC]->GetBinError(b) << " (syst.) " << endl;
+	    cout << "dNdeta (central value of bin) " << histoYield[ireg][Coll][isMC]->GetBinCenter(b) << ": " << histoYield[ireg][Coll][isMC]->GetBinContent(b) << " +- " << histoYield[ireg][Coll][isMC]->GetBinError(b) << " (stat.) +-  " <<  histoYieldSist[ireg][Coll][isMC]->GetBinError(b) << " (syst.) " << endl;
 	  }
 	}
 
