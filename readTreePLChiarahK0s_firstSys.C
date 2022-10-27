@@ -18,12 +18,15 @@
 #include <TLegend.h>
 #include <TRandom.h>
 
-void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,  bool isMC = 1,    TString year=/*"2016kehjl_hK0s"/*"2016k_hK0s"/"17anch17_hK0s"*/"1617MC_hK0s"/*"2018f1_extra_hK0s_CP"*/, Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAssoc=1 ,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15,Bool_t isEfficiency=1,Int_t sysTrigger=0,	  TString year0="2016", TString Path1 ="", Bool_t CommonParton=0, Int_t PtBinning=1, Bool_t isSysDef=1, Bool_t IsDefaultSel=0, TString yearData="1617_hK0s")
+void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,Int_t sysTrigger=0,Int_t indexsysTrigger=0,  bool isMC = 0,    TString year=/*"22e1_hK0s"/*"17pq_hK0s"/*"2019h11_HM_hK0s"/*"AllhK0sHM_RedNo16k"*/"1617_AOD234_hK0s"/*"1617_GP_AOD235_With18c12b_EffCorr"/*"2016kehjl_hK0s"/*"2016k_hK0s"/"17anch17_hK0s"/"1617MC_hK0s"/*"2018f1_extra_hK0s_CP"*/, Int_t type=0 /*type = 0 for K0s */,Bool_t SkipAssoc=0,Int_t israp=0, Bool_t ishhCorr=0, Float_t PtTrigMin=3, Float_t ptjmax=15,Bool_t isEfficiency=1, TString year0="2016", TString Path1 ="", Bool_t CommonParton=0, Int_t PtBinning=1, Bool_t isSysDef=1, Bool_t IsDefaultSel=1, Bool_t isLoosest=0, Bool_t isTightest=0,  TString yearData=/*"17pq_hK0s"/*"AllhK0sHM_RedNo16k"*/"1617_AOD234_hK0s"/*"1617_hK0s"*/, Bool_t isNewInputPath=1,  Int_t MultBinning=0, Bool_t isHM=0, Bool_t ispp5TeV=0)
 {
 
+  if (IsDefaultSel && (isLoosest || isTightest) ) return;
+  if (isLoosest && isTightest) return;
+  if (IsDefaultSel && sysTrigger==1) {cout << "to run the default selections you should put sysTrigger==0) " << endl;  return; }
+  
   if (!isSysDef) {cout << "this macro should be run with SysDef=1"; return; }
   Int_t sysV0=0; //need to define it ... but useless for the purposes of this macro
-
 
   const Int_t numtipo=4;
   TString tipo[numtipo]={"K0s", "Lambda", "AntiLambda", "LambdaAntiLambda"};
@@ -36,10 +39,11 @@ void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,  bool isMC = 1,    TStri
   Float_t DCAV0ToPVExtr[2] = {0.4, 0.6};
   Float_t ctauExtr[2] = {9.5, 30};
   Float_t LambdaMassWindowExtr[2] = {0.00, 0.010};
+  Float_t DCAzTriggerExtr[2]= {0.1, 2}; //to be defined
 
   //random number generator: a value between 0 and 9 is extracted for each of the 6 variables above, and this value defines the selection applied 
    
- const Int_t numSysV0Var =6;
+ const Int_t numSysVar =7;
  /*
    Int_t numsysV0index=10;
    Int_t sysV0Index[numSysV0Var];
@@ -57,54 +61,87 @@ void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,  bool isMC = 1,    TStri
   Float_t CosinePAngle = 0;
   CosinePAngle = gRandom->Uniform(CosinePAngleExtr[0] , CosinePAngleExtr[1]);//(CosinePAngleExtr[1] -  CosinePAngleExtr[0])/numsysV0index * sysV0Index[0] +  CosinePAngleExtr[0];
   if (IsDefaultSel)  CosinePAngle=0.995; //default value
+  else  if (isLoosest)   CosinePAngle=CosinePAngleExtr[0];
+  else  if (isTightest)   CosinePAngle=CosinePAngleExtr[1];
 
   Float_t DCAPosToPV = 0;
   DCAPosToPV = gRandom->Uniform( DCAPosToPVExtr[0], DCAPosToPVExtr[1]);//(DCAPosToPVExtr[1] -  DCAPosToPVExtr[0])/numsysV0index * sysV0Index[1] +  DCAPosToPVExtr[0];
   if (IsDefaultSel) DCAPosToPV = 0.06; //default value
+  else if (isLoosest) DCAPosToPV = DCAPosToPVExtr[0];
+  else if (isTightest) DCAPosToPV = DCAPosToPVExtr[1];
 
   Float_t DCANegToPV = 0;
   DCANegToPV = gRandom->Uniform( DCANegToPVExtr[0], DCANegToPVExtr[1]);//(DCANegToPVExtr[1] -  DCANegToPVExtr[0])/numsysV0index * sysV0Index[2] +  DCANegToPVExtr[0];
   if (IsDefaultSel) DCANegToPV = 0.06; //default value
+  else if (isLoosest) DCANegToPV = DCANegToPVExtr[0];
+  else if (isTightest) DCANegToPV = DCANegToPVExtr[1];
   
   Float_t DCAV0ToPV = 0;
   DCAV0ToPV = gRandom->Uniform(DCAV0ToPVExtr[0],DCAV0ToPVExtr[1]);//(DCAV0ToPVExtr[1] -  DCAV0ToPVExtr[0])/numsysV0index * sysV0Index[3] +  DCAV0ToPVExtr[0];
   if (IsDefaultSel) DCAV0ToPV = 0.5; //default value
-  
+  else if (isLoosest) DCAV0ToPV = DCAV0ToPVExtr[1];
+  else if (isTightest) DCAV0ToPV = DCAV0ToPVExtr[0];
+
   Float_t ctau = 0;
   ctau = gRandom->Uniform(ctauExtr[0],ctauExtr[1]);//(ctauExtr[1] -  ctauExtr[0])/numsysV0index * sysV0Index[4] +  ctauExtr[0];
   if (IsDefaultSel) ctau = 20; //default value
+  else if (isLoosest) ctau = ctauExtr[1];
+  else if (isTightest) ctau = ctauExtr[0];
+
 
   Float_t LambdaMassWindow =0; 
   LambdaMassWindow = gRandom->Uniform(LambdaMassWindowExtr[0], LambdaMassWindowExtr[1]);//(LambdaMassWindowExtr[1] -  LambdaMassWindowExtr[0])/numsysV0index * sysV0Index[5] +  LambdaMassWindowExtr[0];
   if (IsDefaultSel) LambdaMassWindow = 0.005; //default value
-  
+  else if (isLoosest) LambdaMassWindow = LambdaMassWindowExtr[0];
+  else if (isTightest) LambdaMassWindow = LambdaMassWindowExtr[1];
+
+
+  Float_t DCAzTrigger = 1;
+
+  if (sysTrigger==1){ //I vary the DCAz of the trigger particle and leave the topological variables at their default value                                                                                   
+    gRandom->SetSeed(indexsysTrigger);
+    DCAV0ToPV=0.5; //default value                                                               
+    DCAPosToPV=0.06; //default value                                                   
+    DCANegToPV=0.06; //default value                                                   
+    CosinePAngle=0.995; //default value                                                           
+    LambdaMassWindow=0.005; //default value                                                         
+    ctau=20; //default value                                                                       
+    DCAzTrigger = gRandom->Uniform(DCAzTriggerExtr[0] , DCAzTriggerExtr[1]);
+  }
   //rap=0 : no rapidity window chsen for cascade, |Eta| < 0.8; rap=1 |y| < 0.5
   
   if (isMC && isEfficiency) { //I take topo sel from histogram (so to correctly compute efficiency)
     TString PathInData="./FinalOutput/DATA" + year0 + "/histo/AngularCorrelation";
-  PathInData+=yearData;  
-  PathInData+=Path1;
-  if (PtBinning>0)  PathInData+=Form("_PtBinning%i",PtBinning);
-  PathInData+="_";
-  if (!ishhCorr){
-    PathInData +=tipo[type];
-  }
-  PathInData +=Srap[israp];
-  if (!SkipAssoc)  PathInData +="_AllAssoc";
-  if (isSysDef && IsDefaultSel)  PathInData +=Form("_MassDistr_SysT%i_SysV0Default_PtMin%.1f",sysTrigger,   PtTrigMin); 
-  else   if (isSysDef && !IsDefaultSel)  PathInData +=Form("_MassDistr_SysT%i_SysV0index%i_PtMin%.1f",sysTrigger, indexSysV0,  PtTrigMin); 
-  else   PathInData +=Form("_MassDistr_SysT%i_SysV0Bis%i_PtMin%.1f",sysTrigger, 0, PtTrigMin); 
-  PathInData+= ".root";
+    PathInData+=yearData;  
+    PathInData+=Path1;
+    if (PtBinning>0)  PathInData+=Form("_PtBinning%i",PtBinning);
+    PathInData+="_";
+    if (!ishhCorr){
+      PathInData +=tipo[type];
+    }
+    PathInData +=Srap[israp];
+    if (!SkipAssoc)  PathInData +="_AllAssoc";
+    if (isSysDef && IsDefaultSel)  PathInData +=Form("_MassDistr_SysT%i_SysV0Default_PtMin%.1f",sysTrigger,   PtTrigMin); 
+    else  if (isSysDef && isLoosest)  PathInData +=Form("_MassDistr_SysT%i_SysV0Loosest_PtMin%.1f",sysTrigger,   PtTrigMin); 
+    else  if (isSysDef && isTightest)  PathInData +=Form("_MassDistr_SysT%i_SysV0Tightest_PtMin%.1f",sysTrigger,   PtTrigMin); 
+    else   if (isSysDef && !IsDefaultSel && sysTrigger==0)  PathInData +=Form("_MassDistr_SysT%i_SysV0index%i_PtMin%.1f",sysTrigger, indexSysV0,  PtTrigMin); 
+    else   if (isSysDef && !IsDefaultSel && sysTrigger==1)  PathInData +=Form("_MassDistr_SysTindex%i_SysV0%i_PtMin%.1f",indexsysTrigger, 0,  PtTrigMin); 
+    else   PathInData +=Form("_MassDistr_SysT%i_SysV0Bis%i_PtMin%.1f",sysTrigger, 0, PtTrigMin); 
+    if (MultBinning!=0) PathInData+=Form("_MultBinning%i",MultBinning);
+    PathInData+= ".root";
 
-  TFile * fileinData = new TFile(PathInData, "");
-  if (!PathInData) {cout << " I cannot retrieve info about topo selections..." << endl; return;}
-  TH1F * histoTopoSel = (TH1F*) fileinData->Get("histoTopoSel");
-  CosinePAngle = histoTopoSel->GetBinContent(1);
-  DCAPosToPV = histoTopoSel->GetBinContent(2);
-  DCANegToPV = histoTopoSel->GetBinContent(3);
-  DCAV0ToPV = histoTopoSel->GetBinContent(4);
-  ctau = histoTopoSel->GetBinContent(5);
-  LambdaMassWindow = histoTopoSel->GetBinContent(6);
+    TFile * fileinData = new TFile(PathInData, "");
+    if (!PathInData) {cout << " I cannot retrieve info about topo selections..." << endl; return;}
+    TH1F * histoTopoSel = (TH1F*) fileinData->Get("histoTopoSel");
+    CosinePAngle = histoTopoSel->GetBinContent(1);
+    DCAPosToPV = histoTopoSel->GetBinContent(2);
+    DCANegToPV = histoTopoSel->GetBinContent(3);
+    DCAV0ToPV = histoTopoSel->GetBinContent(4);
+    ctau = histoTopoSel->GetBinContent(5);
+    LambdaMassWindow = histoTopoSel->GetBinContent(6);
+    DCAzTrigger = histoTopoSel->GetBinContent(7);
+
+    cout << " PathInData " << PathInData << endl;
   }
 
   if (ishhCorr && !isEfficiency) {
@@ -148,8 +185,12 @@ void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,  bool isMC = 1,    TStri
   if (!SkipAssoc)  PathOut +="_AllAssoc";
   if (ishhCorr) PathOut +="_hhCorr";  
   if (isSysDef && IsDefaultSel)  PathOut +=Form("_MassDistr_SysT%i_SysV0Default_PtMin%.1f",sysTrigger,   PtTrigMin); 
-  else   if (isSysDef && !IsDefaultSel)  PathOut +=Form("_MassDistr_SysT%i_SysV0index%i_PtMin%.1f",sysTrigger, indexSysV0,  PtTrigMin); 
+  else  if (isSysDef && isLoosest)  PathOut +=Form("_MassDistr_SysT%i_SysV0Loosest_PtMin%.1f",sysTrigger,   PtTrigMin); 
+  else  if (isSysDef && isTightest)  PathOut +=Form("_MassDistr_SysT%i_SysV0Tightest_PtMin%.1f",sysTrigger,   PtTrigMin); 
+  else   if (isSysDef && !IsDefaultSel && sysTrigger==0)  PathOut +=Form("_MassDistr_SysT%i_SysV0index%i_PtMin%.1f",sysTrigger, indexSysV0,  PtTrigMin); 
+  else   if (isSysDef && !IsDefaultSel && sysTrigger==1)  PathOut +=Form("_MassDistr_SysTindex%i_SysV0%i_PtMin%.1f",indexsysTrigger, 0,  PtTrigMin); 
   else   PathOut +=Form("_MassDistr_SysT%i_SysV0Bis%i_PtMin%.1f",sysTrigger, 0, PtTrigMin); 
+  if (MultBinning!=0) PathOut+=Form("_MultBinning%i",MultBinning);
   PathOut+= ".root";
 
   //take the smaller tree as input 
@@ -168,7 +209,9 @@ void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,  bool isMC = 1,    TStri
   PathInTree += Srap[israp];
   PathInTree += SSkipAssoc[SkipAssoc];
   PathInTree += "_MassDistr_SysT0_SysV00_index0_";
-  PathInTree+= Form("PtMin%.1f.root",PtTrigMin);
+  PathInTree+= Form("PtMin%.1f",PtTrigMin);
+  if (MultBinning!=0) PathInTree+=Form("_MultBinning%i",MultBinning);
+  PathInTree += ".root";
 
   Bool_t MassInPeakK0s =0; //variable for a rough cut on K0s candidates' invariant mass (only done to fill histograms needed for deltaphi projections of K0s with or without an ancestor parton in common with trigger particle)
   TString dirinputtype[4] = {"", "Lambda", "Lambda", "Lambda"};
@@ -178,8 +221,22 @@ void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,  bool isMC = 1,    TStri
   if (!fin) {cout << "file input not available " ; return;}
   TFile *finTree = new TFile(PathInTree);
   if (!finTree) {cout << "tree input not available " ; return;}
-  TDirectoryFile *d = (TDirectoryFile*)fin->Get("MyTask"+dirinputtype[type]);
+  TString TaskName = "";
+  if (isNewInputPath){
+    if (isMC)  TaskName = "_MCTruth_PtTrigMin3.0_PtTrigMax15.0";
+    else TaskName = "_PtTrigMin3.0_PtTrigMax15.0";
+  }
+  cout << "TaskName " << TaskName << endl;
+  TDirectoryFile *d = (TDirectoryFile*)fin->Get("MyTask"+dirinputtype[type]+ TaskName);
   if (!d)  {cout << "dir input not available " ; return;}
+
+  TString ContainerName ="";
+  if (isNewInputPath) {
+    if (year.Index("AOD234")!=-1) ContainerName= "_hK0s_Task_";
+    else if (year.Index("AOD235")!=-1 || year == "2019h11_HM_hK0s" || isMC) ContainerName= "_hK0s_Task_RecoAndEfficiency";
+    else  ContainerName= "_hK0s_Task_";
+  }
+  cout << "Container name " << ContainerName << endl;
 
   TTree *tSign;
   TTree *tBkg;
@@ -295,6 +352,41 @@ void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,  bool isMC = 1,    TStri
 
   TString Smolt[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "all"};
   Double_t Nmolt[nummolt+1]={0, 5, 10, 30, 50, 100};
+  TString Smolt5TeV[nummolt+1]={"0-10", "10-100", "100-100", "100-100", "100-100", "all"};
+  Double_t Nmolt5TeV[nummolt+1]={0, 10, 100, 100, 100, 100};
+
+  if (isHM){
+    Nmolt[1] = 0.001;
+    Nmolt[2] = 0.005;
+    Nmolt[3] = 0.01;
+    Nmolt[4] = 0.05;
+    Nmolt[5] = 0.1;
+    Smolt[0] = "0-0.001";
+    Smolt[1] = "0.001-0.005";
+    Smolt[2] = "0.005-0.01";
+    Smolt[3] = "0.01-0.05";
+    Smolt[4] = "0.05-0.1";
+    Smolt[5] = "0-0.1";
+    if (MultBinning==1){
+      Nmolt[1] = 0;
+      Nmolt[2] = 0;
+      Nmolt[3] = 0.01;
+      Nmolt[4] = 0.05;
+      Nmolt[5] = 0.1;
+      Smolt[0] = "0-0a";
+      Smolt[1] = "0-0b";
+      Smolt[2] = "0-0.01";
+      Smolt[3] = "0.01-0.05";
+      Smolt[4] = "0.05-0.1";
+      Smolt[5] = "0-0.1";
+    }
+  }
+  if (ispp5TeV && MultBinning==3) {
+    for (Int_t m=0; m<nummolt+1; m++){
+      Nmolt[m] = Nmolt5TeV[m];
+      Smolt[m] = Smolt5TeV[m];
+    }
+  }
 
   TString SPtV0[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8", ""};
   TString SPtV00[numPtV0]={"", "0-1", "1-1.5","1.5-2", "2-2.5","2.5-3", "3-4", "4-8", ""};
@@ -343,13 +435,14 @@ void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,  bool isMC = 1,    TStri
   Double_t NPtTrigger[numPtTrigger+1]={PtTrigMin,ptjmax};
 
   //what is the fraction of AC events in each multiplicity class?
-  TList *d1 = (TList*)d->Get("MyOutputContainer");
-  if (!d1) return;
+  TList *d1 = (TList*)d->Get("MyOutputContainer"+ ContainerName);
+  if (!d1) {cout << "Directory not available " << endl; return;}
   TH1F* fHistEventMult=(TH1F*)  d1->FindObject("fHistEventMult");
   if (!fHistEventMult) {cout << "no info about total number of INT7 events analyzed" << endl; return;}
 
   //cout <<" bin label: " << fHistEventMult->GetXaxis()->GetBinLabel(7) << endl;
   Double_t TotEvtINT7 = fHistEventMult->GetBinContent(7);
+  if (isHM) TotEvtINT7 = fHistEventMult->GetBinContent(9);
 
   TH2F* hMultiplicity2D=(TH2F*)  d1->FindObject("fHistPtMaxvsMult");
   TH2F* hMultiplicity2DBefAll=(TH2F*)  d1->FindObject("fHistPtMaxvsMultBefAll");
@@ -479,6 +572,10 @@ void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,  bool isMC = 1,    TStri
   
   TFile *fout = new TFile(PathOut,"RECREATE");
 
+  Int_t numMultBins =100;
+  Float_t UpperLimitMult=100;
+  if (isHM) UpperLimitMult = 0.1;
+
   TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPPtInt[nummolt+1][numzeta][numPtTrigger];
   TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt[nummolt+1][numzeta][numPtTrigger];
   TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPPtInt_BulkReg[nummolt+1][numzeta][numPtTrigger];
@@ -493,7 +590,7 @@ void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,  bool isMC = 1,    TStri
   TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_CPTrue[nummolt+1][numzeta][numPtV0][numPtTrigger];
   TH1D *hDeltaEtaDeltaPhi_SEbins_DeltaPhiProj_NOCPTrue[nummolt+1][numzeta][numPtV0][numPtTrigger];
 
-  TH1F * histoTopoSel = new TH1F ("histoTopoSel", "histoTopoSel", numSysV0Var, 0, 6);  
+  TH1F * histoTopoSel = new TH1F ("histoTopoSel", "histoTopoSel", numSysVar, 0, 7);  
   histoTopoSel->GetXaxis()->SetBinLabel(1, "cosPAngle");
   histoTopoSel->SetBinContent(1, CosinePAngle);
   histoTopoSel->GetXaxis()->SetBinLabel(2, "DCAPosToPV");
@@ -506,8 +603,10 @@ void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,  bool isMC = 1,    TStri
   histoTopoSel->SetBinContent(5, ctau);
   histoTopoSel->GetXaxis()->SetBinLabel(6, "LambdaMassWindow");
   histoTopoSel->SetBinContent(6, LambdaMassWindow);
+  histoTopoSel->GetXaxis()->SetBinLabel(7, "DCAzTrigger");
+  histoTopoSel->SetBinContent(7, DCAzTrigger);
 
-  TH1F * histoTopoSelBounds = new TH1F ("histoTopoSelBounds", "histoTopoSelBounds", 2*numSysV0Var, 0, 12);  
+  TH1F * histoTopoSelBounds = new TH1F ("histoTopoSelBounds", "histoTopoSelBounds", 2*numSysVar, 0, 114);  
   histoTopoSelBounds->GetXaxis()->SetBinLabel(1, "cosPAngle L");
   histoTopoSelBounds->SetBinContent(1, CosinePAngleExtr[0]);
   histoTopoSelBounds->GetXaxis()->SetBinLabel(2, "cosPAngle U");
@@ -538,6 +637,10 @@ void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,  bool isMC = 1,    TStri
   histoTopoSelBounds->GetXaxis()->SetBinLabel(12, "LambdaMassWindow U");
   histoTopoSelBounds->SetBinContent(12, LambdaMassWindowExtr[1]);
 
+  histoTopoSelBounds->GetXaxis()->SetBinLabel(13, "DCAzTrigger L");
+  histoTopoSelBounds->SetBinContent(13, DCAzTriggerExtr[0]);
+  histoTopoSelBounds->GetXaxis()->SetBinLabel(14, "DCAzTrigger U");
+  histoTopoSelBounds->SetBinContent(14, DCAzTriggerExtr[1]);
 
 
   TH1F * HistoInfo = new TH1F("HistoInfo", "HistoInfo",25,0.5, 25.5);
@@ -556,7 +659,7 @@ void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,  bool isMC = 1,    TStri
 
   TH2F*  fHistPtAssocvsPtTrig[nummolt+1];
   for(Int_t j=0; j<nummolt+1; j++){
-    fHistPtAssocvsPtTrig[j] = new TH2F (Form("fHistPtAssocvsPtTrig%i",j),Form("fHistPtAssocvsPtTrig%i",j),100, 0, 30, 100, 0, 10);
+    fHistPtAssocvsPtTrig[j] = new TH2F (Form("fHistPtAssocvsPtTrig%i",j),Form("fHistPtAssocvsPtTrig%i",j),100, 0, 30, numMultBins, 0, 10);
   }
 
   //--------histograms to get some info from K0s candidate having a common origin to the trigger particle----------------     
@@ -573,41 +676,46 @@ void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,  bool isMC = 1,    TStri
   hSign_PtAssoc_NOCPTrue->GetYaxis()->SetLabelSize(0.05);
 
   //------------------Histograms os selected particles (V0) for future efficiency calculation ----------------
-  TH3F*    fHistSelectedV0PtTMaxPhi=new TH3F(Form("fHistSelectedV0PtTMaxPhi_%i", 0), "p^{Trigg, Max}_{T} and #phi distribution of selected V0 particles (Casc, primary, events w T>0)", 120, -30, 30, 400,0, 2*TMath::Pi() ,  100, 0, 100);
+  TH3F*    fHistSelectedV0PtTMaxPhi=new TH3F(Form("fHistSelectedV0PtTMaxPhi_%i", 0), "p^{Trigg, Max}_{T} and #phi distribution of selected V0 particles (Casc, primary, events w T>0)", 120, -30, 30, 400,0, 2*TMath::Pi() ,  numMultBins, 0, UpperLimitMult);
   fHistSelectedV0PtTMaxPhi->GetXaxis()->SetTitle("p^{Trigg, Max}_{T}");
   fHistSelectedV0PtTMaxPhi->GetYaxis()->SetTitle("#phi");
 
-  TH3F*    fHistCPSelectedV0PtTMaxPhi=new TH3F(Form("fHistCPSelectedV0PtTMaxPhi_%i", 0), "p^{Trigg, Max}_{T} and #phi distribution of selected V0 particles (Casc, primary, events w T>0)", 120, -30, 30, 400,0, 2*TMath::Pi() ,  100, 0, 100);
+  TH3F*    fHistCPSelectedV0PtTMaxPhi=new TH3F(Form("fHistCPSelectedV0PtTMaxPhi_%i", 0), "p^{Trigg, Max}_{T} and #phi distribution of selected V0 particles (Casc, primary, events w T>0)", 120, -30, 30, 400,0, 2*TMath::Pi() ,  numMultBins, 0, UpperLimitMult);
   fHistCPSelectedV0PtTMaxPhi->GetXaxis()->SetTitle("p^{Trigg, Max}_{T}");
   fHistCPSelectedV0PtTMaxPhi->GetYaxis()->SetTitle("#phi");
 
-  TH3F*    fHistNOCPSelectedV0PtTMaxPhi=new TH3F(Form("fHistNOCPSelectedV0PtTMaxPhi_%i", 0), "p^{Trigg, Max}_{T} and #phi distribution of selected V0 particles (Casc, primary, events w T>0)", 120, -30, 30, 400,0, 2*TMath::Pi() ,  100, 0, 100);
+  TH3F*    fHistNOCPSelectedV0PtTMaxPhi=new TH3F(Form("fHistNOCPSelectedV0PtTMaxPhi_%i", 0), "p^{Trigg, Max}_{T} and #phi distribution of selected V0 particles (Casc, primary, events w T>0)", 120, -30, 30, 400,0, 2*TMath::Pi() ,  numMultBins, 0, UpperLimitMult);
   fHistNOCPSelectedV0PtTMaxPhi->GetXaxis()->SetTitle("p^{Trigg, Max}_{T}");
   fHistNOCPSelectedV0PtTMaxPhi->GetYaxis()->SetTitle("#phi");
 
-  TH3F *    fHistSelectedV0PtTMaxEta=new TH3F(Form("fHistSelectedV0PtTMaxEta_%i", 0), "p^{Trigg, Max}_{T} and #eta distribution of selected V0 particles (Casc, primary, events w T>0)", 120, -30, 30, 400,-1.2,1.2,  100, 0, 100 );
+  TH3F *    fHistSelectedV0PtTMaxEta=new TH3F(Form("fHistSelectedV0PtTMaxEta_%i", 0), "p^{Trigg, Max}_{T} and #eta distribution of selected V0 particles (Casc, primary, events w T>0)", 120, -30, 30, 400,-1.2,1.2,  numMultBins, 0, UpperLimitMult );
   fHistSelectedV0PtTMaxEta->GetXaxis()->SetTitle("p^{Trigg, max}_{T}");
   fHistSelectedV0PtTMaxEta->GetYaxis()->SetTitle("#eta");
 
-  TH3F *    fHistCPSelectedV0PtTMaxEta=new TH3F(Form("fHistCPSelectedV0PtTMaxEta_%i", 0), "p^{Trigg, Max}_{T} and #eta distribution of selected V0 particles with common parton (Casc, primary, events w T>0)", 120, -30, 30, 400,-1.2,1.2,  100, 0,100 );
+  TH3F *    fHistCPSelectedV0PtTMaxEta=new TH3F(Form("fHistCPSelectedV0PtTMaxEta_%i", 0), "p^{Trigg, Max}_{T} and #eta distribution of selected V0 particles with common parton (Casc, primary, events w T>0)", 120, -30, 30, 400,-1.2,1.2,  numMultBins, 0,UpperLimitMult );
   fHistCPSelectedV0PtTMaxEta->GetXaxis()->SetTitle("p^{Trigg, max}_{T}");
   fHistCPSelectedV0PtTMaxEta->GetYaxis()->SetTitle("#eta");
 
-  TH3F *    fHistNOCPSelectedV0PtTMaxEta=new TH3F(Form("fHistNOCPSelectedV0PtTMaxEta_%i", 0), "p^{Trigg, Max}_{T} and #eta distribution of selected V0 particles with no common parton(Casc, primary, events w T>0)", 120, -30, 30, 400,-1.2,1.2, 100, 0, 100 );
+  TH3F *    fHistNOCPSelectedV0PtTMaxEta=new TH3F(Form("fHistNOCPSelectedV0PtTMaxEta_%i", 0), "p^{Trigg, Max}_{T} and #eta distribution of selected V0 particles with no common parton(Casc, primary, events w T>0)", 120, -30, 30, 400,-1.2,1.2, numMultBins, 0, UpperLimitMult );
   fHistNOCPSelectedV0PtTMaxEta->GetXaxis()->SetTitle("p^{Trigg, max}_{T}");
   fHistNOCPSelectedV0PtTMaxEta->GetYaxis()->SetTitle("#eta");
 
-  TH3F *    fHistSelectedV0PtPtTMax=new TH3F(Form("fHistSelectedV0PtPtTMax_%i",0), "p_{T} and p^{Trigg, Max}_{T} distribution of selected V0 particles (Casc, primary, events w T>0)", 300, 0, 30, 120, -30,30,  100, 0, 100 );
+  TH3F *    fHistSelectedV0PtPtTMax=new TH3F(Form("fHistSelectedV0PtPtTMax_%i",0), "p_{T} and p^{Trigg, Max}_{T} distribution of selected V0 particles (Casc, primary, events w T>0)", 300, 0, 30, 120, -30,30,  numMultBins, 0, UpperLimitMult );
   fHistSelectedV0PtPtTMax->GetXaxis()->SetTitle("p_{T}");
   fHistSelectedV0PtPtTMax->GetYaxis()->SetTitle("p^{Trigg, Max}_{T}");
 
-  TH3F *    fHistCPSelectedV0PtPtTMax=new TH3F(Form("fHistCPSelectedV0PtPtTMax_%i",0), "p_{T} and p^{Trigg, Max}_{T} distribution of selected V0 particles with common parton (Casc, primary, events w T>0)", 300, 0, 30, 120, -30,30,  100, 0, 100  );
+  TH3F *    fHistCPSelectedV0PtPtTMax=new TH3F(Form("fHistCPSelectedV0PtPtTMax_%i",0), "p_{T} and p^{Trigg, Max}_{T} distribution of selected V0 particles with common parton (Casc, primary, events w T>0)", 300, 0, 30, 120, -30,30,  numMultBins, 0, UpperLimitMult  );
   fHistCPSelectedV0PtPtTMax->GetXaxis()->SetTitle("p_{T}");
   fHistCPSelectedV0PtPtTMax->GetYaxis()->SetTitle("p^{Trigg, Max}_{T}");
 
-  TH3F *    fHistNOCPSelectedV0PtPtTMax=new TH3F(Form("fHistNOCPSelectedV0PtPtTMax_%i",0), "p_{T} and p^{Trigg, Max}_{T} distribution of selected V0 particles with no common parton (Casc, primary, events w T>0)", 300, 0, 30, 120, -30,30,  100, 0, 100 );
+  TH3F *    fHistNOCPSelectedV0PtPtTMax=new TH3F(Form("fHistNOCPSelectedV0PtPtTMax_%i",0), "p_{T} and p^{Trigg, Max}_{T} distribution of selected V0 particles with no common parton (Casc, primary, events w T>0)", 300, 0, 30, 120, -30,30,  numMultBins, 0, UpperLimitMult );
   fHistNOCPSelectedV0PtPtTMax->GetXaxis()->SetTitle("p_{T}");
   fHistNOCPSelectedV0PtPtTMax->GetYaxis()->SetTitle("p^{Trigg, Max}_{T}");
+
+  TH3F*    fHistSelectedV0PtEta=new TH3F(Form("fHistSelectedV0PtEta_%i", sysV0), "p_{T} and #eta distribution of selected V0 particles (Casc, primary, events w T>0)", 300, 0, 30, /*400*/480, -1.2, 1.2, numMultBins, 0, UpperLimitMult);
+  fHistSelectedV0PtEta->GetXaxis()->SetTitle("p_{T}");
+  fHistSelectedV0PtEta->GetYaxis()->SetTitle("#eta");
+
 
   TH3F*    fHistPrimaryV0[nummolt+1];
   for(Int_t j=0; j<nummolt+1; j++){
@@ -620,11 +728,11 @@ void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,  bool isMC = 1,    TStri
   }
 
   //------------------Histograms os selected particles (trigger) for future efficiency calculation ----------------
-  TH3F*      fHistSelectedTriggerPtPhi=new TH3F(Form("fHistSelectedTriggerPtPhi_%i",sysTrigger), "p_{T} and #phi distribution of selected trigger particles (primary)", 600, 0, 30, 400,0   , 2*TMath::Pi() ,  100, 0, 100);
+  TH3F*      fHistSelectedTriggerPtPhi=new TH3F(Form("fHistSelectedTriggerPtPhi_%i",sysTrigger), "p_{T} and #phi distribution of selected trigger particles (primary)", 600, 0, 30, 400,0   , 2*TMath::Pi() ,  numMultBins, 0, UpperLimitMult);
   fHistSelectedTriggerPtPhi->GetXaxis()->SetTitle("p_{T}");
   fHistSelectedTriggerPtPhi->GetYaxis()->SetTitle("#phi");
 
-  TH3F*     fHistSelectedTriggerPtEta=new TH3F(Form("fHistSelectedTriggerPtEta_%i",sysTrigger), "p_{T} and #eta distribution of selected trigger particles (primary)", 600, 0, 30, 400,   -1.2, 1.2,  100, 0, 100);
+  TH3F*     fHistSelectedTriggerPtEta=new TH3F(Form("fHistSelectedTriggerPtEta_%i",sysTrigger), "p_{T} and #eta distribution of selected trigger particles (primary)", 600, 0, 30, 400,   -1.2, 1.2,  numMultBins, 0, UpperLimitMult);
   fHistSelectedTriggerPtEta->GetXaxis()->SetTitle("p_{T}");
   fHistSelectedTriggerPtEta->GetYaxis()->SetTitle("#eta");
 
@@ -816,16 +924,7 @@ void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,  bool isMC = 1,    TStri
       if(TMath::Abs(fSignTreeVariablePtTrigger)>ptjmax) continue;
 
       //cuts on DCAz trigger*******************
-      if(sysTrigger==0){
-	if(TMath::Abs(fSignTreeVariableDCAz)>1) continue;
-      }
-      if(sysTrigger==1){
-	if(TMath::Abs(fSignTreeVariableDCAz)>2) continue;
-      }
-      if(sysTrigger==2){
-	if(TMath::Abs(fSignTreeVariableDCAz)>0.5) continue;
-      }
-
+      if(TMath::Abs(fSignTreeVariableDCAz)>DCAzTrigger) continue;
       //******************* some other cuts for sys studies**************************
       if (!ishhCorr){
 	  if (type==0){
@@ -920,6 +1019,7 @@ void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,  bool isMC = 1,    TStri
 	fHistSelectedV0PtTMaxPhi->Fill(fSignTreeVariablePtTrigger*fSignTreeVariablePAPAssoc, fSignTreeVariablePhiV0, fSignTreeVariableMultiplicity);
 	fHistSelectedV0PtTMaxEta->Fill(fSignTreeVariablePtTrigger*fSignTreeVariablePAPAssoc, fSignTreeVariableEtaV0, fSignTreeVariableMultiplicity);
 	fHistSelectedV0PtPtTMax->Fill(fSignTreeVariablePtV0,fSignTreeVariablePtTrigger*fSignTreeVariablePAPAssoc , fSignTreeVariableMultiplicity);
+	fHistSelectedV0PtEta->Fill(fSignTreeVariablePtV0,fSignTreeVariableEtaV0, fSignTreeVariableMultiplicity);
       }
     
 
@@ -1053,16 +1153,8 @@ void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,  bool isMC = 1,    TStri
       if(TMath::Abs(fBkgTreeVariablePtTrigger)>ptjmax) continue;
 
       //cuts on DCAz trigger*******************
-      if(sysTrigger==0){
-	if(TMath::Abs(fBkgTreeVariableDCAz)>1) continue;
-      }
-      if(sysTrigger==1){
-	if(TMath::Abs(fBkgTreeVariableDCAz)>2) continue;
-      }
-      if(sysTrigger==2){
-	if(TMath::Abs(fBkgTreeVariableDCAz)>0.5) continue;
-      }
-
+      if(TMath::Abs(fBkgTreeVariableDCAz)>DCAzTrigger) continue;
+      
       //******************* some other cuts for sys studies **************************
       if (!ishhCorr){
 	//the values are valid for K0s
@@ -1218,7 +1310,7 @@ void readTreePLChiarahK0s_firstSys( Int_t indexSysV0=0,  bool isMC = 1,    TStri
   cout << "DCAV0ToPV        :"  <<DCAV0ToPV       <<endl;
   cout << "ctau             :"  <<ctau            <<endl;
   cout << "LambdaMassWindow :" << LambdaMassWindow << endl;
-
+  cout << "DCAzTrigger      :" << DCAzTrigger << endl;
   cout << " ho creato il file " <<  PathOut << endl; 
 }
 
