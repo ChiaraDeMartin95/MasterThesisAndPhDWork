@@ -18,11 +18,13 @@
 #include <TLegend.h>
 #include "Macros/constants.h"
 
-void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAssoc=0, Float_t ptjmin=3,  Float_t PtTrigMinFit=3, Int_t sysV0=0,Int_t type=0 /*0 = K0s, 8 = Xi*/,  Int_t israp=0, Bool_t isMC=0, Bool_t isEfficiency=0, TString yearME=/*"EPOSLHC_7BEvForhXi"/*"EPOSLHC_3BEvForhK0s"/*"EPOSLHC_IncreasedStatXi"/*"EPOS17d20b_hK0s"/*_Hybrid"/"PythiaMonash_IncreasedStatXi"/*"PythiaRopes"/*"_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*"16kl_hK0s_Hybrid"/*"2019h11_HM_hK0s"/*"161718_hXi"/"1617_GP_hK0s"/"AllhK0sHM_RedNo16k"/*"161718_HM_hXi_WithFlat16k_No18p"/"161718Full_AOD234_hXi"/*"17pq_pp5TeV_hXi_pttrig0.15"/"17pq_hK0s"/*"17pq_pp5TeV_Hybrid"*/"1617_AOD234_hK0s"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"/"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hXi"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/*"2018f1_extra_Mylabel_15runs_hK0s_Hybrid"/*"2016k_HM_hK0s"/"1617_hK0s"/*"161718_MD_hXi_Hybrid_MCTruth"/*"2018f1g4_extra_hXi_Hybrid_MCTruth"/"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018g4_extra_EtaEff_hK0s_MCEff"*/, TString year="1617_AOD234_hK0s"/*"EPOSLHC_7BEvForhXi"/*"EPOSLHC_3BEvForhK0s"/*"EPOSLHC_IncreasedStatXi"/*"PythiaMonash_IncreasedStatXi"/*"_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/*"2019h11_HM_hK0s"/*"161718_hXi"/"1617_GP_hK0s"/ "17pq_hXi"/"AllhK0sHM_RedNo16k"/*"161718_HM_hXi_WithFlat16k_No18p"/"161718Full_AOD234_hXi"/**"17pq_pp5TeV_hXi_pttrig0.15"/*"17pq_hXi"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"/"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"//"2016k_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617_hK0s"/*"2018g4_extra_EtaEff_hK0s"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/"161718_MD_EtaEff_hXi"/*"LHC16_17_GP_Hybrid_hXi"/*"2018f1g4_extra_hXi"/"2018g4_extra_hXi_SelTrigger"/*_15runsBis"/"1617_hK0s"/*AllMC_hXi"/"2018f1_extra_hK0s"/*"2016k_hK0s"/*"2016k_MECorr"/"Run2DataRed_MECorr_hXi"/*/, TString yearMC=""/*"EPOSLHC_7BEvForhXi"/*"EPOSLHC_3BEvForhK0s"/*"EPOSLHC_IncreasedStatXi"/*"EPOS17d20b_hK0s"/*_Hybrid"/"PythiaMonash_IncreasedStatXi"/*"PythiaRopes_IncreasedStatXi"/*"PythiaRopes"/*"_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/"2019h11_HM_hK0s_EffCorr"/*"161718_hXi"/*"161718Full_AOD235_hXi"/*"1617GP_hK0s_Hybrid_New" /"17pq_pp5TeV_Hybrid"/*"1617_GP_AOD235_With18c12b"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/*"1617GP_hK0s"/*"1617_GP_AOD235"/*"1617_GP_AOD235_With18c12b"/*"161718_hXi"/*"17pq_hK0s"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/*""//*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/"2019h11c_extra_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617MC_hK0s"/"2018g4_extra_EtaEff_hK0s"/*"161718_MD_EtaEff_hXi"/"2018f1g4_extra_hXi"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/*"161718_MD_hXi_Hybrid"/*"LHC16_17_GP_Hybrid_hXi"/*"17d20bEPOS_hK0s"/"2018g4_extra_hXi_SelTrigger"/*"1617MC_hK0s"/"AllMC_hXi"/*"1617GP_hXi"/*"2016kl_hXi"/*"2018f1_extra_MECorr"/"2018f1_extra_Hybrid_hK0s"/*"17d20bEPOS_hXi"*/,  TString yearMCTrigEff=""/*"17l3b_hK0s"/*"161718HM_hK0s_TriggEff"/*"18f1_extra_EffTrigger_5runs"*/,  TString Dir ="FinalOutput/",  Float_t ptjmax=15, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Int_t MultBinning=0, Int_t PtBinning=1, Bool_t isSysDef=0, Bool_t isDefaultSel=0, Bool_t IsPtTrigMultDep=0, Bool_t isLoosest=0, Bool_t isTightest=0, Bool_t IsParticleTrue=0,  Bool_t isSidebands=1, Bool_t isMESBFromPeak =0,  Bool_t isMEFromHybrid=0, Bool_t isMEFromCorrectCentrality = 0, Bool_t isEtaEff=1, Bool_t isMEFromK0s=0, Bool_t isNewInputPath=1, Bool_t isHM=0,  Int_t isNewdEtaJet =1, Bool_t isSysPurity =0, Int_t VarRange = 0, Bool_t isMCForNorm=0, Bool_t isEffCorr=0, Bool_t isGenOnTheFly=0){ 
+void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAssoc=0, Float_t ptjmin=3,  Float_t PtTrigMinFit=3, Int_t sysV0=0,Int_t type=0 /*0 = K0s, 8 = Xi*/,  Int_t israp=0, Bool_t isMC=0, Bool_t isEfficiency=0, TString yearME=/*"EPOSLHC_7BEvForhXi"/*"EPOSLHC_3BEvForhK0s"/*"EPOSLHC_IncreasedStatXi"/*"EPOS17d20b_hK0s"/*_Hybrid"/"PythiaMonash_IncreasedStatXi"/*"PythiaRopes"/*"_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*"16kl_hK0s_Hybrid"/*"2019h11_HM_hK0s"/*"161718_hXi"/"1617_GP_hK0s"/"AllhK0sHM_RedNo16k"/"161718_HM_hXi_WithFlat16k_No18p"/"161718Full_AOD234_hXi"/*"17pq_pp5TeV_hXi_pttrig0.15"/"17pq_hK0s"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"*/"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hXi"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/*"2018f1_extra_Mylabel_15runs_hK0s_Hybrid"/*"2016k_HM_hK0s"/"1617_hK0s"/*"161718_MD_hXi_Hybrid_MCTruth"/*"2018f1g4_extra_hXi_Hybrid_MCTruth"/"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018g4_extra_EtaEff_hK0s_MCEff"*/, TString year="1617_AOD234_hK0s"/*"EPOSLHC_7BEvForhXi"/*"EPOSLHC_3BEvForhK0s"/*"EPOSLHC_IncreasedStatXi"/*"PythiaMonash_IncreasedStatXi"/*"_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/*"2019h11_HM_hK0s"/*"161718_hXi"/"1617_GP_hK0s"/ "17pq_hXi"/"AllhK0sHM_RedNo16k"/*"161718_HM_hXi_WithFlat16k_No18p"/"161718Full_AOD234_hXi"/**"17pq_pp5TeV_hXi_pttrig0.15"/*"17pq_hXi"/*"17pq_pp5TeV_Hybrid"/"1617_AOD234_hK0s"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/"1617GP_hK0s_Hybrid_New"/"1617_AOD234_hK0s"/*"161718_hXi"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/"17pq_hK0s"/*"LHC17_AOD234_Red"/"AllhK0sHM_RedNo16k"/*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"//"2016k_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617_hK0s"/*"2018g4_extra_EtaEff_hK0s"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/"161718_MD_EtaEff_hXi"/*"LHC16_17_GP_Hybrid_hXi"/*"2018f1g4_extra_hXi"/"2018g4_extra_hXi_SelTrigger"/*_15runsBis"/"1617_hK0s"/*AllMC_hXi"/"2018f1_extra_hK0s"/*"2016k_hK0s"/*"2016k_MECorr"/"Run2DataRed_MECorr_hXi"/*/, TString yearMC=""/*"EPOSLHC_7BEvForhXi"/*"EPOSLHC_3BEvForhK0s"/*"EPOSLHC_IncreasedStatXi"/*"EPOS17d20b_hK0s"/*_Hybrid"/"PythiaMonash_IncreasedStatXi"/*"PythiaRopes_IncreasedStatXi"/*"PythiaRopes"/*"_PythiaRopes_Test1"/*"17l3b_hK0s"/*"161718HM_hK0s"/*_Hybrid"/*"16kl_hK0s"/"2019h11_HM_hK0s_EffCorr"/*"161718_hXi"/*"161718Full_AOD235_hXi"/*"1617GP_hK0s_Hybrid_New" /"17pq_pp5TeV_Hybrid"/*"1617_GP_AOD235_With18c12b"/*"17pq_hK0s"/*"LHC16kl_pass2_GP_Fio_Hybrid"/*"1617GP_hK0s"/*"1617_GP_AOD235"/*"1617_GP_AOD235_With18c12b"/*"161718_hXi"/*"17pq_hK0s"/*"161718_MD_New_hXi_Hybrid"/*"2018f1_extra_hK0s_Fio"/*""//*"1617GP_hK0s"/*"2018f1_extra_15runs"/*"2018f1_extra_MylabelBis_15runs_hK0s_Hybrid"/"2019h11c_extra_HM_hK0s"/*"2018f1_extra_15runs_NohDaughtersofK0s_hK0s_Hybrid"/*"2018f1_extra_5runs_label_Hybrid_hK0s"/"1617MC_hK0s"/"2018g4_extra_EtaEff_hK0s"/*"161718_MD_EtaEff_hXi"/"2018f1g4_extra_hXi"/*"2018g4_extra_EtaEff_Hybrid_hK0s"/*"161718_MD_hXi_Hybrid"/*"LHC16_17_GP_Hybrid_hXi"/*"17d20bEPOS_hK0s"/"2018g4_extra_hXi_SelTrigger"/*"1617MC_hK0s"/"AllMC_hXi"/*"1617GP_hXi"/*"2016kl_hXi"/*"2018f1_extra_MECorr"/"2018f1_extra_Hybrid_hK0s"/*"17d20bEPOS_hXi"*/,  TString yearMCTrigEff=""/*"17l3b_hK0s"/*"161718HM_hK0s_TriggEff"/*"18f1_extra_EffTrigger_5runs"*/,  TString Dir ="FinalOutput/",  Float_t ptjmax=15, Bool_t isBkgParab=0, Bool_t isMeanFixedPDG=1, Int_t MultBinning=0, Int_t PtBinning=1, Bool_t isSysDef=1, Bool_t isDefaultSel=0, Bool_t IsPtTrigMultDep=0, Bool_t isLoosest=0, Bool_t isTightest=1, Bool_t IsParticleTrue=0,  Bool_t isSidebands=1, Bool_t isMESBFromPeak =0,  Bool_t isMEFromHybrid=0, Bool_t isMEFromCorrectCentrality = 0, Bool_t isEtaEff=1, Bool_t isMEFromK0s=0, Bool_t isNewInputPath=1, Bool_t isHM=0,  Int_t isNewdEtaJet =1, Bool_t isSysPurity =0, Int_t VarRange = 0, Bool_t isMCForNorm=0, Bool_t isEffCorr=0, Bool_t isGenOnTheFly=0, Bool_t isSpecialTest=0){ 
 
   Bool_t MaterialBudgetCorr=0;
   if (isMC && !isEfficiency) MaterialBudgetCorr=0;
-  if (type==0 && year == "1617_AOD234_hK0s")  MaterialBudgetCorr=1;
+  if (type==0 && year == "1617_AOD234_hK0s") {
+    MaterialBudgetCorr=1;
+  }
 
   Bool_t isWingsCorrectionApplied=0;
   //isGenOnTheFly --> events were generated on the fly and only the kinematic part is saved; the multiplicity distribution in percentile classes is not abvailable, instead classes based on the number of particles in the V0 acceptance are used
@@ -70,7 +72,6 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   Bool_t isMEFromPeak=0;
   Bool_t isMEFromHM=0;
   Bool_t isMEFrom13TeV=0;
-
 
   if (isMEFromK0s && type==0) {cout << "the option isMEFromK0s is meant to be used when Xi is being analyzed" << endl; return;}
   if (year=="17pq_hXi") {
@@ -122,6 +123,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   //  if (sysTrigger!=0) return;
   if (sysV0!=0 && sys!=0) return;
 
+  cout << "hola chicos " << endl;
   Int_t sysang=0;
   if (sys==1) sysang=1;
   if (sys==2) sysang=2;
@@ -365,7 +367,8 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   //  PathInME+="_EPOS";
   if (isEffCorr) PathInME +="_EffCorr" ;
   if (isMC && !isEfficiency &&!isMCForNorm) PathInME += "_MCPrediction";
-  if (MaterialBudgetCorr)  PathInME += "_MatBudgetCorr";
+  if (MaterialBudgetCorr && isSysDef==0)  PathInME += "_MatBudgetCorr";
+
   PathInME += ".root";
 
   if(isSysDef && isDefaultSel)    PathIn+= Form("_SysT%i_SysV0Default_Sys%i_PtMin%.1f", sysTrigger,sysang, PtTrigMin);
@@ -396,7 +399,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   //  PathIn+="_EPOS";
   if (isEffCorr) PathIn +="_EffCorr" ;
   if (isMC && !isEfficiency &&!isMCForNorm) PathIn += "_MCPrediction";
-  if (MaterialBudgetCorr)  PathIn += "_MatBudgetCorr";
+  if (MaterialBudgetCorr && isSysDef==0)  PathIn += "_MatBudgetCorr";
   PathIn+=".root";
 
   if (MasterThesisAnalysis){
@@ -1879,7 +1882,7 @@ void AngularCorrelation_firstCasc(Int_t indexSysV0=0, Int_t sys=0, Bool_t SkipAs
   }
   //  PathOut1+="_OnlyToPeak";
   if (MaterialBudgetCorr)  PathOut1 += "_MatBudgetCorr";
-  PathOut1+= "_PlotForThesis";
+  //  PathOut1+= "_PlotForThesis";
   PathOut1+=".root";
 
   if (isEnlargedDeltaEtaPhi)    PathOut1 = Dir+"/histo/AngularCorrelation" + file  + Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f", sysTrigger, sysV0, sys, PtTrigMin)+"_DeltaEtaPhiEnlarged_Output.root";
