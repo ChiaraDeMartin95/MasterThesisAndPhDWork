@@ -36,8 +36,21 @@ void StyleHisto(TH1D *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   //
 }
 
-void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, Int_t numsysTriggerindex=99, Int_t sysPhi = 0, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString year="_PythiaRopes_Test1"/*"1617_AOD234_hK0s"/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/, TString yearDCAzTrigger = ""/*"1617_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/, Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=1, Int_t PtBinning=0, Bool_t SysTuvaWay=0,  Bool_t isNewInputPath=1,  Bool_t isHM =0, Bool_t ispp5TeV=1, Bool_t isEffCorr=1){
+void PtSpectraNew( Int_t type=8,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, Int_t numsysTriggerindex=99, Int_t sysPhi = 0, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString year="_PythiaRopes_Test1"/*"1617_AOD234_hK0s"/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/, TString yearDCAzTrigger = ""/*"1617_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/, Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=1, Int_t PtBinning=0, Bool_t SysTuvaWay=0,  Bool_t isNewInputPath=1,  Bool_t isHM =0, Bool_t ispp5TeV=0, Bool_t isEffCorr=1, Bool_t MaterialBudgetCorr=1, Int_t isTopoSel = 1){
 
+  //isTopoSel
+  //=0 --> default one
+  //=1 --> default one but starting from file named "default"
+  //=2 --> isTightest
+  //=3 --> isLoosest
+
+  TString Decision = "";
+  if (isTopoSel!=0) {
+    cout << "Are you sure tou want to run with the non-default selections of topo variables? (type y if you are)" << endl;
+    cin>> Decision;
+    if (Decision!="y") return;
+  }
+ 
   Bool_t isGenOnTheFly = 0;
   if (isMC) isGenOnTheFly = 1; 
   Bool_t isWingsCorrectionApplied=0;
@@ -50,6 +63,7 @@ void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
     isEffCorr=0;
     isNewInputPath = 1;
     isEfficiency = 0; 
+    MaterialBudgetCorr=0;
   }
   cout <<"Do you want to analyse the files with the wings correction applied? Type 1 if you DO want" << endl;
   cin >> isWingsCorrectionApplied;
@@ -94,10 +108,11 @@ void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
       MultBinning = 0;
       isHM =0;
       isEffCorr =0;
-      cout << "Should be analyse Ropes (=1) or MonashDefault (=2)? " << endl;
+      cout << "Should be analyse Ropes (=1) or MonashDefault (=2) or EPOSLHC (=3)? " << endl;
       cin >> MonashTune;
       if (MonashTune == 1)    year = "PythiaRopes";
       else if (MonashTune ==2)        year = "PythiaMonash";
+      else if (MonashTune ==3)        year = "EPOSLHC_3BEvForhK0s";
       else {cout << "option not valid " << endl; return;}
     }
   }
@@ -130,10 +145,11 @@ void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
     if (isMC){
       MultBinning = 0;
       isHM =0;
-      cout << "Should be analyse Ropes (=1) or MonashDefault (=2)? " << endl;
+      cout << "Should be analyse Ropes (=1) or MonashDefault (=2) or EPOSLHC (=3)? " << endl;
       cin >> MonashTune;
       if (MonashTune == 1)    year = "PythiaRopes_IncreasedStatXi";
       else if (MonashTune ==2)        year = "PythiaMonash_IncreasedStatXi";
+      else if (MonashTune ==3)        year = "EPOSLHC_7BEvForhXi";
       else {cout << "option not valid " << endl; return;}
     }
   }
@@ -503,6 +519,13 @@ void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
     else stringout += "New";
   }
   if (sys!=0) stringout += Form("_dEtaSys%i", sys);
+  if (MaterialBudgetCorr==1) stringout += "_MatBudgetCorr";
+  //  stringout += "_Test";
+  if (isTopoSel!=0){
+    if (isTopoSel==1) stringout += "_SysV0Default";
+    else if (isTopoSel==2) stringout += "_SysV0Tightest";
+    else if (isTopoSel==3) stringout += "_SysV0Loosest";
+  }
   TString stringoutpdf = stringout;
   stringout += ".root";
 
@@ -527,6 +550,16 @@ void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
 
       ALowBinFit[2]=	ALowBin[2]={-1.2};
       AUpBinFit[2]=	AUpBin[2]={1.2};
+      if (type==0 && MonashTune==3){
+	ALowBinFit[0]=	ALowBin[0]={-1.2};
+	AUpBinFit[0]=	AUpBin[0]={1.2};
+
+	ALowBinFit[1]=	ALowBin[1]={-0.8};
+	AUpBinFit[1]=	AUpBin[1]={0.8};
+
+	ALowBinFit[2]=	ALowBin[2]={-1.05};
+	AUpBinFit[2]=	AUpBin[2]={1.05};
+      }
     }
     else if (!ishhCorr && (type==4 || type==5 || type==8)){
       ALowBinFit[0]=	ALowBin[0]={-0.7};
@@ -690,6 +723,11 @@ void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
           if (m==nummoltMax-1) LowRangeJet[m] = 2;
           else if (m==nummoltMax-4 || m==nummoltMax-3 || m==nummoltMax-2) LowRangeJet[m] = 1.5;
           else LowRangeJet[m] = 1.5;
+        }
+        else if (MonashTune==3){
+          if (m==nummoltMax-1) LowRangeJet[m] = 1.5;
+	  //          else if (m==nummoltMax-4 || m==nummoltMax-3 || m==nummoltMax-2) LowRangeJet[m] = 1.5;
+          else LowRangeJet[m] = 1.;
         }
       }
     }
@@ -859,7 +897,12 @@ void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
       PathInDefault +=SSkipAssoc[SkipAssoc];
     }
     if (type==0 && isHM) PathInDefault += "_isBkgParab";
-    PathInDefault+= hhCorr[ishhCorr]+Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f", 0, sysV0, sys, PtTrigMin)+"_Output";
+    PathInDefault+= hhCorr[ishhCorr];
+    if (isTopoSel==0)    PathInDefault+=Form("_SysT%i_SysV0%i_Sys%i_PtMin%.1f_Output", 0, sysV0, sys, PtTrigMin);
+    else     if (isTopoSel==1)    PathInDefault+=Form("_SysT%i_SysV0Default_Sys%i_PtMin%.1f_Output", 0, sys, PtTrigMin);
+    else     if (isTopoSel==2)    PathInDefault+=Form("_SysT%i_SysV0Tightest_Sys%i_PtMin%.1f_Output", 0, sys, PtTrigMin);
+    else     if (isTopoSel==3)    PathInDefault+=Form("_SysT%i_SysV0Loosest_Sys%i_PtMin%.1f_Output", 0, sys, PtTrigMin);
+
     if (!(isMC && !isEfficiency)){
       if (type==0 || (type==8 && isHM))      PathInDefault += "_Sidebands";
       if (ispp5TeV && type==8) PathInDefault += "_IsMEFrom13TeV";
@@ -868,11 +911,14 @@ void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
     if (MultBinning!=0) PathInDefault += Form("_MultBinning%i", MultBinning);
     if (isMC && !isEfficiency && type==0) PathInDefault += "_IsMEFromCorrectCentrality";
     if (isGenOnTheFly){
-      if (TypeAnalysis == 0) PathInDefault +="_NewdEtaChoice2";
+      if (TypeAnalysis == 0) {
+	if (MonashTune==3 && type==0) 	PathInDefault +="_NewdEtaChoice3";
+	else 	PathInDefault +="_NewdEtaChoice2";
+      }
       else PathInDefault +="_NewdEtaChoice";
     }
     else if (type==0) PathInDefault +="_NewdEtaChoice";
-    if (isEffCorr) PathInDefault += "_EffCorr";
+    if (isEffCorr && MaterialBudgetCorr!=1) PathInDefault += "_EffCorr";
     if (isMC && !isEfficiency) PathInDefault += "_MCPrediction";
     if (isWingsCorrectionApplied) {
       PathInDefault += "_isWingsCorrectionApplied";
@@ -880,6 +926,9 @@ void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
 	if(type==8)     PathInDefault += "New";
       }
       else PathInDefault += "New";
+    }
+    if (MaterialBudgetCorr==1) {
+	PathInDefault += "_MatBudgetCorr";
     }
     PathInDefault += ".root";
 
@@ -898,7 +947,13 @@ void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
       PathInOOJ +=SSkipAssoc[SkipAssoc];
     }
 
-    PathInOOJ+=Form("_sys0_PtTrigMin%.1f_PtTrigMin%.1f_Output", PtTrigMin, PtTrigMin2);
+    if (isTopoSel==0)    PathInOOJ+="_sys0";
+    if (isTopoSel!=0){
+      if (isTopoSel==1) PathInOOJ += "_SysV0Default";
+      else if (isTopoSel==2) PathInOOJ += "_SysV0Tightest";
+      else if (isTopoSel==3) PathInOOJ += "_SysV0Loosest";
+    }
+    PathInOOJ+=Form("_PtTrigMin%.1f_PtTrigMin%.1f_Output", PtTrigMin, PtTrigMin2);
     PathInOOJ += "_IsEtaEff";
     if (ispp5TeV && type==8) PathInOOJ += "_isMEFrom13TeV";
     if (MultBinning!=0) PathInOOJ += Form("_MultBinning%i", MultBinning);
@@ -979,7 +1034,10 @@ void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
       if ((type==0 || isHM) && !(isMC && !isEfficiency)) PathInDeltaEtaSys += "_Sidebands";
       if (isGenOnTheFly) {
 	if (TypeAnalysis==1)	PathInDeltaEtaSys +="_NewdEtaChoice";
-	else if (TypeAnalysis==0)    PathInDeltaEtaSys +="_NewdEtaChoice2";
+	else if (TypeAnalysis==0)  {
+	  if (MonashTune==3 && type==0) 	PathInDeltaEtaSys +="_NewdEtaChoice3";
+	  else 	PathInDeltaEtaSys +="_NewdEtaChoice2";
+	}
       }
       else {
 	if (type==0) {
@@ -1001,6 +1059,7 @@ void PtSpectraNew( Int_t type=0,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
 	}
 	else PathInDeltaEtaSys += "New";
       }
+      if (MaterialBudgetCorr==1) PathInDeltaEtaSys += "_MatBudgetCorr";
       PathInDeltaEtaSys += ".root";
       cout <<"Syst. assoc to choice of DeltaEta: " <<  PathInSysDeltaEta << endl;
       fileinDeltaEtaSys = new TFile(PathInDeltaEtaSys, "");
