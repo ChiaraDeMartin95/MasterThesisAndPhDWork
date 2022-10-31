@@ -35,7 +35,13 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void CompareYieldDifferentCollisionsFinal(Bool_t isMCGenOnTheFly = 1, Int_t TypeAnalysis=0,  Int_t type=1, Int_t isComp=1,  Bool_t isAvgPtvsMult=0,  Int_t isPreliminary=0, Bool_t FitYields=0, Bool_t isYieldMeanMacro=0, Bool_t isChangesIncluded=1){
+void CompareYieldDifferentCollisionsFinal(Bool_t isMCGenOnTheFly = 0, Int_t TypeAnalysis=0,  Int_t type=1, Int_t isComp=0,  Bool_t isAvgPtvsMult=0,  Int_t isPreliminary=0, Bool_t FitYields=0, Bool_t isYieldMeanMacro=0, Bool_t isChangesIncluded=1, Bool_t isdNdEtaTriggered=1, Bool_t MaterialBudgetCorr = 1){
+
+  //  if (isAvgPtvsMult) {cout << "The macro now takes in input also the histogram with uncorrelated uncertainties across mult. This has been calculated for yields, but not for average pt. So the macro cannot run unless some changes in it are applied " << endl; return; }
+
+  Bool_t isMultCorrEval = 1; //yield with sist uncertainties uncorrelated with multiplicity are taken in input
+  if (isAvgPtvsMult) isMultCorrEval = 0; 
+  else isMultCorrEval = 1;
 
   //NB: "ChangesIncluded" labels the new file produced by choosing Sidebands for K0s and Xi in HM, !SkipAssoc, and larger dEta choice for K0s
 
@@ -50,8 +56,10 @@ void CompareYieldDifferentCollisionsFinal(Bool_t isMCGenOnTheFly = 1, Int_t Type
   }
 
   Bool_t isWingsCorrectionApplied = 0;
-  cout <<"Do you want to analyse the files with the wings correction applied? Type 1 if you DO want" << endl;
-  cin >> isWingsCorrectionApplied;
+  if (type==0){
+    cout <<"Do you want to analyse the files with the wings correction applied? Type 1 if you DO want" << endl;
+    cin >> isWingsCorrectionApplied;
+  }
 
   if (isPreliminary && isAvgPtvsMult) return;
   const   Int_t NSystems =2;
@@ -138,8 +146,12 @@ void CompareYieldDifferentCollisionsFinal(Bool_t isMCGenOnTheFly = 1, Int_t Type
     pathin[0] +="_isNormCorrFullyComputed";
     if (isYieldMeanMacro)  pathin[0] += "_YieldMeanMacro";
     pathin[0] +="_isErrorAssumedPtCorr";
-    if (isChangesIncluded)  pathin[0] +="_ChangesIncluded_EffCorr";
+    if (isChangesIncluded)  pathin[0] +="_ChangesIncluded";
+    if (isdNdEtaTriggered) pathin[0] +="_isdNdEtaTriggered";
+    pathin[0] +="_EffCorr";
     if (isWingsCorrectionApplied) pathin[0] +="_isWingsCorrectionAppliedNew";
+    if (MaterialBudgetCorr) pathin[0] += "_MatBudgetCorr";
+    if (isMultCorrEval)  pathin[0] += "_MultCorr";
     pathin[0] += ".root";
     if (isPreliminary>0){
       pathin[0] = "FinalOutput/DATA2016/PtSpectraBis_PtBinning1_K0s_Eta0.8_PtMin3.0_";
@@ -158,9 +170,12 @@ void CompareYieldDifferentCollisionsFinal(Bool_t isMCGenOnTheFly = 1, Int_t Type
     if (isYieldMeanMacro)  pathin[1] += "_YieldMeanMacro";
     pathin[1] +="_isErrorAssumedPtCorr";
     if (isChangesIncluded)  pathin[1] +="_ChangesIncluded";
+    if (isdNdEtaTriggered) pathin[1] +="_isdNdEtaTriggered";
     if (isComp==0)  pathin[1] += "_MultBinning1_EffCorr";
     else     pathin[1] += "_MultBinning3_EffCorr";
     if (isWingsCorrectionApplied) pathin[1] +="_isWingsCorrectionAppliedNew";
+    if (MaterialBudgetCorr) pathin[1] += "_MatBudgetCorrFAST";
+    if (isMultCorrEval)  pathin[1] += "_MultCorr";
     pathin[1] +=".root";
 
   }
@@ -171,6 +186,9 @@ void CompareYieldDifferentCollisionsFinal(Bool_t isMCGenOnTheFly = 1, Int_t Type
     if (isYieldMeanMacro)  pathin[0] += "_YieldMeanMacro";
     pathin[0] +="_isErrorAssumedPtCorr";
     if (isChangesIncluded)  pathin[0] +="_ChangesIncluded";
+    if (isdNdEtaTriggered) pathin[0] +="_isdNdEtaTriggered";
+    if (MaterialBudgetCorr) pathin[0] += "_MatBudgetCorrFAST";
+    if (isMultCorrEval)  pathin[0] += "_MultCorr";
     pathin[0] += ".root";
     if (isPreliminary>0){
       pathin[0] = "FinalOutput/DATA2016/PtSpectraBis_Xi_Eta0.8_PtMin3.0_";
@@ -189,9 +207,13 @@ void CompareYieldDifferentCollisionsFinal(Bool_t isMCGenOnTheFly = 1, Int_t Type
     if (isYieldMeanMacro)  pathin[1] += "_YieldMeanMacro";
     pathin[1] +="_isErrorAssumedPtCorr";
     if (isChangesIncluded)  pathin[1] +="_ChangesIncluded";
+    if (isdNdEtaTriggered) pathin[1] +="_isdNdEtaTriggered";
     if (isComp==0)    pathin[1] += "_MultBinning1";
     else     pathin[1] += "_MultBinning3";
     if (isWingsCorrectionApplied) pathin[1] +="_isWingsCorrectionAppliedNew";
+    if (MaterialBudgetCorr) pathin[1] += "_MatBudgetCorrFAST";
+    if (isMultCorrEval)  pathin[1] += "_MultCorr";
+    //    pathin[1] +="_PaperProposal";
     pathin[1] +=".root";
   }
 
@@ -201,22 +223,29 @@ void CompareYieldDifferentCollisionsFinal(Bool_t isMCGenOnTheFly = 1, Int_t Type
   TF1 *pol1[NSystems];
   TH1F *histoYield[NSystems];
   TH1F *histoYieldSist[NSystems];
+  TH1F *histoYieldSistMultUnCorr[NSystems];
   TH1F *histoYieldFinal[NSystems];
   TH1F *histoYieldSistFinal[NSystems];
+  TH1F *histoYieldSistMultUnCorrFinal[NSystems];
   TString NameHisto[NSystems] = {"fHistYieldStat", "fHistYieldStat"};
   TString NameHistoSist[NSystems] = {"fHistYieldSist", "fHistYieldSist"};
+  TString NameHistoSistMultUnCorr[NSystems] = {"fHistYieldSistMultUnCorr", "fHistYieldSistMultUnCorr"};
   TString NameHistoFinal[NSystems] = {"fHistYield_ppMB", "fHistYield_ppHM"};
   TString NameHistoFinalSist[NSystems] = {"fHistYield_ppMB_Sist", "fHistYield_ppHM_Sist"};
+  TString NameHistoFinalSistMultUnCorr[NSystems] = {"fHistYield_ppMB_SistMultUnCorr", "fHistYield_ppHM_SistMultUnCorr"};
   if (isComp!=0) {
     NameHistoFinal[1] = "fHistYield_pp5TeV";
     NameHistoFinalSist[1] = "fHistYield_pp5TeV_Sist";
+    NameHistoFinalSistMultUnCorr[1] = "fHistYield_pp5TeV_SistMultUnCorr";
   }
   if (isAvgPtvsMult) {
     NameHisto[0] = "fHistPtvsMultStat";     NameHisto[1] = "fHistPtvsMultStat";
     NameHistoSist[0] = "fHistPtvsMultSist";     NameHistoSist[1] = "fHistPtvsMultSist";
+    NameHistoSistMultUnCorr[0] = "fHistPtvsMultSistMultUnCorr";     NameHistoSistMultUnCorr[1] = "fHistPtvsMultSistMultUnCorr";
   }
   TH1F * histoYieldComparison = new TH1F ("histoYieldComparison", "histoYieldComparison",NbinsMult, 0, UpRangeMult );
   TH1F * histoYieldSistComparison = new TH1F ("histoYieldSistComparison", "histoYieldSistComparison",NbinsMult, 0, UpRangeMult );
+  TH1F * histoYieldSistMultUnCorrComparison = new TH1F ("histoYieldSistMultUnCorrComparison", "histoYieldSistMultUnCorrComparison",NbinsMult, 0, UpRangeMult );
   TCanvas * canvas = new TCanvas("canvas", "canvas", 1300, 800);
   TCanvas * canvasBoth = new TCanvas("canvasBoth", "canvasBoth", 1300, 800);
 
@@ -226,29 +255,39 @@ void CompareYieldDifferentCollisionsFinal(Bool_t isMCGenOnTheFly = 1, Int_t Type
     histoYieldComparison -> SetBinError(b, 0);
     histoYieldSistComparison -> SetBinContent(b, 0);
     histoYieldSistComparison -> SetBinError(b, 0);
+    histoYieldSistMultUnCorrComparison -> SetBinContent(b, 0);
+    histoYieldSistMultUnCorrComparison -> SetBinError(b, 0);
   }
 
   TLegend* legendParameters = new TLegend(0.2, 0.7, 0.6, 0.85);
 
   for (Int_t i=0; i< NSystems; i++){
     file[i] = new TFile(pathin[i], "");
+    cout <<"Input file : " << pathin[i] << endl;
+    if (!file[i]) {cout << "Input file does not exist " << endl; return;}
     histoYield[i] = (TH1F*) file[i]->Get(NameHisto[i]);
     if (!histoYield[i]) { cout << "Histo not available " << endl; return; }
     histoYieldFinal[i]= (TH1F*)    histoYield[i] ->Clone(NameHistoFinal[i]);
     histoYieldSist[i] = (TH1F*) file[i]->Get(NameHistoSist[i]); 
     if (!histoYieldSist[i]) { cout << "Histo sist not available " << endl; return; }
     histoYieldSistFinal[i]= (TH1F*)    histoYieldSist[i] ->Clone(NameHistoFinalSist[i]);
-
+    if (isMultCorrEval){
+      histoYieldSistMultUnCorr[i] = (TH1F*) file[i]->Get(NameHistoSistMultUnCorr[i]); 
+      if (!histoYieldSistMultUnCorr[i]) { cout << "Histo sist mult uncorr not available: " << NameHistoSistMultUnCorr[i]<< endl; return; }
+      histoYieldSistMultUnCorrFinal[i]= (TH1F*)    histoYieldSistMultUnCorr[i] ->Clone(NameHistoFinalSistMultUnCorr[i]);
+    }
     if (TypeAnalysis==0){
       if (isPreliminary>0){
 	if (i==1){ //5 TeV and 13 TeV HM were done with dPhi = 1.08, whereas preliminary results were done with dphi = 0.85. In this way I adjust the dphi interval of the HM and 5 TeV results TO the 13 TeV preliminaries(which cannot be changed)
 	  histoYieldFinal[i]->Scale(1./ScalingFactor);
 	  histoYieldSistFinal[i]->Scale(1./ScalingFactor);
+	  if (isMultCorrEval)  histoYieldSistMultUnCorrFinal[i]->Scale(1./ScalingFactor);
 	}
       }
       else {
 	histoYieldFinal[i]->Scale(1./ScalingFactor);
 	histoYieldSistFinal[i]->Scale(1./ScalingFactor);
+	if (isMultCorrEval) histoYieldSistMultUnCorrFinal[i]->Scale(1./ScalingFactor);
       }
     }
     cout << "Bin width of final histos " << histoYieldFinal[i]->GetBinWidth(1) << endl;
@@ -256,6 +295,7 @@ void CompareYieldDifferentCollisionsFinal(Bool_t isMCGenOnTheFly = 1, Int_t Type
     canvasBoth->cd();
     StyleHisto(histoYieldFinal[i], Low[TypeAnalysis] , Up[TypeAnalysis], ColorDiff[TypeAnalysis][i], Marker[i], Size[i], titleYieldX, titleYieldY, "" , 0,0, UpRangeMult);
     StyleHisto(histoYieldSistFinal[i], Low[TypeAnalysis] , Up[TypeAnalysis], ColorDiff[TypeAnalysis][i], Marker[i], Size[i], titleYieldX, titleYieldY, "" , 0,0, UpRangeMult);
+    if (isMultCorrEval)    StyleHisto(histoYieldSistMultUnCorrFinal[i], Low[TypeAnalysis] , Up[TypeAnalysis], ColorDiff[TypeAnalysis][i], Marker[i], Size[i], titleYieldX, titleYieldY, "" , 0,0, UpRangeMult);
     pol1[i] =     new TF1(Form("pol1_%i",i), "pol1", 2, UpRangeMult);
     if (i==0)     pol1[i]->SetLineStyle(9);
     else      pol1[i]->SetLineStyle(10);
@@ -277,6 +317,11 @@ void CompareYieldDifferentCollisionsFinal(Bool_t isMCGenOnTheFly = 1, Int_t Type
     }
     histoYieldSistFinal[i]->SetFillStyle(0);
     histoYieldSistFinal[i]->Draw("same e2");
+    if (isMultCorrEval){
+      histoYieldSistMultUnCorrFinal[i]->SetFillStyle(1001);
+      histoYieldSistMultUnCorrFinal[i]->SetFillColorAlpha(Color[TypeAnalysis], 0.2);
+      histoYieldSistMultUnCorrFinal[i]->Draw("same e2");
+    }
 
     cout << "Bin width of YieldComparison " << histoYieldComparison->GetBinWidth(1) << endl;
     for (Int_t b=1; b<= histoYieldFinal[i]->GetNbinsX(); b++){
@@ -286,6 +331,10 @@ void CompareYieldDifferentCollisionsFinal(Bool_t isMCGenOnTheFly = 1, Int_t Type
       histoYieldComparison -> SetBinError( bin , histoYieldFinal[i]->GetBinError(b));
       histoYieldSistComparison -> SetBinContent( bin , histoYieldSistFinal[i]->GetBinContent(b));
       histoYieldSistComparison -> SetBinError( bin , histoYieldSistFinal[i]->GetBinError(b));
+      if (isMultCorrEval){
+	histoYieldSistMultUnCorrComparison -> SetBinContent( bin , histoYieldSistMultUnCorrFinal[i]->GetBinContent(b));
+	histoYieldSistMultUnCorrComparison -> SetBinError( bin , histoYieldSistMultUnCorrFinal[i]->GetBinError(b));
+      } 
     }
     for (Int_t b=1; b<= histoYieldComparison->GetNbinsX(); b++){
       if ( histoYieldComparison->GetBinContent(b) !=0){
@@ -311,19 +360,28 @@ void CompareYieldDifferentCollisionsFinal(Bool_t isMCGenOnTheFly = 1, Int_t Type
   if (isPreliminary==1)  NameFileout += "_isPreliminaryForRatio";
   else if (isPreliminary==2)  NameFileout += "_isPreliminaryForYields";
   NameFileout  += "_ChangesIncluded";
+  if (isdNdEtaTriggered) NameFileout +="_isdNdEtaTriggered";
   if (type==0)  NameFileout  += "_EffCorr";
   if (isWingsCorrectionApplied) NameFileout  += "_WingsCorrApplied";
+  if (MaterialBudgetCorr) NameFileout += "_MatBudgetCorrFAST";
+  if (isMultCorrEval) NameFileout += "_MultCorrSistEval";
   NameFileout += ".root";
 
   TString HistoTitle = tipo[type] + "Yield vs multiplicity";
   if (isAvgPtvsMult) HistoTitle = "Avg pt vs multiplicity";
   StyleHisto(histoYieldComparison, Low[TypeAnalysis] , Up[TypeAnalysis], Color[TypeAnalysis], 33, 2, titleYieldX, titleYieldY, HistoTitle, 0,0, UpRangeMult);
   StyleHisto(histoYieldSistComparison, Low[TypeAnalysis] , Up[TypeAnalysis], Color[TypeAnalysis], 33, 2, titleYieldX, titleYieldY, HistoTitle, 0,0, UpRangeMult);
+    if (isMultCorrEval)  StyleHisto(histoYieldSistMultUnCorrComparison, Low[TypeAnalysis] , Up[TypeAnalysis], Color[TypeAnalysis], 33, 2, titleYieldX, titleYieldY, HistoTitle, 0,0, UpRangeMult);
 
   canvas->cd();
   histoYieldComparison->Draw("");
   histoYieldSistComparison->SetFillStyle(0);
   histoYieldSistComparison->Draw("same e2");
+  if (isMultCorrEval){
+    histoYieldSistMultUnCorrComparison->SetFillStyle(1001);
+    histoYieldSistMultUnCorrComparison->SetFillColorAlpha(Color[TypeAnalysis], 0.2);
+    histoYieldSistMultUnCorrComparison->Draw("same e2");
+  }
   if (FitYields){
     pol1[0]->Draw("same");
     pol1[1]->Draw("same");
@@ -333,9 +391,11 @@ void CompareYieldDifferentCollisionsFinal(Bool_t isMCGenOnTheFly = 1, Int_t Type
   TFile * fileout = new TFile (NameFileout, "RECREATE");
   histoYieldComparison->Write("");
   histoYieldSistComparison->Write("");
+  if (isMultCorrEval)  histoYieldSistMultUnCorrComparison->Write("");
   for (Int_t i=0; i<2; i++){
     histoYieldFinal[i]->Write();
     histoYieldSistFinal[i]->Write();
+    if (isMultCorrEval)    histoYieldSistMultUnCorrFinal[i]->Write();
   }
   canvas->Write("");
   canvasBoth->Write("");
