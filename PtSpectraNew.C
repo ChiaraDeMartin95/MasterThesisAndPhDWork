@@ -36,7 +36,7 @@ void StyleHisto(TH1D *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   //
 }
 
-void PtSpectraNew( Int_t type=8,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, Int_t numsysTriggerindex=99, Int_t sysPhi = 0, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString year="_PythiaRopes_Test1"/*"1617_AOD234_hK0s"/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/, TString yearDCAzTrigger = ""/*"1617_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/, Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=1, Int_t PtBinning=0, Bool_t SysTuvaWay=0,  Bool_t isNewInputPath=1,  Bool_t isHM =0, Bool_t ispp5TeV=0, Bool_t isEffCorr=1, Bool_t MaterialBudgetCorr=1, Int_t isTopoSel = 1){
+void PtSpectraNew( Int_t type=8,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, Int_t numsysTriggerindex=99, Int_t sysPhi = 0, Int_t ishhCorr=0, Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0,TString year="_PythiaRopes_Test1"/*"1617_AOD234_hK0s"/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"*//*"Run2DataRed_hXi"/"2016kehjl_hK0s"*/, TString yearDCAzTrigger = ""/*"1617_hK0s"*/,  TString Path1 =""/*"_Jet0.75"/*"_Jet0.75"/*"_NewMultClassBis_Jet0.75"*/, Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=1, Int_t PtBinning=0, Bool_t SysTuvaWay=0,  Bool_t isNewInputPath=1,  Bool_t isHM =1, Bool_t ispp5TeV=0, Bool_t isEffCorr=1, Bool_t MaterialBudgetCorr=0, Int_t isTopoSel = 0){
 
   //isTopoSel
   //=0 --> default one
@@ -97,12 +97,14 @@ void PtSpectraNew( Int_t type=8,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
       isNewInputPath=1;
       numsysV0index=200;
       MultBinning=1;
+      MaterialBudgetCorr = 0;
     }
     if (ispp5TeV) {
       year= "17pq_hK0s";
       isNewInputPath=1;
       numsysV0index=186;
       MultBinning=3;
+      MaterialBudgetCorr = 0;
     }
     if (isMC){
       MultBinning = 0;
@@ -526,6 +528,7 @@ void PtSpectraNew( Int_t type=8,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
     else if (isTopoSel==2) stringout += "_SysV0Tightest";
     else if (isTopoSel==3) stringout += "_SysV0Loosest";
   }
+  stringout += "_wYields";
   TString stringoutpdf = stringout;
   stringout += ".root";
 
@@ -1596,6 +1599,48 @@ void PtSpectraNew( Int_t type=8,  Int_t TypeAnalysis=1,Int_t numsysV0index=500, 
     fileout->WriteTObject(      fHistSpectrumSist[m]);
     fileout->WriteTObject(      fHistSpectrumStat[m]);
   }
+
+  cout << "\nComputation of pt integrated yield without low-pt extrapolation" << endl;
+  //computation of pt integrated yield without low-pt extrapolation
+  Float_t dNdEta[nummoltMax+1]={0};
+  Float_t Yield[nummoltMax+1]={0};
+  Float_t YieldStatErr[nummoltMax+1]={0};
+  if (isHM){
+    dNdEta[2] =  dNdEtaFinal13TeV[7];
+    dNdEta[3] =  dNdEtaFinal13TeV[6];
+    dNdEta[4] =  dNdEtaFinal13TeV[5];
+    dNdEta[5] =  dNdEtaFinal13TeVHM;
+  }
+  else if (ispp5TeV){
+    dNdEta[0] =  dNdEtaFinal5TeV[1];
+    dNdEta[1] =  dNdEtaFinal5TeV[2];
+    dNdEta[5] =  dNdEtaFinal5TeV0100;
+  }
+  else {
+    dNdEta[0] =  dNdEtaFinal13TeV[4];
+    dNdEta[1] =  dNdEtaFinal13TeV[3];
+    dNdEta[2] =  dNdEtaFinal13TeV[2];
+    dNdEta[3] =  dNdEtaFinal13TeV[1];
+    dNdEta[4] =  dNdEtaFinal13TeV[0];
+    dNdEta[5] =  dNdEtaFinal13TeV0100;
+  }
+  TH1F* fHistYield=new TH1F ("fHistYieldStatD","fHistYieldStatD",200,0,40);
+  for(Int_t m=0; m<nummoltMax+1; m++){
+    if (isHM && MultBinning==1 && m<=1) continue;
+    if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
+    cout << "m: " << m << " dNdeta: " << dNdEta[m] << endl;
+    for(Int_t  b=PtBinMin[m]+1; b<=fHistSpectrumStat[m]->FindBin(UpRangeSpectrumPart[m]-0.001) ; b++){
+      cout << fHistSpectrumStat[m]->GetBinCenter(b) << " " << fHistSpectrumStat[m]->GetBinError(b) << endl;
+      Yield[m] += fHistSpectrumStat[m]->GetBinContent(b) * fHistSpectrumStat[m]->GetBinWidth(b);
+      YieldStatErr[m] += pow(fHistSpectrumStat[m]->GetBinError(b) * fHistSpectrumStat[m]->GetBinWidth(b), 2);
+    }
+    YieldStatErr[m]= sqrt(YieldStatErr[m]);
+    cout << Yield[m] << " +- " << YieldStatErr[m] << " (rel. stat. error: " << YieldStatErr[m]/Yield[m] << ") " << endl;
+    fHistYield->SetBinContent(fHistYield->FindBin(dNdEta[m]),Yield[m]); 
+    fHistYield->SetBinError(fHistYield->FindBin(dNdEta[m]),YieldStatErr[m]); 
+  
+  }
+  fileout->WriteTObject(fHistYield);
 
   TH1F * DeltaPhiLimit = new TH1F ("DeltaPhiLimit", "DeltaPhiLimit", 2,0,2);
   DeltaPhiLimit->SetBinContent(1, fHistPhiDistr_master[nummoltMax][1]->GetXaxis()->GetBinLowEdge( fHistPhiDistr_master[nummoltMax][1]->FindBin(ALowBin[sysPhi] )));
