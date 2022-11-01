@@ -395,7 +395,7 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
   }
   TString PathOutPictures = stringout;
   //  stringout += "_PForT";
-  stringout += "_MultCorrSistEval";
+  stringout += "_MultCorr";
   stringout += ".root";
   TFile * fileout = new TFile(stringout, "RECREATE");
 
@@ -1918,21 +1918,21 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
   cout << "************UNCERTAINTIES UNCORRELATED WITH MULTIPLICITY**************" << endl;
 
   //Topological selections
-  TString sfileTopoSelUncorr = "UncertaintiesUncorrMult_" + tipo[type]+"_"+ RegionType[TypeAnalysis] + "_TopoSel.root";
+  TString sfileTopoSelUncorr = "UncertaintiesUncorrMult_" + tipo[type]+"_"+ RegionType[2] + "_TopoSel_Fixed.root";
   TH1F * hFractionUnCorrTopoSel[nummoltMax+1];
   TFile * fileTopoSelUncorr = new TFile(sfileTopoSelUncorr, "");
   for(Int_t m=0; m<nummoltMax+1; m++){
     if (isppHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;  
     if (m!=nummoltMax) {
-      if (isppHM) hFractionUnCorrTopoSel[m] = (TH1F*)fileTopoSelUncorr->Get(Form("hSpectrumFracUncorr_m%i", 4)); //4 --> 0-5%
-      else if (ispp5TeV) hFractionUnCorrTopoSel[m] = (TH1F*)fileTopoSelUncorr->Get(Form("hSpectrumFracUncorr_m%i", 4)); //4 --> 0-5%
-      else hFractionUnCorrTopoSel[m] = (TH1F*)fileTopoSelUncorr->Get(Form("hSpectrumFracUncorr_m%i", m));
+      if (isppHM) hFractionUnCorrTopoSel[m] = (TH1F*)fileTopoSelUncorr->Get("hSpectrumFracUncorr_0-5");
+      else if (ispp5TeV) hFractionUnCorrTopoSel[m] = (TH1F*)fileTopoSelUncorr->Get("hSpectrumFracUncorr_0-5");
+      else hFractionUnCorrTopoSel[m] = (TH1F*)fileTopoSelUncorr->Get("hSpectrumFracUncorr_"+Smolt[m]);
       if (!hFractionUnCorrTopoSel[m]) {cout << "Missing histo: hFractionUnCorrTopoSel for mult: " << m << endl; return;} 
       hFractionUnCorrTopoSel[m]->SetName(Form("hSpectrumFracUncorr_TopoSel_m%i", m));
     }
     else { //define histo for 0-100% (and 0-0.1%) but fill it with zero
-      hFractionUnCorrTopoSel[m] = (TH1F*)fileTopoSelUncorr->Get(Form("hSpectrumFracUncorr_m%i", 4)); //4 --> 0-5%
+      hFractionUnCorrTopoSel[m] = (TH1F*)fileTopoSelUncorr->Get("hSpectrumFracUncorr_0-5"); 
       if (!hFractionUnCorrTopoSel[m]) {cout << "Missing histo: hFractionUnCorrTopoSel for mult: " << m << endl; return;} 
       hFractionUnCorrTopoSel[m]->SetName(Form("hSpectrumFracUncorr_TopoSel_m%i", m));
       for (Int_t b=1; b<=  hFractionUnCorrTopoSel[m]->GetNbinsX(); b++){
@@ -1942,7 +1942,7 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
   }
 
   //DPhi selections
-  TString sfileDPhiUncorr = "UncertaintiesUncorrMult_" + tipo[type]+"_"+ RegionType[TypeAnalysis] + "_dPhiSel.root";
+  TString sfileDPhiUncorr = "UncertaintiesUncorrMult_" + tipo[type]+"_"+ RegionType[TypeAnalysis] + "_dPhiSel_Fixed.root";
   TH1F * hFractionUnCorrDPhi[nummoltMax+1];
   if (TypeAnalysis!=2){
     TFile * fileDPhiUncorr = new TFile(sfileDPhiUncorr, "");
@@ -1950,12 +1950,16 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
       if (isppHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;  
       if (m!=nummoltMax) {
-	hFractionUnCorrDPhi[m] = (TH1F*)fileDPhiUncorr->Get(Form("hSpectrumFracUncorr_m%i", m));
+	if (ispp5TeV){
+	  if (m==0)	  hFractionUnCorrDPhi[m] = (TH1F*)fileDPhiUncorr->Get("hSpectrumFracUncorr_10-30");
+	  else if (m==1)  hFractionUnCorrDPhi[m] = (TH1F*)fileDPhiUncorr->Get("hSpectrumFracUncorr_30-50");
+	}
+	else hFractionUnCorrDPhi[m] = (TH1F*)fileDPhiUncorr->Get("hSpectrumFracUncorr_"+Smolt[m]);
 	if (!hFractionUnCorrDPhi[m]) {cout << "Missing histo: hFractionUnCorrDPhi for mult: " << m << endl; return;} 
 	hFractionUnCorrDPhi[m]->SetName(Form("hSpectrumFracUncorr_DPhi_m%i", m));
       }
       else {//define histo for 0-100% (and 0-0.1%) but fill it with zero
-	hFractionUnCorrDPhi[m] = (TH1F*)fileDPhiUncorr->Get(Form("hSpectrumFracUncorr_m%i", 0));
+	hFractionUnCorrDPhi[m] = (TH1F*)fileDPhiUncorr->Get("hSpectrumFracUncorr_0-5");
 	if (!hFractionUnCorrDPhi[m]) {cout << "Missing histo: hFractionUnCorrDPhi for mult: " << m << endl; return;} 
 	hFractionUnCorrDPhi[m]->SetName(Form("hSpectrumFracUncorr_DPhi_m%i", m));
 	for (Int_t b=1; b<=  hFractionUnCorrDPhi[m]->GetNbinsX(); b++){
@@ -2027,6 +2031,7 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
   TString titleEff = "";
 
   //Summing errors altogether********************
+
   for(Int_t m=0; m<nummoltMax+1; m++){
     if (isppHM && MultBinning==1 && m<=1) continue;
     if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;
@@ -2072,9 +2077,13 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
 	else       fHistSpectrumSistMultUnCorr[m]->SetBinError(v+1,0);
       }
 
-      cout << "Mult: " << Smolt[m] << " pt: " <<  fHistSpectrumSistAll[m]->GetBinCenter(v+1) << " uncorrelated fraction on the total: " <<  fHistSpectrumSistMultUnCorr[m]->GetBinError(v+1) / fHistSpectrumSistAll[m]->GetBinError(v+1) << endl;
+      cout << "\nMult: " << Smolt[m] << " pt: " <<  fHistSpectrumSistAll[m]->GetBinCenter(v+1) << " uncorrelated fraction on the total: " <<  fHistSpectrumSistMultUnCorr[m]->GetBinError(v+1) / fHistSpectrumSistAll[m]->GetBinError(v+1) << endl;
       cout << "Topo sel uncorr fraction: " << hFractionUnCorrTopoSel[m]->GetBinContent(v+1) << endl;
       cout << "Fraction of syt. related to topo sel: " << fHistSpectrumSistRelErrorSE[m]->GetBinContent(v+1) *  fHistSpectrumSistAll[m]->GetBinContent(v+1) / fHistSpectrumSistAll[m]->GetBinError(v+1)<< endl;
+      if (TypeAnalysis!=2){
+	cout << "DPhi uncorr fraction: " << hFractionUnCorrDPhi[m]->GetBinContent(v+1) << endl;
+	cout << "Fraction of syt. related to dPhi choice: " << fHistSpectrumSistDPhi[m]->GetBinError(v+1) / fHistSpectrumSistAll[m]->GetBinError(v+1)<< endl;
+      }
 
       if (fHistSpectrumSistAll[m]->GetBinContent(v+1) == 0) fHistSpectrumSistAll[m]->SetBinError(v+1, 0);
       if (fHistSpectrumSistMultUnCorr[m]->GetBinContent(v+1) == 0) fHistSpectrumSistMultUnCorr[m]->SetBinError(v+1, 0);
