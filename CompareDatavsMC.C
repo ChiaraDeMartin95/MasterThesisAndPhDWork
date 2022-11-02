@@ -93,6 +93,8 @@ Int_t nummoltMaxDataorMC = 0;
 
 void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t ScalingFactorXiK0s = 1/*0.8458/1.08747*/, Bool_t isChangesIncluded=1, Bool_t isFit=0, Bool_t isdNdEtaTriggered=1, Bool_t MaterialBudgetCorr=1){
 
+  Float_t UpperValueX = 45;
+
   Int_t nummoltDataorMC =0;
 
   Int_t MonashTune =0;
@@ -209,7 +211,7 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
     UpRatio = 1.3-10e-4;
   }
 
-  TF1 * fitToRatioToOOJ = new TF1("fitToRatioToOOJ", "pol0", 0, 45);
+  TF1 * fitToRatioToOOJ = new TF1("fitToRatioToOOJ", "pol0", 0, UpperValueX);
   fitToRatioToOOJ->SetLineColor(1);
   fitToRatioToOOJ->SetLineStyle(2);
   fitToRatioToOOJ->SetLineWidth(2);
@@ -571,8 +573,8 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
   else if (MonashTune==5) MCindexForPlotting = 3;
 
   //DUMMY HISTO FOR AXES
-  TH1F*histoYieldDummy= new TH1F("histoYieldDummy", "histoYieldDummy", 100, 0, 40);
-  StyleHisto(histoYieldDummy, Low, Up, 1, 1, titleX, titleY, "" , 1,0, 40, xOffset, yOffset, 1);
+  TH1F*histoYieldDummy= new TH1F("histoYieldDummy", "histoYieldDummy", 100, 0, UpperValueX);
+  StyleHisto(histoYieldDummy, Low, Up, 1, 1, titleX, titleY, "" , 1,0, UpperValueX, xOffset, yOffset, 1);
   if (PlotType==0) {
     histoYieldDummy->GetYaxis()->SetTitleSize(0.09);//0.07
     histoYieldDummy->GetYaxis()->SetTitleOffset(0.5);//0.7
@@ -691,7 +693,7 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	    JetRatioToOOJErrorsSist[Coll][isMC][m] = histoYieldRatioSistToOOJ[Coll][isMC]->GetBinError(histoYieldSist[ireg][Coll][isMC]->FindBin(dNdEta[isMC][Coll][m]));
 	  }
 
-	  if (isMC==0) 	ghistoRatioToOOJ[Coll][isMC] = new TGraphAsymmErrors(nummoltDataorMC,dNdEta[isMC][Coll],JetRatioToOOJ[Coll][isMC],dNdEtaErrorL[isMC][Coll],dNdEtaErrorR[isMC][Coll],JetRatioToOOJErrorsStat[Coll][isMC], JetRatioToOOJErrorsStat[Coll][isMC]);
+	  if (isMC==0) 	ghistoRatioToOOJ[Coll][isMC] = new TGraphAsymmErrors(nummoltDataorMC,dNdEta[isMC][Coll],JetRatioToOOJ[Coll][isMC],0, 0 ,JetRatioToOOJErrorsStat[Coll][isMC], JetRatioToOOJErrorsStat[Coll][isMC]);
 	  else 	ghistoRatioToOOJ[Coll][isMC] = new TGraphAsymmErrors(nummoltDataorMC,dNdEta[isMC][Coll],JetRatioToOOJ[Coll][isMC],dNdEtaErrorL[isMC][Coll], dNdEtaErrorR[isMC][Coll], JetRatioToOOJErrors[Coll][isMC], JetRatioToOOJErrors[Coll][isMC]);
 	  ghistoRatioToOOJ[Coll][isMC]->SetName(Form("ghistoRatioToOOJ_reg%i_Coll%i_isMC%i", ireg, Coll, isMC));
 	  ghistoSistRatioToOOJ[Coll][isMC] = new TGraphAsymmErrors(nummoltDataorMC,dNdEta[isMC][Coll],JetRatioToOOJ[Coll][isMC],dNdEtaErrorL[isMC][Coll],dNdEtaErrorR[isMC][Coll], JetRatioToOOJErrorsSist[Coll][isMC], JetRatioToOOJErrorsSist[Coll][isMC]);
@@ -714,8 +716,8 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	  YieldsErrorsStat[ireg][Coll][isMC][m] = histoYield[ireg][Coll][isMC]->GetBinError(histoYield[ireg][Coll][isMC]->FindBin(dNdEta[isMC][Coll][m]));
 	  YieldsErrorsSist[ireg][Coll][isMC][m] = histoYieldSist[ireg][Coll][isMC]->GetBinError(histoYieldSist[ireg][Coll][isMC]->FindBin(dNdEta[isMC][Coll][m]));
 	}
-	if (isMC==0) 	ghistoYield[ireg][Coll][isMC] = new TGraphAsymmErrors(nummoltDataorMC,dNdEta[isMC][Coll],Yields[ireg][Coll][isMC],dNdEtaErrorL[isMC][Coll], dNdEtaErrorR[isMC][Coll],YieldsErrorsStat[ireg][Coll][isMC], YieldsErrorsStat[ireg][Coll][isMC]);
-	else 	ghistoYield[ireg][Coll][isMC] = new TGraphAsymmErrors(nummoltDataorMC,dNdEta[isMC][Coll],Yields[ireg][Coll][isMC],dNdEtaErrorL[isMC][Coll],dNdEtaErrorR[isMC][Coll],YieldsErrors[ireg][Coll][isMC], YieldsErrors[ireg][Coll][isMC]);
+	if (isMC==0) ghistoYield[ireg][Coll][isMC] = new TGraphAsymmErrors(nummoltDataorMC,dNdEta[isMC][Coll],Yields[ireg][Coll][isMC],0, 0,YieldsErrorsStat[ireg][Coll][isMC], YieldsErrorsStat[ireg][Coll][isMC]);
+	else ghistoYield[ireg][Coll][isMC] = new TGraphAsymmErrors(nummoltDataorMC,dNdEta[isMC][Coll],Yields[ireg][Coll][isMC],dNdEtaErrorL[isMC][Coll],dNdEtaErrorR[isMC][Coll],YieldsErrors[ireg][Coll][isMC], YieldsErrors[ireg][Coll][isMC]);
 	ghistoYield[ireg][Coll][isMC]->SetName(Form("ghistoYield_reg%i_Coll%i_isMC%i", ireg, Coll, isMC));
 	ghistoYieldSist[ireg][Coll][isMC] = new TGraphAsymmErrors(nummoltDataorMC,dNdEta[isMC][Coll],Yields[ireg][Coll][isMC],dNdEtaErrorL[isMC][Coll],dNdEtaErrorR[isMC][Coll], YieldsErrorsSist[ireg][Coll][isMC], YieldsErrorsSist[ireg][Coll][isMC]);
 	ghistoYieldSist[ireg][Coll][isMC]->SetName(Form("ghistoYieldSist_reg%i_Coll%i_isMC%i", ireg, Coll, isMC));
@@ -725,6 +727,7 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	}
 	else {
 	  if (ChosenRegion==0)  StyleTGraphErrors(ghistoYield[ireg][Coll][isMC], ColorDiff[ireg][Coll], 1, 1, 1);
+	  //	  if (ChosenRegion==0)  StyleTGraphErrors(ghistoYield[ireg][Coll][isMC], ColorDiff[ireg][Coll], 1, 1, LineStyle[isMC]);
 	  else StyleTGraphErrors(ghistoYield[ireg][Coll][isMC], ColorDiff[ireg][Coll], 1, 1, LineStyle[isMC]);
 	}
 
@@ -896,14 +899,14 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	    if (isMC==1)  ghistoYield[ireg][Coll][isMC]->SetFillStyle(3001);
 	    else if (isMC==2) ghistoYield[ireg][Coll][isMC]->SetFillStyle(3008); //NO: 3003
 	    else ghistoYield[ireg][Coll][isMC]->SetFillStyle(3002); 
-	    ghistoYield[ireg][Coll][isMC]->Draw("same 3");
+	    ghistoYield[ireg][Coll][isMC]->DrawClone("same 3");
 	    
 	    //OPTION 2 
 	    //ghistoYield[ireg][Coll][isMC]->SetFillColorAlpha(ColorDiff[ireg][Coll],0.9);
 	    //ghistoYield[ireg][Coll][isMC]->Draw("same 3");
 	  }
 	  else {
-	    ghistoYield[ireg][Coll][isMC]->Draw("same");
+	    ghistoYield[ireg][Coll][isMC]->DrawClone("same");
 	  }
 	}
 	else {
@@ -915,8 +918,8 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	  histoYieldDummy->DrawClone("same");
 	  ghistoYieldSist[ireg][Coll][isMC]->SetFillStyle(0);
 	  ghistoYieldSist[ireg][Coll][isMC]->SetFillColor(ColorDiff[ireg][Coll]);
-	  ghistoYieldSist[ireg][Coll][isMC]->Draw("same p2");
-	  ghistoYield[ireg][Coll][isMC]->Draw("same e");
+	  ghistoYieldSist[ireg][Coll][isMC]->DrawClone("same p2");
+	  ghistoYield[ireg][Coll][isMC]->DrawClone("same e");
 	}
 	//if (ireg!=0)	fitY[ireg][Coll][isMC]->Draw("same");
 	//else if (ireg==0)	fsplineY[ireg][Coll][isMC]->Draw("same");
@@ -967,8 +970,8 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
   pad2->Draw();
   pad2->cd();
 
-  TH1F* hdummy = new TH1F ("hdummy", "hdummy",  1000, 0, 40); 
-  TF1 * lineAt1 = new TF1 ("lineAt1", "pol0", 0, 40);
+  TH1F* hdummy = new TH1F ("hdummy", "hdummy",  1000, 0, UpperValueX); 
+  TF1 * lineAt1 = new TF1 ("lineAt1", "pol0", 0, UpperValueX);
   lineAt1->SetParameter(0,1);
   lineAt1->SetLineColor(1);
   lineAt1->SetLineStyle(2);
@@ -986,7 +989,7 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	    //cout << YieldRatiosDATA[ireg][Coll][isMC][m] << " +- " <<  YieldRatiosErrorsDATA[ireg][Coll][isMC][m] << endl;
 	  }
 	  //cout << "Define TGraph " << endl;
-	  ghistoYieldRatioDATA[ireg][Coll][isMC] = new TGraphAsymmErrors(8,dNdEta[isMC][Coll],YieldRatiosDATA[ireg][Coll][isMC],0,YieldRatiosErrorsDATA[ireg][Coll][isMC]);
+	  ghistoYieldRatioDATA[ireg][Coll][isMC] = new TGraphAsymmErrors(8,dNdEta[isMC][Coll],YieldRatiosDATA[ireg][Coll][isMC],0,0,YieldRatiosErrorsDATA[ireg][Coll][isMC],YieldRatiosErrorsDATA[ireg][Coll][isMC]);
 	  ghistoYieldRatioDATA[ireg][Coll][isMC]->SetName(Form("ghistoYieldRatioDATA_reg%i_Coll%i_isMC%i", ireg, Coll, isMC));
 	  StyleTGraphErrors(ghistoYieldRatioDATA[ireg][Coll][isMC], ColorDiff[ireg][Coll], 1, 1, LineStyle[isMC]);
 	}
@@ -1025,7 +1028,7 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 
 	//hMCDataRatio[ireg][Coll][isMC]->Draw("same");
 
-	StyleHisto(hdummy, LowRatio, UpRatio, 1, 1, titleX, titleYMCToData, "" , 1, 0, 40, xOffset, yOffset, 1);
+	StyleHisto(hdummy, LowRatio, UpRatio, 1, 1, titleX, titleYMCToData, "" , 1, 0, UpperValueX, xOffset, yOffset, 1);
 
 	hdummy->GetYaxis()->SetTitleSize(0.1);
 	hdummy->GetYaxis()->SetTitleOffset(0.6);
@@ -1063,7 +1066,7 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	else {
 	  //	  ghistoYieldRatioDATA[ireg][Coll][isMC]->SetFillStyle(3001);
 	  ghistoYieldRatioDATA[ireg][Coll][isMC]->SetFillColorAlpha(ColorDiff[ireg][Coll],0.3);
-	  ghistoYieldRatioDATA[ireg][Coll][isMC]->Draw("same 3");
+	  ghistoYieldRatioDATA[ireg][Coll][isMC]->DrawClone("same 3");
 	}
 	lineAt1->Draw("same");
 	if (NLoopRegion==0 && Coll==0 && isMC!=0){
@@ -1177,7 +1180,7 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	  else {
 	    //	  ghistoYieldRatioDATA[ireg][Coll][isMC]->SetFillStyle(3001);
 	    ghistoYieldRatioDATA[ireg][Coll][isMC]->SetFillColorAlpha(ColorDiff[ireg][Coll],0.3);
-	    ghistoYieldRatioDATA[ireg][Coll][isMC]->Draw("same 3");
+	    ghistoYieldRatioDATA[ireg][Coll][isMC]->DrawClone("same 3");
 	  }
 	  lineAt1->Draw("same");
 	  /*
@@ -1194,8 +1197,8 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
     Threepad3->cd();
     Threepad3->SetBottomMargin(0.34);
     //draw double ratio JET/OOJ
-    TH1F* hdummyRatioToOOJ = new TH1F ("hdummyRatioToOOJ", "hdummyRatioToOOJ",  1000, 0, 40); 
-    StyleHisto(hdummyRatioToOOJ, LowRatioToOOJ, UpRatioToOOJ, 1, 1, titleX, titleYToOOJ, "" , 1, 0, 40, xOffset, yOffset, 1);
+    TH1F* hdummyRatioToOOJ = new TH1F ("hdummyRatioToOOJ", "hdummyRatioToOOJ",  1000, 0, UpperValueX); 
+    StyleHisto(hdummyRatioToOOJ, LowRatioToOOJ, UpRatioToOOJ, 1, 1, titleX, titleYToOOJ, "" , 1, 0, UpperValueX, xOffset, yOffset, 1);
 
     hdummyRatioToOOJ->GetYaxis()->SetTitleSize(0.1);
     hdummyRatioToOOJ->GetYaxis()->SetTitleOffset(0.5);
