@@ -40,7 +40,7 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0, TString year=""/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=1, Int_t PtBinning=1, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,  Bool_t TwoFitFunctions=0, Bool_t isNormCorrFullyComputed=1, Bool_t isMeanMacro=0, Bool_t ispp5TeV=1,  Bool_t isErrorAssumedPtCorr=1, Bool_t isFitForPlot=0, Bool_t isEffCorr=0, Bool_t isdNdEtaTriggered=1, Int_t sys=0, Int_t MaterialBudgetCorr=2, Int_t isOnlyPlottingRelError=0, Int_t isTopoSel = 0){
+void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float_t PtTrigMin =3, Float_t PtTrigMax=15, Bool_t isMC=0,   Int_t israp=0, TString year=""/*"1617_hK0s"/*"AllMC_hXi"/*"2018f1_extra_hK0s"/"2016k_hK0s"/"Run2DataRed_MECorr_hXi"/*"2016k_hK0s_30runs_150MeV"/*"2016k_New"/"Run2DataRed_hXi"/*"2016kehjl_hK0s"*/, Bool_t isEfficiency=0,   TString Dir="FinalOutput",TString year0="2016", Bool_t SkipAssoc=0, Int_t MultBinning=1, Int_t PtBinning=1, TString FitFixed="Boltzmann"/*"Fermi-Dirac"*/,  Bool_t TwoFitFunctions=0, Bool_t isNormCorrFullyComputed=1, Bool_t isMeanMacro=0, Bool_t ispp5TeV=0,  Bool_t isErrorAssumedPtCorr=1, Bool_t isFitForPlot=0, Bool_t isEffCorr=0, Bool_t isdNdEtaTriggered=1, Int_t sys=0, Int_t MaterialBudgetCorr=2, Int_t isOnlyPlottingRelError=0, Int_t isTopoSel = 0){
 
   //isTopoSel
   //=0 --> default one
@@ -1927,7 +1927,10 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
     if (m!=nummoltMax) {
       if (isppHM) hFractionUnCorrTopoSel[m] = (TH1F*)fileTopoSelUncorr->Get("hSpectrumFracUncorr_0-5");
       else if (ispp5TeV) hFractionUnCorrTopoSel[m] = (TH1F*)fileTopoSelUncorr->Get("hSpectrumFracUncorr_0-5");
-      else hFractionUnCorrTopoSel[m] = (TH1F*)fileTopoSelUncorr->Get("hSpectrumFracUncorr_"+Smolt[m]);
+      else {
+	hFractionUnCorrTopoSel[m] = (TH1F*)fileTopoSelUncorr->Get("hSpectrumFracUncorr_"+Smolt[m]);
+	if (type==8 && m==1) 	hFractionUnCorrTopoSel[m] = (TH1F*)fileTopoSelUncorr->Get("hSpectrumFracUncorr_0-5");
+      }
       if (!hFractionUnCorrTopoSel[m]) {cout << "Missing histo: hFractionUnCorrTopoSel for mult: " << m << endl; return;} 
       hFractionUnCorrTopoSel[m]->SetName(Form("hSpectrumFracUncorr_TopoSel_m%i", m));
     }
@@ -1943,20 +1946,43 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
 
   //DPhi selections
   TString sfileDPhiUncorr = "UncertaintiesUncorrMult_" + tipo[type]+"_"+ RegionType[TypeAnalysis] + "_dPhiSel_Fixed.root";
+  TString sfileDPhiUncorrK0s = "";
+  if (type==8 && TypeAnalysis==1) {
+    sfileDPhiUncorrK0s = "UncertaintiesUncorrMult_" + tipo[0]+"_"+ RegionType[TypeAnalysis] + "_dPhiSel_Fixed.root";
+  }
   TH1F * hFractionUnCorrDPhi[nummoltMax+1];
+  TH1F * hFractionUnCorrDPhiK0s[nummoltMax+1];
   if (TypeAnalysis!=2){
     TFile * fileDPhiUncorr = new TFile(sfileDPhiUncorr, "");
     for(Int_t m=0; m<nummoltMax+1; m++){
       if (isppHM && MultBinning==1 && m<=1) continue;
       if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;  
+      cout << "\nMult: " << Smolt[m] << endl;
       if (m!=nummoltMax) {
 	if (ispp5TeV){
 	  if (m==0)	  hFractionUnCorrDPhi[m] = (TH1F*)fileDPhiUncorr->Get("hSpectrumFracUncorr_10-30");
 	  else if (m==1)  hFractionUnCorrDPhi[m] = (TH1F*)fileDPhiUncorr->Get("hSpectrumFracUncorr_30-50");
 	}
-	else hFractionUnCorrDPhi[m] = (TH1F*)fileDPhiUncorr->Get("hSpectrumFracUncorr_"+Smolt[m]);
+	else {
+	  hFractionUnCorrDPhi[m] = (TH1F*)fileDPhiUncorr->Get("hSpectrumFracUncorr_"+Smolt[m]);
+	  if (type==8 && m==1 && !isppHM) hFractionUnCorrTopoSel[m] = (TH1F*)fileTopoSelUncorr->Get("hSpectrumFracUncorr_10-30");
+	}
 	if (!hFractionUnCorrDPhi[m]) {cout << "Missing histo: hFractionUnCorrDPhi for mult: " << m << endl; return;} 
 	hFractionUnCorrDPhi[m]->SetName(Form("hSpectrumFracUncorr_DPhi_m%i", m));
+	if (type==8 && TypeAnalysis==1) {
+	  TFile * fileDPhiUncorrK0s = new TFile(sfileDPhiUncorrK0s, "");
+	  if (ispp5TeV){
+	    if (m==0)	  hFractionUnCorrDPhiK0s[m] = (TH1F*)fileDPhiUncorrK0s->Get("hSpectrumFracUncorr_10-30");
+	    else if (m==1)  hFractionUnCorrDPhiK0s[m] = (TH1F*)fileDPhiUncorrK0s->Get("hSpectrumFracUncorr_30-50");
+	  }
+	  else hFractionUnCorrDPhiK0s[m] = (TH1F*)fileDPhiUncorrK0s->Get("hSpectrumFracUncorr_"+Smolt[m]);
+	  if (!hFractionUnCorrDPhiK0s[m]) {cout << "Missing histo: hFractionUnCorrDPhiK0s for mult: " << m << endl; return;} 
+	  hFractionUnCorrDPhiK0s[m]->SetName(Form("hSpectrumFracUncorr_DPhi_K0s_m%i", m));
+	  for (Int_t b=1; b<=  hFractionUnCorrDPhiK0s[m]->GetNbinsX(); b++){
+	    Float_t pt = hFractionUnCorrDPhiK0s[m]->GetBinCenter(b);
+	    cout << "pt K0s: " << pt << " " <<  hFractionUnCorrDPhiK0s[m]->GetBinContent(b) << endl;
+	  }
+	}
       }
       else {//define histo for 0-100% (and 0-0.1%) but fill it with zero
 	hFractionUnCorrDPhi[m] = (TH1F*)fileDPhiUncorr->Get("hSpectrumFracUncorr_0-5");
@@ -1965,6 +1991,19 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
 	for (Int_t b=1; b<=  hFractionUnCorrDPhi[m]->GetNbinsX(); b++){
 	  hFractionUnCorrDPhi[m]->SetBinContent(b, 0);
 	}
+      }
+    }
+  }
+
+  if (type==8 && TypeAnalysis==1) {
+    for(Int_t m=0; m<nummoltMax; m++){
+      if (isppHM && MultBinning==1 && m<=1) continue;
+      if (MultBinning==3 && (m==2 || m==3 || m==4)) continue;  
+      cout << "\nMult: " << Smolt[m] << endl;
+      for (Int_t b=1; b<=  hFractionUnCorrDPhi[m]->GetNbinsX(); b++){
+	Float_t pt = hFractionUnCorrDPhi[m]->GetBinCenter(b);
+	hFractionUnCorrDPhi[m]->SetBinContent(b, hFractionUnCorrDPhiK0s[m]->GetBinContent(hFractionUnCorrDPhiK0s[m]->FindBin(pt)));
+	cout << "pt: " << pt << " " <<  hFractionUnCorrDPhi[m]->GetBinContent(b) << endl;
       }
     }
   }
@@ -3183,8 +3222,13 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
     for (Int_t typefit =0; typefit<numfittipo; typefit++){
       if (type==0 && TypeAnalysis==0 && MonashTune==3 && nameFit[typefit]=="Boltzmann" ) continue;
       hExtrFractionLowPt[typefit]->SetBinContent(m+1, hExtrFractionLowPt[typefit]->GetBinContent(m+1)/Yield[m]);
-      if (TypeAnalysis==0)      StyleHisto(hExtrFractionLowPt[typefit], 0, 0.5, ColorFit[typefit], 33, "p_{T} (GeV/c)", "", "ExtrapolatedFraction", 0, 0, 0);
-      else       StyleHisto(hExtrFractionLowPt[typefit], 0, 0.1, ColorFit[typefit], 33, "p_{T} (GeV/c)", "", "ExtrapolatedFraction", 0, 0, 0);
+      if (TypeAnalysis==0) {
+	StyleHisto(hExtrFractionLowPt[typefit], 0, 0.5, ColorFit[typefit], 33, "p_{T} (GeV/c)", "", "ExtrapolatedFraction", 0, 0, 0);
+      }
+      else {
+	if (type==0)	StyleHisto(hExtrFractionLowPt[typefit], 0, 0.1, ColorFit[typefit], 33, "p_{T} (GeV/c)", "", "ExtrapolatedFraction", 0, 0, 0);
+	else 	StyleHisto(hExtrFractionLowPt[typefit], 0, 1, ColorFit[typefit], 33, "p_{T} (GeV/c)", "", "ExtrapolatedFraction", 0, 0, 0);
+      }
       hExtrFractionLowPt[typefit]->Draw("same");
     }
     hExtrFractionLowPt[numfittipo]->SetBinContent(m+1, YieldExtrLowPtAvg[m]/Yield[m]);
@@ -3198,7 +3242,7 @@ void PtSpectraBisNew(Int_t type=8,  Int_t TypeAnalysis=0, Bool_t isppHM =0,Float
       if (type==0 && TypeAnalysis==0 && MonashTune==3 && nameFit[typefit]=="Boltzmann" ) continue;
       hExtrFractionHighPt[typefit]->SetBinContent(m+1, hExtrFractionHighPt[typefit]->GetBinContent(m+1)/Yield[m]);
       if (TypeAnalysis==0)      StyleHisto(hExtrFractionHighPt[typefit], 0, 0.1, ColorFit[typefit], 33, "p_{T} (GeV/c)", "", "ExtrapolatedFraction", 0, 0, 0);
-      else StyleHisto(hExtrFractionHighPt[typefit], 0, 0.02, ColorFit[typefit], 33, "p_{T} (GeV/c)", "", "ExtrapolatedFraction", 0, 0, 0);
+      else StyleHisto(hExtrFractionHighPt[typefit], 0, 0.005, ColorFit[typefit], 33, "p_{T} (GeV/c)", "", "ExtrapolatedFraction", 0, 0, 0);
       hExtrFractionHighPt[typefit]->Draw("same");
     }
 
