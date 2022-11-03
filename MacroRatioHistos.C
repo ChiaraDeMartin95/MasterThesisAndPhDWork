@@ -17,12 +17,22 @@
 #include <TFile.h>
 #include <TLegend.h>
 #include <TLegendEntry.h>
+#include <TGraphAsymmErrors.h>
 #include <Macros/ErrRatioCorr.C>
 #include <Macros/BarlowVariable.C>
 #include <Macros/constants.h>
 
 Double_t SetEfficiencyError(Int_t k, Int_t n){
   return sqrt(((Double_t)k+1)*((Double_t)k+2)/(n+2)/(n+3) - pow((Double_t)(k+1),2)/pow(n+2,2));
+}
+
+void StyleTGraphErrors(TGraphAsymmErrors *tgraph, Int_t color, Int_t style, Float_t mSize, Int_t linestyle){
+  tgraph->SetLineColor(color);
+  tgraph->SetLineWidth(2);
+  tgraph->SetMarkerColor(color);
+  tgraph->SetMarkerStyle(style);
+  tgraph->SetMarkerSize(mSize);
+  tgraph->SetLineStyle(linestyle);
 }
 
 void StyleHistoYield(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, TString titleX, TString titleY, TString title, Float_t mSize, Float_t xOffset, Float_t yOffset){
@@ -54,6 +64,8 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=5, Int_t multDef = 5 /*on
   TString TypeAnalysisBis[3] = {"Jet", "Bulk", "Inclusive"};
   TString TypeAnalysisTer[3] = {"near-side jet", "out of jet", "full"};
   TString SRegion[3] = {"Near-side jet", "Transverse-to-leading", "Full"};
+  TString sRegionBlack[3]={"#color[1]{Toward leading}","#color[1]{Transverse to leading}","#color[1]{Full}"};
+  TString sRegion1[3]={"|#Delta#it{#eta}| < 0.86, |#Delta#it{#varphi}| < 1.1", "0.86 < |#Delta#it{#eta}| < 1.2, 1.1 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
   TString tipo[2] = {"K0s", "Xi"};
   TString SCorrelation[3] = {"No corr.", "Full", "Partial"};
   Int_t CorrelationBtwHistos=0;
@@ -1043,6 +1055,15 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=5, Int_t multDef = 5 /*on
     TypeOfComparison = 2; 
     numFiles = 12;
   }
+  else if (RunVar==101 || RunVar==102 | RunVar==103){
+    //compare data vs MC spectra in classes with similar multiplicity
+    CommonFileName = "FinalOutput/DATA2016/PtSpectraBisNew";
+    OutputName = "SpectraDatavsMCComparison_" + tipo[type] + "_" + TypeAnalysis[AnalysisType];
+    if (RunVar==101) OutputName += "_HighMult";
+    else if (RunVar==102) OutputName += "_MidMult";
+    else if (RunVar==103) OutputName += "_LowMult";
+    numFiles = 5; //data, Pythia Monash, Pythia Ropes, EPOSLHC, Data Syst
+  }
   //this macros superimpose in a same canvas pad same histos found in different files. A loop over the files is done. The ratio of the histos to the histo found in the first file is performed. You can choose if histos have to be considered fully correlated, uncorrelated, or if the histos are obtaiend from a subsample of the data used to obtain the histo found in the first file (i.e. partial correlation)
 
   TString VarName[numFiles] = {""}; 
@@ -1083,6 +1104,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=5, Int_t multDef = 5 /*on
   else if (RunVar==94) histoName = "histo_mean";
   else if (RunVar==95) histoName = "histo_sigma";
   else if (RunVar==99) histoName = "SpectrumRatio";
+  else if (RunVar==101 || RunVar==102 || RunVar==103) histoName = "fHistSpectrum_";
 
   Int_t numDef=3;
   if (RunVar>=7) numDef=0;
@@ -2036,6 +2058,44 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=5, Int_t multDef = 5 /*on
      titleX = "p_{T}";
      title = "K0s " + TypeAnalysis[AnalysisType] + " spectra";
   }
+  else  if (RunVar==101 || RunVar==102 || RunVar==103){
+    titleRatio = "";
+    Low = 0 + 10e-5;
+    if (type==0){
+      if (AnalysisType==1)      Low = 3*10e-6;
+      if (AnalysisType==0)    Up = 0.1-10e-5;
+      else Up = 0.5-10e-5; //0.2 if not log
+    }
+    else if (type==1) {
+      if (AnalysisType==0){
+	Up = 0.003-10e-5;
+	Low = 2*10e-6;
+      }
+      else {
+	Low = 8*10e-7;
+	if (AnalysisType==2) Low = 2*10e-6;
+	Up = 0.05-10e-5; //0.2 if not log
+      }
+    }
+    LowRatio = 0.5;
+    UpRatio = 1.5;
+    if (type==0 && AnalysisType==1){
+      LowRatio = 0.3;
+      UpRatio = 1.7;
+    }
+    if (type==1) {
+      LowRatio = 0;
+      UpRatio = 2;
+    }
+    if (AnalysisType==0){
+      LowRatio = 0;
+      UpRatio = 3;
+      if (type==1) UpRatio = 5;
+    }
+    titleY = "1/(#Delta#it{#eta} #Delta#it{#varphi}) 1/#it{N}_{trigg} d#it{N}/d#it{p}_{T} [(GeV/#it{c})^{-1}]";
+    titleX = "#it{p}_{T} (GeV/#it{c})";
+    title = "";
+  }
 
   TLegend *Legend1BisRatio=new TLegend(0.4,0.76,0.8,0.9);
   Legend1BisRatio->SetFillStyle(0);
@@ -2051,6 +2111,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=5, Int_t multDef = 5 /*on
   if (RunVar==96)  Legend1 =new TLegend(0.4,0.58,0.8,0.73);
   else if (RunVar==19)  Legend1 =new TLegend(0.4,0.76,0.8,0.88);
   else if (RunVar==99 && type==1)  Legend1 =new TLegend(0.4,0.81,0.8,0.93);
+  else if (RunVar==101 || RunVar == 102 || RunVar==103) Legend1 =new TLegend(0.1,0.7,0.8,0.89);
   else   Legend1 =new TLegend(0.4,0.55,0.8,0.7);
   Legend1->SetFillStyle(0);
   Legend1->SetTextAlign(22);
@@ -2061,6 +2122,14 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=5, Int_t multDef = 5 /*on
   if (RunVar==99){
     if (type==0)  Legend1->AddEntry("", "h-K_{S}^{0} correlations", "");
     else  if (type==1)  Legend1->AddEntry("", "h-#Xi^{#pm} correlations", "");
+  }
+  else if (RunVar==101 || RunVar == 102 || RunVar==103) {
+    Legend1->SetTextAlign(12);
+    if (type==0)  Legend1->AddEntry("", "h#minusK_{S}^{0} correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
+    else  if (type==1)  Legend1->AddEntry("", "h#minus#Xi correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
+    //    Legend1->AddEntry("", sRegionBlack[AnalysisType] + ": " + sRegion1[AnalysisType], "");
+    Legend1->AddEntry("", sRegionBlack[AnalysisType], "");
+    Legend1->AddEntry("", sRegion1[AnalysisType], "");
   }
   else {
     if (type==0)  Legend1->AddEntry("", "K_{S}^{0}, |#eta| < 0.8", "");
@@ -2086,6 +2155,9 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=5, Int_t multDef = 5 /*on
     legend->SetNColumns(3);
     legend->SetFillStyle(0);
     legend->SetBorderSize(0);
+  }
+  else if (RunVar==101  || RunVar == 102 || RunVar==103) {
+    legend= new TLegend (0.4, 0.7, 0.9, 0.88);
   }
   else     legend= new TLegend (0.6, 0.7, 0.9, 0.9);
   if (RunVar<6) legend->SetHeader("#it{p}_{T}^{trigg} > ");
@@ -3020,6 +3092,45 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=5, Int_t multDef = 5 /*on
       else if (i>=numFiles/2) VarName[i] = "_SysV0Default.root";
       NameHisto[i] = Smolt[numEff];
     }
+    else if (RunVar==101 || RunVar == 102 || RunVar==103){
+      if (i==0 || i ==4){ //DATA
+	if (i==4)  histoName = "fHistSpectrumSistAll_";
+	if (type==0)	VarName[i] = "_PtBinning1_1617_AOD234_hK0s_K0s";
+	else  VarName[i] ="_161718Full_AOD234_hXi_Xi";
+	VarName[i]+="_Eta0.8_AllAssoc_PtMin3.0_";
+	VarName[i]+= TypeAnalysisBis[AnalysisType];
+	VarName[i]+="_isNormCorrFullyComputed_isErrorAssumedPtCorr_ChangesIncluded_isdNdEtaTriggered";
+	if (type==0) VarName[i]+="_EffCorr_isWingsCorrectionAppliedNew_MatBudgetCorr.root";
+	else VarName[i]+="_MatBudgetCorrFAST.root";
+	if (RunVar==101)	NameHisto[i] = "0-5";
+	else if (RunVar==102) 	NameHisto[i] = "5-10";
+	else if (RunVar==103) 	NameHisto[i] = "10-30";
+      }
+      else {
+	if (type==0)  VarName[i] = "_PtBinning1";
+	if (i==1) { //Pythia Monash
+	  VarName[i] += "_PythiaMonash";
+	  if (type==1) VarName[i] += "_IncreasedStatXi";
+	}
+	else if (i==2) { //Pythia Ropes
+	  VarName[i] += "_PythiaRopes";
+	  if (type==1) VarName[i] += "_IncreasedStatXi";
+	}
+	else if (i==3) { //EPOS
+	  if (type==0)	  VarName[i] += "_EPOSLHC_3BEvForhK0s";
+	  else 	  VarName[i] += "_EPOSLHC_7BEvForhXi";
+	}
+	VarName[i]+="_" + tipo[type] + "_Eta0.8_AllAssoc_PtMin3.0_";
+	VarName[i]+= TypeAnalysisBis[AnalysisType];
+	VarName[i]+="_isErrorAssumedPtCorr_isdNdEtaTriggered";
+	VarName[i]+="_isWingsCorrectionApplied";
+	if (type==1)  VarName[i]+="New";
+	VarName[i]+=".root";
+	if (RunVar==101)	NameHisto[i] = "90-105";
+	else if (RunVar==102) 	NameHisto[i] = "63-72";
+	else if (RunVar==103) 	NameHisto[i] = "45-54";
+      }
+    }
 
     if (RunVar==43 && sys==5 && AnalysisType==0) continue;
     if (RunVar==45 && numEff==5) continue;
@@ -3086,7 +3197,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=5, Int_t multDef = 5 /*on
     gPad->SetLeftMargin(0.2);
     gPad->SetRightMargin(0.05);
     gPad->SetBottomMargin(0.15);
-    if (RunVar<7 || RunVar==16 || (RunVar>=26 && RunVar<=29) || RunVar==33 || RunVar==34 || RunVar==71 || RunVar==80)    gPad->SetLogy();
+    if (RunVar<7 || RunVar==16 || (RunVar>=26 && RunVar<=29) || RunVar==33 || RunVar==34 || RunVar==71 || RunVar==80 || RunVar==101 || RunVar == 102 || RunVar==103)    gPad->SetLogy();
     if (TypeOfComparison==2 && i>=numFiles/2) style = 33;
     if (TypeOfComparison==3 && i>=numFiles/2) style = 33;
     if (TypeOfComparison==1) style = 33;
@@ -3105,6 +3216,10 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=5, Int_t multDef = 5 /*on
       if (RunVar==94 || RunVar==95) histo[i]->GetYaxis()->SetTitleOffset(2.15);
       if (RunVar==98) histo[i]->GetYaxis()->SetTitleOffset(2.1);
       if (RunVar==99) histo[i]->GetYaxis()->SetTitleOffset(1.5);
+    }
+    if ( RunVar==101 || RunVar == 102 || RunVar==103)  {
+      StyleHistoYield(histo[i], Low, Up, color[i+1], MarkerMult[i], titleX, titleY, title, MarkerSize[i], 1.2, 1.5);
+      if ((RunVar==101 || RunVar == 102 || RunVar==103) && i==0) histo[i]->SetMarkerStyle(20);
     }
     if (RunVar==19)  {
       histo[i]->GetYaxis()->SetTitleSize(0.06);
@@ -3451,8 +3566,34 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=5, Int_t multDef = 5 /*on
       if (i<numFiles/2)      LegendName[i] = "Default spectrum " +  SmoltBis[numEff];
       else     LegendName[i] = "V0Default " +  SmoltBis[numEff];
     }
+    else if (RunVar==101 || RunVar == 102 || RunVar==103){
+      if (i==0) {
+	LegendName[i] = "Data";
+	if (RunVar==101) LegendName[i] += " #LTd#it{N}/d#eta#GT = 24.04";
+	else 	if (RunVar==102) LegendName[i] += " #LTd#it{N}/d#eta#GT = 18.93";
+	else 	if (RunVar==103) LegendName[i] += " #LTd#it{N}/d#eta#GT = 14.80";
+      }
+      else if (i==1)  {
+	LegendName[i] = "Pythia Monash";
+	if (RunVar==101) LegendName[i] += " #LTd#it{N}/d#eta#GT = 24.84";
+	else 	if (RunVar==102) LegendName[i] += " #LTd#it{N}/d#eta#GT = 19.12";
+	else 	if (RunVar==103) LegendName[i] += " #LTd#it{N}/d#eta#GT = 15.11";
+      }
+      else if (i==2){
+	LegendName[i] = "Pythia Ropes";
+	if (RunVar==101) LegendName[i] += " #LTd#it{N}/d#eta#GT = 25.01";
+	else 	if (RunVar==102) LegendName[i] += " #LTd#it{N}/d#eta#GT = 19.22";
+	else 	if (RunVar==103) LegendName[i] += " #LTd#it{N}/d#eta#GT = 15.23";
+      }
+      else if (i==3) {
+	LegendName[i] = "EPOS LHC";
+	if (RunVar==101) LegendName[i] += " #LTd#it{N}/d#eta#GT = 24.55";
+	else 	if (RunVar==102) LegendName[i] += " #LTd#it{N}/d#eta#GT = 18.29";
+	else 	if (RunVar==103) LegendName[i] += " #LTd#it{N}/d#eta#GT = 14.26";
+      }
+    }
 
-    legend->AddEntry(histo[i], LegendName[i], "pl");
+    if (!(i==4 && (RunVar==101 || RunVar==102 || RunVar==103)))  legend->AddEntry(histo[i], LegendName[i], "pl");
     //    cout << " n bins " <<     histo[i]->GetNbinsX() << endl;
     pol1[i] = new TF1(Form("pol1_%i", i), "pol1", 0,30);
     if (RunVar==22 || RunVar==23){
@@ -3461,20 +3602,8 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=5, Int_t multDef = 5 /*on
       }
     }
 
-    if (TypeOfComparison==3){
-      if (i<numFiles/2){
-	//	if (Smolt[numEff] == "_10-30"|| Smolt[numEff] == "__all" || Smolt[numEff] == "_30-50" )     histo[i]->Draw("same");
-	//	if (Smolt[numEff] == "_10-30"|| Smolt[numEff] == "__all" )     histo[i]->Draw("same");
-	//	if (Smolt[numEff] == "_50-100" || Smolt[numEff] == "_30-50"  )     histo[i]->Draw("same");
-      }
-      else {
-	//	if (Smolt[numEff] == "_5-10"|| Smolt[numEff] == "__all" || Smolt[numEff] == "_10-30" )     histo[i]->Draw("same");
-	//	if (Smolt[numEff] == "_50-100" || Smolt[numEff] == "_30-50" || Smolt[numEff] == "_10-30")     histo[i]->Draw("same");
-      }
-      histo[i]->Draw("same ep");
-    }
-    else {
-      if (RunVar!=44) histo[i]->Draw("same pe");
+    if (RunVar!=44) {
+      if (!(i==4 && (RunVar==101 || RunVar==102 || RunVar==103)))      histo[i]->Draw("same pe");
     }
 
     if ((RunVar==15 && AnalysisType!=0) || RunVar==47 || RunVar==52 || RunVar==55 || RunVar==63 || RunVar==86 || RunVar==88) {
@@ -3585,6 +3714,9 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=5, Int_t multDef = 5 /*on
 	  ErrRatioCorr(histo[i], histo[0], histoRatio[i], 1); //full corr
 	  CorrelationBtwHistos = 1;
 	}
+	else if (RunVar==101 || RunVar == 102 || RunVar==103){
+	  CorrelationBtwHistos = 2;
+	}
 	else if (RunVar!=15 && RunVar!=30 && RunVar!=31 && RunVar!=41 &&RunVar!=58) {
 	  ErrRatioCorr(histo[i], histo[0], histoRatio[i], 0); //partial corr
 	  CorrelationBtwHistos = 2;
@@ -3595,7 +3727,52 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=5, Int_t multDef = 5 /*on
 	  //cout << "denom " << histo[0]->GetBinContent(b) << " +- " <<  histo[0]->GetBinError(b)<< " (" <<histo[0]->GetBinError(b)/histo[0]->GetBinContent(b)  << ")" << endl;
 	  //cout << "ratio " <<histoRatio[i]->GetBinContent(b) << " +- " <<  histoRatio[i]->GetBinError(b)<<endl;
 	}
+      }
+    }
 
+    TGraphAsymmErrors* ghistoRatioDATA;
+    if (RunVar==101 || RunVar==102 || RunVar==103){
+      Int_t NPointsFixed=0;
+      for (Int_t b=0; b<histoRatio[i]->GetNbinsX(); b++){
+	if (histoRatio[i]->GetBinContent(b+1)!=0)    NPointsFixed++;
+      }
+      Int_t NPoints=0;
+      Float_t Pt[NPointsFixed+2] = {0};
+      Float_t ErrRatio[NPointsFixed+2] = {0};
+      Float_t Ratio[NPointsFixed+2] = {0};
+      Float_t LowLimitPt = 0;
+      if (i==4){
+	for (Int_t b=0; b<histoRatio[i]->GetNbinsX(); b++){
+	  /*
+	  cout << "\n" << histo[i]->GetBinContent(b+1) << "+- " << histo[i]->GetBinError(b+1) << endl;
+	  cout << histoRatio[i]->GetBinContent(b+1) << "+- " << histoRatio[i]->GetBinError(b+1) << endl;
+	  */
+	  if (histoRatio[i]->GetBinContent(b+1)!=0) {
+	    NPoints++;
+	    if (NPoints==1) LowLimitPt = histoRatio[i]->GetXaxis()->GetBinLowEdge(b+1);
+	    Pt[NPoints] = histoRatio[i]->GetBinCenter(b+1);
+	    Ratio[NPoints] = 1;
+	    ErrRatio[NPoints] = histo[i]->GetBinError(b+1)/histo[i]->GetBinContent(b+1);
+	    //cout <<NPoints << " " <<   Pt[NPoints] << ": " << Ratio[NPoints] << "+-" <<  ErrRatio[NPoints]<< endl;
+	  }
+	}
+	//add initial and final points for plotting purposes
+	Pt[NPointsFixed+1] =  8;
+	Ratio[NPointsFixed+1] = 1;
+	ErrRatio[NPointsFixed+1] = ErrRatio[NPointsFixed];
+	Pt[0] =  LowLimitPt;
+	Ratio[0] = 1;
+	ErrRatio[0] = ErrRatio[1];
+	
+	for (Int_t b=0; b<= NPointsFixed+1; b++){
+	  //cout << " b " << b << endl;
+	  //cout <<  Pt[b] << ": " << Ratio[b] << "+-" <<  ErrRatio[b]<< endl;  
+	}
+	ghistoRatioDATA = new TGraphAsymmErrors(NPoints+2, Pt, Ratio, 0, 0, ErrRatio, ErrRatio);
+	ghistoRatioDATA->SetName("SystError");
+	StyleTGraphErrors(ghistoRatioDATA,color[1], 1, 1, 1);
+	ghistoRatioDATA->SetFillColorAlpha(color[1],0.3);
+	//      if (i==4) ghistoRatioDATA->Draw("same 3");
       }
     }
 
@@ -3621,7 +3798,10 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=5, Int_t multDef = 5 /*on
     }
 
     StyleHistoYield(histoRatio[i], LowRatio, UpRatio, color[numEff-numDef], style, titleX, "Ratio", titleRatio, msize, 1.2, 1.4);
-    if (RunVar==19 || (RunVar>=93 && RunVar<=99) )     StyleHistoYield(histoRatio[i], LowRatio, UpRatio, color[numEff-numDef], MarkerMult[i], titleX, "Ratio to 0-100%", titleRatio, MarkerSize[i], 1.2, 1.6);
+    if (RunVar==19 || (RunVar>=93 && RunVar<=99))     StyleHistoYield(histoRatio[i], LowRatio, UpRatio, color[numEff-numDef], MarkerMult[i], titleX, "Ratio to 0-100%", titleRatio, MarkerSize[i], 1.2, 1.6);
+    if (RunVar==101 || RunVar == 102 || RunVar==103) {
+      StyleHistoYield(histoRatio[i], LowRatio, UpRatio, color[i+1], MarkerMult[i], titleX, "Model / data", titleRatio, MarkerSize[i], 1.2, 1.6);
+    }
 
     //    if (histoName.Index("Generated")!=-1 && RunVar==64){
     if (RunVar==64){
@@ -3633,14 +3813,22 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=5, Int_t multDef = 5 /*on
 	if (numEff==4) { histo[i]->SetBinContent( histo[i]->FindBin(1.25), 0);  histo[i]->SetBinError( histo[i]->FindBin(1.25), 0);}
       }
     }
-    if (RunVar==19 || (RunVar>=93 && RunVar<=95) || RunVar==98){
+    if (RunVar==19 || (RunVar>=93 && RunVar<=95) || RunVar==98 || (RunVar>=101 && RunVar<=103)){
       if (type==0){
 	histo[i]->GetXaxis()->SetRangeUser(0.1,8);
 	histoRatio[i]->GetXaxis()->SetRangeUser(0.1,8);
+	if (AnalysisType==0) {
+	histo[i]->GetXaxis()->SetRangeUser(0.5,8);
+	histoRatio[i]->GetXaxis()->SetRangeUser(0.5,8);
+	}
       }
       else  {
 	histo[i]->GetXaxis()->SetRangeUser(0.5,8);
 	histoRatio[i]->GetXaxis()->SetRangeUser(0.5,8);
+	if (AnalysisType==0) {
+	histo[i]->GetXaxis()->SetRangeUser(1.5,8);
+	histoRatio[i]->GetXaxis()->SetRangeUser(1.5,8);
+	}
       }
     }
     if (RunVar==96){
@@ -3672,9 +3860,10 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=5, Int_t multDef = 5 /*on
     }
     else {
       if (i!=0){
-	histoRatio[i]->Draw("same pe");
+	if (!(i==4 && (RunVar==101 || RunVar==102 ||RunVar==103)))	histoRatio[i]->Draw("same pe");
 	//	Legend1BisRatio->Draw("same");
 	Legend1->Draw("same");
+	if (i==4 && (RunVar==101 || RunVar==102 ||RunVar==103)) ghistoRatioDATA->Draw("same 3");
       }
       if (i!=0 && (RunVar==10 || RunVar==13 || RunVar==15 || RunVar==19 || RunVar==78 || RunVar==30 || RunVar==31 || RunVar==41 || RunVar==45 || RunVar==81 || RunVar==86 || RunVar==88)) pol0At1->Draw("same");
     }
@@ -3688,7 +3877,7 @@ void MacroRatioHistos(Int_t RunVar=4, Int_t multChosen=5, Int_t multDef = 5 /*on
       }
     }
 
-    if (RunVar>=93 && RunVar<=99){
+    if (RunVar>=93 && RunVar<=99 || RunVar==101 || RunVar == 102 || RunVar==103){
       canvasNR->cd();
       gPad->SetLeftMargin(0.2);
       gPad->SetTopMargin(0.02);
