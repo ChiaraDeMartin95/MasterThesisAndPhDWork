@@ -16,10 +16,11 @@
 #include <TLatex.h>
 #include <TFile.h>
 #include <TLegend.h>
+#include <TLegendEntry.h>
 #include "Macros/constants.h"
 
-TString Smolt[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "_all"};
-Double_t Nmolt[nummolt+1]={0,5,10,30,50,100};
+TString SmoltMaster[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "_all"};
+Double_t NmoltMaster[nummolt+1]={0,5,10,30,50,100};
 
 void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, TString titleX, TString titleY, TString title, Bool_t XRange, Float_t XLow, Float_t XUp, Float_t xOffset, Float_t yOffset, Float_t mSize){
   histo->GetYaxis()->SetRangeUser(Low, Up);
@@ -39,7 +40,10 @@ void StyleHisto(TH1F *histo, Float_t Low, Float_t Up, Int_t color, Int_t style, 
   histo->SetTitle(title);
 }
 
-void PlotProjectionThesis(Int_t type=1, Int_t multChosen = 5, Int_t ptchosen = 2, Int_t isProj=0, Int_t DataSample=0, Bool_t isMERatio=1){ 
+void PlotProjectionThesis(Int_t TypeAnalysisFit = 0, Int_t type=1, Int_t multChosen = 0, Int_t ptchosen = 2, Int_t isProj=2, Int_t DataSample=0, Bool_t isMERatio=0){ 
+
+  TString Smolt[nummolt+1]={"0-5", "5-10", "10-30", "30-50", "50-100", "_all"};
+  Double_t Nmolt[nummolt+1]={0,5,10,30,50,100};
 
   //type = 0 for K0s, 1 for Xi
 
@@ -143,8 +147,8 @@ void PlotProjectionThesis(Int_t type=1, Int_t multChosen = 5, Int_t ptchosen = 2
   }
   else if (DataSample==1) {
     if (type==0){
-      SInitial = "";
-      SFinal = "";
+      SInitial = "FinalOutput/DATA2016/PtSpectraNew_AllhK0sHM_RedNo16k_PtBinning1_K0s_Eta0.8_AllAssoc_SysPhi0_PtMin3.0";
+      SFinal = "_MultBinning1_EffCorr_isWingsCorrectionAppliedNew.root";
     }
     else if (type==1){
       SInitial = "FinalOutput/DATA2016/PtSpectraNew_161718_HM_hXi_WithFlat16k_No18p_Xi_Eta0.8_AllAssoc_SysPhi0_PtMin3.0";
@@ -158,6 +162,10 @@ void PlotProjectionThesis(Int_t type=1, Int_t multChosen = 5, Int_t ptchosen = 2
   TFile *inputFileSystFull = new TFile(SinputFileSistFull, "");
   TFile *inputFileSystBulk = new TFile(SinputFileSistBulk, "");
   TFile *inputFileSystJet = new TFile(SinputFileSistJet, "");
+  cout << "Input file PtSpectra: " << endl;
+  cout << inputFileSystFull <<endl;
+  cout << inputFileSystBulk <<endl;
+  cout << inputFileSystJet <<endl;
   if (!inputFileSystFull) {cout << "Input file for syst errors FULL. File name: " << SinputFileSistFull << endl; return;}
   if (!inputFileSystBulk) {cout << "Input file for syst errors FULL. File name: " << SinputFileSistBulk << endl; return;}
   if (!inputFileSystJet) {cout << "Input file for syst errors FULL. File name: " << SinputFileSistJet << endl; return;}
@@ -1045,13 +1053,267 @@ void PlotProjectionThesis(Int_t type=1, Int_t multChosen = 5, Int_t ptchosen = 2
 
   canvasTriggEff->SaveAs("Canvas_triggEff.pdf");
 
+  //Canvas with spectrum + fit 
+  TString Region[3] = {"Jet", "Bulk", "Inclusive"};
+  TString SfileFit = "";
+  if (type==0){
+    SfileFit = "FinalOutput/DATA2016/PtSpectraBisNew_PtBinning1_1617_AOD234_hK0s_K0s_Eta0.8_AllAssoc_PtMin3.0_";
+    SfileFit += Region[TypeAnalysisFit];
+    SfileFit += "_isNormCorrFullyComputed_isErrorAssumedPtCorr_ChangesIncluded_isdNdEtaTriggered_EffCorr_isWingsCorrectionAppliedNew_MatBudgetCorr.root";
+    if (DataSample==1){
+      SfileFit = "FinalOutput/DATA2016/PtSpectraBisNew_pp13TeVHM_PtBinning1_AllhK0sHM_RedNo16k_K0s_Eta0.8_AllAssoc_PtMin3.0_";
+      SfileFit += Region[TypeAnalysisFit];
+      SfileFit += "_isNormCorrFullyComputed_isErrorAssumedPtCorr_ChangesIncluded_isdNdEtaTriggered_MultBinning1_EffCorr_isWingsCorrectionAppliedNew_MatBudgetCorrFAST.root";
+    }
+  }
+  else {
+    SfileFit = "FinalOutput/DATA2016/PtSpectraBisNew_161718Full_AOD234_hXi_Xi_Eta0.8_AllAssoc_PtMin3.0_";
+    SfileFit += Region[TypeAnalysisFit];
+    SfileFit += "_isNormCorrFullyComputed_isErrorAssumedPtCorr_ChangesIncluded_isdNdEtaTriggered_MatBudgetCorrFAST.root";
+  }
+  TFile * fileFit = new TFile(SfileFit, "");
+  if (!fileFit) {cout << "file " << SfileFit << " does not exist " << endl; return;}
+
+  TH1F* hSpectrum = (TH1F*)fileFit->Get("fHistSpectrum_"+ Smolt[multChosen]);
+  if (!hSpectrum) {cout << "hSpectrum does not exist " << endl; return;}
+  TString  titleY=  "1/(#Delta#it{#eta} #Delta#it{#varphi}) 1/#it{N}_{trigg} d#it{N}/d#it{p}_{T} [(GeV/#it{c})^{-1}]";
+  Float_t LimSupSpectrum = 1;
+  if (type==1){
+    if (TypeAnalysisFit==0) LimSupSpectrum = 0.00055;
+    else LimSupSpectrum = 0.0055;
+  }
+  else if (type==0){
+    if (TypeAnalysisFit==0) LimSupSpectrum = 0.025;
+    else LimSupSpectrum = 0.2;
+    if (DataSample==1){
+      if (TypeAnalysisFit==0) LimSupSpectrum = 0.025-10e-4;
+      else LimSupSpectrum = 0.35-10e-4;
+    }
+  }
+  StyleHisto(hSpectrum, 0, LimSupSpectrum,  color[TypeAnalysisFit], 33,  "#it{p}_{T} (GeV/#it{c})",  titleY, "", 0,  0,  0, 1.15, 2, 2);
+  hSpectrum->GetYaxis()->SetRangeUser(0, LimSupSpectrum);
+  TCanvas * canvasFit = new TCanvas("canvasFit", "canvasFit", 1000, 1200); //only one pad
+  canvasFit->SetFillColor(0);
+  canvasFit->SetTickx(1);
+  canvasFit->SetTicky(1);
+  gStyle->SetLegendBorderSize(0);
+  gStyle->SetLegendFillColor(0);
+  gStyle->SetLegendFont(42);
+  canvasFit->cd();
+  gPad->SetLeftMargin(0.22);
+  gPad->SetTopMargin(0.05);
+  gPad->SetRightMargin(0.05);
+  gPad->SetBottomMargin(0.15);
+  hSpectrum->DrawClone("same");
+
+  if (type==1)   multChosen = 5; 
+  else {
+    multChosen = 2;
+    Smolt[multChosen] = "0-0.01";
+  }
+  TF1* fitSpectrum[4];
+  TLegend *legendFit = new TLegend(0.58,0.47,0.87,0.60);
+  legendFit->SetFillStyle(0);
+  //  legendFit->SetTextAlign(32);
+  legendFit->SetTextSize(0.034);
+  TString nameFit[4] = {"m_{T}-scaling", "Boltzmann", "Fermi-Dirac", "Levi-Tsallis"};
+  for (Int_t fittype=0; fittype < 4; fittype++){
+    fitSpectrum[fittype] = (TF1*)fileFit->Get(Form("fitMTscaling_m%i_fit%i", multChosen, fittype));
+    if (!fitSpectrum[fittype]) {cout << "fitSpectrum does not exist " << endl; return;}
+    fitSpectrum[fittype]->SetLineWidth(2.5);
+    fitSpectrum[fittype]->Draw("same");
+    legendFit->AddEntry(fitSpectrum[fittype], nameFit[fittype], "l");
+  }
+  legendFit->Draw("");
+
+  TString NameP[2] = {"h#minusK_{S}^{0}", "h#minus#Xi"};
+  TLegend *LegendForFit=new TLegend(0.11,0.79,0.73,0.92);
+  LegendForFit->SetFillStyle(0);
+  LegendForFit->SetTextAlign(12);
+  LegendForFit->SetTextSize(0.034);
+  LegendForFit->AddEntry("", "#bf{This work}", "");
+  LegendForFit->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
+  LegendForFit->AddEntry("", NameP[type]+ " correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
+  if (type==0)  LegendForFit->AddEntry("", "V0M Multiplicity Percentile "+ Smolt[multChosen]+"%", "");
+  else   LegendForFit->AddEntry("", "V0M Multiplicity Percentile 0-100%", "");
+  LegendForFit->Draw("");
+
+  TString sRegionBlack[3]={"#color[1]{Toward leading}","#color[1]{Transverse to leading}","#color[1]{Full}"};
+  TString sRegion1[3]={"|#Delta#it{#eta}| < 0.86, |#Delta#it{#varphi}| < 1.1", "0.86 < |#Delta#it{#eta}| < 1.2, 0.96 < #Delta#it{#varphi} <1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
+  TLegend *legendRegionBlack=new TLegend(0.24, 0.69, 0.34, 0.78);
+  TLegendEntry* lReAll1b;
+  TLegendEntry* lReAll2b;
+  lReAll1b = legendRegionBlack->AddEntry("", sRegionBlack[TypeAnalysisFit], "");
+  lReAll1b->SetTextSize(0.036);
+  lReAll1b->SetTextAlign(12);
+  lReAll2b = legendRegionBlack->AddEntry("", sRegion1[TypeAnalysisFit], "");
+  lReAll2b->SetTextSize(0.029);
+  lReAll2b->SetTextAlign(12);
+  legendRegionBlack->Draw("");
+
+  cout << "\e[35m\nPt Spectrum with fit\e[39m" << endl;
+  canvasFit->SaveAs("CanvasPtSpectraFit_"+year+"_"+Region[TypeAnalysisFit]+"_"+ Smolt[multChosen] + ".pdf");
+
+  cout << "Data vs MC comparison " << endl;
+  TLegend *LegendALICEDatavsMC=new TLegend(0.3,0.55,0.5,0.75);
+  LegendALICEDatavsMC->SetFillStyle(0);
+  LegendALICEDatavsMC->SetTextAlign(12); //left align
+  LegendALICEDatavsMC->SetTextSize(0.045);
+  LegendALICEDatavsMC->SetBorderSize(0);
+  LegendALICEDatavsMC->AddEntry("", "#bf{This work}", "");
+  LegendALICEDatavsMC->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
+  if (type==0)  LegendALICEDatavsMC->AddEntry("", "h-K_{S}^{0} correlations", "");
+  else  if (type==1)  LegendALICEDatavsMC->AddEntry("", "h-#Xi^{#pm} correlations", "");
+  LegendALICEDatavsMC->AddEntry("", "Toward-leading", "");
+
+  TLegend *LegendDataandMC=new TLegend(0.3,0.55,0.5,0.75);
+  LegendDataandMC->SetFillStyle(0);
+  LegendDataandMC->SetTextAlign(12); //left align
+  LegendDataandMC->SetTextSize(0.045);
+  LegendDataandMC->SetBorderSize(0);
+
+  //DATA vs MC comparison of jet dphi projections
+  TCanvas* canvasDatavsMCProjections = new TCanvas("canvasDatavsMCProjections", "canvasDatavsMCProjections", 1500, 600);
+  canvasDatavsMCProjections->Divide(3, 1);
+  canvasDatavsMCProjections->SetFillColor(0);
+  canvasDatavsMCProjections->SetTickx(1);
+  canvasDatavsMCProjections->SetTicky(1);
+  gStyle->SetOptStat(0);
+  gStyle->SetLegendBorderSize(0);
+  gStyle->SetLegendFillColor(0);
+  gStyle->SetLegendFont(42);
+  gStyle->SetPalette(55, 0); //55
+
+  Int_t ColorDataorMC[4]= {801,628, 867, 601};
+  Int_t MarkerDataorMC[4] = {21, 33, 34, 29};
+  Float_t MarkerSize[4] ={1.2, 1.6, 1.6, 1.6};
+  TString  SDataorMC[4] = {"Data", "Pythia Monash", "Pythia Ropes", "EPOS LHC"};
+  TString SinputFileDorMC= "";
+  TFile * inputFileDorMC[4];
+  TString SLegendDataandMC[4] = {"Data #LTd#it{N}/d#eta#GT = 18.93", "Pythia Monash #LTd#it{N}/d#eta#GT = 19.12", "Pythia Ropes #LTd#it{N}/d#eta#GT = 19.22", "EPOS LHC #LTd#it{N}/d#eta#GT = 18.29"};
+
+  LowLimitJet = -0.002;
+  if (type==1) LowLimitJet = -0.0002;
+  for (Int_t DataorMC = 0; DataorMC < 4; DataorMC++){
+    cout << "Data or MC: " << DataorMC << endl;
+    for (Int_t v=0; v<3; v++){
+      if (DataorMC==0) {
+	SinputFileDorMC = stringInput;
+	Smolt[multChosen] = "5-10";
+      }
+      else {
+	Smolt[multChosen] = "63-72";
+	SinputFileDorMC = "FinalOutput/DATA2016/histo/AngularCorrelation";
+	if (DataorMC==1) {
+	  SinputFileDorMC += "PythiaMonash";
+	  if (type==1)  SinputFileDorMC += "_IncreasedStatXi";
+	}
+	else if (DataorMC==2) {
+	  SinputFileDorMC += "PythiaRopes";
+	  if (type==1)  SinputFileDorMC += "_IncreasedStatXi";
+	}
+	else if (DataorMC==3) {
+	  SinputFileDorMC += "EPOSLHC";
+	  if (type==0) SinputFileDorMC += "_3BEvForhK0s";
+	  else SinputFileDorMC += "_7BEvForhXi";
+	}
+	SinputFileDorMC += "_MCTruth";
+	if (type==0) SinputFileDorMC += "_PtBinning1_K0s";
+	else SinputFileDorMC += "_Xi";
+	SinputFileDorMC += "_Eta0.8_AllAssoc_SysT0_SysV00_Sys0_PtMin3.0_Output";
+	if (type==0) SinputFileDorMC += "_IsMEFromCorrectCentrality";
+	if (DataorMC==3 && type==0) 	SinputFileDorMC +="_NewdEtaChoice3";
+	else 	SinputFileDorMC +="_NewdEtaChoice2";
+	SinputFileDorMC +="_MCPrediction_isWingsCorrectionApplied";
+	if (type==1) SinputFileDorMC +="New";
+	SinputFileDorMC +=".root";
+
+      }
+      inputFileDorMC[DataorMC] = new TFile(SinputFileDorMC, "");  
+      if (!inputFileDorMC[DataorMC]) {cout << "File : " << SinputFileDorMC << " does not exist " << endl; return;}
+      cout << "Input file: " << SinputFileDorMC << endl;
+      cout << Smolt[multChosen] << endl;
+      if (v==0) veff[v] = 3;
+      else if (v==1) {
+	if (type==0)	veff[v] = 4;
+	else 	veff[v] = 5;
+      }
+      else if (v==2) veff[v] = 7;
+
+      NameJetwBulk = "ME_m"+Smolt[multChosen]+"_v"+ SPtV0[veff[v]]+"_AC_phi_V0Sub_EffCorr_TrCorr";
+      NameBulk = "ME_m"+Smolt[multChosen]+"_v"+ SPtV0[veff[v]]+"_AC_phi_V0Sub_Bulk_EffCorr_TrCorr";
+      NameJet = "ME_m"+Smolt[multChosen]+"_v"+ SPtV0[veff[v]]+"_AC_phi_V0Sub_BulkSub_EffCorr_TrCorr";
+
+      if (type==1 && NPtV0[veff[v]] < 2.5 && DataorMC==0){
+	NameJet = "ME_m"+Smolt[multChosen]+"_v"+ SPtV0[veff[v]]+"_AC_phi_V0Sub_BulkSub_EffCorr_RebSmooth";
+      }
+
+      hProjJetwBulk[v] = (TH1F*)inputFileDorMC[DataorMC]->Get(NameJetwBulk);
+      hProjBulk[v] = (TH1F*)inputFileDorMC[DataorMC]->Get(NameBulk);
+      if (type==1 && NPtV0[veff[v]] < 2.5 && DataorMC==0){
+	hProjJet[v] = (TH1F*)inputFileJetXi->Get(NameJet);
+      }
+      else {
+	hProjJet[v] = (TH1F*)inputFileDorMC[DataorMC]->Get(NameJet);
+      }
+
+      if (!hProjJetwBulk[v]) {cout << "no hProjJetwBulk" << endl; return; }
+      if (!hProjBulk[v]) {cout << "no hProjBulk" << endl; return; }
+      if (!hProjJet[v]) {cout << "no hProjJet" << endl; return; }
+
+      hProjJetwBulk[v]->SetName(NameJetwBulk+SDataorMC[DataorMC]);
+      hProjBulk[v]->SetName(NameBulk+SDataorMC[DataorMC]);
+      hProjJet[v]->SetName(NameJet+SDataorMC[DataorMC]);
+
+      canvasDatavsMCProjections->cd(v+1);
+      gPad->SetLeftMargin(0.27);
+      gPad->SetRightMargin(0.02);
+
+      hProjJetwBulk[v]->Rebin(2);
+      hProjJetwBulk[v]->Scale(1./hProjJetwBulk[v]->GetXaxis()->GetBinWidth(1));
+      StyleHisto(hProjJetwBulk[v], LowLimitJet , 1.3* hProjJetwBulk[v]->GetMaximum(hProjJetwBulk[v]->GetMaximumBin()),  ColorDataorMC[DataorMC] , MarkerDataorMC[DataorMC],  "#Delta#varphi",  "#frac{1}{#it{N}_{trigg}} #frac{1}{#Delta#eta} #frac{d#it{N}_{assoc}}{d#Delta#varphi}", "", 0,  0,  0, 1,  2.5, MarkerSize[DataorMC]);
+      hProjJetwBulk[v]->GetYaxis()->SetTitleSize(0.05);  
+      hProjJetwBulk[v]->GetYaxis()->SetNdivisions(6);
+      //hProjJetwBulk[v]->DrawClone("same e");
+
+      hProjBulk[v]->Rebin(2);
+      hProjBulk[v]->Scale(1./hProjBulk[v]->GetXaxis()->GetBinWidth(1));
+      StyleHisto(hProjBulk[v], LowLimitJet, 1.3* hProjJetwBulk[v]->GetMaximum(hProjJetwBulk[v]->GetMaximumBin()),   ColorDataorMC[DataorMC] , MarkerDataorMC[DataorMC],  "#Delta#varphi",  "#frac{1}{#it{N}_{trigg}} #frac{1}{#Delta#eta} #frac{d#it{N}_{assoc}}{d#Delta#varphi}", "", 0,  0,  0, 1,  2.5, MarkerSize[DataorMC]);
+      hProjBulk[v]->GetYaxis()->SetTitleSize(0.05);  
+      hProjBulk[v]->GetYaxis()->SetNdivisions(6);
+      //hProjBulk[v]->DrawClone("same e");
+
+      hProjJet[v]->Scale(1./hProjJet[v]->GetXaxis()->GetBinWidth(1));
+      StyleHisto(hProjJet[v], LowLimitJet, 1.3* hProjJetwBulk[v]->GetMaximum(hProjJetwBulk[v]->GetMaximumBin()),  ColorDataorMC[DataorMC] , MarkerDataorMC[DataorMC],  "#Delta#varphi",  "#frac{1}{#it{N}_{trigg}} #frac{1}{#Delta#eta} #frac{d#it{N}_{assoc}}{d#Delta#varphi}", "", 0,  0,  0, 1,  2.5, MarkerSize[DataorMC]);
+      hProjJet[v]->GetYaxis()->SetTitleSize(0.05);  
+      hProjJet[v]->GetYaxis()->SetNdivisions(6);
+      hProjJet[v]->DrawClone("same e");
+
+      if (v==0)  LegendDataandMC->AddEntry(hProjJet[v], SLegendDataandMC[DataorMC], "pl");
+
+      TLegend *LegendPt = new TLegend(0.3, 0.75, 0.5, 0.87);
+      LegendPt->AddEntry("", Form("%.1f < #it{p}_{T}^{assoc} < %.1f GeV/#it{c}", NPtV0[veff[v]],  NPtV0[veff[v]+1]), "");
+      LegendPt->SetTextSize(0.05);
+      LegendPt -> Draw("same");
+      if (v==0)   LegendALICEDatavsMC->Draw("same");
+      else if (v==1 && DataorMC==3) LegendDataandMC->Draw("same");
+    }
+  }
+ 
+  TString ScanvasDatavsMCProjections = "";
+  ScanvasDatavsMCProjections = "Canvas"+year+"_dPhi_DatavsMC.pdf";
+  cout <<"\n\e[35mJet dPhi projections (before and after ooj subtraction) \e[39m" << endl;
+  canvasDatavsMCProjections->SaveAs(ScanvasDatavsMCProjections);
+
   TFile * outputf = new TFile("outputf.root", "RECREATE");
   canvasThreePads->Write();
   canvasProjections->Write();
   canvasJetProjections->Write();
+  canvasDatavsMCProjections->Write();
   if (type==1)  canvasXiJetProjections->Write();
   canvasProjectionsSyst->Write();
   canvasMERatios->Write();
+  canvasFit->Write();
   outputf->Close();
 
   cout << "\nPartendo dai file \n" << stringInput << endl;
