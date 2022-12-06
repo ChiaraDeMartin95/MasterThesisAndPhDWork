@@ -78,8 +78,8 @@ TString sRegion[3]={"#color[634]{Toward leading}","#color[418]{Transverse to lea
 //TString sRegionBlack[3]={"#color[1]{Near#minusside jet}","#color[1]{Out#minusof#minusjet}","#color[1]{Full}"};
 TString sRegionBlack[3]={"#color[1]{Toward leading}","#color[1]{Transverse to leading}","#color[1]{Full}"};
 //TString sRegion1[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 1.09", "0.75 < |#Delta#it{#eta}| < 1.2, 0.85 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
-//TString sRegion1[3]={"|#Delta#it{#eta}| < 0.86, |#Delta#it{#varphi}| < 1.1", "0.86 < |#Delta#it{#eta}| < 1.2, 0.96 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
-TString sRegion1[3]={"|#Delta#it{#eta}| < 0.86, |#Delta#it{#varphi}| < 1.1", "0.86 < |#Delta#it{#eta}| < 1.2, 1.1 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
+TString sRegion1[3]={"|#Delta#it{#eta}| < 0.86, |#Delta#it{#varphi}| < 1.1", "0.86 < |#Delta#it{#eta}| < 1.2, 0.96 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
+//TString sRegion1[3]={"|#Delta#it{#eta}| < 0.86, |#Delta#it{#varphi}| < 1.1", "0.86 < |#Delta#it{#eta}| < 1.2, 1.1 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
 
 TString titleYToOOJ = "Toward / Transverse";
 TString titleYMCToData = "Model / Data";
@@ -139,7 +139,10 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
   Int_t ColorDiffMCRopes[numRegions][numColls] = {{634,628}, {418,829} , {601, 867}};
   //  Int_t ColorDiffMC[numRegions][numColls] = {{907, 907}, {812,812} , {870, 870}};
   //  Int_t ColorDiffMCRopes[numRegions][numColls] = {{807, 907}, {411,812} , {598, 870}};
-  Int_t LineStyle[numDataorMC] = {1, 8, 1, 3};
+  //  Int_t LineStyle[numDataorMC] = {1, 8, 1, 3}; //TEST
+  Int_t LineStyle[numDataorMC] = {1, 1, 8, 3};
+  Float_t AlphaColor[numDataorMC] = {1, 0.9, 0.5, 1};
+  Float_t FillStyle[numDataorMC] = {1, 1001, 1001, 3001}; //3001
 
   //ChosenRegion == -1 //all regions (JET, OOJ, FULL) are plotted
   if (ChosenRegion>2) {cout << "Choose a valid region! " << endl; return;}
@@ -216,11 +219,16 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
   fitToRatioToOOJ->SetLineStyle(2);
   fitToRatioToOOJ->SetLineWidth(2);
 
+  TF1* fitPol0[numDataorMC];
+  TF1* fitPol1[numDataorMC];
+  TF1* fitPol2[numDataorMC];
+
   TH1F *histoYield[numRegions][numColls][numDataorMC];
   TH1F *histoYieldSist[numRegions][numColls][numDataorMC];
   TH1F *histoYieldRatio[numRegions][numColls][numDataorMC];
   TH1F *histoYieldRatioToOOJ[numColls][numDataorMC];
   TH1F *histoYieldRatioSistToOOJ[numColls][numDataorMC];
+  TH1F *histoYieldRatioStatSistToOOJ[numColls][numDataorMC];
   TH1F *hMCDataRatio[numRegions][numColls][numDataorMC];
   TSpline3 * splineY[numRegions][numColls][numDataorMC];
   TF1* fsplineY[numRegions][numColls][numDataorMC];
@@ -677,10 +685,27 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	  if (ireg==0){
 	    histoYieldRatioToOOJ[Coll][isMC]= (TH1F*)      histoYield[ireg][Coll][isMC]->Clone(Form("RatioToOOJ_Coll%i_MC%i",Coll, isMC));
 	    histoYieldRatioSistToOOJ[Coll][isMC]= (TH1F*)      histoYieldSist[ireg][Coll][isMC]->Clone(Form("RatioToOOJ_Coll%i_MC%i_Sist", Coll, isMC));
+	    histoYieldRatioStatSistToOOJ[Coll][isMC]= (TH1F*)      histoYieldSist[ireg][Coll][isMC]->Clone(Form("RatioToOOJ_Coll%i_MC%i_StatSist", Coll, isMC));
 	  }
 	  else if (ireg==1){
 	    histoYieldRatioToOOJ[Coll][isMC]->Divide(histoYield[ireg][Coll][isMC]);
 	    histoYieldRatioSistToOOJ[Coll][isMC]->Divide(histoYieldSist[ireg][Coll][isMC]);
+	    histoYieldRatioStatSistToOOJ[Coll][isMC]->Divide(histoYieldSist[ireg][Coll][isMC]);
+	    for (Int_t b=1; b<= histoYieldRatioStatSistToOOJ[Coll][isMC]->GetNbinsX(); b++){
+	      histoYieldRatioStatSistToOOJ[Coll][isMC]->SetBinError(b,  sqrt( pow(histoYieldRatioToOOJ[Coll][isMC]->GetBinError(b), 2) + pow(histoYieldRatioSistToOOJ[Coll][isMC]->GetBinError(b), 2)));
+	    }
+	    if (isMC > 0){
+	      fitPol2[isMC] = new TF1(Form("pol2_%i", isMC), "pol2", 0, 40);
+	      fitPol1[isMC] = new TF1(Form("pol1_%i", isMC), "pol1", 0, 40);
+	      fitPol0[isMC] = new TF1(Form("pol0_%i", isMC), "pol0", 0, 40);
+	      cout <<"\n\e[35m***pol0 fit for " << MCType[isMC] << "***\e[39m" << endl;
+	      histoYieldRatioStatSistToOOJ[Coll][isMC]->Fit(fitPol0[isMC]);
+	      //histoYieldRatioToOOJ[Coll][isMC]->Fit(fitPol0[isMC]);
+	      cout <<"\n\e[35m***pol1 fit for " << MCType[isMC]<< "***\e[39m" << endl;
+	      histoYieldRatioStatSistToOOJ[Coll][isMC]->Fit(fitPol1[isMC]);
+	      cout <<"\n\e[35m***pol2 fit for " << MCType[isMC]<< "***\e[39m" << endl;
+	      histoYieldRatioStatSistToOOJ[Coll][isMC]->Fit(fitPol2[isMC]);
+	    }
 	  }
 
 	  if (isMC==0) nummoltDataorMC = 8;
@@ -784,17 +809,41 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	  }
 	  ghistoYieldRed[ireg][Coll][isMC] = (TGraphAsymmErrors*) ghistoYieldGrey[ireg][Coll][isMC]->Clone(Form("ghistoYieldRed_ireg%i_Coll%i_isMC%i", ireg, Coll, isMC));
 	  ghistoYieldRed[ireg][Coll][isMC]->SetLineColor(ColorDiff[ireg][Coll]);
-	  if (isMC==1) ghistoYieldRed[ireg][Coll][isMC]->SetFillStyle(3001);
-	  else if (isMC==2) ghistoYieldRed[ireg][Coll][isMC]->SetFillStyle(3008);
-	  else ghistoYieldRed[ireg][Coll][isMC]->SetFillStyle(3002);
+	  if (isMC==1) {
+	    //ghistoYieldRed[ireg][Coll][isMC]->SetFillStyle(3001); //TEST
+	    ghistoYieldRed[ireg][Coll][isMC]->SetFillStyle(FillStyle[isMC]); 
+	    ghistoYieldRed[ireg][Coll][isMC]->SetFillColorAlpha(ColorDiff[ireg][Coll],AlphaColor[isMC]);
+	  }
+	  else if (isMC==2) {
+	    //ghistoYieldRed[ireg][Coll][isMC]->SetFillStyle(3008); //TEST
+	    ghistoYieldRed[ireg][Coll][isMC]->SetFillStyle(FillStyle[isMC]); 
+	    ghistoYieldRed[ireg][Coll][isMC]->SetFillColorAlpha(ColorDiff[ireg][Coll],AlphaColor[isMC]);
+	  }
+	  else {
+	    //ghistoYieldRed[ireg][Coll][isMC]->SetFillStyle(3002); //TEST
+	    ghistoYieldRed[ireg][Coll][isMC]->SetFillStyle(FillStyle[isMC]); 
+	    ghistoYieldRed[ireg][Coll][isMC]->SetFillColorAlpha(ColorDiff[ireg][Coll],AlphaColor[isMC]);
+	  }
 	  ghistoYieldRed[ireg][Coll][isMC]->SetLineStyle(1);
 	  ghistoYieldRed[ireg][Coll][isMC]->SetLineWidth(0);
 
 	  if (/*PlotType==0 ||*/ ChosenRegion==0){
 	    //if (PlotType==0 || ChosenRegion==0){
-	    if (isMC==1) ghistoYieldGrey[ireg][Coll][isMC]->SetFillStyle(3001);
-	    else if (isMC==2) ghistoYieldGrey[ireg][Coll][isMC]->SetFillStyle(3008);
-	    else ghistoYieldGrey[ireg][Coll][isMC]->SetFillStyle(3002);
+	    if (isMC==1) {
+	      //ghistoYieldGrey[ireg][Coll][isMC]->SetFillStyle(3001); //TEST
+	      ghistoYieldGrey[ireg][Coll][isMC]->SetFillStyle(FillStyle[isMC]); 
+	      ghistoYieldGrey[ireg][Coll][isMC]->SetFillColorAlpha(ColorDiff[ireg][Coll],AlphaColor[isMC]);
+	    }
+	    else if (isMC==2){
+	      //ghistoYieldGrey[ireg][Coll][isMC]->SetFillStyle(3008); //TEST
+	      ghistoYieldGrey[ireg][Coll][isMC]->SetFillStyle(FillStyle[isMC]); 
+	      ghistoYieldGrey[ireg][Coll][isMC]->SetFillColorAlpha(ColorDiff[ireg][Coll],AlphaColor[isMC]);
+	    }
+	    else {
+	      //ghistoYieldGrey[ireg][Coll][isMC]->SetFillStyle(3002); //TEST
+	      ghistoYieldGrey[ireg][Coll][isMC]->SetFillStyle(FillStyle[isMC]); 
+	      ghistoYieldGrey[ireg][Coll][isMC]->SetFillColorAlpha(ColorDiff[ireg][Coll],AlphaColor[isMC]);
+	    }
 	    ghistoYieldGrey[ireg][Coll][isMC]->SetLineWidth(0);
 	    legendMCTypes->AddEntry(ghistoYieldGrey[ireg][Coll][isMC], MCType[isMC], "f");
 	  }
@@ -896,9 +945,21 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	  if ((PlotType==0 && ireg==0) || ChosenRegion==0){
 	    //OPTION 1 
 	    ghistoYield[ireg][Coll][isMC]->SetFillColor(ColorDiff[ireg][Coll]);
-	    if (isMC==1)  ghistoYield[ireg][Coll][isMC]->SetFillStyle(3001);
-	    else if (isMC==2) ghistoYield[ireg][Coll][isMC]->SetFillStyle(3008); //NO: 3003
-	    else ghistoYield[ireg][Coll][isMC]->SetFillStyle(3002); 
+	    if (isMC==1) {
+	      // ghistoYield[ireg][Coll][isMC]->SetFillStyle(3001); //TEST
+	      ghistoYield[ireg][Coll][isMC]->SetFillStyle(FillStyle[isMC]);
+	      ghistoYield[ireg][Coll][isMC]->SetFillColorAlpha(ColorDiff[ireg][Coll],AlphaColor[isMC]);
+	    }
+	    else if (isMC==2) {
+	      //ghistoYield[ireg][Coll][isMC]->SetFillStyle(3008); //TEST
+	      ghistoYield[ireg][Coll][isMC]->SetFillStyle(FillStyle[isMC]);
+	      ghistoYield[ireg][Coll][isMC]->SetFillColorAlpha(ColorDiff[ireg][Coll],AlphaColor[isMC]);
+	    }
+	    else {
+	      //ghistoYield[ireg][Coll][isMC]->SetFillStyle(3002); //TEST
+	      ghistoYield[ireg][Coll][isMC]->SetFillStyle(FillStyle[isMC]); 
+	      ghistoYield[ireg][Coll][isMC]->SetFillColorAlpha(ColorDiff[ireg][Coll],AlphaColor[isMC]);
+	    }
 	    ghistoYield[ireg][Coll][isMC]->DrawClone("same 3");
 	    
 	    //OPTION 2 
@@ -1127,9 +1188,21 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 	  if (isMC ==1 || isMC==2 || isMC==3){
 	    if (ireg==0){
 	      ghistoYield[ireg][Coll][isMC]->SetFillColor(ColorDiff[ireg][Coll]);
-	      if (isMC==1)  ghistoYield[ireg][Coll][isMC]->SetFillStyle(3001);
-	      else if (isMC==2) ghistoYield[ireg][Coll][isMC]->SetFillStyle(3008); 
-	      else ghistoYield[ireg][Coll][isMC]->SetFillStyle(3002); 
+	      if (isMC==1){
+		// ghistoYield[ireg][Coll][isMC]->SetFillStyle(3001); //TEST
+		ghistoYield[ireg][Coll][isMC]->SetFillStyle(FillStyle[isMC]); 
+		ghistoYield[ireg][Coll][isMC]->SetFillColorAlpha(ColorDiff[ireg][Coll],AlphaColor[isMC]);
+	      }
+	      else if (isMC==2) {
+		//ghistoYield[ireg][Coll][isMC]->SetFillStyle(3008); //TEST
+		ghistoYield[ireg][Coll][isMC]->SetFillStyle(FillStyle[isMC]); 
+		ghistoYield[ireg][Coll][isMC]->SetFillColorAlpha(ColorDiff[ireg][Coll],AlphaColor[isMC]);
+	      }
+	      else {
+		//ghistoYield[ireg][Coll][isMC]->SetFillStyle(3002); //TEST
+		ghistoYield[ireg][Coll][isMC]->SetFillStyle(FillStyle[isMC]); 
+		ghistoYield[ireg][Coll][isMC]->SetFillColorAlpha(ColorDiff[ireg][Coll],AlphaColor[isMC]);
+	      }
 	      ghistoYield[ireg][Coll][isMC]->Draw("same 3");
 	    }
 	    else {
@@ -1228,9 +1301,21 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
 
 	if (isMC ==1 || isMC==2 || isMC==3){
 	    ghistoRatioToOOJ[Coll][isMC]->SetFillColor(ColorDiff[0][Coll]);
-	    if (isMC==1)  ghistoRatioToOOJ[Coll][isMC]->SetFillStyle(3001);
-	    else if (isMC==2) ghistoRatioToOOJ[Coll][isMC]->SetFillStyle(3008);
-	    else ghistoRatioToOOJ[Coll][isMC]->SetFillStyle(3002);
+	    if (isMC==1)  {
+	      //ghistoRatioToOOJ[Coll][isMC]->SetFillStyle(3001); //TEST
+	      ghistoRatioToOOJ[Coll][isMC]->SetFillStyle(FillStyle[isMC]); 
+	      ghistoRatioToOOJ[Coll][isMC]->SetFillColorAlpha(ColorDiff[0][Coll], AlphaColor[isMC]);
+	    }
+	    else if (isMC==2) {
+	      //ghistoRatioToOOJ[Coll][isMC]->SetFillStyle(3008);//TEST
+	      ghistoRatioToOOJ[Coll][isMC]->SetFillStyle(FillStyle[isMC]); 
+	      ghistoRatioToOOJ[Coll][isMC]->SetFillColorAlpha(ColorDiff[0][Coll],AlphaColor[isMC]);
+	    }
+	    else {
+	      //ghistoRatioToOOJ[Coll][isMC]->SetFillStyle(3002);//TEST
+	      ghistoRatioToOOJ[Coll][isMC]->SetFillStyle(FillStyle[isMC]); 
+	      ghistoRatioToOOJ[Coll][isMC]->SetFillColorAlpha(ColorDiff[0][Coll],AlphaColor[isMC]);
+	    }
 	    ghistoRatioToOOJ[Coll][isMC]->Draw("same 3");
 	    //	    ghistoRatioToOOJ[Coll][isMC]->Draw("same");
 	}
@@ -1297,4 +1382,14 @@ void CompareDatavsMC( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t Scali
     }
   }
   fileout->Close();
+
+  if (PlotType==0){    
+    for (Int_t isMC=0; isMC< numDataorMC; isMC++){
+      if (isMC==0) continue;
+      cout << "\n" << MCType[isMC];
+      cout <<":\npol2: " << fitPol2[isMC]->GetParameter(1) << " +- " << fitPol2[isMC]->GetParError(1) << " Chi2/NDF " <<  fitPol2[isMC]->GetChisquare()<<"/"<<fitPol2[isMC]->GetNDF() << " = " << fitPol2[isMC]->GetChisquare()/fitPol2[isMC]->GetNDF();
+      cout << "\npol1: " << fitPol1[isMC]->GetParameter(1) << " +- " << fitPol1[isMC]->GetParError(1) << " Chi2/NDF " << fitPol1[isMC]->GetChisquare()<<"/"<<fitPol1[isMC]->GetNDF() << " = " << fitPol1[isMC]->GetChisquare()/fitPol1[isMC]->GetNDF();
+      cout << "\npol0: " << fitPol0[isMC]->GetParameter(0) <<" +- " << fitPol0[isMC]->GetParError(0) << " Chi2/NDF " <<  fitPol0[isMC]->GetChisquare()<< "/" << fitPol0[isMC]->GetNDF()<< " = " << fitPol0[isMC]->GetChisquare()/fitPol0[isMC]->GetNDF() << endl;
+    }
+  }
 }
