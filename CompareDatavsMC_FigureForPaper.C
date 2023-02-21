@@ -257,9 +257,11 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
 
   TH1F *histoYield[numRegions][numColls][numDataorMC];
   TH1F *histoYieldSist[numRegions][numColls][numDataorMC];
+  TH1F *histoYieldSistMultUnCorr[numRegions][numColls][numDataorMC];
   TH1F *histoYieldRatio[numRegions][numColls][numDataorMC];
   TH1F *histoYieldRatioToOOJ[numColls][numDataorMC];
   TH1F *histoYieldRatioSistToOOJ[numColls][numDataorMC];
+  TH1F *histoYieldRatioSistMultUnCorrToOOJ[numColls][numDataorMC];
   TH1F *histoYieldRatioStatSistToOOJ[numColls][numDataorMC];
   TH1F *hMCDataRatio[numRegions][numColls][numDataorMC];
   TSpline3 * splineY[numRegions][numColls][numDataorMC];
@@ -271,10 +273,12 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
   Float_t YieldsErrors[numRegions][numColls][numDataorMC][nummoltMax];// = {0};
   Float_t YieldsErrorsStat[numRegions][numColls][numDataorMC][nummoltMax];// = {0};
   Float_t YieldsErrorsSist[numRegions][numColls][numDataorMC][nummoltMax];// = {0};
+  Float_t YieldsErrorsSistMultUnCorr[numRegions][numColls][numDataorMC][nummoltMax];// = {0};
   Float_t JetRatioToOOJ[numColls][numDataorMC][nummoltMax];// = {0};
   Float_t JetRatioToOOJErrors[numColls][numDataorMC][nummoltMax];// = {0};
   Float_t JetRatioToOOJErrorsStat[numColls][numDataorMC][nummoltMax];// = {0};
   Float_t JetRatioToOOJErrorsSist[numColls][numDataorMC][nummoltMax];// = {0};
+  Float_t JetRatioToOOJErrorsSistMultUnCorr[numColls][numDataorMC][nummoltMax];// = {0};
 
   Float_t YieldRatios[numRegions][numColls][numDataorMC][nummoltMax];// = {0};
   Float_t YieldRatiosErrors[numRegions][numColls][numDataorMC][nummoltMax];// = {0};
@@ -295,8 +299,10 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
   */
   TGraphAsymmErrors*	ghistoYield[numRegions][numColls][numDataorMC];
   TGraphAsymmErrors*	ghistoYieldSist[numRegions][numColls][numDataorMC];
+  TGraphAsymmErrors*	ghistoYieldSistMultUnCorr[numRegions][numColls][numDataorMC];
   TGraphAsymmErrors*	ghistoRatioToOOJ[numColls][numDataorMC];
   TGraphAsymmErrors*	ghistoSistRatioToOOJ[numColls][numDataorMC];
+  TGraphAsymmErrors*	ghistoSistMultUnCorrRatioToOOJ[numColls][numDataorMC];
   TGraphAsymmErrors*	ghistoYieldGrey[numRegions][numColls][numDataorMC];
   TGraphAsymmErrors*	ghistoYieldRed[numRegions][numColls][numDataorMC];
   TGraphAsymmErrors*	ghistoYieldRatio[numRegions][numColls][numDataorMC];
@@ -306,10 +312,12 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
   TH1F*  fHistYieldSistBlack;
   TH1F*  fHistYieldStatGrey[numColls];
 
-  TString NameHisto13TeV="histoYieldComparison";
-  TString NameHistoSist13TeV="histoYieldSistComparison";
-  TString NameHisto5TeV="fHistYield_pp5TeV";
-  TString NameHistoSist5TeV="fHistYield_pp5TeV_Sist";
+  TString NameHisto13TeV="";
+  TString NameHistoSist13TeV="";
+  TString NameHistoSistMultUnCorr13TeV="";
+  TString NameHisto5TeV="";
+  TString NameHistoSist5TeV="";
+  TString NameHistoSistMultUnCorr5TeV="";
   TString NameHistoFinal[numRegions][numColls][numDataorMC];
 
   TString MCType[NumberOfMCs+1]= {"Data", "PYTHIA8 Monash", "PYTHIA8 Ropes", "EPOS LHC"};
@@ -665,6 +673,7 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
 	  if (isdNdEtaTriggered)  pathin[isMC]+= "_isdNdEtaTriggered";
 	  if (isWingsCorrectionApplied && (PlotType==0 || PlotType==1 || PlotType==3)) pathin[isMC] += "_WingsCorrApplied";
 	  if (MaterialBudgetCorr) pathin[isMC] += "_MatBudgetCorrFAST";
+	  pathin[isMC] += "_MultCorrSistEval";
 	  pathin[isMC] += ".root";
 	}
 	else {
@@ -692,6 +701,8 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
 	  NameHisto5TeV = SPlotType[PlotType] + "_" + RegionType[ireg] + "_5TeV_Stat";
 	  NameHistoSist13TeV = SPlotType[PlotType] + "_" + RegionType[ireg] + "_13TeV_Sist";
 	  NameHistoSist5TeV = SPlotType[PlotType] + "_" + RegionType[ireg] + "_5TeV_Sist";
+	  NameHistoSistMultUnCorr13TeV = SPlotType[PlotType] + "_" + RegionType[ireg] + "_13TeV_SistMultUnCorr";
+	  NameHistoSistMultUnCorr5TeV = SPlotType[PlotType] + "_" + RegionType[ireg] + "_5TeV_SistMultUnCorr";
 	}
 	else {
 	  if (PlotType!=0){
@@ -722,12 +733,19 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
 	else histoYieldSist[ireg][Coll][isMC]= (TH1F*) filein->Get(NameHistoSist5TeV);
 	if (!histoYieldSist[ireg][Coll][isMC]) {cout <<"no histo " << endl; return;}
 
+	if (isMC==0){
+	  if (Coll==0)	histoYieldSistMultUnCorr[ireg][Coll][isMC]= (TH1F*) filein->Get(NameHistoSistMultUnCorr13TeV);
+	  else histoYieldSistMultUnCorr[ireg][Coll][isMC]= (TH1F*) filein->Get(NameHistoSistMultUnCorr5TeV);
+	  if (!histoYieldSistMultUnCorr[ireg][Coll][isMC]) {cout <<"no histo " << endl; return;}
+	}
+
 	cout << "Region: " << Region[ireg]<< endl;
 	if (Coll ==0 ) cout << "Got histos for  13 TeV (MB + HM) " << endl;
 	else  cout << "Got histos for 5 TeV " << endl;
 	for (Int_t b=1; b<=  histoYield[ireg][Coll][isMC]->GetNbinsX(); b++){
 	  if (histoYield[ireg][Coll][isMC]->GetBinContent(b) != 0)	 {
 	    cout << "dNdeta (central value of bin) " << histoYield[ireg][Coll][isMC]->GetBinCenter(b) << ": " << histoYield[ireg][Coll][isMC]->GetBinContent(b) << " +- " << histoYield[ireg][Coll][isMC]->GetBinError(b) << " (stat.) +-  " <<  histoYieldSist[ireg][Coll][isMC]->GetBinError(b) << " (syst.) " << endl;
+	    if (isMC==0) cout << " fraction of mult. uncorr. uncertainty: " << histoYieldSistMultUnCorr[ireg][Coll][isMC]->GetBinError(b)/histoYieldSist[ireg][Coll][isMC]->GetBinError(b) << endl;
 	  }
 	}
 
@@ -736,11 +754,13 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
 	  if (ireg==0){
 	    histoYieldRatioToOOJ[Coll][isMC]= (TH1F*)      histoYield[ireg][Coll][isMC]->Clone(Form("RatioToOOJ_Coll%i_MC%i",Coll, isMC));
 	    histoYieldRatioSistToOOJ[Coll][isMC]= (TH1F*)      histoYieldSist[ireg][Coll][isMC]->Clone(Form("RatioToOOJ_Coll%i_MC%i_Sist", Coll, isMC));
+	    if (isMC==0) histoYieldRatioSistMultUnCorrToOOJ[Coll][isMC]= (TH1F*)      histoYieldSistMultUnCorr[ireg][Coll][isMC]->Clone(Form("RatioToOOJ_Coll%i_MC%i_Sist", Coll, isMC));
 	    histoYieldRatioStatSistToOOJ[Coll][isMC]= (TH1F*)      histoYieldSist[ireg][Coll][isMC]->Clone(Form("RatioToOOJ_Coll%i_MC%i_StatSist", Coll, isMC));
 	  }
 	  else if (ireg==1){
 	    histoYieldRatioToOOJ[Coll][isMC]->Divide(histoYield[ireg][Coll][isMC]);
 	    histoYieldRatioSistToOOJ[Coll][isMC]->Divide(histoYieldSist[ireg][Coll][isMC]);
+	    if (isMC==0)   histoYieldRatioSistMultUnCorrToOOJ[Coll][isMC]->Divide(histoYieldSistMultUnCorr[ireg][Coll][isMC]);
 	    histoYieldRatioStatSistToOOJ[Coll][isMC]->Divide(histoYieldSist[ireg][Coll][isMC]);
 	    for (Int_t b=1; b<= histoYieldRatioStatSistToOOJ[Coll][isMC]->GetNbinsX(); b++){
 	      histoYieldRatioStatSistToOOJ[Coll][isMC]->SetBinError(b,  sqrt( pow(histoYieldRatioToOOJ[Coll][isMC]->GetBinError(b), 2) + pow(histoYieldRatioSistToOOJ[Coll][isMC]->GetBinError(b), 2)));
@@ -767,6 +787,7 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
 	    JetRatioToOOJErrors[Coll][isMC][m] = sqrt(pow(histoYieldRatioToOOJ[Coll][isMC]->GetBinError(histoYield[ireg][Coll][isMC]->FindBin(dNdEta[isMC][Coll][m])), 2) +  pow(histoYieldRatioSistToOOJ[Coll][isMC]->GetBinError(histoYield[ireg][Coll][isMC]->FindBin(dNdEta[isMC][Coll][m])),2));
 	    JetRatioToOOJErrorsStat[Coll][isMC][m] = histoYieldRatioToOOJ[Coll][isMC]->GetBinError(histoYield[ireg][Coll][isMC]->FindBin(dNdEta[isMC][Coll][m]));
 	    JetRatioToOOJErrorsSist[Coll][isMC][m] = histoYieldRatioSistToOOJ[Coll][isMC]->GetBinError(histoYieldSist[ireg][Coll][isMC]->FindBin(dNdEta[isMC][Coll][m]));
+	    if (isMC ==0) JetRatioToOOJErrorsSistMultUnCorr[Coll][isMC][m] = histoYieldRatioSistMultUnCorrToOOJ[Coll][isMC]->GetBinError(histoYieldSistMultUnCorr[ireg][Coll][isMC]->FindBin(dNdEta[isMC][Coll][m]));
 	  }
 
 	  if (isMC==0) 	ghistoRatioToOOJ[Coll][isMC] = new TGraphAsymmErrors(nummoltDataorMC,dNdEta[isMC][Coll],JetRatioToOOJ[Coll][isMC],0, 0 ,JetRatioToOOJErrorsStat[Coll][isMC], JetRatioToOOJErrorsStat[Coll][isMC]);
@@ -774,10 +795,14 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
 	  ghistoRatioToOOJ[Coll][isMC]->SetName(Form("ghistoRatioToOOJ_reg%i_Coll%i_isMC%i", ireg, Coll, isMC));
 	  ghistoSistRatioToOOJ[Coll][isMC] = new TGraphAsymmErrors(nummoltDataorMC,dNdEta[isMC][Coll],JetRatioToOOJ[Coll][isMC],dNdEtaErrorL[isMC][Coll],dNdEtaErrorR[isMC][Coll], JetRatioToOOJErrorsSist[Coll][isMC], JetRatioToOOJErrorsSist[Coll][isMC]);
 	  ghistoSistRatioToOOJ[Coll][isMC]->SetName(Form("ghistoSistRatioToOOJ_reg%i_Coll%i_isMC%i", ireg, Coll, isMC));
-
+	  if (isMC==0){
+	    ghistoSistMultUnCorrRatioToOOJ[Coll][isMC] = new TGraphAsymmErrors(nummoltDataorMC,dNdEta[isMC][Coll],JetRatioToOOJ[Coll][isMC],dNdEtaErrorL[isMC][Coll],dNdEtaErrorR[isMC][Coll], JetRatioToOOJErrorsSistMultUnCorr[Coll][isMC], JetRatioToOOJErrorsSistMultUnCorr[Coll][isMC]);
+	    ghistoSistMultUnCorrRatioToOOJ[Coll][isMC]->SetName(Form("ghistoSistMultUnCorrRatioToOOJ_reg%i_Coll%i_isMC%i", ireg, Coll, isMC));
+	  }
 	  if (isMC==0){
 	    StyleTGraphErrors(ghistoRatioToOOJ[Coll][isMC], ColorDiff[0][Coll], MarkerType[0][Coll], MarkerSize[0], LineStyle[isMC]);
 	    StyleTGraphErrors(ghistoSistRatioToOOJ[Coll][isMC], ColorDiff[0][Coll], MarkerType[0][Coll], MarkerSize[0], LineStyle[isMC]);
+	    StyleTGraphErrors(ghistoSistMultUnCorrRatioToOOJ[Coll][isMC], ColorDiff[0][Coll], MarkerType[0][Coll], MarkerSize[0], LineStyle[isMC]);
 	  }
 	  else 	StyleTGraphErrors(ghistoRatioToOOJ[Coll][isMC], ColorDiff[0][Coll], 1, 1, LineStyle[isMC]);
 	}
@@ -791,6 +816,7 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
 	  YieldsErrors[ireg][Coll][isMC][m] = sqrt(pow(histoYield[ireg][Coll][isMC]->GetBinError(histoYield[ireg][Coll][isMC]->FindBin(dNdEta[isMC][Coll][m])), 2) +  pow(histoYieldSist[ireg][Coll][isMC]->GetBinError(histoYield[ireg][Coll][isMC]->FindBin(dNdEta[isMC][Coll][m])),2));
 	  YieldsErrorsStat[ireg][Coll][isMC][m] = histoYield[ireg][Coll][isMC]->GetBinError(histoYield[ireg][Coll][isMC]->FindBin(dNdEta[isMC][Coll][m]));
 	  YieldsErrorsSist[ireg][Coll][isMC][m] = histoYieldSist[ireg][Coll][isMC]->GetBinError(histoYieldSist[ireg][Coll][isMC]->FindBin(dNdEta[isMC][Coll][m]));
+	  if (isMC==0) YieldsErrorsSistMultUnCorr[ireg][Coll][isMC][m] = histoYieldSistMultUnCorr[ireg][Coll][isMC]->GetBinError(histoYieldSistMultUnCorr[ireg][Coll][isMC]->FindBin(dNdEta[isMC][Coll][m]));
 	}
 	if (isMC==0) ghistoYield[ireg][Coll][isMC] = new TGraphAsymmErrors(nummoltDataorMC,dNdEta[isMC][Coll],Yields[ireg][Coll][isMC],0, 0,YieldsErrorsStat[ireg][Coll][isMC], YieldsErrorsStat[ireg][Coll][isMC]);
 	else ghistoYield[ireg][Coll][isMC] = new TGraphAsymmErrors(nummoltDataorMC,dNdEta[isMC][Coll],Yields[ireg][Coll][isMC],dNdEtaErrorL[isMC][Coll],dNdEtaErrorR[isMC][Coll],YieldsErrors[ireg][Coll][isMC], YieldsErrors[ireg][Coll][isMC]);
@@ -798,8 +824,11 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
 	ghistoYieldSist[ireg][Coll][isMC] = new TGraphAsymmErrors(nummoltDataorMC,dNdEta[isMC][Coll],Yields[ireg][Coll][isMC],dNdEtaErrorL[isMC][Coll],dNdEtaErrorR[isMC][Coll], YieldsErrorsSist[ireg][Coll][isMC], YieldsErrorsSist[ireg][Coll][isMC]);
 	ghistoYieldSist[ireg][Coll][isMC]->SetName(Form("ghistoYieldSist_reg%i_Coll%i_isMC%i", ireg, Coll, isMC));
 	if (isMC==0){
+	  ghistoYieldSistMultUnCorr[ireg][Coll][isMC] = new TGraphAsymmErrors(nummoltDataorMC,dNdEta[isMC][Coll],Yields[ireg][Coll][isMC],dNdEtaErrorL[isMC][Coll],dNdEtaErrorR[isMC][Coll], YieldsErrorsSistMultUnCorr[ireg][Coll][isMC], YieldsErrorsSistMultUnCorr[ireg][Coll][isMC]);
+	  ghistoYieldSistMultUnCorr[ireg][Coll][isMC]->SetName(Form("ghistoYieldSistMultUnCorr_reg%i_Coll%i_isMC%i", ireg, Coll, isMC));
 	  StyleTGraphErrors(ghistoYield[ireg][Coll][isMC], ColorDiff[ireg][Coll], MarkerType[ireg][Coll], MarkerSize[ireg], LineStyle[isMC]);
 	  StyleTGraphErrors(ghistoYieldSist[ireg][Coll][isMC], ColorDiff[ireg][Coll], MarkerType[ireg][Coll], MarkerSize[ireg], LineStyle[isMC]);
+	  StyleTGraphErrors(ghistoYieldSistMultUnCorr[ireg][Coll][isMC], ColorDiff[ireg][Coll], MarkerType[ireg][Coll], MarkerSize[ireg], LineStyle[isMC]);
 	}
 	else {
 	  if (ChosenRegion==0)  StyleTGraphErrors(ghistoYield[ireg][Coll][isMC], ColorDiff[ireg][Coll], 1, 1, 1);
@@ -840,6 +869,7 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
 
 	StyleHisto(histoYield[ireg][Coll][isMC], Low, Up, ColorDiff[ireg][Coll], MarkerType[ireg][Coll], titleX, titleY, "" , 1,0, 40, xOffset, yOffset, MarkerSize[ireg]);
 	StyleHisto(histoYieldSist[ireg][Coll][isMC], Low, Up, ColorDiff[ireg][Coll], MarkerType[ireg][Coll], titleX, titleY, "" , 1,0, 40, xOffset, yOffset, MarkerSize[ireg]);
+	if (isMC==0) 	StyleHisto(histoYieldSistMultUnCorr[ireg][Coll][isMC], Low, Up, ColorDiff[ireg][Coll], MarkerType[ireg][Coll], titleX, titleY, "" , 1,0, 40, xOffset, yOffset, MarkerSize[ireg]);
 
 	if (PlotType==0) {
 	  histoYield[ireg][Coll][isMC]->GetYaxis()->SetTitleSize(0.09);//0.07
@@ -1028,6 +1058,9 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
 	  ghistoYieldSist[ireg][Coll][isMC]->SetFillStyle(0);
 	  ghistoYieldSist[ireg][Coll][isMC]->SetFillColor(ColorDiff[ireg][Coll]);
 	  ghistoYieldSist[ireg][Coll][isMC]->DrawClone("same p2");
+	  ghistoYieldSistMultUnCorr[ireg][Coll][isMC]->SetFillStyle(3001);
+	  ghistoYieldSistMultUnCorr[ireg][Coll][isMC]->SetFillColor(ColorDiff[ireg][Coll]);
+	  ghistoYieldSistMultUnCorr[ireg][Coll][isMC]->DrawClone("same p2");
 	  ghistoYield[ireg][Coll][isMC]->DrawClone("same e");
 	}
 
@@ -1250,6 +1283,9 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
 	    ghistoYieldSist[ireg][Coll][isMC]->SetFillStyle(0);
 	    ghistoYieldSist[ireg][Coll][isMC]->SetFillColor(ColorDiff[ireg][Coll]);
 	    ghistoYieldSist[ireg][Coll][isMC]->Draw("same p2");
+	    ghistoYieldSistMultUnCorr[ireg][Coll][isMC]->SetFillStyle(3001);
+	    ghistoYieldSistMultUnCorr[ireg][Coll][isMC]->SetFillColor(ColorDiff[ireg][Coll]);
+	    ghistoYieldSistMultUnCorr[ireg][Coll][isMC]->Draw("same p2");
 	    ghistoYield[ireg][Coll][isMC]->Draw("same e");
 	  }
 
