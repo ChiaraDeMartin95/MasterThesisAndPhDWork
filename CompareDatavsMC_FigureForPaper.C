@@ -89,7 +89,6 @@ void SetHistoTextSize(TH1F *histo, Float_t XSize, Float_t XLabelSize, Float_t XO
   histo->GetYaxis()->SetLabelOffset(YLabelOffset);
 }
 
-
 TString TitleYieldRatio="#Xi/K^{0}_{S} yield ratio vs multiplicity";
 TString titleRelUnc = "Relative uncertainty";
 TString titleMult = "Multiplicity class ";
@@ -124,7 +123,7 @@ const Int_t numDataorMC = NumberOfMCs+1;
 Int_t nummoltMax = nummolt;
 Int_t nummoltMaxDataorMC = 0;
 
-void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t ScalingFactorXiK0s = 1/*0.8458/1.08747*/, Bool_t isChangesIncluded=1, Bool_t isFit=0, Bool_t isdNdEtaTriggered=1, Bool_t MaterialBudgetCorr=1){
+void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1,  Float_t ScalingFactorXiK0s = 1/*0.8458/1.08747*/, Bool_t isChangesIncluded=1, Bool_t isFit=0, Bool_t isdNdEtaTriggered=1, Bool_t MaterialBudgetCorr=1){
 
   Float_t UpperValueX = 40;
 
@@ -143,6 +142,7 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
   //PlotType = 2: Xi yield vs mult 
   //PlotType = 3: K0s pt vs mult 
   //PlotType = 4: Xi pt vs mult 
+  //PlotType = 5: Xi and K0s yield vs mult
 
   if (PlotType==1 || PlotType ==3) {
     //    sRegion1[0] = "|#Delta#it{#eta}| < 0.85, |#Delta#it{#varphi}| < 1.09";
@@ -193,11 +193,6 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
   Float_t Up= 0.14-10e-6;
   Float_t Low = 0.02+10e-6;
   if (PlotType==0){
-    //    Low = 0.014 + 10e-6;
-    /*LOG SCALE
-      Low = 0.012 + 10e-6;
-      Up = 0.5-10e-6;
-    */
     Low = 0.01 + 10e-6;
     Up = 0.15-10e-6;
   }
@@ -289,18 +284,6 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
   Float_t YieldRatiosDATA[numRegions][numColls][numDataorMC][nummoltMax];// = {0};
   Float_t YieldRatiosErrorsDATA[numRegions][numColls][numDataorMC][nummoltMax];// = {0};
 
-  /*
-    for (Int_t ireg=0; ireg<numRegions; ireg++){
-    for (Int_t Coll=0; Coll<2; Coll++){ 
-    for (Int_t iMC=0; iMC<numDataorMC; iMC++){
-    for (Int_t mmult=0; mmult<nummoltMax; mmult++){
-    Yields[ireg][Coll][numDataorMC][mmult] = 0;
-    YieldsErrors[ireg][Coll][numDataorMC][mmult] = 0;
-    }
-    }
-    }
-    }
-  */
   TGraphAsymmErrors*	ghistoYield[numRegions][numColls][numDataorMC];
   TGraphAsymmErrors*	ghistoYieldSist[numRegions][numColls][numDataorMC];
   TGraphAsymmErrors*	ghistoYieldSistMultUnCorr[numRegions][numColls][numDataorMC];
@@ -501,7 +484,7 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
   TString pathin[NumberOfMCs+2] ={""};
   TString YieldOrAvgPt[5] = {"Yield", "Yield", "Yield", "AvgPt","AvgPt"};
 
-  TCanvas * canvas = new TCanvas("canvas", "canvas", 1100, 1000); //1100, 900
+  TCanvas *canvas = new TCanvas("canvas", "canvas", 1100, 1000); //1100, 900
   canvas->SetFillColor(0);
   Float_t UpperPadValue = 0.36; 
   TPad* pad1 = new TPad( "pad1" ,"pad1" ,0 , UpperPadValue ,1 ,1);
@@ -546,18 +529,28 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
 
   TLegend *legendOneRegion=new TLegend(0.62, 0.8, 0.92, 0.9);
 
-  //TLegend *legendRegionJet=new TLegend(0.15, 0.83, 0.61, 0.915);
+  //OLD before EB: 0.15, 0.84, 0.61, 0.915
+  //TLegend *legendRegionJet=new TLegend(0.3, 0.8, 0.66, 0.875);
   TLegend *legendRegionJet=new TLegend(0.15, 0.84, 0.61, 0.915);
   legendRegionJet->SetFillStyle(0);
-  legendRegionJet->SetMargin(0.1);
+  //EB legendRegionJet->SetMargin(0.1);
+  legendRegionJet->SetMargin(0);
+  //  TLegend *legendRegionBulk=new TLegend(0.3, 0.71, 0.66, 0.785);
   TLegend *legendRegionBulk=new TLegend(0.15, 0.75, 0.61, 0.825);
   legendRegionBulk->SetFillStyle(0);
-  legendRegionBulk->SetMargin(0.1);
+  //EB legendRegionBulk->SetMargin(0.1);
+  legendRegionBulk->SetMargin(0);
+  //  TLegend *legendRegionFull=new TLegend(0.3, 0.62, 0.66, 0.695);
   TLegend *legendRegionFull=new TLegend(0.15, 0.66, 0.61, 0.735);
   legendRegionFull->SetFillStyle(0);
-  legendRegionFull->SetMargin(0.1);
+  //EB legendRegionFull->SetMargin(0.1);
+  legendRegionFull->SetMargin(0);
   TLegendEntry * lReAll1Bis[3];
   TLegendEntry *lReAll2Bis[3];
+
+  TLegend *legendRegionAllNew=new TLegend(0.15, 0.765, 0.61, 0.84);
+  legendRegionAllNew->SetFillStyle(0);
+  legendRegionAllNew->SetMargin(0.1);
 
   //TLegend *legendRegionAll=new TLegend(0.15, 0.35, 0.59, 0.68);
   TLegend *legendRegionAll=new TLegend(0.15, 0.42, 0.59, 0.74);
@@ -567,9 +560,33 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
   TLegendEntry *lReAll2[3];
 
   TLegend *legendEnergyBoxColor=new TLegend(0.16, 0.54, 0.31, 0.7);
+  TLegend *legendEnergyBoxColor1=new TLegend(0.14, 0.53, 0.31, 0.64);
+  TLegend *legendEnergyBoxColor2=new TLegend(0.17, 0.53, 0.33, 0.64);
+  TLegend *legendEnergyBoxColor3=new TLegend(0.20, 0.53, 0.35, 0.64);
+  legendEnergyBoxColor3->SetTextSize(0.042);
+
+  TLegend *legendEnergyBoxColorBis1=new TLegend(0.65, 0.77, 0.81, 0.89);
+  TLegend *legendEnergyBoxColorBis2=new TLegend(0.68, 0.77, 0.84, 0.89);
+  TLegend *legendEnergyBoxColorBis3=new TLegend(0.71, 0.77, 0.87, 0.89);
+  legendEnergyBoxColorBis3->SetTextSize(0.042);
 
   TLegend *legendEnergyBox1=new TLegend(0.15, 0.53, 0.31, 0.64);
   TLegend *legendEnergyBox2=new TLegend(0.65, 0.77, 0.81, 0.89);
+
+  TLegend *legendEnergyBoxHelloUpper=new TLegend(0.15, 0.875, 0.28, 0.95);
+  legendEnergyBoxHelloUpper->SetHeader("pp");
+  legendEnergyBoxHelloUpper->SetNColumns(2);
+  legendEnergyBoxHelloUpper->SetMargin(0);
+  legendEnergyBoxHelloUpper->SetFillStyle(0);
+  //legendEnergyBoxHelloUpper->AddEntry("", "#sqrt{#it{s}} = 13 TeV", "p");
+  legendEnergyBoxHelloUpper->AddEntry("", "13 TeV", "p");
+  //legendEnergyBoxHelloUpper->AddEntry("", "#sqrt{#it{s}} = 5.02 TeV", "p");
+  legendEnergyBoxHelloUpper->AddEntry("", "5 TeV", "p");
+  legendEnergyBoxHelloUpper->SetTextSize(0.042);
+  TLegend *legendEnergyBoxHelloLower=new TLegend(0.15, 0.62, 0.28, 0.875);
+  legendEnergyBoxHelloLower->SetTextSize(0.042);
+  legendEnergyBoxHelloLower->SetNColumns(2);
+  legendEnergyBoxHelloLower->SetMargin(0);
 
   TLegend *legendStatBox=new TLegend(0.19, 0.21, 0.34, 0.37);
   legendStatBox->SetTextSize(0.04);
@@ -777,9 +794,9 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
 	      histoYieldRatioStatSistToOOJ[Coll][isMC]->Fit(fitPol0[isMC], "R0");
 	      //histoYieldRatioToOOJ[Coll][isMC]->Fit(fitPol0[isMC]);
 	      cout <<"\n\e[35m***pol1 fit for " << MCType[isMC]<< "***\e[39m" << endl;
-	      histoYieldRatioStatSistToOOJ[Coll][isMC]->Fit(fitPol1[isMC], "R0");
+	      //histoYieldRatioStatSistToOOJ[Coll][isMC]->Fit(fitPol1[isMC], "R0");
 	      cout <<"\n\e[35m***pol2 fit for " << MCType[isMC]<< "***\e[39m" << endl;
-	      histoYieldRatioStatSistToOOJ[Coll][isMC]->Fit(fitPol2[isMC], "R0");
+	      //histoYieldRatioStatSistToOOJ[Coll][isMC]->Fit(fitPol2[isMC], "R0");
 	    }
 	  }
 
@@ -986,11 +1003,36 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
 	  }
 	}
 
+	if (NTypeMC == 0){
+	  cout << "Coll " << Coll << endl;
+	  cout << "MC: " << isMC << endl;
+	  cout << "Region: " << ireg << endl;
+	  legendEnergyBoxHelloLower->AddEntry(histoYield[ireg][Coll][isMC], "", "p");
+	  if (ireg == 0){
+	    legendEnergyBoxColor1->AddEntry(histoYield[ireg][Coll][isMC], "", "p");
+	    legendEnergyBoxColorBis1->AddEntry(histoYield[ireg][Coll][isMC], "", "p");
+	  }
+	  else if (ireg == 1) {
+	    legendEnergyBoxColor2->AddEntry(histoYield[ireg][Coll][isMC], "", "p");
+	    legendEnergyBoxColorBis2->AddEntry(histoYield[ireg][Coll][isMC], "", "p");
+	  }
+	  else {
+	    if (Coll==0) {
+	      legendEnergyBoxColor3->AddEntry(histoYield[ireg][Coll][isMC], "pp, #sqrt{#it{s}} = 13 TeV", "p");
+	      legendEnergyBoxColorBis3->AddEntry(histoYield[ireg][Coll][isMC], "pp, #sqrt{#it{s}} = 13 TeV", "p");
+	    }
+	    else {
+	      legendEnergyBoxColor3->AddEntry(histoYield[ireg][Coll][isMC], "pp, #sqrt{#it{s}} = 5.02 TeV", "p");
+	      legendEnergyBoxColorBis3->AddEntry(histoYield[ireg][Coll][isMC], "pp, #sqrt{#it{s}} = 5.02 TeV", "p");
+	    }
+	  }
+	}
+
 	if (Coll==0 && NTypeMC ==0){
 
-	  if (ireg==0) lReAll1Bis[ireg] = legendRegionJet->AddEntry(histoYield[ireg][Coll][isMC], sRegion[ireg], "p");
-	  else if (ireg==1)lReAll1Bis[ireg] = legendRegionBulk->AddEntry(histoYield[ireg][Coll][isMC], sRegion[ireg], "p");
-	  else lReAll1Bis[ireg] = legendRegionFull->AddEntry(histoYield[ireg][Coll][isMC], sRegion[ireg], "p");
+	  if (ireg==0) lReAll1Bis[ireg] = legendRegionJet->AddEntry(histoYield[ireg][Coll][isMC], sRegion[ireg], "");
+	  else if (ireg==1)lReAll1Bis[ireg] = legendRegionBulk->AddEntry(histoYield[ireg][Coll][isMC], sRegion[ireg], "");
+	  else lReAll1Bis[ireg] = legendRegionFull->AddEntry(histoYield[ireg][Coll][isMC], sRegion[ireg], "");
 
 	  lReAll1Bis[ireg]->SetTextSize(0.045);
 	  //      lReAll1Bis[ireg]->SetTextAlign(32);
@@ -1100,14 +1142,17 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
 	    legendRegionBulk->Draw("");
 	    legendRegionFull->Draw("");
 	    legendStatBoxBis->Draw("");
-	    if (ChosenRegion==-1)  legendEnergyBox1->Draw("");
-	    else legendEnergyBoxColor->Draw("");
+	    //if (ChosenRegion==-1)  legendEnergyBox1->Draw("");
+	    //if (ChosenRegion==-1)  legendEnergyBoxHello->Draw("");
+	    //else legendEnergyBoxColor->Draw("");
 	  }
 	  else {
 	    if (ChosenRegion == -1){
 	      LegendYields->Draw("");
-	      legendEnergyBox2->Draw("");
 	      //legendEnergyBox2->Draw("");
+	      legendEnergyBoxColorBis1->Draw("");
+	      legendEnergyBoxColorBis2->Draw("");
+	      legendEnergyBoxColorBis3->Draw("");
 	      legendStatBox->Draw("");
 	      legendRegionAll->Draw("");
 	    }
@@ -1348,7 +1393,12 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
 	    legendRegionJet->Draw("");
 	    legendRegionBulk->Draw("");
 	    legendRegionFull->Draw("");
-	    legendEnergyBox1->Draw("");
+	    //legendEnergyBox1->Draw("");
+	    legendEnergyBoxColor1->Draw("");
+	    legendEnergyBoxColor2->Draw("");
+	    legendEnergyBoxColor3->Draw("");
+	    //legendEnergyBoxHelloUpper->Draw("");
+	    //legendEnergyBoxHelloLower->Draw("");
 	    legendMCTypes->Draw("");
 	    legendStatBoxBis->Draw("");
 	  }
@@ -1436,7 +1486,7 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
 	      ghistoRatioToOOJ[Coll][isMC]->SetFillColorAlpha(ColorDiff[0][Coll],AlphaColor[isMC]);
 	    }
 	    ghistoRatioToOOJ[Coll][isMC]->Draw("same 3");
-	    //	    ghistoRatioToOOJ[Coll][isMC]->Draw("same");
+	    //ghistoRatioToOOJ[Coll][isMC]->Draw("same");
 	  }
 	  else {
 	    hdummyRatioToOOJ->Draw("same");
@@ -1446,25 +1496,27 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
 	    ghistoRatioToOOJ[Coll][isMC]->Draw("same e");
 	  }
 
-	  /*
-	    StyleHisto(histoYieldRatioToOOJ[Coll][isMC], 0.42, 0.92, ColorDiff[0][Coll], MarkerType[0], titleX, titleYToOOJ, "" , 1,0, 40, xOffset, yOffset, MarkerSize[0]);
-	    StyleHisto(histoYieldRatioSistToOOJ[Coll][isMC], 0.42, 0.92, ColorDiff[0][Coll], MarkerType[0], titleX, titleYToOOJ, "" , 1,0, 40, xOffset, yOffset, MarkerSize[0]);
+	  
+	  //StyleHisto(histoYieldRatioToOOJ[Coll][isMC], 0.42, 0.92, ColorDiff[0][Coll], MarkerType[0], titleX, titleYToOOJ, "" , 1,0, 40, xOffset, yOffset, MarkerSize[0]);
+	  //StyleHisto(histoYieldRatioSistToOOJ[Coll][isMC], 0.42, 0.92, ColorDiff[0][Coll], MarkerType[0], titleX, titleYToOOJ, "" , 1,0, 40, xOffset, yOffset, MarkerSize[0]);
+	  //	  histoYieldRatioToOOJ[Coll][isMC]->Draw("same");
 	    histoYieldRatioToOOJ[Coll][isMC]->GetYaxis()->SetTitleSize(0.07);
 	    histoYieldRatioSistToOOJ[Coll][isMC]->GetYaxis()->SetTitleSize(0.07);
 	    histoYieldRatioToOOJ[Coll][isMC]->GetYaxis()->SetTitleOffset(0.7);
 	    histoYieldRatioSistToOOJ[Coll][isMC]->GetYaxis()->SetTitleOffset(0.7);
 
-	
-	    if (Coll==0)    histoYieldRatioToOOJ[Coll][isMC]->Fit(fitToRatioToOOJ, "R+");
+	    //if (Coll==0)    histoYieldRatioToOOJ[Coll][isMC]->Fit(fitToRatioToOOJ, "R+");
 	    if (Coll==0)  {
-	    legendFitRatio1 = legendFitRatioToOOJ->AddEntry(fitToRatioToOOJ, "pol0 fit", "l");
-	    legendFitRatio1->SetTextAlign(22);
-	    legendFitRatio1->SetTextSize(0.08);
+	      cout << "Fit to double ratio: " << endl;
+	      legendFitRatio1 = legendFitRatioToOOJ->AddEntry(fitToRatioToOOJ, "pol0 fit", "l");
+	      cout << fitToRatioToOOJ->GetChisquare() << " NDF: " << fitToRatioToOOJ->GetNDF() << " Ratio: " << fitToRatioToOOJ->GetChisquare()/fitToRatioToOOJ->GetNDF()<< endl;
+	      legendFitRatio1->SetTextAlign(22);
+	      legendFitRatio1->SetTextSize(0.08);
 	    }
-	  */
-	  if (isMC == MCindexForPlotting){
-	    if (ChosenRegion==0 || (PlotType==0 && ChosenRegion==-1))	  smalllegendMCTypesBis->Draw("same");
-	  }
+	  
+	    if (isMC == MCindexForPlotting){
+	      if (ChosenRegion==0 || (PlotType==0 && ChosenRegion==-1))	  smalllegendMCTypesBis->Draw("same");
+	    }
 	}
       }
     }
@@ -1506,4 +1558,6 @@ void CompareDatavsMC_FigureForPaper( Int_t PlotType =0, Int_t ChosenRegion = -1,
       cout << "\npol0: " << fitPol0[isMC]->GetParameter(0) <<" +- " << fitPol0[isMC]->GetParError(0) << " Chi2/NDF " <<  fitPol0[isMC]->GetChisquare()<< "/" << fitPol0[isMC]->GetNDF()<< " = " << fitPol0[isMC]->GetChisquare()/fitPol0[isMC]->GetNDF() << endl;
     }
   }
+
+  cout <<"\nI created the file: CompareDatavsMC.root" << endl;
 }
