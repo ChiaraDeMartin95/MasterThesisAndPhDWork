@@ -156,6 +156,7 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
   else if (PlotType==2) titleY = titleYieldYType[1];
   else if (PlotType==3) titleY = titlePtvsMultYType[0];
   else if (PlotType==4) titleY = titlePtvsMultYType[1];
+  else if (PlotType==5) titleY = titleYieldYType[0];
 
   gStyle->SetOptStat(0);
 
@@ -184,8 +185,9 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
   if (ChosenRegion>2) {cout << "Choose a valid region! " << endl; return;}
 
   TString CollisionsComp[2] = {"_HMMultBinning1_vsHM", "_vs5TeV"};
-  TString SPlotType[5] = {"Ratio", "K0s", "Xi", "K0spt", "Xipt"};
-  TString SPlotTypeBis[5] = {"", "K0s", "Xi", "K0s", "Xi"};
+  TString SPlotType[6] = {"Ratio", "K0s", "Xi", "K0spt", "Xipt", "K0s"};
+  TString SPlotTypeFinal[6] = {"Ratio", "K0s", "Xi", "K0spt", "Xipt", "K0sXi"};
+  TString SPlotTypeBis[6] = {"", "K0s", "Xi", "K0s", "Xi", "K0s"};
   TString SisFit[2] = {"", "_isFit"};
   TString Region[numRegions] = {"Jet", "Bulk", "All"};
   TString RegionBis[numRegions] = {"Jet", "Bulk", "Inclusive"};
@@ -196,7 +198,7 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
     Low = 0.01 + 10e-6;
     Up = 0.15-10e-6;
   }
-  if (PlotType==1) {
+  if (PlotType==1 || PlotType==5) {
     Low = 10e-6; Up = 0.50-10e-6; //0.45
     if (ChosenRegion==0) {Low = 0.015+10e-6; Up = 0.08-10e-6;} //0.035 
   }
@@ -224,7 +226,7 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
     LowRatio = 0.+10e-4;
     UpRatio = 2.0-10e-4;
   }
-  else if (PlotType==1) {
+  else if (PlotType==1 || PlotType==5) {
     LowRatio = 0.4+10e-4;
     UpRatio = 2.1-10e-4;
     LowRatioToOOJ = 0.+10e-4;
@@ -251,17 +253,23 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
   fitToRatioToOOJ->SetLineWidth(2);
 
   TF1* fitPol0[numDataorMC];
+  TF1* fitRatio[numRegions][numDataorMC];
   TF1* fitPol1[numDataorMC];
   TF1* fitPol2[numDataorMC];
 
   TH1F *histoYield[numRegions][numColls][numDataorMC];
   TH1F *histoYieldSist[numRegions][numColls][numDataorMC];
   TH1F *histoYieldSistMultUnCorr[numRegions][numColls][numDataorMC];
+  TH1F *histoYieldStatSistMultUnCorr[numRegions][numColls][numDataorMC];
   TH1F *histoYieldRatio[numRegions][numColls][numDataorMC];
   TH1F *histoYieldRatioToOOJ[numColls][numDataorMC];
   TH1F *histoYieldRatioSistToOOJ[numColls][numDataorMC];
   TH1F *histoYieldRatioSistMultUnCorrToOOJ[numColls][numDataorMC];
   TH1F *histoYieldRatioStatSistToOOJ[numColls][numDataorMC];
+  Float_t MinValueYield[numRegions][numColls][numDataorMC];
+  Float_t MaxValueYield[numRegions][numColls][numDataorMC];
+  Float_t MinValueError[numRegions][numColls][numDataorMC];
+  Float_t MaxValueError[numRegions][numColls][numDataorMC];
   TH1F *hMCDataRatio[numRegions][numColls][numDataorMC];
   TSpline3 * splineY[numRegions][numColls][numDataorMC];
   TF1* fsplineY[numRegions][numColls][numDataorMC];
@@ -285,7 +293,9 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
   Float_t YieldRatiosErrorsDATA[numRegions][numColls][numDataorMC][nummoltMax];// = {0};
 
   TGraphAsymmErrors*	ghistoYield[numRegions][numColls][numDataorMC];
+  TGraphAsymmErrors*	ghistoYieldLine[numRegions][numColls][numDataorMC];
   TGraphAsymmErrors*	ghistoYieldSist[numRegions][numColls][numDataorMC];
+  TGraphAsymmErrors*	ghistoYieldStatSistMultUnCorr[numRegions][numColls][numDataorMC];
   TGraphAsymmErrors*	ghistoYieldSistMultUnCorr[numRegions][numColls][numDataorMC];
   TGraphAsymmErrors*	ghistoRatioToOOJ[numColls][numDataorMC];
   TGraphAsymmErrors*	ghistoSistRatioToOOJ[numColls][numDataorMC];
@@ -503,10 +513,11 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
   TLegend *LegendRatio=new TLegend(0.65,0.77,0.93,0.92);
   LegendRatio->SetFillStyle(0);
   //  TLegendEntry* E1Ratio =      LegendRatio->AddEntry("", "#bf{ALICE Preliminary}", "");
-  TLegendEntry* E1Ratio =  LegendRatio->AddEntry("", "ALICE", "");
-  TLegendEntry* E3Ratio =  LegendRatio->AddEntry(""/*(TObject*)0*/, "#it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
-  E1Ratio->SetTextSize(0.05);
-  E3Ratio->SetTextSize(0.05);
+  TLegendEntry* E1Ratio =  LegendRatio->AddEntry("", "ALICE, #it{p}_{T}^{trigg} > 3 GeV/#it{c}, |#it{#eta}^{trigg}| < 0.8", "");
+  //  TLegendEntry* E3Ratio =  LegendRatio->AddEntry(""/*(TObject*)0*/, "#it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
+  TLegendEntry* E3Ratio =  LegendRatio->AddEntry(""/*(TObject*)0*/, " |#it{#eta}^{K^{0}_{S}}| < 0.8, |#it{#eta}^{#Xi}| < 0.8", "");
+  E1Ratio->SetTextSize(0.04);
+  E3Ratio->SetTextSize(0.04); //0.05
   E1Ratio->SetTextAlign(32);
   E3Ratio->SetTextAlign(32);
 
@@ -522,10 +533,15 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
   LegendYields->SetMargin(0);
   LegendYields->SetTextSize(0.05);
   //LegendYields->AddEntry("", "ALICE pp, #sqrt{#it{s}} = 13 TeV", "");
-  LegendYields->AddEntry("", "ALICE", "");
-  if (PlotType == 1 || PlotType ==3)     LegendYields->AddEntry(""/*(TObject*)0*/, "h#minusK_{S}^{0} correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
-  else if (PlotType == 2 || PlotType == 4) LegendYields->AddEntry(""/*(TObject*)0*/, "h#minus#Xi correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", ""); 
-
+  //  LegendYields->AddEntry("", "ALICE", "");
+  if (PlotType == 1 || PlotType ==3 || PlotType==5) {
+    LegendYields->AddEntry(""/*(TObject*)0*/, "ALICE, h#minusK_{S}^{0} correlation", "");
+    LegendYields->AddEntry(""/*(TObject*)0*/, "#it{p}_{T}^{trigg} > 3 GeV/#it{c}, |#it{#eta}^{trigg}| < 0.8, |#it{#eta}^{K^{0}_{S}}| < 0.8", "");
+  }
+  else if (PlotType == 2 || PlotType == 4) {
+    LegendYields->AddEntry(""/*(TObject*)0*/, "ALICE, h#minus#Xi correlation", ""); 
+    LegendYields->AddEntry(""/*(TObject*)0*/, "#it{p}_{T}^{trigg} > 3 GeV/#it{c}, |#it{#eta}^{trigg}| < 0.8, |#it{#eta}^{#Xi}| < 0.8", "");
+  }
 
   TLegend *legendOneRegion=new TLegend(0.62, 0.8, 0.92, 0.9);
 
@@ -599,10 +615,13 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
 
   TLegend *legendMCTypes;
   //if (PlotType==0 && ChosenRegion==-1)  legendMCTypes = new TLegend(0.69, 0.6, 0.93, 0.73);
-  if (PlotType==0 && ChosenRegion==-1)  legendMCTypes = new TLegend(0.69, 0.6, 0.93, 0.73);
+  if (PlotType==0 && ChosenRegion==-1)  legendMCTypes = new TLegend(0.72, 0.56, 0.93, 0.73);
   else if (ChosenRegion==0)   legendMCTypes = new TLegend(0.69, 0.54, 0.91, 0.71);
-  else   legendMCTypes = new TLegend(0.65, 0.56, 0.87, 0.73);
-
+  //else   legendMCTypes = new TLegend(0.65, 0.56, 0.87, 0.73);
+  else   legendMCTypes = new TLegend(0.56, 0.5, 0.76, 0.73);
+  legendMCTypes->SetHeader("pp, #sqrt{#it{s}} = 13 TeV");
+  legendMCTypes->SetTextSize(0.035);
+  
   TLegend *legendMCTypesBis = new TLegend(0.69, 0.6, 0.93, 0.73);
 
   TLegend *smalllegendMCTypes;
@@ -626,11 +645,11 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
   else if (MonashTune==5) MCindexForPlotting = 3;
 
   //DUMMY HISTO FOR AXES
-  Float_t xTitle = 30;
-  Float_t xOffset = 4.3;
+  Float_t xTitle = 33; 
+  Float_t xOffset = 1.6;
 
   Float_t yTitle = 30; 
-  Float_t yOffset = 1.8; //1.6
+  Float_t yOffset = 2.; 
 
   Float_t xLabel = 27;
   Float_t yLabel = 27;
@@ -644,9 +663,9 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
 
   if (PlotType==0) {
     xTitle = 38;
-    xOffset = 4.8;
+    xOffset = 1.35;
 
-    yOffset = 2.;
+    yOffset = 2; //2
 
     xLabel = 32;
     yLabel = 32;
@@ -664,7 +683,7 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
   histoYieldDummy->GetYaxis()->SetDecimals(kTRUE);
   if (PlotType==0){
     histoYieldDummy->GetYaxis()->SetTitleSize(40);
-    histoYieldDummy->GetYaxis()->SetTitleOffset(1.75);
+    histoYieldDummy->GetYaxis()->SetTitleOffset(1.6);
   }
   SetTickLength(histoYieldDummy, tickX, tickY);
 
@@ -691,7 +710,7 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
 	  pathin[isMC] = "RatiosXiK0s3Systems_" + SPlotType[PlotType];
 	  if (ChosenRegion>=0) pathin[isMC] += "_" + RegionType[ChosenRegion];
 	  if (isdNdEtaTriggered)  pathin[isMC]+= "_isdNdEtaTriggered";
-	  if (isWingsCorrectionApplied && (PlotType==0 || PlotType==1 || PlotType==3)) pathin[isMC] += "_WingsCorrApplied";
+	  if (isWingsCorrectionApplied && (PlotType==0 || PlotType==1 || PlotType==3 || PlotType==5)) pathin[isMC] += "_WingsCorrApplied";
 	  if (MaterialBudgetCorr) pathin[isMC] += "_MatBudgetCorrFAST";
 	  pathin[isMC] += "_MultCorrSistEval";
 	  pathin[isMC] += ".root";
@@ -726,12 +745,12 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
 	}
 	else {
 	  if (PlotType!=0){
-	    if (PlotType<=2)   NameHisto13TeV = "Yield_"+ SPlotTypeBis[PlotType] + "_" + RegionTypeBis[ireg] + "_StatErr";
+	    if (PlotType<=2 || PlotType==5)   NameHisto13TeV = "Yield_"+ SPlotTypeBis[PlotType] + "_" + RegionTypeBis[ireg] + "_StatErr";
 	    else  {
 	      if (ireg==0)   NameHisto13TeV = "PtvsMult_"+ SPlotTypeBis[PlotType] + "_" + RegionTypeBis[ireg] + "_StatErr";
 	      else NameHisto13TeV = "PtvsMult_"+ SPlotTypeBis[PlotType] + "_" + RegionTypeBis[ireg] + "_StatErrFS"; 
 	    }
-	    if (PlotType<=2)   NameHistoSist13TeV = "Yield_"+ SPlotTypeBis[PlotType] + "_" + RegionTypeBis[ireg] + "_SistErr";
+	    if (PlotType<=2 || PlotType==5)   NameHistoSist13TeV = "Yield_"+ SPlotTypeBis[PlotType] + "_" + RegionTypeBis[ireg] + "_SistErr";
 	    else {
 	      if (ireg==0)  NameHistoSist13TeV = "PtvsMult_"+ SPlotTypeBis[PlotType] + "_" + RegionTypeBis[ireg] + "_SistErr";	
 	      else  NameHistoSist13TeV = "PtvsMult_"+ SPlotTypeBis[PlotType] + "_" + RegionTypeBis[ireg] + "_SistErrFS";	
@@ -747,17 +766,41 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
 	//cout << "NameInputHistoSist " << NameHistoSist13TeV << endl;
 	if (Coll==0) histoYield[ireg][Coll][isMC]= (TH1F*) filein->Get(NameHisto13TeV);
 	else 	histoYield[ireg][Coll][isMC]= (TH1F*) filein->Get(NameHisto5TeV);
-	if (!histoYield[ireg][Coll][isMC]) {cout <<"no histo " << endl; return;}
+	if (!histoYield[ireg][Coll][isMC]) {cout <<"no histo stat. " << endl; return;}
 
 	if (Coll==0)	histoYieldSist[ireg][Coll][isMC]= (TH1F*) filein->Get(NameHistoSist13TeV);
 	else histoYieldSist[ireg][Coll][isMC]= (TH1F*) filein->Get(NameHistoSist5TeV);
-	if (!histoYieldSist[ireg][Coll][isMC]) {cout <<"no histo " << endl; return;}
+	if (!histoYieldSist[ireg][Coll][isMC]) {cout <<"no histo sist. " << endl; return;}
 
 	if (isMC==0){
 	  if (Coll==0)	histoYieldSistMultUnCorr[ireg][Coll][isMC]= (TH1F*) filein->Get(NameHistoSistMultUnCorr13TeV);
 	  else histoYieldSistMultUnCorr[ireg][Coll][isMC]= (TH1F*) filein->Get(NameHistoSistMultUnCorr5TeV);
-	  if (!histoYieldSistMultUnCorr[ireg][Coll][isMC]) {cout <<"no histo " << endl; return;}
 	}
+	else histoYieldSistMultUnCorr[ireg][Coll][isMC] = (TH1F*) histoYield[ireg][Coll][isMC]->Clone(NameHistoSist13TeV + "_Clone");
+	if (!histoYieldSistMultUnCorr[ireg][Coll][isMC]) {cout <<"no histo " << endl; return;}
+	histoYieldStatSistMultUnCorr[ireg][Coll][isMC]= (TH1F*)histoYield[ireg][Coll][isMC]->Clone(NameHistoSist13TeV);
+	Float_t Err=0;
+	Float_t MinMult=0;
+	Float_t MaxMult=0;
+	for (Int_t b=1; b<= histoYieldStatSistMultUnCorr[ireg][Coll][isMC]->GetNbinsX(); b++){
+	  histoYieldStatSistMultUnCorr[ireg][Coll][isMC]->SetBinError(b, sqrt(pow(histoYield[ireg][Coll][isMC]->GetBinError(b), 2) + pow(histoYieldSistMultUnCorr[ireg][Coll][isMC]->GetBinError(b), 2)));
+	    MinMult = histoYieldStatSistMultUnCorr[ireg][Coll][isMC]->FindBin(dNdEta[isMC][Coll][0]);
+	    if (isMC==0) MaxMult = histoYieldStatSistMultUnCorr[ireg][Coll][isMC]->FindBin(dNdEta[isMC][Coll][7]);
+	    else  MaxMult = histoYieldStatSistMultUnCorr[ireg][Coll][isMC]->FindBin(dNdEta[isMC][Coll][9]);
+	    if (b==MinMult) {
+                MinValueYield[ireg][Coll][isMC] = histoYieldStatSistMultUnCorr[ireg][Coll][isMC]->GetBinContent(b);
+                MinValueError[ireg][Coll][isMC] = histoYieldStatSistMultUnCorr[ireg][Coll][isMC]->GetBinError(b);
+	    }
+	    else if (b==MaxMult) {
+                MaxValueYield[ireg][Coll][isMC] = histoYieldStatSistMultUnCorr[ireg][Coll][isMC]->GetBinContent(b);
+                MaxValueError[ireg][Coll][isMC] = histoYieldStatSistMultUnCorr[ireg][Coll][isMC]->GetBinError(b);
+	    }
+	  }
+	  cout << "Ratio Max/Min: " << MaxValueYield[ireg][Coll][isMC]/MinValueYield[ireg][Coll][isMC]  << " +- " <<  sqrt(pow(MaxValueError[ireg][Coll][isMC]/MaxValueYield[ireg][Coll][isMC] , 2) + pow(MinValueError[ireg][Coll][isMC]/ MinValueYield[ireg][Coll][isMC], 2) ) *  MaxValueYield[ireg][Coll][isMC]/MinValueYield[ireg][Coll][isMC]<< endl;
+	  fitRatio[ireg][isMC] = new TF1(Form("FitRatio_reg%i_isMC%i", ireg, isMC), "pol0", 0, 40);
+	  cout <<"\n\e[35m***pol0 fit for " << SRegionType[ireg] << " and " << MCType[isMC] << "***\e[39m" << endl;
+	  histoYieldStatSistMultUnCorr[ireg][Coll][isMC]->Fit(fitRatio[ireg][isMC], "R0");	  
+	  
 
 	cout << "Region: " << Region[ireg]<< endl;
 	if (Coll ==0 ) cout << "Got histos for  13 TeV (MB + HM) " << endl;
@@ -947,13 +990,15 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
 	      ghistoYieldGrey[ireg][Coll][isMC]->SetFillColorAlpha(ColorDiff[ireg][Coll],AlphaColor[isMC]);
 	    }
 	    ghistoYieldGrey[ireg][Coll][isMC]->SetLineWidth(0);
-	    legendMCTypes->AddEntry(ghistoYieldGrey[ireg][Coll][isMC], MCType[isMC], "f");
+	    
 	  }
 	  else {
 	    if (PlotType==0) {
 	      legendMCTypesBis->AddEntry(ghistoYieldRed[ireg][Coll][isMC], MCType[isMC], "f");
 	    }
-	    legendMCTypes->AddEntry(ghistoYieldGrey[ireg][Coll][isMC], MCType[isMC], "l");
+	    //legendMCTypes->AddEntry(ghistoYieldGrey[ireg][Coll][isMC], MCType[isMC], "l");
+	    TLegendEntry* Lentry= legendMCTypes->AddEntry(ghistoYieldGrey[ireg][Coll][isMC], MCType[isMC], "l");
+	    Lentry->SetTextSize(0.03);
 	  }
 	}
 
@@ -1098,6 +1143,11 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
 	  //	  if (ChosenRegion==0){
 	  if ((PlotType==0 && ireg==0) || ChosenRegion==0){
 	    //OPTION 1 
+	    ghistoYieldLine[ireg][Coll][isMC]=(TGraphAsymmErrors*)    ghistoYield[ireg][Coll][isMC]->Clone(Form("ghistoYieldLine_%i_%i_%i", ireg, Coll, isMC));
+
+	    ghistoYieldLine[ireg][Coll][isMC]->SetLineColor(ColorDiff[ireg][Coll]);
+	    ghistoYieldLine[ireg][Coll][isMC]->SetLineStyle(LineStyle[isMC]);
+
 	    ghistoYield[ireg][Coll][isMC]->SetFillColor(ColorDiff[ireg][Coll]);
 	    if (isMC==1) {
 	      // ghistoYield[ireg][Coll][isMC]->SetFillStyle(3001); //TEST
@@ -1265,6 +1315,7 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
 	ghistoYieldRatio[ireg][Coll][isMC] = new TGraphAsymmErrors(nummolt,dNdEta[isMC][Coll],YieldRatios[ireg][Coll][isMC], dNdEtaErrorL[isMC][Coll],  dNdEtaErrorR[isMC][Coll], YieldRatiosErrors[ireg][Coll][isMC], YieldRatiosErrors[ireg][Coll][isMC]);
 	ghistoYieldRatio[ireg][Coll][isMC]->SetName(Form("ghistoYieldRatio_reg%i_Coll%i_isMC%i", ireg, Coll, isMC));
 	StyleTGraphErrors(ghistoYieldRatio[ireg][Coll][isMC], ColorDiff[ireg][Coll], 1, 1, LineStyle[isMC]);
+	//cout << "Fit of the ratio with a pol0 " << endl;
 
 	if (isMC!=0){
 	  ghistoYieldRatio[ireg][Coll][isMC]->Draw("same");
@@ -1298,14 +1349,14 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
 
   TString OutputDir = "FiguresForPaper/";
   if (ChosenRegion<0){
-    canvas->SaveAs(OutputDir +"CompareDatavsMC_"+SPlotType[PlotType] + MCTypeBis[MonashTune-1]+".pdf");
-    canvas->SaveAs(OutputDir +"CompareDatavsMC_"+SPlotType[PlotType] + MCTypeBis[MonashTune-1]+".eps");
-    canvas->SaveAs(OutputDir +"CompareDatavsMC_"+SPlotType[PlotType] + MCTypeBis[MonashTune-1]+".png");
+    canvas->SaveAs(OutputDir +"CompareDatavsMC_"+SPlotTypeFinal[PlotType] + MCTypeBis[MonashTune-1]+".pdf");
+    canvas->SaveAs(OutputDir +"CompareDatavsMC_"+SPlotTypeFinal[PlotType] + MCTypeBis[MonashTune-1]+".eps");
+    canvas->SaveAs(OutputDir +"CompareDatavsMC_"+SPlotTypeFinal[PlotType] + MCTypeBis[MonashTune-1]+".png");
   }
   else {
-    canvas->SaveAs(OutputDir+"CompareDatavsMC_"+SPlotType[PlotType]+"_" + RegionType[ChosenRegion]+ MCTypeBis[MonashTune-1]+".pdf");
-    canvas->SaveAs(OutputDir+"CompareDatavsMC_"+SPlotType[PlotType]+"_" + RegionType[ChosenRegion]+ MCTypeBis[MonashTune-1]+".eps");
-    canvas->SaveAs(OutputDir+"CompareDatavsMC_"+SPlotType[PlotType]+"_" + RegionType[ChosenRegion]+ MCTypeBis[MonashTune-1]+".png");
+    canvas->SaveAs(OutputDir+"CompareDatavsMC_"+SPlotTypeFinal[PlotType]+"_" + RegionType[ChosenRegion]+ MCTypeBis[MonashTune-1]+".pdf");
+    canvas->SaveAs(OutputDir+"CompareDatavsMC_"+SPlotTypeFinal[PlotType]+"_" + RegionType[ChosenRegion]+ MCTypeBis[MonashTune-1]+".eps");
+    canvas->SaveAs(OutputDir+"CompareDatavsMC_"+SPlotTypeFinal[PlotType]+"_" + RegionType[ChosenRegion]+ MCTypeBis[MonashTune-1]+".png");
   }
   
   TCanvas * canvasThreePads = new TCanvas("canvasThreePads", "canvasThreePads", 1100, 1300);
@@ -1320,9 +1371,8 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
   StylePad(Threepad2, 0.12, 0.02, 0.02, 0.005); //L, R, T, B
   StylePad(Threepad3, 0.12, 0.02, 0.02, 0.33); //L, R, T, B
 
-  //if (PlotType==0){
-  if (kTRUE){
-    //cout <<"\n\nDrawing the canvas with three pads! " << endl;
+  if (PlotType==0){
+      //cout <<"\n\nDrawing the canvas with three pads! " << endl;
     canvasThreePads->cd();
     gStyle->SetLegendBorderSize(0);
     gStyle->SetLegendFillColor(0);
@@ -1371,7 +1421,9 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
 		ghistoYield[ireg][Coll][isMC]->SetFillStyle(FillStyle[isMC]); 
 		ghistoYield[ireg][Coll][isMC]->SetFillColorAlpha(ColorDiff[ireg][Coll],AlphaColor[isMC]);
 	      }
-	      ghistoYield[ireg][Coll][isMC]->Draw("same 3");
+
+	      ghistoYield[ireg][Coll][isMC]->Draw("same e3");
+	      ghistoYieldLine[ireg][Coll][isMC]->Draw("same lX");
 	    }
 	    else {
 	      ghistoYield[ireg][Coll][isMC]->Draw("same");
@@ -1558,6 +1610,5 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
       cout << "\npol0: " << fitPol0[isMC]->GetParameter(0) <<" +- " << fitPol0[isMC]->GetParError(0) << " Chi2/NDF " <<  fitPol0[isMC]->GetChisquare()<< "/" << fitPol0[isMC]->GetNDF()<< " = " << fitPol0[isMC]->GetChisquare()/fitPol0[isMC]->GetNDF() << endl;
     }
   }
-
   cout <<"\nI created the file: CompareDatavsMC.root" << endl;
 }
