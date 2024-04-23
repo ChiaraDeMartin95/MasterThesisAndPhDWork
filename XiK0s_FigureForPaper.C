@@ -97,7 +97,8 @@ TString titledNdeta="#LTd#it{N}_{ch}/d#it{#eta}#GT_{|#it{#eta}|<0.5, #it{p}_{T,t
 TString titleYield[2]={"K^{0}_{S}", "#Xi"};
 TString TitleYYieldRatio="#it{N}_{#Xi}/#it{N}_{K^{0}_{S}}";
 
-TString titleYieldYType[2]={"#it{N}_{K^{0}_{S}}/#it{N}_{trigg} 1/(#Delta#it{#eta} #Delta#it{#varphi})", "#it{N}_{#Xi}/#it{N}_{trigg} 1/(#Delta#it{#eta} #Delta#it{#varphi})"};
+//TString titleYieldYType[2]={"#it{N}_{K^{0}_{S}}/#it{N}_{trigg} 1/(#Delta#it{#eta} #Delta#it{#varphi})", "#it{N}_{#Xi}/#it{N}_{trigg} 1/(#Delta#it{#eta} #Delta#it{#varphi})"};
+TString titleYieldYType[2]={"#it{N}/#it{N}_{trigg} 1/(#Delta#it{#eta} #Delta#it{#varphi})", "#it{N}_{#Xi}/#it{N}_{trigg} 1/(#Delta#it{#eta} #Delta#it{#varphi})"};
 TString titlePtvsMultYType[2]={"#LT#it{p}^{K^{0}_{S}}_{T}#GT (GeV/c)", "#LT#it{p}^{#Xi}_{T}#GT (GeV/c)"};
 
 TString RegionType[3] = {"Jet", "Bulk", "Inclusive"};
@@ -106,7 +107,7 @@ TString SRegionType[3] = {"Near-side Jet", "Out-of-jet", "Full"};
 TString NameP[2]={"h#minusK_{S}^{0}", "h#minus#Xi"};
 //TString sRegion[3]={"#color[628]{Near#minusside jet}","#color[418]{Out#minusof#minusjet}","#color[600]{Full}"};
 //TString sRegion[3]={"#color[628]{Toward leading}","#color[418]{Transverse to leading}","#color[600]{Full}"};
-TString sRegion[3]={"#color[634]{Toward leading}","#color[418]{Transverse to leading}","#color[601]{Full}"};
+TString sRegion[3]={"#color[1]{Toward leading}","#color[1]{Transverse to leading}","#color[1]{Full}"};
 //TString sRegionBlack[3]={"#color[1]{Near#minusside jet}","#color[1]{Out#minusof#minusjet}","#color[1]{Full}"};
 TString sRegionBlack[3]={"#color[1]{Toward leading}","#color[1]{Transverse to leading}","#color[1]{Full}"};
 //TString sRegion1[3]={"|#Delta#it{#eta}| < 0.75, |#Delta#it{#varphi}| < 1.09", "0.75 < |#Delta#it{#eta}| < 1.2, 0.85 < #Delta#it{#varphi} < 1.8", "|#Delta#it{#eta}| < 1.2, #minus#pi/2 < #Delta#it{#varphi} < 3#pi/2"};
@@ -123,9 +124,13 @@ const Int_t numDataorMC = NumberOfMCs+1;
 Int_t nummoltMax = nummolt;
 Int_t nummoltMaxDataorMC = 0;
 
-void XiK0s_FigureForPaper(Int_t ParticleType =0, Int_t ChosenRegion = -1,  Float_t ScalingFactorXiK0s = 1/*0.8458/1.08747*/, Bool_t isChangesIncluded=1, Bool_t isFit=0, Bool_t isdNdEtaTriggered=1, Bool_t MaterialBudgetCorr=1){
+void XiK0s_FigureForPaper(Int_t ChosenRegion = 0,  Float_t ScalingFactorXiK0s = 1/*0.8458/1.08747*/, Bool_t isChangesIncluded=1, Bool_t isFit=0, Bool_t isdNdEtaTriggered=1, Bool_t MaterialBudgetCorr=1){
 
-  Double_t ScalingXi = 30;
+  if (ChosenRegion < 0 || ChosenRegion > 2) {
+    cout << "Chosen Region must be 0, 1 or 2 " << endl;
+    return;
+  }
+  Double_t ScalingXi = 29.0692; //30
   Float_t UpperValueX = 40;
 
   Int_t nummoltDataorMC =0;
@@ -154,18 +159,25 @@ void XiK0s_FigureForPaper(Int_t ParticleType =0, Int_t ChosenRegion = -1,  Float
   //  Int_t MarkerType[3][numColls] = {{89,20} , {90, 21}, {92, 33}}; //thicker marker (requires ROOT6)
   Int_t Color[numRegions] = {628,418,601};
   Int_t ColorEnergy[numColls] = {1, 921};// {922,920};
-  //Int_t ColorDiff[numRegions][numColls] = {{634,628}, {418,829} , {601, 867}};
-  Int_t ColorDiff[numParticles][numColls] = {{634,628}, {418,829}};
-  //Int_t ColorDiffPale[numRegions][numColls] = {{625, 623}, {410, 408} , {591, 590}};
-  //  Int_t ColorDiffPale[numRegions][numColls] = {{626, 623}, {411, 408} , {592, 590}};
-  Int_t ColorDiffPale[numParticles][numColls] = {{626, 623}, {411, 408}};
-  //Int_t ColorDiffMC[numRegions][numColls] = {{634,628}, {418,829} , {601, 867}};
-  Int_t ColorDiffMC[numParticles][numColls] = {{634,628}, {418,829}};
-  //Int_t ColorDiffMCRopes[numRegions][numColls] = {{634,628}, {418,829} , {601, 867}};
-  Int_t ColorDiffMCRopes[numParticles][numColls] = {{634,628}, {418,829}};
-  //  Int_t ColorDiffMC[numRegions][numColls] = {{907, 907}, {812,812} , {870, 870}};
-  //  Int_t ColorDiffMCRopes[numRegions][numColls] = {{807, 907}, {411,812} , {598, 870}};
-  //  Int_t LineStyle[numDataorMC] = {1, 8, 1, 3}; //TEST
+  //  Int_t ColorDiff[numParticles][numColls] = {{634,628}, {418,829}};
+  Int_t XiColor = kAzure+7;
+  Int_t XiColor5TeV = kAzure + 8;
+  Int_t Orange = 808;
+  Int_t OrangePale = 806;
+  Int_t VioletPale = 871;
+  Int_t XiColorPale =   kAzure - 9;
+  Int_t K0sColorPale =   kPink + 1;
+  Int_t K0sColor = kPink + 10;
+  Int_t K0sColor5TeV = kPink + 6;
+  Int_t K0sColorLine = kPink + 8;
+  Int_t XiColorLine = kAzure - 3;
+  Int_t ColorDiff[numParticles][numColls] = {{K0sColor, K0sColor5TeV}, {XiColor,XiColor5TeV}};
+  Int_t ColorDiffPale[numParticles][numColls] = {{K0sColorPale, K0sColor5TeV}, {XiColorPale,XiColor5TeV}};
+  //Int_t ColorDiffMC[numParticles][numColls] = {{634,628}, {418,829}};
+  Int_t ColorDiffMC[numParticles][numColls] = {{K0sColor, K0sColor5TeV}, {XiColor,XiColor5TeV}};
+  Int_t ColorDiffLine[numParticles][numColls] = {{K0sColorLine, K0sColorLine}, {XiColorLine,XiColorLine}};
+  //Int_t ColorDiffMCRopes[numParticles][numColls] = {{634,628}, {418,829}};
+  Int_t ColorDiffMCRopes[numParticles][numColls] = {{K0sColor, K0sColor5TeV}, {XiColor,XiColor5TeV}};
   Int_t LineStyle[numDataorMC] = {1, 1, 8, 3};
   Float_t AlphaColor[numDataorMC] = {1, 0.9, 0.5, 1};
   Float_t FillStyle[numDataorMC] = {1, 1001, 1001, 3001}; //3001
@@ -184,17 +196,12 @@ void XiK0s_FigureForPaper(Int_t ParticleType =0, Int_t ChosenRegion = -1,  Float
   Float_t Up= 0.14-10e-6;
   Float_t Low = 0.02+10e-6;
   Low = 10e-6; Up = 0.50-10e-6; //0.45
-  if (ChosenRegion==0) {Low = 0.015+10e-6; Up = 0.12-10e-6;} //0.035 
-
-  Float_t LowRatioToOOJ = 0.4+10e-4;
-  Float_t UpRatioToOOJ = 1.2-10e-4;
+  if (ChosenRegion==0) {Low = 0.015+10e-6; Up = 0.10-10e-6;} //0.035 
 
   Float_t LowRatio = 0.5+10e-4;
   Float_t UpRatio = 2.5-10e-4;
-  LowRatio = 0.4+10e-4;
-  UpRatio = 2.9-10e-4;
-  LowRatioToOOJ = 0.+10e-4;
-  UpRatioToOOJ = 2.1-10e-4;
+  LowRatio = 0.3+10e-4;
+  UpRatio = 2.2-10e-4;
 
   TF1 * fitToRatioToOOJ = new TF1("fitToRatioToOOJ", "pol0", 0, UpperValueX);
   fitToRatioToOOJ->SetLineColor(1);
@@ -208,7 +215,12 @@ void XiK0s_FigureForPaper(Int_t ParticleType =0, Int_t ChosenRegion = -1,  Float
   TH1F *histoYield[numRegions][numColls][numDataorMC][numParticles];
   TH1F *histoYieldSist[numRegions][numColls][numDataorMC][numParticles];
   TH1F *histoYieldSistMultUnCorr[numRegions][numColls][numDataorMC][numParticles];
+  TH1F *histoYieldStatSistMultUnCorr[numRegions][numColls][numDataorMC][numParticles];
   TH1F *histoYieldRatio[numRegions][numColls][numDataorMC][numParticles];
+  Float_t MinValueYield[numRegions][numColls][numDataorMC][numParticles];
+  Float_t MaxValueYield[numRegions][numColls][numDataorMC][numParticles];
+  Float_t MinValueError[numRegions][numColls][numDataorMC][numParticles];
+  Float_t MaxValueError[numRegions][numColls][numDataorMC][numParticles];
   TH1F *hMCDataRatio[numRegions][numColls][numDataorMC][numParticles];
   TSpline3 * splineY[numRegions][numColls][numDataorMC][numParticles];
   TF1* fsplineY[numRegions][numColls][numDataorMC][numParticles];
@@ -227,9 +239,11 @@ void XiK0s_FigureForPaper(Int_t ParticleType =0, Int_t ChosenRegion = -1,  Float
   Float_t YieldRatiosErrorsDATA[numRegions][numColls][numDataorMC][numParticles][nummoltMax];// = {0};
 
   TGraphAsymmErrors*	ghistoYield[numRegions][numColls][numDataorMC][numParticles];
+  TGraphAsymmErrors*	ghistoYieldLine[numRegions][numColls][numDataorMC][numParticles];
   TGraphAsymmErrors*	ghistoYieldSist[numRegions][numColls][numDataorMC][numParticles];
   TGraphAsymmErrors*	ghistoYieldSistMultUnCorr[numRegions][numColls][numDataorMC][numParticles];
   TGraphAsymmErrors*	ghistoYieldGrey[numRegions][numColls][numDataorMC][numParticles];
+  TGraphAsymmErrors*	ghistoYieldGreyBis[numRegions][numColls][numDataorMC][numParticles];
   TGraphAsymmErrors*	ghistoYieldRed[numRegions][numColls][numDataorMC][numParticles];
   TGraphAsymmErrors*	ghistoYieldRatio[numRegions][numColls][numDataorMC][numParticles];
   TGraphAsymmErrors*	ghistoYieldRatioDATA[numRegions][numColls][numDataorMC][numParticles];
@@ -441,12 +455,12 @@ void XiK0s_FigureForPaper(Int_t ParticleType =0, Int_t ChosenRegion = -1,  Float
   TLegend *LegendRatio=new TLegend(0.65,0.77,0.93,0.92);
   LegendRatio->SetFillStyle(0);
   //  TLegendEntry* E1Ratio =      LegendRatio->AddEntry("", "#bf{ALICE Preliminary}", "");
-  TLegendEntry* E1Ratio =  LegendRatio->AddEntry("", "ALICE", "");
-  TLegendEntry* E3Ratio =  LegendRatio->AddEntry(""/*(TObject*)0*/, "#it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
+  TLegendEntry* E1Ratio =  LegendRatio->AddEntry("", "ALICE, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
+  //  TLegendEntry* E3Ratio =  LegendRatio->AddEntry(""/*(TObject*)0*/, "#it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
   E1Ratio->SetTextSize(0.05);
-  E3Ratio->SetTextSize(0.05);
+  //E3Ratio->SetTextSize(0.05);
   E1Ratio->SetTextAlign(32);
-  E3Ratio->SetTextAlign(32);
+  //E3Ratio->SetTextAlign(32);
 
   TLegend *LegendColor=new TLegend(0.16,0.80,0.5,0.92); 
   LegendColor->SetMargin(0);
@@ -456,12 +470,15 @@ void XiK0s_FigureForPaper(Int_t ParticleType =0, Int_t ChosenRegion = -1,  Float
   //LegendColor->AddEntry("", "", "");
 
   //  TLegend *LegendYields=new TLegend(0.16,0.75,0.5,0.93);
-  TLegend *LegendYields=new TLegend(0.16,0.78,0.5,0.93);
+  TLegend *LegendYields=new TLegend(0.14,0.85,0.5,0.93);
   LegendYields->SetMargin(0);
   LegendYields->SetTextSize(0.05);
   //LegendYields->AddEntry("", "ALICE pp, #sqrt{#it{s}} = 13 TeV", "");
-  LegendYields->AddEntry("", "ALICE", "");
-  LegendYields->AddEntry(""/*(TObject*)0*/, "h#minusK_{S}^{0} correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
+  LegendYields->AddEntry("", "ALICE, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
+  //  LegendYields->AddEntry(""/*(TObject*)0*/, "h#minusK_{S}^{0} correlation, #it{p}_{T}^{trigg} > 3 GeV/#it{c}", "");
+  //  TLegend *LegendParticle=new TLegend(0.14,0.7,0.4,0.85);
+  TLegend *LegendParticle=new TLegend(0.14,0.7,0.35,0.85);
+  LegendParticle->SetTextSize(0.042);
 
   TLegend *legendOneRegion=new TLegend(0.62, 0.8, 0.92, 0.9);
 
@@ -496,9 +513,11 @@ void XiK0s_FigureForPaper(Int_t ParticleType =0, Int_t ChosenRegion = -1,  Float
   TLegendEntry *lReAll2[3];
 
   TLegend *legendEnergyBoxColor=new TLegend(0.16, 0.54, 0.31, 0.7);
-  TLegend *legendEnergyBoxColor1=new TLegend(0.14, 0.53, 0.31, 0.64);
-  TLegend *legendEnergyBoxColor2=new TLegend(0.17, 0.53, 0.33, 0.64);
-  TLegend *legendEnergyBoxColor3=new TLegend(0.20, 0.53, 0.35, 0.64);
+  //TLegend *legendEnergyBoxColor1=new TLegend(0.15, 0.53, 0.31, 0.7);
+  //TLegend *legendEnergyBoxColor3=new TLegend(0.18, 0.53, 0.35, 0.7);
+  TLegend *legendEnergyBoxColor1=new TLegend(0.67, 0.59, 0.87, 0.76);
+  legendEnergyBoxColor1->SetMargin(0.2);
+  TLegend *legendEnergyBoxColor3=new TLegend(0.7, 0.59, 0.87, 0.76);
   legendEnergyBoxColor3->SetTextSize(0.042);
 
   TLegend *legendEnergyBoxColorBis1=new TLegend(0.65, 0.77, 0.81, 0.89);
@@ -524,7 +543,8 @@ void XiK0s_FigureForPaper(Int_t ParticleType =0, Int_t ChosenRegion = -1,  Float
   legendEnergyBoxHelloLower->SetNColumns(2);
   legendEnergyBoxHelloLower->SetMargin(0);
 
-  TLegend *legendStatBox=new TLegend(0.19, 0.21, 0.34, 0.37);
+  //  TLegend *legendStatBox=new TLegend(0.45, 0.54, 0.6, 0.7);
+  TLegend *legendStatBox=new TLegend(0.45, 0.5, 0.6, 0.66);
   legendStatBox->SetTextSize(0.04);
   //TLegend *legendStatBoxBis=new TLegend(0.19, 0.34, 0.34, 0.50);
   TLegend *legendStatBoxBis=new TLegend(0.18, 0.32, 0.3, 0.48);
@@ -535,8 +555,10 @@ void XiK0s_FigureForPaper(Int_t ParticleType =0, Int_t ChosenRegion = -1,  Float
 
   TLegend *legendMCTypes;
   //if (PlotType==0 && ChosenRegion==-1)  legendMCTypes = new TLegend(0.69, 0.6, 0.93, 0.73);
-  if (ChosenRegion==0)   legendMCTypes = new TLegend(0.69, 0.54, 0.91, 0.71);
-  else   legendMCTypes = new TLegend(0.65, 0.56, 0.87, 0.73);
+  //legendMCTypes = new TLegend(0.69, 0.54, 0.91, 0.71);
+  legendMCTypes = new TLegend(0.16, 0.46, 0.41, 0.63);
+  legendMCTypes->SetHeader("pp, #sqrt{#it{s}} = 13 TeV");
+  legendMCTypes->SetTextSize(0.035);
 
   TLegend *legendMCTypesBis = new TLegend(0.69, 0.6, 0.93, 0.73);
 
@@ -559,11 +581,11 @@ void XiK0s_FigureForPaper(Int_t ParticleType =0, Int_t ChosenRegion = -1,  Float
   else if (MonashTune==5) MCindexForPlotting = 3;
 
   //DUMMY HISTO FOR AXES
-  Float_t xTitle = 30;
-  Float_t xOffset = 4.3;
+  Float_t xTitle = 33;
+  Float_t xOffset = 4; //1.6
 
   Float_t yTitle = 30; 
-  Float_t yOffset = 1.8; //1.6
+  Float_t yOffset = 1.8; 
 
   Float_t xLabel = 27;
   Float_t yLabel = 27;
@@ -574,19 +596,6 @@ void XiK0s_FigureForPaper(Int_t ParticleType =0, Int_t ChosenRegion = -1,  Float
   Float_t tickY = 0.03;
   Float_t tickXL = 0.06;
   Float_t tickYL = 0.045;
-
-  xTitle = 38;
-  xOffset = 4.8;
-
-  yOffset = 2.;
-
-  xLabel = 32;
-  yLabel = 32;
-  xLabelOffset = 0.03;
-  yLabelOffset = 0.01;
-
-  tickXL = 0.09;
-  tickYL = 0.03;
 
   TH1F*histoYieldDummy= new TH1F("histoYieldDummy", "histoYieldDummy", 100, 0, UpperValueX);
   StyleHisto(histoYieldDummy, Low, Up, 1, 1, titleX, titleY, "" , 1,0, UpperValueX, xOffset, yOffset, 1);
@@ -600,6 +609,7 @@ void XiK0s_FigureForPaper(Int_t ParticleType =0, Int_t ChosenRegion = -1,  Float
     NLoopRegion++;
     cout << "\nRegion: " << SRegionType[ireg] << endl;
     for (Int_t ParticleType=0; ParticleType < numParticles; ParticleType++){ //K0s and Xi
+      cout << "Particle: " << ParticleType << endl;
       for (Int_t Coll=0; Coll<2; Coll++){ //loop on: ppMB + ppHM, pp5TeV
 	cout << "\nCollisions: ";
 	if (Coll==0) cout << " 13 TeV " << endl;
@@ -652,22 +662,8 @@ void XiK0s_FigureForPaper(Int_t ParticleType =0, Int_t ChosenRegion = -1,  Float
 	    NameHistoSistMultUnCorr5TeV = SPlotType[ParticleType] + "_" + RegionType[ireg] + "_5TeV_SistMultUnCorr";
 	  }
 	  else {
-	    if (ParticleType!=0){
-	      if (ParticleType<=2 || ParticleType==5)   NameHisto13TeV = "Yield_"+ SPlotTypeBis[ParticleType] + "_" + RegionTypeBis[ireg] + "_StatErr";
-	      else  {
-		if (ireg==0)   NameHisto13TeV = "PtvsMult_"+ SPlotTypeBis[ParticleType] + "_" + RegionTypeBis[ireg] + "_StatErr";
-		else NameHisto13TeV = "PtvsMult_"+ SPlotTypeBis[ParticleType] + "_" + RegionTypeBis[ireg] + "_StatErrFS"; 
-	      }
-	      if (ParticleType<=2 || ParticleType==5)   NameHistoSist13TeV = "Yield_"+ SPlotTypeBis[ParticleType] + "_" + RegionTypeBis[ireg] + "_SistErr";
-	      else {
-		if (ireg==0)  NameHistoSist13TeV = "PtvsMult_"+ SPlotTypeBis[ParticleType] + "_" + RegionTypeBis[ireg] + "_SistErr";	
-		else  NameHistoSist13TeV = "PtvsMult_"+ SPlotTypeBis[ParticleType] + "_" + RegionTypeBis[ireg] + "_SistErrFS";	
-	      }
-	    }
-	    else {
-	      NameHisto13TeV = Form("fHistYieldStatRatio_iregion%i", ireg);
-	      NameHistoSist13TeV = Form("fHistYieldSistRatio_iregion%i", ireg);
-	    }
+	      NameHisto13TeV = "Yield_"+ SPlotTypeBis[ParticleType] + "_" + RegionTypeBis[ireg] + "_StatErr";
+	      NameHistoSist13TeV = "Yield_"+ SPlotTypeBis[ParticleType] + "_" + RegionTypeBis[ireg] + "_SistErr";
 	  }
 
 	  //cout << "NameInputHisto " << NameHisto13TeV << endl;
@@ -680,11 +676,32 @@ void XiK0s_FigureForPaper(Int_t ParticleType =0, Int_t ChosenRegion = -1,  Float
 	  else histoYieldSist[ireg][Coll][isMC][ParticleType]= (TH1F*) filein->Get(NameHistoSist5TeV);
 	  if (!histoYieldSist[ireg][Coll][isMC][ParticleType]) {cout <<"no histo " << endl; return;}
 
+
 	  if (isMC==0){
 	    if (Coll==0)	histoYieldSistMultUnCorr[ireg][Coll][isMC][ParticleType]= (TH1F*) filein->Get(NameHistoSistMultUnCorr13TeV);
 	    else histoYieldSistMultUnCorr[ireg][Coll][isMC][ParticleType]= (TH1F*) filein->Get(NameHistoSistMultUnCorr5TeV);
 	    if (!histoYieldSistMultUnCorr[ireg][Coll][isMC][ParticleType]) {cout <<"no histo " << endl; return;}
+	    histoYieldStatSistMultUnCorr[ireg][Coll][isMC][ParticleType] = (TH1F*)histoYieldSistMultUnCorr[ireg][Coll][isMC][ParticleType]->Clone(NameHistoSistMultUnCorr13TeV + "_Stat");
+	    Float_t Err=0;
+	    Float_t MinMult=0;
+	    Float_t MaxMult=0;
+	    for (Int_t b=1; b<= histoYieldStatSistMultUnCorr[ireg][Coll][isMC][ParticleType]->GetNbinsX(); b++){
+	      Err = histoYieldStatSistMultUnCorr[ireg][Coll][isMC][ParticleType]->GetBinError(b);
+	      histoYieldStatSistMultUnCorr[ireg][Coll][isMC][ParticleType]->SetBinError(b, sqrt(pow(Err, 2) + pow(histoYield[ireg][Coll][isMC][ParticleType]->GetBinError(b), 2)));
+	      MinMult = histoYieldStatSistMultUnCorr[ireg][Coll][isMC][ParticleType]->FindBin(dNdEta[isMC][Coll][0]);
+	      MaxMult = histoYieldStatSistMultUnCorr[ireg][Coll][isMC][ParticleType]->FindBin(dNdEta[isMC][Coll][7]);
+	      if (b==MinMult) {
+		MinValueYield[ireg][Coll][isMC][ParticleType] = histoYieldStatSistMultUnCorr[ireg][Coll][isMC][ParticleType]->GetBinContent(b);
+		MinValueError[ireg][Coll][isMC][ParticleType] = histoYieldStatSistMultUnCorr[ireg][Coll][isMC][ParticleType]->GetBinError(b);
+	      }
+	      else if (b==MaxMult) {
+		MaxValueYield[ireg][Coll][isMC][ParticleType] = histoYieldStatSistMultUnCorr[ireg][Coll][isMC][ParticleType]->GetBinContent(b);
+		MaxValueError[ireg][Coll][isMC][ParticleType] = histoYieldStatSistMultUnCorr[ireg][Coll][isMC][ParticleType]->GetBinError(b);
+	      }
+	    }
+	    cout << "Ratio Max/Min: " << MaxValueYield[ireg][Coll][isMC][ParticleType]/MinValueYield[ireg][Coll][isMC][ParticleType]  << " +- " <<  sqrt(pow(MaxValueError[ireg][Coll][isMC][ParticleType]/MaxValueYield[ireg][Coll][isMC][ParticleType] , 2) + pow(MinValueError[ireg][Coll][isMC][ParticleType]/ MinValueYield[ireg][Coll][isMC][ParticleType], 2) ) *  MaxValueYield[ireg][Coll][isMC][ParticleType]/MinValueYield[ireg][Coll][isMC][ParticleType]<< endl;
 	  }
+
 
 	  cout << "Region: " << Region[ireg]<< endl;
 	  if (Coll ==0 ) cout << "Got histos for  13 TeV (MB + HM) " << endl;
@@ -707,6 +724,7 @@ void XiK0s_FigureForPaper(Int_t ParticleType =0, Int_t ChosenRegion = -1,  Float
 	    YieldsErrorsSist[ireg][Coll][isMC][ParticleType][m] = histoYieldSist[ireg][Coll][isMC][ParticleType]->GetBinError(histoYieldSist[ireg][Coll][isMC][ParticleType]->FindBin(dNdEta[isMC][Coll][m]));
 	    if (isMC==0) YieldsErrorsSistMultUnCorr[ireg][Coll][isMC][ParticleType][m] = histoYieldSistMultUnCorr[ireg][Coll][isMC][ParticleType]->GetBinError(histoYieldSistMultUnCorr[ireg][Coll][isMC][ParticleType]->FindBin(dNdEta[isMC][Coll][m]));
 	    if (ParticleType==1) {
+	      if (Coll==0) cout << "ratio K0s/ Xi, mult " << m << ": " << Yields[ireg][Coll][isMC][0][m]/Yields[ireg][Coll][isMC][1][m] << endl;
 	      Yields[ireg][Coll][isMC][ParticleType][m] *= ScalingXi;
 	      YieldsErrors[ireg][Coll][isMC][ParticleType][m] *= ScalingXi;
 	      YieldsErrorsStat[ireg][Coll][isMC][ParticleType][m] *= ScalingXi;
@@ -740,13 +758,17 @@ void XiK0s_FigureForPaper(Int_t ParticleType =0, Int_t ChosenRegion = -1,  Float
 	  fsplineY[ireg][Coll][isMC][ParticleType]->SetLineStyle(1);
 
 	  //Fit to yields
-	  if (ireg!=0){
-	    fitY[ireg][Coll][isMC][ParticleType]= new TF1(Form("fitY_ireg%i_Coll%i_isMC%i", ireg, Coll, isMC), "pol1", 0, 40);
-	    fitY[ireg][Coll][isMC][ParticleType]->SetLineColor(ColorDiff[ParticleType][Coll]);
-	    fitY[ireg][Coll][isMC][ParticleType]->SetLineStyle(7);
-	    histoYield[ireg][Coll][isMC][ParticleType]->Fit(fitY[ireg][Coll][isMC][ParticleType], "R0");
-	  }
+	  fitY[ireg][Coll][isMC][ParticleType]= new TF1(Form("fitY_ireg%i_Coll%i_isMC%i", ireg, Coll, isMC), "pol0", 0, 40);
+	  fitY[ireg][Coll][isMC][ParticleType]->SetLineColor(ColorDiff[ParticleType][Coll]);
+	  fitY[ireg][Coll][isMC][ParticleType]->SetLineStyle(7);
+	  cout << "Fitting the yields with statistical uncertainty" << endl;
+	  histoYield[ireg][Coll][isMC][ParticleType]->Fit(fitY[ireg][Coll][isMC][ParticleType], "R0");
 
+	  if (isMC==0){
+	    cout << "Fitting the yields with statistical + syst. uncorrelated uncertainty" << endl;
+	    histoYieldStatSistMultUnCorr[ireg][Coll][isMC][ParticleType]->Fit(fitY[ireg][Coll][isMC][ParticleType], "R0");
+	  }
+	
 	  //create histo in order to perform division of TF1s
 	  hMCDataRatio[ireg][Coll][isMC][ParticleType]= new TH1F (Form("hMCDataRatio_ireg%i_Coll%i_isMC%i", ireg, Coll, isMC), Form("fitY_ireg%i_Coll%i_isMC%i", ireg, Coll, isMC), 1000, 0, 40);
 	  //	if (ireg!=0)	hMCDataRatio[ireg][Coll][isMC][ParticleType]->Add(fitY[ireg][Coll][isMC][ParticleType]);
@@ -760,15 +782,18 @@ void XiK0s_FigureForPaper(Int_t ParticleType =0, Int_t ChosenRegion = -1,  Float
 	  pad1->Draw();
 	  pad1->cd();
 
+	  ghistoYieldLine[ireg][Coll][isMC][ParticleType]=(TGraphAsymmErrors*) 	  ghistoYield[ireg][Coll][isMC][ParticleType]->Clone(Form("ghistoYieldLine_%i_%i_%i_%i", ireg, Coll, isMC, ParticleType));
+	  ghistoYieldLine[ireg][Coll][isMC][ParticleType]->SetLineColor(ColorDiffLine[ParticleType][Coll]);
+	  ghistoYieldLine[ireg][Coll][isMC][ParticleType]->SetLineStyle(LineStyle[isMC]);
 	  if (isMC ==1 || isMC==2 || isMC==3){
 	    ghistoYield[ireg][Coll][isMC][ParticleType]->SetFillColor(ColorDiff[ParticleType][Coll]);
 	    if (isMC==1){
-	      //ghistoYield[ireg][Coll][isMC][ParticleType]->SetFillStyle(FillStyle[isMC]);
-	      //ghistoYield[ireg][Coll][isMC][ParticleType]->SetFillColorAlpha(ColorDiff[ParticleType][Coll],AlphaColor[isMC]);
+	      ghistoYield[ireg][Coll][isMC][ParticleType]->SetFillStyle(FillStyle[isMC]);
+	      ghistoYield[ireg][Coll][isMC][ParticleType]->SetFillColorAlpha(ColorDiff[ParticleType][Coll],AlphaColor[isMC]);
 	    }
 	    else if (isMC==2) {
-	      //ghistoYield[ireg][Coll][isMC][ParticleType]->SetFillStyle(FillStyle[isMC]);
-	      //ghistoYield[ireg][Coll][isMC][ParticleType]->SetFillColorAlpha(ColorDiff[ParticleType][Coll],AlphaColor[isMC]);
+	      ghistoYield[ireg][Coll][isMC][ParticleType]->SetFillStyle(FillStyle[isMC]);
+	      ghistoYield[ireg][Coll][isMC][ParticleType]->SetFillColorAlpha(ColorDiff[ParticleType][Coll],AlphaColor[isMC]);
 	    }
 	    else {
 	      ghistoYield[ireg][Coll][isMC][ParticleType]->SetFillStyle(FillStyle[isMC]);
@@ -788,11 +813,7 @@ void XiK0s_FigureForPaper(Int_t ParticleType =0, Int_t ChosenRegion = -1,  Float
 	  //legend
 	  if (NLoopRegion==0 && Coll==0 && isMC!=0){
 	    ghistoYieldGrey[ireg][Coll][isMC][ParticleType] = (TGraphAsymmErrors*)ghistoYield[ireg][Coll][isMC][ParticleType]->Clone(Form("ghistoYieldGrey_ireg%i_Coll%i_isMC%i", ireg, Coll, isMC));
-	    if (ChosenRegion==-1) 	  ghistoYieldGrey[ireg][Coll][isMC][ParticleType]->SetLineColor(kGray +3);
-	    else  {
-	      ghistoYieldGrey[ireg][Coll][isMC][ParticleType]->SetLineColor(ColorDiff[ParticleType][Coll]);
-	      ghistoYieldGrey[ireg][Coll][isMC][ParticleType]->SetFillColor(ColorDiff[ParticleType][Coll]);
-	    }
+	    ghistoYieldGrey[ireg][Coll][isMC][ParticleType]->SetLineColor(kGray +3);
 	    ghistoYieldRed[ireg][Coll][isMC][ParticleType] = (TGraphAsymmErrors*) ghistoYieldGrey[ireg][Coll][isMC][ParticleType]->Clone(Form("ghistoYieldRed_ireg%i_Coll%i_isMC%i", ireg, Coll, isMC));
 	    ghistoYieldRed[ireg][Coll][isMC][ParticleType]->SetLineColor(ColorDiff[ParticleType][Coll]);
 	    if (isMC==1) {
@@ -818,17 +839,17 @@ void XiK0s_FigureForPaper(Int_t ParticleType =0, Int_t ChosenRegion = -1,  Float
 	      if (isMC==1) {
 		//ghistoYieldGrey[ireg][Coll][isMC][ParticleType]->SetFillStyle(3001); //TEST
 		ghistoYieldGrey[ireg][Coll][isMC][ParticleType]->SetFillStyle(FillStyle[isMC]); 
-		ghistoYieldGrey[ireg][Coll][isMC][ParticleType]->SetFillColorAlpha(ColorDiff[ParticleType][Coll],AlphaColor[isMC]);
+		ghistoYieldGrey[ireg][Coll][isMC][ParticleType]->SetFillColorAlpha(kGray+3,AlphaColor[isMC]);
 	      }
 	      else if (isMC==2){
 		//ghistoYieldGrey[ireg][Coll][isMC][ParticleType]->SetFillStyle(3008); //TEST
 		ghistoYieldGrey[ireg][Coll][isMC][ParticleType]->SetFillStyle(FillStyle[isMC]); 
-		ghistoYieldGrey[ireg][Coll][isMC][ParticleType]->SetFillColorAlpha(ColorDiff[ParticleType][Coll],AlphaColor[isMC]);
+		ghistoYieldGrey[ireg][Coll][isMC][ParticleType]->SetFillColorAlpha(kGray+3,AlphaColor[isMC]);
 	      }
 	      else {
 		//ghistoYieldGrey[ireg][Coll][isMC][ParticleType]->SetFillStyle(3002); //TEST
 		ghistoYieldGrey[ireg][Coll][isMC][ParticleType]->SetFillStyle(FillStyle[isMC]); 
-		ghistoYieldGrey[ireg][Coll][isMC][ParticleType]->SetFillColorAlpha(ColorDiff[ParticleType][Coll],AlphaColor[isMC]);
+		ghistoYieldGrey[ireg][Coll][isMC][ParticleType]->SetFillColorAlpha(kGray+3,AlphaColor[isMC]);
 	      }
 	      ghistoYieldGrey[ireg][Coll][isMC][ParticleType]->SetLineWidth(0);
 	      if (ParticleType==0)  legendMCTypes->AddEntry(ghistoYieldGrey[ireg][Coll][isMC][ParticleType], MCType[isMC], "f");
@@ -893,13 +914,13 @@ void XiK0s_FigureForPaper(Int_t ParticleType =0, Int_t ChosenRegion = -1,  Float
 	    cout << "MC: " << isMC << endl;
 	    cout << "Region: " << ireg << endl;
 	    legendEnergyBoxHelloLower->AddEntry(histoYield[ireg][Coll][isMC][ParticleType], "", "p");
-	    if (ireg == 0){
+	    if (Coll==0){
+	      if (ParticleType==0) LegendParticle->AddEntry(histoYield[ireg][Coll][isMC][ParticleType], "h#minusK_{S}^{0} correlation,  |#it{#eta}^{K^{0}_{S}}| < 0.8", "p");
+	      else LegendParticle->AddEntry(histoYield[ireg][Coll][isMC][ParticleType], "h#minus#Xi correlation #times 29, |#it{#eta}^{#Xi}| < 0.8", "p");
+	    }
+	    if (ParticleType == 0){
 	      legendEnergyBoxColor1->AddEntry(histoYield[ireg][Coll][isMC][ParticleType], "", "p");
 	      legendEnergyBoxColorBis1->AddEntry(histoYield[ireg][Coll][isMC][ParticleType], "", "p");
-	    }
-	    else if (ireg == 1) {
-	      legendEnergyBoxColor2->AddEntry(histoYield[ireg][Coll][isMC][ParticleType], "", "p");
-	      legendEnergyBoxColorBis2->AddEntry(histoYield[ireg][Coll][isMC][ParticleType], "", "p");
 	    }
 	    else {
 	      if (Coll==0) {
@@ -984,35 +1005,33 @@ void XiK0s_FigureForPaper(Int_t ParticleType =0, Int_t ChosenRegion = -1,  Float
 
 	  if (isMC ==1 || isMC==2 || isMC==3){
 	    ghistoYield[ireg][Coll][isMC][ParticleType]->DrawClone("same e3");
+	    ghistoYieldLine[ireg][Coll][isMC][ParticleType]->DrawClone("same lX");
 	  }
 	  else {
 	    histoYieldDummy->DrawClone("same");
 	    ghistoYieldSist[ireg][Coll][isMC][ParticleType]->SetFillStyle(0);
 	    ghistoYieldSist[ireg][Coll][isMC][ParticleType]->SetFillColor(ColorDiff[ParticleType][Coll]);
-	    ghistoYieldSist[ireg][Coll][isMC][ParticleType]->DrawClone("same p2");
 	    ghistoYieldSistMultUnCorr[ireg][Coll][isMC][ParticleType]->SetFillStyle(3001);
 	    ghistoYieldSistMultUnCorr[ireg][Coll][isMC][ParticleType]->SetFillColor(ColorDiff[ParticleType][Coll]);
-	    ghistoYieldSistMultUnCorr[ireg][Coll][isMC][ParticleType]->DrawClone("same p2");
-	    ghistoYield[ireg][Coll][isMC][ParticleType]->DrawClone("same e");
+	    if (ParticleType==1){
+	      ghistoYieldSist[ireg][Coll][isMC][ParticleType]->DrawClone("same p2");
+	      ghistoYieldSistMultUnCorr[ireg][Coll][isMC][ParticleType]->DrawClone("same p2");
+	      ghistoYield[ireg][Coll][isMC][ParticleType]->DrawClone("same e");
+	      ghistoYieldSist[ireg][Coll][isMC][0]->DrawClone("same p2");
+	      ghistoYieldSistMultUnCorr[ireg][Coll][isMC][0]->DrawClone("same p2");
+	      ghistoYield[ireg][Coll][isMC][0]->DrawClone("same e");
+	    }
 	  }
 
 	  if (isMC == MCindexForPlotting){
-	    if (ChosenRegion == -1){
-	      LegendYields->Draw("");
-	      //legendEnergyBox2->Draw("");
-	      legendEnergyBoxColorBis1->Draw("");
-	      legendEnergyBoxColorBis2->Draw("");
-	      legendEnergyBoxColorBis3->Draw("");
-	      legendStatBox->Draw("");
-	      legendRegionAll->Draw("");
-	    }
-	    else {
-	      LegendYields->Draw("");
-	      //LegendColor->Draw("");
-	      legendStatBoxColor->Draw("");
-	      legendOneRegion->Draw("");
-	      legendEnergyBoxColor->Draw("");
-	    }
+	    LegendYields->Draw("");
+	    LegendParticle->Draw("");
+	    //LegendColor->Draw("");
+	    //legendStatBoxColor->Draw("");
+	    legendStatBox->Draw("");
+	    legendOneRegion->Draw("");
+	    legendEnergyBoxColor1->Draw("");
+	    legendEnergyBoxColor3->Draw("");
 	    legendMCTypes->Draw("");
 	  }
 
@@ -1121,38 +1140,30 @@ void XiK0s_FigureForPaper(Int_t ParticleType =0, Int_t ChosenRegion = -1,  Float
 	    //ghistoYieldRatioDATA[ireg][Coll][isMC][ParticleType]->SetFillColorAlpha(ColorDiff[ParticleType][Coll],0.3);
 	    ghistoYieldRatioDATA[ireg][Coll][isMC][ParticleType]->SetFillStyle(1001);
 	    ghistoYieldRatioDATA[ireg][Coll][isMC][ParticleType]->SetFillColor(ColorDiffPale[ParticleType][Coll]);
-	    ghistoYieldRatioDATA[ireg][Coll][isMC][ParticleType]->DrawClone("same 3");
+	    if (ParticleType==1) {
+	      ghistoYieldRatioDATA[ireg][Coll][isMC][1]->DrawClone("same 3");
+	      ghistoYieldRatioDATA[ireg][Coll][isMC][0]->DrawClone("same 3"); //drawn afterwards since it is smaller
+	    }
 	  }
 	  lineAt1->Draw("same");
-	  if (NLoopRegion==0 && Coll==0 && isMC!=0){
-	    if (ChosenRegion==-1) {
-	      ghistoYieldGrey[ireg][Coll][isMC][ParticleType]->SetLineWidth(2);
-	      ghistoYieldGrey[ireg][Coll][isMC][ParticleType]->SetLineColor(kGray + 3);
-	      ghistoYield[ireg][Coll][isMC][ParticleType]->SetLineStyle(1);
-	      ghistoYield[ireg][Coll][isMC][ParticleType]->SetLineWidth(0);
-	      smalllegendMCTypes->AddEntry(ghistoYieldGrey[ireg][Coll][isMC][ParticleType], MCType[isMC], "l");
-	      smalllegendMCTypesBis->AddEntry(ghistoYield[ireg][Coll][isMC][ParticleType], MCType[isMC], "f");
-	    }
-	    else {
-	      smalllegendMCTypes->AddEntry(ghistoYieldRatio[ireg][Coll][isMC][ParticleType], MCType[isMC], "l");
-	    }
+
+	  if (Coll==0 && isMC!=0 && ParticleType==0){
+	      ghistoYieldGreyBis[ireg][Coll][isMC][ParticleType] = (TGraphAsymmErrors*)ghistoYieldGrey[ireg][Coll][isMC][ParticleType]->Clone(Form("ghistoYieldGreyBis_ireg%i_Coll%i_isMC%i", ireg, Coll, isMC));
+	      ghistoYieldGreyBis[ireg][Coll][isMC][ParticleType]->SetLineStyle(LineStyle[isMC]);
+	      ghistoYieldGreyBis[ireg][Coll][isMC][ParticleType]->SetLineWidth(2);
+	      ghistoYieldGreyBis[ireg][Coll][isMC][ParticleType]->SetLineColor(kGray + 3);
+	      smalllegendMCTypes->AddEntry(ghistoYieldGreyBis[ireg][Coll][isMC][ParticleType], MCType[isMC], "l");
 	  }
+	  smalllegendMCTypes->Draw("");
 	}
       }
     }
   }
 
   TString OutputDir = "FiguresForPaper/";
-  if (ChosenRegion<0){
-    canvas->SaveAs(OutputDir +"CompareDatavsMC_K0sXiJet" + MCTypeBis[MonashTune-1]+".pdf");
-    canvas->SaveAs(OutputDir +"CompareDatavsMC_K0sXiJet"+SPlotTypeFinal[ParticleType] + MCTypeBis[MonashTune-1]+".eps");
-    canvas->SaveAs(OutputDir +"CompareDatavsMC_K0sXiJet"+SPlotTypeFinal[ParticleType] + MCTypeBis[MonashTune-1]+".png");
-  }
-  else {
-    canvas->SaveAs(OutputDir+"CompareDatavsMC_K0sXiJet"+SPlotTypeFinal[ParticleType]+"_" + RegionType[ChosenRegion]+ MCTypeBis[MonashTune-1]+".pdf");
-    canvas->SaveAs(OutputDir+"CompareDatavsMC_K0sXiJet"+SPlotTypeFinal[ParticleType]+"_" + RegionType[ChosenRegion]+ MCTypeBis[MonashTune-1]+".eps");
-    canvas->SaveAs(OutputDir+"CompareDatavsMC_K0sXiJet"+SPlotTypeFinal[ParticleType]+"_" + RegionType[ChosenRegion]+ MCTypeBis[MonashTune-1]+".png");
-  }
+  canvas->SaveAs(OutputDir+"CompareDatavsMC_K0sXiJet"+"_" + RegionType[ChosenRegion]+ MCTypeBis[MonashTune-1]+".pdf");
+  canvas->SaveAs(OutputDir+"CompareDatavsMC_K0sXiJet"+"_" + RegionType[ChosenRegion]+ MCTypeBis[MonashTune-1]+".eps");
+  canvas->SaveAs(OutputDir+"CompareDatavsMC_K0sXiJet"+"_" + RegionType[ChosenRegion]+ MCTypeBis[MonashTune-1]+".png");
   
   TFile *fileout = new TFile("CompareDatavsMC.root", "RECREATE");
   fileout->WriteTObject(canvas);
