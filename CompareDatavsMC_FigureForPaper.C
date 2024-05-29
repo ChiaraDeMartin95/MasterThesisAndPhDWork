@@ -298,10 +298,12 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
   TGraphAsymmErrors*	ghistoYieldStatSistMultUnCorr[numRegions][numColls][numDataorMC];
   TGraphAsymmErrors*	ghistoYieldSistMultUnCorr[numRegions][numColls][numDataorMC];
   TGraphAsymmErrors*	ghistoRatioToOOJ[numColls][numDataorMC];
+  TGraphAsymmErrors*	ghistoRatioToOOJLine[numColls][numDataorMC];
   TGraphAsymmErrors*	ghistoSistRatioToOOJ[numColls][numDataorMC];
   TGraphAsymmErrors*	ghistoSistMultUnCorrRatioToOOJ[numColls][numDataorMC];
   TGraphAsymmErrors*	ghistoYieldGrey[numRegions][numColls][numDataorMC];
   TGraphAsymmErrors*	ghistoYieldRed[numRegions][numColls][numDataorMC];
+  TGraphAsymmErrors*	ghistoYieldRedLine[numRegions][numColls][numDataorMC];
   TGraphAsymmErrors*	ghistoYieldRatio[numRegions][numColls][numDataorMC];
   TGraphAsymmErrors*	ghistoYieldRatioDATA[numRegions][numColls][numDataorMC];
 
@@ -969,6 +971,9 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
 	    ghistoYieldRed[ireg][Coll][isMC]->SetFillStyle(FillStyle[isMC]); 
 	    ghistoYieldRed[ireg][Coll][isMC]->SetFillColorAlpha(ColorDiff[ireg][Coll],AlphaColor[isMC]);
 	  }
+	  ghistoYieldRedLine[ireg][Coll][isMC] = (TGraphAsymmErrors*) ghistoYieldRed[ireg][Coll][isMC]->Clone(Form("ghistoYieldRedLine_%i_%i_%i", ireg, Coll, isMC));
+	  ghistoYieldRedLine[ireg][Coll][isMC]->SetLineColor(ColorDiff[ireg][Coll]);
+	  ghistoYieldRedLine[ireg][Coll][isMC]->SetLineStyle(LineStyle[isMC]);
 	  ghistoYieldRed[ireg][Coll][isMC]->SetLineStyle(1);
 	  ghistoYieldRed[ireg][Coll][isMC]->SetLineWidth(0);
 
@@ -1234,10 +1239,11 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
   pad2->Draw();
   pad2->cd();
 
+  Float_t xOffsetpad2 = 4;
   TH1F* hdummy = new TH1F ("hdummy", "hdummy",  1000, 0, UpperValueX); 
-  StyleHisto(hdummy, LowRatio, UpRatio, 1, 1, titleX, titleYMCToData, "" , 1, 0, UpperValueX, xOffset, yOffset, 1);
+  StyleHisto(hdummy, LowRatio, UpRatio, 1, 1, titleX, titleYMCToData, "" , 1, 0, UpperValueX, xOffsetpad2, yOffset, 1);
   SetFont(hdummy);
-  SetHistoTextSize(hdummy, xTitle, xLabel, xOffset, xLabelOffset, yTitle, yLabel, yOffset, yLabelOffset);
+  SetHistoTextSize(hdummy, xTitle, xLabel, xOffsetpad2, xLabelOffset, yTitle, yLabel, yOffset, yLabelOffset);
   SetTickLength(hdummy, tickXL, tickYL);
   hdummy->GetYaxis()->SetDecimals(kTRUE);
   if (PlotType==0)   hdummy->GetYaxis()->SetNdivisions(405, "false");
@@ -1334,7 +1340,8 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
 	    ghistoYield[ireg][Coll][isMC]->SetLineStyle(1);
 	    ghistoYield[ireg][Coll][isMC]->SetLineWidth(0);
 	    smalllegendMCTypes->AddEntry(ghistoYieldGrey[ireg][Coll][isMC], MCType[isMC], "l");
-	    smalllegendMCTypesBis->AddEntry(ghistoYield[ireg][Coll][isMC], MCType[isMC], "f");
+	    //smalllegendMCTypesBis->AddEntry(ghistoYield[ireg][Coll][isMC], MCType[isMC], "f");
+	    smalllegendMCTypesBis->AddEntry(ghistoYieldRedLine[ireg][Coll][isMC], MCType[isMC], "fl");
 	  }
 	  else {
 	    smalllegendMCTypes->AddEntry(ghistoYieldRatio[ireg][Coll][isMC], MCType[isMC], "l");
@@ -1492,11 +1499,12 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
     canvasThreePads->cd();
     Threepad3->Draw();
     Threepad3->cd();
+    Float_t xOffsetpad3 = 5;
     //draw double ratio JET/OOJ
     TH1F* hdummyRatioToOOJ = new TH1F ("hdummyRatioToOOJ", "hdummyRatioToOOJ",  1000, 0, UpperValueX); 
-    StyleHisto(hdummyRatioToOOJ, LowRatioToOOJ, UpRatioToOOJ, 1, 1, titleX, titleYToOOJ, "" , 1, 0, UpperValueX, xOffset, yOffset, 1);
+    StyleHisto(hdummyRatioToOOJ, LowRatioToOOJ, UpRatioToOOJ, 1, 1, titleX, titleYToOOJ, "" , 1, 0, UpperValueX, xOffsetpad3, yOffset, 1);
     SetFont(hdummyRatioToOOJ);
-    SetHistoTextSize(hdummyRatioToOOJ, xTitle, xLabel, xOffset, xLabelOffset, yTitle, yLabel, yOffset, yLabelOffset);
+    SetHistoTextSize(hdummyRatioToOOJ, xTitle, xLabel, xOffsetpad3, xLabelOffset, yTitle, yLabel, yOffset, yLabelOffset);
     hdummyRatioToOOJ->GetYaxis()->SetDecimals(kTRUE);
     Float_t tickXLL = 0.06;
     Float_t tickYLL = 0.045;
@@ -1522,6 +1530,11 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
 
 	  if (isMC ==1 || isMC==2 || isMC==3){
 	    ghistoRatioToOOJ[Coll][isMC]->SetFillColor(ColorDiff[0][Coll]);
+	    ghistoRatioToOOJLine[Coll][isMC]=(TGraphAsymmErrors*)    ghistoRatioToOOJ[Coll][isMC]->Clone(Form("ghistoRatioToOOJLine_%i_%i", Coll, isMC));
+
+	    ghistoRatioToOOJLine[Coll][isMC]->SetLineColor(ColorDiff[0][Coll]);
+	    ghistoRatioToOOJLine[Coll][isMC]->SetLineStyle(LineStyle[isMC]);
+
 	    if (isMC==1)  {
 	      //ghistoRatioToOOJ[Coll][isMC]->SetFillStyle(3001); //TEST
 	      ghistoRatioToOOJ[Coll][isMC]->SetFillStyle(FillStyle[isMC]); 
@@ -1538,6 +1551,7 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
 	      ghistoRatioToOOJ[Coll][isMC]->SetFillColorAlpha(ColorDiff[0][Coll],AlphaColor[isMC]);
 	    }
 	    ghistoRatioToOOJ[Coll][isMC]->Draw("same 3");
+	    ghistoRatioToOOJLine[Coll][isMC]->Draw("same lX");
 	    //ghistoRatioToOOJ[Coll][isMC]->Draw("same");
 	  }
 	  else {
@@ -1580,7 +1594,7 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
     canvasThreePads->SaveAs(OutputDir +"CompareDatavsMC_"+SPlotType[PlotType] + MCTypeBis[MonashTune-1]+"_JetOOJRatio.png");
   }
 
-  TFile *fileout = new TFile("CompareDatavsMC.root", "RECREATE");
+  TFile *fileout = new TFile("CompareDatavsMC_"+SPlotType[PlotType]+".root", "RECREATE");
   fileout->WriteTObject(canvas);
   fileout->WriteTObject(canvasThreePads);
   for (Int_t ireg=0; ireg<numRegions; ireg++){
@@ -1610,5 +1624,36 @@ void CompareDatavsMC_FigureForPaper(Int_t PlotType =0, Int_t ChosenRegion = -1, 
       cout << "\npol0: " << fitPol0[isMC]->GetParameter(0) <<" +- " << fitPol0[isMC]->GetParError(0) << " Chi2/NDF " <<  fitPol0[isMC]->GetChisquare()<< "/" << fitPol0[isMC]->GetNDF()<< " = " << fitPol0[isMC]->GetChisquare()/fitPol0[isMC]->GetNDF() << endl;
     }
   }
-  cout <<"\nI created the file: CompareDatavsMC.root" << endl;
+
+  //for HEP data
+  cout <<"\n\nFor HEP data " << endl;
+  cout <<"Type of plot: "<< SPlotType[PlotType] << endl;
+  for (Int_t ireg=0; ireg<3; ireg++){
+    //    if (ireg!=0) continue;
+    cout <<"\n\nRegion: " << SRegionType[ireg] << endl;
+    for (Int_t Coll=0; Coll<2; Coll++){ //loop on: ppMB + ppHM, pp5TeV
+      cout << "\nCollisions: ";
+      if (Coll!=1) continue;
+      if (Coll==0) cout << " 13 TeV " << endl;
+      else cout << " 5 TeV " << endl;
+      for (Int_t m=0; m<nummoltMax; m++){ 
+	cout <<"- errors: " << endl;
+	cout << "  - {label: stat, symerror: " << YieldsErrorsStat[ireg][Coll][0][m] << "}" << endl;
+	cout << "  - {label: 'sys,total', symerror: " << YieldsErrorsSist[ireg][Coll][0][m] << "}" << endl;
+	cout << "  - {label: 'sys,uncorr', symerror: " << YieldsErrorsSistMultUnCorr[ireg][Coll][0][m] << "}" << endl;
+	cout << "  value: " << Yields[ireg][Coll][0][m]<< endl;
+      }
+    }
+  }
+  cout <<"\ndNdeta values" << endl;
+  for (Int_t Coll=0; Coll<2; Coll++){ //loop on: ppMB + ppHM, pp5TeV
+    cout << "\nCollisions: ";
+    if (Coll==0) cout << " 13 TeV " << endl;
+    else cout << " 5 TeV " << endl;
+    for (Int_t m=0; m<nummoltMax; m++){ 
+      cout << "- {high: "<< dNdEta[0][Coll][m] + dNdEtaErrorR[0][Coll][m]<< ", low: " << dNdEta[0][Coll][m] - dNdEtaErrorL[0][Coll][m]<<", value: " << dNdEta[0][Coll][m]<< "}" <<endl;
+    }
+  }
+
+  cout <<"\nI created the file: CompareDatavsMC_" << SPlotType[PlotType] << ".root" << endl;
 }
