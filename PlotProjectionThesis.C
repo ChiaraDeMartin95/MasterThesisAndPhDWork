@@ -184,7 +184,7 @@ void PlotProjectionThesis(Int_t TypeAnalysisFit = 0, Int_t type=1, Int_t multCho
 
   //  StyleHisto(hSE, Low,  Up,  color, style,  titleX,  titleY,  title, 0,  XLow,  XUp,  xOffset,  yOffset,  mSize);
 
-  TString  SLegendMolt[6] = {"0-5 %", "5-10 %", "10-30 %", "30-50 %", "50-100 %", "0-100 %"};
+  TString  SLegendMolt[6] = {"0#minus5 %", "5#minus10 %", "10#minus30 %", "30#minus50 %", "50#minus100 %", "0#minus100 %"};
   if (DataSample==1) SLegendMolt[multChosen] = "0-0.1%";
   TCanvas* canvasPairAcceptance = new TCanvas("canvasPairAcceptance", "canvasPairAcceptance", 1000, 700);
 
@@ -199,10 +199,10 @@ void PlotProjectionThesis(Int_t TypeAnalysisFit = 0, Int_t type=1, Int_t multCho
   LegendALICE->SetTextAlign(12);
   LegendALICE->SetTextSize(0.06);
   LegendALICE->SetBorderSize(0);
-  LegendALICE->AddEntry("", "#bf{This work}", "");
+  //LegendALICE->AddEntry("", "#bf{This work}", "");
   //  if (ispp5TeV)   LegendALICE->AddEntry("", "pp, #sqrt{#it{s}} = 5.02 TeV", "");
   //  else LegendALICE->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
-  LegendALICE->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
+  LegendALICE->AddEntry("", "ALICE pp, #sqrt{#it{s}} = 13 TeV", "");
   LegendALICE->AddEntry("", "V0M Multiplicity Percentile "+SLegendMolt[multChosen], "");
   if (type==0)  LegendALICE->AddEntry("", "h-K_{S}^{0} correlations", "");
   else  if (type==1)  LegendALICE->AddEntry("", "h-#Xi^{#pm} correlations", "");
@@ -361,7 +361,8 @@ void PlotProjectionThesis(Int_t TypeAnalysisFit = 0, Int_t type=1, Int_t multCho
   gPad->SetRightMargin(0.04);
   hSE->Scale(1./hSE->GetXaxis()->GetBinWidth(1)/hSE->GetYaxis()->GetBinWidth(1)/1000);
   hSE->SetTitle("");
-  hSE->GetZaxis()->SetTitle("#frac{d^{2}#it{N}_{assoc}^{SE}}{d#Delta#eta d#Delta#varphi} #frac{1}{1000}");
+  //  hSE->GetZaxis()->SetTitle("#frac{d^{2}#it{N}_{assoc}^{SE}}{d#Delta#eta d#Delta#varphi} #frac{1}{1000}");
+  hSE->GetZaxis()->SetTitle("#frac{d^{2}#it{N}_{assoc}}{d#Delta#eta d#Delta#varphi}");
   hSE->GetZaxis()->SetTitleSize(0.041);  
   hSE->GetZaxis()->SetTitleOffset(2.2); 
   hSE->GetZaxis()->SetNdivisions(6);
@@ -369,7 +370,7 @@ void PlotProjectionThesis(Int_t TypeAnalysisFit = 0, Int_t type=1, Int_t multCho
   hSE->GetYaxis()->SetTitle("#Delta#varphi");
   //  hSE->GetXaxis()->SetRangeUser(-2, 2);
   if (type==1)  hSE->Rebin2D(2);
-  hSE->DrawClone("SURF2");
+  hSE->DrawClone("SURF2 FB");
   LegendALICE->Draw("");
 
   canvasThreePads->cd(2);
@@ -387,14 +388,19 @@ void PlotProjectionThesis(Int_t TypeAnalysisFit = 0, Int_t type=1, Int_t multCho
     hME->Rebin2D(2);
     hME->Scale(1./4);
   }
-  hME->DrawClone("SURF2");
+  hME->DrawClone("SURF2 FB");
 
   canvasThreePads->cd(3);
   gPad->SetTopMargin(0.22);
   gPad->SetLeftMargin(0.2);
   gPad->SetRightMargin(0.04);
   hAC->Scale(1./hAC->GetXaxis()->GetBinWidth(1)/hAC->GetYaxis()->GetBinWidth(1)/1000);
-  hAC->GetZaxis()->SetTitle("#frac{d^{2}#it{N}_{assoc}^{SE}}{d#Delta#eta d#Delta#varphi} #frac{1}{#varepsilon_{pair}} #frac{1}{1000}");
+  //  hAC->Scale(1./hAC->GetXaxis()->GetBinWidth(1)/hAC->GetYaxis()->GetBinWidth(1)/1);
+  //  hSE->GetZaxis()->SetTitle("#frac{d^{2}#it{N}_{assoc}^{SE}}{d#Delta#eta d#Delta#varphi} #frac{1}{1000}");
+  //  hAC->GetZaxis()->SetTitle("#frac{d^{2}#it{N}_{assoc}}{d#Delta#eta d#Delta#varphi} #frac{1}{#varepsilon_{pair}} #frac{1}{1000}");
+  //  hAC->GetZaxis()->SetTitle("#frac{d^{2}#it{N}_{assoc}}{d#Delta#eta d#Delta#varphi} #frac{1}{#varepsilon_{pair}}");
+  hAC->GetZaxis()->SetTitle("#frac{d^{2}#it{N}_{assoc}^{corrected}}{d#Delta#eta d#Delta#varphi}");
+  //hAC->GetZaxis()->SetTitle("#frac{d^{2}#it{N}_{assoc}}{d#Delta#eta d#Delta#varphi} #frac{1}{#varepsilon_{pair}}");
   hAC->GetZaxis()->SetTitleOffset(2.3);
   hAC->GetZaxis()->SetTitleSize(0.041);  
   hAC->GetZaxis()->SetNdivisions(6);
@@ -403,7 +409,7 @@ void PlotProjectionThesis(Int_t TypeAnalysisFit = 0, Int_t type=1, Int_t multCho
   //  hAC->GetXaxis()->SetRangeUser(-2, 2);
   hAC->SetTitle("");
   if (type==1)  hAC->Rebin2D(2);
-  hAC->DrawClone("SURF2");
+  hAC->DrawClone("SURF2 FB");
   LegendCorr->Draw("");
   cout <<"\n\e[35m 2D angular correlation distributions\e[39m" << endl;
   canvasThreePads->SaveAs(Directory+"_AC.pdf");
@@ -1305,6 +1311,176 @@ void PlotProjectionThesis(Int_t TypeAnalysisFit = 0, Int_t type=1, Int_t multCho
   cout <<"\n\e[35mJet dPhi projections (before and after ooj subtraction) \e[39m" << endl;
   canvasDatavsMCProjections->SaveAs(ScanvasDatavsMCProjections);
 
+  //Example plot of wings correction
+  TLegend *LegendALICEWingsCorr=new TLegend(0.18,0.23,0.38,0.47);
+  LegendALICEWingsCorr->SetFillStyle(0);
+  LegendALICEWingsCorr->SetTextAlign(12); //left align
+  LegendALICEWingsCorr->SetTextSize(0.045);
+  LegendALICEWingsCorr->SetBorderSize(0);
+  LegendALICEWingsCorr->AddEntry("", "#bf{This work}", "");
+  LegendALICEWingsCorr->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
+  LegendALICEWingsCorr->AddEntry("", Form("h-K_{S}^{0} correlations, %.1f < #it{p}_{T}^{assoc} < %.1f GeV/#it{c}", 1.2, 1.6), "");
+  // LegendALICEWingsCorr->AddEntry("", Form("%.1f < #it{p}_{T}^{assoc} < %.1f GeV/#it{c}", 1.2, 1.6), "");
+  LegendALICEWingsCorr->AddEntry("", "#pi/2 < #Delta#varphi < 3/2#pi", "");
+
+  TLegend *LegendPt = new TLegend(0.1, 0.75, 0.3, 0.87);
+  LegendPt->AddEntry("", Form("%.1f < #it{p}_{T}^{assoc} < %.1f GeV/#it{c}", 1.2, 1.6), "");
+  LegendPt->SetTextSize(0.045);
+
+  TLegend * legendWings = new TLegend(0.2, 0.8, 0.92, 0.9);
+  legendWings->SetNColumns(2);
+  legendWings->SetFillStyle(0);
+  legendWings->SetBorderSize(0);
+  legendWings->SetTextSize(0.045);
+
+  TCanvas* canvasWingsCorrProjections = new TCanvas("canvasWingsCorrProjections", "canvasWingsCorrProjections", 1000, 800);
+  canvasWingsCorrProjections->SetFillColor(0);
+  canvasWingsCorrProjections->SetTickx(1);
+  canvasWingsCorrProjections->SetTicky(1);
+  gStyle->SetOptStat(0);
+  gStyle->SetLegendBorderSize(0);
+  gStyle->SetLegendFillColor(0);
+  gStyle->SetLegendFont(42);
+  gStyle->SetPalette(55, 0); //55
+
+  TString SfileinWingsUnCorr = "AngularCorrelationPlot1617_AOD234_hK0s_PtBinning1_K0s_Eta0.8_AllAssoc_Data_PtTrigMin3.0_Output_IsEtaEff_SB_NewdEtaChoice_EffCorr";
+  TString SfileinWingsCorr = SfileinWingsUnCorr + "_isWingsCorrectionAppliedNewPForThesis.root";
+  SfileinWingsUnCorr += "PForThesis.root";
+
+  TFile * fileinWingsUnCorr = new TFile(SfileinWingsUnCorr, "");
+  TFile * fileinWingsCorr = new TFile(SfileinWingsCorr, "");
+  TString  histoName = "ME_m_all_v1.2-1.6_AC_EtaProj_PtTrig0PHalf";
+
+  TH1F *hACNoWingsCorr = (TH1F*)  fileinWingsCorr->Get(histoName);
+  if (!hACNoWingsCorr) {cout << " no hACNoWingsCorr " << endl; return;}
+  hACNoWingsCorr->SetName("hACNoWingsCorr");
+  TH1F *hACNoWingsUnCorr = (TH1F*)  fileinWingsUnCorr->Get(histoName);
+  if (!hACNoWingsUnCorr) {cout << " no hACNoWingsUnCorr " << endl; return;}
+  hACNoWingsUnCorr->SetName("hACNoWingsUnCorr");
+
+  TString titleWings = "#it{A} x #frac{d^{2}#it{N}_{assoc}^{SE}}{d#Delta#eta d#Delta#varphi} #frac{1}{#varepsilon_{pair}}";
+  StyleHisto(hACNoWingsUnCorr, 10e-5, 1.15*hACNoWingsUnCorr->GetMaximum(hACNoWingsUnCorr->GetMaximumBin()), kViolet, 33, "#Delta#eta", titleWings, "", 0,  0,  0, 1,  1.5, 1.5);
+  StyleHisto(hACNoWingsCorr, 10e-5, 1.15*hACNoWingsUnCorr->GetMaximum(hACNoWingsUnCorr->GetMaximumBin()), 1, 33, "#Delta#eta", titleWings, "", 0,  0,  0, 1,  1.5, 1.5);
+  legendWings->AddEntry(hACNoWingsUnCorr, "Before correction");
+  legendWings->AddEntry(hACNoWingsCorr, "After correction");
+  hACNoWingsUnCorr->Draw("same e");
+  hACNoWingsCorr->Draw("same e");
+  LegendALICEWingsCorr->Draw("same");
+  legendWings->Draw("");
+  //  LegendPt->Draw("same");
+
+  TString ScanvasWingsCorrProjections = "";
+  ScanvasWingsCorrProjections = "Canvas"+year+"_dEta_WingsCorr.pdf";
+  cout <<"\n\e[35mAC projections for dPhi > pi/2 before and after wings correction (K0s) \e[39m" << endl;
+  canvasWingsCorrProjections->SaveAs(ScanvasWingsCorrProjections);
+
+  //end of example plot for wings correction
+
+  //Example plot of Xi sub new method
+  TLegend *LegendALICEOOJSub=new TLegend(0.18,0.17,0.38,0.41);
+  LegendALICEOOJSub->SetFillStyle(0);
+  LegendALICEOOJSub->SetTextAlign(12); //left align
+  LegendALICEOOJSub->SetTextSize(0.04);
+  LegendALICEOOJSub->SetBorderSize(0);
+  LegendALICEOOJSub->AddEntry("", "#bf{This work}", "");
+  LegendALICEOOJSub->AddEntry("", "pp, #sqrt{#it{s}} = 13 TeV", "");
+  LegendALICEOOJSub->AddEntry("", Form("h-#Xi^{#pm} correlations, %.1f < #it{p}_{T}^{assoc} < %.1f GeV/#it{c}", 1.5, 2.0), "");
+  // LegendALICEOOJSub->AddEntry("", Form("%.1f < #it{p}_{T}^{assoc} < %.1f GeV/#it{c}", 1.2, 1.6), "");
+  LegendALICEOOJSub->AddEntry("", "0.86 < #Delta#eta < 1.2", "");
+  LegendALICEOOJSub->AddEntry("", "V0M Multiplicity Percentile 0-100%", "");
+
+  TLegend *LegendPtOOJSub = new TLegend(0.25, 0.2, 0.5, 0.25);
+  LegendPtOOJSub->AddEntry("", "0.15 < #it{p}_{T}^{trigg} < 2.5 GeV/#it{c}", "");
+  LegendPtOOJSub->SetTextSize(0.04);
+
+  TLegend * legendOOJSubMult = new TLegend(0.25, 0.75, 0.92, 0.95);
+  legendOOJSubMult->SetHeader("V0M Multiplicity Percentile");
+  legendOOJSubMult->SetNColumns(3);
+  legendOOJSubMult->SetFillStyle(0);
+  legendOOJSubMult->SetBorderSize(0);
+  legendOOJSubMult->SetTextSize(0.045);
+
+  TCanvas* canvasOOJSubProjections = new TCanvas("canvasOOJSubProjections", "canvasOOJSubProjections", 1400, 800);
+  canvasOOJSubProjections->Divide(2,1);
+  canvasOOJSubProjections->SetFillColor(0);
+  canvasOOJSubProjections->SetTickx(1);
+  canvasOOJSubProjections->SetTicky(1);
+  canvasOOJSubProjections->SetLeftMargin(0.25);
+  canvasOOJSubProjections->SetBottomMargin(0.15);
+  canvasOOJSubProjections->SetRightMargin(0.03);
+  canvasOOJSubProjections->SetTopMargin(0.02);
+  gStyle->SetOptStat(0);
+  gStyle->SetLegendBorderSize(0);
+  gStyle->SetLegendFillColor(0);
+  gStyle->SetLegendFont(42);
+  gStyle->SetPalette(55, 0); //55
+
+  TString SfileinOOJSub = "OOJComparison161718Full_AOD234_hXi_161718Full_AOD234_hXi_Xi_Eta0.8_AllAssoc_sys0_PtTrigMin3.0_PtTrigMin0.2_Output_IsEtaEff_NewDEtaChoice_PlotForThesis.root";
+
+  TFile * fileinOOJSub = new TFile(SfileinOOJSub, "");
+  TString  histoNameOOJSub = "PhiProjBulkRatioOOJ_m5_v3";
+  TString  histoNameOOJSub_MultComp = "";
+
+  TH1F *hACOOJSub = (TH1F*)  fileinOOJSub->Get(histoNameOOJSub);
+  if (!hACOOJSub) {cout << " no hACOOJSub " << endl; return;}
+  hACOOJSub->SetName("hACOOJSub");
+  TH1F*  hACOOJSub_MultComp[5];
+
+  Int_t OOJColor[5] = {401,801,628, 867,601};
+  Int_t OOJMarker[6] ={24, 21, 33, 34, 29, 20};
+  TString multOOJ[5] = {"0-5", "5-10", "10-30", "30-50", "50-100"}; 
+
+  //  TString titleOOJSub = "Ratio to default";
+  TString titleOOJSub = "#it{no-trigger} events / default";
+  hACOOJSub->Rebin(2);
+  hACOOJSub->Scale(1./2);
+  StyleHisto(hACOOJSub, 0.5+10e-5, 1.5+10e-5, color[1], 33, "#Delta#varphi", titleOOJSub, "", 0,  0,  0, 1,  1.5, 1.5);
+
+  TF1* fit0 = new TF1("pol0", "pol0", -TMath::Pi()/2, 3./2*TMath::Pi());
+  fit0->FixParameter(0, 1);
+  fit0->SetLineStyle(7);
+  fit0->SetLineColor(kGray+3);
+  fit0->SetLineWidth(1.2);
+
+  canvasOOJSubProjections->cd(1);
+  gPad->SetLeftMargin(0.18);
+  gPad->SetBottomMargin(0.12);
+  gPad->SetRightMargin(0.03);
+  gPad->SetTopMargin(0.02);
+  hACOOJSub->Draw("same e");
+  fit0->Draw("same");
+  LegendALICEOOJSub->Draw("same");
+  //  legendOOJSub->Draw("");
+
+  TString titleOOJSubMult = "Ratio to 0-100%";
+  canvasOOJSubProjections->cd(2);
+  gPad->SetLeftMargin(0.18);
+  gPad->SetBottomMargin(0.12);
+  gPad->SetRightMargin(0.03);
+  gPad->SetTopMargin(0.02);
+  for (Int_t m=0; m<=4 ; m++){
+    histoNameOOJSub_MultComp = "ME_m" + multOOJ[m] + "_v1.5-2_AC_phi_V0Sub_Bulk_EffCorr_IntegralScaledRatio";
+    cout << histoNameOOJSub_MultComp << endl;
+    hACOOJSub_MultComp[m] = (TH1F*)  fileinOOJSub->Get(histoNameOOJSub_MultComp);
+    if (!hACOOJSub_MultComp[m]) {cout << " no hACOOJSub_MultComp for m = " << m << endl; return;}
+    hACOOJSub_MultComp[m]->Rebin(2);
+    hACOOJSub_MultComp[m]->Scale(1./2);
+    StyleHisto(hACOOJSub_MultComp[m], 0.5+10e-5, 1.5+10e-5, OOJColor[m],  OOJMarker[m], "#Delta#varphi", titleOOJSubMult, "", 0,  0,  0, 1,  1.5, 1.5);
+    legendOOJSubMult->AddEntry( hACOOJSub_MultComp[m],  multOOJ[m]+"%", "pl");
+    hACOOJSub_MultComp[m]->Draw("same");
+    LegendPtOOJSub->Draw("");
+  }
+  fit0->Draw("same");
+  legendOOJSubMult->Draw("");
+
+  TString ScanvasOOJSubProjections = "";
+  ScanvasOOJSubProjections = "Canvas"+year+"_dEta_OOJSub.pdf";
+  cout <<"\n\e[35mOOJ projections default method vs new method used for Xi at low pt + multiplciity dependence \e[39m" << endl;
+  canvasOOJSubProjections->SaveAs(ScanvasOOJSubProjections);
+
+  //end of example plot for wings correction
+
+
   TFile * outputf = new TFile("outputf.root", "RECREATE");
   canvasThreePads->Write();
   canvasProjections->Write();
@@ -1314,7 +1490,10 @@ void PlotProjectionThesis(Int_t TypeAnalysisFit = 0, Int_t type=1, Int_t multCho
   canvasProjectionsSyst->Write();
   canvasMERatios->Write();
   canvasFit->Write();
+  canvasWingsCorrProjections->Write();
+  canvasOOJSubProjections->Write();
   outputf->Close();
 
   cout << "\nPartendo dai file \n" << stringInput << endl;
 }
+
